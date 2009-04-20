@@ -99,7 +99,7 @@ public class MainView extends MainScreen {
     //create a menu item for users to click to add blog to the app
     private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 100, 10) {
         public void run() {
-        	FrontController.getIstance().showView("AddBlogsView");
+        	FrontController.getIstance().showAddBlogsView();
         }
     };
     
@@ -123,14 +123,14 @@ public class MainView extends MainScreen {
     //create a menu item for users to click to show setup
     private MenuItem _setupItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETUP, 1000, 10) {
         public void run() {
-        	FrontController.getIstance().showView("SetupView");
+        	FrontController.getIstance().showSetupView();
         }
     };
 
     //create a menu item for users to click to see more information about the app
     private MenuItem _aboutItem = new MenuItem( _resources, WordPressResource.MENUITEM_ABOUT, 1010, 10) {
         public void run() {
-        	FrontController.getIstance().showView("AboutView");
+        	FrontController.getIstance().showAboutView();
         }
     };
    

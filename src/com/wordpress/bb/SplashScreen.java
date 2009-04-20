@@ -34,7 +34,7 @@ public class SplashScreen extends MainScreen {
    public void dismiss() {
       timer.cancel();
       application.popScreen(this);
-      next.showMainView();
+      next.showView();
    }
    
    private class CountDown extends TimerTask {

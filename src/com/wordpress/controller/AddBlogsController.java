@@ -2,7 +2,6 @@ package com.wordpress.controller;
 
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
-import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
@@ -15,7 +14,6 @@ import com.wordpress.utils.Preferences;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.AddBlogsView;
-import com.wordpress.view.MainView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogAuthConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
@@ -27,13 +25,19 @@ public class AddBlogsController extends BaseController implements Observer{
 	private String url="http://localhost/wp_mopress/xmlrpc.php;deviceside=true";
 	private String pass="mopress"; // FIXME ricordati di togliere
 	private String user="mopress";
-	ConnectionInProgressView infoView=null;
+	ConnectionInProgressView connectionProgressView=null;
 	
 	public AddBlogsController() {
 		super();
 		this.view= new AddBlogsView(this);
+		
+	}
+	
+	public void showView(){
 		UiApplication.getUiApplication().pushScreen(view);
 	}
+	
+	
 	
 	private FieldChangeListener listener = new FieldChangeListener() {
         public void fieldChanged(Field field, int context) {
@@ -81,11 +85,11 @@ public class AddBlogsController extends BaseController implements Observer{
             Preferences prefs = Preferences.getIstance();
             BlogAuthConn connection = new BlogAuthConn (url,user,pass,prefs.getTimeZone());
             connection.addObserver(this); 
-             infoView= new ConnectionInProgressView(
+             connectionProgressView= new ConnectionInProgressView(
             		view.getAssociatedResourceBundle().getString(WordPressResource.CONNECTION_INPROGRESS));
            
-            connection.startConnWork(); //esegue il lavoro della connessione
-            int choice = infoView.doModal();
+            connection.startConnWork(); //starts connection
+            int choice = connectionProgressView.doModal();
     		if(choice==Dialog.CANCEL) {
     			System.out.println("Chiusura della conn dialog tramite cancel");
     			connection.stopConnWork(); //stop the connection if the user click on cancel button
@@ -99,7 +103,7 @@ public class AddBlogsController extends BaseController implements Observer{
 	public void update(Observable observable, Object object) {
 		try{
 			
-		dismissDialog(infoView);
+		dismissDialog(connectionProgressView);
 		BlogConnResponse resp=(BlogConnResponse)object;
 		
 		if(!resp.isError()) {
@@ -113,21 +117,14 @@ public class AddBlogsController extends BaseController implements Observer{
 		 	for (int i = 0; i < blogs.length; i++) {
 					blogController.addBlog(blogs[i], true);
 		        }
-		 	backCmd();		 			 	
+		 	FrontController.getIstance().backToMainView();	 			 	
 		} else {
 			final String respMessage=resp.getResponse();
-			
-		 	UiApplication.getUiApplication().invokeLater(
-		 			new Runnable(){
-		 		public void run(){
-		 			displayError(respMessage);	
-		 		}
-		 	});
+		 	displayError(respMessage);	
 		}		
 	
-		} catch (Exception e) {
-
-			e.printStackTrace();
+		} catch (final Exception e) {
+		 	displayError(e,"Error while adding blogs");	
 		} 
 	}	
 }

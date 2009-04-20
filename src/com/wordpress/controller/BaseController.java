@@ -12,24 +12,37 @@ import com.wordpress.view.dialog.InquiryView;
 public abstract class BaseController {
 	
 
-
+  abstract 	public void showView();
+	
 	// Utility routine to display errors
 	public synchronized void displayError(final Exception e, String message) {
 		displayError(message + "\n" + e.getMessage());
 	}
 
 	// Utility routine to display errors
-	public synchronized void displayError(String msg) {
-		System.out.println(msg);	
-		ErrorView errView= new ErrorView(msg);
-		errView.doModal();
+	public synchronized void displayError(final String msg) {
+		UiApplication.getUiApplication().invokeLater(new Runnable() {
+			public void run() {
+				
+				System.out.println(msg);
+				ErrorView errView = new ErrorView(msg);
+				errView.doModal();
+				
+			}
+		});
 	}
 	
 	// Utility routine to display msg
-	public synchronized void displayMessage(String msg) {
-		System.out.println(msg);
-		InfoView infoView= new InfoView(msg);
-		infoView.doModal();
+	public synchronized void displayMessage(final String msg) {
+		UiApplication.getUiApplication().invokeLater(new Runnable() {
+			public void run() {
+				
+				System.out.println(msg);
+				InfoView infoView= new InfoView(msg);
+				infoView.doModal();
+				
+			}
+		});
 	}
 	
 	// Utility routine to ask question to the user

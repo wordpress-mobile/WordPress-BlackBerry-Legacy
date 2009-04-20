@@ -26,8 +26,6 @@ public class AddBlogsView extends BaseView {
 	                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
 	        setTitle(title);
 	    	
-	        //add fields to display a screen label that identified the city,
-            //as well as information on population, state, and tourist attractions
             LabelField lf = new LabelField();
             blogUrlField = new BasicEditField(_resources.getString(WordPressResource.LABEL_BLOGURL), "", 100, Field.EDITABLE);
             blogUrlField.setFilter(new URLTextFilter());

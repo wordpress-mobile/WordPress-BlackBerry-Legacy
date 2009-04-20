@@ -14,15 +14,13 @@ public class MainController extends BaseController {
 	private MainView mainView = null;
 	 private BlogController blogController = null;
 	
-	public static final String ADDBLOGVIEW="AddBlogsView";
-
 	public MainController() {
 		super();
 		this.mainView=new MainView(this);
 		blogController= BlogController.getIstance();
 	}
 	
-	public void showMainView(){
+	public void showView(){
 		UiApplication.getUiApplication().pushScreen(this.mainView);
 	}
 		

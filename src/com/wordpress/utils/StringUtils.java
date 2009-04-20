@@ -1,9 +1,31 @@
 package com.wordpress.utils;
 
+import java.util.Vector;
+
 public class StringUtils {
 
-	  // Divide una string in due parti con un dato carattere di separazione
-	 public synchronized static String[] split( String in, char ch ){
+	  // Splits string 
+	  public static String[] split(final String string, final String splitBy) {
+		    final Vector tokens = new Vector();
+		    final int tokenLength = splitBy.length();
+
+		    int tokenStart = 0;
+		    int splitIndex;
+		    while ((splitIndex = string.indexOf(splitBy, tokenStart)) != -1) {
+		      tokens.addElement(string.substring(tokenStart, splitIndex));
+		      tokenStart = splitIndex + tokenLength;
+		    }
+
+		    tokens.addElement(string.substring(tokenStart));
+
+		    final String[] result = new String[tokens.size()];
+		    tokens.copyInto(result);
+		    return result;
+		  }
+	
+	
+	  // Split One string in 2 string 
+	 public synchronized static String[] split2Strings( String in, char ch ){
 	      String[] result = new String[2];
 	      int      pos = in.indexOf( ch );
 

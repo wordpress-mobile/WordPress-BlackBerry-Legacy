@@ -37,6 +37,7 @@ src\com\wordpress\controller\BlogController.java
 src\com\wordpress\controller\ConnectionInProgressListener.java
 src\com\wordpress\controller\FrontController.java
 src\com\wordpress\controller\MainController.java
+src\com\wordpress\controller\PreferenceController.java
 src\com\wordpress\model\Blog.java
 src\com\wordpress\model\Category.java
 src\com\wordpress\model\Post.java
@@ -56,6 +57,7 @@ src\com\wordpress\view\dialog\InfoView.java
 src\com\wordpress\view\dialog\InquiryView.java
 src\com\wordpress\view\ErrorView.java
 src\com\wordpress\view\MainView.java
+src\com\wordpress\view\PreferencesView.java
 src\com\wordpress\xmlrpc\BlogAuthConn.java
 src\com\wordpress\xmlrpc\BlogConn.java
 src\com\wordpress\xmlrpc\BlogConnResponse.java
