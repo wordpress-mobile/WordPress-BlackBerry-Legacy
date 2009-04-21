@@ -9,7 +9,6 @@ import java.io.IOException;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
 
-import com.wordpress.bb.SimpleTimeZone;
 
 
 public class Preferences {

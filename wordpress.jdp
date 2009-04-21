@@ -25,7 +25,6 @@ ExcludeFromBuildAll=0
 application-icon.png
 lib\kxml2-2.3.0.jar
 src\application-icon.png
-src\com\wordpress\bb\SimpleTimeZone.java
 src\com\wordpress\bb\SplashScreen.java
 src\com\wordpress\bb\WordPress.java
 src\com\wordpress\bb\WordPress.rrc
@@ -51,6 +50,7 @@ src\com\wordpress\utils\observer\Observable.java
 src\com\wordpress\utils\observer\Observer.java
 src\com\wordpress\utils\Preferences.java
 src\com\wordpress\utils\PropertyUtils.java
+src\com\wordpress\utils\SimpleTimeZone.java
 src\com\wordpress\utils\StringUtils.java
 src\com\wordpress\view\AboutView.java
 src\com\wordpress\view\AddBlogsView.java

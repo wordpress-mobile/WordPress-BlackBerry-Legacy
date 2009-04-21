@@ -1,4 +1,4 @@
-package com.wordpress.bb;
+package com.wordpress.utils;
 
 
 import java.io.DataInputStream;

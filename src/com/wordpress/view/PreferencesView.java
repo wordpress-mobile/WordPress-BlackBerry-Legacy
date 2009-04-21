@@ -12,6 +12,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.PreferenceController;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Preferences;
+import com.wordpress.utils.SimpleTimeZone;
 
 public class PreferencesView extends BaseView {
 	
@@ -22,7 +23,7 @@ public class PreferencesView extends BaseView {
 	private ObjectChoiceField audioGroup;
 	private ObjectChoiceField photoGroup;
 	private ObjectChoiceField videoGroup;
-	
+	private ObjectChoiceField timezoneGroup;
 	
 	 public PreferencesView(PreferenceController _preferencesController) {
 	    	super();
@@ -42,6 +43,12 @@ public class PreferencesView extends BaseView {
             add(maxBodySize);
             add(new SeparatorField());
             addMultimediaOption();
+            add(new SeparatorField());
+            
+            int selected = SimpleTimeZone.getIndexForOffset(mPrefs.getTimeZone().getRawOffset());
+            timezoneGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_TIMEZONE),SimpleTimeZone.TIME_ZONE_IDS,selected);
+            timezoneGroup.setChangeListener(preferencesController.getTimeZoneListener());
+			add( timezoneGroup );
             
             maxRecentPost.setChangeListener(preferencesController.getRecentPostListener()); 
             //maxBodySize.setChangeListener(preferencesController.getButtonListener());

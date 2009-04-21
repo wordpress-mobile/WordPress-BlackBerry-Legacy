@@ -7,14 +7,13 @@ import javax.microedition.rms.RecordStoreException;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.TextField;
 
 import com.wordpress.utils.Preferences;
+import com.wordpress.utils.SimpleTimeZone;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.view.PreferencesView;
-import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
 
 public class PreferenceController extends BaseController {
@@ -26,7 +25,7 @@ public class PreferenceController extends BaseController {
     private String videoEnc=null;
     private String photoEnc=null;
     private int maxPostCount=-1;
-    
+    private int timezoneIndex=-1;
     
 	public PreferenceController() {
 		super();
@@ -51,7 +50,10 @@ public class PreferenceController extends BaseController {
 			}
 			if(maxPostCount > 0){
 				mPrefs.setRecentPostCount(maxPostCount);
-			}			
+			}
+			if(timezoneIndex > 0){
+				mPrefs.setTimeZone(new SimpleTimeZone(timezoneIndex));
+			}
 			mPrefs.save();
 		} catch (RecordStoreException e) {
 			displayError(e, "Error while saving setup informations");
@@ -59,6 +61,17 @@ public class PreferenceController extends BaseController {
 			displayError(e, "Error while saving setup informations");
 		}
 	}
+	
+	
+	private FieldChangeListener timezoneListener = new FieldChangeListener() {
+        public void fieldChanged(Field field, int context) {
+        	Field original = field.getOriginal();
+        	int selected= ((ObjectChoiceField)original).getSelectedIndex();
+        	if(selected != -1) {
+        		timezoneIndex=selected; //set the user choice
+        	}
+        }
+    };
 	
 	private FieldChangeListener audioListener = new FieldChangeListener() {
         public void fieldChanged(Field field, int context) {
@@ -121,6 +134,11 @@ public class PreferenceController extends BaseController {
 	public FieldChangeListener getRecentPostListener() {
 		return recentPostListener;
 	}
+	
+	public FieldChangeListener getTimeZoneListener() {
+		return timezoneListener;
+	}
+	
 	
 	// Utility routine to discard the question about change made in Screen component and save
 	public boolean discardChangeInquiry() {
