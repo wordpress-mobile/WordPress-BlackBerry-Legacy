@@ -10,8 +10,8 @@ import net.rim.device.api.ui.text.NumericTextFilter;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.PreferenceController;
+import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Preferences;
-import com.wordpress.utils.StringUtils;
 
 public class PreferencesView extends BaseView {
 	
@@ -28,7 +28,7 @@ public class PreferencesView extends BaseView {
 	    	super();
 	    	this.preferencesController=_preferencesController;
 	    	//add a screen title
-	        LabelField title = new LabelField(_resources.getString(WordPressResource.APPLICATION_TITLE),
+	        LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_APPLICATION),
 	                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
 	        setTitle(title);
 	    	
@@ -47,7 +47,7 @@ public class PreferencesView extends BaseView {
             //maxBodySize.setChangeListener(preferencesController.getButtonListener());
             //FIXME: we needs max body size setup??
             
-            addMenuItem(_saveItem);
+          //  addMenuItem(_saveItem); autosave like iphone??
             addMenuItem(_backItem);
             
 	 }
@@ -68,12 +68,8 @@ public class PreferencesView extends BaseView {
 	    
 	 private void addMultimediaOption() {
 			//audio config 
-			if( System.getProperty("supports.audio.capture")!= null &&
-					System.getProperty("supports.audio.capture").trim().equalsIgnoreCase("true")){
-				String formatiSuportati=System.getProperty("audio.encodings");
-				formatiSuportati="default "+formatiSuportati;
-				String[] lines=StringUtils.split(formatiSuportati, " ");
-				
+			if( MultimediaUtils.supportAudioRecording()){
+				String[] lines=MultimediaUtils.getSupportedAudioFormat();
 				int selectedIndex=0;
 		        for (int i = 0; i < lines.length; i++) {
 		        	if(lines[i].equalsIgnoreCase(mPrefs.getAudioEncoding())){
@@ -87,12 +83,8 @@ public class PreferencesView extends BaseView {
 			}
 			
 			//photo config
-			if( System.getProperty("supports.video.capture")!=null
-					&& System.getProperty("supports.video.capture").trim().equalsIgnoreCase("true") 
-					&& System.getProperty("video.snapshot.encodings")!=null){
-				String formatiSuportati=System.getProperty("video.snapshot.encodings");
-				formatiSuportati="default "+formatiSuportati;
-				String[] lines=StringUtils.split(formatiSuportati, " ");
+			if( MultimediaUtils.supportPhotoCapture()){
+				String[] lines=MultimediaUtils.getSupportedPhotoFormat();
 				int selectedIndex=0;
 		        for (int i = 0; i < lines.length; i++) {
 		        	if(lines[i].equalsIgnoreCase(mPrefs.getAudioEncoding())){
@@ -106,24 +98,24 @@ public class PreferencesView extends BaseView {
 			}
 			
 			//video config
-			if(System.getProperty("supports.video.capture") != null
-					&& System.getProperty("supports.video.capture").trim().equalsIgnoreCase("true")
-					&& System.getProperty("video.encodings")!=null){
-				String formatiSuportati=System.getProperty("video.encodings");
-				formatiSuportati="default "+formatiSuportati;
-				String[] lines=StringUtils.split(formatiSuportati, " ");
+			if(MultimediaUtils.supportVideoRecording()){
+				String[] lines=MultimediaUtils.getSupportedVideoFormat();
 				int selectedIndex=0;
 		        for (int i = 0; i < lines.length; i++) {
 		        	if(lines[i].equalsIgnoreCase(mPrefs.getAudioEncoding())){
 		        		selectedIndex=i; 
 		    	 	}
 				}
-
 		        
 		    	videoGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_VIDEOENCODING),lines,selectedIndex);
 		    	videoGroup.setChangeListener(preferencesController.getVideoListener());
 				add( videoGroup );
 			}
 			
-		}	 
+		}
+	 
+	    //override onClose() to display a dialog box when the application is closed    
+		public boolean onClose()   {
+	    	return preferencesController.discardChangeInquiry();
+	    }
 }

@@ -1,17 +1,25 @@
 package com.wordpress.controller;
 
+import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
-import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.view.dialog.ErrorView;
 import com.wordpress.view.dialog.InfoView;
 import com.wordpress.view.dialog.InquiryView;
 
 public abstract class BaseController {
-	
 
+	//create a variable to store the ResourceBundle for localization support
+    protected static ResourceBundle _resources;
+	    
+    static {
+        //retrieve a reference to the ResourceBundle for localization support
+        _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
+    }
+  	
   abstract 	public void showView();
 	
 	// Utility routine to display errors
@@ -80,5 +88,5 @@ public abstract class BaseController {
     	} else {
     		return false;
     	}
-	}
+	}	
 }

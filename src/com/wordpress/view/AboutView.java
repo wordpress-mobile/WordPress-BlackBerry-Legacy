@@ -23,7 +23,7 @@ public class AboutView extends BaseView {
     	super();
     	aboutController=_aboutController;
     	//add a screen title
-        LabelField title = new LabelField(_resources.getString(WordPressResource.APPLICATION_TITLE),
+        LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_APPLICATION),
                         LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
         setTitle(title);
         

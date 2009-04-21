@@ -6,6 +6,7 @@ import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.ui.UiApplication;
 
+import com.wordpress.model.Blog;
 import com.wordpress.view.MainView;
 
 
@@ -33,6 +34,44 @@ public class MainController extends BaseController {
 			displayError(e, "Error while deleting the blog");
 		} catch (IOException e) {
 			displayError(e, "Error while deleting the blog");
+		}
+	}
+	
+	
+	public void showDraftPosts(int selectedBlog){
+		Blog currentBlog=null;
+   	 try {
+   		 currentBlog=blogController.getBlog(selectedBlog);
+		} catch (Exception e) {
+			displayError(e, "Recent Blog Error");
+		}
+		if(currentBlog != null) {
+			FrontController.getIstance().showDraftPostsView(currentBlog);
+		}
+	}
+	
+	
+	public void showRecentPosts(int selectedBlog){
+		Blog currentBlog=null;
+   	 try {
+   		 currentBlog=blogController.getBlog(selectedBlog);
+		} catch (Exception e) {
+			displayError(e, "Recent Blog Error");
+		}
+		if(currentBlog != null) {
+			FrontController.getIstance().showRecentPostsView(currentBlog);
+		}
+	}
+	
+	public void refreshBlog(int selectedBlog){
+  	 Blog currentBlog=null;
+  	 try {
+  		 currentBlog=blogController.getBlog(selectedBlog);
+		} catch (Exception e) {
+			displayError(e, "Refresh Blog Error");
+		}
+		if(currentBlog != null) {
+			FrontController.getIstance().refreshBlog(currentBlog);
 		}
 	}
 }

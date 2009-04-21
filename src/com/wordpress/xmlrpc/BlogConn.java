@@ -32,11 +32,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	    mUsername = aUserHint;
 	    mPassword = aPasswordHint;
 
-	    //#ifdef BB_VERSION
-		urlConnessione=aURIHint+";deviceside=true";
-		//#else
-		urlConnessione=aURIHint;
-		//#endif 
+	    urlConnessione=aURIHint+";deviceside=true"; //FIXME delete for real phones
 				
   	   System.out.println("creata la connessione");
 	}

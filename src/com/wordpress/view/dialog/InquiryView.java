@@ -6,7 +6,7 @@ import net.rim.device.api.ui.component.Dialog;
 public class InquiryView extends Dialog {
 
 	/**
-	 * Use this inquiry dialog boxes when users must confirm an action before continuing. 
+	 * Use this inquiry dialog boxes (YES/NO) when users must confirm an action before continuing. 
 	 * A question mark (?) indicator appears in an inquiry dialog box.
 	 * 
 	 * @param message

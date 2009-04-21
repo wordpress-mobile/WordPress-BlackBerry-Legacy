@@ -42,11 +42,10 @@ public class MainView extends MainScreen {
 		blogController= BlogController.getIstance();
 		blogPrefs = Preferences.getIstance();
         //add a screen title
-        LabelField title = new LabelField(_resources.getString(WordPressResource.APPLICATION_TITLE),
+        LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_APPLICATION),
                         LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
         setTitle(title);
-		
-        
+		        
     	try {
 			blogPrefs.load(); //TODO il caricamento delle preferenze deve avvenire altrove
 		} catch (Exception e) {
@@ -79,7 +78,9 @@ public class MainView extends MainScreen {
         	UiAccess.addSubCommand( newPostCommand, postCmd, blogs ); 
         	UiAccess.addSubCommand( draftPostCommand, postCmd, blogs );
         	UiAccess.addSubCommand( recentPostCommand, postCmd, blogs );
-            */        	
+            */
+        	addMenuItem(_recentPostsItem);
+        	addMenuItem(_draftPostsItem);
         	addMenuItem(_refreshBlogItem);
         	addMenuItem(_deleteBlogItem);
         }
@@ -89,10 +90,10 @@ public class MainView extends MainScreen {
 	}
 	 
 	public void refreshBlogList(){	 
-			if(listaBlog != null){
-				this.delete(listaBlog);
-				setupUpBlogsView();
-			}
+		if(listaBlog != null){
+			this.delete(listaBlog);
+			setupUpBlogsView();
+		}
 	 }
 	 
 	
@@ -106,12 +107,29 @@ public class MainView extends MainScreen {
     //create a menu item for users to click to refresh blog
     private MenuItem _refreshBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESHBLOG, 110, 10) {
         public void run() {
-           
+        	int selected = listaBlog.getSelectedIndex();
+        	mainController.refreshBlog(selected);
         }
     };
 
+    
+    private MenuItem _draftPostsItem = new MenuItem( _resources, WordPressResource.MENUITEM_DRAFTPOSTS, 120, 10) {
+        public void run() {
+       	 int selected = listaBlog.getSelectedIndex();
+    	 mainController.showDraftPosts(selected); 
+        }
+    };
+
+    private MenuItem _recentPostsItem = new MenuItem( _resources, WordPressResource.MENUITEM_RECENTPOSTS, 130, 10) {
+        public void run() {
+        	 int selected = listaBlog.getSelectedIndex();
+        	 mainController.showRecentPosts(selected);
+        }
+    };
+
+        
     //create a menu item for users to click to show setup
-    private MenuItem _deleteBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETEBLOG, 120, 10) {
+    private MenuItem _deleteBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETEBLOG, 200, 10) {
         public void run() {
             int selectedBlog = listaBlog.getSelectedIndex();
             mainController.deleteBlog(selectedBlog);
@@ -138,6 +156,4 @@ public class MainView extends MainScreen {
 	public boolean onClose()   {
     	return mainController.exitApp();
     }
-
-	
 }

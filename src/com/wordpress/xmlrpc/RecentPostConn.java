@@ -34,6 +34,7 @@ public class RecentPostConn extends BlogConn  {
 
 	        Object response = execute("mt.getRecentPostTitles", args);
 			if(connResponse.isError()) {
+				System.out.println("Errore nella connessione");
 				//se il server xml-rpc è andato in err
 				notifyObservers(connResponse);
 				return;		
@@ -50,12 +51,14 @@ public class RecentPostConn extends BlogConn  {
                                           (String) postData.get("userid"),
                                           (Date) postData.get("dateCreated"));
             }
-
 			connResponse.setResponseObject(recentPosts);
-			notifyObservers(connResponse);
 		} catch (Exception cce) {
-			setErrorMessage(cce, "loadBlogs error");
+			setErrorMessage(cce, "loadPosts error");	
+		}
+		try {
 			notifyObservers(connResponse);
+		} catch (Exception e) {
+			System.out.println("notify error");
 		}
 	}
 }

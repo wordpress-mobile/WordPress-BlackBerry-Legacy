@@ -1,5 +1,6 @@
 package com.wordpress.controller;
 
+import com.wordpress.model.Blog;
 import com.wordpress.view.MainView;
 
 import net.rim.device.api.ui.Screen;
@@ -36,7 +37,7 @@ public class FrontController {
 	}
 		
 	/**
-	 * show setupUp view
+	 * show add blogs view
 	 */
 	public void showAddBlogsView(){
 		AddBlogsController ctrl=new AddBlogsController();
@@ -50,6 +51,31 @@ public class FrontController {
 	public void showSetupView(){
 		PreferenceController ctrl=new PreferenceController();
 		ctrl.showView();		
+	}
+	
+	/**
+	 * show recent post view
+	 */
+	public void showRecentPostsView(Blog currentBlog){
+		RecentPostsController ctrl=new RecentPostsController(currentBlog);
+		ctrl.loadPosts();
+	}
+	
+	/**
+	 * show draft post view
+	 */
+	public void showDraftPostsView(Blog currentBlog){
+		DraftPostsController ctrl=new DraftPostsController(currentBlog);
+		ctrl.showView();
+	}
+	
+	
+	/**
+	 * refresh a blog
+	 */
+	public void refreshBlog(Blog currentBlog){
+		RefreshBlogController ctrl=new RefreshBlogController(currentBlog);
+		ctrl.refreshBlog();
 	}
 	
 	

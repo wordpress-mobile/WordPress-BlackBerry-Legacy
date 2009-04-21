@@ -437,9 +437,7 @@ public Blog loadBlog(String aName) throws RecordStoreException, IOException {
             	newBlogNames[j] = blogs[i];
             	j++;
             }
-            
         }
-            
         blogs = newBlogNames;   	
     }
 
@@ -544,6 +542,23 @@ public Blog loadBlog(String aName) throws RecordStoreException, IOException {
     	String[] names= new String[blogNames.size()];
     	blogNames.copyInto(names);
     	return names;
+	}
+	
+	
+	
+	/** aggiorna un determinato blog precedentemente salvato 
+	 * @throws IOException 
+	 * @throws RecordStoreException */
+	public void refreshBlog(Blog updatedBlog) throws RecordStoreException, IOException{
+		for (int j = 0; j < blogs.length; j++) {
+			if (blogs[j].getBlogName().equals(updatedBlog.getBlogName())){
+				blogs[j]=updatedBlog; //update the blog object
+				saveBlog(updatedBlog); //salvo il blog nel datastore
+		        saveBlogSummary();
+		        System.out.println("blog updated succesfully");
+		        break;
+			}
+		}
 	}
 	
 

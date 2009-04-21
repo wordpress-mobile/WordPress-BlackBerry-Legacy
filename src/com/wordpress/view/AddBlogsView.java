@@ -22,7 +22,7 @@ public class AddBlogsView extends BaseView {
 	    	super();
 	    	this.addBlogsController=addBlogsController;
 	    	//add a screen title
-	        LabelField title = new LabelField(_resources.getString(WordPressResource.APPLICATION_TITLE),
+	        LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_APPLICATION),
 	                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
 	        setTitle(title);
 	    	
@@ -49,4 +49,10 @@ public class AddBlogsView extends BaseView {
             buttonBACK.setChangeListener(addBlogsController.getButtonListener());
             buttonOK.setChangeListener(addBlogsController.getButtonListener());
 	 }
+	 
+	   //override onClose() to by-pass the standard dialog box when the screen is closed    
+		public boolean onClose()   {
+			return addBlogsController.discardChange();			
+	    }
+
 }

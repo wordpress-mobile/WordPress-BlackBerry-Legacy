@@ -15,6 +15,7 @@ import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.AddBlogsView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.view.dialog.DiscardChangeInquiryView;
 import com.wordpress.xmlrpc.BlogAuthConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 
@@ -22,7 +23,7 @@ import com.wordpress.xmlrpc.BlogConnResponse;
 public class AddBlogsController extends BaseController implements Observer{
 	
 	private AddBlogsView view = null;
-	private String url="http://localhost/wp_mopress/xmlrpc.php;deviceside=true";
+	private String url="http://localhost/wp_mopress/xmlrpc.php";
 	private String pass="mopress"; // FIXME ricordati di togliere
 	private String user="mopress";
 	ConnectionInProgressView connectionProgressView=null;
@@ -49,7 +50,7 @@ public class AddBlogsController extends BaseController implements Observer{
         	} else if(field instanceof BasicEditField) {
         		BasicEditField bf=(BasicEditField)field;
         		String bfLabel=bf.getLabel();
-        		if( bfLabel.equals(view.getAssociatedResourceBundle().getString(WordPressResource.LABEL_BLOGUSER))){
+        		if( bfLabel.equals(_resources.getString(WordPressResource.LABEL_BLOGUSER))){
         			user=bf.getText();
         		} else {
         			url=bf.getText();
@@ -59,7 +60,7 @@ public class AddBlogsController extends BaseController implements Observer{
         	} else {
 	            ButtonField buttonField = (ButtonField) field;
 	        	System.out.println("Button pressed: " + buttonField.getLabel());
-	            if( buttonField.getLabel().equals(view.getAssociatedResourceBundle().getString(WordPressResource.BUTTON_OK))){
+	            if( buttonField.getLabel().equals(_resources.getString(WordPressResource.BUTTON_OK))){
 	            	addBlogs();
 	            } else {
 	            	backCmd();
@@ -86,7 +87,7 @@ public class AddBlogsController extends BaseController implements Observer{
             BlogAuthConn connection = new BlogAuthConn (url,user,pass,prefs.getTimeZone());
             connection.addObserver(this); 
              connectionProgressView= new ConnectionInProgressView(
-            		view.getAssociatedResourceBundle().getString(WordPressResource.CONNECTION_INPROGRESS));
+            		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
            
             connection.startConnWork(); //starts connection
             int choice = connectionProgressView.doModal();
@@ -115,8 +116,8 @@ public class AddBlogsController extends BaseController implements Observer{
 
 		 	BlogController blogController= BlogController.getIstance();
 		 	for (int i = 0; i < blogs.length; i++) {
-					blogController.addBlog(blogs[i], true);
-		        }
+				blogController.addBlog(blogs[i], true);
+		    }
 		 	FrontController.getIstance().backToMainView();	 			 	
 		} else {
 			final String respMessage=resp.getResponse();
@@ -126,5 +127,11 @@ public class AddBlogsController extends BaseController implements Observer{
 		} catch (final Exception e) {
 		 	displayError(e,"Error while adding blogs");	
 		} 
-	}	
+	}
+	
+	// Utility routine to by-pass the standard dialog box when the screen is closed  
+	public boolean discardChange() {
+		backCmd();
+		return true;
+	}
 }
