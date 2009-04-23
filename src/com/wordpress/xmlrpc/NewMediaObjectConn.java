@@ -47,10 +47,13 @@ public class NewMediaObjectConn extends BlogConn  {
 			}
 			
 			connResponse.setResponseObject(response);
-			notifyObservers(connResponse);
 		} catch (Exception cce) {
 			setErrorMessage(cce, "uploadMedia error");
+		}
+		try {
 			notifyObservers(connResponse);
+		} catch (Exception e) {
+			System.out.println("notify error"); //TODO handle error here
 		}
 	}
 }

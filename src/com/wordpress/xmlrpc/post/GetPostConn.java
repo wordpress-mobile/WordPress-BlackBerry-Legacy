@@ -1,4 +1,4 @@
-package com.wordpress.xmlrpc;
+package com.wordpress.xmlrpc.post;
 
 import java.util.Date;
 import java.util.Hashtable;
@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
+import com.wordpress.xmlrpc.BlogConn;
 
 public class GetPostConn extends BlogConn  {
 	
@@ -80,14 +81,17 @@ public class GetPostConn extends BlogConn  {
             }
         } catch (ClassCastException cce) {
         	setErrorMessage(cce, "Invalid server response");
-			notifyObservers(connResponse);
         }
 
 			connResponse.setResponseObject(aPost);
-			notifyObservers(connResponse);
 		} catch (Exception cce) {
 			setErrorMessage(cce, "getPost error");
+		}
+		
+		try {
 			notifyObservers(connResponse);
+		} catch (Exception e) {
+			System.out.println("notify error"); //TODO handle error here
 		}
 	}
 }

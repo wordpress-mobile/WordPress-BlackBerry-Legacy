@@ -25,17 +25,17 @@ public class BlogUpdateConn extends BlogConn  {
 			
 		} catch (ClassCastException cce) {
 			setErrorMessage(cce, "update Blog error");
-			notifyObservers(connResponse);
+			//notifyObservers(connResponse);
 		}
 		catch (Exception e) {
 			setErrorMessage(e, "Invalid server response");
-			notifyObservers(connResponse);
+			//notifyObservers(connResponse);
 		}
 
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("notify error");
+			System.out.println("notify error"); //TODO handle error here
 		}
 	}
 

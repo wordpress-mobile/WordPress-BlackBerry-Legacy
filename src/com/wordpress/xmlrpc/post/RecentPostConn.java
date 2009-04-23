@@ -1,4 +1,4 @@
-package com.wordpress.xmlrpc;
+package com.wordpress.xmlrpc.post;
 
 import java.util.Date;
 import java.util.Hashtable;
@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
+import com.wordpress.xmlrpc.BlogConn;
 
 public class RecentPostConn extends BlogConn  {
 	
@@ -58,7 +59,7 @@ public class RecentPostConn extends BlogConn  {
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("notify error");
+			System.out.println("notify error"); //TODO handle error here
 		}
 	}
 }

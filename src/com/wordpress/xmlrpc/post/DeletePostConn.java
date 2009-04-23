@@ -1,9 +1,10 @@
-package com.wordpress.xmlrpc;
+package com.wordpress.xmlrpc.post;
 
 import java.util.TimeZone;
 import java.util.Vector;
 
 import com.wordpress.model.Post;
+import com.wordpress.xmlrpc.BlogConn;
 
 public class DeletePostConn extends BlogConn  {
 	
@@ -34,12 +35,15 @@ public class DeletePostConn extends BlogConn  {
 			notifyObservers(connResponse);
 			return;		
 		}
-
 			connResponse.setResponseObject(response);
-			notifyObservers(connResponse);
 		} catch (Exception cce) {
 			setErrorMessage(cce, "delete error");
+		}
+		
+		try {
 			notifyObservers(connResponse);
+		} catch (Exception e) {
+			System.out.println("notify error"); //TODO handle error here
 		}
 	}
 }

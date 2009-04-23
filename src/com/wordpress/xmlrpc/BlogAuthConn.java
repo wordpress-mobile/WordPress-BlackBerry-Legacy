@@ -52,13 +52,16 @@ public class BlogAuthConn extends BlogConn  {
 			}		
 			
 			connResponse.setResponseObject(myBlogs);
-			notifyObservers(connResponse);
 		} catch (ClassCastException cce) {
 			setErrorMessage(cce, "loadBlogs error");
-			notifyObservers(connResponse);
 		} catch (Exception e) {
 			setErrorMessage(e, "Invalid server response");
+		}
+		
+		try {
 			notifyObservers(connResponse);
+		} catch (Exception e) {
+			System.out.println("notify error"); //TODO handle error here
 		}
 	}
 	

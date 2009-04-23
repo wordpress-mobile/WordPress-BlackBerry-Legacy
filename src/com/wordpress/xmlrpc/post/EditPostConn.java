@@ -1,4 +1,4 @@
-package com.wordpress.xmlrpc;
+package com.wordpress.xmlrpc.post;
 
 import java.util.Hashtable;
 import java.util.TimeZone;
@@ -6,27 +6,27 @@ import java.util.Vector;
 
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
+import com.wordpress.xmlrpc.BlogConn;
 
-public class NewPostConn extends BlogConn  {
+public class EditPostConn extends BlogConn  {
 	
 	private Post post=null;
 	private boolean isPublished=false;
 	
-	public NewPostConn(String hint,	String userHint, String passwordHint, TimeZone tz, Post mPost, boolean isPublished) {
+	public EditPostConn(String hint, String userHint, String passwordHint, TimeZone tz, Post mPost, boolean isPublished) {
 		super(hint, userHint, passwordHint, tz);
 		this.post=mPost;
 		this.isPublished=isPublished;
 	}
 
 	/**
-	 * 
+	 * scrive in remoto un post di tipo draft 
 	 * @param provider
 	 */
 	public void run() {
 		try{
-		
-		 if (post.getId() != null) {
-			 setErrorMessage("Post already has a postid");
+		 if (post.getId() == null) {
+			 setErrorMessage("Post does not have a postid");
 			 notifyObservers(connResponse);
 	         return;
 	        }
@@ -52,21 +52,19 @@ public class NewPostConn extends BlogConn  {
 	        content.put("mt_allow_pings", new Integer(post.isTrackbackEnabled() ? 1 : 0));
 
 	        Vector args = new Vector(5);
-	        args.addElement(post.getBlog().getBlogId());
+	        args.addElement(post.getId());
 	        args.addElement(mUsername);
 	        args.addElement(mPassword);
 	        args.addElement(content);
 	        args.addElement(isPublished ? TRUE : FALSE);
 
-	        Object response = execute("metaWeblog.newPost", args);
+	        Object response = execute("metaWeblog.editPost", args);
 			if(connResponse.isError()) {
 				//se il server xml-rpc è andato in err
 				notifyObservers(connResponse);
 				return;		
 			}
-	        post.setId((String) response);
 
-	        
 	        Category category = post.getPrimaryCategory();
 	        if (category != null) {
 	            Vector categories = new Vector(1);
@@ -89,7 +87,6 @@ public class NewPostConn extends BlogConn  {
 	    		}
 	        }
 
-
 	        if (isPublished) {
 	            args = new Vector(3);
 	            args.addElement(post.getId());
@@ -102,12 +99,16 @@ public class NewPostConn extends BlogConn  {
 	    			return;		
 	    		}
 	        }
-
+	        
 			connResponse.setResponseObject(response);
-			notifyObservers(connResponse);
 		} catch (Exception cce) {
-			setErrorMessage(cce, "loadBlogs error");
+			setErrorMessage(cce, "Edit post error");
+		}
+		
+		try {
 			notifyObservers(connResponse);
+		} catch (Exception e) {
+			System.out.println("notify error"); //TODO handle error here
 		}
 	}
 }
