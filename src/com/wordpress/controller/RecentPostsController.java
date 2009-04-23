@@ -12,8 +12,8 @@ import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.RecentPostsView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConnResponse;
-import com.wordpress.xmlrpc.DeletePostConn;
-import com.wordpress.xmlrpc.RecentPostConn;
+import com.wordpress.xmlrpc.post.DeletePostConn;
+import com.wordpress.xmlrpc.post.RecentPostConn;
 
 
 public class RecentPostsController extends BaseController implements Observer{
@@ -158,7 +158,7 @@ public class RecentPostsController extends BaseController implements Observer{
 	/** starts the  post loading */
 	public void editPost(int selected){
 		this.setState(LOADING_POST);
-        displayMessage("not yet implemented!");
+        FrontController.getIstance().showPost();		
 	}	
 
 

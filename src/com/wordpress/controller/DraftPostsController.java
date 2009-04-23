@@ -17,8 +17,8 @@ import com.wordpress.view.DraftPostsView;
 import com.wordpress.view.RecentPostsView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConnResponse;
-import com.wordpress.xmlrpc.DeletePostConn;
-import com.wordpress.xmlrpc.RecentPostConn;
+import com.wordpress.xmlrpc.post.DeletePostConn;
+import com.wordpress.xmlrpc.post.RecentPostConn;
 
 
 public class DraftPostsController extends BaseController {

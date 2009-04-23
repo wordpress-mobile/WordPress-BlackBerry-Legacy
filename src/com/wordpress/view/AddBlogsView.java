@@ -6,6 +6,7 @@ import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.PasswordEditField;
 import net.rim.device.api.ui.component.SeparatorField;
+import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.text.URLTextFilter;
 
 import com.wordpress.bb.WordPressResource;
@@ -39,8 +40,10 @@ public class AddBlogsView extends BaseView {
                     
             ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK));
             ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK));
-            add(buttonOK);
-            add(buttonBACK);
+    		HorizontalFieldManager hManager = new HorizontalFieldManager();
+    		hManager.add(buttonOK);
+    		hManager.add(buttonBACK);
+    		add(hManager);
 
             
             blogUrlField.setChangeListener(addBlogsController.getButtonListener());

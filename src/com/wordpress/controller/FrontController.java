@@ -1,10 +1,10 @@
 package com.wordpress.controller;
 
-import com.wordpress.model.Blog;
-import com.wordpress.view.MainView;
-
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
+
+import com.wordpress.model.Blog;
+import com.wordpress.view.MainView;
 
 
 /*
@@ -76,6 +76,14 @@ public class FrontController {
 	public void refreshBlog(Blog currentBlog){
 		RefreshBlogController ctrl=new RefreshBlogController(currentBlog);
 		ctrl.refreshBlog();
+	}
+		
+	/**
+	 * show post view
+	 */
+	public void showPost(){
+		PostController ctrl=new PostController();
+		ctrl.showView();
 	}
 	
 	

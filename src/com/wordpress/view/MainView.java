@@ -1,12 +1,7 @@
 package com.wordpress.view;
 
-import java.io.IOException;
-
-import javax.microedition.rms.RecordStoreException;
-
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectListField;
 import net.rim.device.api.ui.container.MainScreen;
@@ -15,7 +10,6 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BlogController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
-import com.wordpress.model.Blog;
 import com.wordpress.utils.Preferences;
 
 public class MainView extends MainScreen {
