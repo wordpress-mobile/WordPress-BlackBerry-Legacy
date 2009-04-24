@@ -50,14 +50,13 @@ public class GetCommentCountConn extends BlogConn  {
 
             }
 			catch (Exception e) {
-				setErrorMessage(e, "Invalid server response");
-				notifyObservers(connResponse);
+				setErrorMessage(e, "GetCommentCount error: Invalid server response");
 	        }
 			
 			try {
 				notifyObservers(connResponse);
 			} catch (Exception e) {
-				System.out.println("notify error"); //TODO handle errors here...
+				System.out.println("GetCommentCount error: Notify error"); 
 			}
 			
 		}

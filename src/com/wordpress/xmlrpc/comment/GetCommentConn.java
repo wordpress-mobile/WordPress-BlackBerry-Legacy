@@ -57,13 +57,13 @@ public class GetCommentConn extends BlogConn  {
             connResponse.setResponseObject(comment);
 			}
 			catch (Exception e) {
-				setErrorMessage(e, "Invalid server response");
+				setErrorMessage(e, "GetComment error: Invalid server response");
 	        }
 			
 			try {
 				notifyObservers(connResponse);
 			} catch (Exception e) {
-				System.out.println("notify error"); //TODO handle errors here...
+				System.out.println("GetComment error: Notify error"); 
 			}
 		}
 	}

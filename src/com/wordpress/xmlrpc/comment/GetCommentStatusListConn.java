@@ -29,18 +29,16 @@ public class GetCommentStatusListConn extends BlogConn  {
 				return;		
 			}		
             Hashtable commentData = (Hashtable) response;
-            //TODO handle response
             connResponse.setResponseObject(commentData);
  			}
 			catch (Exception e) {
-				setErrorMessage(e, "Invalid server response");
-				notifyObservers(connResponse);
+				setErrorMessage(e, "GetCommentStatusList error: Invalid server response");
 	        }
 			
 			try {
 				notifyObservers(connResponse);
 			} catch (Exception e) {
-				System.out.println("notify error"); //TODO handle errors here...
+				System.out.println("GetCommentStatusList error: Notify error"); 
 			}
 			
 		}

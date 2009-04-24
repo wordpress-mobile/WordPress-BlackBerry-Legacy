@@ -35,24 +35,22 @@ public class DeletePageConn extends BlogConn {
 			args.addElement(mPassword);
 			args.addElement(String.valueOf(this.pageID));
 
-			Object response = execute("wp.EditPage", args);
+			Object response = execute("wp.deletePage", args);
 			if (connResponse.isError()) {
 				notifyObservers(connResponse);
 				return;
 			}
 
 			connResponse.setResponseObject(response);
-			notifyObservers(connResponse);
 
 		} catch (Exception e) {
-			setErrorMessage(e, "delete error");
-			notifyObservers(connResponse);
+			setErrorMessage(e, "Delete Error: Invalid server response");
 		}
 
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("notify error"); //TODO handle errors here...
+			System.out.println("DeletePage: Notify error");
 		}
 	}
 }

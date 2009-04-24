@@ -33,8 +33,8 @@ public class GetPageConn extends BlogConn {
 		}
 
 		Vector args = new Vector(4);
-		args.addElement(String.valueOf(this.pageID));
 		args.addElement(String.valueOf(this.blogID));
+		args.addElement(String.valueOf(this.pageID));
 		args.addElement(mUsername);
 		args.addElement(mPassword);
 
@@ -47,53 +47,65 @@ public class GetPageConn extends BlogConn {
 		try {
 			Hashtable returnPageData = (Hashtable) response;
 
-			String title = ((String) returnPageData.get("title"));
-			String description = ((String) returnPageData.get("description"));
-			Date dateCreated = ((Date) returnPageData.get("dateCreated"));
-			// Vector custom=(Vector) (returnPageData.get("custom"));
-
-			Page page = new Page(blogID, pageID, title, description,
-					dateCreated);
-
-			page.setLink((String) returnPageData.get("link"));
-			page.setPermaLink((String) returnPageData.get("permaLink"));
-			page.setPageStatus((String) returnPageData.get("pageStatus"));
-		//	page.setCategories((String) returnPageData.get("categories"));
-			page.setMt_excerpt((String) returnPageData.get("excerpt"));
-			page.setMt_text_more((String) returnPageData.get("text_more"));
-			page.setPermaLink((String) returnPageData.get("permaLink"));
-
-			Integer comments = (Integer) returnPageData.get("mt_allow_comments");
-			if (comments != null) {
-				page.setCommentsEnabled(comments.intValue() != 0);
-			}
-			Integer trackback = (Integer) returnPageData.get("mt_allow_pings");
-			if (trackback != null) {
-				page.setPingsEnabled(trackback.intValue() != 0);
-			}
-			page.setWpSlug((String) returnPageData.get("wp_slug"));
-			page.setWpPassword((String) returnPageData.get("wp_password"));
-			page.setWpAuthorID(Integer.parseInt((String) returnPageData.get("wp_author_id")));
-			page.setWpPageParentID(Integer.parseInt((String) returnPageData.get("wp_parent_id")));
-			page.setWpPageParentTitle((String) returnPageData.get("wp_page_parent_title"));
-			page.setWpPageOrder(Integer.parseInt((String) returnPageData.get("wp_page_order")));
-			page.setWpAuthorID(Integer.parseInt((String) returnPageData.get("wp_author_id")));
-			page.setWpAuthorDisplayName((String) returnPageData.get("wp_author_display_name"));
-			page.setCustom_field((Vector) returnPageData.get("custom_fields"));
-			// TODO custom???
-			page.setWpPageTemplate((String) returnPageData.get("wpPageTemplate"));
-
+			Page page = getPage(returnPageData, this.blogID, this.pageID);
 
 			connResponse.setResponseObject(page);
 			notifyObservers(connResponse);
 
 		} catch (Exception cce) {
-			setErrorMessage(cce, "Edit page error");
+			setErrorMessage(cce, "GetPage error: Invalid server response");
 		}
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("notify error"); // TODO handle errors here...
+			System.out.println("GetPage error: Notify error");
 		}
+	}
+
+
+	public static synchronized Page getPage(Hashtable returnPageData, int blogID, int pageID) {
+		String title = ((String) returnPageData.get("title"));
+		String description = ((String) returnPageData.get("description"));
+		Date dateCreated = ((Date) returnPageData.get("dateCreated"));
+
+		Page page = new Page(blogID, pageID, title, description,dateCreated);
+
+		page.setLink((String) returnPageData.get("link"));
+		page.setPermaLink((String) returnPageData.get("permaLink"));
+		page.setPageStatus((String) returnPageData.get("pageStatus"));
+		page.setCategories((Vector) returnPageData.get("categories"));
+		page.setMt_excerpt((String) returnPageData.get("excerpt"));
+		page.setMt_text_more((String) returnPageData.get("text_more"));
+		page.setPermaLink((String) returnPageData.get("permaLink"));
+
+		Integer comments = (Integer) returnPageData.get("mt_allow_comments");
+		if (comments != null) {
+			page.setCommentsEnabled(comments.intValue() != 0);
+		}
+		Integer trackback = (Integer) returnPageData.get("mt_allow_pings");
+		if (trackback != null) {
+			page.setPingsEnabled(trackback.intValue() != 0);
+		}
+		page.setWpSlug((String) returnPageData.get("wp_slug"));
+		page.setWpPassword((String) returnPageData.get("wp_password"));
+		page.setWpAuthorID(Integer.parseInt((String) returnPageData.get("wp_author_id")));
+		page.setWpPageParentID(Integer.parseInt((String) returnPageData.get("wp_page_parent_id")));
+		page.setWpPageParentTitle((String) returnPageData.get("wp_page_parent_title"));
+		page.setWpPageOrder(Integer.parseInt((String) returnPageData.get("wp_page_order")));
+		page.setWpAuthorID(Integer.parseInt((String) returnPageData.get("wp_author_id")));
+		page.setWpAuthorDisplayName((String) returnPageData.get("wp_author_display_name"));
+		Vector cf=(Vector) returnPageData.get("custom_fields");
+		page.setCustom_field(cf);
+		// TODO custom???
+		System.out.println("stampa dei field custom");
+		for (int j=0; j<cf.size(); j++){
+			Hashtable tempData2 = (Hashtable) cf.elementAt(j);
+			System.out.println("id: "+(String) tempData2.get("id"));
+			System.out.println("key: "+(String) tempData2.get("key"));
+			System.out.println("value: "+(String) tempData2.get("value"));
+		}
+
+		page.setWpPageTemplate((String) returnPageData.get("wpPageTemplate"));
+		return page;
 	}
 }

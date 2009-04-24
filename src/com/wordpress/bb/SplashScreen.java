@@ -10,7 +10,6 @@ import javax.microedition.io.HttpConnection;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.KeyListener;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.UiApplication;
@@ -47,7 +46,7 @@ public class SplashScreen extends MainScreen {
 			} else { 
 				//first startup
 				add(new LabelField("Installation in progress...",Field.FIELD_HCENTER| Field.FIELD_VCENTER));
-				//we can controll connection type here...
+				//we can control connection type here...
 			}
 			timer.schedule(new CountDown(), 3000);
 		} catch (Exception e) {

@@ -64,14 +64,13 @@ public class EditCommentConn extends BlogConn  {
 	        connResponse.setResponseObject(response);
 		}
 		catch (Exception e) {
-			setErrorMessage(e, "Comment error");
-			notifyObservers(connResponse);
+			setErrorMessage(e, "EditComment error: Invalid server response");
 		}
 		
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("notify error"); //TODO handle errors here...
+			System.out.println("EditComment error: Notify error"); 
 		}
 		
 	}

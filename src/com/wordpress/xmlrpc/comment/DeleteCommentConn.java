@@ -37,7 +37,6 @@ public class DeleteCommentConn extends BlogConn  {
 
 		        Object response = execute("wp.deleteComment", args);
 				if(connResponse.isError()) {
-					//se il server xml-rpc è andato in err
 					notifyObservers(connResponse);
 					return;		
 				}
@@ -45,14 +44,13 @@ public class DeleteCommentConn extends BlogConn  {
 				connResponse.setResponseObject(response);
 
 			} catch (Exception e) {
-				setErrorMessage(e, "delete error");
-				notifyObservers(connResponse);
+				setErrorMessage(e, "DeleteComment error: Invalid server response");
 			}
 			
 			try {
 				notifyObservers(connResponse);
 			} catch (Exception e) {
-				System.out.println("notify error"); //TODO handle errors here...
+				System.out.println("DeleteComment error: Notify error"); 
 			}
 		}
 }

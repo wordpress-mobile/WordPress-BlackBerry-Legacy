@@ -16,7 +16,7 @@ public class Page {
 	private String title = "";
 	private String link;
 	private String permaLink;
-	private Vector categories;
+	private Vector categories = new Vector();
 	private String mtExcerpt = "";
 	private String mtTextMore = "";
 	private boolean mtAllowComments = true;
@@ -30,9 +30,16 @@ public class Page {
 	private int wpAuthorID;
 	private String wpAuthorDisplayName;
 	private Date dateCreatedGMT;
-	private Vector customField;
+	private Vector customField = new Vector();
 	private String wpPageTemplate;
 	
+	public Page(int blogId, int pageID, String Title, String description, Date dateCreated) {
+		this.blogID = blogId;
+		this.pageID = pageID;
+		this.title = Title;
+		this.description = description;
+		this.dateCreated = dateCreated;
+	}
 	
 	public int getWpAuthorID() {
 		return wpAuthorID;
@@ -50,14 +57,6 @@ public class Page {
 		return blogID;
 	}
 
-	public Page(int blogId, int pageID, String Title, String description,
-			Date dateCreated) {
-		this.blogID = blogId;
-		this.pageID = pageID;
-		this.title = Title;
-		this.description = description;
-		this.dateCreated = dateCreated;
-	}
 
 	public void setWpSlug(String wp_slug) {
 		this.wpSlug = wp_slug;
