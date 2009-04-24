@@ -25,17 +25,18 @@ public abstract class BlogConn extends Observable implements Runnable {
     protected String mPassword;
     protected XmlRpcClient mConnection;	
 	protected BlogConnResponse connResponse = new BlogConnResponse();
-	protected boolean isWorking = false; //indica se la connessione sta lavorando
+	protected boolean isWorking = false;
 	protected Thread t = null;
 	
-	public BlogConn(String aURIHint, String aUserHint, String aPasswordHint, TimeZone aTz) {
+	public BlogConn(String url, String user, String password, TimeZone timezone) {
 
-	    mUsername = aUserHint;
-	    mPassword = aPasswordHint;
+	    mUsername = user;
+	    mPassword = password;
 	    if(Preferences.getIstance().isDeviceSideConnection())
-	    	urlConnessione=aURIHint+";deviceside=true";
+	    	urlConnessione=url+";deviceside=true";
+	    else urlConnessione=url;
 	   				
-  	   System.out.println("creata la connessione");
+  	   System.out.println("connection created");
 	}
 	
 		

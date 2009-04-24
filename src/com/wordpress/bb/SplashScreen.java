@@ -43,12 +43,14 @@ public class SplashScreen extends MainScreen {
 			if (load) {
 				 // preferences loaded!
 				//not first startup
+				timer.schedule(new CountDown(), 3000); //3sec splash
 			} else { 
 				//first startup
 				add(new LabelField("Installation in progress...",Field.FIELD_HCENTER| Field.FIELD_VCENTER));
+				timer.schedule(new CountDown(), 5000); //5 second splash
 				//we can control connection type here...
 			}
-			timer.schedule(new CountDown(), 3000);
+			
 		} catch (Exception e) {
 			timer.cancel();
 			UiApplication.getUiApplication().invokeLater(new Runnable() {

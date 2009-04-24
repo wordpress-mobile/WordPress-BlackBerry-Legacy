@@ -70,7 +70,7 @@ public class GetTagsConn extends BlogConn  {
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("GetTags error: Notify error"); //TODO handle errors here...
+			System.out.println("GetTags error: Notify error");
 		}
 
 	}

@@ -78,7 +78,7 @@ public class PreferencesView extends BaseView {
 	
 	    protected MenuItem _backItem = new MenuItem( _resources, WordPressResource.MENUITEM_BACK, 110, 10) {
 	            public void run() {
-	            	preferencesController.backCmd();
+	            	preferencesController.discardChangeInquiry();
 	            }
 	    };  
 	    
