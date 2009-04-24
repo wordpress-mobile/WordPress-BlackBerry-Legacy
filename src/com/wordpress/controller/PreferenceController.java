@@ -7,6 +7,7 @@ import javax.microedition.rms.RecordStoreException;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.TextField;
 
@@ -26,7 +27,8 @@ public class PreferenceController extends BaseController {
     private String photoEnc=null;
     private int maxPostCount=-1;
     private int timezoneIndex=-1;
-    
+	private int deviceSideConnection=-1;
+	
 	public PreferenceController() {
 		super();
 		this.view= new PreferencesView(this);		
@@ -54,6 +56,9 @@ public class PreferenceController extends BaseController {
 			if(timezoneIndex > 0){
 				mPrefs.setTimeZone(new SimpleTimeZone(timezoneIndex));
 			}
+			if(deviceSideConnection > -1){ 
+				mPrefs.setDeviceSideConnection( deviceSideConnection == 1 ? true : false);
+			}
 			mPrefs.save();
 		} catch (RecordStoreException e) {
 			displayError(e, "Error while saving setup informations");
@@ -73,6 +78,19 @@ public class PreferenceController extends BaseController {
         }
     };
 	
+    
+	private FieldChangeListener deviceSideConnectionListener = new FieldChangeListener() {
+        public void fieldChanged(Field field, int context) {
+        	CheckboxField original = (CheckboxField)field.getOriginal();
+        	if(original.getChecked()){
+        		deviceSideConnection=1;
+        	} else {
+        		deviceSideConnection=0;
+        	}
+        }
+    };
+    
+    
 	private FieldChangeListener audioListener = new FieldChangeListener() {
         public void fieldChanged(Field field, int context) {
         	Field original = field.getOriginal();
@@ -118,7 +136,11 @@ public class PreferenceController extends BaseController {
         }
     };
 
-
+    
+	public FieldChangeListener getDeviceSideConnListener() {
+		return deviceSideConnectionListener;
+	}
+	
 	public FieldChangeListener getAudioListener() {
 		return audioListener;
 	}

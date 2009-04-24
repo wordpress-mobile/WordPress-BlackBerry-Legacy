@@ -3,6 +3,7 @@ package com.wordpress.view;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
+import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.SeparatorField;
@@ -24,6 +25,8 @@ public class PreferencesView extends BaseView {
 	private ObjectChoiceField photoGroup;
 	private ObjectChoiceField videoGroup;
 	private ObjectChoiceField timezoneGroup;
+	private CheckboxField clientSideConn;
+
 	
 	 public PreferencesView(PreferenceController _preferencesController) {
 	    	super();
@@ -38,6 +41,7 @@ public class PreferencesView extends BaseView {
 	        	        
             maxRecentPost = new BasicEditField(_resources.getString(WordPressResource.LABEL_MAXRECENTPOST), String.valueOf(mPrefs.getRecentPostCount()), 100, Field.EDITABLE);
             maxRecentPost.setFilter(new NumericTextFilter());
+            maxRecentPost.setChangeListener(preferencesController.getRecentPostListener());
             
             add(maxRecentPost);
             add(maxBodySize);
@@ -49,8 +53,13 @@ public class PreferencesView extends BaseView {
             timezoneGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_TIMEZONE),SimpleTimeZone.TIME_ZONE_IDS,selected);
             timezoneGroup.setChangeListener(preferencesController.getTimeZoneListener());
 			add( timezoneGroup );
-            
-            maxRecentPost.setChangeListener(preferencesController.getRecentPostListener()); 
+			
+			add(new SeparatorField());
+			
+			clientSideConn=new CheckboxField(_resources.getString(WordPressResource.LABEL_DEVICESIDECONN), mPrefs.isDeviceSideConnection());
+			clientSideConn.setChangeListener(preferencesController.getDeviceSideConnListener());
+			add(clientSideConn);
+             
             //maxBodySize.setChangeListener(preferencesController.getButtonListener());
             //FIXME: we needs max body size setup??
             

@@ -2,8 +2,6 @@ package com.wordpress.utils;
 
 import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.system.CodeModuleGroup;
-import net.rim.device.api.system.CodeModuleGroupManager;
 
 public class PropertyUtils {
 
@@ -25,12 +23,14 @@ public class PropertyUtils {
 		 return descriptor.getIcon();
 	}
 	
-
+/* Research In Motion tracks the use of sensitive APIs in the BlackBerry® Java® Development Environment for security and export
+control reasons. This method require code sign otherwise the application won't start on real devices.
+*/
 	/**
 	 * Chiama la midlet per accedere alle risorse definite nel file jad
 	 * @param key
 	 * @return
-	 */
+	 
 	public static synchronized String getAppProperty(String key){
 		//return midlet.getAppProperty(key);
 		CodeModuleGroup myGroup = null;
@@ -53,5 +53,5 @@ public class PropertyUtils {
 			return "";
 		} 
 	}
-	
+	*/
 }

@@ -17,11 +17,11 @@ public class MainController extends BaseController {
 	
 	public MainController() {
 		super();
-		this.mainView=new MainView(this);
-		blogController= BlogController.getIstance();
 	}
 	
 	public void showView(){
+		this.mainView=new MainView(this); //main view init here!.
+		blogController= BlogController.getIstance();
 		UiApplication.getUiApplication().pushScreen(this.mainView);
 	}
 		

@@ -13,8 +13,10 @@ import javax.microedition.rms.RecordStoreException;
 
 public class Preferences {
 
-    private final static String STORE_PREFS = "MoPressPreferences"; //nome del RMS per le preferenze
-    private final static String PREFS_HEADER = "MPv";
+	
+	private String mStoreName =  "WordPressPreferences"; //nome del RMS per le preferenze
+    private int mRecordSize = 16;
+    private final static String PREFS_HEADER = "WPv";
     private final static byte PREFS_VERSION = 1;
 
 	private static Preferences singletonObject;
@@ -23,16 +25,11 @@ public class Preferences {
     private int mMaxBodySize = 4096;
     private int mRecentPostCount = 5;
     private int localeIndex=0;
-    
+    private byte deviceSideConnection=0; //identify if the device require client side http connection
+
 	private String photoEncoding=""; //jpg, png, ecc
     private String audioEncoding="";
     private String videoEncoding="";
-    
-
-	private String mStoreName = STORE_PREFS;
-    private int mRecordSize = 16;
-
-
         
 	public static Preferences getIstance() {
 		if (singletonObject == null) {
@@ -78,7 +75,7 @@ public class Preferences {
 		this.localeIndex = localeIndex;
 	}
 
-    public void load()  throws RecordStoreException, IOException {
+    public boolean load()  throws RecordStoreException, IOException {
    	   //#debug
   	   System.out.println(">>>load preferences");
 
@@ -111,7 +108,14 @@ public class Preferences {
                 videoEncoding= data.readUTF();
                 audioEncoding= data.readUTF();
                 photoEncoding= data.readUTF();
+                deviceSideConnection= data.readByte();
                 data.close();
+                System.out.println("RMS loading succesfully!");
+                return true;
+            } else {
+            	System.out.println("RMS was empty, maybe first running...");
+            	return false;
+            
             }
         } finally {
             if (records != null) {
@@ -148,6 +152,7 @@ public class Preferences {
             data.writeUTF(videoEncoding);
             data.writeUTF(audioEncoding);
             data.writeUTF(photoEncoding);
+            data.writeByte(deviceSideConnection);
             data.close();
             record = bytes.toByteArray();
                 
@@ -192,5 +197,20 @@ public class Preferences {
 	public void setVideoEncoding(String videoEncoding) {
 		this.videoEncoding = videoEncoding;
 	}
-}
+	
+	public boolean isDeviceSideConnection() {
+		int  res=deviceSideConnection;
+		if(res == 1) {
+			return true;
+		} else { 
+			return false;
+		}
+	}
 
+	public void setDeviceSideConnection(boolean value) {
+		if(value)
+			this.deviceSideConnection = 1;
+		else
+			this.deviceSideConnection=0;
+	}
+}

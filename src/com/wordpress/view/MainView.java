@@ -33,22 +33,15 @@ public class MainView extends MainScreen {
 	public MainView(MainController mainController) {
 		super();
 		this.mainController=mainController;
-		blogController= BlogController.getIstance();
+	
 		blogPrefs = Preferences.getIstance();
+		blogController= BlogController.getIstance();
         //add a screen title
         LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_APPLICATION),
                         LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
         setTitle(title);
-		        
-    	try {
-			blogPrefs.load(); //TODO il caricamento delle preferenze deve avvenire altrove
-		} catch (Exception e) {
-			e.printStackTrace();
-			//displayError(e, "Non riesco a caricare le preferenze");
-		}
-		
-		setupUpBlogsView();
-		
+        setupUpBlogsView();
+	
 		addMenuItem(_aboutItem);
 		addMenuItem(_addBlogItem);
 		addMenuItem(_setupItem);
@@ -56,8 +49,7 @@ public class MainView extends MainScreen {
 	
 	
 	 public void setupUpBlogsView() {
-
-		 String[] blogCaricati= blogController.getBlogNames();
+		String[] blogCaricati= blogController.getBlogNames();
 	        
         listaBlog = new ObjectListField();
         if (blogCaricati.length == 0){

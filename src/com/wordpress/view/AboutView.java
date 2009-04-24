@@ -36,11 +36,8 @@ public class AboutView extends BaseView {
     	String name = PropertyUtils.getAppName();
         String version = PropertyUtils.getAppVersion();
     	        
-        //FIXME: manca la url - leggere direttamente il file della licenza?
-    	String url = PropertyUtils.getAppProperty("MIDlet-Info-URL");
-
         add(new BitmapField(_bitmap, Field.FIELD_HCENTER | Field.FIELD_VCENTER));
-        add(new LabelField(name + " " + version + " " + url,Field.FOCUSABLE));
+        add(new LabelField(name + " " + version,Field.FOCUSABLE));
         add(new LabelField( "Copyright (C) 2009 XXX s.r.l.",Field.FOCUSABLE));
         add(new SeparatorField());
         add(new LabelField( FileUtils.readTxtFile("License.txt"),Field.FOCUSABLE));

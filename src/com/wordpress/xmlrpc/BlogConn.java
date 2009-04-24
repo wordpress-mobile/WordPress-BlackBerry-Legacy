@@ -13,6 +13,7 @@ import org.kxmlrpc.XmlRpcException;
 
 import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
+import com.wordpress.utils.Preferences;
 import com.wordpress.utils.observer.Observable;
 
 public abstract class BlogConn extends Observable implements Runnable {
@@ -31,9 +32,9 @@ public abstract class BlogConn extends Observable implements Runnable {
 
 	    mUsername = aUserHint;
 	    mPassword = aPasswordHint;
-
-	    urlConnessione=aURIHint+";deviceside=true"; //FIXME delete for real phones
-				
+	    if(Preferences.getIstance().isDeviceSideConnection())
+	    	urlConnessione=aURIHint+";deviceside=true";
+	   				
   	   System.out.println("creata la connessione");
 	}
 	
