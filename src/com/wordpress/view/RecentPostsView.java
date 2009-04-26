@@ -6,7 +6,6 @@ import net.rim.device.api.ui.component.ObjectListField;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.RecentPostsController;
-import com.wordpress.xmlrpc.post.EditPostConn;
 
 public class RecentPostsView extends BaseView {
 	
@@ -63,7 +62,7 @@ public class RecentPostsView extends BaseView {
     };
 
     	 
-    public void refresh( String[] post){
+    public void refresh(String[] post){
     	this.delete(listaPost);
     	buildList(post);
     }

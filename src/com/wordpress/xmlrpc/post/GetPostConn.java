@@ -46,7 +46,7 @@ public class GetPostConn extends BlogConn  {
             aPost.setBody((String) postData.get("description"));
             aPost.setExtendedBody((String) postData.get("mt_text_more"));
             aPost.setExcerpt((String) postData.get("mt_excerpt"));
-            aPost.setAuthoredOn((Date) postData.get("dateCreated"));
+            aPost.setAuthoredOn(((Date) postData.get("dateCreated")).getTime());
             String breaks = (String) postData.get("mt_convert_breaks");
             if (breaks != null && !breaks.equals("__default__")) {
                 aPost.setConvertLinebreaksEnabled(breaks.equals("1"));
@@ -91,7 +91,7 @@ public class GetPostConn extends BlogConn  {
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("notify error"); //TODO handle error here
+			System.out.println("Get Post Conn Notify Error");
 		}
 	}
 }

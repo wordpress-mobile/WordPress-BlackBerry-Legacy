@@ -3,7 +3,12 @@ package com.wordpress.view;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
 
+import net.rim.device.api.i18n.ResourceBundle;
+import net.rim.device.api.ui.ContextMenu;
+import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.EditField;
+
+import com.wordpress.bb.WordPressResource;
 
 public class HtmlTextField extends EditField{
 
@@ -18,20 +23,13 @@ public class HtmlTextField extends EditField{
     public final static String LABEL_UL = "Unordered List";
     public final static String LABEL_OL = "Ordered List";
     
-    /*
-    final static Command mark= new Command(PostTextBox.LABEL_MARK, Command.SCREEN, 2);
-    final static Command em=(new Command(PostTextBox.LABEL_EM, Command.SCREEN, 3));
-    final static Command strong=(new Command(PostTextBox.LABEL_STRONG, Command.SCREEN, 4));
-    final static Command label=(new Command(PostTextBox.LABEL_A, Command.SCREEN, 5));
-    final static Command p=(new Command(PostTextBox.LABEL_P, Command.SCREEN, 6));
-    final static Command li=(new Command(PostTextBox.LABEL_LI, Command.SCREEN, 7));
-    final static Command ul=(new Command(PostTextBox.LABEL_UL, Command.SCREEN, 8));
-    final static Command ol=(new Command(PostTextBox.LABEL_OL, Command.SCREEN, 9));
-    
-	final static Command newPhotoCommand = new Command("New Photo", Command.SCREEN, 1);
-	final static Command newVideoCommand = new Command("New Video", Command.SCREEN, 2);
-	final static Command newAudioCommand = new Command("New Audio", Command.SCREEN, 3);
-    */
+	//create a variable to store the ResourceBundle for localization support
+    protected static ResourceBundle _resources;
+	    
+    static {
+        //retrieve a reference to the ResourceBundle for localization support
+        _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
+    }
 
     public HtmlTextField(String label, String content, int maxSize) {
         super("", content, maxSize, (EDITABLE | USE_ALL_HEIGHT | USE_ALL_WIDTH ) );
@@ -76,6 +74,55 @@ public class HtmlTextField extends EditField{
         mMark = -1;
     }
     
+/*    //Adding context menu
+    protected void makeContextMenu(ContextMenu contextMenu) {
+        contextMenu.addItem(_emItem);
+        contextMenu.addItem(_strongItem);       
+    }
+*/
+    
+    private MenuItem _emItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESHBLOG, 110, 10) {
+        public void run() {
+        	
+        }
+    };
+
+    private MenuItem _strongItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESHBLOG, 110, 10) {
+        public void run() {
+        	
+        }
+    };
+    
+    private MenuItem _anchorItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESHBLOG, 110, 10) {
+        public void run() {
+        	
+        }
+    };
+    
+    private MenuItem _paragraphItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESHBLOG, 110, 10) {
+        public void run() {
+        	
+        }
+    };
+    
+    private MenuItem _ulItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESHBLOG, 110, 10) {
+        public void run() {
+        	
+        }
+    };
+    
+    private MenuItem _olItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESHBLOG, 110, 10) {
+        public void run() {
+        	
+        }
+    };
+    
+    private MenuItem _liItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESHBLOG, 110, 10) {
+        public void run() {
+        	
+        }
+    };
+
  protected void insertHtmlMarkup(String aCommand){
      if (aCommand == HtmlTextField.LABEL_MARK) {
      	mMark=getCursorPosition();	    		

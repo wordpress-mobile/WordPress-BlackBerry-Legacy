@@ -61,7 +61,7 @@ public class BlogAuthConn extends BlogConn  {
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("notify error"); //TODO handle error here
+			System.out.println("Blog Auth Notify Error"); 
 		}
 	}
 	

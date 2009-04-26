@@ -57,18 +57,34 @@ public class AddBlogsController extends BaseController implements Observer{
         		}
         		System.out.println("label: "+bfLabel);
         		System.out.println("url: " + url+ " user: "+user);
-        	} else {
-	            ButtonField buttonField = (ButtonField) field;
-	        	System.out.println("Button pressed: " + buttonField.getLabel());
-	            if( buttonField.getLabel().equals(_resources.getString(WordPressResource.BUTTON_OK))){
-	            	addBlogs();
-	            } else {
-	            	backCmd();
-	            }
-        	}
+        	} 
        }
     };
 
+	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
+        public void fieldChanged(Field field, int context) {
+        	System.out.println("field class name: " + field.getOriginal().getClass().getName());
+        	addBlogs();
+       }
+    };
+
+    
+	private FieldChangeListener listenerBackButton = new FieldChangeListener() {
+        public void fieldChanged(Field field, int context) {
+        	System.out.println("field class name: " + field.getOriginal().getClass().getName());
+	            	backCmd();
+       }
+    };
+    
+    
+	public FieldChangeListener getOkButtonListener() {
+		return listenerOkButton;
+	}
+	   
+	public FieldChangeListener getBackButtonListener() {
+		return listenerBackButton;
+	}
+    
 	public FieldChangeListener getButtonListener() {
 		return listener;
 	}

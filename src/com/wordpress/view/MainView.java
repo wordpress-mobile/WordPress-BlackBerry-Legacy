@@ -10,12 +10,11 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BlogController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
-import com.wordpress.utils.Preferences;
 
 public class MainView extends MainScreen {
 	
 
-    private Preferences blogPrefs = null;
+
     private BlogController blogController = null;
     private MainController mainController=null;
 
@@ -34,7 +33,6 @@ public class MainView extends MainScreen {
 		super();
 		this.mainController=mainController;
 	
-		blogPrefs = Preferences.getIstance();
 		blogController= BlogController.getIstance();
         //add a screen title
         LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_APPLICATION),
@@ -51,21 +49,19 @@ public class MainView extends MainScreen {
 	 public void setupUpBlogsView() {
 		String[] blogCaricati= blogController.getBlogNames();
 	        
+		removeMenuItem(_recentPostsItem);
+		removeMenuItem(_newPostItem);
+    	removeMenuItem(_draftPostsItem);
+    	removeMenuItem(_refreshBlogItem);
+    	removeMenuItem(_deleteBlogItem);
+		
         listaBlog = new ObjectListField();
         if (blogCaricati.length == 0){
         	blogCaricati= new String[1];
         	blogCaricati[0]="No blog";
-        	
-        	removeMenuItem(_deleteBlogItem); 
-        	removeMenuItem(_refreshBlogItem);
         } else {
-        	//aggiungi i comandi dei blog	        	
-        	/*
-        	UiAccess.addSubCommand( newPostCommand, postCmd, blogs ); 
-        	UiAccess.addSubCommand( draftPostCommand, postCmd, blogs );
-        	UiAccess.addSubCommand( recentPostCommand, postCmd, blogs );
-            */
         	addMenuItem(_recentPostsItem);
+        	addMenuItem(_newPostItem);
         	addMenuItem(_draftPostsItem);
         	addMenuItem(_refreshBlogItem);
         	addMenuItem(_deleteBlogItem);
@@ -82,23 +78,14 @@ public class MainView extends MainScreen {
 		}
 	 }
 	 
-	
-    //create a menu item for users to click to add blog to the app
-    private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 100, 10) {
-        public void run() {
-        	FrontController.getIstance().showAddBlogsView();
-        }
-    };
-    
-    //create a menu item for users to click to refresh blog
-    private MenuItem _refreshBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESHBLOG, 110, 10) {
+
+    private MenuItem _newPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_NEWPOST, 110, 10) {
         public void run() {
         	int selected = listaBlog.getSelectedIndex();
-        	mainController.refreshBlog(selected);
+        	mainController.newPost(selected);
         }
     };
-
-    
+       
     private MenuItem _draftPostsItem = new MenuItem( _resources, WordPressResource.MENUITEM_DRAFTPOSTS, 120, 10) {
         public void run() {
        	 int selected = listaBlog.getSelectedIndex();
@@ -113,8 +100,20 @@ public class MainView extends MainScreen {
         }
     };
 
-        
-    //create a menu item for users to click to show setup
+    //add blog menu item 
+    private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 140, 10) {
+        public void run() {
+        	FrontController.getIstance().showAddBlogsView();
+        }
+    };
+
+    private MenuItem _refreshBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESHBLOG, 150, 10) {
+        public void run() {
+        	int selected = listaBlog.getSelectedIndex();
+        	mainController.refreshBlog(selected);
+        }
+    };
+   
     private MenuItem _deleteBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETEBLOG, 200, 10) {
         public void run() {
             int selectedBlog = listaBlog.getSelectedIndex();
@@ -123,15 +122,12 @@ public class MainView extends MainScreen {
         }
     };
     
-    
-    //create a menu item for users to click to show setup
     private MenuItem _setupItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETUP, 1000, 10) {
         public void run() {
         	FrontController.getIstance().showSetupView();
         }
     };
 
-    //create a menu item for users to click to see more information about the app
     private MenuItem _aboutItem = new MenuItem( _resources, WordPressResource.MENUITEM_ABOUT, 1010, 10) {
         public void run() {
         	FrontController.getIstance().showAboutView();

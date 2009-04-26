@@ -43,7 +43,7 @@ public class MainController extends BaseController {
    	 try {
    		 currentBlog=blogController.getBlog(selectedBlog);
 		} catch (Exception e) {
-			displayError(e, "Recent Blog Error");
+			displayError(e, "Error while getting Blog Data");
 		}
 		if(currentBlog != null) {
 			FrontController.getIstance().showDraftPostsView(currentBlog);
@@ -74,4 +74,17 @@ public class MainController extends BaseController {
 			FrontController.getIstance().refreshBlog(currentBlog);
 		}
 	}
+	
+	public void newPost(int selectedBlog){
+	  	 Blog currentBlog=null;
+	  	 try {
+	  		 currentBlog=blogController.getBlog(selectedBlog);
+			} catch (Exception e) {
+				displayError(e, "Load Blog info Error");
+			}
+			if(currentBlog != null) {
+				FrontController.getIstance().newPost(currentBlog); //show the new post view
+			}
+		}
+	
 }

@@ -4,6 +4,8 @@ import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.model.Blog;
+import com.wordpress.model.Post;
+import com.wordpress.view.DraftPostsView;
 import com.wordpress.view.MainView;
 
 
@@ -13,7 +15,6 @@ import com.wordpress.view.MainView;
 
 public class FrontController {
 	private static FrontController singletonObject;
-	
 	
 	public static FrontController getIstance() {
 		if (singletonObject == null) {
@@ -58,7 +59,7 @@ public class FrontController {
 	 */
 	public void showRecentPostsView(Blog currentBlog){
 		RecentPostsController ctrl=new RecentPostsController(currentBlog);
-		ctrl.loadPosts();
+		ctrl.showView();
 	}
 	
 	/**
@@ -69,7 +70,6 @@ public class FrontController {
 		ctrl.showView();
 	}
 	
-	
 	/**
 	 * refresh a blog
 	 */
@@ -79,14 +79,31 @@ public class FrontController {
 	}
 		
 	/**
-	 * show post view
+	 * show edit post view
 	 */
-	public void showPost(){
-		PostController ctrl=new PostController();
+	public void showPost(Post post){
+		PostController ctrl=new PostController(post);
 		ctrl.showView();
 	}
 	
+	/**
+	 * show draft post 
+	 */
+	public void showDraftPost(Post post, int draftId){
+		PostController ctrl=new PostController(post,draftId);
+		ctrl.showView();
+	}
 	
+	/**
+	 * show new post view
+	 */
+	public void newPost(Blog currentBlog){
+		Post post =new Post(currentBlog);
+		PostController ctrl=new PostController(post);
+		ctrl.showView();
+	}
+	
+		
 	/**
 	 * pop out screens form the stack until MainView found.
 	 * Then Refresh the main view.

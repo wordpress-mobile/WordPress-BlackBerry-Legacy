@@ -64,8 +64,6 @@ public class PreferencesView extends BaseView {
             //FIXME: we needs max body size setup??
             
           //  addMenuItem(_saveItem); autosave like iphone??
-            addMenuItem(_backItem);
-            
 	 }
 	  
 	    //create a menu item for users click to save
@@ -74,13 +72,8 @@ public class PreferencesView extends BaseView {
 	        	preferencesController.savePref();
 	        }
 	    };
-	    
 	
-	    protected MenuItem _backItem = new MenuItem( _resources, WordPressResource.MENUITEM_BACK, 110, 10) {
-	            public void run() {
-	            	preferencesController.discardChangeInquiry();
-	            }
-	    };  
+
 	    
 	 private void addMultimediaOption() {
 			//audio config 

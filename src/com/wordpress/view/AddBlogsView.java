@@ -49,8 +49,8 @@ public class AddBlogsView extends BaseView {
             blogUrlField.setChangeListener(addBlogsController.getButtonListener());
             userNameField.setChangeListener(addBlogsController.getButtonListener());
             passwordField.setChangeListener(addBlogsController.getButtonListener());
-            buttonBACK.setChangeListener(addBlogsController.getButtonListener());
-            buttonOK.setChangeListener(addBlogsController.getButtonListener());
+            buttonBACK.setChangeListener(addBlogsController.getBackButtonListener());
+            buttonOK.setChangeListener(addBlogsController.getOkButtonListener());
 	 }
 	 
 	   //override onClose() to by-pass the standard dialog box when the screen is closed    

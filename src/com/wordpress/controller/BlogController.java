@@ -63,8 +63,8 @@ public class BlogController {
 				addBlog(currBlog, false);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			//TODO displayError(e, "Non riesco a leggere i blog precedenti");
+			//TODO handle load blog error
+			System.err.println("Load previous added blogs error");
 		}
 	}
 	
@@ -120,7 +120,7 @@ public class BlogController {
 	        data.readUTF(); // titolo
 	
 	        aDraft.setAuthor(readNullSafeString(data));
-	        aDraft.setAuthoredOn(readNullSafeDate(data));
+	        aDraft.setAuthoredOn(readNullSafeDate(data).getTime());
 	        aDraft.setPrimaryCategory(aBlog.getCategory(readNullSafeString(data)));
 	        aDraft.setConvertLinebreaksEnabled(data.readBoolean());
 	        aDraft.setCommentsEnabled(data.readBoolean());
@@ -443,46 +443,46 @@ public Blog loadBlog(String aName) throws RecordStoreException, IOException {
 
     
 	public void saveDraftPost(Post aDraft, int aDraftId) throws RecordStoreException, IOException {
-    RecordStore records = getBlogRecordStore(aDraft.getBlog().getBlogName());
-    byte[] record = null;
-    ByteArrayOutputStream bytes;
-    DataOutputStream data;
+	    RecordStore records = getBlogRecordStore(aDraft.getBlog().getBlogName());
+	    byte[] record = null;
+	    ByteArrayOutputStream bytes;
+	    DataOutputStream data;
 
-    try {
-        bytes = new ByteArrayOutputStream(getBlogNames().length * 8);
-        data = new DataOutputStream(bytes);
+	    try {
+	        bytes = new ByteArrayOutputStream(getBlogNames().length * 8);
+	        data = new DataOutputStream(bytes);
 
-        data.writeUTF(POST_HEADER);
-        data.writeByte(POST_VERSION);
-        writeNullSafeString(aDraft.getId(), data);
-        writeNullSafeString(aDraft.getTitle(), data);
-        writeNullSafeString(aDraft.getAuthor(), data);
-        writeNullSafeDate(aDraft.getAuthoredOn(), data);
-        writeNullSafeString(aDraft.getPrimaryCategory() != null ? aDraft.getPrimaryCategory().getId() : null, data);
-        data.writeBoolean(aDraft.isConvertLinebreaksEnabled());
-        data.writeBoolean(aDraft.isCommentsEnabled());
-        data.writeBoolean(aDraft.isTrackbackEnabled());
-        writeNullSafeString(aDraft.getBody(), data);
-        writeNullSafeString(aDraft.getExtendedBody(), data);
-        writeNullSafeString(aDraft.getExcerpt(), data);
-        data.close();
+	        data.writeUTF(POST_HEADER);
+	        data.writeByte(POST_VERSION);
+	        writeNullSafeString(aDraft.getId(), data);
+	        writeNullSafeString(aDraft.getTitle(), data);
+	        writeNullSafeString(aDraft.getAuthor(), data);
+	        writeNullSafeDate(aDraft.getAuthoredOn(), data);
+	        writeNullSafeString(aDraft.getPrimaryCategory() != null ? aDraft.getPrimaryCategory().getId() : null, data);
+	        data.writeBoolean(aDraft.isConvertLinebreaksEnabled());
+	        data.writeBoolean(aDraft.isCommentsEnabled());
+	        data.writeBoolean(aDraft.isTrackbackEnabled());
+	        writeNullSafeString(aDraft.getBody(), data);
+	        writeNullSafeString(aDraft.getExtendedBody(), data);
+	        writeNullSafeString(aDraft.getExcerpt(), data);
+	        data.close();
 
-        record = bytes.toByteArray();
+	        record = bytes.toByteArray();
 
-        if (aDraftId == -1) {
-            records.addRecord(record, 0, record.length);
-        } else {
-            records.setRecord(aDraftId, record, 0, record.length);
-        }
-    } finally {
-        try {
-            records.closeRecordStore();
-        } catch (Exception e) {
-         	//#debug error
-    		System.out.println("saveDraftPost failed: " +e);
-        }
-    }
-}
+	        if (aDraftId == -1) {
+	            records.addRecord(record, 0, record.length);
+	        } else {
+	            records.setRecord(aDraftId, record, 0, record.length);
+	        }
+	    } finally {
+	        try {
+	            records.closeRecordStore();
+	        } catch (Exception e) {
+	         	//#debug error
+	    		System.out.println("saveDraftPost failed: " +e);
+	        }
+	    }
+	}
 	
 		
     public Blog getBlog(int aIndex) throws Exception {

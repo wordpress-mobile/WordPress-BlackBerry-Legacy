@@ -108,7 +108,7 @@ public class EditPostConn extends BlogConn  {
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("notify error"); //TODO handle error here
+			System.out.println("Edit Post Notify Error"); 
 		}
 	}
 }

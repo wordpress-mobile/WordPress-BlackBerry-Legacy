@@ -77,8 +77,8 @@ public class Post {
         return authoredOn;
     }
 
-    public void setAuthoredOn(Date aAuthored) {
-        authoredOn = aAuthored;
+    public void setAuthoredOn(long aAuthored) {
+        authoredOn = new Date(aAuthored);
     }
 
     public boolean isConvertLinebreaksEnabled() {

@@ -10,7 +10,8 @@ import com.wordpress.controller.DraftPostsController;
 public class DraftPostsView extends BaseView {
 	
     private DraftPostsController controller= null;
-    private ObjectListField listaPost; 
+
+	private ObjectListField listaPost; 
 	
 	 public DraftPostsView(DraftPostsController  _controller, String[] post) {
 	    	super();
@@ -26,29 +27,32 @@ public class DraftPostsView extends BaseView {
 
 
 	private void buildList(String[] post) {
-		removeAllMenuItems();
-		
+		removeAllMenuItems();	
 		listaPost = new ObjectListField(); 	        
 		listaPost.set(post);
 		add(listaPost);
-
 		if(post.length > 0 ){
 			addMenuItem(_editPostItem);
 			addMenuItem(_deletePostItem);
 		}
 	}
-	 
+	
+    public void refresh( String[] post){
+    	this.delete(listaPost);
+    	buildList(post);
+    }
+	
     private MenuItem _deletePostItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETEPOST, 210, 10) {
         public void run() {
             int selectedPost = listaPost.getSelectedIndex();
-            //controller.deletePost(selectedPost);
+            controller.deletePost(selectedPost);    
         }
     };
     
     private MenuItem _editPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDITPOST, 200, 10) {
         public void run() {
             int selectedPost = listaPost.getSelectedIndex();
-            //controller.editPost(selectedPost);
+            controller.editPost(selectedPost);            
         }
     };
 }
