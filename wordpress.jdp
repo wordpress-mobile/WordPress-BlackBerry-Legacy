@@ -45,6 +45,7 @@ src\com\wordpress\model\Author.java
 src\com\wordpress\model\Blog.java
 src\com\wordpress\model\Category.java
 src\com\wordpress\model\Comment.java
+src\com\wordpress\model\Option.java
 src\com\wordpress\model\Page.java
 src\com\wordpress\model\Post.java
 src\com\wordpress\model\PostState.java
@@ -66,7 +67,7 @@ src\com\wordpress\view\dialog\ErrorView.java
 src\com\wordpress\view\dialog\InfoView.java
 src\com\wordpress\view\dialog\InquiryView.java
 src\com\wordpress\view\DraftPostsView.java
-src\com\wordpress\view\ErrorView.java
+src\com\wordpress\view\HtmlTagPopupScreen.java
 src\com\wordpress\view\HtmlTextField.java
 src\com\wordpress\view\MainView.java
 src\com\wordpress\view\PostView.java
@@ -86,6 +87,8 @@ src\com\wordpress\xmlrpc\comment\NewCommentConn.java
 src\com\wordpress\xmlrpc\GetAuthorsConn.java
 src\com\wordpress\xmlrpc\GetTagsConn.java
 src\com\wordpress\xmlrpc\NewMediaObjectConn.java
+src\com\wordpress\xmlrpc\option\GetOptionsConn.java
+src\com\wordpress\xmlrpc\option\SetOptionsConn.java
 src\com\wordpress\xmlrpc\page\DeletePageConn.java
 src\com\wordpress\xmlrpc\page\EditPageConn.java
 src\com\wordpress\xmlrpc\page\GetPageConn.java
