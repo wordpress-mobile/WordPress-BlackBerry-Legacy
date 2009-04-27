@@ -20,7 +20,6 @@ public class PreferencesView extends BaseView {
     private PreferenceController preferencesController= null;
     private Preferences mPrefs=Preferences.getIstance();
 	private BasicEditField maxRecentPost;
-	private BasicEditField maxBodySize;
 	private ObjectChoiceField audioGroup;
 	private ObjectChoiceField photoGroup;
 	private ObjectChoiceField videoGroup;
@@ -36,15 +35,11 @@ public class PreferencesView extends BaseView {
 	                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
 	        setTitle(title);
 	    	
-	        maxBodySize = new BasicEditField(_resources.getString(WordPressResource.LABEL_MAXBODYSIZE), "", 60, Field.EDITABLE);
-	        maxBodySize.setFilter(new NumericTextFilter());
-	        	        
             maxRecentPost = new BasicEditField(_resources.getString(WordPressResource.LABEL_MAXRECENTPOST), String.valueOf(mPrefs.getRecentPostCount()), 100, Field.EDITABLE);
             maxRecentPost.setFilter(new NumericTextFilter());
             maxRecentPost.setChangeListener(preferencesController.getRecentPostListener());
             
             add(maxRecentPost);
-            add(maxBodySize);
             add(new SeparatorField());
             addMultimediaOption();
             add(new SeparatorField());
@@ -60,9 +55,6 @@ public class PreferencesView extends BaseView {
 			clientSideConn.setChangeListener(preferencesController.getDeviceSideConnListener());
 			add(clientSideConn);
              
-            //maxBodySize.setChangeListener(preferencesController.getButtonListener());
-            //FIXME: we needs max body size setup??
-            
           //  addMenuItem(_saveItem); autosave like iphone??
 	 }
 	  

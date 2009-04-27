@@ -9,6 +9,7 @@ LABEL_DEVICESIDECONN#0="Client Side Connection?";
 LABEL_EMPTYTITLE#0="Title Empty";
 LABEL_MAXBODYSIZE#0="Max Body Size";
 LABEL_MAXRECENTPOST#0="Recent Post";
+LABEL_MULTIMEDIATYPE#0="Choose multimedia type";
 LABEL_PHOTOENCODING#0="Photo Encoding";
 LABEL_POST_ALLOWCOMMENTS#0="Allow comments";
 LABEL_POST_ALLOWTRACKBACKS#0="Allow trackbacks";

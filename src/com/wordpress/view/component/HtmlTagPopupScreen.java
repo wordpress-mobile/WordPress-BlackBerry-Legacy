@@ -1,5 +1,8 @@
-package com.wordpress.view;
+package com.wordpress.view.component;
 
+import com.wordpress.bb.WordPressResource;
+
+import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.KeyListener;
 import net.rim.device.api.system.TrackwheelListener;
@@ -12,6 +15,15 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 
 public class HtmlTagPopupScreen extends PopupScreen implements KeyListener, TrackwheelListener {
     
+	//create a variable to store the ResourceBundle for localization support
+    protected static ResourceBundle _resources;
+	    
+    static {
+        //retrieve a reference to the ResourceBundle for localization support
+        _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
+    }
+
+	
     private String _response;
         
     

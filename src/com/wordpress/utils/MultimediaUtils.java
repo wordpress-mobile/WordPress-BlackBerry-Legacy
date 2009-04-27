@@ -2,6 +2,7 @@ package com.wordpress.utils;
 
 public class MultimediaUtils {
 	
+
 	public static boolean supportPhotoCapture(){
 		if( System.getProperty("supports.video.capture")!=null
 				&& System.getProperty("supports.video.capture").trim().equalsIgnoreCase("true") 

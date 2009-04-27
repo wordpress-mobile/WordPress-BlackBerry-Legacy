@@ -10,6 +10,7 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.DateField;
+import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.SeparatorField;
@@ -21,6 +22,11 @@ import com.wordpress.controller.PostController;
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
 import com.wordpress.model.PostState;
+import com.wordpress.utils.MultimediaUtils;
+import com.wordpress.view.component.FileSelectorPopupScreen;
+import com.wordpress.view.component.HtmlTagPopupScreen;
+import com.wordpress.view.component.HtmlTextField;
+import com.wordpress.view.component.MultimediaPopupScreen;
 
 public class PostView extends BaseView  implements FocusChangeListener{
 	
@@ -142,7 +148,7 @@ public class PostView extends BaseView  implements FocusChangeListener{
 
     private MenuItem _mediaItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_MM, 110, 10) {
         public void run() {
-        	UiApplication.getUiApplication().pushScreen(new HtmlTagPopupScreen());
+        	controller.showMultimediaSelectionBox(bodyTextBox);
         }
     };
     
@@ -330,7 +336,7 @@ public class PostView extends BaseView  implements FocusChangeListener{
 	
 	public VerticalFieldManager displayTabBody() {
 		if(bodyTextBox == null){
-			bodyTextBox= new HtmlTextField("",post.getBody(),100000);
+			bodyTextBox= new HtmlTextField(post.getBody());
 			tabBodyManager.add(bodyTextBox);
 		}
 		return tabBodyManager;
@@ -338,7 +344,7 @@ public class PostView extends BaseView  implements FocusChangeListener{
 
 	public VerticalFieldManager displayTabExtended() {
 		if(extendedTextBox == null){
-			extendedTextBox= new HtmlTextField("",post.getExtendedBody(),100000);
+			extendedTextBox= new HtmlTextField(post.getExtendedBody());
 			tabExtendedManager.add(extendedTextBox);
 		}
 		
@@ -347,7 +353,7 @@ public class PostView extends BaseView  implements FocusChangeListener{
 
 	public VerticalFieldManager displayTabExcerpt() {
 		if(excerptTextBox == null){
-			excerptTextBox= new HtmlTextField("",post.getExcerpt(),100000);
+			excerptTextBox= new HtmlTextField(post.getExcerpt());
 			tabExcerptManager.add(excerptTextBox);
 		}
 		

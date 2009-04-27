@@ -4,7 +4,6 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BasicEditField;
-import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.PasswordEditField;
 
@@ -15,7 +14,6 @@ import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.AddBlogsView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
-import com.wordpress.view.dialog.DiscardChangeInquiryView;
 import com.wordpress.xmlrpc.BlogAuthConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 
@@ -23,7 +21,8 @@ import com.wordpress.xmlrpc.BlogConnResponse;
 public class AddBlogsController extends BaseController implements Observer{
 	
 	private AddBlogsView view = null;
-	private String url="http://localhost/wp_mopress/xmlrpc.php";
+	private String url="http://danais.no-ip.org/demo/wp_testing/xmlrpc.php";
+	//http://danais.no-ip.org/demo/wp_testing/
 	private String pass="mopress"; // FIXME ricordati di togliere
 	private String user="mopress";
 	ConnectionInProgressView connectionProgressView=null;

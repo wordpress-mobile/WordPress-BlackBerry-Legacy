@@ -1,4 +1,4 @@
-package com.wordpress.view;
+package com.wordpress.view.component;
 
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
@@ -31,8 +31,9 @@ public class HtmlTextField extends EditField{
         _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
     }
 
-    public HtmlTextField(String label, String content, int maxSize) {
-        super("", content, maxSize, (EDITABLE | USE_ALL_HEIGHT | USE_ALL_WIDTH ) );
+    public HtmlTextField(String content) {
+        super(EDITABLE | USE_ALL_HEIGHT | USE_ALL_WIDTH );
+        setText(content);
     }
     
     public void commandAction(Command aCommand, Displayable aDisplayable) {
@@ -44,8 +45,8 @@ public class HtmlTextField extends EditField{
     }
 
     public void insertImage(String url, String descr){
-    	int caret = getCursorPosition();
-        insert("<a href=\""+url+"\"  alt=\""+descr+"\">"+descr+"</a>", caret);
+    	//int caret = getCursorPosition();
+		insert("<a href=\""+url+"\"  alt=\""+descr+"\">"+descr+"</a>");
     }
     
     protected void insertTag(String aStart, String aEnd) {

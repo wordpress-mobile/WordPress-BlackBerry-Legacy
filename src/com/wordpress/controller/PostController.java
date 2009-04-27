@@ -10,6 +10,7 @@ import com.wordpress.utils.Preferences;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.PostView;
+import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
@@ -24,11 +25,13 @@ public class PostController extends BaseController implements Observer{
 	private Post post=null;
 	private BlogController blogController= BlogController.getIstance();
 	private int draftPostId=-1; //identify a draft post id
+	private MultimediaController mmCtrl;
 	
 	//used when loading new post/recent post
 	public PostController(Post post) {
 		super();	
 		this.post=post;
+		mmCtrl=new MultimediaController(post); //multimedia controller 
 	}
 	
 	//used when loading draft post
@@ -137,5 +140,12 @@ public class PostController extends BaseController implements Observer{
 			FrontController.getIstance().backToMainView();
 			return true;
 		}
-	}	
+	}
+	
+	//delegate action to mm controller
+	public void showMultimediaSelectionBox(HtmlTextField textField){
+		mmCtrl.showMultimediaSelectionBox(textField);
+	}
+	
+	
 }

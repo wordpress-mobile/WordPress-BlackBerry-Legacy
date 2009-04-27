@@ -22,7 +22,6 @@ public class Preferences {
 	private static Preferences singletonObject;
 	
     private SimpleTimeZone mTimeZone = new SimpleTimeZone();
-    private int mMaxBodySize = 4096;
     private int mRecentPostCount = 5;
     private int localeIndex=0;
     private byte deviceSideConnection=0; //identify if the device require client side http connection
@@ -49,14 +48,6 @@ public class Preferences {
 
     public void setTimeZone(SimpleTimeZone aTimeZone) {
         mTimeZone = aTimeZone;
-    }
-
-    public int getMaxBodySize() {
-        return mMaxBodySize;
-    }
-
-    public void setMaxBodySize(int aMaxBodySize) {
-        mMaxBodySize = aMaxBodySize;
     }
 
     public int getRecentPostCount() {
@@ -102,7 +93,6 @@ public class Preferences {
                 }
                 
                 mTimeZone.restore(data);
-                mMaxBodySize = data.readInt();
                 mRecentPostCount = data.readInt();
                 localeIndex = data.readInt();
                 videoEncoding= data.readUTF();
@@ -146,7 +136,6 @@ public class Preferences {
             data.writeByte(PREFS_VERSION);
             
             mTimeZone.persist(data);
-            data.writeInt(mMaxBodySize);
             data.writeInt(mRecentPostCount);
             data.writeInt(localeIndex);
             data.writeUTF(videoEncoding);
