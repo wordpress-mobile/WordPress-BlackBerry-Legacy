@@ -25,6 +25,8 @@ ExcludeFromBuildAll=0
 application-icon.png
 lib\kxml2-2.3.0.jar
 src\application-icon.png
+src\browser.png
+src\camera.png
 src\com\wordpress\bb\SplashScreen.java
 src\com\wordpress\bb\WordPress.java
 src\com\wordpress\bb\WordPress.rrc
@@ -37,6 +39,7 @@ src\com\wordpress\controller\ConnectionInProgressListener.java
 src\com\wordpress\controller\DraftPostsController.java
 src\com\wordpress\controller\FrontController.java
 src\com\wordpress\controller\MainController.java
+src\com\wordpress\controller\MultimediaController.java
 src\com\wordpress\controller\PostController.java
 src\com\wordpress\controller\PreferenceController.java
 src\com\wordpress\controller\RecentPostsController.java
@@ -45,6 +48,7 @@ src\com\wordpress\model\Author.java
 src\com\wordpress\model\Blog.java
 src\com\wordpress\model\Category.java
 src\com\wordpress\model\Comment.java
+src\com\wordpress\model\MediaObject.java
 src\com\wordpress\model\Option.java
 src\com\wordpress\model\Page.java
 src\com\wordpress\model\Post.java
@@ -61,14 +65,16 @@ src\com\wordpress\utils\StringUtils.java
 src\com\wordpress\view\AboutView.java
 src\com\wordpress\view\AddBlogsView.java
 src\com\wordpress\view\BaseView.java
+src\com\wordpress\view\component\FileSelectorPopupScreen.java
+src\com\wordpress\view\component\HtmlTagPopupScreen.java
+src\com\wordpress\view\component\HtmlTextField.java
+src\com\wordpress\view\component\MultimediaPopupScreen.java
 src\com\wordpress\view\dialog\ConnectionInProgressView.java
 src\com\wordpress\view\dialog\DiscardChangeInquiryView.java
 src\com\wordpress\view\dialog\ErrorView.java
 src\com\wordpress\view\dialog\InfoView.java
 src\com\wordpress\view\dialog\InquiryView.java
 src\com\wordpress\view\DraftPostsView.java
-src\com\wordpress\view\HtmlTagPopupScreen.java
-src\com\wordpress\view\HtmlTextField.java
 src\com\wordpress\view\MainView.java
 src\com\wordpress\view\PostView.java
 src\com\wordpress\view\PreferencesView.java
@@ -109,6 +115,8 @@ src\org\kxmlrpc\XmlRpcClient.java
 src\org\kxmlrpc\XmlRpcException.java
 src\org\kxmlrpc\XmlRpcParser.java
 src\org\kxmlrpc\XmlRpcWriter.java
+src\sound.png
+src\video.png
 src\wplogo.png
 ]
 HaveAlxImports=0
