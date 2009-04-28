@@ -1,11 +1,9 @@
 package com.wordpress.controller;
 
-import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.FieldChangeListener;
+import java.util.Hashtable;
+
 import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.Dialog;
-import net.rim.device.api.ui.component.PasswordEditField;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.model.Blog;
@@ -21,75 +19,67 @@ import com.wordpress.xmlrpc.BlogConnResponse;
 public class AddBlogsController extends BaseController implements Observer{
 	
 	private AddBlogsView view = null;
-	private String url="http://danais.no-ip.org/demo/wp_testing/xmlrpc.php";
-	//http://danais.no-ip.org/demo/wp_testing/
-	private String pass="mopress"; // FIXME ricordati di togliere
-	private String user="mopress";
+	private int maxPostIndex= -1;
+	private boolean isResPhotos= false;
+	private int[] recentsPostValues={10,20,30,40,50};
+	private String[] recentsPostValuesLabel={"10","20","30","40","50"};
+	private Hashtable guiValues= new Hashtable();
+	
 	ConnectionInProgressView connectionProgressView=null;
 	
 	public AddBlogsController() {
 		super();
-		this.view= new AddBlogsView(this);
-		
+		guiValues.put("user", "");
+		guiValues.put("pass", "");
+		guiValues.put("url", "");
+		guiValues.put("recentpost", recentsPostValuesLabel);
+		guiValues.put("recentpostselected", new Integer(0));
+		guiValues.put("isresphotos", new Boolean(false));
+		this.view= new AddBlogsView(this,guiValues);
 	}
 	
 	public void showView(){
 		UiApplication.getUiApplication().pushScreen(view);
 	}
-	
-	
-	
-	private FieldChangeListener listener = new FieldChangeListener() {
-        public void fieldChanged(Field field, int context) {
-        	System.out.println("field class name: " + field.getOriginal().getClass().getName());
 
-        	if (field instanceof PasswordEditField) {
-        		pass=((PasswordEditField)field).getText();
-        		System.out.println("pass: " + pass);
-        	} else if(field instanceof BasicEditField) {
-        		BasicEditField bf=(BasicEditField)field;
-        		String bfLabel=bf.getLabel();
-        		if( bfLabel.equals(_resources.getString(WordPressResource.LABEL_BLOGUSER))){
-        			user=bf.getText();
-        		} else {
-        			url=bf.getText();
-        		}
-        		System.out.println("label: "+bfLabel);
-        		System.out.println("url: " + url+ " user: "+user);
-        	} 
-       }
-    };
-
-	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
-        public void fieldChanged(Field field, int context) {
-        	System.out.println("field class name: " + field.getOriginal().getClass().getName());
-        	addBlogs();
-       }
-    };
-
-    
-	private FieldChangeListener listenerBackButton = new FieldChangeListener() {
-        public void fieldChanged(Field field, int context) {
-        	System.out.println("field class name: " + field.getOriginal().getClass().getName());
-	            	backCmd();
-       }
-    };
-    
-    
-	public FieldChangeListener getOkButtonListener() {
-		return listenerOkButton;
-	}
-	   
-	public FieldChangeListener getBackButtonListener() {
-		return listenerBackButton;
-	}
-    
-	public FieldChangeListener getButtonListener() {
-		return listener;
+	/**
+	 * check the path of the file xmlrpc.php into the url string
+	 */
+	private String checkURL(String url){
+		System.out.println(">>> checkURL");
+		System.out.println("in URL: "+url);
+		if(url == null || url.trim().length() == 0 ) {
+			return null;
+		}
+			
+		if (url.endsWith("xmlrpc.php")){
+			
+		} else {
+			if (!url.endsWith("/")){
+				url+="/";
+			}
+			url+="xmlrpc.php";
+		}
+		System.out.println("out URL: "+url);	
+		return url;
 	}
 	
-	private void addBlogs(){
-
+	public void addBlogs(){
+		String pass= view.getBlogPass();
+		String url= view.getBlogUrl();
+		url=checkURL(url);
+		String user= view.getBlogUser();
+		maxPostIndex=view.getMaxRecentPostIndex();
+		System.out.println("Max Show posts index: "+maxPostIndex);
+		if(maxPostIndex < 0){
+			maxPostIndex=0;			
+			displayError("Please enter a correct number");
+	       return;
+		}
+		
+		isResPhotos= view.isResizePhoto();
+		System.out.println("Resize photos : "+isResPhotos);
+		
 		if (pass != null && pass.length() == 0) {
         	pass = null;
             // FIXME lapassword opzionale esiste ancora??
@@ -97,7 +87,7 @@ public class AddBlogsController extends BaseController implements Observer{
             return;
         }
 
-        if (url != null && user != null && url.length() > 0 && user.length() > 0) {
+        if (url != null && user != null && url.length() > 0 && user != null && user.length() > 0) {
             Preferences prefs = Preferences.getIstance();
             BlogAuthConn connection = new BlogAuthConn (url,user,pass,prefs.getTimeZone());
             connection.addObserver(this); 
@@ -129,8 +119,10 @@ public class AddBlogsController extends BaseController implements Observer{
 			}
 		 	Blog[]blogs=(Blog[])resp.getResponseObject();
 
-		 	BlogController blogController= BlogController.getIstance();
+		 	BlogIOController blogController= BlogIOController.getIstance();
 		 	for (int i = 0; i < blogs.length; i++) {
+		 		blogs[i].setMaxPostCount(recentsPostValues[maxPostIndex]);
+		 		blogs[i].setResizePhotos(isResPhotos);
 				blogController.addBlog(blogs[i], true);
 		    }
 		 	FrontController.getIstance().backToMainView();	 			 	
@@ -150,3 +142,55 @@ public class AddBlogsController extends BaseController implements Observer{
 		return true;
 	}
 }
+
+
+
+/*
+private FieldChangeListener listener = new FieldChangeListener() {
+    public void fieldChanged(Field field, int context) {
+    	System.out.println("field class name: " + field.getOriginal().getClass().getName());
+
+    	if (field instanceof PasswordEditField) {
+    		pass=((PasswordEditField)field).getText();
+    		System.out.println("pass: " + pass);
+    	} else if(field instanceof BasicEditField) {
+    		BasicEditField bf=(BasicEditField)field;
+    		String bfLabel=bf.getLabel();
+    		if( bfLabel.equals(_resources.getString(WordPressResource.LABEL_BLOGUSER))){
+    			user=bf.getText();
+    		} else {
+    			url=bf.getText();
+    		}
+    		System.out.println("label: "+bfLabel);
+    		System.out.println("url: " + url+ " user: "+user);
+    	} 
+   }
+};
+
+private FieldChangeListener listenerOkButton = new FieldChangeListener() {
+    public void fieldChanged(Field field, int context) {
+    	//System.out.println("field class name: " + field.getOriginal().getClass().getName());
+    	addBlogs();
+   }
+};
+
+
+private FieldChangeListener listenerBackButton = new FieldChangeListener() {
+    public void fieldChanged(Field field, int context) {
+//    	System.out.println("field class name: " + field.getOriginal().getClass().getName());
+        backCmd();
+   }
+};
+
+public FieldChangeListener getOkButtonListener() {
+	return listenerOkButton;
+}
+   
+public FieldChangeListener getBackButtonListener() {
+	return listenerBackButton;
+}
+
+public FieldChangeListener getButtonListener() {
+	return listener;
+}
+*/

@@ -61,7 +61,7 @@ public class RefreshBlogController extends BaseController implements Observer{
 					}
 					currentBlog= (Blog) resp.getResponseObject(); 	//update blogs obj	
 					try{
-						BlogController.getIstance().refreshBlog(currentBlog);							
+						BlogIOController.getIstance().refreshBlog(currentBlog);							
 					} catch (final Exception e) {
 					 	displayError(e,"Error while refreshing blogs");	
 					}

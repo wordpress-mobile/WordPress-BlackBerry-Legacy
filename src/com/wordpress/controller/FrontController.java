@@ -53,6 +53,15 @@ public class FrontController {
 		PreferenceController ctrl=new PreferenceController();
 		ctrl.showView();		
 	}
+
+	
+	/**
+	 * show blog  view
+	 */
+	public void showBlog(Blog currentBlog){
+		MainBlogController ctrl=new MainBlogController(currentBlog);
+		ctrl.showView();
+	}
 	
 	/**
 	 * show recent post view

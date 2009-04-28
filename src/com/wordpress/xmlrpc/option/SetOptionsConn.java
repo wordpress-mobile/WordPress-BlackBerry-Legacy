@@ -39,7 +39,7 @@ public class SetOptionsConn extends BlogConn  {
 			args.addElement(mPassword);
 			args.addElement(optionsVect);
 
-			Object response = execute("wp.getOptions", args);
+			Object response = execute("wp.setOptions", args);
 			if(connResponse.isError()) {
 				notifyObservers(connResponse);
 				return;		
@@ -58,11 +58,11 @@ public class SetOptionsConn extends BlogConn  {
 				}				
 			connResponse.setResponseObject(myOption);
 			} catch (Exception e) {
-				setErrorMessage(e, "GetOptions error: Invalid server response");
+				setErrorMessage(e, "SetOptions error: Invalid server response");
 			} try {
 				notifyObservers(connResponse);
 			} catch (Exception e) {
-				System.out.println("GetOptions error: Notify error"); 
+				System.out.println("SetOptions error: Notify error"); 
 			}
 		
 		}

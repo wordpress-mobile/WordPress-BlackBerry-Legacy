@@ -20,7 +20,7 @@ import com.wordpress.model.Post;
 
 
 
-public class BlogController {
+public class BlogIOController {
 	
     public final static int TYPE_NEW = 1;
     public final static int TYPE_DRAFT = 2;
@@ -43,18 +43,18 @@ public class BlogController {
 	private Blog[] blogs = new Blog[0]; //blog associati
 	
 	
-	private static BlogController singletonObject;
+	private static BlogIOController singletonObject;
 	
-	public static BlogController getIstance() {
+	public static BlogIOController getIstance() {
 		
 		if (singletonObject == null) {
-			singletonObject = new BlogController();
+			singletonObject = new BlogIOController();
 		}
 		return singletonObject;
 	}
     
     //singleton
-	private BlogController() {
+	private BlogIOController() {
 						
 		try {
 			String[] rmsBlogName= loadBlogNameFromRMS();
@@ -219,6 +219,8 @@ public class BlogController {
         data.writeUTF(aBlog.getBlogId());
         data.writeUTF(aBlog.getBlogName());
         data.writeUTF(aBlog.getBlogUrl());
+        data.writeInt(aBlog.getMaxPostCount());
+        data.writeBoolean(aBlog.isResizePhotos());
 
         if (categories != null) {
             data.writeInt(categories.length);
@@ -290,7 +292,11 @@ public Blog loadBlog(String aName) throws RecordStoreException, IOException {
            String blodIg= data.readUTF();
            String blogName= data.readUTF();
            String blodUrl= data.readUTF();
-            blog = new Blog("",blodIg, blogName, blodUrl, xmlRpcUrl, userName, password);
+           int maxPostCount= data.readInt();
+           boolean isRes=data.readBoolean();
+           blog = new Blog("",blodIg, blogName, blodUrl, xmlRpcUrl, userName, password);
+           blog.setMaxPostCount(maxPostCount);
+           blog.setResizePhotos(isRes);
         }
   
         categoryLength = data.readInt();

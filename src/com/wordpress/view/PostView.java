@@ -77,7 +77,10 @@ public class PostView extends BaseView  implements FocusChangeListener{
     	this.controller=_controller;
 		this.post = _post;
 		this.mState= new PostState();
-    	
+        //add a screen title
+        LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_POSTVIEW),
+                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
+        setTitle(title);
     	//--
 		HorizontalFieldManager hManager = new HorizontalFieldManager();
 		tabSummary = new LabelField(_resources.getString(WordPressResource.LABEL_TAB_POSTSUMMARY), LabelField.FOCUSABLE | LabelField.HIGHLIGHT_SELECT);

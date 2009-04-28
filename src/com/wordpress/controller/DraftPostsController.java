@@ -19,7 +19,7 @@ public class DraftPostsController extends BaseController {
 	
 	private DraftPostsView view = null;
 	ConnectionInProgressView connectionProgressView=null;
-	private BlogController blogController= BlogController.getIstance();
+	private BlogIOController blogController= BlogIOController.getIstance();
 
 	private Blog currentBlog=null;
 	private Object[] mPosts = null;
@@ -97,7 +97,7 @@ public class DraftPostsController extends BaseController {
 	private String[] getPostsTitle() throws RecordStoreException, IOException {
 		if(currentBlog== null) return null;
 		
-		mPosts = BlogController.getIstance().getDraftPostList(currentBlog);
+		mPosts = BlogIOController.getIstance().getDraftPostList(currentBlog);
 		Vector draftPostTitles= new Vector();
 		String title="";
 

@@ -23,7 +23,7 @@ public class PostController extends BaseController implements Observer{
 	private PostView view = null;
 	ConnectionInProgressView connectionProgressView=null;
 	private Post post=null;
-	private BlogController blogController= BlogController.getIstance();
+	private BlogIOController blogController= BlogIOController.getIstance();
 	private int draftPostId=-1; //identify a draft post id
 	private MultimediaController mmCtrl;
 	

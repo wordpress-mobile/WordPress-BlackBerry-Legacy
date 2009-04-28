@@ -6,14 +6,18 @@ public class Blog {
 	private String apiKey;
 	private String blogId;
 	private String blogName;
-	private String blogUrl;
-	private String blogXmlRpcUrl;
+	private String blogUrl; //user inserted blogs url
+	private String blogXmlRpcUrl; //real url for publishing on this blog
 	private String username;
 	private String password;
+	
+	private boolean isResizePhotos=false;
+	private int maxPostCount=-1;
 
 	private Category[] categories = null;
 
-	public Blog(String apiKey, String blogId, String blogName, String blogUrl,String blogXmlRpcUrl, String userName, String pass) {
+	public Blog(String apiKey, String blogId, String blogName, String blogUrl,String blogXmlRpcUrl, 
+			String userName, String pass) {
 		this.apiKey = apiKey;
 		this.blogId = blogId;
 		this.blogName = blogName;
@@ -88,5 +92,21 @@ public class Blog {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public boolean isResizePhotos() {
+		return isResizePhotos;
+	}
+
+	public void setResizePhotos(boolean isResizePhotos) {
+		this.isResizePhotos = isResizePhotos;
+	}
+
+	public int getMaxPostCount() {
+		return maxPostCount;
+	}
+
+	public void setMaxPostCount(int maxPostCount) {
+		this.maxPostCount = maxPostCount;
 	}
 }
