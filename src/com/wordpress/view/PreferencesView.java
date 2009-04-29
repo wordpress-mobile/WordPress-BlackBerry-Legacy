@@ -1,13 +1,15 @@
 package com.wordpress.view;
 
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.component.BasicEditField;
+import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.SeparatorField;
-import net.rim.device.api.ui.text.NumericTextFilter;
+import net.rim.device.api.ui.container.HorizontalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.PreferenceController;
@@ -19,12 +21,12 @@ public class PreferencesView extends BaseView {
 	
     private PreferenceController preferencesController= null;
     private Preferences mPrefs=Preferences.getIstance();
-	private BasicEditField maxRecentPost;
 	private ObjectChoiceField audioGroup;
 	private ObjectChoiceField photoGroup;
 	private ObjectChoiceField videoGroup;
 	private ObjectChoiceField timezoneGroup;
 	private CheckboxField clientSideConn;
+	private HorizontalFieldManager buttonsManager;
 
 	
 	 public PreferencesView(PreferenceController _preferencesController) {
@@ -35,12 +37,6 @@ public class PreferencesView extends BaseView {
 	                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
 	        setTitle(title);
 	    	
-            maxRecentPost = new BasicEditField(_resources.getString(WordPressResource.LABEL_MAXRECENTPOST), String.valueOf(mPrefs.getRecentPostCount()), 100, Field.EDITABLE);
-            maxRecentPost.setFilter(new NumericTextFilter());
-            maxRecentPost.setChangeListener(preferencesController.getRecentPostListener());
-            
-            add(maxRecentPost);
-            add(new SeparatorField());
             addMultimediaOption();
             add(new SeparatorField());
             
@@ -54,19 +50,18 @@ public class PreferencesView extends BaseView {
 			clientSideConn=new CheckboxField(_resources.getString(WordPressResource.LABEL_DEVICESIDECONN), mPrefs.isDeviceSideConnection());
 			clientSideConn.setChangeListener(preferencesController.getDeviceSideConnListener());
 			add(clientSideConn);
-             
-          //  addMenuItem(_saveItem); autosave like iphone??
+             			
+            ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK));
+            ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK));
+    		buttonBACK.setChangeListener(preferencesController.getBackButtonListener());
+            buttonOK.setChangeListener(preferencesController.getOkButtonListener());
+            buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
+            buttonsManager.add(buttonOK);
+    		buttonsManager.add(buttonBACK);
+    		add(buttonsManager); 
+            addMenuItem(_saveItem);
 	 }
-	  
-	    //create a menu item for users click to save
-	    private MenuItem _saveItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVE, 1000, 10) {
-	        public void run() {
-	        	preferencesController.savePref();
-	        }
-	    };
-	
-
-	    
+	      
 	 private void addMultimediaOption() {
 			//audio config 
 			if( MultimediaUtils.supportAudioRecording()){
@@ -81,6 +76,11 @@ public class PreferencesView extends BaseView {
 		    	audioGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_AUDIOENCODING),lines,selectedIndex);
 		    	audioGroup.setChangeListener(preferencesController.getAudioListener());
 				add( audioGroup );
+			} else {
+				LabelField lbl = new LabelField(_resources.getString(WordPressResource.LABEL_AUDIORECORDING_NOTSUPPORTED));
+				Font fnt = this.getFont().derive(Font.ITALIC);
+				lbl.setFont(fnt);
+				add(lbl);
 			}
 			
 			//photo config
@@ -96,6 +96,11 @@ public class PreferencesView extends BaseView {
 		    	photoGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_PHOTOENCODING),lines,selectedIndex);
 		    	photoGroup.setChangeListener(preferencesController.getPhotoListener());
 				add( photoGroup );
+			} else {
+				LabelField lbl = new LabelField(_resources.getString(WordPressResource.LABEL_PHOTO_NOTSUPPORTED));
+				Font fnt = this.getFont().derive(Font.ITALIC);
+				lbl.setFont(fnt);
+				add(lbl);
 			}
 			
 			//video config
@@ -111,12 +116,35 @@ public class PreferencesView extends BaseView {
 		    	videoGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_VIDEOENCODING),lines,selectedIndex);
 		    	videoGroup.setChangeListener(preferencesController.getVideoListener());
 				add( videoGroup );
+			} else {
+				LabelField lbl = new LabelField(_resources.getString(WordPressResource.LABEL_VIDEORECORDING_NOTSUPPORTED));
+				Font fnt = this.getFont().derive(Font.ITALIC);
+				lbl.setFont(fnt);
+				add(lbl);
 			}
-			
+		}
+	 
+	 
+	    //create a menu item for users click to save
+	    private MenuItem _saveItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVE, 1000, 10) {
+	        public void run() {
+	        	preferencesController.savePrefAndBack();
+	        }
+	    };
+
+	 
+	 // Handle trackball clicks.
+		protected boolean navigationClick(int status, int time) {
+			Field fieldWithFocus = UiApplication.getUiApplication().getActiveScreen().getFieldWithFocus();
+			if(fieldWithFocus == buttonsManager) { //focus on the bottom buttons, do not open menu on whell click
+				return true;
+			}
+			else 
+			 return super.navigationClick(status,time);
 		}
 	 
 	    //override onClose() to display a dialog box when the application is closed    
 		public boolean onClose()   {
-	    	return preferencesController.discardChangeInquiry();
+	    	return preferencesController.dismissView();
 	    }
 }

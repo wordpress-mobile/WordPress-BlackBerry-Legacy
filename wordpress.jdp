@@ -35,6 +35,7 @@ src\com\wordpress\controller\AboutController.java
 src\com\wordpress\controller\AddBlogsController.java
 src\com\wordpress\controller\BaseController.java
 src\com\wordpress\controller\BlogController.java
+src\com\wordpress\controller\BlogIOController.java
 src\com\wordpress\controller\ConnectionInProgressListener.java
 src\com\wordpress\controller\DraftPostsController.java
 src\com\wordpress\controller\FrontController.java
@@ -65,10 +66,12 @@ src\com\wordpress\utils\StringUtils.java
 src\com\wordpress\view\AboutView.java
 src\com\wordpress\view\AddBlogsView.java
 src\com\wordpress\view\BaseView.java
+src\com\wordpress\view\BlogView.java
 src\com\wordpress\view\component\FileSelectorPopupScreen.java
 src\com\wordpress\view\component\HtmlTagPopupScreen.java
 src\com\wordpress\view\component\HtmlTextField.java
 src\com\wordpress\view\component\MultimediaPopupScreen.java
+src\com\wordpress\view\component\NotYetImpPopupScreen.java
 src\com\wordpress\view\dialog\ConnectionInProgressView.java
 src\com\wordpress\view\dialog\DiscardChangeInquiryView.java
 src\com\wordpress\view\dialog\ErrorView.java
@@ -76,6 +79,7 @@ src\com\wordpress\view\dialog\InfoView.java
 src\com\wordpress\view\dialog\InquiryView.java
 src\com\wordpress\view\DraftPostsView.java
 src\com\wordpress\view\MainView.java
+src\com\wordpress\view\PhotosView.java
 src\com\wordpress\view\PostView.java
 src\com\wordpress\view\PreferencesView.java
 src\com\wordpress\view\RecentPostsView.java

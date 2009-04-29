@@ -52,7 +52,14 @@ public class DraftPostsController extends BaseController {
     	
     	}
 	}
-
+	
+	
+	public void newPost() {
+		if (currentBlog != null) {
+			FrontController.getIstance().newPost(currentBlog); // show the new post view
+		}
+	}
+	
 	/** starts the  post loading */
 	public void editPost(int selected){
 		if(selected != -1){
@@ -68,7 +75,7 @@ public class DraftPostsController extends BaseController {
 		}	     	
 	}	
 	
-	private void refreshUI() {
+	public void refreshUI() {
 		try {
 			String [] postCaricati = getPostsTitle();
 			if(postCaricati == null) return;

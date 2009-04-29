@@ -2,6 +2,8 @@ package com.wordpress.controller;
 
 import java.util.Hashtable;
 
+import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
@@ -19,6 +21,7 @@ import com.wordpress.xmlrpc.BlogConnResponse;
 public class AddBlogsController extends BaseController implements Observer{
 	
 	private AddBlogsView view = null;
+	
 	private int maxPostIndex= -1;
 	private boolean isResPhotos= false;
 	private int[] recentsPostValues={10,20,30,40,50};
@@ -136,61 +139,34 @@ public class AddBlogsController extends BaseController implements Observer{
 		} 
 	}
 	
+	
+
+	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
+	    public void fieldChanged(Field field, int context) {
+	    	//System.out.println("field class name: " + field.getOriginal().getClass().getName());
+	    	addBlogs();
+	   }
+	};
+
+
+	private FieldChangeListener listenerBackButton = new FieldChangeListener() {
+	    public void fieldChanged(Field field, int context) {
+//	    	System.out.println("field class name: " + field.getOriginal().getClass().getName());
+	        backCmd();
+	   }
+	};
+
+	public FieldChangeListener getOkButtonListener() {
+		return listenerOkButton;
+	}
+	   
+	public FieldChangeListener getBackButtonListener() {
+		return listenerBackButton;
+	}
+	
 	// Utility routine to by-pass the standard dialog box when the screen is closed  
 	public boolean discardChange() {
 		backCmd();
 		return true;
 	}
 }
-
-
-
-/*
-private FieldChangeListener listener = new FieldChangeListener() {
-    public void fieldChanged(Field field, int context) {
-    	System.out.println("field class name: " + field.getOriginal().getClass().getName());
-
-    	if (field instanceof PasswordEditField) {
-    		pass=((PasswordEditField)field).getText();
-    		System.out.println("pass: " + pass);
-    	} else if(field instanceof BasicEditField) {
-    		BasicEditField bf=(BasicEditField)field;
-    		String bfLabel=bf.getLabel();
-    		if( bfLabel.equals(_resources.getString(WordPressResource.LABEL_BLOGUSER))){
-    			user=bf.getText();
-    		} else {
-    			url=bf.getText();
-    		}
-    		System.out.println("label: "+bfLabel);
-    		System.out.println("url: " + url+ " user: "+user);
-    	} 
-   }
-};
-
-private FieldChangeListener listenerOkButton = new FieldChangeListener() {
-    public void fieldChanged(Field field, int context) {
-    	//System.out.println("field class name: " + field.getOriginal().getClass().getName());
-    	addBlogs();
-   }
-};
-
-
-private FieldChangeListener listenerBackButton = new FieldChangeListener() {
-    public void fieldChanged(Field field, int context) {
-//    	System.out.println("field class name: " + field.getOriginal().getClass().getName());
-        backCmd();
-   }
-};
-
-public FieldChangeListener getOkButtonListener() {
-	return listenerOkButton;
-}
-   
-public FieldChangeListener getBackButtonListener() {
-	return listenerBackButton;
-}
-
-public FieldChangeListener getButtonListener() {
-	return listener;
-}
-*/

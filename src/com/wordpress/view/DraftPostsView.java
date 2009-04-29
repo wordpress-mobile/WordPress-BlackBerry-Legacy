@@ -29,12 +29,16 @@ public class DraftPostsView extends BaseView {
 	private void buildList(String[] post) {
 		removeAllMenuItems();	
 		listaPost = new ObjectListField(); 	        
-		listaPost.set(post);
-		add(listaPost);
+		
 		if(post.length > 0 ){
+			listaPost.set(post);
 			addMenuItem(_editPostItem);
 			addMenuItem(_deletePostItem);
+		} else {
+			listaPost.set(new String[]{"No Draft posts"});
 		}
+		addMenuItem(_newPostItem);
+		add(listaPost);
 	}
 	
     public void refresh( String[] post){
@@ -42,7 +46,7 @@ public class DraftPostsView extends BaseView {
     	buildList(post);
     }
 	
-    private MenuItem _deletePostItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETEPOST, 210, 10) {
+    private MenuItem _deletePostItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETEPOST, 220, 10) {
         public void run() {
             int selectedPost = listaPost.getSelectedIndex();
             controller.deletePost(selectedPost);    
@@ -55,4 +59,14 @@ public class DraftPostsView extends BaseView {
             controller.editPost(selectedPost);            
         }
     };
+    
+    private MenuItem _newPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_NEWPOST, 210, 10) {
+        public void run() {
+            controller.newPost();    
+        }
+    };
+    
+	public DraftPostsController getController() {
+		return controller;
+	}
 }

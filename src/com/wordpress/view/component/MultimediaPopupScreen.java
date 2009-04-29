@@ -4,8 +4,11 @@ import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.FocusChangeListener;
+import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BitmapField;
+import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
@@ -14,14 +17,17 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.MultimediaController;
+import com.wordpress.controller.PostController;
 
-public class MultimediaPopupScreen extends PopupScreen implements FocusChangeListener{
+public class MultimediaPopupScreen extends PopupScreen {
     
     private int response=-1;
 	private BitmapField bitmapFieldCamera;
 	private BitmapField bitmapFieldSound;
 	private BitmapField bitmapVideo;
 	private BitmapField bitmapBrowser;
+	private ButtonField buttonCamera;
+	private ButtonField buttonBrowser;
      
 	//create a variable to store the ResourceBundle for localization support
     protected static ResourceBundle _resources;
@@ -34,39 +40,62 @@ public class MultimediaPopupScreen extends PopupScreen implements FocusChangeLis
     
     public MultimediaPopupScreen()
     {
-        super(new VerticalFieldManager(),Field.FOCUSABLE);
+        super(new VerticalFieldManager(Field.FIELD_HCENTER),Field.FOCUSABLE);
               
         LabelField question = new LabelField(_resources.getString(WordPressResource.LABEL_MULTIMEDIATYPE));
         add(question);
         add(new SeparatorField());
+        
         HorizontalFieldManager hManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
     	Bitmap _bitmapCamera = Bitmap.getBitmapResource("camera.png");
-    	Bitmap _bitmapSound = Bitmap.getBitmapResource("sound.png");
-    	Bitmap _bitmapVideo = Bitmap.getBitmapResource("video.png");
-    	Bitmap _bitmapBrowser = Bitmap.getBitmapResource("browser.png");
-
-    	bitmapFieldCamera = new BitmapField(_bitmapCamera, Field.FOCUSABLE | Field.FIELD_HCENTER);
-    	bitmapFieldSound = new BitmapField(_bitmapSound, Field.FOCUSABLE | Field.FIELD_HCENTER);
-    	bitmapVideo = new BitmapField(_bitmapVideo, Field.FOCUSABLE | Field.FIELD_HCENTER);
-    	bitmapBrowser = new BitmapField(_bitmapBrowser, Field.FOCUSABLE | Field.FIELD_HCENTER);
+    	bitmapFieldCamera = new BitmapField(_bitmapCamera, Field.NON_FOCUSABLE | Field.FIELD_HCENTER);
+    	buttonCamera= new ButtonField("Take Photo with Camera");
+    	buttonCamera.setChangeListener(listenerButton);
+    	hManager.add(bitmapFieldCamera);
+    	hManager.add(buttonCamera);
     	
-    	bitmapFieldCamera.setFocusListener(this);
+    	//Bitmap _bitmapSound = Bitmap.getBitmapResource("sound.png");
+    	//Bitmap _bitmapVideo = Bitmap.getBitmapResource("video.png");
+        HorizontalFieldManager hManager2 = new HorizontalFieldManager(Field.FIELD_HCENTER);
+    	Bitmap _bitmapBrowser = Bitmap.getBitmapResource("browser.png");
+    	bitmapBrowser = new BitmapField(_bitmapBrowser, Field.NON_FOCUSABLE | Field.FIELD_HCENTER);
+    	buttonBrowser= new ButtonField("Add Photo from Library");
+    	buttonBrowser.setChangeListener(listenerButton);
+    	hManager2.add(bitmapBrowser);
+    	hManager2.add(buttonBrowser);
+    	
+    	//bitmapFieldSound = new BitmapField(_bitmapSound, Field.FOCUSABLE | Field.FIELD_HCENTER);
+    	//bitmapVideo = new BitmapField(_bitmapVideo, Field.FOCUSABLE | Field.FIELD_HCENTER);
+    	
+    	/*bitmapFieldCamera.setFocusListener(this);
     	bitmapFieldSound.setFocusListener(this);
     	bitmapVideo.setFocusListener(this);
-    	bitmapBrowser.setFocusListener(this);
+    	bitmapBrowser.setFocusListener(this);*/
 		    	
-    	hManager.add(bitmapFieldCamera);
-    	hManager.add(bitmapFieldSound);
-    	hManager.add(bitmapVideo);
-    	hManager.add(bitmapBrowser);
+    	//hManager.add(bitmapFieldSound);
+    	//hManager.add(bitmapVideo);
+    	//hManager.add(bitmapBrowser);
         add(hManager);
+        add(hManager2);
     }
     
-    
+	private FieldChangeListener listenerButton = new FieldChangeListener() {
+	    public void fieldChanged(Field field, int context) {
+	    	if(field == buttonBrowser){
+	    		response= PostController.BROWSER;
+	    	} else if(field == buttonCamera) {
+	    		response= PostController.PHOTO;
+	    	}
+	    	close();
+	   }
+	};
+
+	
     public int getResponse() {
         return response;
     }
     
+    /*
     public void focusChanged(Field field, int eventType) {
 		if (eventType == FOCUS_GAINED) {
 
@@ -88,9 +117,9 @@ public class MultimediaPopupScreen extends PopupScreen implements FocusChangeLis
 			}
 		}
 	}
-	
+	*/
     
-    
+    /*
     private void doSelection(){
     	this.close();
     }
@@ -100,7 +129,7 @@ public class MultimediaPopupScreen extends PopupScreen implements FocusChangeLis
 		doSelection();
 		return true;
 	}
-
+*/
 	protected boolean keyChar(char c, int status, int time) {
 		// Close this screen if escape is selected.
 		if (c == Characters.ESCAPE) {
@@ -108,10 +137,11 @@ public class MultimediaPopupScreen extends PopupScreen implements FocusChangeLis
 			this.close();
 			return true;
 		} else if (c == Characters.ENTER) {
-			doSelection();
+		 //action handled by button listener
 			return true;
 		}
 
 		return super.keyChar(c, status, time);
 	}   
+	
 }

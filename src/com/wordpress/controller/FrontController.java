@@ -5,6 +5,7 @@ import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
+import com.wordpress.view.BlogView;
 import com.wordpress.view.DraftPostsView;
 import com.wordpress.view.MainView;
 
@@ -59,7 +60,7 @@ public class FrontController {
 	 * show blog  view
 	 */
 	public void showBlog(Blog currentBlog){
-		MainBlogController ctrl=new MainBlogController(currentBlog);
+		BlogController ctrl=new BlogController(currentBlog);
 		ctrl.showView();
 	}
 	
@@ -112,7 +113,32 @@ public class FrontController {
 		ctrl.showView();
 	}
 	
-		
+	
+	/**
+	 * 
+	 * 
+	 */
+	public void fromWritingPostToPrevView(final boolean isRemoteUpdate){
+		UiApplication.getUiApplication().invokeLater(new Runnable() {
+			public void run() {
+				
+				Screen scr=UiApplication.getUiApplication().getActiveScreen();
+				UiApplication.getUiApplication().popScreen(scr);
+				scr=UiApplication.getUiApplication().getActiveScreen();
+				
+				if (scr instanceof BlogView) {		
+					if(isRemoteUpdate) { 
+						BlogController controller = ((BlogView)scr).getController();
+						controller.refreshPosts();
+					}			
+				} else if (scr instanceof DraftPostsView) { 
+					DraftPostsController controller = ((DraftPostsView)scr).getController();
+					controller.refreshUI();
+				}
+			} //end run
+		});
+	}
+	
 	/**
 	 * pop out screens form the stack until MainView found.
 	 * Then Refresh the main view.

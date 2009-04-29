@@ -9,7 +9,7 @@ import com.wordpress.model.Post;
 import com.wordpress.utils.Preferences;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
-import com.wordpress.view.RecentPostsView;
+import com.wordpress.view.BlogView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.post.DeletePostConn;
@@ -17,9 +17,12 @@ import com.wordpress.xmlrpc.post.GetPostConn;
 import com.wordpress.xmlrpc.post.RecentPostConn;
 
 
-public class RecentPostsController extends BaseController implements Observer{
+public class BlogController extends BaseController implements Observer{
 	
-	private RecentPostsView view = null;
+	private BlogView view = null;
+	private BlogIOController blogIOController = null;
+	private Blog currentBlog;
+	
 	ConnectionInProgressView connectionProgressView=null;
 	
 	public static int PAUSE=0;
@@ -27,24 +30,18 @@ public class RecentPostsController extends BaseController implements Observer{
 	public static int LOADING_POST=2;
 	public static int DELETING_POST=3;
 	public static int REFRESH_POSTS_LIST=4;
-
-	
 	private int state= 0;
-	
-	private Blog currentBlog=null;
 	private Post[] mPosts;
-		
-	
-	public String getCurrentBlogName() {
-		return currentBlog.getBlogName();
-	}
 
-
-	public RecentPostsController(Blog currentBlog) {
-		super();	
+ 
+	public BlogController(Blog currentBlog) {
+		super();
 		this.currentBlog=currentBlog;
 	}
-	
+				
+	public String getBlogName() {
+		return currentBlog.getBlogName();
+	}
 	
 	public void showView(){
 		loadPosts(); //we do not show ui immediatly, loading recent post first.
@@ -54,10 +51,11 @@ public class RecentPostsController extends BaseController implements Observer{
 		final String[] postCaricati = getPostsTitle();
         if(postCaricati == null) return;
         
-		this.view= new RecentPostsView(this,postCaricati);
+		this.view= new BlogView(this,postCaricati);
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 
+	
 	private void refreshUI(){
 		final String[] postCaricati = getPostsTitle();
         if(postCaricati == null) return; 
@@ -127,8 +125,7 @@ public class RecentPostsController extends BaseController implements Observer{
         		currentBlog.getPassword(),  prefs.getTimeZone(), post);
         
         connection.addObserver(this); 
-         connectionProgressView= new ConnectionInProgressView(
-        		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
+        connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONN_LOADING_POST));
        
         connection.startConnWork(); //starts connection
 				
@@ -166,8 +163,11 @@ public class RecentPostsController extends BaseController implements Observer{
         		currentBlog.getPassword(),  prefs.getTimeZone(), currentBlog, currentBlog.getMaxPostCount());
         
         connection.addObserver(this); 
-         connectionProgressView= new ConnectionInProgressView(
-        		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
+        String connMsg=_resources.getString(WordPressResource.CONN_LOADING_BLOG);
+        if(state == REFRESH_POSTS_LIST){
+        	connMsg=_resources.getString(WordPressResource.CONN_REFRESH_POSTLIST);
+        }
+        connectionProgressView= new ConnectionInProgressView(connMsg);
        
         connection.startConnWork(); //starts connection
 				
@@ -215,8 +215,7 @@ public class RecentPostsController extends BaseController implements Observer{
 					 currentBlog.getPassword(),  null, post);
 		     connection.addObserver(this);
 		     
-		     connectionProgressView= new ConnectionInProgressView(
-		    		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
+		     connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONN_DELETE_POST));
 	  
 		    connection.startConnWork(); //starts connection
 		    int choice = connectionProgressView.doModal();
@@ -246,5 +245,25 @@ public class RecentPostsController extends BaseController implements Observer{
 		 	displayError(respMessage);	
 		}
 		return;
+	}
+	
+		
+	public void showDraftPosts(){
+		if(currentBlog != null) {
+			FrontController.getIstance().showDraftPostsView(currentBlog);
+		}
+	}
+	
+	/*
+	public void refreshBlog() {
+		if (currentBlog != null) {
+			FrontController.getIstance().refreshBlog(currentBlog);
+		}
+	}
+*/
+	public void newPost() {
+		if (currentBlog != null) {
+			FrontController.getIstance().newPost(currentBlog); // show the new post view
+		}
 	}
 }

@@ -9,8 +9,6 @@ import java.io.IOException;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
 
-
-
 public class Preferences {
 
 	
@@ -22,9 +20,8 @@ public class Preferences {
 	private static Preferences singletonObject;
 	
     private SimpleTimeZone mTimeZone = new SimpleTimeZone();
-    private int mRecentPostCount = 5;
     private int localeIndex=0;
-    private byte deviceSideConnection=0; //identify if the device require client side http connection
+    private boolean deviceSideConnection=false; //identify if the device require client side http connection
 
 	private String photoEncoding=""; //jpg, png, ecc
     private String audioEncoding="";
@@ -49,15 +46,7 @@ public class Preferences {
     public void setTimeZone(SimpleTimeZone aTimeZone) {
         mTimeZone = aTimeZone;
     }
-
-    public int getRecentPostCount() {
-        return mRecentPostCount;
-    }
-
-    public void setRecentPostCount(int aRecentPostCount) {
-        mRecentPostCount = aRecentPostCount;
-    }
-    
+   
     public int getLocaleIndex() {
 		return localeIndex;
 	}
@@ -93,12 +82,11 @@ public class Preferences {
                 }
                 
                 mTimeZone.restore(data);
-                mRecentPostCount = data.readInt();
                 localeIndex = data.readInt();
                 videoEncoding= data.readUTF();
                 audioEncoding= data.readUTF();
                 photoEncoding= data.readUTF();
-                deviceSideConnection= data.readByte();
+                deviceSideConnection= data.readBoolean();
                 data.close();
                 System.out.println("RMS loading succesfully!");
                 return true;
@@ -136,12 +124,11 @@ public class Preferences {
             data.writeByte(PREFS_VERSION);
             
             mTimeZone.persist(data);
-            data.writeInt(mRecentPostCount);
             data.writeInt(localeIndex);
             data.writeUTF(videoEncoding);
             data.writeUTF(audioEncoding);
             data.writeUTF(photoEncoding);
-            data.writeByte(deviceSideConnection);
+            data.writeBoolean(deviceSideConnection);
             data.close();
             record = bytes.toByteArray();
                 
@@ -188,18 +175,10 @@ public class Preferences {
 	}
 	
 	public boolean isDeviceSideConnection() {
-		int  res=deviceSideConnection;
-		if(res == 1) {
-			return true;
-		} else { 
-			return false;
-		}
+		return deviceSideConnection;
 	}
 
 	public void setDeviceSideConnection(boolean value) {
-		if(value)
-			this.deviceSideConnection = 1;
-		else
-			this.deviceSideConnection=0;
+		this.deviceSideConnection = value;
 	}
 }
