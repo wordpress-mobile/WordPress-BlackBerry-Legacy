@@ -247,4 +247,9 @@ public class RecentPostsController extends BaseController implements Observer{
 		}
 		return;
 	}
+
+
+	public void refreshView() {
+		
+	}
 }

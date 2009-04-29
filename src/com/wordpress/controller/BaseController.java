@@ -21,6 +21,7 @@ public abstract class BaseController {
     }
   	
   abstract 	public void showView();
+  abstract 	public void refreshView();
 	
 	// Utility routine to display errors
 	public synchronized void displayError(final Exception e, String message) {

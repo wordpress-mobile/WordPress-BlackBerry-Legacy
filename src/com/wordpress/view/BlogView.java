@@ -1,6 +1,5 @@
 package com.wordpress.view;
 
-import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.MenuItem;
@@ -10,24 +9,16 @@ import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectListField;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
-import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogController;
 import com.wordpress.view.component.NotYetImpPopupScreen;
 
-public class BlogView extends MainScreen {
+public class BlogView extends BaseView {
 	
     private BlogController controller=null;
-    		
-	//create a variable to store the ResourceBundle for localization support
-    private static ResourceBundle _resources;
-	    
-    static {
-        //retrieve a reference to the ResourceBundle for localization support
-        _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
-    }
-    
+    		    
     private HorizontalFieldManager topButtonsManager;
 	private ButtonField buttonNewPost;
 	private ButtonField buttonDraftPosts;
@@ -171,10 +162,8 @@ public class BlogView extends MainScreen {
 		controller.backCmd();
 		return true;
 	}
-	
-    public BlogController getController() {
-		return controller;
-	}
 
-    
+	public BaseController getController() {
+		return controller;
+	}   
 }

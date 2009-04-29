@@ -18,6 +18,7 @@ import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
@@ -235,5 +236,9 @@ public class PostView extends BaseView {
 
 	public PostState getPostState() {
 		return mState;
+	}
+	
+	public BaseController getController() {
+		return controller;
 	}
 }

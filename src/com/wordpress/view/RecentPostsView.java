@@ -5,6 +5,7 @@ import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectListField;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.controller.BaseController;
 import com.wordpress.controller.RecentPostsController;
 
 public class RecentPostsView extends BaseView {
@@ -66,4 +67,8 @@ public class RecentPostsView extends BaseView {
     	this.delete(listaPost);
     	buildList(post);
     }
+    
+	public BaseController getController() {
+		return controller;
+	}
 }

@@ -5,6 +5,7 @@ import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.LabelField;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Post;
 
@@ -39,4 +40,7 @@ public class PhotosView extends BaseView {
 		return true;
     }
 	
+	public BaseController getController() {
+		return controller;
+	}
 }

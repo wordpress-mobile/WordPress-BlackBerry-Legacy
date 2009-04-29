@@ -169,4 +169,8 @@ public class AddBlogsController extends BaseController implements Observer{
 		backCmd();
 		return true;
 	}
+
+	public void refreshView() {
+		
+	}
 }

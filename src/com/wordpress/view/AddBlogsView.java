@@ -20,10 +20,11 @@ import net.rim.device.api.ui.text.URLTextFilter;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AddBlogsController;
+import com.wordpress.controller.BaseController;
 
 public class AddBlogsView extends BaseView {
 	
-    private AddBlogsController addBlogsController= null;
+    private AddBlogsController controller= null;
 	private BasicEditField blogUrlField;
 	private BasicEditField userNameField;
 	private PasswordEditField passwordField;
@@ -53,7 +54,7 @@ public class AddBlogsView extends BaseView {
 	
 	 public AddBlogsView(AddBlogsController addBlogsController, Hashtable values) {
 	    	super();
-	    	this.addBlogsController=addBlogsController;
+	    	this.controller=addBlogsController;
 	    	//add a screen title
 	        LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_ADDBLOGS),
 	                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
@@ -124,12 +125,16 @@ public class AddBlogsView extends BaseView {
 	    //add blog menu item 
 	    private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 140, 10) {
 	        public void run() {
-	        	addBlogsController.addBlogs();
+	        	controller.addBlogs();
 	        }
 	    };
 
 	   //override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {
-		return addBlogsController.discardChange();			
+		return controller.discardChange();			
+	}
+	
+	public BaseController getController() {
+		return controller;
 	}
 }

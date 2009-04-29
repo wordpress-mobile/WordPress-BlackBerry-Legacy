@@ -217,5 +217,9 @@ public class PreferenceController extends BaseController {
     		return false;
     	}
 	}
+
+	public void refreshView() {
+		
+	}
 	
 }

@@ -5,6 +5,7 @@ import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectListField;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.controller.BaseController;
 import com.wordpress.controller.DraftPostsController;
 
 public class DraftPostsView extends BaseView {
@@ -66,7 +67,7 @@ public class DraftPostsView extends BaseView {
         }
     };
     
-	public DraftPostsController getController() {
+	public BaseController getController() {
 		return controller;
 	}
 }

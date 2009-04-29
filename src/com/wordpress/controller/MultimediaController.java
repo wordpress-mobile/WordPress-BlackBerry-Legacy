@@ -159,4 +159,9 @@ public class MultimediaController extends BaseController implements Observer{
 		}		
 
 	}
+
+
+	public void refreshView() {
+		
+	}
 }

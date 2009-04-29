@@ -74,5 +74,9 @@ public class RefreshBlogController extends BaseController implements Observer{
 			}
 		});
 	}
+
+	public void refreshView() {
+		
+	}
 	
 }

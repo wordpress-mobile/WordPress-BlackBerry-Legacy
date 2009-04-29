@@ -5,6 +5,7 @@ import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
+import com.wordpress.view.BaseView;
 import com.wordpress.view.BlogView;
 import com.wordpress.view.DraftPostsView;
 import com.wordpress.view.MainView;
@@ -115,10 +116,10 @@ public class FrontController {
 	
 	
 	/**
-	 * 
+	 * pop 1 screen out of the stack and refresh the view.
 	 * 
 	 */
-	public void fromWritingPostToPrevView(final boolean isRemoteUpdate){
+	public void backAndRefreshView(boolean wasRemoteUpdate){
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
 				
@@ -126,14 +127,9 @@ public class FrontController {
 				UiApplication.getUiApplication().popScreen(scr);
 				scr=UiApplication.getUiApplication().getActiveScreen();
 				
-				if (scr instanceof BlogView) {		
-					if(isRemoteUpdate) { 
-						BlogController controller = ((BlogView)scr).getController();
-						controller.refreshPosts();
-					}			
-				} else if (scr instanceof DraftPostsView) { 
-					DraftPostsController controller = ((DraftPostsView)scr).getController();
-					controller.refreshUI();
+				if (scr instanceof BaseView){	
+					BaseController controller = ((BaseView)scr).getController();
+					controller.refreshView();
 				}
 			} //end run
 		});

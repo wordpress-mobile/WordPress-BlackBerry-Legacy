@@ -266,4 +266,9 @@ public class BlogController extends BaseController implements Observer{
 			FrontController.getIstance().newPost(currentBlog); // show the new post view
 		}
 	}
+
+	//called from the front controller
+	public void refreshView() {
+		refreshPosts();
+	}
 }

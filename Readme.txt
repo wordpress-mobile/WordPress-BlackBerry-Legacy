@@ -4,12 +4,12 @@ WordPress for BlackBerry
 Introduction
 ------------
 
-This source distribution allows you to modify and build MoPress yourself.
-If you just want to install and use MoPress, you probably don't want
+This source distribution allows you to modify and build WordPress for BlackBerry yourself.
+If you just want to install and use WordPress for BlackBerry, you probably don't want
 this distribution, but want to install the pre-built version available
-from the MoPress website:
+from the WordPress website:
 
-  http://danais.no-ip.org/demo/wp_mopress/
+  http://blackberry.wordpress.org
 
 Please see the MoPress website for up-to-date information on the project.
 
@@ -23,6 +23,8 @@ Building WordPress for BB
  b) Eclipse 3.4.X
  
  c) BlackBerry JDE Plug.in for Eclipse v1.0
+ 
+ d) BlackBerry JDE ComponentPackage v4.2
  
  
 License information.

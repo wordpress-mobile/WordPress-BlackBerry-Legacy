@@ -121,4 +121,9 @@ public class DraftPostsController extends BaseController {
 		return postCaricati;
 	}
 
+
+	public void refreshView() {
+		refreshUI();		
+	}
+
 }

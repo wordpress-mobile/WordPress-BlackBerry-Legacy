@@ -17,6 +17,8 @@ public class AboutController extends BaseController {
 	public void showView(){
 		UiApplication.getUiApplication().pushScreen(aboutView);
 	}
-	
-	
+
+	public void refreshView() {
+				
+	}	
 }

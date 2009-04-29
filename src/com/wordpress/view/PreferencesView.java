@@ -12,6 +12,7 @@ import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PreferenceController;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Preferences;
@@ -19,7 +20,7 @@ import com.wordpress.utils.SimpleTimeZone;
 
 public class PreferencesView extends BaseView {
 	
-    private PreferenceController preferencesController= null;
+    private PreferenceController controller= null;
     private Preferences mPrefs=Preferences.getIstance();
 	private ObjectChoiceField audioGroup;
 	private ObjectChoiceField photoGroup;
@@ -31,7 +32,7 @@ public class PreferencesView extends BaseView {
 	
 	 public PreferencesView(PreferenceController _preferencesController) {
 	    	super();
-	    	this.preferencesController=_preferencesController;
+	    	this.controller=_preferencesController;
 	    	//add a screen title
 	        LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_APPLICATION),
 	                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
@@ -42,19 +43,19 @@ public class PreferencesView extends BaseView {
             
             int selected = SimpleTimeZone.getIndexForOffset(mPrefs.getTimeZone().getRawOffset());
             timezoneGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_TIMEZONE),SimpleTimeZone.TIME_ZONE_IDS,selected);
-            timezoneGroup.setChangeListener(preferencesController.getTimeZoneListener());
+            timezoneGroup.setChangeListener(controller.getTimeZoneListener());
 			add( timezoneGroup );
 			
 			add(new SeparatorField());
 			
 			clientSideConn=new CheckboxField(_resources.getString(WordPressResource.LABEL_DEVICESIDECONN), mPrefs.isDeviceSideConnection());
-			clientSideConn.setChangeListener(preferencesController.getDeviceSideConnListener());
+			clientSideConn.setChangeListener(controller.getDeviceSideConnListener());
 			add(clientSideConn);
              			
             ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK));
             ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK));
-    		buttonBACK.setChangeListener(preferencesController.getBackButtonListener());
-            buttonOK.setChangeListener(preferencesController.getOkButtonListener());
+    		buttonBACK.setChangeListener(controller.getBackButtonListener());
+            buttonOK.setChangeListener(controller.getOkButtonListener());
             buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
             buttonsManager.add(buttonOK);
     		buttonsManager.add(buttonBACK);
@@ -74,7 +75,7 @@ public class PreferencesView extends BaseView {
 				}
 		       
 		    	audioGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_AUDIOENCODING),lines,selectedIndex);
-		    	audioGroup.setChangeListener(preferencesController.getAudioListener());
+		    	audioGroup.setChangeListener(controller.getAudioListener());
 				add( audioGroup );
 			} else {
 				LabelField lbl = new LabelField(_resources.getString(WordPressResource.LABEL_AUDIORECORDING_NOTSUPPORTED));
@@ -94,7 +95,7 @@ public class PreferencesView extends BaseView {
 				}
 		       
 		    	photoGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_PHOTOENCODING),lines,selectedIndex);
-		    	photoGroup.setChangeListener(preferencesController.getPhotoListener());
+		    	photoGroup.setChangeListener(controller.getPhotoListener());
 				add( photoGroup );
 			} else {
 				LabelField lbl = new LabelField(_resources.getString(WordPressResource.LABEL_PHOTO_NOTSUPPORTED));
@@ -114,7 +115,7 @@ public class PreferencesView extends BaseView {
 				}
 		        
 		    	videoGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_VIDEOENCODING),lines,selectedIndex);
-		    	videoGroup.setChangeListener(preferencesController.getVideoListener());
+		    	videoGroup.setChangeListener(controller.getVideoListener());
 				add( videoGroup );
 			} else {
 				LabelField lbl = new LabelField(_resources.getString(WordPressResource.LABEL_VIDEORECORDING_NOTSUPPORTED));
@@ -128,7 +129,7 @@ public class PreferencesView extends BaseView {
 	    //create a menu item for users click to save
 	    private MenuItem _saveItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVE, 1000, 10) {
 	        public void run() {
-	        	preferencesController.savePrefAndBack();
+	        	controller.savePrefAndBack();
 	        }
 	    };
 
@@ -145,6 +146,10 @@ public class PreferencesView extends BaseView {
 	 
 	    //override onClose() to display a dialog box when the application is closed    
 		public boolean onClose()   {
-	    	return preferencesController.dismissView();
+	    	return controller.dismissView();
 	    }
+		
+		public BaseController getController() {
+			return controller;
+		}
 }

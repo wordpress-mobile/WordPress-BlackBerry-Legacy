@@ -3,24 +3,23 @@ package com.wordpress.view;
 
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.SeparatorField;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AboutController;
+import com.wordpress.controller.BaseController;
 import com.wordpress.utils.FileUtils;
 import com.wordpress.utils.PropertyUtils;
 
 public class AboutView extends BaseView {
+	private AboutController controller;
+
 	//FIXME: scrolling error
-	   
-   // private AboutController aboutController; //controller associato alla view
-    
     public AboutView(AboutController _aboutController) {
     	super();
-    //	aboutController=_aboutController;
+		controller = _aboutController;
     	//add a screen title
         LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_APPLICATION),
                         LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
@@ -42,4 +41,8 @@ public class AboutView extends BaseView {
         add(new LabelField( FileUtils.readTxtFile("License.txt"),Field.FOCUSABLE));
         add(new LabelField( "See the " + name + " website for more information.",Field.FOCUSABLE));
     }
+    
+	public BaseController getController() {
+		return controller;
+	}
 }

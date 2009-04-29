@@ -4,6 +4,7 @@ import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.controller.BaseController;
 
 /**
  * Base class for all Application Screen
@@ -14,8 +15,8 @@ public abstract class BaseView extends MainScreen{
 	
     public BaseView() {
 		super();
-	
 	}
+    
 	public BaseView(long style) {
 		super(style);
 	}
@@ -32,4 +33,8 @@ public abstract class BaseView extends MainScreen{
     public ResourceBundle getAssociatedResourceBundle(){
     	return _resources;
     }
+    
+    //return the controller associated with thi view
+    public abstract BaseController getController();
+    
 }

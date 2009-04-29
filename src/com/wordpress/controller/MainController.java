@@ -60,5 +60,9 @@ public class MainController extends BaseController {
 		if(currentBlog != null) {
 			FrontController.getIstance().refreshBlog(currentBlog);
 		}
+	}
+
+	public void refreshView() {
+		
 	}	
 }

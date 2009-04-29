@@ -131,7 +131,7 @@ public class PostController extends BaseController implements Observer{
 			if(resp.isStopped()){
 				return;
 			}
-			FrontController.getIstance().fromWritingPostToPrevView(true);
+			FrontController.getIstance().backAndRefreshView(true);
 			//backCmd();
 		} else {
 			final String respMessage=resp.getResponse();
@@ -143,14 +143,14 @@ public class PostController extends BaseController implements Observer{
 		if(view.getPostState().isModified()){
 	    	int result=this.askQuestion("Changes Made, are sure to close this screen?");   
 	    	if(Dialog.YES==result) {
-	    		FrontController.getIstance().fromWritingPostToPrevView(false);
+	    		FrontController.getIstance().backAndRefreshView(false);
 	    		//backCmd();
 	    		return true;
 	    	} else {
 	    		return false;
 	    	}
 		} else {
-			FrontController.getIstance().fromWritingPostToPrevView(false);
+			FrontController.getIstance().backAndRefreshView(false);
 			//backCmd();
 			return true;
 		}
@@ -211,6 +211,10 @@ public class PostController extends BaseController implements Observer{
 	
 		
 		
+	}
+
+	public void refreshView() {
+	
 	}
 
 }
