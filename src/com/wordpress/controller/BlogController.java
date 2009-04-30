@@ -17,7 +17,7 @@ import com.wordpress.xmlrpc.post.GetPostConn;
 import com.wordpress.xmlrpc.post.RecentPostConn;
 
 
-public class BlogController extends BaseController implements Observer{
+public class BlogController extends BaseController {
 	
 	private BlogView view = null;
 	private BlogIOController blogIOController = null;
@@ -25,12 +25,6 @@ public class BlogController extends BaseController implements Observer{
 	
 	ConnectionInProgressView connectionProgressView=null;
 	
-	public static int PAUSE=0;
-	public static int LOADING_POSTS_LIST=1;
-	public static int LOADING_POST=2;
-	public static int DELETING_POST=3;
-	public static int REFRESH_POSTS_LIST=4;
-	private int state= 0;
 	private Post[] mPosts;
 
  
@@ -79,53 +73,17 @@ public class BlogController extends BaseController implements Observer{
 		return postCaricati;
 	}
 		
-	public void update(Observable observable, final Object object) {
-	
-		UiApplication.getUiApplication().invokeLater(new Runnable() {
-			public void run() {
-				if(state == LOADING_POSTS_LIST || state == REFRESH_POSTS_LIST){
-					loadRecentPostsResponse(object);		
-				 } else if (state == DELETING_POST){
-					 deletePostResponse(object);
-				 } 	else if (state == LOADING_POST){
-					 loadPostResponse(object);
-				 } 
-				 System.out.println("impostato lo stato come pause");
-				 state=PAUSE;
-			}
-		});
-	}
 	
 	/** starts the recent post loading: called by front controller */
 	public void loadPosts(){
-		this.state=LOADING_POSTS_LIST;
-        loadRecentPosts();
-	}
-	
-	/** starts the recent post list refreshing */
-	public void refreshPosts(){
-		this.state=REFRESH_POSTS_LIST;
-        loadRecentPosts();
-	}
-	
-	/** starts the  post loading */
-	public void editPost(int selected){
-		if(selected != -1){
-			this.state=LOADING_POST;
-			this.loadPost(selected);
-		}	     	
-	}	
-
-	
-	/** load a post from the server */
-	private void loadPost(int postID) {
-		Post post = (Post) mPosts[postID];
+		System.out.println(">>>loadRecentPosts");
 		Preferences prefs = Preferences.getIstance();
-        final GetPostConn connection = new GetPostConn (currentBlog.getBlogXmlRpcUrl(),currentBlog.getUsername(),
-        		currentBlog.getPassword(),  prefs.getTimeZone(), post);
+        final RecentPostConn connection = new RecentPostConn (currentBlog.getBlogXmlRpcUrl(),currentBlog.getUsername(),
+        		currentBlog.getPassword(),  prefs.getTimeZone(), currentBlog, currentBlog.getMaxPostCount());
         
-        connection.addObserver(this); 
-        connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONN_LOADING_POST));
+        connection.addObserver(new loadRecentPostsCallBack()); 
+        String connMsg=_resources.getString(WordPressResource.CONN_LOADING_BLOG);
+        connectionProgressView= new ConnectionInProgressView(connMsg);
        
         connection.startConnWork(); //starts connection
 				
@@ -133,40 +91,21 @@ public class BlogController extends BaseController implements Observer{
 		if(choice==Dialog.CANCEL) {
 			System.out.println("Chiusura della conn dialog tramite cancel");
 			connection.stopConnWork(); //stop the connection if the user click on cancel button
-		}
+		}		
 	}
 	
-	/** loadPost loading callback */
-	private void loadPostResponse(Object object) {
-		System.out.println(">>>loadPostResponse");
-
-		dismissDialog(connectionProgressView);
-		BlogConnResponse resp= (BlogConnResponse) object;
-				
-		if(!resp.isError()) {
-			if(resp.isStopped()){
-				return;
-			}
-			Post post=(Post)resp.getResponseObject();
-			FrontController.getIstance().showPost(post);	
-		} else {
-			final String respMessage=resp.getResponse();
-		 	displayError(respMessage);	
-		}
-	}
-	
-
-	private void loadRecentPosts() {
-		System.out.println(">>>loadRecentPosts");
+	/** starts the recent post list refreshing */
+	public void refreshPosts(){
+		//this.state=REFRESH_POSTS_LIST;
+        //loadRecentPosts();
+		
+		System.out.println(">>>refreshPosts");
 		Preferences prefs = Preferences.getIstance();
         final RecentPostConn connection = new RecentPostConn (currentBlog.getBlogXmlRpcUrl(),currentBlog.getUsername(),
         		currentBlog.getPassword(),  prefs.getTimeZone(), currentBlog, currentBlog.getMaxPostCount());
         
-        connection.addObserver(this); 
+        connection.addObserver(new refreshRecentPostCallBack()); 
         String connMsg=_resources.getString(WordPressResource.CONN_LOADING_BLOG);
-        if(state == REFRESH_POSTS_LIST){
-        	connMsg=_resources.getString(WordPressResource.CONN_REFRESH_POSTLIST);
-        }
         connectionProgressView= new ConnectionInProgressView(connMsg);
        
         connection.startConnWork(); //starts connection
@@ -178,29 +117,35 @@ public class BlogController extends BaseController implements Observer{
 		}
 	}
 	
-	
-	/** recent post loading callback */
-	private void loadRecentPostsResponse(Object object) {
-		System.out.println(">>>loadRecentPostsResponse");
+	/** starts the  post loading */
+	public void editPost(int selected){
+		if(selected != -1){
+			
+			Post post = (Post) mPosts[selected];
+			Preferences prefs = Preferences.getIstance();
+	        final GetPostConn connection = new GetPostConn (currentBlog.getBlogXmlRpcUrl(),currentBlog.getUsername(),
+	        		currentBlog.getPassword(),  prefs.getTimeZone(), post);
+	        
+	        connection.addObserver(new loadPostCallBack());  
+	        connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONN_LOADING_POST));
+	       
+	        connection.startConnWork(); //starts connection
+					
+			int choice = connectionProgressView.doModal();
+			if(choice==Dialog.CANCEL) {
+				System.out.println("Chiusura della conn dialog tramite cancel");
+				connection.stopConnWork(); //stop the connection if the user click on cancel button
+			}
+			
+		}	     	
+	}	
 
-		dismissDialog(connectionProgressView);
-		BlogConnResponse resp= (BlogConnResponse) object;
-				
-		if(!resp.isError()) {
-			if(resp.isStopped()){
-				return;
-			}
-			mPosts= (Post[]) resp.getResponseObject();
-			if(this.state == LOADING_POSTS_LIST) { 
-				buildUI();
-			} else if( this.state == REFRESH_POSTS_LIST){
-				refreshUI();
-			}
-		} else {
-			final String respMessage=resp.getResponse();
-		 	displayError(respMessage);	
+	/** refresh all blog information */
+	public void refreshBlog(){
+		if(currentBlog != null) {
+			FrontController.getIstance().refreshBlog(currentBlog);
 		}
-	}
+	 }
 	
 	
 	public void deletePost(int postID){
@@ -209,11 +154,11 @@ public class BlogController extends BaseController implements Observer{
 		
     	if(Dialog.YES==result) {
 		
-			 this.state=DELETING_POST;
 			 Post post = (Post) mPosts[postID];
 			 DeletePostConn connection = new DeletePostConn (currentBlog.getBlogXmlRpcUrl(),currentBlog.getUsername(),
 					 currentBlog.getPassword(),  null, post);
-		     connection.addObserver(this);
+		     
+			 connection.addObserver(new deletePostCallBack());
 		     
 		     connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONN_DELETE_POST));
 	  
@@ -226,26 +171,6 @@ public class BlogController extends BaseController implements Observer{
     	}
 	}
 	
-	
-	/** delete post loading callback */
-	private void deletePostResponse(Object object) {
-		System.out.println(">>>deletePostResponse");
-
-		dismissDialog(connectionProgressView);
-		BlogConnResponse resp= (BlogConnResponse) object;
-		if(!resp.isError()) {
-			if(resp.isStopped()){
-				return;
-			}
-			//reload post from blog
-			this.state=REFRESH_POSTS_LIST;
-	        loadRecentPosts(); 			
-		} else {  
-			final String respMessage=resp.getResponse();
-		 	displayError(respMessage);	
-		}
-		return;
-	}
 	
 		
 	public void showDraftPosts(){
@@ -270,4 +195,116 @@ public class BlogController extends BaseController implements Observer{
 	public void refreshView() {
 		refreshPosts();
 	}
+	
+	
+	
+	class deletePostCallBack implements Observer{
+		public void update(Observable observable, final Object object) {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					
+					System.out.println(">>>deletePostResponse");
+
+					dismissDialog(connectionProgressView);
+					BlogConnResponse resp= (BlogConnResponse) object;
+					if(!resp.isError()) {
+						if(resp.isStopped()){
+							return;
+						}
+				        
+						refreshPosts();
+				        
+					} else {  
+						final String respMessage=resp.getResponse();
+					 	displayError(respMessage);	
+					}
+					
+					
+					}//and run 
+			});
+		}
+	}
+	
+	
+	
+	class refreshRecentPostCallBack implements Observer{
+		public void update(Observable observable, final Object object) {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					
+					System.out.println(">>>loadRecentPostsResponse");
+
+					dismissDialog(connectionProgressView);
+					BlogConnResponse resp= (BlogConnResponse) object;
+							
+					if(!resp.isError()) {
+						if(resp.isStopped()){
+							return;
+						}
+						mPosts= (Post[]) resp.getResponseObject();
+						refreshUI();
+					} else {
+						final String respMessage=resp.getResponse();
+					 	displayError(respMessage);	
+					}
+
+					
+					}//and run 
+			});
+		}
+	}
+	
+	class loadRecentPostsCallBack implements Observer{
+		public void update(Observable observable, final Object object) {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					
+					System.out.println(">>>loadRecentPostsResponse");
+
+					dismissDialog(connectionProgressView);
+					BlogConnResponse resp= (BlogConnResponse) object;
+							
+					if(!resp.isError()) {
+						if(resp.isStopped()){
+							return;
+						}
+						mPosts= (Post[]) resp.getResponseObject();
+						buildUI();
+					} else {
+						final String respMessage=resp.getResponse();
+					 	displayError(respMessage);	
+					}
+					
+					}//and run 
+			});
+		}
+	}
+	
+	//callback for post loading
+	class loadPostCallBack implements Observer{
+		public void update(Observable observable, final Object object) {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+
+					System.out.println(">>>loadPostResponse");
+
+					dismissDialog(connectionProgressView);
+					BlogConnResponse resp= (BlogConnResponse) object;
+							
+					if(!resp.isError()) {
+						if(resp.isStopped()){
+							return;
+						}
+						Post post=(Post)resp.getResponseObject();
+						FrontController.getIstance().showPost(post);	
+					} else {
+						final String respMessage=resp.getResponse();
+					 	displayError(respMessage);	
+					}
+				
+				}
+			});
+		}
+	}
+	
 }

@@ -84,7 +84,7 @@ public class FrontController {
 	}
 	
 	/**
-	 * refresh a blog
+	 * refresh all the blog local informations
 	 */
 	public void refreshBlog(Blog currentBlog){
 		RefreshBlogController ctrl=new RefreshBlogController(currentBlog);

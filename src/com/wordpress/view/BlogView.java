@@ -55,10 +55,10 @@ public class BlogView extends BaseView {
         
 		buildList(post);
 		
-        addMenuItem(_newPostItem);
-        addMenuItem(_draftPostsItem);
-        addMenuItem(_commentsPostsItem);
-        addMenuItem(_optionsPostsItem);
+//        addMenuItem(_newPostItem);
+  //      addMenuItem(_draftPostsItem);
+    //    addMenuItem(_commentsPostsItem);
+        addMenuItem(_refreshBlogItem);
 	}
 	
 	
@@ -118,8 +118,7 @@ public class BlogView extends BaseView {
     
     private MenuItem _refreshBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESHBLOG, 150, 10) {
         public void run() {
-    //    	int selected = listaBlog.getSelectedIndex();
-      //  	mainController.refreshBlog(selected);
+        	controller.refreshBlog();
         }
     };
     
@@ -131,19 +130,13 @@ public class BlogView extends BaseView {
         }
     };
     
-    private MenuItem _optionsPostsItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETUP, 140, 10) {
-        public void run() {
-           	UiApplication.getUiApplication().pushScreen(new NotYetImpPopupScreen());
-        }
-    };
-
     
 	private FieldChangeListener listenerButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
 	    	if(field == buttonNewPost){
 	    		controller.newPost();	    		
 	    	} else if(field == buttonBlogRefresh){
-	    		UiApplication.getUiApplication().pushScreen(new NotYetImpPopupScreen());
+	    		controller.refreshPosts(); //reload only the posts list
 	    	} else if(field == buttonComments){
 	    		UiApplication.getUiApplication().pushScreen(new NotYetImpPopupScreen());
 	    	} else if(field == buttonDraftPosts) {
@@ -156,7 +149,6 @@ public class BlogView extends BaseView {
     
 	 // Handle trackball clicks.
 	protected boolean navigationClick(int status, int time) {
-		//Field fieldWithFocus = UiApplication.getUiApplication().getActiveScreen().getFieldWithFocus();
 		Field fieldWithFocus = this.getFieldWithFocus();
 		if(fieldWithFocus == topButtonsManager) { //focus on the top buttons, do not open menu on whell click
 			return true;

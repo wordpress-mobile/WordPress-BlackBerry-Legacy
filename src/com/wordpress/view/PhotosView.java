@@ -1,7 +1,10 @@
 package com.wordpress.view;
 
 
+import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
 
 import com.wordpress.bb.WordPressResource;
@@ -31,9 +34,7 @@ public class PhotosView extends BaseView {
         	controller.showMultimediaSelectionBox();
         }
     };
-    	
-
-
+ 	
     //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
 		controller.backCmd();
@@ -43,4 +44,9 @@ public class PhotosView extends BaseView {
 	public BaseController getController() {
 		return controller;
 	}
+	
+	public void addPhoto(Bitmap photo){
+		add(new BitmapField(photo, Field.FOCUSABLE | Field.FIELD_HCENTER) );
+	}
+	
 }

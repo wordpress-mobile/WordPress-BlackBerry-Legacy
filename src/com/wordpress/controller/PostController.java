@@ -11,7 +11,6 @@ import com.wordpress.model.Category;
 import com.wordpress.model.MediaObject;
 import com.wordpress.model.Post;
 import com.wordpress.utils.FileUtils;
-import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Preferences;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.observer.Observable;
@@ -30,6 +29,7 @@ import com.wordpress.xmlrpc.post.NewPostConn;
 public class PostController extends BaseController implements Observer{
 	
 	private PostView view = null;
+	private PhotosView photoView= null;
 	ConnectionInProgressView connectionProgressView=null;
 	private Post post=null;
 	private BlogIOController blogController= BlogIOController.getIstance();
@@ -158,12 +158,12 @@ public class PostController extends BaseController implements Observer{
 	
 	
 	public void showPhotosView(){
-		PhotosView scr= new PhotosView(this,post);
-		UiApplication.getUiApplication().pushScreen(scr);
+		photoView= new PhotosView(this,post);
+		UiApplication.getUiApplication().pushScreen(photoView);
 	}
 	
 	//* called by photoview */
-	public void showMultimediaSelectionBox(){
+	public void showMultimediaSelectionBox() {
 		int response= BROWSER;
 		
 		//if(MultimediaUtils.supportPhotoCapture()) {
@@ -184,18 +184,29 @@ public class PostController extends BaseController implements Observer{
             	 String[] fileNameSplitted = StringUtils.split(theFile, ".");
             	 String ext= fileNameSplitted[fileNameSplitted.length-1];
          
-            	 try {
+				try {
 					byte[] readFile = FileUtils.readFile(theFile);
 					MediaObject mmObj= new MediaObject();
 					mmObj.setContentType(ext); //setting the content type as the file extension
 					mmObj.setMediaData(readFile);
-					//sendMultimediaContent(mmObj, textField);
-					displayMessage("File ok!");
-										
+					//TODO Store the mmObj into fileSystem/RMS
+			
+					//	displayMessage("File ok!");
+					//Image createImage = MultimediaUtils.createImage(readFile);
+					//Image resizedImg = MultimediaUtils.resizeImageAndCopyPrevious(64,64, createImage);
+					
+					Bitmap createBitmapFromBytes = Bitmap.createBitmapFromBytes(readFile,0, -1, 5);
+					
+					photoView.addPhoto(createBitmapFromBytes);
+					
+					
 				} catch (IOException e) {
+					
 					// TODO Auto-generated catch block
-					System.out.println("Error while sending file to blog");
+					e.printStackTrace();
 				}
+				
+				//crea l'icona e l'aggiunge alla schermate delle foto.					
 
              }					
 			break;

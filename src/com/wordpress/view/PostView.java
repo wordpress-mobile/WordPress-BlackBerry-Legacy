@@ -4,18 +4,13 @@ package com.wordpress.view;
 import java.util.Date;
 
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.FocusChangeListener;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.DateField;
-import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
-import net.rim.device.api.ui.component.SeparatorField;
-import net.rim.device.api.ui.container.HorizontalFieldManager;
-import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
@@ -23,11 +18,7 @@ import com.wordpress.controller.PostController;
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
 import com.wordpress.model.PostState;
-import com.wordpress.utils.MultimediaUtils;
-import com.wordpress.view.component.FileSelectorPopupScreen;
-import com.wordpress.view.component.HtmlTagPopupScreen;
 import com.wordpress.view.component.HtmlTextField;
-import com.wordpress.view.component.MultimediaPopupScreen;
 import com.wordpress.view.component.NotYetImpPopupScreen;
 
 public class PostView extends BaseView {
