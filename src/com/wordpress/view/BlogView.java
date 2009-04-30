@@ -23,7 +23,7 @@ public class BlogView extends BaseView {
 	private ButtonField buttonNewPost;
 	private ButtonField buttonDraftPosts;
 	private ButtonField buttonComments;
-	private ButtonField buttonBlogOption;
+	private ButtonField buttonBlogRefresh;
 
 	private ObjectListField listaPost;
 	
@@ -42,14 +42,14 @@ public class BlogView extends BaseView {
         buttonDraftPosts.setChangeListener(listenerButton);
         buttonComments = new ButtonField(_resources.getString(WordPressResource.BUTTON_COMMENTS));
         buttonComments.setChangeListener(listenerButton);
-        buttonBlogOption = new ButtonField(_resources.getString(WordPressResource.BUTTON_BLOGOPTIONS));
-        buttonBlogOption.setChangeListener(listenerButton);
+        buttonBlogRefresh = new ButtonField(_resources.getString(WordPressResource.BUTTON_REFRESH_BLOG));
+        buttonBlogRefresh.setChangeListener(listenerButton);
 
         topButtonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
         topButtonsManager.add(buttonNewPost);
         topButtonsManager.add(buttonDraftPosts);
         topButtonsManager.add(buttonComments);
-        topButtonsManager.add(buttonBlogOption);
+        topButtonsManager.add(buttonBlogRefresh);
 		add(topButtonsManager); 
 		add(new SeparatorField());
         
@@ -74,7 +74,7 @@ public class BlogView extends BaseView {
 			addMenuItem(_deletePostItem);
 		}
 		
-		addMenuItem(_refreshPostListItem);
+		addMenuItem(_blogOptionsItem);
 	}
 	 
     public void refresh(String[] post){
@@ -109,12 +109,21 @@ public class BlogView extends BaseView {
         }
     };
     
-    private MenuItem _refreshPostListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESHPOSTSLIST, 220, 10) {
+    private MenuItem _blogOptionsItem = new MenuItem( _resources, WordPressResource.MENUITEM_BLOG_OPTION, 220, 10) {
         public void run() {
-        	controller.refreshPosts();
+        	controller.showBlogOptions();
         }
     };
 
+    
+    private MenuItem _refreshBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESHBLOG, 150, 10) {
+        public void run() {
+    //    	int selected = listaBlog.getSelectedIndex();
+      //  	mainController.refreshBlog(selected);
+        }
+    };
+    
+    
     
     private MenuItem _commentsPostsItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS, 130, 10) {
         public void run() {
@@ -133,7 +142,7 @@ public class BlogView extends BaseView {
 	    public void fieldChanged(Field field, int context) {
 	    	if(field == buttonNewPost){
 	    		controller.newPost();	    		
-	    	} else if(field == buttonBlogOption){
+	    	} else if(field == buttonBlogRefresh){
 	    		UiApplication.getUiApplication().pushScreen(new NotYetImpPopupScreen());
 	    	} else if(field == buttonComments){
 	    		UiApplication.getUiApplication().pushScreen(new NotYetImpPopupScreen());

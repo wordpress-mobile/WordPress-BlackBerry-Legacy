@@ -36,6 +36,7 @@ src\com\wordpress\controller\AddBlogsController.java
 src\com\wordpress\controller\BaseController.java
 src\com\wordpress\controller\BlogController.java
 src\com\wordpress\controller\BlogIOController.java
+src\com\wordpress\controller\BlogOptionsController.java
 src\com\wordpress\controller\ConnectionInProgressListener.java
 src\com\wordpress\controller\DraftPostsController.java
 src\com\wordpress\controller\FrontController.java
@@ -43,7 +44,6 @@ src\com\wordpress\controller\MainController.java
 src\com\wordpress\controller\MultimediaController.java
 src\com\wordpress\controller\PostController.java
 src\com\wordpress\controller\PreferenceController.java
-src\com\wordpress\controller\RecentPostsController.java
 src\com\wordpress\controller\RefreshBlogController.java
 src\com\wordpress\model\Author.java
 src\com\wordpress\model\Blog.java
@@ -66,6 +66,7 @@ src\com\wordpress\utils\StringUtils.java
 src\com\wordpress\view\AboutView.java
 src\com\wordpress\view\AddBlogsView.java
 src\com\wordpress\view\BaseView.java
+src\com\wordpress\view\BlogOptionsView.java
 src\com\wordpress\view\BlogView.java
 src\com\wordpress\view\component\FileSelectorPopupScreen.java
 src\com\wordpress\view\component\HtmlTagPopupScreen.java
@@ -82,7 +83,6 @@ src\com\wordpress\view\MainView.java
 src\com\wordpress\view\PhotosView.java
 src\com\wordpress\view\PostView.java
 src\com\wordpress\view\PreferencesView.java
-src\com\wordpress\view\RecentPostsView.java
 src\com\wordpress\xmlrpc\BlogAuthConn.java
 src\com\wordpress\xmlrpc\BlogConn.java
 src\com\wordpress\xmlrpc\BlogConnResponse.java

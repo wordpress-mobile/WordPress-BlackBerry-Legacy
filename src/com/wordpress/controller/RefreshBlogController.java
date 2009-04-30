@@ -27,6 +27,7 @@ public class RefreshBlogController extends BaseController implements Observer{
 	}
 	
 	public void showView(){
+		
 	}
 
 	public void refreshBlog(){

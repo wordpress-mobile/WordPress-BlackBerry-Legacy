@@ -32,7 +32,7 @@ public class FrontController {
     
 	
 	/**
-	 * show setupUp view
+	 * show About view
 	 */
 	public void showAboutView(){
 		AboutController abtCtrl=new AboutController();
@@ -65,13 +65,15 @@ public class FrontController {
 		ctrl.showView();
 	}
 	
+	
 	/**
-	 * show recent post view
+	 * show blog options view
 	 */
-	public void showRecentPostsView(Blog currentBlog){
-		RecentPostsController ctrl=new RecentPostsController(currentBlog);
+	public void showBlogOptions(Blog currentBlog){
+		BlogOptionsController ctrl=new BlogOptionsController(currentBlog);
 		ctrl.showView();
 	}
+	
 	
 	/**
 	 * show draft post view
@@ -138,7 +140,7 @@ public class FrontController {
 	/**
 	 * pop out screens form the stack until MainView found.
 	 * Then Refresh the main view.
-	 */
+	*/ 
 	public void backToMainView(){
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
@@ -146,7 +148,8 @@ public class FrontController {
 				Screen scr;
 				while ((scr=UiApplication.getUiApplication().getActiveScreen()) != null){
 					if (scr instanceof MainView) {		
-						((MainView)scr).refreshBlogList();
+						BaseController controller = ((BaseView)scr).getController();
+						controller.refreshView();
 						break;
 					} else {
 						UiApplication.getUiApplication().popScreen(scr);

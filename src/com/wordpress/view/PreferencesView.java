@@ -34,7 +34,7 @@ public class PreferencesView extends BaseView {
 	    	super();
 	    	this.controller=_preferencesController;
 	    	//add a screen title
-	        LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_APPLICATION),
+	        LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_PREFERENCES_VIEW),
 	                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
 	        setTitle(title);
 	    	

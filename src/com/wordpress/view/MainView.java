@@ -1,31 +1,22 @@
 package com.wordpress.view;
 
-import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectListField;
-import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogIOController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
 
-public class MainView extends MainScreen {
+public class MainView extends BaseView {
 	
     private BlogIOController blogController = null;
     private MainController mainController=null;
 
     private ObjectListField listaBlog; 
-    		
-    //create a variable to store the ResourceBundle for localization support
-    private static ResourceBundle _resources;
-	    
-    static {
-        //retrieve a reference to the ResourceBundle for localization support
-        _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
-    }
-	
+
 
 	public MainView(MainController mainController) {
 		super();
@@ -47,7 +38,7 @@ public class MainView extends MainScreen {
 	 public void setupUpBlogsView() {
 		String[] blogCaricati= blogController.getBlogNames();
 
-    	removeMenuItem(_refreshBlogItem);
+    	removeMenuItem(_blogOptionsItem);
     	removeMenuItem(_deleteBlogItem);
     	removeMenuItem(_showBlogItem);
 		
@@ -57,7 +48,7 @@ public class MainView extends MainScreen {
         	blogCaricati[0]="Setup your blog...";
         } else {
         	addMenuItem(_showBlogItem);
-        	addMenuItem(_refreshBlogItem);
+        	addMenuItem(_blogOptionsItem);
         	addMenuItem(_deleteBlogItem);
         }
     	listaBlog.set(blogCaricati);
@@ -96,22 +87,23 @@ public class MainView extends MainScreen {
             mainController.showBlog(selectedBlog);
         }
     };
+    
+    private MenuItem _blogOptionsItem = new MenuItem( _resources, WordPressResource.MENUITEM_BLOG_OPTION, 140, 10) {
+        public void run() {
+        	int selectedBlog = listaBlog.getSelectedIndex();
+        	mainController.showBlogOptions(selectedBlog);
+        }
+    };
    
 
     //add blog menu item 
-    private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 140, 10) {
+    private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 150, 10) {
         public void run() {
         	FrontController.getIstance().showAddBlogsView();
         }
     };
 
-    private MenuItem _refreshBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESHBLOG, 150, 10) {
-        public void run() {
-        	int selected = listaBlog.getSelectedIndex();
-        	mainController.refreshBlog(selected);
-        }
-    };
-    
+        
     private MenuItem _deleteBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETEBLOG, 200, 10) {
         public void run() {
             int selectedBlog = listaBlog.getSelectedIndex();
@@ -136,4 +128,8 @@ public class MainView extends MainScreen {
 	public boolean onClose()   {
     	return mainController.exitApp();
     }
+
+	public BaseController getController() {
+		return mainController;
+	}
 }

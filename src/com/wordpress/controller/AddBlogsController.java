@@ -24,8 +24,8 @@ public class AddBlogsController extends BaseController implements Observer{
 	
 	private int maxPostIndex= -1;
 	private boolean isResPhotos= false;
-	private int[] recentsPostValues={10,20,30,40,50};
-	private String[] recentsPostValuesLabel={"10","20","30","40","50"};
+	public static final int[] recentsPostValues={10,20,30,40,50};
+	public static final String[] recentsPostValuesLabel={"10","20","30","40","50"};
 	private Hashtable guiValues= new Hashtable();
 	
 	ConnectionInProgressView connectionProgressView=null;
@@ -83,13 +83,12 @@ public class AddBlogsController extends BaseController implements Observer{
 		isResPhotos= view.isResizePhoto();
 		System.out.println("Resize photos : "+isResPhotos);
 		
-		if (pass != null && pass.length() == 0) {
+/*		if (pass != null && pass.length() == 0) {
         	pass = null;
-            // FIXME lapassword opzionale esiste ancora??
             displayError("Please enter a password");
             return;
         }
-
+*/
         if (url != null && user != null && url.length() > 0 && user != null && user.length() > 0) {
             Preferences prefs = Preferences.getIstance();
             BlogAuthConn connection = new BlogAuthConn (url,user,pass,prefs.getTimeZone());
@@ -128,7 +127,7 @@ public class AddBlogsController extends BaseController implements Observer{
 		 		blogs[i].setResizePhotos(isResPhotos);
 				blogController.addBlog(blogs[i], true);
 		    }
-		 	FrontController.getIstance().backToMainView();	 			 	
+		 	FrontController.getIstance().backAndRefreshView(true);	 			 	
 		} else {
 			final String respMessage=resp.getResponse();
 		 	displayError(respMessage);	

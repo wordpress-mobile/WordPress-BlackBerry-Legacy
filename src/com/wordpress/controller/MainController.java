@@ -12,7 +12,7 @@ import com.wordpress.view.MainView;
 
 public class MainController extends BaseController {
 	
-	private MainView mainView = null;
+	private MainView view = null;
 	private BlogIOController blogIOController = null;
 	
 	public MainController() {
@@ -20,9 +20,9 @@ public class MainController extends BaseController {
 	}
 	
 	public void showView(){
-		this.mainView=new MainView(this); //main view init here!.
+		this.view=new MainView(this); //main view init here!.
 		blogIOController= BlogIOController.getIstance();
-		UiApplication.getUiApplication().pushScreen(this.mainView);
+		UiApplication.getUiApplication().pushScreen(this.view);
 	}
 		
 	public void deleteBlog(int selectedBlog){
@@ -49,20 +49,20 @@ public class MainController extends BaseController {
 		}
 	}
 	
-
-	public void refreshBlog(int selectedBlog){
-  	 Blog currentBlog=null;
-  	 try {
-  		 currentBlog=blogIOController.getBlog(selectedBlog);
-		} catch (Exception e) {
-			displayError(e, "Refresh Blog Error");
-		}
-		if(currentBlog != null) {
-			FrontController.getIstance().refreshBlog(currentBlog);
+	
+	public void showBlogOptions(int selectedBlog) {
+		Blog currentBlog=null;
+	  	 try {
+	  		 currentBlog=blogIOController.getBlog(selectedBlog);
+			} catch (Exception e) {
+				displayError(e, "Loading Blog Error");
+			}
+		if (currentBlog != null) {
+			FrontController.getIstance().showBlogOptions(currentBlog);
 		}
 	}
-
+	
 	public void refreshView() {
-		
+		view.refreshBlogList();
 	}	
 }

@@ -253,14 +253,13 @@ public class BlogController extends BaseController implements Observer{
 			FrontController.getIstance().showDraftPostsView(currentBlog);
 		}
 	}
-	
-	/*
-	public void refreshBlog() {
+		
+	public void showBlogOptions() {
 		if (currentBlog != null) {
-			FrontController.getIstance().refreshBlog(currentBlog);
+			FrontController.getIstance().showBlogOptions(currentBlog);
 		}
 	}
-*/
+
 	public void newPost() {
 		if (currentBlog != null) {
 			FrontController.getIstance().newPost(currentBlog); // show the new post view
