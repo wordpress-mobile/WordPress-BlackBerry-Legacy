@@ -76,6 +76,16 @@ public class FrontController {
 	
 	
 	/**
+	 * show posts view
+	 */
+	public void showPostsView(Blog currentBlog){
+		PostsController ctrl=new PostsController(currentBlog);
+		ctrl.showView();
+	}
+	
+	
+	
+	/**
 	 * show draft post view
 	 */
 	public void showDraftPostsView(Blog currentBlog){

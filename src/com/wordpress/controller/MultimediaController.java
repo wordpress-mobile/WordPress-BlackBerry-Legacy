@@ -10,6 +10,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.model.MediaObject;
 import com.wordpress.model.Post;
 import com.wordpress.utils.FileUtils;
+import com.wordpress.utils.JSR75FileSystem;
 import com.wordpress.utils.Preferences;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.observer.Observable;
@@ -102,7 +103,7 @@ public class MultimediaController extends BaseController implements Observer{
             	 String ext= fileNameSplitted[fileNameSplitted.length-1];
          
             	 try {
-					byte[] readFile = FileUtils.readFile(theFile);
+					byte[] readFile = JSR75FileSystem.readFile(theFile);
 					MediaObject mmObj= new MediaObject();
 					mmObj.setContentType(ext); //setting the content type as the file extension
 					mmObj.setMediaData(readFile);

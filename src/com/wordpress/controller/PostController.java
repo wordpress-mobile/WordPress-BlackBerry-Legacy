@@ -1,6 +1,7 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
+import java.util.Hashtable;
 
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.UiApplication;
@@ -11,6 +12,7 @@ import com.wordpress.model.Category;
 import com.wordpress.model.MediaObject;
 import com.wordpress.model.Post;
 import com.wordpress.utils.FileUtils;
+import com.wordpress.utils.JSR75FileSystem;
 import com.wordpress.utils.Preferences;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.observer.Observable;
@@ -38,6 +40,7 @@ public class PostController extends BaseController implements Observer{
 	public static final int PHOTO=1;
 	public static final int BROWSER=4;
 	
+	private Hashtable dummyFS = new Hashtable(); //dummy fs
 	
 	//used when loading new post/recent post
 	public PostController(Post post) {
@@ -158,8 +161,16 @@ public class PostController extends BaseController implements Observer{
 	
 	
 	public void showPhotosView(){
-		photoView= new PhotosView(this,post);
+		photoView= new PhotosView(this,dummyFS);
 		UiApplication.getUiApplication().pushScreen(photoView);
+	}
+	
+	/*
+	 * show the photo
+	 */
+	public void showEnlargedPhoto(String key){
+		System.out.println("si vuole visualizzare la foto :"+key);
+		
 	}
 	
 	//* called by photoview */
@@ -185,7 +196,7 @@ public class PostController extends BaseController implements Observer{
             	 String ext= fileNameSplitted[fileNameSplitted.length-1];
          
 				try {
-					byte[] readFile = FileUtils.readFile(theFile);
+					byte[] readFile = JSR75FileSystem.readFile(theFile);
 					MediaObject mmObj= new MediaObject();
 					mmObj.setContentType(ext); //setting the content type as the file extension
 					mmObj.setMediaData(readFile);
@@ -194,12 +205,13 @@ public class PostController extends BaseController implements Observer{
 					//	displayMessage("File ok!");
 					//Image createImage = MultimediaUtils.createImage(readFile);
 					//Image resizedImg = MultimediaUtils.resizeImageAndCopyPrevious(64,64, createImage);
+					String key= String.valueOf(System.currentTimeMillis());
+					dummyFS.put(key, mmObj); //add to the dummy fs
 					
-					Bitmap createBitmapFromBytes = Bitmap.createBitmapFromBytes(readFile,0, -1, 5);
+					Bitmap createBitmapFromBytes = Bitmap.createBitmapFromBytes(readFile,0, -1, 4);
 					
-					photoView.addPhoto(createBitmapFromBytes);
-					
-					
+					photoView.addPhoto(key, createBitmapFromBytes);
+										
 				} catch (IOException e) {
 					
 					// TODO Auto-generated catch block

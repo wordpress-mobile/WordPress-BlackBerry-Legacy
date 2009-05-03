@@ -43,6 +43,7 @@ src\com\wordpress\controller\FrontController.java
 src\com\wordpress\controller\MainController.java
 src\com\wordpress\controller\MultimediaController.java
 src\com\wordpress\controller\PostController.java
+src\com\wordpress\controller\PostsController.java
 src\com\wordpress\controller\PreferenceController.java
 src\com\wordpress\controller\RefreshBlogController.java
 src\com\wordpress\model\Author.java
@@ -56,6 +57,7 @@ src\com\wordpress\model\Post.java
 src\com\wordpress\model\PostState.java
 src\com\wordpress\model\Tag.java
 src\com\wordpress\utils\FileUtils.java
+src\com\wordpress\utils\JSR75FileSystem.java
 src\com\wordpress\utils\MultimediaUtils.java
 src\com\wordpress\utils\observer\Observable.java
 src\com\wordpress\utils\observer\Observer.java
@@ -73,6 +75,7 @@ src\com\wordpress\view\component\HtmlTagPopupScreen.java
 src\com\wordpress\view\component\HtmlTextField.java
 src\com\wordpress\view\component\MultimediaPopupScreen.java
 src\com\wordpress\view\component\NotYetImpPopupScreen.java
+src\com\wordpress\view\component\PhotoBitmapField.java
 src\com\wordpress\view\dialog\ConnectionInProgressView.java
 src\com\wordpress\view\dialog\DiscardChangeInquiryView.java
 src\com\wordpress\view\dialog\ErrorView.java
@@ -81,6 +84,7 @@ src\com\wordpress\view\dialog\InquiryView.java
 src\com\wordpress\view\DraftPostsView.java
 src\com\wordpress\view\MainView.java
 src\com\wordpress\view\PhotosView.java
+src\com\wordpress\view\PostsView.java
 src\com\wordpress\view\PostView.java
 src\com\wordpress\view\PreferencesView.java
 src\com\wordpress\xmlrpc\BlogAuthConn.java

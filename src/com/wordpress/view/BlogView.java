@@ -2,13 +2,10 @@ package com.wordpress.view;
 
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
-import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.LabelField;
-import net.rim.device.api.ui.component.ObjectListField;
-import net.rim.device.api.ui.component.SeparatorField;
-import net.rim.device.api.ui.container.HorizontalFieldManager;
+import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
@@ -19,96 +16,42 @@ public class BlogView extends BaseView {
 	
     private BlogController controller=null;
     		    
-    private HorizontalFieldManager topButtonsManager;
-	private ButtonField buttonNewPost;
-	private ButtonField buttonDraftPosts;
+    private VerticalFieldManager mainButtonsManager;
+    private ButtonField buttonPosts;
+    private ButtonField buttonPages;
 	private ButtonField buttonComments;
 	private ButtonField buttonBlogRefresh;
+	private ButtonField buttonOptions;
 
-	private ObjectListField listaPost;
-	
-	
-	public BlogView(BlogController _controller , String[] post) {
-		super();
+	public BlogView(BlogController _controller) {
+		super(Field.FIELD_HCENTER);
 		this.controller=_controller;
         //add a screen title
         LabelField title = new LabelField(controller.getBlogName(), LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
         setTitle(title);
 
-        //setup top buttons
-        buttonNewPost = new ButtonField(_resources.getString(WordPressResource.BUTTON_NEWPOST));
-        buttonNewPost.setChangeListener(listenerButton);
-        buttonDraftPosts = new ButtonField(_resources.getString(WordPressResource.BUTTON_DRAFTPOSTS));
-        buttonDraftPosts.setChangeListener(listenerButton);
+        //setup screen buttons
+        buttonPosts = new ButtonField(_resources.getString(WordPressResource.BUTTON_POSTS));
+        buttonPosts.setChangeListener(listenerButton);
+        buttonPages = new ButtonField(_resources.getString(WordPressResource.BUTTON_PAGES));
+        buttonPages.setChangeListener(listenerButton);
+        buttonOptions = new ButtonField(_resources.getString(WordPressResource.BUTTON_OPTIONS));
+        buttonOptions.setChangeListener(listenerButton);
         buttonComments = new ButtonField(_resources.getString(WordPressResource.BUTTON_COMMENTS));
         buttonComments.setChangeListener(listenerButton);
         buttonBlogRefresh = new ButtonField(_resources.getString(WordPressResource.BUTTON_REFRESH_BLOG));
         buttonBlogRefresh.setChangeListener(listenerButton);
 
-        topButtonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
-        topButtonsManager.add(buttonNewPost);
-        topButtonsManager.add(buttonDraftPosts);
-        topButtonsManager.add(buttonComments);
-        topButtonsManager.add(buttonBlogRefresh);
-		add(topButtonsManager); 
-		add(new SeparatorField());
-        
-		buildList(post);
-		
-//        addMenuItem(_newPostItem);
-  //      addMenuItem(_draftPostsItem);
-    //    addMenuItem(_commentsPostsItem);
-        addMenuItem(_refreshBlogItem);
+        mainButtonsManager = new VerticalFieldManager(Field.FIELD_HCENTER);
+        mainButtonsManager.add(buttonPosts);
+        mainButtonsManager.add(buttonPages);
+        mainButtonsManager.add(buttonComments);
+        mainButtonsManager.add(buttonOptions);
+        mainButtonsManager.add(buttonBlogRefresh);
+		add(mainButtonsManager); 
 	}
 	
-	
-	private void buildList(String[] post) {
-		removeAllMenuItems();
-		
-		listaPost = new ObjectListField(); 	        
-		listaPost.set(post);
-		add(listaPost);
-
-		if(post.length > 0 ) {
-			addMenuItem(_editPostItem);
-			addMenuItem(_deletePostItem);
-		}
-		
-		addMenuItem(_blogOptionsItem);
-	}
-	 
-    public void refresh(String[] post){
-    	this.delete(listaPost);
-    	buildList(post);
-    }
-
-    
-    private MenuItem _editPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDITPOST, 110, 10) {
-        public void run() {
-            int selectedPost = listaPost.getSelectedIndex();
-            controller.editPost(selectedPost);
-        }
-    };
-          
-    private MenuItem _draftPostsItem = new MenuItem( _resources, WordPressResource.MENUITEM_DRAFTPOSTS, 120, 10) {
-        public void run() {
-    	 controller.showDraftPosts(); 
-        }
-    };
-
-    private MenuItem _newPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_NEWPOST, 110, 10) {
-        public void run() {
-        	controller.newPost();
-        }
-    };
-	
-	private MenuItem _deletePostItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETEPOST, 210, 10) {
-        public void run() {
-            int selectedPost = listaPost.getSelectedIndex();
-            controller.deletePost(selectedPost);
-        }
-    };
-    
+    /* Not yet used
     private MenuItem _blogOptionsItem = new MenuItem( _resources, WordPressResource.MENUITEM_BLOG_OPTION, 220, 10) {
         public void run() {
         	controller.showBlogOptions();
@@ -129,18 +72,20 @@ public class BlogView extends BaseView {
         	UiApplication.getUiApplication().pushScreen(new NotYetImpPopupScreen());
         }
     };
-    
+    */
     
 	private FieldChangeListener listenerButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
-	    	if(field == buttonNewPost){
-	    		controller.newPost();	    		
+	    	if(field == buttonPosts){
+	    		controller.showPosts();	
 	    	} else if(field == buttonBlogRefresh){
-	    		controller.refreshPosts(); //reload only the posts list
+	    		controller.refreshBlog(); //reload only the posts list
 	    	} else if(field == buttonComments){
 	    		UiApplication.getUiApplication().pushScreen(new NotYetImpPopupScreen());
-	    	} else if(field == buttonDraftPosts) {
-	    		controller.showDraftPosts(); 
+	    	} else if(field == buttonPages) {
+	    		UiApplication.getUiApplication().pushScreen(new NotYetImpPopupScreen());
+	    	} else if(field == buttonOptions) {
+	    		controller.showBlogOptions();
 	    	}
 	   }
 	};
@@ -150,7 +95,7 @@ public class BlogView extends BaseView {
 	 // Handle trackball clicks.
 	protected boolean navigationClick(int status, int time) {
 		Field fieldWithFocus = this.getFieldWithFocus();
-		if(fieldWithFocus == topButtonsManager) { //focus on the top buttons, do not open menu on whell click
+		if(fieldWithFocus == mainButtonsManager) { //focus on the top buttons, do not open menu on whell click
 			return true;
 		}
 		else 

@@ -38,7 +38,6 @@ public class MainView extends BaseView {
 	 public void setupUpBlogsView() {
 		String[] blogCaricati= blogController.getBlogNames();
 
-    	removeMenuItem(_blogOptionsItem);
     	removeMenuItem(_deleteBlogItem);
     	removeMenuItem(_showBlogItem);
 		
@@ -48,7 +47,6 @@ public class MainView extends BaseView {
         	blogCaricati[0]="Setup your blog...";
         } else {
         	addMenuItem(_showBlogItem);
-        	addMenuItem(_blogOptionsItem);
         	addMenuItem(_deleteBlogItem);
         }
     	listaBlog.set(blogCaricati);
@@ -88,13 +86,7 @@ public class MainView extends BaseView {
         }
     };
     
-    private MenuItem _blogOptionsItem = new MenuItem( _resources, WordPressResource.MENUITEM_BLOG_OPTION, 140, 10) {
-        public void run() {
-        	int selectedBlog = listaBlog.getSelectedIndex();
-        	mainController.showBlogOptions(selectedBlog);
-        }
-    };
-   
+ 
 
     //add blog menu item 
     private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 150, 10) {

@@ -39,52 +39,6 @@ public class FileUtils {
 	        return content;
 	    }
 	 
-	 
-	 
-	 /**
-	   * Read a file using JSR-75 API.
-	   * 
-	   * @param filename
-	   *          fully-qualified file path following "file:///" qualifier
-	   * @return file data
-	   * @throws IOException
-	   *           if an exception occurs
-	   */
-	  public static synchronized byte[] readFile(String filename) throws IOException {
-	   System.out.println("Loading file:///" + filename);
-
-	    FileConnection fconn = null;
-	    InputStream is = null;
-	    try {
-	      fconn = (FileConnection) Connector.open("file:///" + filename, Connector.READ);
-	      // commented to speed up
-	      // if (!fconn.exists() || !fconn.canRead())
-	      //   throw new Exception("File does not exist");
-
-	      int sz = (int) fconn.fileSize();
-	      byte[] result = new byte[sz];
-
-	      is = fconn.openInputStream();
-
-	      // multiple bytes
-	      int ch = 0;
-	      int rd = 0;
-	      while ((rd != sz) && (ch != -1)) {
-	        ch = is.read(result, rd, sz - rd);
-	        if (ch > 0) {
-	          rd += ch;
-	        }
-	      }
-
-	      return result;
-	    } finally {
-	      closeStream(is);
-	      closeConnection(fconn);
-	    }
-	  }
-	  
-	  
-
 	  public static void closeStream(final InputStream is) {
 	    if (is != null) {
 	      try {

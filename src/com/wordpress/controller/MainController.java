@@ -50,17 +50,6 @@ public class MainController extends BaseController {
 	}
 	
 	
-	public void showBlogOptions(int selectedBlog) {
-		Blog currentBlog=null;
-	  	 try {
-	  		 currentBlog=blogIOController.getBlog(selectedBlog);
-			} catch (Exception e) {
-				displayError(e, "Loading Blog Error");
-			}
-		if (currentBlog != null) {
-			FrontController.getIstance().showBlogOptions(currentBlog);
-		}
-	}
 	
 	public void refreshView() {
 		view.refreshBlogList();

@@ -38,15 +38,11 @@ public class GetPageTemplatesConn extends BlogConn  {
 			Hashtable statusList = (Hashtable) response;
 
 			Enumeration elements = statusList.keys();
-			for ( ; elements.hasMoreElements() ;) {
-				String value = (String) elements.nextElement();
-				System.out.println("key: " +value);
-			}
-
-			elements = statusList.elements();
-			for ( ; elements.hasMoreElements() ;) {
-				String value = (String) elements.nextElement();
-				System.out.println("value: "+value);
+			for ( ; elements.hasMoreElements() ; ) {
+				String keyValue = (String) elements.nextElement();
+				String value = (String) statusList.get(keyValue);
+				System.out.println("key: " +keyValue + " value: "+value );
+				
 			}
 
 			connResponse.setResponseObject(statusList);
