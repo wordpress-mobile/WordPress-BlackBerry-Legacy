@@ -65,7 +65,7 @@ public class PreferencesView extends BaseView {
 	      
 	 private void addMultimediaOption() {
 			//audio config 
-			if( MultimediaUtils.supportAudioRecording()){
+			if( MultimediaUtils.isAudioRecordingSuported()){
 				String[] lines=MultimediaUtils.getSupportedAudioFormat();
 				int selectedIndex=0;
 		        for (int i = 0; i < lines.length; i++) {
@@ -85,11 +85,11 @@ public class PreferencesView extends BaseView {
 			}
 			
 			//photo config
-			if( MultimediaUtils.supportPhotoCapture()){
+			if(MultimediaUtils.isPhotoCaptureSupported()){
 				String[] lines=MultimediaUtils.getSupportedPhotoFormat();
 				int selectedIndex=0;
 		        for (int i = 0; i < lines.length; i++) {
-		        	if(lines[i].equalsIgnoreCase(mPrefs.getAudioEncoding())){
+		        	if(lines[i].equalsIgnoreCase(mPrefs.getPhotoEncoding())){
 		        		selectedIndex=i;
 		    	 	}
 				}
@@ -105,11 +105,11 @@ public class PreferencesView extends BaseView {
 			}
 			
 			//video config
-			if(MultimediaUtils.supportVideoRecording()){
+			if(MultimediaUtils.isVideoRecordingSupported()){
 				String[] lines=MultimediaUtils.getSupportedVideoFormat();
 				int selectedIndex=0;
 		        for (int i = 0; i < lines.length; i++) {
-		        	if(lines[i].equalsIgnoreCase(mPrefs.getAudioEncoding())){
+		        	if(lines[i].equalsIgnoreCase(mPrefs.getVideoEncoding())){
 		        		selectedIndex=i; 
 		    	 	}
 				}

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
@@ -11,8 +12,8 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.model.Category;
 import com.wordpress.model.MediaObject;
 import com.wordpress.model.Post;
-import com.wordpress.utils.FileUtils;
 import com.wordpress.utils.JSR75FileSystem;
+import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Preferences;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.observer.Observable;
@@ -20,10 +21,14 @@ import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostView;
 import com.wordpress.view.component.FileSelectorPopupScreen;
-import com.wordpress.view.component.MultimediaPopupScreen;
+import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.view.mm.MultimediaPopupScreen;
+import com.wordpress.view.mm.PhotoPreview;
+import com.wordpress.view.mm.PhotoSnapShotView;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
+import com.wordpress.xmlrpc.NewMediaObjectConn;
 import com.wordpress.xmlrpc.post.EditPostConn;
 import com.wordpress.xmlrpc.post.NewPostConn;
 
@@ -41,6 +46,7 @@ public class PostController extends BaseController implements Observer{
 	public static final int BROWSER=4;
 	
 	private Hashtable dummyFS = new Hashtable(); //dummy fs
+	private Hashtable remoteFileInfo = new Hashtable(); //used when send files to blog
 	
 	//used when loading new post/recent post
 	public PostController(Post post) {
@@ -94,6 +100,8 @@ public class PostController extends BaseController implements Observer{
 	public void sendPostToBlog() {
 		final BlogConn connection;
 		Preferences prefs = Preferences.getIstance();
+		
+		//TODO: first add the multimedia to blog. retrive the mm id and append to the blog
 		
 		if(post.getId() == null || post.getId().equalsIgnoreCase("-1")) { //new post
 	           connection = new NewPostConn (post.getBlog().getBlogXmlRpcUrl(), 
@@ -166,23 +174,37 @@ public class PostController extends BaseController implements Observer{
 	}
 	
 	/*
-	 * show the photo
+	 * show selected photo
 	 */
 	public void showEnlargedPhoto(String key){
-		System.out.println("si vuole visualizzare la foto :"+key);
-		
+		System.out.println("showed photos: "+key);
+		EncodedImage mmObj = (EncodedImage) dummyFS.get(key);
+		UiApplication.getUiApplication().pushScreen(new PhotoPreview(this, key ,mmObj)); //modal screen...
+	}
+	
+	
+	/*
+	 * delete selected photo
+	 */
+	public boolean deletePhoto(String key){
+		System.out.println("deleting photo: "+key);
+		Object remove = dummyFS.remove(key);
+		if(remove != null){
+			photoView.deletePhotoBitmapField(key); //delete the thumbnail
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	//* called by photoview */
-	public void showMultimediaSelectionBox() {
+	public void showAddPhotoPopUp() {
 		int response= BROWSER;
 		
-		//if(MultimediaUtils.supportPhotoCapture()) {
-	    	MultimediaPopupScreen multimediaPopupScreen = new MultimediaPopupScreen();
-	    	UiApplication.getUiApplication().pushModalScreen(multimediaPopupScreen); //modal screen...
-			response = multimediaPopupScreen.getResponse();
-		//}
-		
+    	MultimediaPopupScreen multimediaPopupScreen = new MultimediaPopupScreen();
+    	UiApplication.getUiApplication().pushModalScreen(multimediaPopupScreen); //modal screen...
+		response = multimediaPopupScreen.getResponse();
+			
 		switch (response) {
 		case BROWSER:
            	 String imageExtensions[] = {"jpg", "jpeg","bmp", "png", "gif"};
@@ -192,52 +214,102 @@ public class PostController extends BaseController implements Observer{
              if (theFile == null){
                  Dialog.alert("Screen was dismissed. No file was selected.");
              } else {
-            	 String[] fileNameSplitted = StringUtils.split(theFile, ".");
+            	 String[] fileNameSplitted = StringUtils.split(theFile, "/");
             	 String ext= fileNameSplitted[fileNameSplitted.length-1];
          
 				try {
 					byte[] readFile = JSR75FileSystem.readFile(theFile);
-					MediaObject mmObj= new MediaObject();
-					mmObj.setContentType(ext); //setting the content type as the file extension
-					mmObj.setMediaData(readFile);
-					//TODO Store the mmObj into fileSystem/RMS
-			
-					//	displayMessage("File ok!");
-					//Image createImage = MultimediaUtils.createImage(readFile);
-					//Image resizedImg = MultimediaUtils.resizeImageAndCopyPrevious(64,64, createImage);
-					String key= String.valueOf(System.currentTimeMillis());
-					dummyFS.put(key, mmObj); //add to the dummy fs
-					
-					Bitmap createBitmapFromBytes = Bitmap.createBitmapFromBytes(readFile,0, -1, 4);
-					
-					photoView.addPhoto(key, createBitmapFromBytes);
-										
+					addPhoto(readFile,ext);	
 				} catch (IOException e) {
-					
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
-				//crea l'icona e l'aggiunge alla schermate delle foto.					
-
              }					
 			break;
 			
 		case PHOTO:
-			
+			PhotoSnapShotView snapView = new PhotoSnapShotView(this);
+			UiApplication.getUiApplication().pushScreen(snapView); //modal screen...
 			break;
 			
 		default:
 			break;
-		}
-	
-	
-		
-		
+		}		
 	}
+	
+	public void addPhoto(byte[] data, String fileName){
+		if(fileName == null) 
+			fileName= String.valueOf(System.currentTimeMillis());
+		
+		EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
+				
+		//check if blog has "photo resize option" selected
+		if (post.getBlog().isResizePhotos()){
+			EncodedImage rescaled= MultimediaUtils.bestFit2(img, 640, 480);
+			img=rescaled;
+		} 
 
+		dummyFS.put(fileName, img); //add to the dummy fs											
+		photoView.addPhoto(fileName, img);
+	}
+	
 	public void refreshView() {
-	
+		//resfresh the post view. not used.
 	}
 
+	
+	//send the multimedia obj to blog
+	private void sendMultimediaContent(){
+		
+	/*	BlogConn connection;
+		Preferences prefs = Preferences.getIstance();
+		
+
+	     connection = new NewMediaObjectConn (post.getBlog().getBlogXmlRpcUrl(), 
+       		   post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post.getBlog().getBlogId(), 
+       		   filename,mmObject.getMediaData() );
+
+		
+		connection.addObserver(new sendImageCallBack()); 
+        connectionProgressView= new ConnectionInProgressView(
+       		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
+      
+       connection.startConnWork(); //starts connection
+				
+		int choice = connectionProgressView.doModal();
+		if(choice==Dialog.CANCEL) {
+			System.out.println("Chiusura della conn dialog tramite cancel");
+			connection.stopConnWork(); //stop the connection if the user click on cancel button
+		}		
+*/
+	}
+	
+	
+	//callback for send Image loading
+	class sendImageCallBack implements Observer{
+		public void update(Observable observable, final Object object) {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					dismissDialog(connectionProgressView);
+					BlogConnResponse resp= (BlogConnResponse) object;
+					if(!resp.isError()) {
+						if(resp.isStopped()){
+							return;
+						}
+						
+						Hashtable content =(Hashtable)resp.getResponseObject();
+						System.out.println("url del file remoto: "+content.get("url") );
+						System.out.println("nome file remoto: "+content.get("file") );	
+						final String url=(String)content.get("url");
+						remoteFileInfo.put(content.get("file"), url);
+						
+					} else {
+						final String respMessage=resp.getResponse();
+					 	remoteFileInfo.put("err", respMessage);
+					}				
+				}
+			});
+		}
+	}
+	
 }

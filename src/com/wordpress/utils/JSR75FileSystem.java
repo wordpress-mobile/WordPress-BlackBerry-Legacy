@@ -136,4 +136,10 @@ public class JSR75FileSystem  {
     return filename.endsWith("/");
   }
 
+  
+  public static synchronized void removeFile(String url) throws IOException {
+	  FileConnection fc = (FileConnection)Connector.open(url);
+	  try { fc.delete(); }
+	  finally { fc.close(); }
+	  }
 }

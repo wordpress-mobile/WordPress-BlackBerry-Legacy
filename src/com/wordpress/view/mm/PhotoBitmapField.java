@@ -1,9 +1,9 @@
-package com.wordpress.view.component;
+package com.wordpress.view.mm;
 
 import net.rim.device.api.system.Bitmap;
 
 /**
- * Added the property "path" to the standard BitmapField
+ * Added the property "path" to the standard BitmapField. Used to show a thumb of the photo.
  * @author dercoli
  *
  */
@@ -18,6 +18,7 @@ public class PhotoBitmapField  extends net.rim.device.api.ui.component.BitmapFie
 	public PhotoBitmapField(String path) {
 		super();
 		this.path=path;
+		
 	}
 
 	public PhotoBitmapField(Bitmap arg0, long arg1, String path) {

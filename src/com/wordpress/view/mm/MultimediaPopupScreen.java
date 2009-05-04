@@ -1,4 +1,4 @@
-package com.wordpress.view.component;
+package com.wordpress.view.mm;
 
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
@@ -18,6 +18,7 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.MultimediaController;
 import com.wordpress.controller.PostController;
+import com.wordpress.utils.MultimediaUtils;
 
 public class MultimediaPopupScreen extends PopupScreen {
     
@@ -47,15 +48,15 @@ public class MultimediaPopupScreen extends PopupScreen {
         add(new SeparatorField());
         
         HorizontalFieldManager hManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
-    	Bitmap _bitmapCamera = Bitmap.getBitmapResource("camera.png");
-    	bitmapFieldCamera = new BitmapField(_bitmapCamera, Field.NON_FOCUSABLE | Field.FIELD_HCENTER);
-    	buttonCamera= new ButtonField("Take Photo with Camera");
-    	buttonCamera.setChangeListener(listenerButton);
-    	hManager.add(bitmapFieldCamera);
-    	hManager.add(buttonCamera);
+        if(MultimediaUtils.isPhotoCaptureSupported()) {
+	    	Bitmap _bitmapCamera = Bitmap.getBitmapResource("camera.png");
+	    	bitmapFieldCamera = new BitmapField(_bitmapCamera, Field.NON_FOCUSABLE | Field.FIELD_HCENTER);
+	    	buttonCamera= new ButtonField("Take Photo with Camera");
+	    	buttonCamera.setChangeListener(listenerButton);
+	    	hManager.add(bitmapFieldCamera);
+	    	hManager.add(buttonCamera);
+        }
     	
-    	//Bitmap _bitmapSound = Bitmap.getBitmapResource("sound.png");
-    	//Bitmap _bitmapVideo = Bitmap.getBitmapResource("video.png");
         HorizontalFieldManager hManager2 = new HorizontalFieldManager(Field.FIELD_HCENTER);
     	Bitmap _bitmapBrowser = Bitmap.getBitmapResource("browser.png");
     	bitmapBrowser = new BitmapField(_bitmapBrowser, Field.NON_FOCUSABLE | Field.FIELD_HCENTER);
@@ -64,6 +65,8 @@ public class MultimediaPopupScreen extends PopupScreen {
     	hManager2.add(bitmapBrowser);
     	hManager2.add(buttonBrowser);
     	
+    	//Bitmap _bitmapSound = Bitmap.getBitmapResource("sound.png");
+    	//Bitmap _bitmapVideo = Bitmap.getBitmapResource("video.png");
     	//bitmapFieldSound = new BitmapField(_bitmapSound, Field.FOCUSABLE | Field.FIELD_HCENTER);
     	//bitmapVideo = new BitmapField(_bitmapVideo, Field.FOCUSABLE | Field.FIELD_HCENTER);
     	
@@ -130,7 +133,7 @@ public class MultimediaPopupScreen extends PopupScreen {
 		return true;
 	}
 */
-	protected boolean keyChar(char c, int status, int time) {
+/*	protected boolean keyChar(char c, int status, int time) {
 		// Close this screen if escape is selected.
 		if (c == Characters.ESCAPE) {
 			response= -1;
@@ -143,5 +146,5 @@ public class MultimediaPopupScreen extends PopupScreen {
 
 		return super.keyChar(c, status, time);
 	}   
-	
+	*/
 }

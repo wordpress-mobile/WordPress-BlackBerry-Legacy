@@ -73,9 +73,7 @@ src\com\wordpress\view\BlogView.java
 src\com\wordpress\view\component\FileSelectorPopupScreen.java
 src\com\wordpress\view\component\HtmlTagPopupScreen.java
 src\com\wordpress\view\component\HtmlTextField.java
-src\com\wordpress\view\component\MultimediaPopupScreen.java
 src\com\wordpress\view\component\NotYetImpPopupScreen.java
-src\com\wordpress\view\component\PhotoBitmapField.java
 src\com\wordpress\view\dialog\ConnectionInProgressView.java
 src\com\wordpress\view\dialog\DiscardChangeInquiryView.java
 src\com\wordpress\view\dialog\ErrorView.java
@@ -83,6 +81,11 @@ src\com\wordpress\view\dialog\InfoView.java
 src\com\wordpress\view\dialog\InquiryView.java
 src\com\wordpress\view\DraftPostsView.java
 src\com\wordpress\view\MainView.java
+src\com\wordpress\view\mm\MultimediaPopupScreen.java
+src\com\wordpress\view\mm\PhotoBitmapField.java
+src\com\wordpress\view\mm\PhotoPreview.java
+src\com\wordpress\view\mm\PhotoSnapShotView.java
+src\com\wordpress\view\mm\ScrollableImageField.java
 src\com\wordpress\view\PhotosView.java
 src\com\wordpress\view\PostsView.java
 src\com\wordpress\view\PostView.java
