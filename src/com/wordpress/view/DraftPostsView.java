@@ -15,13 +15,9 @@ public class DraftPostsView extends BaseView {
 	private ObjectListField listaPost; 
 	
 	 public DraftPostsView(DraftPostsController  _controller, String[] post) {
-	    	super();
+	    	super(_controller.getCurrentBlogName()+" > "+_resources.getString(WordPressResource.TITLE_DRAFTPOST));
 	    	this.controller=_controller;
-	    	//add a screen title
-	        LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_DRAFTPOST),
-	                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
-	        String blogName= controller.getCurrentBlogName();
-	        setTitle(blogName+" > "+ title);  
+	    
 	        
 	        buildList(post);
 	 }

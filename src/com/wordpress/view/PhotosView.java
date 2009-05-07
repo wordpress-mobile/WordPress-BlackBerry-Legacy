@@ -24,13 +24,10 @@ public class PhotosView extends BaseView {
     private VerticalFieldManager manager=null;
 		
     public PhotosView(PostController _controller, Hashtable initialContent) {
-    	super();
+    	super(_resources.getString(WordPressResource.TITLE_PHOTOSVIEW));
     	this.controller=_controller;
-        //add a screen title
-        LabelField screenTitle = new LabelField(_resources.getString(WordPressResource.TITLE_PHOTOSVIEW),
-                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
-        setTitle(screenTitle);
-        buildUI(initialContent);
+
+    	buildUI(initialContent);
         addMenuItem(_addPhotoItem);
     }
     

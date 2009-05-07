@@ -47,13 +47,8 @@ public class BlogOptionsView extends BaseView {
 	}
 	
 	 public BlogOptionsView(BlogOptionsController blogsController, Hashtable values) {
-	    	super();
+	    	super(blogsController.getBlogName()+" > "+ _resources.getString(WordPressResource.TITLE_BLOG_OPTION_VIEW));
 	    	this.controller=blogsController;
-	    	
-	    	//add a screen title
-	    	String blogTitle=controller.getBlogName()+" > "+ _resources.getString(WordPressResource.TITLE_BLOG_OPTION_VIEW);
-	        LabelField title = new LabelField(blogTitle,LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
-	        setTitle(title);
 	    	
 	        //loading input data
 	        String user = (String)values.get("user");

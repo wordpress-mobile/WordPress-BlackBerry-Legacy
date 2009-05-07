@@ -36,7 +36,7 @@ public class PhotoSnapShotView extends BaseView {
 	private final PostController controller;
 	
 	public PhotoSnapShotView(PostController _controller) {
-		super();
+		super("");
 		this.controller = _controller;
 		logField = new EditField("Log:","");
 		bitmapField = new BitmapField();

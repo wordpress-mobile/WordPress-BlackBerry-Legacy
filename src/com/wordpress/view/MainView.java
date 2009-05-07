@@ -19,13 +19,9 @@ public class MainView extends BaseView {
 
 
 	public MainView(MainController mainController) {
-		super();
+		super(_resources.getString(WordPressResource.TITLE_APPLICATION));
 		this.mainController=mainController;
 	
-        //add a screen title
-        LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_APPLICATION),
-                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
-        setTitle(title);
         setupUpBlogsView();
 	
 		addMenuItem(_aboutItem);

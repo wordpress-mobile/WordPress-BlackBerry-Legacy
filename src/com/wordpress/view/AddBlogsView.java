@@ -53,13 +53,12 @@ public class AddBlogsView extends BaseView {
 		return maxRecentPost.getSelectedIndex();
 	}
 	
-	 public AddBlogsView(AddBlogsController addBlogsController, Hashtable values) {
-	    	super();
+
+	
+	public AddBlogsView(AddBlogsController addBlogsController, Hashtable values) {
+	    	super(_resources.getString(WordPressResource.TITLE_ADDBLOGS));
 	    	this.controller=addBlogsController;
-	    	//add a screen title
-	        LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_ADDBLOGS),
-	                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
-	        setTitle(title);
+	        
 	        //loading input data
 	        String user= (String)values.get("user");
 	        String pass= (String)values.get("pass");

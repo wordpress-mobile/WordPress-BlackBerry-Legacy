@@ -24,11 +24,8 @@ public class BlogView extends BaseView {
 	private ButtonField buttonOptions;
 
 	public BlogView(BlogController _controller) {
-		super(Field.FIELD_HCENTER);
+		super(_controller.getBlogName(), Field.FIELD_HCENTER);
 		this.controller=_controller;
-        //add a screen title
-        LabelField title = new LabelField(controller.getBlogName(), LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
-        setTitle(title);
 
         //setup screen buttons
         buttonPosts = new ButtonField(_resources.getString(WordPressResource.BUTTON_POSTS));

@@ -23,14 +23,10 @@ public class AboutView extends BaseView {
 
 	//FIXME: scrolling error
     public AboutView(AboutController _aboutController) {
-    	super();
+    	super(_resources.getString(WordPressResource.TITLE_ABOUT_VIEW));
 		controller = _aboutController;
-    	//add a screen title
-        LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_ABOUT_VIEW),
-                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
-        setTitle(title);
-        
-    	//Bitmap _bitmap = Bitmap.getBitmapResource("application-icon.png");
+    	
+		//Bitmap _bitmap = Bitmap.getBitmapResource("application-icon.png");
         Bitmap _bitmap = PropertyUtils.getAppIcon();
     	
         

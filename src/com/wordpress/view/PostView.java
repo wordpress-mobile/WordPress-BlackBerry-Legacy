@@ -46,14 +46,10 @@ public class PostView extends BaseView {
 	private LabelField status;
 	
     public PostView(PostController _controller, Post _post) {
-    	super();
+    	super(_resources.getString(WordPressResource.TITLE_POSTVIEW));
     	this.controller=_controller;
 		this.post = _post;
 		this.mState= new PostState();
-        //add a screen title
-        LabelField screenTitle = new LabelField(_resources.getString(WordPressResource.TITLE_POSTVIEW),
-                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
-        setTitle(screenTitle);
              
         //common margin
         XYEdges margins = new XYEdges(5,5,5,5);

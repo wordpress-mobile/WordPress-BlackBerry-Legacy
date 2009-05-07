@@ -24,13 +24,8 @@ public class PostsView extends BaseView {
     
     
 	 public PostsView(PostsController _controller, String[] post) {
-	    	super();
+	    	super(_controller.getBlogName()+" > "+_resources.getString(WordPressResource.TITLE_RECENTPOST));
 	    	this.controller=_controller;
-	    	//add a screen title
-	        LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_RECENTPOST),
-	                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
-	        String blogName= controller.getBlogName();
-	        setTitle(blogName+" > "+ title); 
 	        	        
 	        //setup top buttons
 	        buttonNewPost = new ButtonField(_resources.getString(WordPressResource.BUTTON_NEWPOST));

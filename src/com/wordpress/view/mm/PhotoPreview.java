@@ -15,14 +15,11 @@ import com.wordpress.view.BaseView;
 	private final String key;
  		
      public PhotoPreview(PostController _controller, String key, EncodedImage Img) {
-     	super();
+     	super(_resources.getString(WordPressResource.TITLE_PHOTOSVIEW));
      	this.controller=_controller;
 		this.key = key;
-         //add a screen title
-         LabelField screenTitle = new LabelField(_resources.getString(WordPressResource.TITLE_PHOTOSVIEW),
-                         LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
-        setTitle(screenTitle);
-     	ScrollableImageField scrollableImgField= new ScrollableImageField(Img);         
+
+		ScrollableImageField scrollableImgField= new ScrollableImageField(Img);         
         add(scrollableImgField); 
         addMenuItem(_deletePhotoItem);
      }
