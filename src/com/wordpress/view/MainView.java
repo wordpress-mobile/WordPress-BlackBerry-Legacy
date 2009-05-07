@@ -1,20 +1,20 @@
 package com.wordpress.view;
 
+import java.io.IOException;
+
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectListField;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
-import com.wordpress.controller.BlogIOController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
+import com.wordpress.io.WordPressDAO;
 
 public class MainView extends BaseView {
 	
-    private BlogIOController blogController = null;
     private MainController mainController=null;
-
     private ObjectListField listaBlog; 
 
 
@@ -22,7 +22,6 @@ public class MainView extends BaseView {
 		super();
 		this.mainController=mainController;
 	
-		blogController= BlogIOController.getIstance();
         //add a screen title
         LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_APPLICATION),
                         LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
@@ -36,7 +35,13 @@ public class MainView extends BaseView {
 	
 	
 	 public void setupUpBlogsView() {
-		String[] blogCaricati= blogController.getBlogNames();
+		String[] blogCaricati = new String[0];
+		try {
+			blogCaricati = WordPressDAO.getBlogsName();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
     	removeMenuItem(_deleteBlogItem);
     	removeMenuItem(_showBlogItem);

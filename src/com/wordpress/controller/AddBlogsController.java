@@ -8,6 +8,7 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.io.WordPressDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.utils.Preferences;
 import com.wordpress.utils.observer.Observable;
@@ -91,7 +92,7 @@ public class AddBlogsController extends BaseController implements Observer{
 */
         if (url != null && user != null && url.length() > 0 && user != null && user.length() > 0) {
             Preferences prefs = Preferences.getIstance();
-            BlogAuthConn connection = new BlogAuthConn (url,user,pass,prefs.getTimeZone());
+            BlogAuthConn connection = new BlogAuthConn (url,user,pass,prefs.getTimeZone(), recentsPostValues[maxPostIndex]);
             connection.addObserver(this); 
              connectionProgressView= new ConnectionInProgressView(
             		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
@@ -121,11 +122,11 @@ public class AddBlogsController extends BaseController implements Observer{
 			}
 		 	Blog[]blogs=(Blog[])resp.getResponseObject();
 
-		 	BlogIOController blogController= BlogIOController.getIstance();
 		 	for (int i = 0; i < blogs.length; i++) {
 		 		blogs[i].setMaxPostCount(recentsPostValues[maxPostIndex]);
 		 		blogs[i].setResizePhotos(isResPhotos);
-				blogController.addBlog(blogs[i], true);
+		 		
+				WordPressDAO.newBlog(blogs[i], true);
 		    }
 		 	FrontController.getIstance().backAndRefreshView(true);	 			 	
 		} else {

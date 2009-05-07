@@ -14,7 +14,8 @@ public class Post {
     private String id = null;
     private String title = null;
     private String author = null;
-    private Category mPrimaryCategory = null;
+    private int[] categories = null;
+    private int[] tags= null;    
     private Date authoredOn = null;
     private boolean convertBreaks = true;
     private boolean allowComments = true;
@@ -22,8 +23,7 @@ public class Post {
     private String body = "";
     private String extended = "";
     private String excerpt = "";
-    
-    
+        
 
     public Post(Blog aBlog) {
         blog = aBlog;
@@ -65,12 +65,12 @@ public class Post {
         author = aAuthor;
     }
 
-    public Category getPrimaryCategory() {
-        return mPrimaryCategory;
+    public int[] getCategories() {
+        return categories;
     }
 
-    public void setPrimaryCategory(Category aCategory) {
-        mPrimaryCategory = aCategory;
+    public void setCategories(int[] cats) {
+        this.categories = cats;
     }
 
     public Date getAuthoredOn() {
@@ -128,4 +128,13 @@ public class Post {
     public void setExcerpt(String aExcerpt) {
         excerpt = aExcerpt;
     }
+    
+    public int[] getTags() {
+		return tags;
+	}
+
+	public void setTags(int[] tags) {
+		this.tags = tags;
+	}
+
 }

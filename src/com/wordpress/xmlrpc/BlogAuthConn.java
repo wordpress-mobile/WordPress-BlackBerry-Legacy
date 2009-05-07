@@ -9,13 +9,16 @@ import com.wordpress.model.Blog;
 public class BlogAuthConn extends BlogConn  {
 	
 	
-	public BlogAuthConn(String hint,String userHint, String passwordHint, TimeZone tz) {
+	private final int maxRecentPostCount; 
+
+	public BlogAuthConn(String hint,String userHint, String passwordHint, TimeZone tz, int maxRecentPostCount) {
 		super(hint, userHint, passwordHint, tz);
+		this.maxRecentPostCount = maxRecentPostCount;
 	}
 
 	/**
-	 * Carica i blogs di un determinato provider
-	 * @param provider
+	 * Load blogs 
+	 * 
 	 */
 	public void run() {
 		Vector args;
@@ -26,7 +29,6 @@ public class BlogAuthConn extends BlogConn  {
 
 		Object response = execute("wp.getUsersBlogs", args);
 		if(connResponse.isError()) {
-			//se il server xml-rpc è andato in err
 			notifyObservers(connResponse);
 			return;		
 		} 
@@ -45,9 +47,16 @@ public class BlogAuthConn extends BlogConn  {
 				System.out.println("blogXMLRPC: " +(String) blogData.get("xmlrpc"));
 			
 
-				Blog currentBlog= new Blog("",(String)blogData.get("blogid") , (String)blogData.get("blogName"),
+				Blog currentBlog= new Blog((String)blogData.get("blogid") , (String)blogData.get("blogName"),
 						(String)blogData.get("url"), (String)blogData.get("xmlrpc"), this.mUsername, this.mPassword);
-				readBlogCategories(currentBlog);
+				
+				getDefaultBlogData(currentBlog);
+				
+				System.out.println("reading recent post title list for the blog : "	+ currentBlog.getBlogName());
+				Vector recentPostTitle = getRecentPostTitle(currentBlog.getBlogId(), maxRecentPostCount);
+				currentBlog.setRecentPostTitles(recentPostTitle);
+				System.out.println("End reading recent post title list for the blog : " + currentBlog.getBlogName());	
+				
 				myBlogs[i]=currentBlog;		
 			}		
 			
@@ -64,7 +73,4 @@ public class BlogAuthConn extends BlogConn  {
 			System.out.println("Blog Auth Notify Error"); 
 		}
 	}
-	
-	
-	
 }

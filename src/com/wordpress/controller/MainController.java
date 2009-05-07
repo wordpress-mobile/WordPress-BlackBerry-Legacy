@@ -6,6 +6,7 @@ import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.ui.UiApplication;
 
+import com.wordpress.io.WordPressDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.view.MainView;
 
@@ -13,7 +14,6 @@ import com.wordpress.view.MainView;
 public class MainController extends BaseController {
 	
 	private MainView view = null;
-	private BlogIOController blogIOController = null;
 	
 	public MainController() {
 		super();
@@ -21,26 +21,24 @@ public class MainController extends BaseController {
 	
 	public void showView(){
 		this.view=new MainView(this); //main view init here!.
-		blogIOController= BlogIOController.getIstance();
 		UiApplication.getUiApplication().pushScreen(this.view);
 	}
 		
 	public void deleteBlog(int selectedBlog){
-		String blogName= blogIOController.getBlogNames()[selectedBlog];
+		try {
+			String blogName= WordPressDAO.getBlogsName()[selectedBlog];
 			System.out.println("selezionato per la cancellazione: " + blogName);           
-        try {
-			blogIOController.removeBlog(blogName);
-		} catch (RecordStoreException e) {
-			displayError(e, "Error while deleting the blog");
-		} catch (IOException e) {
+	        WordPressDAO.removeBlog(blogName);
+        } catch (IOException e) {
 			displayError(e, "Error while deleting the blog");
 		}
 	}
 	
+	
 	public void showBlog(int selectedBlog){
 		Blog currentBlog=null;
    	 try {
-   		 currentBlog=blogIOController.getBlog(selectedBlog);
+   		 currentBlog=WordPressDAO.getBlog(selectedBlog);
 		} catch (Exception e) {
 			displayError(e, "Show Blog Error");
 		}
@@ -48,9 +46,7 @@ public class MainController extends BaseController {
 			FrontController.getIstance().showBlog(currentBlog);
 		}
 	}
-	
-	
-	
+			
 	public void refreshView() {
 		view.refreshBlogList();
 	}	

@@ -68,28 +68,9 @@ public class NewPostConn extends BlogConn  {
 	        post.setId((String) response);
 
 	        
-	        Category category = post.getPrimaryCategory();
-	        if (category != null) {
-	            Vector categories = new Vector(1);
-	            Hashtable primary = new Hashtable(4);
-	            primary.put("categoryId", category.getId());
-	            primary.put("isPrimary", TRUE);
-	            categories.addElement(primary);
-	            
-	            args = new Vector(4);
-	            args.addElement(post.getId());
-	            args.addElement(mUsername);
-	            args.addElement(mPassword);
-	            args.addElement(categories);
-	                 
-	            response = execute("mt.setPostCategories", args);
-	    		if(connResponse.isError()) {
-	    			//se il server xml-rpc è andato in err
-	    			notifyObservers(connResponse);
-	    			return;		
-	    		}
-	        }
-
+	        int[] categories = post.getCategories();
+	        
+	        setPostCategories(categories, post.getId());
 
 	        if (isPublished) {
 	            args = new Vector(3);

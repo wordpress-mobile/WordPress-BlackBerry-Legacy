@@ -1,27 +1,26 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
-import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Category;
-import com.wordpress.model.MediaObject;
 import com.wordpress.model.Post;
-import com.wordpress.utils.JSR75FileSystem;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Preferences;
+import com.wordpress.utils.Queue;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostView;
 import com.wordpress.view.component.FileSelectorPopupScreen;
-import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.view.mm.MultimediaPopupScreen;
 import com.wordpress.view.mm.PhotoPreview;
@@ -33,7 +32,7 @@ import com.wordpress.xmlrpc.post.EditPostConn;
 import com.wordpress.xmlrpc.post.NewPostConn;
 
 
-public class PostController extends BaseController implements Observer{
+public class PostController extends BaseController {
 	
 	private PostView view = null;
 	private PhotosView photoView= null;
@@ -45,8 +44,11 @@ public class PostController extends BaseController implements Observer{
 	public static final int PHOTO=1;
 	public static final int BROWSER=4;
 	
+	Preferences prefs = Preferences.getIstance();
 	private Hashtable dummyFS = new Hashtable(); //dummy fs
-	private Hashtable remoteFileInfo = new Hashtable(); //used when send files to blog
+	private Hashtable remoteFileInfo; //used when send MM files to blog
+	private Queue files;  //used when send MM files to blog 
+	private BlogConn connection; //used when send MM files to blog
 	
 	//used when loading new post/recent post
 	public PostController(Post post) {
@@ -63,6 +65,9 @@ public class PostController extends BaseController implements Observer{
 	public void showView() {
 		this.view= new PostView(this, post);
 		UiApplication.getUiApplication().pushScreen(view);
+		
+		
+		
 	}
 		
 	public String[] getAvailableCategories(){
@@ -82,7 +87,8 @@ public class PostController extends BaseController implements Observer{
 	
 	//return the post category n.b:change it
 	public int getPostCategoryIndex(){
-		int primaryIndex = -1; 
+		return 0; //FIXME: categories managements
+	/*	int primaryIndex = -1; 
 		Category primaryCategory = post.getPrimaryCategory();
 		if(primaryCategory == null) return primaryIndex;
 		
@@ -94,36 +100,40 @@ public class PostController extends BaseController implements Observer{
                 }
             }
 		}
-		return primaryIndex;
+		return primaryIndex;*/
 	}
 	  
 	public void sendPostToBlog() {
-		final BlogConn connection;
-		Preferences prefs = Preferences.getIstance();
 		
-		//TODO: first add the multimedia to blog. retrive the mm id and append to the blog
-		
-		if(post.getId() == null || post.getId().equalsIgnoreCase("-1")) { //new post
-	           connection = new NewPostConn (post.getBlog().getBlogXmlRpcUrl(), 
-	        		post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post, view.getPostState().isPublished());
-		} else { //edit post
-			if (!view.getPostState().isModified()) { //post without change
-				return;
-			}
-			 connection = new EditPostConn (post.getBlog().getBlogXmlRpcUrl(), 
-					 post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post, view.getPostState().isPublished());
+		if (!view.getPostState().isModified()) { //post without change
+			return;
 		}
-		connection.addObserver(this); 
-        connectionProgressView= new ConnectionInProgressView(
-       		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
-      
-       connection.startConnWork(); //starts connection
-				
-		int choice = connectionProgressView.doModal();
-		if(choice==Dialog.CANCEL) {
-			System.out.println("Chiusura della conn dialog tramite cancel");
-			connection.stopConnWork(); //stop the connection if the user click on cancel button
-		}			
+		
+		/*
+		 * steps: 
+		 * - show the dialog (no modal)
+		 * - add the multimedia to blog and retrive response with id and url of files 
+		 * - added the file to the end of the post
+		 * - send the post to blog
+		 *  
+		 */
+		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING_PHOTOS));
+		connectionProgressView.show();
+	    
+		remoteFileInfo = new Hashtable(); 
+		
+		if(dummyFS.size() > 0 ) {
+			files= new Queue(dummyFS.size());
+			Enumeration keys = dummyFS.keys();
+			String key="";
+			for ( ; keys.hasMoreElements(); ) {
+				key = (String)keys.nextElement();
+				files.push(key);				
+			}
+			sendMultimediaContent();
+		} else {
+			sendPostContent();
+			}
 	}
 	
 	public void saveDraftPost() {
@@ -134,35 +144,18 @@ public class PostController extends BaseController implements Observer{
 			displayError(e,"Error while saving draft post!");
 		}
 	}
-	
-	public void update(Observable observable, Object object) {
-		dismissDialog(connectionProgressView);
-		BlogConnResponse resp= (BlogConnResponse) object;
-		if(!resp.isError()) {
-			if(resp.isStopped()){
-				return;
-			}
-			FrontController.getIstance().backAndRefreshView(true);
-			//backCmd();
-		} else {
-			final String respMessage=resp.getResponse();
-		 	displayError(respMessage);	
-		}
-	}
-		
+			
 	public boolean dismissView() {
 		if(view.getPostState().isModified()){
 	    	int result=this.askQuestion("Changes Made, are sure to close this screen?");   
 	    	if(Dialog.YES==result) {
 	    		FrontController.getIstance().backAndRefreshView(false);
-	    		//backCmd();
 	    		return true;
 	    	} else {
 	    		return false;
 	    	}
 		} else {
 			FrontController.getIstance().backAndRefreshView(false);
-			//backCmd();
 			return true;
 		}
 	}
@@ -188,6 +181,7 @@ public class PostController extends BaseController implements Observer{
 	 */
 	public boolean deletePhoto(String key){
 		System.out.println("deleting photo: "+key);
+		view.setPostState(true); //mark post has changed
 		Object remove = dummyFS.remove(key);
 		if(remove != null){
 			photoView.deletePhotoBitmapField(key); //delete the thumbnail
@@ -216,7 +210,6 @@ public class PostController extends BaseController implements Observer{
              } else {
             	 String[] fileNameSplitted = StringUtils.split(theFile, "/");
             	 String ext= fileNameSplitted[fileNameSplitted.length-1];
-         
 				try {
 					byte[] readFile = JSR75FileSystem.readFile(theFile);
 					addPhoto(readFile,ext);	
@@ -251,62 +244,126 @@ public class PostController extends BaseController implements Observer{
 
 		dummyFS.put(fileName, img); //add to the dummy fs											
 		photoView.addPhoto(fileName, img);
+		view.setPostState(true); //mark post has changed
 	}
 	
 	public void refreshView() {
 		//resfresh the post view. not used.
 	}
 
+	//send the post alphanumeric data to blog
+	private void sendPostContent(){
+		
+		//adding multimedia info to post
+		String body = post.getBody();
+		if(remoteFileInfo.size() > 0 ) {
+			Enumeration keys = remoteFileInfo.keys();
+			
+			for (; keys.hasMoreElements(); ) {
+				String key = (String) keys.nextElement();
+				String url = (String) remoteFileInfo.get(key);
+				body+="<br/><a href=\""+url+"\"  alt=\""+key+"\">"+key+"</a>";				
+			}
+		}
+		post.setBody(body);
+		
+		if(post.getId() == null || post.getId().equalsIgnoreCase("-1")) { //new post
+	           connection = new NewPostConn (post.getBlog().getBlogXmlRpcUrl(), 
+	        		post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post, view.getPostState().isPublished());
+		} else { //edit post
+			
+			 connection = new EditPostConn (post.getBlog().getBlogXmlRpcUrl(), 
+					 post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post, view.getPostState().isPublished());
+		}
+		connectionProgressView.setDialogClosedListener(new ConnectionInProgressListener(connection));
+		connection.addObserver(new sendPostCallBack()); 
+		connection.startConnWork(); //starts connection		
+	}
 	
 	//send the multimedia obj to blog
 	private void sendMultimediaContent(){
 		
-	/*	BlogConn connection;
-		Preferences prefs = Preferences.getIstance();
+		//check for previous errors during MM sending
+		if(remoteFileInfo.containsKey("err")) {
+		 	displayError((String)remoteFileInfo.get("err"));
+			return;
+ 		}
+		//check if there are others file to be sent
+		if(files.isEmpty()) { 
+			sendPostContent();
+		} else {
 		
-
-	     connection = new NewMediaObjectConn (post.getBlog().getBlogXmlRpcUrl(), 
-       		   post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post.getBlog().getBlogId(), 
-       		   filename,mmObject.getMediaData() );
-
-		
-		connection.addObserver(new sendImageCallBack()); 
-        connectionProgressView= new ConnectionInProgressView(
-       		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
-      
-       connection.startConnWork(); //starts connection
-				
-		int choice = connectionProgressView.doModal();
-		if(choice==Dialog.CANCEL) {
-			System.out.println("Chiusura della conn dialog tramite cancel");
-			connection.stopConnWork(); //stop the connection if the user click on cancel button
-		}		
-*/
+			String poppedKey = (String)files.pop();
+			EncodedImage img=(EncodedImage)dummyFS.get(poppedKey);
+						
+		    connection = new NewMediaObjectConn (post.getBlog().getBlogXmlRpcUrl(), 
+	       		   post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post.getBlog().getBlogId(), 
+	       		poppedKey,img.getData());
+		    
+		    connectionProgressView.setDialogClosedListener(new ConnectionInProgressListener(connection));
+	
+			connection.addObserver(new sendImagesCallBack());
+			connection.startConnWork(); //starts connection
+		}
 	}
 	
 	
-	//callback for send Image loading
-	class sendImageCallBack implements Observer{
+	//callback for send post to the blog
+	private class sendPostCallBack implements Observer{
 		public void update(Observable observable, final Object object) {
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
+					
 					dismissDialog(connectionProgressView);
 					BlogConnResponse resp= (BlogConnResponse) object;
 					if(!resp.isError()) {
 						if(resp.isStopped()){
 							return;
 						}
-						
-						Hashtable content =(Hashtable)resp.getResponseObject();
-						System.out.println("url del file remoto: "+content.get("url") );
-						System.out.println("nome file remoto: "+content.get("file") );	
-						final String url=(String)content.get("url");
-						remoteFileInfo.put(content.get("file"), url);
-						
+						FrontController.getIstance().backAndRefreshView(true);
 					} else {
 						final String respMessage=resp.getResponse();
+					 	displayError(respMessage);	
+					}			
+				}
+			});
+		}
+	}
+	
+	//callback for send Images to the blog
+	private class sendImagesCallBack implements Observer{
+		public void update(Observable observable, final Object object) {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					
+					BlogConnResponse resp= (BlogConnResponse) object;
+					if(!resp.isError()) {
+						if(resp.isStopped()){
+							remoteFileInfo.put("err", "stopped by user");
+						} else {
+							Hashtable content =(Hashtable)resp.getResponseObject();
+							System.out.println("url del file remoto: "+content.get("url") );
+							System.out.println("nome file remoto: "+content.get("file") );	
+							final String url=(String)content.get("url");
+							remoteFileInfo.put(content.get("file"), url);
+						}
+					} else {
+						dismissDialog(connectionProgressView);
+						final String respMessage=resp.getResponse();
 					 	remoteFileInfo.put("err", respMessage);
-					}				
+					}
+					sendMultimediaContent(); //recursive...
+				}
+			});
+		}
+	}
+	
+	//callback for send post to the blog
+	private class getPostStatusListCallBack implements Observer{
+		public void update(Observable observable, final Object object) {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+						
 				}
 			});
 		}

@@ -8,6 +8,7 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.XYEdges;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.CheckboxField;
@@ -59,7 +60,6 @@ public class AddBlogsView extends BaseView {
 	        LabelField title = new LabelField(_resources.getString(WordPressResource.TITLE_ADDBLOGS),
 	                        LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
 	        setTitle(title);
-	    	
 	        //loading input data
 	        String user= (String)values.get("user");
 	        String pass= (String)values.get("pass");
@@ -68,15 +68,63 @@ public class AddBlogsView extends BaseView {
 	        int recentPostSelect= ((Integer)values.get("recentpostselected")).intValue();
 			boolean isResImg= ((Boolean)values.get("isresphotos")).booleanValue();
 	        //end loading
-			
-            blogUrlField = new BasicEditField(_resources.getString(WordPressResource.LABEL_BLOGURL), url, 100, Field.EDITABLE);
+
+            //common margin
+            XYEdges margins = new XYEdges(5,5,5,5);
+			  
+            //row url
+            HorizontalFieldManager rowURL = new HorizontalFieldManager();
+    		LabelField lblUrl = new LabelField(_resources.getString(WordPressResource.LABEL_BLOGURL))
+    		{
+    		    public void paint(Graphics graphics)
+    		    {
+    		        graphics.setColor(Color.GRAY);
+    		        super.paint(graphics);
+    		    }
+    		};
+    		lblUrl.setMargin(margins);
+            blogUrlField = new BasicEditField("", url, 100, Field.EDITABLE);
             blogUrlField.setFilter(new URLTextFilter());
-            userNameField = new BasicEditField(_resources.getString(WordPressResource.LABEL_BLOGUSER), user, 60, Field.EDITABLE);
-            passwordField = new PasswordEditField(_resources.getString(WordPressResource.LABEL_BLOGPASSWD), pass, 64, Field.EDITABLE);
-           
-            add(blogUrlField);
-            add(userNameField);
-            add(passwordField);
+            blogUrlField.setMargin(margins);
+            rowURL.add(lblUrl);
+            rowURL.add(blogUrlField);
+            add(rowURL);
+            
+            //row username
+            HorizontalFieldManager rowUserName = new HorizontalFieldManager();
+    		LabelField lblUserName = new LabelField(_resources.getString(WordPressResource.LABEL_BLOGUSER))
+    		{
+    		    public void paint(Graphics graphics)
+    		    {
+    		        graphics.setColor(Color.GRAY);
+    		        super.paint(graphics);
+    		    }
+    		};
+    		lblUserName.setMargin(margins);
+            userNameField = new BasicEditField("", user, 60, Field.EDITABLE);
+            userNameField.setMargin(margins);
+            rowUserName.add(lblUserName);
+    		rowUserName.add(userNameField);
+            add(rowUserName);
+    		
+
+            //row password
+            HorizontalFieldManager rowPassword = new HorizontalFieldManager();
+    		LabelField lblPassword = new LabelField(_resources.getString(WordPressResource.LABEL_BLOGPASSWD))
+    		{
+    		    public void paint(Graphics graphics)
+    		    {
+    		        graphics.setColor(Color.GRAY);
+    		        super.paint(graphics);
+    		    }
+    		};
+    		lblPassword.setMargin(margins);
+            passwordField = new PasswordEditField("", pass, 64, Field.EDITABLE);
+            passwordField.setMargin(margins);
+            rowPassword.add(lblPassword);
+            rowPassword.add(passwordField);
+            add(rowPassword);
+          
             add(new SeparatorField());
             //new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_AUDIOENCODING),lines,selectedIndex);            
             maxRecentPost = new ObjectChoiceField (_resources.getString(WordPressResource.LABEL_MAXRECENTPOST), recentPost,recentPostSelect);

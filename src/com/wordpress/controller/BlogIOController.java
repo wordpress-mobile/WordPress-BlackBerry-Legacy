@@ -53,10 +53,11 @@ public class BlogIOController {
 		return singletonObject;
 	}
     
+	
     //singleton
 	private BlogIOController() {
 						
-		try {
+	/*	try {
 			String[] rmsBlogName= loadBlogNameFromRMS();
 			for (int i = 0; i < rmsBlogName.length; i++) {
 				Blog currBlog=loadBlog(rmsBlogName[i]);
@@ -65,7 +66,7 @@ public class BlogIOController {
 		} catch (Exception e) {
 			//TODO handle load blog error
 			System.err.println("Load previous added blogs error");
-		}
+		}*/
 	}
 	
 	private String sanitizeBlogName(String blogName){
@@ -121,7 +122,7 @@ public class BlogIOController {
 	
 	        aDraft.setAuthor(readNullSafeString(data));
 	        aDraft.setAuthoredOn(readNullSafeDate(data).getTime());
-	        aDraft.setPrimaryCategory(aBlog.getCategory(readNullSafeString(data)));
+//	        aDraft.setPrimaryCategory(aBlog.getCategory(readNullSafeString(data))); //FIXME:DOING MULTIPLE CATS
 	        aDraft.setConvertLinebreaksEnabled(data.readBoolean());
 	        aDraft.setCommentsEnabled(data.readBoolean());
 	        aDraft.setTrackbackEnabled(data.readBoolean());
@@ -197,7 +198,7 @@ public class BlogIOController {
      * @param aBlog
      * @throws RecordStoreException
      * @throws IOException
-     */    
+      
     public void saveBlog(Blog aBlog) throws RecordStoreException, IOException {
     RecordStore records = null;
     ByteArrayOutputStream bytes;
@@ -221,13 +222,17 @@ public class BlogIOController {
         data.writeUTF(aBlog.getBlogUrl());
         data.writeInt(aBlog.getMaxPostCount());
         data.writeBoolean(aBlog.isResizePhotos());
-
+//Category(String aId, String aLabel, String desc, int parentCat, String _htmlUrl, String _rssUrl)
         if (categories != null) {
             data.writeInt(categories.length);
             for (int i = 0; i < categories.length; i++) {
                 data.writeUTF(categories[i].getId());
                 data.writeUTF(categories[i].getLabel());
-            }
+                data.writeUTF(categories[i].getDescription());
+                data.writeInt(categories[i].getParentCategory());
+                data.writeUTF(categories[i].getHtmlUrl());
+                data.writeUTF(categories[i].getRssUrl());            
+                }
         } else {
             data.writeInt(0);
         }
@@ -251,6 +256,7 @@ public class BlogIOController {
         }
     }
 }
+*/
     
 /**
  * questa funzione legge un blog, identificato tramite nome, dal datastore RMS
@@ -258,7 +264,7 @@ public class BlogIOController {
  * @return
  * @throws RecordStoreException
  * @throws IOException
- */    
+ 
 public Blog loadBlog(String aName) throws RecordStoreException, IOException {
 	//#debug 
 	System.out.println("carico il blog " + aName + " dal datastore RMS");
@@ -294,7 +300,7 @@ public Blog loadBlog(String aName) throws RecordStoreException, IOException {
            String blodUrl= data.readUTF();
            int maxPostCount= data.readInt();
            boolean isRes=data.readBoolean();
-           blog = new Blog("",blodIg, blogName, blodUrl, xmlRpcUrl, userName, password);
+           blog = new Blog(blodIg, blogName, blodUrl, xmlRpcUrl, userName, password);
            blog.setMaxPostCount(maxPostCount);
            blog.setResizePhotos(isRes);
         }
@@ -304,7 +310,13 @@ public Blog loadBlog(String aName) throws RecordStoreException, IOException {
             categories = new Category[categoryLength];
             for (int i = 0; i < categoryLength; i++) {
                 categories[i] = new Category(data.readUTF(),
-                                             data.readUTF());
+                                             data.readUTF(),
+                                             data.readUTF(),
+                                             data.readInt(),
+                                             data.readUTF(),
+                                             data.readUTF()
+                                             
+                );
             }
             blog.setCategories(categories);
         }
@@ -323,11 +335,13 @@ public Blog loadBlog(String aName) throws RecordStoreException, IOException {
     return blog;
 }
  
+ 	 */
+    
 	/**
 	 * Questa funzione legge tutti i blog presenti nel db
 	 * @throws RecordStoreException
 	 * @throws IOException
-	 */
+
 	public String[] loadBlogNameFromRMS() throws RecordStoreException, IOException {
 	RecordStore records = null;
 	byte[] record = null;
@@ -379,8 +393,8 @@ public Blog loadBlog(String aName) throws RecordStoreException, IOException {
 	}
 	
 }
-
-
+	 */
+/*
 	private void saveBlogSummary() throws RecordStoreException, IOException {
 	RecordStore records = null;
 	ByteArrayOutputStream bytes;
@@ -421,14 +435,14 @@ public Blog loadBlog(String aName) throws RecordStoreException, IOException {
 	    }
 	}
 	}
-
+*/
 	
     /**
      * rimuove un blog all'applicativo!!
      * @param aBlog
      * @param saveOnRMS nel caso di nuovi blog è vera, nel caso di carimento di blog precedenti è false.
      * @return
-     */	
+     	
     public void removeBlog(String name) throws RecordStoreException, IOException {
     	RecordStore.deleteRecordStore(sanitizeBlogName(name));
     	
@@ -447,9 +461,10 @@ public Blog loadBlog(String aName) throws RecordStoreException, IOException {
         blogs = newBlogNames;   	
     }
 
+    */
     
 	public void saveDraftPost(Post aDraft, int aDraftId) throws RecordStoreException, IOException {
-	    RecordStore records = getBlogRecordStore(aDraft.getBlog().getBlogName());
+	 /*   RecordStore records = getBlogRecordStore(aDraft.getBlog().getBlogName());
 	    byte[] record = null;
 	    ByteArrayOutputStream bytes;
 	    DataOutputStream data;
@@ -464,7 +479,7 @@ public Blog loadBlog(String aName) throws RecordStoreException, IOException {
 	        writeNullSafeString(aDraft.getTitle(), data);
 	        writeNullSafeString(aDraft.getAuthor(), data);
 	        writeNullSafeDate(aDraft.getAuthoredOn(), data);
-	        writeNullSafeString(aDraft.getPrimaryCategory() != null ? aDraft.getPrimaryCategory().getId() : null, data);
+	      //  writeNullSafeString(aDraft.getCategories() != null ? aDraft.getCategories()[0] : null, data);
 	        data.writeBoolean(aDraft.isConvertLinebreaksEnabled());
 	        data.writeBoolean(aDraft.isCommentsEnabled());
 	        data.writeBoolean(aDraft.isTrackbackEnabled());
@@ -487,10 +502,10 @@ public Blog loadBlog(String aName) throws RecordStoreException, IOException {
 	         	//#debug error
 	    		System.out.println("saveDraftPost failed: " +e);
 	        }
-	    }
+	    }*/
 	}
 	
-		
+/*		
     public Blog getBlog(int aIndex) throws Exception {
         try {
             return loadBlog(getBlogNames()[aIndex]);
@@ -498,13 +513,14 @@ public Blog loadBlog(String aName) throws RecordStoreException, IOException {
         	throw new Exception("Failed to load blog: " + e.getMessage());            
         }
     }
+	*/
 	
     /**
      * Aggiunge un blog all'applicativo!!
      * @param aBlog
      * @param saveOnRMS nel caso di nuovi blog è vera, nel caso di carimento di blog precedenti è false.
      * @return
-     */
+     
     public boolean addBlog(Blog aBlog, boolean saveOnRMS) throws Exception{
         String name = aBlog.getBlogName();
         Blog[] newBlogNames = new Blog[blogs.length + 1];
@@ -528,18 +544,15 @@ public Blog loadBlog(String aName) throws RecordStoreException, IOException {
         }
         return true;
     }
-
+*/
 		
-	public int getBlogCount() {
-		return blogs.length;
-	}
 
 	
 	/**
 	 * Carica i nomi di tutti i blog di tutti i provider
 	 * @param provider
 	 * @return
-	 */
+	 
 	public String[] getBlogNames() {
 		Vector blogNames= new Vector(); 
 		for (int j = 0; j < blogs.length; j++) {
@@ -549,28 +562,26 @@ public Blog loadBlog(String aName) throws RecordStoreException, IOException {
     	blogNames.copyInto(names);
     	return names;
 	}
-	
+	*/
 	
 	
 	/** aggiorna un determinato blog precedentemente salvato 
 	 * @throws IOException 
-	 * @throws RecordStoreException */
+	 * @throws RecordStoreException 
 	public void refreshBlog(Blog updatedBlog) throws RecordStoreException, IOException{
 		for (int j = 0; j < blogs.length; j++) {
 			if (blogs[j].getBlogName().equals(updatedBlog.getBlogName())){
 				blogs[j]=updatedBlog; //update the blog object
 				saveBlog(updatedBlog); //salvo il blog nel datastore
-		        saveBlogSummary();
+		      //  saveBlogSummary();
 		        System.out.println("blog updated succesfully");
 		        break;
 			}
 		}
 	}
 	
+*/
 
-	public Image[] getBlogIcons() {
-	        return null;
-	}
 		
 	private String readNullSafeString(DataInputStream aStream) throws IOException {
       String value = aStream.readUTF();

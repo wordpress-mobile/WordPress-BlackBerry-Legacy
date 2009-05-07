@@ -25,7 +25,8 @@ class ConnectionInProgressListener implements DialogClosedListener {
 		this.choice = choice;
 		if(choice==Dialog.CANCEL) {
 			System.out.println("Chiusura della conn dialog tramite cancel");
-			conn.stopConnWork(); //stop the connection if the user click on cancel button
+			if(conn != null ) 
+				conn.stopConnWork(); //stop the connection if the user click on cancel button
 		}
 	}
 }

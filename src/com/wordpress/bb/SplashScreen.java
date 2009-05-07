@@ -7,7 +7,6 @@ import java.util.TimerTask;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
-import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.KeyListener;
@@ -18,6 +17,8 @@ import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.controller.MainController;
+import com.wordpress.io.JSR75FileSystem;
+import com.wordpress.io.WordPressDAO;
 import com.wordpress.utils.Preferences;
 import com.wordpress.view.dialog.ErrorView;
 
@@ -39,7 +40,11 @@ public class SplashScreen extends MainScreen {
 		application.pushScreen(this);
 		
 		try {
-			boolean load = blogPrefs.load();
+			String filePath = "file:///store/home/user/wordpress/inst";
+			if(!JSR75FileSystem.isFileExist(filePath)){
+				JSR75FileSystem.createFile(filePath);
+			}
+			boolean load = WordPressDAO.readApplicationPreferecens(blogPrefs);
 			if (load) {
 				 // preferences loaded!
 				//not first startup
@@ -50,7 +55,6 @@ public class SplashScreen extends MainScreen {
 				timer.schedule(new CountDown(), 5000); //5 second splash
 				//we can control connection type here...
 			}
-			
 		} catch (Exception e) {
 			timer.cancel();
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
@@ -111,11 +115,11 @@ public class SplashScreen extends MainScreen {
 					blogPrefs.setDeviceSideConnection(false);
 				}
 			}	
-			try {
+			/*try {
 				blogPrefs.save(); //save connections setting on RMS
 			} catch (RecordStoreException e) {} 
 			catch (IOException e) {} 
-			
+			*/
 			dismiss();
 		}
 	}

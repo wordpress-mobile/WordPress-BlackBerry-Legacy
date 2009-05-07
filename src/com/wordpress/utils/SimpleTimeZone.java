@@ -1,9 +1,6 @@
 package com.wordpress.utils;
 
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.TimeZone;
 
 
@@ -162,14 +159,5 @@ public class SimpleTimeZone extends TimeZone {
 
         return GMT_INDEX;
     }
-
-    public void restore(DataInputStream aData) throws IOException {
-        mOffsetIndex = aData.readInt();
-    }
-
-    public void persist(DataOutputStream aData) throws IOException {
-        aData.writeInt(mOffsetIndex);
-    }
-
 }
 

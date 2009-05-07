@@ -1,6 +1,7 @@
 package com.wordpress.xmlrpc;
 
 import java.util.TimeZone;
+import java.util.Vector;
 
 import com.wordpress.model.Blog;
 
@@ -14,13 +15,21 @@ public class BlogUpdateConn extends BlogConn  {
 	}
 
 	/**
-	 * Aggiorna un determinato blog
+	 * refresh blog
 	 * @param provider
 	 */
 	public void run() {
 		try {
 			connResponse = new BlogConnResponse();
-	        readBlogCategories(blog);
+	        
+			getDefaultBlogData(blog);
+			
+			System.out.println("reading recent post title list for the blog : "	+ blog.getBlogName());
+			Vector recentPostTitle = getRecentPostTitle(blog.getBlogId(), blog.getMaxPostCount());
+			blog.setRecentPostTitles(recentPostTitle);
+			
+			System.out.println("End reading recent post title list for the blog : " + blog.getBlogName());	
+	        
 			connResponse.setResponseObject(blog);
 			
 		} catch (ClassCastException cce) {

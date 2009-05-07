@@ -44,6 +44,8 @@ public class MultimediaUtils {
 		int w = image.getWidth();
 		int h = image.getHeight();
 		
+		if(w < maxWidth && h < maxHeight) return image; //image is smaller than the desidered size...no resize!
+		
 		
 		int numeratorW = Fixed32.toFP(w);
 		int denominatorW = Fixed32.toFP(maxWidth);
@@ -64,7 +66,7 @@ public class MultimediaUtils {
 
 	  
 	  
-	//FIXME: i think that this method can't bu used. we can use instead EncodedImage and the bestFit2 method, in that way  rescaleArray and resizeBitmap are waste.
+/*
 	public static Bitmap bestFit(Bitmap image, int maxWidth, int maxHeight)
 	{
 
@@ -131,7 +133,7 @@ public class MultimediaUtils {
 		
 		return temp2;
 	}  
-	  
+	 */ 
 	
 	public static boolean isPhotoCaptureSupported(){
 		if( System.getProperty("video.snapshot.encodings")!= null 

@@ -11,6 +11,7 @@ import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 
+import com.wordpress.io.WordPressDAO;
 import com.wordpress.utils.Preferences;
 import com.wordpress.utils.SimpleTimeZone;
 import com.wordpress.view.PreferencesView;
@@ -78,14 +79,14 @@ public class PreferenceController extends BaseController {
 				mPrefs.setPhotoEncoding(photoEnc);
 			}
 			if(timezoneIndex > 0){
-				mPrefs.setTimeZone(new SimpleTimeZone(timezoneIndex));
+				mPrefs.setTimeZoneIndex(timezoneIndex);
 			}
 			if(deviceSideConnection > -1){ 
 				mPrefs.setDeviceSideConnection( deviceSideConnection == 1 ? true : false);
 			}
-			mPrefs.save();
-		} catch (RecordStoreException e) {
-			displayError(e, "Error while saving setup informations");
+			
+			WordPressDAO.storeApplicationPreferecens(mPrefs);
+			
 		} catch (IOException e) {
 			displayError(e, "Error while saving setup informations");
 		}

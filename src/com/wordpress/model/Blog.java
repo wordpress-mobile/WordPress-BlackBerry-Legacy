@@ -1,9 +1,10 @@
 package com.wordpress.model;
 
+import java.util.Hashtable;
+import java.util.Vector;
 
 public class Blog {
 
-	private String apiKey;
 	private String blogId;
 	private String blogName;
 	private String blogUrl; //user inserted blogs url
@@ -15,10 +16,14 @@ public class Blog {
 	private int maxPostCount=-1;
 
 	private Category[] categories = null;
-
-	public Blog(String apiKey, String blogId, String blogName, String blogUrl,String blogXmlRpcUrl, 
+	private Hashtable postStatusList=null; 	
+	private Hashtable pageStatusList=null; 
+	private Tag[] tags=null;
+	private Vector recentPostTitles = null; //response of mt.getRecentPostTitles
+	
+	
+	public Blog(String blogId, String blogName, String blogUrl,String blogXmlRpcUrl, 
 			String userName, String pass) {
-		this.apiKey = apiKey;
 		this.blogId = blogId;
 		this.blogName = blogName;
 		this.blogUrl = blogUrl;
@@ -27,9 +32,6 @@ public class Blog {
 		this.password=pass;
 	}
 
-	public String getApiKey() {
-		return apiKey;
-	}
 
 	public String getBlogId() {
 		return blogId;
@@ -37,17 +39,6 @@ public class Blog {
 
 	public Category[] getCategories() {
 		return categories;
-	}
-
-	public Category getCategory(String aId) {
-		if (categories != null) {
-			for (int i = 0; i < categories.length; i++) {
-				if (categories[i].getId().equals(aId)) {
-					return categories[i];
-				}
-			}
-		}
-		return null;
 	}
 
 	public void setCategories(Category[] aCategories) {
@@ -58,26 +49,26 @@ public class Blog {
 		return blogName;
 	}
 
-	public void setBlogName(String blogName) {
+	/*public void setBlogName(String blogName) {
 		this.blogName = blogName;
 	}
-
+*/
 	public String getBlogUrl() {
 		return blogUrl;
 	}
-
+/*
 	public void setBlogUrl(String blogUrl) {
 		this.blogUrl = blogUrl;
 	}
-
+*/
 	public String getBlogXmlRpcUrl() {
 		return blogXmlRpcUrl;
 	}
-
+/*
 	public void setBlogXmlRpcUrl(String blogXmlRpcUrl) {
 		this.blogXmlRpcUrl = blogXmlRpcUrl;
 	}
-
+*/
 	public String getUsername() {
 		return username;
 	}
@@ -108,5 +99,37 @@ public class Blog {
 
 	public void setMaxPostCount(int maxPostCount) {
 		this.maxPostCount = maxPostCount;
+	}
+
+	public Hashtable getPostStatusList() {
+		return postStatusList;
+	}
+
+	public void setPostStatusList(Hashtable postStatusList) {
+		this.postStatusList = postStatusList;
+	}
+
+	public Hashtable getPageStatusList() {
+		return pageStatusList;
+	}
+
+	public void setPageStatusList(Hashtable pageStatusList) {
+		this.pageStatusList = pageStatusList;
+	}
+	
+	public Tag[] getTags() {
+		return tags;
+	}
+
+	public void setTags(Tag[] tags) {
+		this.tags = tags;
+	}
+	
+	public Vector getRecentPostTitles() {
+		return recentPostTitles;
+	}
+
+	public void setRecentPostTitles(Vector recentPostTitles) {
+		this.recentPostTitles = recentPostTitles;
 	}
 }

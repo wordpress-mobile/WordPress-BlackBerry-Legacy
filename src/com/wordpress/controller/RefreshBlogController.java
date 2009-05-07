@@ -4,6 +4,7 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.io.WordPressDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.utils.Preferences;
 import com.wordpress.utils.observer.Observable;
@@ -16,18 +17,14 @@ import com.wordpress.xmlrpc.BlogUpdateConn;
 public class RefreshBlogController extends BaseController implements Observer{
 	
 	ConnectionInProgressView connectionProgressView=null;
-	
-	
 	private Blog currentBlog=null;
 		
-
 	public RefreshBlogController(Blog currentBlog) {
 		super();	
 		this.currentBlog=currentBlog;
 	}
 	
 	public void showView(){
-		
 	}
 
 	public void refreshBlog(){
@@ -62,7 +59,7 @@ public class RefreshBlogController extends BaseController implements Observer{
 					}
 					currentBlog= (Blog) resp.getResponseObject(); 	//update blogs obj	
 					try{
-						BlogIOController.getIstance().refreshBlog(currentBlog);							
+						WordPressDAO.updateBlog(currentBlog);							
 					} catch (final Exception e) {
 					 	displayError(e,"Error while refreshing blogs");	
 					}

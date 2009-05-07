@@ -1,4 +1,4 @@
-package com.wordpress.utils;
+package com.wordpress.io;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +21,7 @@ public class FileUtils {
 
 	            //The class name is the fully qualified package name followed by the actual name of this class
 
-	            Class classs = Class.forName("com.wordpress.utils.FileUtils");
+	            Class classs = Class.forName("com.wordpress.io.FileUtils");
 	            //to actually retrieve the resource prefix the name of the file with a "/"
 	            InputStream is = classs.getResourceAsStream("/"+fileName);
 

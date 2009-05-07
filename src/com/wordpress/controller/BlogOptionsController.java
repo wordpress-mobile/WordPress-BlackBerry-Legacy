@@ -10,6 +10,7 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
+import com.wordpress.io.WordPressDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.view.BlogOptionsView;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
@@ -109,9 +110,8 @@ public class BlogOptionsController extends BaseController {
 		blog.setResizePhotos(isResPhotos);
 		blog.setMaxPostCount(valueMaxPostCount);
 		
-		BlogIOController blogController= BlogIOController.getIstance();
 		try {
-			blogController.saveBlog(blog);
+			WordPressDAO.updateBlog(blog);
 		} catch (Exception e) {
 			displayError(e, "Error while saving blog options");
 		}

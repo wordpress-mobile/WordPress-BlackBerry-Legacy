@@ -1,25 +1,11 @@
 package com.wordpress.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
-import javax.microedition.rms.RecordStore;
-import javax.microedition.rms.RecordStoreException;
 
 public class Preferences {
 
-	
-	private String mStoreName =  "WordPressPreferences"; //nome del RMS per le preferenze
-    private int mRecordSize = 16;
-    private final static String PREFS_HEADER = "WPv";
-    private final static byte PREFS_VERSION = 1;
-
 	private static Preferences singletonObject;
 	
-    private SimpleTimeZone mTimeZone = new SimpleTimeZone();
+    private int timeZoneIndex=-1;
     private int localeIndex=0;
     private boolean deviceSideConnection=false; //identify if the device require client side http connection
 
@@ -40,11 +26,18 @@ public class Preferences {
     }
 
     public SimpleTimeZone getTimeZone() {
-        return mTimeZone;
+    	if(timeZoneIndex != -1)
+    		return new SimpleTimeZone(timeZoneIndex);
+    	else
+    		return new SimpleTimeZone();
+    }
+    
+    public int getTimeZoneIndex() {
+    	return timeZoneIndex;
     }
 
-    public void setTimeZone(SimpleTimeZone aTimeZone) {
-        mTimeZone = aTimeZone;
+    public void setTimeZoneIndex(int index) {
+    	timeZoneIndex = index;
     }
    
     public int getLocaleIndex() {
@@ -53,102 +46,7 @@ public class Preferences {
 
 	public void setLocaleIndex(int localeIndex) {
 		this.localeIndex = localeIndex;
-	}
-
-    public boolean load()  throws RecordStoreException, IOException {
-   	   //#debug
-  	   System.out.println(">>>load preferences");
-
-        RecordStore records = null;
-        byte[] record = null;
-        DataInputStream data = null;
-        int version;
-
-        try {
-            records = RecordStore.openRecordStore(mStoreName, true);
-            if (records.getNumRecords() > 0) {
-                mRecordSize = records.getRecordSize(1);
-                record = records.getRecord(1);
-                data = new DataInputStream(new ByteArrayInputStream(record));
-                                
-                if (!PREFS_HEADER.equals(data.readUTF())) {
-                    throw new IOException("Invalid prefs data");
-                }
-                
-                version = data.readByte();
-                
-                if (PREFS_VERSION != version ) {
-                	throw new IllegalArgumentException("Invalid version: " + version);
-                }
-                
-                mTimeZone.restore(data);
-                localeIndex = data.readInt();
-                videoEncoding= data.readUTF();
-                audioEncoding= data.readUTF();
-                photoEncoding= data.readUTF();
-                deviceSideConnection= data.readBoolean();
-                data.close();
-                System.out.println("RMS loading succesfully!");
-                return true;
-            } else {
-            	System.out.println("RMS was empty, maybe first running...");
-            	return false;
-            
-            }
-        } finally {
-            if (records != null) {
-                try {
-                    records.closeRecordStore();
-                } catch (Exception e) {
-                	//#debug error
-            		System.out.println("load FAILED: errore nella chiusura del recordstore delle preferenze" +e);
-                }
-            }
-        }
-    }
-
-    public void save() throws RecordStoreException, IOException {
-    	//#debug 
-		System.out.println("save preferences");
-        RecordStore records = null;
-        ByteArrayOutputStream bytes;
-        DataOutputStream data;
-        byte[] record;
-        
-        try {
-            records = RecordStore.openRecordStore(mStoreName, true);
-            bytes = new ByteArrayOutputStream(mRecordSize);
-            data = new DataOutputStream(bytes);
-
-            data.writeUTF(PREFS_HEADER);
-            data.writeByte(PREFS_VERSION);
-            
-            mTimeZone.persist(data);
-            data.writeInt(localeIndex);
-            data.writeUTF(videoEncoding);
-            data.writeUTF(audioEncoding);
-            data.writeUTF(photoEncoding);
-            data.writeBoolean(deviceSideConnection);
-            data.close();
-            record = bytes.toByteArray();
-                
-            if (records.getNumRecords() == 0) {
-                records.addRecord(record, 0, record.length);
-            } else {
-                records.setRecord(1, record, 0, record.length);
-            }
-        } finally {
-            if (records != null) {
-                try {
-                    records.closeRecordStore();
-                } catch (Exception e) {
-                	//#debug error
-            		System.out.println("errore nella chiusura del recordstore delle preferenze" +e);
-                }
-            }
-        }
-    }
-    
+	} 
     
     public String getPhotoEncoding() {
 		return photoEncoding;

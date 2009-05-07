@@ -5,7 +5,6 @@ import java.util.Hashtable;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import com.wordpress.model.Category;
 import com.wordpress.model.Post;
 import com.wordpress.xmlrpc.BlogConn;
 
@@ -65,25 +64,24 @@ public class GetPostConn extends BlogConn  {
         }
 
         response = execute("mt.getPostCategories", args);
-        
+                      
         try {
+        	
             Vector categoryStructs = (Vector) response;
+            int[] categories = new int[categoryStructs.size()];
             Hashtable categoryStruct = null;
             for (int i = 0; i < categoryStructs.size(); i++) {
                 categoryStruct = (Hashtable) categoryStructs.elementAt(i);
-                if (((Boolean) categoryStruct.get("isPrimary"))
-                    .booleanValue()) {
-                    aPost.setPrimaryCategory( new Category
-                         ((String) categoryStruct.get("categoryId"),
-                          (String) categoryStruct.get("categoryName")));
-                    break;
-                }
+                categories[i] = Integer.parseInt((String) categoryStruct.get("categoryId"));
             }
+            aPost.setCategories(categories);
+            
         } catch (ClassCastException cce) {
-        	setErrorMessage(cce, "Invalid server response");
+        	setErrorMessage(cce, "Error while reading post categories");
         }
-
-			connResponse.setResponseObject(aPost);
+		
+        
+        	connResponse.setResponseObject(aPost);
 		} catch (Exception cce) {
 			setErrorMessage(cce, "getPost error");
 		}
