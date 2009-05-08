@@ -1,10 +1,15 @@
 package com.wordpress.view;
 
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ButtonField;
-import net.rim.device.api.ui.component.LabelField;
+import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ObjectListField;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
@@ -23,7 +28,7 @@ public class PostsView extends BaseView {
 	private ButtonField buttonRefresh;
     
     
-	 public PostsView(PostsController _controller, String[] post) {
+	 public PostsView(PostsController _controller, Vector recentPostInfo) {
 	    	super(_controller.getBlogName()+" > "+_resources.getString(WordPressResource.TITLE_RECENTPOST));
 	    	this.controller=_controller;
 	        	        
@@ -42,18 +47,84 @@ public class PostsView extends BaseView {
 			add(topButtonsManager); 
 			add(new SeparatorField());
 	        
-	        buildList(post);
+	        buildList(recentPostInfo);
 	 }
 
+/*
+	 final class TestListCallback implements ListFieldCallback {
+		 private Vector _listElements ;
+		 		 
+		public TestListCallback(int length) {
+			super();
+			_listElements= new Vector(length, 1);
+		}
 
-	private void buildList(String[] post) {
+		// Draws the list row.
+		public void drawListRow(ListField list, Graphics g, int index, int y, int w) {
+			// We don't need to draw anything here because it is handled
+			// by the paint method of our custom ColouredListField.
+		}
+
+		// Returns the object at the specified index.
+		public Object get(ListField list, int index) {
+			return _listElements.elementAt(index);
+		}
+
+		// Returns the first occurence of the given String, beginning the
+		// search at index,
+		// and testing for equality using the equals method.
+		public int indexOfList(ListField list, String p, int s) {
+			// return listElements.getSelectedIndex();
+			return _listElements.indexOf(p, s);
+		}
+
+		// Returns the screen width so the list uses the entire screen width.
+		public int getPreferredWidth(ListField list) {
+			return Graphics.getScreenWidth();
+		}
+
+		// Adds a String element at the specified index.
+		public void insert(String toInsert, int index) {
+			_listElements.insertElementAt(toInsert, index);
+		}
+
+		// Erases all contents.
+		public void erase() {
+			_listElements.removeAllElements();
+		}
+	}
+	 */
+	 
+	private void buildList(Vector recentPostInfo) {
 		removeAllMenuItems();
+
+		String elements[]= new String[0];
 		
+		if(recentPostInfo != null) {						
+			elements= new String[recentPostInfo.size()];
+			//Populate the vector with the elements [title, data, title, data ....]
+	        for (int i = 0; i < recentPostInfo.size(); i++) {
+	        	 Hashtable postData = (Hashtable) recentPostInfo.elementAt(i);
+	             String title = (String) postData.get("title");
+	             Date dateCreated = (Date) postData.get("dateCreated");
+	             
+	             if (title == null || title.length() == 0) {
+	                 title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
+	             }
+	             elements[i]=title;
+	            // elements.addElement(dateCreated.toString());
+	         }			
+		}
+						
 		listaPost = new ObjectListField(); 	        
-		listaPost.set(post);
+		listaPost.set(elements);
+		listaPost.setEmptyString("Nothing to see here", DrawStyle.LEFT);
+		//TestListCallback listCallback = new TestListCallback(elements.size());
+		//listaPost.setCallback(listCallback);
+
 		add(listaPost);
 
-		if(post.length > 0 ) {
+		if(recentPostInfo.size() > 0 ) {
 			addMenuItem(_editPostItem);
 			addMenuItem(_deletePostItem);
 		}
@@ -79,7 +150,7 @@ public class PostsView extends BaseView {
     
     private MenuItem _refreshPostListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH_POSTSLIST, 220, 10) {
         public void run() {
-        	controller.refreshPosts();
+        	controller.refreshView();
         }
     };
      
@@ -95,7 +166,7 @@ public class PostsView extends BaseView {
 	    	if(field == buttonNewPost){
 	    		controller.newPost();	    		
 	    	} else if(field == buttonRefresh){
-	    		controller.refreshPosts(); //reload only the posts list
+	    		controller.refreshView(); //reload only the posts list
 	    	} else if(field == buttonDraftPosts) {
 	    		controller.showDraftPosts(); 
 	    	}
@@ -103,9 +174,9 @@ public class PostsView extends BaseView {
 	};
 
     	 
-    public void refresh(String[] post){
+    public void refresh(Vector recentPostInfo){
     	this.delete(listaPost);
-    	buildList(post);
+    	buildList(recentPostInfo);
     }
 
 

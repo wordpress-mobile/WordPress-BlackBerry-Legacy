@@ -75,6 +75,7 @@ src\com\wordpress\view\AddBlogsView.java
 src\com\wordpress\view\BaseView.java
 src\com\wordpress\view\BlogOptionsView.java
 src\com\wordpress\view\BlogView.java
+src\com\wordpress\view\component\ColouredListField.java
 src\com\wordpress\view\component\FileSelectorPopupScreen.java
 src\com\wordpress\view\component\HtmlTagPopupScreen.java
 src\com\wordpress\view\component\HtmlTextField.java
@@ -123,6 +124,8 @@ src\com\wordpress\xmlrpc\post\GetPostConn.java
 src\com\wordpress\xmlrpc\post\NewPostConn.java
 src\com\wordpress\xmlrpc\post\PostConn.java
 src\com\wordpress\xmlrpc\post\RecentPostConn.java
+src\disclosure-indicator.png
+src\drafts-folder.png
 src\License.txt
 src\org\kobjects\base64\Base64.java
 src\org\kxmlrpc\util\IsoDate.java
@@ -130,6 +133,7 @@ src\org\kxmlrpc\XmlRpcClient.java
 src\org\kxmlrpc\XmlRpcException.java
 src\org\kxmlrpc\XmlRpcParser.java
 src\org\kxmlrpc\XmlRpcWriter.java
+src\settings.png
 src\sound.png
 src\video.png
 src\wplogo.png

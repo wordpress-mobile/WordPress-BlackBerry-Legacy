@@ -8,7 +8,8 @@ import java.util.TimerTask;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
-import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.Display;
+import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.KeyListener;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.UiApplication;
@@ -19,6 +20,7 @@ import net.rim.device.api.ui.container.MainScreen;
 import com.wordpress.controller.MainController;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.io.WordPressDAO;
+import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Preferences;
 import com.wordpress.view.dialog.ErrorView;
 
@@ -27,33 +29,40 @@ public class SplashScreen extends MainScreen {
    private MainController next;
    private UiApplication application;
    private Timer timer = new Timer();
-   private static final Bitmap _bitmap = Bitmap.getBitmapResource("wplogo.png");
    private Preferences blogPrefs= Preferences.getIstance();
 	   
    public SplashScreen(UiApplication ui, MainController next) {
 		super(Field.USE_ALL_HEIGHT | Field.FIELD_LEFT);
 		this.application = ui;
 		this.next = next;
-		this.add(new BitmapField(_bitmap, Field.FIELD_HCENTER| Field.FIELD_VCENTER));
+		EncodedImage _theImage= EncodedImage.getEncodedImageResource("wplogo.png");
+		int _preferredWidth = -1;
+		//Set the preferred width to the image size or screen width if the image is larger than the screen width.
+        if (_theImage.getWidth() > Display.getWidth()) {
+            _preferredWidth = Display.getWidth();
+        }
+        if( _preferredWidth != -1) {        	
+        	EncodedImage resImg = MultimediaUtils.bestFit2(_theImage, _preferredWidth, _theImage.getHeight());
+        	_theImage = resImg;
+        }
+        
+        this.add(new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER| Field.FIELD_VCENTER));
 		SplashScreenListener listener = new SplashScreenListener(this);
 		this.addKeyListener(listener);
 		application.pushScreen(this);
 		
 		try {
-			String filePath = "file:///store/home/user/wordpress/inst";
-			if(!JSR75FileSystem.isFileExist(filePath)){
-				JSR75FileSystem.createFile(filePath);
-			}
-			boolean load = WordPressDAO.readApplicationPreferecens(blogPrefs);
-			if (load) {
-				 // preferences loaded!
+			String filePath = WordPressDAO.INST_FILE;
+			if (JSR75FileSystem.isFileExist(filePath)) {
 				//not first startup
+				WordPressDAO.readApplicationPreferecens(blogPrefs); //load pref on startup
 				timer.schedule(new CountDown(), 3000); //3sec splash
 			} else { 
 				//first startup
+				JSR75FileSystem.createFile(filePath);
 				add(new LabelField("Installation in progress...",Field.FIELD_HCENTER| Field.FIELD_VCENTER));
+				//we can control connection type here...but it's too slow. 2 minute of timeout on http conn. 
 				timer.schedule(new CountDown(), 5000); //5 second splash
-				//we can control connection type here...
 			}
 		} catch (Exception e) {
 			timer.cancel();

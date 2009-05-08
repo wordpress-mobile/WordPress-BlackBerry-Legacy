@@ -40,18 +40,20 @@ public class PostsController extends BaseController{
 	
 	public void showView(){
 		
-		final String[] postCaricati = getPostsTitle();
-		
-		this.view= new PostsView(this,postCaricati);
+		this.view= new PostsView(this,currentBlog.getRecentPostTitles());
 
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 	
-	private String[] getPostsTitle() {
+	/**
+	 * return the title and the dateCreated or recent posts
+	 * @return
+	 
+	private String[] getRecentPost() {
 		Vector recentPostTitles = currentBlog.getRecentPostTitles();
 		if(recentPostTitles == null) return new String[0];
 		
-		String[] postCaricati= new String [recentPostTitles.size()];
+		String[] postCaricati= new String [recentPostTitles.size()*2]; //double size
 		
          for (int i = 0; i < recentPostTitles.size(); i++) {
         	 Hashtable postData = (Hashtable) recentPostTitles.elementAt(i);
@@ -59,32 +61,13 @@ public class PostsController extends BaseController{
              if (title == null || title.length() == 0) {
                  title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
              }
-             postCaricati[i]=title; 
+             postCaricati[i]=title;
+             
          }
-		
 		return postCaricati;
 	}
+	*/	
 		
-	/** starts the recent post list refreshing */
-	public void refreshPosts(){
-		System.out.println(">>>refreshPosts");
-		Preferences prefs = Preferences.getIstance();
-        final RecentPostConn connection = new RecentPostConn (currentBlog.getBlogXmlRpcUrl(),currentBlog.getUsername(),
-        		currentBlog.getPassword(),  prefs.getTimeZone(), currentBlog);
-        
-        connection.addObserver(new refreshRecentPostCallBack()); 
-        String connMsg=_resources.getString(WordPressResource.CONN_REFRESH_POSTLIST);
-        connectionProgressView= new ConnectionInProgressView(connMsg);
-       
-        connection.startConnWork(); //starts connection
-				
-		int choice = connectionProgressView.doModal();
-		if(choice==Dialog.CANCEL) {
-			System.out.println("Chiusura della conn dialog tramite cancel");
-			connection.stopConnWork(); //stop the connection if the user click on cancel button
-		}
-	}
-	
 	/** starts the  post loading */
 	public void editPost(int selected){
 		if(selected != -1){
@@ -155,9 +138,24 @@ public class PostsController extends BaseController{
 		}
 	}
 
-	//called from the front controller
+	//usually called from the front controller
 	public void refreshView() {
-		refreshPosts();
+		System.out.println(">>>refreshPosts");
+		Preferences prefs = Preferences.getIstance();
+        final RecentPostConn connection = new RecentPostConn (currentBlog.getBlogXmlRpcUrl(),currentBlog.getUsername(),
+        		currentBlog.getPassword(),  prefs.getTimeZone(), currentBlog);
+        
+        connection.addObserver(new refreshRecentPostCallBack()); 
+        String connMsg=_resources.getString(WordPressResource.CONN_REFRESH_POSTLIST);
+        connectionProgressView= new ConnectionInProgressView(connMsg);
+       
+        connection.startConnWork(); //starts connection
+				
+		int choice = connectionProgressView.doModal();
+		if(choice==Dialog.CANCEL) {
+			System.out.println("Chiusura della conn dialog tramite cancel");
+			connection.stopConnWork(); //stop the connection if the user click on cancel button
+		}
 	}
 	
 	
@@ -188,8 +186,8 @@ public class PostsController extends BaseController{
 				        	}
 						}
 				        
-						final String[] postCaricati = getPostsTitle();
-						view.refresh(postCaricati);
+						
+						view.refresh(currentBlog.getRecentPostTitles());
 						
 						try{
 							WordPressDAO.updateBlog(currentBlog);							
@@ -228,8 +226,8 @@ public class PostsController extends BaseController{
 						Vector recentPostTitle= (Vector) resp.getResponseObject();
 						currentBlog.setRecentPostTitles(recentPostTitle);
 						
-						final String[] postCaricati = getPostsTitle();
-						view.refresh(postCaricati);
+						
+						view.refresh(currentBlog.getRecentPostTitles());
 						
 						try{
 							WordPressDAO.updateBlog(currentBlog);							
