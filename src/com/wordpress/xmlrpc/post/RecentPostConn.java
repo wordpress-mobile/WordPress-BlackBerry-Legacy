@@ -26,7 +26,7 @@ public class RecentPostConn extends BlogConn  {
 			connResponse = new BlogConnResponse();
 	        
 			//getDefaultBlogData(blog);
-	        Vector recentPostTitle = getRecentPostTitle(blog.getBlogId(), blog.getMaxPostCount());
+	        Vector recentPostTitle = getRecentPostTitle(blog.getId(), blog.getMaxPostCount());
 			connResponse.setResponseObject(recentPostTitle);
 		/*
 	        Vector args = new Vector(4);

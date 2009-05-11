@@ -1,15 +1,11 @@
 package com.wordpress.view;
 
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BitmapField;
-import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
@@ -23,27 +19,14 @@ public class PhotosView extends BaseView {
     private PostController controller; //controller associato alla view
     private VerticalFieldManager manager=null;
 		
-    public PhotosView(PostController _controller, Hashtable initialContent) {
+    public PhotosView(PostController _controller) {
     	super(_resources.getString(WordPressResource.TITLE_PHOTOSVIEW));
     	this.controller=_controller;
-
-    	buildUI(initialContent);
+    	manager= new VerticalFieldManager( Field.FOCUSABLE| Field.FIELD_HCENTER);
         addMenuItem(_addPhotoItem);
+        add(manager);
     }
     
-    private void buildUI(Hashtable initialContent){
-    	manager= new VerticalFieldManager( Field.FOCUSABLE| Field.FIELD_HCENTER);
-    	
-    	if (initialContent == null ) return;    	
-    	Enumeration elements = initialContent.keys();
-		for ( ; elements.hasMoreElements() ; ) {
-			String key = (String) elements.nextElement();
-			EncodedImage photo = (EncodedImage) initialContent.get(key);
-			addPhoto(key, photo);
-		}
-		add(manager);
-		
-    }
     
     private MenuItem _addPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_PHOTOS_ADD, 110, 10) {
         public void run() {

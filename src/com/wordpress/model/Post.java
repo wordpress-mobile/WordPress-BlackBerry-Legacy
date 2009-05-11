@@ -15,7 +15,7 @@ public class Post {
     private String title = null;
     private String author = null;
     private int[] categories = null;
-    private int[] tags= null;    
+    private String tags= null;    
     private Date authoredOn = null;
     private boolean convertBreaks = true;
     private boolean allowComments = true;
@@ -129,11 +129,11 @@ public class Post {
         excerpt = aExcerpt;
     }
     
-    public int[] getTags() {
+    public String getTags() {
 		return tags;
 	}
 
-	public void setTags(int[] tags) {
+	public void setTags(String tags) {
 		this.tags = tags;
 	}
 

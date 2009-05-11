@@ -10,7 +10,7 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
-import com.wordpress.io.WordPressDAO;
+import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.view.BlogOptionsView;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
@@ -71,7 +71,7 @@ public class BlogOptionsController extends BaseController {
 	}
 	
 	public String getBlogName() {
-		return blog.getBlogName();
+		return blog.getName();
 	}
 	
 	private boolean isModified() {
@@ -111,7 +111,7 @@ public class BlogOptionsController extends BaseController {
 		blog.setMaxPostCount(valueMaxPostCount);
 		
 		try {
-			WordPressDAO.updateBlog(blog);
+			BlogDAO.updateBlog(blog);
 		} catch (Exception e) {
 			displayError(e, "Error while saving blog options");
 		}

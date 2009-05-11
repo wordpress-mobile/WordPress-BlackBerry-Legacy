@@ -105,7 +105,11 @@ public class JSR75FileSystem  {
     FileConnection fconn = null;
     InputStream is = null;
     try {
-      fconn = (FileConnection) Connector.open("file:///" + filename, Connector.READ);
+     if(!filename.startsWith("file:///")) {
+       fconn = (FileConnection) Connector.open("file:///" + filename, Connector.READ);
+     } else {
+    	 fconn = (FileConnection) Connector.open(filename, Connector.READ);
+     }
       // commented to speed up
       // if (!fconn.exists() || !fconn.canRead())
       //   throw new Exception("File does not exist");

@@ -6,7 +6,7 @@ import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.ui.UiApplication;
 
-import com.wordpress.io.WordPressDAO;
+import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.view.MainView;
 
@@ -25,10 +25,8 @@ public class MainController extends BaseController {
 	}
 		
 	public void deleteBlog(int selectedBlog){
-		try {
-			String blogName= WordPressDAO.getBlogsName()[selectedBlog];
-			System.out.println("selezionato per la cancellazione: " + blogName);           
-	        WordPressDAO.removeBlog(blogName);
+		try {          
+	        BlogDAO.removeBlog(selectedBlog);
         } catch (IOException e) {
 			displayError(e, "Error while deleting the blog");
 		}
@@ -38,7 +36,7 @@ public class MainController extends BaseController {
 	public void showBlog(int selectedBlog){
 		Blog currentBlog=null;
    	 try {
-   		 currentBlog=WordPressDAO.getBlog(selectedBlog);
+   		 currentBlog=BlogDAO.getBlog(selectedBlog);
 		} catch (Exception e) {
 			displayError(e, "Show Blog Error");
 		}

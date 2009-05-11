@@ -8,7 +8,7 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressResource;
-import com.wordpress.io.WordPressDAO;
+import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.utils.Preferences;
 import com.wordpress.utils.observer.Observable;
@@ -33,9 +33,9 @@ public class AddBlogsController extends BaseController implements Observer{
 	
 	public AddBlogsController() {
 		super();
-		guiValues.put("user", "");
-		guiValues.put("pass", "");
-		guiValues.put("url", "");
+		guiValues.put("user", "mopress");
+		guiValues.put("pass", "mopress");
+		guiValues.put("url", "http://localhost/wp_mopress");
 		guiValues.put("recentpost", recentsPostValuesLabel);
 		guiValues.put("recentpostselected", new Integer(0));
 		guiValues.put("isresphotos", new Boolean(false));
@@ -126,7 +126,7 @@ public class AddBlogsController extends BaseController implements Observer{
 		 		blogs[i].setMaxPostCount(recentsPostValues[maxPostIndex]);
 		 		blogs[i].setResizePhotos(isResPhotos);
 		 		
-				WordPressDAO.newBlog(blogs[i], true);
+				BlogDAO.newBlog(blogs[i], true);
 		    }
 		 	FrontController.getIstance().backAndRefreshView(true);	 			 	
 		} else {

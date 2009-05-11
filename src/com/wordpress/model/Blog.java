@@ -5,10 +5,10 @@ import java.util.Vector;
 
 public class Blog {
 
-	private String blogId;
-	private String blogName;
-	private String blogUrl; //user inserted blogs url
-	private String blogXmlRpcUrl; //real url for publishing on this blog
+	private String id;
+	private String name;
+	private String url; //user inserted blogs url
+	private String xmlRpcUrl; //real url for publishing on this blog
 	private String username;
 	private String password;
 	
@@ -24,17 +24,17 @@ public class Blog {
 	
 	public Blog(String blogId, String blogName, String blogUrl,String blogXmlRpcUrl, 
 			String userName, String pass) {
-		this.blogId = blogId;
-		this.blogName = blogName;
-		this.blogUrl = blogUrl;
-		this.blogXmlRpcUrl = blogXmlRpcUrl;
+		this.id = blogId;
+		this.name = blogName;
+		this.url = blogUrl;
+		this.xmlRpcUrl = blogXmlRpcUrl;
 		this.username=userName;
 		this.password=pass;
 	}
 
 
-	public String getBlogId() {
-		return blogId;
+	public String getId() {
+		return id;
 	}
 
 	public Category[] getCategories() {
@@ -45,24 +45,24 @@ public class Blog {
 		categories = aCategories;
 	}
 
-	public String getBlogName() {
-		return blogName;
+	public String getName() {
+		return name;
 	}
 
 	/*public void setBlogName(String blogName) {
 		this.blogName = blogName;
 	}
 */
-	public String getBlogUrl() {
-		return blogUrl;
+	public String getUrl() {
+		return url;
 	}
 /*
 	public void setBlogUrl(String blogUrl) {
 		this.blogUrl = blogUrl;
 	}
 */
-	public String getBlogXmlRpcUrl() {
-		return blogXmlRpcUrl;
+	public String getXmlRpcUrl() {
+		return xmlRpcUrl;
 	}
 /*
 	public void setBlogXmlRpcUrl(String blogXmlRpcUrl) {

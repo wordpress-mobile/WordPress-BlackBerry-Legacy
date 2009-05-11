@@ -52,10 +52,10 @@ public class BlogAuthConn extends BlogConn  {
 				
 				getDefaultBlogData(currentBlog);
 				
-				System.out.println("reading recent post title list for the blog : "	+ currentBlog.getBlogName());
-				Vector recentPostTitle = getRecentPostTitle(currentBlog.getBlogId(), maxRecentPostCount);
+				System.out.println("reading recent post title list for the blog : "	+ currentBlog.getName());
+				Vector recentPostTitle = getRecentPostTitle(currentBlog.getId(), maxRecentPostCount);
 				currentBlog.setRecentPostTitles(recentPostTitle);
-				System.out.println("End reading recent post title list for the blog : " + currentBlog.getBlogName());	
+				System.out.println("End reading recent post title list for the blog : " + currentBlog.getName());	
 				
 				myBlogs[i]=currentBlog;		
 			}		

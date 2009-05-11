@@ -155,7 +155,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	}
 	
 	private synchronized void getBlogCategories(Blog blog) throws Exception {
-  	   System.out.println("Reperisco le categorie del blog : "+ blog.getBlogName());
+  	   System.out.println("Reperisco le categorie del blog : "+ blog.getName());
 		Vector args;
 		Object response;
 		Vector categoryStructs;
@@ -163,7 +163,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 		Category[] categories;
 
 		args = new Vector(3);
-		args.addElement(blog.getBlogId());
+		args.addElement(blog.getId());
 		args.addElement(mUsername);
 		args.addElement(mPassword);
 
@@ -195,7 +195,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 		    } else {
 		        blog.setCategories(null);
 		    }
-	  	   System.out.println("Terminato reperimento delle categorie del blog : "+ blog.getBlogName());
+	  	   System.out.println("Terminato reperimento delle categorie del blog : "+ blog.getName());
 		} catch (ClassCastException cce) {
 		    throw new Exception("Error while reading Categories");
 		}
@@ -205,10 +205,10 @@ public abstract class BlogConn extends Observable implements Runnable {
 	private synchronized void getPostStatusList(Blog blog) throws Exception {
 		try {
 			System.out.println("reading post status list for the blog : "
-					+ blog.getBlogName());
+					+ blog.getName());
 
 			Vector args = new Vector(3);
-			args.addElement(String.valueOf(blog.getBlogId()));
+			args.addElement(String.valueOf(blog.getId()));
 			args.addElement(mUsername);
 			args.addElement(mPassword);
 
@@ -231,7 +231,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 			blog.setPostStatusList(statusList);
 			
 			System.out.println("End reading post status list for the blog : : "
-					+ blog.getBlogName());
+					+ blog.getName());
 		} catch (ClassCastException cce) {
 			throw new Exception("Error while reading post status list");
 		}
@@ -241,10 +241,10 @@ public abstract class BlogConn extends Observable implements Runnable {
 	private synchronized void getPageStatusList(Blog blog) throws Exception {
 		try {
 			System.out.println("reading page status list for the blog : "
-					+ blog.getBlogName());
+					+ blog.getName());
 
 			Vector args = new Vector(3);
-			args.addElement(String.valueOf(blog.getBlogId()));
+			args.addElement(String.valueOf(blog.getId()));
 			args.addElement(mUsername);
 			args.addElement(mPassword);
 
@@ -267,7 +267,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 			blog.setPageStatusList(statusList);
 			
 			System.out.println("End reading page status list for the blog : : "
-					+ blog.getBlogName());
+					+ blog.getName());
 		} catch (ClassCastException cce) {
 			throw new Exception("Error while reading post status list");
 		}
@@ -278,10 +278,10 @@ public abstract class BlogConn extends Observable implements Runnable {
 	private synchronized void getTagList(Blog blog) throws Exception {
 		try {
 			System.out.println("reading tag list for the blog : "
-					+ blog.getBlogName());
+					+ blog.getName());
 
 			Vector args = new Vector(3);
-			args.addElement(String.valueOf(blog.getBlogId()));
+			args.addElement(String.valueOf(blog.getId()));
 			args.addElement(mUsername);
 			args.addElement(mPassword);
 
@@ -296,7 +296,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 			Vector tags = (Vector) response;
 
 			Tag[] mytags= new Tag[tags.size()];
-			int blogId =Integer.parseInt(blog.getBlogId());
+			int blogId =Integer.parseInt(blog.getId());
 			
 			Hashtable tagData = null;
 			for (int i=0; i<tags.size(); i++){
@@ -323,7 +323,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 			blog.setTags(mytags);
 			
 			System.out.println("End reading tag list for the blog : "
-					+ blog.getBlogName());
+					+ blog.getName());
 		} catch (ClassCastException cce) {
 			throw new Exception("Error while reading post status list");
 		}

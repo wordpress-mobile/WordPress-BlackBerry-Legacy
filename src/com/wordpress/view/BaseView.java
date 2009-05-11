@@ -1,7 +1,10 @@
 package com.wordpress.view;
 
 import net.rim.device.api.i18n.ResourceBundle;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Font;
+import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.XYEdges;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.container.MainScreen;
 
@@ -47,4 +50,24 @@ public abstract class BaseView extends MainScreen{
 		return titleField;
 	}
     
+	//common margin
+    protected XYEdges margins = new XYEdges(5,5,5,5);
+    
+    protected LabelField getLabel(String label) {
+		
+		LabelField lblField = new LabelField(label)
+		{
+		    public void paint(Graphics graphics)
+		    {
+		        graphics.setColor(Color.GRAY);
+		        super.paint(graphics);
+		    }
+		};
+	  	Font fnt = this.getFont().derive(Font.BOLD);
+	  	lblField.setFont(fnt);
+		lblField.setMargin(margins);
+		return lblField;
+	}
+	
+	
 }

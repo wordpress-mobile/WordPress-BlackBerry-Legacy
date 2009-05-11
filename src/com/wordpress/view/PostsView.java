@@ -130,7 +130,7 @@ public class PostsView extends BaseView {
 		}
 		
 		addMenuItem(_refreshPostListItem);
-		addMenuItem(_draftPostsItem);
+		//addMenuItem(_draftPostsItem);
 	}
 	 
 

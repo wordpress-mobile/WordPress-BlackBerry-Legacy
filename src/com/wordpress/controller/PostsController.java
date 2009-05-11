@@ -8,7 +8,7 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressResource;
-import com.wordpress.io.WordPressDAO;
+import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
 import com.wordpress.utils.Preferences;
@@ -35,7 +35,7 @@ public class PostsController extends BaseController{
 	}
 				
 	public String getBlogName() {
-		return currentBlog.getBlogName();
+		return currentBlog.getName();
 	}
 	
 	public void showView(){
@@ -81,7 +81,7 @@ public class PostsController extends BaseController{
 			
 			Preferences prefs = Preferences.getIstance();
 	        
-			final GetPostConn connection = new GetPostConn (currentBlog.getBlogXmlRpcUrl(),currentBlog.getUsername(),
+			final GetPostConn connection = new GetPostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
 	        		currentBlog.getPassword(),  prefs.getTimeZone(), post);
 	        
 	        connection.addObserver(new loadPostCallBack());  
@@ -108,7 +108,7 @@ public class PostsController extends BaseController{
 
 			String postid=(String) postData.get("postid");
 				 
-			DeletePostConn connection = new DeletePostConn (currentBlog.getBlogXmlRpcUrl(),currentBlog.getUsername(),
+			DeletePostConn connection = new DeletePostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
 					 currentBlog.getPassword(),  null, postid);
 		     
 			 connection.addObserver(new deletePostCallBack());
@@ -142,7 +142,7 @@ public class PostsController extends BaseController{
 	public void refreshView() {
 		System.out.println(">>>refreshPosts");
 		Preferences prefs = Preferences.getIstance();
-        final RecentPostConn connection = new RecentPostConn (currentBlog.getBlogXmlRpcUrl(),currentBlog.getUsername(),
+        final RecentPostConn connection = new RecentPostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
         		currentBlog.getPassword(),  prefs.getTimeZone(), currentBlog);
         
         connection.addObserver(new refreshRecentPostCallBack()); 
@@ -190,7 +190,7 @@ public class PostsController extends BaseController{
 						view.refresh(currentBlog.getRecentPostTitles());
 						
 						try{
-							WordPressDAO.updateBlog(currentBlog);							
+							BlogDAO.updateBlog(currentBlog);							
 						} catch (final Exception e) {
 						 	displayError(e,"Error while refreshing blogs");	
 						}
@@ -230,7 +230,7 @@ public class PostsController extends BaseController{
 						view.refresh(currentBlog.getRecentPostTitles());
 						
 						try{
-							WordPressDAO.updateBlog(currentBlog);							
+							BlogDAO.updateBlog(currentBlog);							
 						} catch (final Exception e) {
 						 	displayError(e,"Error while refreshing blogs");	
 						}

@@ -21,7 +21,7 @@ public class BlogController extends BaseController {
 	}
 				
 	public String getBlogName() {
-		return currentBlog.getBlogName();
+		return currentBlog.getName();
 	}
 	
 	public void showView(){

@@ -11,7 +11,7 @@ import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 
-import com.wordpress.io.WordPressDAO;
+import com.wordpress.io.BlogDAO;
 import com.wordpress.utils.Preferences;
 import com.wordpress.utils.SimpleTimeZone;
 import com.wordpress.view.PreferencesView;
@@ -40,9 +40,15 @@ public class PreferenceController extends BaseController {
 	}
 	
 	 
-	public void savePrefAndBack(){
-		savePref();
-		backCmd();
+	public boolean savePrefAndBack(){
+		try {
+			savePref();
+			backCmd();
+		} catch (Exception e) {
+			displayError(e, "Error while saving preferences");
+			return false;
+		}
+		return true;
 	}
 	
 	private boolean isStateChanged(){
@@ -65,31 +71,29 @@ public class PreferenceController extends BaseController {
 	}
 	
 	
-	private void savePref(){
+	private void savePref() throws IOException {
 		if(!isStateChanged()) return; //if the state of ui isn't changed return immediatly
 		
-		try {
-			if(audioEnc != null){
-				mPrefs.setAudioEncoding(audioEnc);
-			}
-			if(videoEnc != null){
-				mPrefs.setVideoEncoding(videoEnc);
-			}
-			if(photoEnc != null){
-				mPrefs.setPhotoEncoding(photoEnc);
-			}
-			if(timezoneIndex > 0){
-				mPrefs.setTimeZoneIndex(timezoneIndex);
-			}
-			if(deviceSideConnection > -1){ 
-				mPrefs.setDeviceSideConnection( deviceSideConnection == 1 ? true : false);
-			}
-			
-			WordPressDAO.storeApplicationPreferecens(mPrefs);
-			
-		} catch (IOException e) {
-			displayError(e, "Error while saving setup informations");
+		if(audioEnc != null){
+			mPrefs.setAudioEncoding(audioEnc);
 		}
+		if(videoEnc != null){
+			mPrefs.setVideoEncoding(videoEnc);
+		}
+		if(photoEnc != null){
+			mPrefs.setPhotoEncoding(photoEnc);
+		}
+		if(timezoneIndex > 0){
+			mPrefs.setTimeZoneIndex(timezoneIndex);
+		}
+		if(deviceSideConnection > -1){ 
+			mPrefs.setDeviceSideConnection( deviceSideConnection == 1 ? true : false);
+		}
+		
+		BlogDAO.storeApplicationPreferecens(mPrefs);
+			
+		
+		
 	}
 	
 	
@@ -210,9 +214,7 @@ public class PreferenceController extends BaseController {
     		return true;
     	}else if(Dialog.SAVE == choice) {
     		System.out.println("la scelta dell'utente è save");
-    		savePref();
-    		backCmd();
-    		return true;
+    		return savePrefAndBack();
     	} else {
     		System.out.println("la scelta dell'utente è cancel");
     		return false;

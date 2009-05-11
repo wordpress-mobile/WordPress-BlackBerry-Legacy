@@ -131,7 +131,7 @@ public class FrontController {
 	 * pop 1 screen out of the stack and refresh the view.
 	 * 
 	 */
-	public void backAndRefreshView(boolean wasRemoteUpdate){
+	public void backAndRefreshView(final boolean wasRemoteUpdate){
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
 				
@@ -141,7 +141,8 @@ public class FrontController {
 				
 				if (scr instanceof BaseView){	
 					BaseController controller = ((BaseView)scr).getController();
-					controller.refreshView();
+					if(wasRemoteUpdate)
+						controller.refreshView();
 				}
 			} //end run
 		});

@@ -3,12 +3,14 @@ package com.wordpress.controller;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.io.DraftDAO;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
@@ -16,8 +18,11 @@ import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Preferences;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.StringUtils;
+import com.wordpress.utils.Tools;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
+import com.wordpress.view.CategoriesView;
+import com.wordpress.view.NewCategoryView;
 import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostView;
 import com.wordpress.view.component.FileSelectorPopupScreen;
@@ -36,41 +41,50 @@ public class PostController extends BaseController {
 	
 	private PostView view = null;
 	private PhotosView photoView= null;
+	private CategoriesView catView= null;
 	ConnectionInProgressView connectionProgressView=null;
 	private Post post=null;
-	private BlogIOController blogController= BlogIOController.getIstance();
-	private int draftPostId=-1; //identify a draft post id
-	
+	private int draftPostFolder=-1; //identify draft post folder
+	private boolean isDraft= false; // identify if post is loaded from draft folder
+		
 	public static final int PHOTO=1;
 	public static final int BROWSER=4;
 	
 	Preferences prefs = Preferences.getIstance();
-	private Hashtable dummyFS = new Hashtable(); //dummy fs
-	private Hashtable remoteFileInfo; //used when send MM files to blog
-	private Queue files;  //used when send MM files to blog 
-	private BlogConn connection; //used when send MM files to blog
+	private Hashtable remoteFileInfo; ////contain files info on the WP server (used after sending MM files to the blog)
+	private Queue files;  //used while sending MM files to the 	blog 
+	private BlogConn connection; //used while sending MM files to the blog
 	
-	//used when loading new post/recent post
+	//used when new post/recent post
+	// 0 = new post
+	// 1 = edit recent post
 	public PostController(Post post) {
 		super();	
 		this.post=post;
+		//assign new space on draft folder, used for photo IO
+		try {
+			draftPostFolder = DraftDAO.storePost(post, draftPostFolder);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
-	//used when loading draft post
-	public PostController(Post post,int draftPostId) {
-		this(post);
-		this.draftPostId=draftPostId;
+	//used when loading draft post from disk
+	public PostController(Post post,int _draftPostFolder) {
+		super();	
+		this.post=post;
+		this.draftPostFolder=_draftPostFolder;
+		this.isDraft = true;
 	}
 	
 	public void showView() {
 		this.view= new PostView(this, post);
 		UiApplication.getUiApplication().pushScreen(view);
-		
-		
-		
+			
 	}
 		
-	public String[] getAvailableCategories(){
+	public String[] getBlogsCategories(){
 		Category[] availableCategories = post.getBlog().getCategories();
 		String[] categoryLabels;
 		if (availableCategories != null) {
@@ -83,6 +97,28 @@ public class PostController extends BaseController {
 			categoryLabels= new String[0];
 		}
 		return categoryLabels;
+	}
+	
+
+	public String[] getPostCategories(){
+		Category[] availableCategories = post.getBlog().getCategories();
+		Vector categoryLabels = new Vector();
+		int[] postCategories = post.getCategories();
+		
+		if (postCategories != null && availableCategories != null) {
+            for (int i = 0; i < postCategories.length; i++) {
+            	int idCatPost = postCategories[i];
+            	for (int j = 0; j < availableCategories.length; j++) {
+            		Category category = availableCategories[j];
+            		String idString = category.getId();
+            		int idCat = Integer.parseInt(idString);
+            		if( idCatPost == idCat ) categoryLabels.addElement(category.getLabel());
+				}
+            }
+		} else {
+			return new String[0];
+		}
+		return Tools.toStringArray(categoryLabels);
 	}
 	
 	//return the post category n.b:change it
@@ -121,24 +157,30 @@ public class PostController extends BaseController {
 		connectionProgressView.show();
 	    
 		remoteFileInfo = new Hashtable(); 
-		
-		if(dummyFS.size() > 0 ) {
-			files= new Queue(dummyFS.size());
-			Enumeration keys = dummyFS.keys();
+		String[] draftPostPhotoList;
+		try {
+			draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftPostFolder);
+	
+		if(draftPostPhotoList.length > 0 ) {
+			files= new Queue(draftPostPhotoList.length);
 			String key="";
-			for ( ; keys.hasMoreElements(); ) {
-				key = (String)keys.nextElement();
+			for (int i =0; i < draftPostPhotoList.length; i++ ) {
+				key = draftPostPhotoList[i];
 				files.push(key);				
 			}
 			sendMultimediaContent();
 		} else {
 			sendPostContent();
 			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void saveDraftPost() {
 		try {
-		 blogController.saveDraftPost(post, draftPostId);
+		 draftPostFolder = DraftDAO.storePost(post, draftPostFolder);
 		 view.getPostState().setModified(false); //set the post as saved
 		} catch (Exception e) {
 			displayError(e,"Error while saving draft post!");
@@ -149,21 +191,57 @@ public class PostController extends BaseController {
 		if(view.getPostState().isModified()){
 	    	int result=this.askQuestion("Changes Made, are sure to close this screen?");   
 	    	if(Dialog.YES==result) {
+	    		try {
+	    			if( !isDraft ){ //not previous draft saved post
+	    				DraftDAO.removePost(post.getBlog(), draftPostFolder);
+	    			}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 	    		FrontController.getIstance().backAndRefreshView(false);
 	    		return true;
 	    	} else {
 	    		return false;
 	    	}
 		} else {
-			FrontController.getIstance().backAndRefreshView(false);
+			FrontController.getIstance().backAndRefreshView(true); //refresh prev view
 			return true;
 		}
 	}
 	
 	
+	public void showCategoriesView(){			
+		catView= new CategoriesView(this, post.getBlog().getCategories(), post.getCategories());		
+		UiApplication.getUiApplication().pushScreen(catView);
+	}
+	
+	
+	public void showNewCategoriesView(){			
+		NewCategoryView newCatView= new NewCategoryView(this, post.getBlog().getCategories());		
+		UiApplication.getUiApplication().pushScreen(newCatView);
+	}
+
+	
 	public void showPhotosView(){
-		photoView= new PhotosView(this,dummyFS);
-		UiApplication.getUiApplication().pushScreen(photoView);
+		
+		String[] draftPostPhotoList;
+		try {
+			draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftPostFolder);
+		
+			photoView= new PhotosView(this);
+			for (int i = 0; i < draftPostPhotoList.length; i++) {
+				String currPhotoPath = draftPostPhotoList[i];
+				byte[] data=DraftDAO.loadPostPhoto(post, draftPostFolder, currPhotoPath);
+				EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
+				photoView.addPhoto(currPhotoPath, img);
+			}
+			
+			UiApplication.getUiApplication().pushScreen(photoView);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	/*
@@ -171,8 +249,15 @@ public class PostController extends BaseController {
 	 */
 	public void showEnlargedPhoto(String key){
 		System.out.println("showed photos: "+key);
-		EncodedImage mmObj = (EncodedImage) dummyFS.get(key);
-		UiApplication.getUiApplication().pushScreen(new PhotoPreview(this, key ,mmObj)); //modal screen...
+		byte[] data;
+		try {
+			data = DraftDAO.loadPostPhoto(post, draftPostFolder, key);
+			EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
+			UiApplication.getUiApplication().pushScreen(new PhotoPreview(this, key ,img)); //modal screen...
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -182,13 +267,22 @@ public class PostController extends BaseController {
 	public boolean deletePhoto(String key){
 		System.out.println("deleting photo: "+key);
 		view.setPostState(true); //mark post has changed
-		Object remove = dummyFS.remove(key);
+		
+		try {
+			DraftDAO.removePostPhoto(post.getBlog(), draftPostFolder, key);
+			photoView.deletePhotoBitmapField(key); //delete the thumbnail
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		return true;
+		/*Object remove = dummyFS.remove(key);
 		if(remove != null){
 			photoView.deletePhotoBitmapField(key); //delete the thumbnail
 			return true;
 		} else {
 			return false;
-		}
+		}*/
 	}
 	
 	//* called by photoview */
@@ -242,7 +336,14 @@ public class PostController extends BaseController {
 			img=rescaled;
 		} 
 
-		dummyFS.put(fileName, img); //add to the dummy fs											
+		try {
+			DraftDAO.storePostPhoto(post, draftPostFolder, data, fileName);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//dummyFS.put(fileName, img); //add to the dummy fs
+		
 		photoView.addPhoto(fileName, img);
 		view.setPostState(true); //mark post has changed
 	}
@@ -268,11 +369,11 @@ public class PostController extends BaseController {
 		post.setBody(body);
 		
 		if(post.getId() == null || post.getId().equalsIgnoreCase("-1")) { //new post
-	           connection = new NewPostConn (post.getBlog().getBlogXmlRpcUrl(), 
+	           connection = new NewPostConn (post.getBlog().getXmlRpcUrl(), 
 	        		post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post, view.getPostState().isPublished());
 		} else { //edit post
 			
-			 connection = new EditPostConn (post.getBlog().getBlogXmlRpcUrl(), 
+			 connection = new EditPostConn (post.getBlog().getXmlRpcUrl(), 
 					 post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post, view.getPostState().isPublished());
 		}
 		connectionProgressView.setDialogClosedListener(new ConnectionInProgressListener(connection));
@@ -294,16 +395,25 @@ public class PostController extends BaseController {
 		} else {
 		
 			String poppedKey = (String)files.pop();
-			EncodedImage img=(EncodedImage)dummyFS.get(poppedKey);
-						
-		    connection = new NewMediaObjectConn (post.getBlog().getBlogXmlRpcUrl(), 
-	       		   post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post.getBlog().getBlogId(), 
+			
+			byte[] data;
+			try {
+				data = DraftDAO.loadPostPhoto(post, draftPostFolder, poppedKey);
+			
+			EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);			
+
+			connection = new NewMediaObjectConn (post.getBlog().getXmlRpcUrl(), 
+	       		   post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post.getBlog().getId(), 
 	       		poppedKey,img.getData());
 		    
 		    connectionProgressView.setDialogClosedListener(new ConnectionInProgressListener(connection));
 	
 			connection.addObserver(new sendImagesCallBack());
 			connection.startConnWork(); //starts connection
+			} catch (IOException e) {
+				// TODO controllare bene questa fase
+				e.printStackTrace();
+			}
 		}
 	}
 	

@@ -3,20 +3,23 @@ package com.wordpress.io;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
 import com.wordpress.model.Tag;
+import com.wordpress.utils.MD5;
 import com.wordpress.utils.Preferences;
+import com.wordpress.utils.Tools;
 
-public class WordPressDAO {
+public class BlogDAO {
 	
 	public static String BASE_PATH = "file:///store/home/user/wordpress/";
-	public static String BLOGS_BASE_PATH = BASE_PATH+"blogs/";
 	public static String INST_FILE= BASE_PATH+"inst"; //check if the app is installed
 	public static String APP_PREFS_FILE= BASE_PATH+"prefs"; //check if the app is installed
+	public static String DRAFT_FOLDER_PREFIX = "d/";
 	
 	/**
      * add One  blog to the storage!
@@ -24,15 +27,16 @@ public class WordPressDAO {
      * @return
      */
     public static boolean newBlog(Blog blog, boolean overwrite) throws Exception{
-    	String name = blog.getBlogName();   	
-    	String filePath=BLOGS_BASE_PATH+name+"/";
+    	String name = blog.getName();
+    	String nameMD5=getBlogFolderName(blog);
+    	String filePath=BASE_PATH+nameMD5;
     
     	if (JSR75FileSystem.isFileExist(filePath)){
     		throw new Exception("Cannot add this blog: " + name + " because another blog with same name already exist!");
     	} else {
-    		JSR75FileSystem.createDir(BASE_PATH); //FIXME recursive
-    		JSR75FileSystem.createDir(BLOGS_BASE_PATH); //FIXME recursive
-			JSR75FileSystem.createDir(filePath);
+    		JSR75FileSystem.createDir(BASE_PATH); 
+    		JSR75FileSystem.createDir(filePath);
+    		JSR75FileSystem.createDir(filePath+DRAFT_FOLDER_PREFIX); //create draft posts folder
     	}    	
     	
     	JSR75FileSystem.createFile(filePath+"blog"); //create the blog file
@@ -50,9 +54,10 @@ public class WordPressDAO {
      * @param aBlog
      * @return
      */
-    public static boolean updateBlog(Blog blog) throws Exception{
-    	String name = blog.getBlogName();   	
-    	String filePath=BLOGS_BASE_PATH+name+"/";
+    public static boolean updateBlog(Blog blog) throws Exception{   	
+    	String name = blog.getName();
+    	String nameMD5=getBlogFolderName(blog);
+    	String filePath=BASE_PATH+nameMD5;
     
     	if (!JSR75FileSystem.isFileExist(filePath)){
     		throw new Exception("Cannot update this blog: " + name + " because not exist!");
@@ -68,34 +73,55 @@ public class WordPressDAO {
     
     public static Blog getBlog(int aIndex) throws Exception {
         try {
-        	String blogName = getBlogsName()[aIndex];
+        	String blogName = getBlogsPath()[aIndex];
             return loadBlog(blogName);
         } catch (Exception e) {
         	throw new Exception("Failed to load blog: " + e.getMessage());            
         }
     }
     
-    public static String[] getBlogsName() throws IOException{
-    	String[] listFiles = JSR75FileSystem.listFiles(BLOGS_BASE_PATH);
-    	for (int i = 0; i < listFiles.length; i++) {
-    		String path=listFiles[i];
-    		if (path.endsWith("/")) {
-    			listFiles[i]= path.substring(0,path.length()-1);
+    private static String[] getBlogsPath() throws IOException{
+    	String[] listFilesAndDir = JSR75FileSystem.listFiles(BASE_PATH);
+    	Vector listDir= new Vector();
+    	
+    	for (int i = 0; i < listFilesAndDir.length; i++) {
+    		String path=listFilesAndDir[i];
+    		if (path.endsWith("/")) { //found directory
+    			listDir.addElement( path.substring(0,path.length()-1)	);
     		}
 		}
-    	return listFiles;
+    	return Tools.toStringArray(listDir);
     }
+    
+    /**
+     * Retrive the name of all blogs
+     * @return
+     * @throws Exception
+     */
+    public static String[] getBlogsName() throws Exception{
+    	String[] listFiles = getBlogsPath();
+    	String blogName[] = new String[listFiles.length];
+    	
+    	for (int i = 0; i < listFiles.length; i++) {
+    		   		
+    		Blog loadedBlog = loadBlog(listFiles[i]);
+    		blogName[i]=loadedBlog.getName();
+		}
+    	return blogName;    	
+    }
+    
 
+    
 	private static void storeBlog(Blog blog, DataOutputStream out)
 			throws IOException {
 		Serializer ser= new Serializer(out);
     	
-    	ser.serialize(blog.getBlogXmlRpcUrl());
+    	ser.serialize(blog.getXmlRpcUrl());
     	ser.serialize(blog.getUsername());
     	ser.serialize(blog.getPassword());
-    	ser.serialize(blog.getBlogId());
-    	ser.serialize(blog.getBlogName());
-    	ser.serialize(blog.getBlogUrl());
+    	ser.serialize(blog.getId());
+    	ser.serialize(blog.getName());
+    	ser.serialize(blog.getUrl());
     	ser.serialize(new Integer(blog.getMaxPostCount()));
     	ser.serialize(new Boolean(blog.isResizePhotos()));
     	ser.serialize(blog.getPageStatusList());
@@ -136,8 +162,8 @@ public class WordPressDAO {
    
     private static Blog loadBlog(String name) throws Exception {
     	System.out.println("carico il blog " + name + " dal file system");
-      
-    	String filePath=BLOGS_BASE_PATH+name+"/";
+    	
+    	String filePath=BASE_PATH+name+"/";
         
     	if (!JSR75FileSystem.isFileExist(filePath)){
     		throw new Exception("Cannot load this blog: " + name + " because not exist!");
@@ -209,10 +235,12 @@ public class WordPressDAO {
         return blog;     
      } 
     
-    public static void removeBlog(String name) throws IOException{
-    	String filePath=BLOGS_BASE_PATH+name+"/";
+    public static void removeBlog(int aIndex) throws IOException{
+    	String blogName = getBlogsPath()[aIndex];
+    	String filePath=BASE_PATH+blogName+"/";
+    	
     	if (!JSR75FileSystem.isFileExist(filePath)){
-    		throw new IOException("Cannot delete this blog: " + name + " because not exist!");
+    		throw new IOException("Cannot delete this blog: " + blogName + " because not exist!");
     	} else {
 			JSR75FileSystem.removeFile(filePath);
     	}    
@@ -273,6 +301,24 @@ public class WordPressDAO {
 		System.out.println("Prefs stored succesfully!");
 	}
     
-    
+    /**
+     * Calculate a MD5 hash of the blog object fields. The hash is the location 
+     * of the blog in the filesystem.
+     * @param blogIdentifier
+     * @return
+     * @throws UnsupportedEncodingException 
+     */
+    protected static String getBlogFolderName(Blog blog) throws UnsupportedEncodingException{
+    	if (blog == null) return null;
+    	String xmlrpcURL=blog.getXmlRpcUrl(); 
+    	if(xmlrpcURL==null || xmlrpcURL.equals(""))
+			return null;
+		
+ 	    MD5 md5 = new MD5();
+   	    md5.Update(xmlrpcURL, null);
+   	    String hash = md5.asHex();
+   	    md5.Final();
+   	    return hash+"/"; //as directory we return with ending trail slash
+    }
 
 }

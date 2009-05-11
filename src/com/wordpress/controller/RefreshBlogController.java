@@ -4,7 +4,7 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressResource;
-import com.wordpress.io.WordPressDAO;
+import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.utils.Preferences;
 import com.wordpress.utils.observer.Observable;
@@ -59,7 +59,7 @@ public class RefreshBlogController extends BaseController implements Observer{
 					}
 					currentBlog= (Blog) resp.getResponseObject(); 	//update blogs obj	
 					try{
-						WordPressDAO.updateBlog(currentBlog);							
+						BlogDAO.updateBlog(currentBlog);							
 					} catch (final Exception e) {
 					 	displayError(e,"Error while refreshing blogs");	
 					}

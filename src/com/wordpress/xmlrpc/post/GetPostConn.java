@@ -46,7 +46,10 @@ public class GetPostConn extends BlogConn  {
             aPost.setExtendedBody((String) postData.get("mt_text_more"));
             aPost.setExcerpt((String) postData.get("mt_excerpt"));
             aPost.setAuthoredOn(((Date) postData.get("dateCreated")).getTime());
+            aPost.setTags( (String) postData.get("mt_keywords"));
             String breaks = (String) postData.get("mt_convert_breaks");
+            
+            
             if (breaks != null && !breaks.equals("__default__")) {
                 aPost.setConvertLinebreaksEnabled(breaks.equals("1"));
             }

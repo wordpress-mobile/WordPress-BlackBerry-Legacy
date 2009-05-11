@@ -10,7 +10,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
-import com.wordpress.io.WordPressDAO;
+import com.wordpress.io.BlogDAO;
 
 public class MainView extends BaseView {
 	
@@ -33,8 +33,8 @@ public class MainView extends BaseView {
 	 public void setupUpBlogsView() {
 		String[] blogCaricati = new String[0];
 		try {
-			blogCaricati = WordPressDAO.getBlogsName();
-		} catch (IOException e) {
+			blogCaricati = BlogDAO.getBlogsName();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

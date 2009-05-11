@@ -1,19 +1,19 @@
 package com.wordpress.view;
 
 
-import java.util.Date;
-
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.Color;
+import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.XYEdges;
 import net.rim.device.api.ui.component.BasicEditField;
-import net.rim.device.api.ui.component.CheckboxField;
-import net.rim.device.api.ui.component.DateField;
+import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
-import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 
@@ -34,90 +34,71 @@ public class PostView extends BaseView {
 
     //content of tabs summary
 	private BasicEditField title;
-//	private ObjectChoiceField categoryChoice;
-//	private DateField authoredOn; 
-//	private CheckboxField isPublished;
-//	private CheckboxField isConvertLinebreaksEnabled;  
-//	private CheckboxField isCommentsEnabled;
-//	private CheckboxField isTrackbackEnabled; 	
 	private HtmlTextField bodyTextBox;
-	private LabelField tags;
+	private BasicEditField tags;
 	private LabelField categories;
 	private LabelField status;
+
 	
     public PostView(PostController _controller, Post _post) {
     	super(_resources.getString(WordPressResource.TITLE_POSTVIEW));
     	this.controller=_controller;
 		this.post = _post;
 		this.mState= new PostState();
-             
-        //common margin
-        XYEdges margins = new XYEdges(5,5,5,5);
         
         //row title
         HorizontalFieldManager rowTitle = new HorizontalFieldManager();
-		LabelField lblTitle = new LabelField(_resources.getString(WordPressResource.LABEL_POST_TITLE))
-		{
-		    public void paint(Graphics graphics)
-		    {
-		        graphics.setColor(Color.GRAY);
-		        super.paint(graphics);
-		    }
-		};
-		lblTitle.setMargin(margins);
-        
-        title = new BasicEditField("", post.getTitle(), 100, Field.EDITABLE);
+		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_POST_TITLE));
+		title = new BasicEditField("", post.getTitle(), 100, Field.EDITABLE);
         title.setMargin(margins);
         rowTitle.add(lblTitle);
         rowTitle.add(title);
         this.add(rowTitle);
         this.add(new SeparatorField());
         
-        
+        //row tags
         HorizontalFieldManager rowTags = new HorizontalFieldManager();
-		LabelField lblTags = new LabelField(_resources.getString(WordPressResource.LABEL_POST_TAGS))
-		{
-		    public void paint(Graphics graphics)
-		    {
-		        graphics.setColor(Color.GRAY);
-		        super.paint(graphics);
-		    }
-		};
-		lblTags.setMargin(margins);
-		tags = new LabelField("tags, tags ,tags");
+		LabelField lblTags = getLabel(_resources.getString(WordPressResource.LABEL_POST_TAGS));
+		tags = new BasicEditField("", post.getTags(), 100, Field.EDITABLE);
 		tags.setMargin(margins);
         rowTags.add(lblTags);
         rowTags.add(tags);
         this.add(rowTags);
         this.add(new SeparatorField());
         
-        HorizontalFieldManager rowCategories = new HorizontalFieldManager();
-  		LabelField lblCategories = new LabelField(_resources.getString(WordPressResource.LABEL_POST_CATEGORIES))
-  		{
-  		    public void paint(Graphics graphics)
-  		    {
-  		        graphics.setColor(Color.GRAY);
-  		        super.paint(graphics);
-  		    }
-  		};
-  		lblCategories.setMargin(margins);
-  		categories = new LabelField("cats, cats , cats");
+        //row categories
+        HorizontalFieldManager rowCategories = new HorizontalFieldManager(Manager.USE_ALL_WIDTH);
+  		LabelField lblCategories = getLabel(_resources.getString(WordPressResource.LABEL_POST_CATEGORIES));
+        String[] availableCategories = controller.getPostCategories();
+        StringBuffer cats= new StringBuffer();
+  		for (int i = 0; i < availableCategories.length; i++) {
+			cats.append(availableCategories[i]);
+			cats.append(" ");
+		}
+  		categories = new LabelField(cats);
   		categories.setMargin(margins);
+  		
+  		
+  		Bitmap imgOpen = Bitmap.getBitmapResource("disclosure-indicator.png"); 
+  		BitmapField bfOpenCat = new BitmapField(imgOpen, BitmapField.FOCUSABLE)
+  		{			
+  		    //override context menu      
+	        protected void makeContextMenu(ContextMenu contextMenu) {
+	            contextMenu.addItem(_categoryContextMenuItem);      
+	        }
+  		};
+  		bfOpenCat.setMargin(margins);
+  		bfOpenCat.setSpace(5, 5);
+  		
   		rowCategories.add(lblCategories);
   		rowCategories.add(categories);
+  		rowCategories.add(bfOpenCat);
   		this.add(rowCategories);
   		this.add(new SeparatorField());
   		
+  		//row status
         HorizontalFieldManager rowStatus = new HorizontalFieldManager();
-  		LabelField lblStatus = new LabelField(_resources.getString(WordPressResource.LABEL_POST_STATUS))
-  		{
-  		    public void paint(Graphics graphics)
-  		    {
-  		        graphics.setColor(Color.GRAY);
-  		        super.paint(graphics);
-  		    }
-  		};
-  		lblStatus.setMargin(margins);
+  		LabelField lblStatus =getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS));
   		status = new LabelField("pubblicato");
   		status.setMargin(5, 0, 0, 0);
   		rowStatus.add(lblStatus);
@@ -126,6 +107,8 @@ public class PostView extends BaseView {
   		this.add(new SeparatorField()); 
   		
         
+  		//row photos
+  		
         /*
         String[] categories= controller.getAvailableCategories();
 		int selectedCat= controller.getPostCategoryIndex();
@@ -154,7 +137,6 @@ public class PostView extends BaseView {
 		add(isTrackbackEnabled);*/
 		bodyTextBox= new HtmlTextField(post.getBody());
         add(bodyTextBox);
-        
 		addMenuItem(_saveDraftPostItem);
 		addMenuItem(_submitPostItem);
 		addMenuItem(_photosItem);
@@ -212,6 +194,13 @@ public class PostView extends BaseView {
         }
     };
     	
+    private MenuItem _categoryContextMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_POST_CATEGORIES, 10, 2) {
+        public void run() {
+        	controller.showCategoriesView();
+        }
+    };
+    	
+    
 	/*
 	 * update Post data model
 	 */
@@ -229,6 +218,23 @@ public class PostView extends BaseView {
 			if( !oldTitle.equals(title.getText()) ) { //title has changed
 				post.setTitle(title.getText());
 				mState.setModified(true);
+			}
+		}
+		
+		//track changes of body content
+		if(bodyTextBox != null) {
+			String newContent= bodyTextBox.getText();
+			if(!newContent.equals(post.getBody())){
+				mState.setModified(true);
+				post.setBody(newContent);
+			}
+		}
+		
+		if(tags != null) {
+			String newContent= tags.getText();
+			if(!newContent.equals(post.getTags())){
+				mState.setModified(true);
+				post.setTags(newContent);
 			}
 		}
 		
@@ -283,16 +289,7 @@ public class PostView extends BaseView {
 		}		
 	
 		mState.setPublished(isPublished.getChecked());
-		*/
-		//track changes of body content
-		if(bodyTextBox != null) {
-			String newContent= bodyTextBox.getText();
-			if(!newContent.equals(post.getBody())){
-				mState.setModified(true);
-				post.setBody(newContent);
-			}
-		}
-				
+		*/				
 	}
 
 

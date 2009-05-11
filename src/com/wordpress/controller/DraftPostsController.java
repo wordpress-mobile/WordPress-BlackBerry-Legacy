@@ -1,14 +1,12 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
-import java.util.Vector;
-
-import javax.microedition.rms.RecordStoreException;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.component.Dialog;
 
-import com.wordpress.bb.WordPressResource;
+import com.wordpress.io.DraftDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
 import com.wordpress.view.DraftPostsView;
@@ -19,38 +17,63 @@ public class DraftPostsController extends BaseController {
 	
 	private DraftPostsView view = null;
 	ConnectionInProgressView connectionProgressView=null;
-	private BlogIOController blogController= BlogIOController.getIstance();
-
 	private Blog currentBlog=null;
-	private Object[] mPosts = null;
-	
+	private Hashtable loadedPost = null; //loaded post from storare
+	private String[] loadedPostTitle = null; //shorcut to post  title
+	private int[] loadedPostID = null; //shorcut to post ID
 	
 	public DraftPostsController(Blog currentBlog) {
 		super();	
 		this.currentBlog=currentBlog;
 	}
 
+	public void showView() {
+	    try {
+	    	
+	    	loadPostInfo();
+	    		    	
+		    this.view= new DraftPostsView(this,loadedPostTitle);
+			UiApplication.getUiApplication().pushScreen(view);	    
+		} catch (IOException e) {
+	    	displayError(e, "Error while reading drafts phones memory");
+		}
+	}
+
+	private void loadPostInfo() throws IOException {
+		loadedPost = DraftDAO.getPostsInfo(currentBlog);
+		loadedPostTitle = new String[0];
+		loadedPostID = new int[0];
+		
+		if(loadedPost == null) {
+		
+		} else {
+			Enumeration elements = loadedPost.keys();
+			loadedPostTitle = new String[loadedPost.size()];
+			loadedPostID = new int[loadedPost.size()];
+			int i= 0 ;
+			for (; elements.hasMoreElements();) {
+				String key = (String) elements.nextElement();
+				loadedPostID[i]  = Integer.parseInt(key);
+				loadedPostTitle[i] = (String)loadedPost.get(key);
+				i++;
+			}
+		}
+	}
+
 
 	public String getCurrentBlogName() {
-		return currentBlog.getBlogName();
+		return currentBlog.getName();
 	}
 
 	
 	public void deletePost(int selected){
-		int result=this.askQuestion("Delete selected post?");   
-    	if(Dialog.YES==result) {
-    		if(selected != -1){
-    			int id = ((Integer) mPosts[selected * 2]).intValue();
-    	        try {
-    				blogController.removeDraftPost(currentBlog, id);
-    			} catch (Exception e) {
-    				displayError(e, "Error while deleting draft post data");
-    			}
-    			refreshUI();
-    		}	    		
-    	} else {
-    	
-    	}
+		int draftPostID = loadedPostID[selected];
+		try {
+			DraftDAO.removePost(currentBlog, draftPostID);
+			refreshView();
+		} catch (IOException e) {
+	    	displayError(e, "Error while deleteing draft post");
+		}
 	}
 	
 	
@@ -60,70 +83,26 @@ public class DraftPostsController extends BaseController {
 		}
 	}
 	
-	/** starts the  post loading */
-	public void editPost(int selected){
-		if(selected != -1){
-			
-            Post post = (Post) mPosts[1 + (selected * 2)];
-            int id = ((Integer) mPosts[selected * 2]).intValue();
-            try {
-				blogController.updateDraftPost(post, currentBlog, id);
-			} catch (Exception e) {
-				displayError(e, "Error while loading draft post data");
+	/** starts the post loading */
+	public void editPost(int selected) {
+		try {
+			if (selected != -1) {
+				int draftPostID = loadedPostID[selected];
+				Post post = DraftDAO.loadPost(currentBlog, draftPostID);
+				FrontController.getIstance().showDraftPost(post, draftPostID);
 			}
-			FrontController.getIstance().showDraftPost(post,id);       
-		}	     	
+		} catch (IOException e) {
+			displayError(e, "Error while loading draft post");
+		}
 	}	
 	
-	public void refreshUI() {
-		try {
-			String [] postCaricati = getPostsTitle();
-			if(postCaricati == null) return;
-			view.refresh(postCaricati);
-		} catch (RecordStoreException e) {
-			displayError(e, "Error while reading rms");
-		} catch (IOException e) {
-			displayError(e, "Error while reading from phones memory");
-		}
-	}
-	
-	public void showView() {
-	    try {
-	    	String [] postCaricati = getPostsTitle();
-			if(postCaricati == null) return;
-		    this.view= new DraftPostsView(this,postCaricati);
-			UiApplication.getUiApplication().pushScreen(view);
-	    } catch (RecordStoreException e) {
-	    	displayError(e, "Error while reading rms");
-		} catch (IOException e) {
-	    	displayError(e, "Error while reading from phones memory");
-		}
-	}
-
-
-	private String[] getPostsTitle() throws RecordStoreException, IOException {
-		if(currentBlog== null) return null;
-		
-		mPosts = BlogIOController.getIstance().getDraftPostList(currentBlog);
-		Vector draftPostTitles= new Vector();
-		String title="";
-
-		for (int i = 1; i < mPosts.length; i += 2) {
-		    title = ((Post) mPosts[i]).getTitle();
-		    if (title == null || title.length() == 0) {
-		    	title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
-		    }
-		    draftPostTitles.addElement(title);
-		}
-		
-		final String[] postCaricati= new String[draftPostTitles.size()];
-		draftPostTitles.copyInto(postCaricati);
-		return postCaricati;
-	}
-
 
 	public void refreshView() {
-		refreshUI();		
+		 try {
+			loadPostInfo();
+			view.refresh(loadedPostTitle);
+		} catch (IOException e) {
+	    	displayError(e, "Error while reading drafts phones memory");
+		}
 	}
-
 }

@@ -16,9 +16,7 @@ public class DraftPostsView extends BaseView {
 	
 	 public DraftPostsView(DraftPostsController  _controller, String[] post) {
 	    	super(_controller.getCurrentBlogName()+" > "+_resources.getString(WordPressResource.TITLE_DRAFTPOST));
-	    	this.controller=_controller;
-	    
-	        
+	    	this.controller=_controller;	        
 	        buildList(post);
 	 }
 

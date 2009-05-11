@@ -19,7 +19,7 @@ import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.controller.MainController;
 import com.wordpress.io.JSR75FileSystem;
-import com.wordpress.io.WordPressDAO;
+import com.wordpress.io.BlogDAO;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Preferences;
 import com.wordpress.view.dialog.ErrorView;
@@ -52,10 +52,10 @@ public class SplashScreen extends MainScreen {
 		application.pushScreen(this);
 		
 		try {
-			String filePath = WordPressDAO.INST_FILE;
+			String filePath = BlogDAO.INST_FILE;
 			if (JSR75FileSystem.isFileExist(filePath)) {
 				//not first startup
-				WordPressDAO.readApplicationPreferecens(blogPrefs); //load pref on startup
+				BlogDAO.readApplicationPreferecens(blogPrefs); //load pref on startup
 				timer.schedule(new CountDown(), 3000); //3sec splash
 			} else { 
 				//first startup

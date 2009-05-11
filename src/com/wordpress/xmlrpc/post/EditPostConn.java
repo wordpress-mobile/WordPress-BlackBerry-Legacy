@@ -50,6 +50,7 @@ public class EditPostConn extends BlogConn  {
 	        content.put("mt_convert_breaks", post.isConvertLinebreaksEnabled() ? "1" : "0");
 	        content.put("mt_allow_comments", new Integer(post.isCommentsEnabled() ? 1 : 0));
 	        content.put("mt_allow_pings", new Integer(post.isTrackbackEnabled() ? 1 : 0));
+	        content.put("mt_keywords", post.getTags());
 
 	        Vector args = new Vector(5);
 	        args.addElement(post.getId());
