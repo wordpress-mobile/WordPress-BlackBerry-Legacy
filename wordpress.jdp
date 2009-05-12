@@ -77,7 +77,6 @@ src\com\wordpress\view\AddBlogsView.java
 src\com\wordpress\view\BaseView.java
 src\com\wordpress\view\BlogOptionsView.java
 src\com\wordpress\view\BlogView.java
-src\com\wordpress\view\CategoriesView.java
 src\com\wordpress\view\component\CheckBoxListField.java
 src\com\wordpress\view\component\ColouredListField.java
 src\com\wordpress\view\component\FileSelectorPopupScreen.java
@@ -98,6 +97,10 @@ src\com\wordpress\view\mm\PhotoSnapShotView.java
 src\com\wordpress\view\mm\ScrollableImageField.java
 src\com\wordpress\view\NewCategoryView.java
 src\com\wordpress\view\PhotosView.java
+src\com\wordpress\view\PostCategoriesView.java
+src\com\wordpress\view\PostPreviewView.java
+src\com\wordpress\view\PostSettingsView.java
+src\com\wordpress\view\PostStatusView.java
 src\com\wordpress\view\PostsView.java
 src\com\wordpress\view\PostView.java
 src\com\wordpress\view\PreferencesView.java
@@ -113,6 +116,9 @@ src\com\wordpress\xmlrpc\comment\GetCommentsConn.java
 src\com\wordpress\xmlrpc\comment\GetCommentStatusListConn.java
 src\com\wordpress\xmlrpc\comment\NewCommentConn.java
 src\com\wordpress\xmlrpc\GetAuthorsConn.java
+src\com\wordpress\xmlrpc\GetTemplateConn.java
+src\com\wordpress\xmlrpc\NewCategory.java
+src\com\wordpress\xmlrpc\NewCategoryConn.java
 src\com\wordpress\xmlrpc\NewMediaObjectConn.java
 src\com\wordpress\xmlrpc\option\GetOptionsConn.java
 src\com\wordpress\xmlrpc\option\SetOptionsConn.java

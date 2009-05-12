@@ -17,6 +17,7 @@ public class Post {
     private int[] categories = null;
     private String tags= null;    
     private Date authoredOn = null;
+    private String password=null;
     private boolean convertBreaks = true;
     private boolean allowComments = true;
     private boolean allowTrackback = true;
@@ -135,6 +136,14 @@ public class Post {
 
 	public void setTags(String tags) {
 		this.tags = tags;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 }

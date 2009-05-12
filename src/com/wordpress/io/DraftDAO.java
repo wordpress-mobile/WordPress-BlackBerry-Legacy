@@ -83,6 +83,7 @@ public class DraftDAO {
     	ser.serialize(draftPost.getTitle());
     	ser.serialize(draftPost.getAuthor());
     	ser.serialize(draftPost.getAuthoredOn());
+    	ser.serialize(draftPost.getPassword());
     	ser.serialize(draftPost.getBody());
     	ser.serialize(draftPost.getCategories());
     	ser.serialize(draftPost.getTags());
@@ -136,6 +137,7 @@ public class DraftDAO {
     	String title = (String) ser.deserialize();
     	String author = (String) ser.deserialize();
     	Date authOn = (Date) ser.deserialize();
+    	String password = (String) ser.deserialize();
     	String body = (String) ser.deserialize();
     	int[] cat = (int[])ser.deserialize();
     	String tags = (String)ser.deserialize();
@@ -143,6 +145,7 @@ public class DraftDAO {
     	draft.setBody(body);
     	draft.setCategories(cat);
     	draft.setTags(tags);
+    	draft.setPassword(password);
     	in.close();
     	System.out.println("loading draft post ok");
     	return draft;		

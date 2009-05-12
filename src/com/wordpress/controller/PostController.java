@@ -1,6 +1,7 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -10,20 +11,22 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.io.BlogDAO;
 import com.wordpress.io.DraftDAO;
 import com.wordpress.io.JSR75FileSystem;
+import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Preferences;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.StringUtils;
-import com.wordpress.utils.Tools;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
-import com.wordpress.view.CategoriesView;
 import com.wordpress.view.NewCategoryView;
 import com.wordpress.view.PhotosView;
+import com.wordpress.view.PostCategoriesView;
+import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PostView;
 import com.wordpress.view.component.FileSelectorPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
@@ -32,6 +35,8 @@ import com.wordpress.view.mm.PhotoPreview;
 import com.wordpress.view.mm.PhotoSnapShotView;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
+import com.wordpress.xmlrpc.GetTemplateConn;
+import com.wordpress.xmlrpc.NewCategoryConn;
 import com.wordpress.xmlrpc.NewMediaObjectConn;
 import com.wordpress.xmlrpc.post.EditPostConn;
 import com.wordpress.xmlrpc.post.NewPostConn;
@@ -41,7 +46,8 @@ public class PostController extends BaseController {
 	
 	private PostView view = null;
 	private PhotosView photoView= null;
-	private CategoriesView catView= null;
+	private PostCategoriesView catView= null;
+	private PostSettingsView settingsView= null;
 	ConnectionInProgressView connectionProgressView=null;
 	private Post post=null;
 	private int draftPostFolder=-1; //identify draft post folder
@@ -83,7 +89,7 @@ public class PostController extends BaseController {
 		UiApplication.getUiApplication().pushScreen(view);
 			
 	}
-		
+/*		
 	public String[] getBlogsCategories(){
 		Category[] availableCategories = post.getBlog().getCategories();
 		String[] categoryLabels;
@@ -99,32 +105,79 @@ public class PostController extends BaseController {
 		return categoryLabels;
 	}
 	
-
-	public String[] getPostCategories(){
+*/
+	
+	public String getPostCategoriesLabel() {
 		Category[] availableCategories = post.getBlog().getCategories();
+		
 		Vector categoryLabels = new Vector();
 		int[] postCategories = post.getCategories();
 		
 		if (postCategories != null && availableCategories != null) {
             for (int i = 0; i < postCategories.length; i++) {
             	int idCatPost = postCategories[i];
+            	
             	for (int j = 0; j < availableCategories.length; j++) {
             		Category category = availableCategories[j];
             		String idString = category.getId();
             		int idCat = Integer.parseInt(idString);
             		if( idCatPost == idCat ) categoryLabels.addElement(category.getLabel());
-				}
+				
+            	}
             }
+		} 
+		
+		if(categoryLabels.size() == 0 ){
+			String emptyCatLabel = _resources.getString(WordPressResource.LABEL_OPTIONAL);
+			return emptyCatLabel;
 		} else {
-			return new String[0];
+			//trim...
+			String firstCat= (String)categoryLabels.elementAt(0);
+			firstCat+= " ...";
+			return firstCat;
 		}
-		return Tools.toStringArray(categoryLabels);
 	}
 	
+	public void newCategory(String label, int parentCatID){	
+		Preferences prefs = Preferences.getIstance();
+		NewCategoryConn connection = new NewCategoryConn (post.getBlog().getXmlRpcUrl(), 
+				Integer.parseInt(post.getBlog().getId()), post.getBlog().getUsername(),
+				post.getBlog().getPassword(),prefs.getTimeZone(),label, parentCatID);
+
+		
+		connection.addObserver(new sendNewCatCallBack(label,parentCatID)); 
+        
+		connectionProgressView= new ConnectionInProgressView(
+        		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
+       
+        connection.startConnWork(); //starts connection
+        int choice = connectionProgressView.doModal();
+		if(choice==Dialog.CANCEL) {
+			System.out.println("Chiusura della conn dialog tramite cancel");
+			connection.stopConnWork(); //stop the connection if the user click on cancel button
+		}
+	}
+	
+	public void setPostCategories(Vector newCatID){
+		if ( newCatID == null || newCatID.size() == 0 ){
+			post.setCategories(null);
+		} else {
+			int[] selectedID = new int[newCatID.size()];
+			
+			for (int i = 0; i < newCatID.size(); i++) {
+				String elementAt = (String)newCatID.elementAt(i);
+				selectedID[i]=Integer.parseInt(elementAt);
+			}
+			post.setCategories(selectedID);
+		}
+		view.updateCategoriesField(); 	//refresh the labelfield that contains cats..
+	}
+
+	/*
 	//return the post category n.b:change it
 	public int getPostCategoryIndex(){
 		return 0; //FIXME: categories managements
-	/*	int primaryIndex = -1; 
+		int primaryIndex = -1; 
 		Category primaryCategory = post.getPrimaryCategory();
 		if(primaryCategory == null) return primaryIndex;
 		
@@ -136,9 +189,9 @@ public class PostController extends BaseController {
                 }
             }
 		}
-		return primaryIndex;*/
+		return primaryIndex;
 	}
-	  
+	*/  
 	public void sendPostToBlog() {
 		
 		if (!view.getPostState().isModified()) { //post without change
@@ -211,8 +264,40 @@ public class PostController extends BaseController {
 	}
 	
 	
+	
+	public void setSettingsView(long authoredOn, String password){			
+		//long datetime= (postAuth == null) ? new Date().getTime() : postAuth.getTime();
+		System.out.println("setting saved");		
+	}
+	
+	public void showSettingsView(){			
+		settingsView= new PostSettingsView(this, post.getAuthoredOn(), post.getPassword());		
+		UiApplication.getUiApplication().pushScreen(settingsView);
+	}
+	 
+	public void showPreview(){
+		Preferences prefs = Preferences.getIstance();
+		GetTemplateConn connection = new GetTemplateConn (post.getBlog().getXmlRpcUrl(), 
+				Integer.parseInt(post.getBlog().getId()), post.getBlog().getUsername(),
+				post.getBlog().getPassword(),prefs.getTimeZone());
+
+		
+		connection.addObserver(new sendGetTamplateCallBack()); 
+        
+		connectionProgressView= new ConnectionInProgressView(
+        		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
+       
+        connection.startConnWork(); //starts connection
+        int choice = connectionProgressView.doModal();
+		if(choice==Dialog.CANCEL) {
+			System.out.println("Chiusura della conn dialog tramite cancel");
+			connection.stopConnWork(); //stop the connection if the user click on cancel button
+		}
+		
+	}
+	
 	public void showCategoriesView(){			
-		catView= new CategoriesView(this, post.getBlog().getCategories(), post.getCategories());		
+		catView= new PostCategoriesView(this, post.getBlog().getCategories(), post.getCategories());
 		UiApplication.getUiApplication().pushScreen(catView);
 	}
 	
@@ -416,7 +501,83 @@ public class PostController extends BaseController {
 			}
 		}
 	}
+
+
+	//callback for preview
+	private class sendGetTamplateCallBack implements Observer{
+		public void update(Observable observable, final Object object) {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					
+					dismissDialog(connectionProgressView);
+					BlogConnResponse resp= (BlogConnResponse) object;
+					if(!resp.isError()) {
+						if(resp.isStopped()){
+							return;
+						}
+						
+					} else {
+						final String respMessage=resp.getResponse();
+					 	displayError(respMessage);	
+					}			
+				}
+			});
+		}
+	}
 	
+	
+	//callback for send post to the blog
+	private class sendNewCatCallBack implements Observer{
+		private String label;
+		private int parentCat=-1;
+		
+		sendNewCatCallBack(String label, int catId){
+			this.label= label;
+			this.parentCat=catId;
+		}
+		
+		public void update(Observable observable, final Object object) {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					
+					dismissDialog(connectionProgressView);
+					BlogConnResponse resp= (BlogConnResponse) object;
+					if(!resp.isError()) {
+						if(resp.isStopped()){
+							return;
+						}
+
+						//aggiorna le categorie del blog ed aggiorna la view...
+						int intValue = ((Integer)resp.getResponseObject()).intValue();
+						Blog blog = post.getBlog();
+						Category[] categories = blog.getCategories();
+						Category[] newCategories = new Category[categories.length+1];
+						for (int i = 0; i < categories.length; i++) {
+							newCategories[i]= categories[i];
+						}
+						Category newCat= new Category(String.valueOf(intValue), label);
+						newCategories[categories.length] = newCat;
+						
+						blog.setCategories(newCategories);
+						
+						try {
+							BlogDAO.updateBlog(blog);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}              
+						catView.addCategory(label, newCategories);
+						catView.invalidate();
+						backCmd(); //return to catView
+						
+					} else {
+						final String respMessage=resp.getResponse();
+					 	displayError(respMessage);	
+					}			
+				}
+			});
+		}
+	}
 	
 	//callback for send post to the blog
 	private class sendPostCallBack implements Observer{

@@ -18,18 +18,20 @@ public class NewCategoryView extends BaseView {
     private PostController controller; //controller associato alla view
 	private ObjectChoiceField parentCat;
 	private BasicEditField catField;
-	private Category[] blogCategories;
+	private final Category[] blogCategories;
 	
     public NewCategoryView(PostController _controller, Category[] blogCategories) {
     	super(_resources.getString(WordPressResource.MENUITEM_POST_NEWCATEGORY));
     	this.controller=_controller;
-    	this.blogCategories=blogCategories;
+		this.blogCategories = blogCategories;
+
     	
-    	String[] catTitles = new String [blogCategories.length];
-    	for (int i = 0; i < catTitles.length; i++) {
+    	String[] catTitles = new String [blogCategories.length+1]; //at index 0 we insert some description text
+    	for (int i = 0; i < blogCategories.length; i++) {
 			Category category = blogCategories[i];
-			catTitles[i]=category.getLabel();
+			catTitles[i+1]=category.getLabel();
     	}
+    	catTitles[0]= "Optional";
     	    	
         //row Label 
         HorizontalFieldManager rowTitle = new HorizontalFieldManager();
@@ -48,12 +50,18 @@ public class NewCategoryView extends BaseView {
 		rowParent.add(lblParent);
 		rowParent.add(parentCat);
         this.add(rowParent);
+        addMenuItem(_newCategoryContextMenuItem);
     	
     }
     
     private MenuItem _newCategoryContextMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_POST_NEWCATEGORY, 10, 2) {
         public void run() {
-        	        	
+        	
+        	int parentCatValue= parentCat.getSelectedIndex()-1; //subtract -1 because we add one element at the beginning
+        	int id=0;
+        	if(parentCatValue > 0 )
+        		id = Integer.parseInt( blogCategories[parentCatValue].getId() );
+        	controller.newCategory(catField.getText(), id);       	
         }
     };
   

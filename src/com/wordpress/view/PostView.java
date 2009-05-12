@@ -69,16 +69,10 @@ public class PostView extends BaseView {
         //row categories
         HorizontalFieldManager rowCategories = new HorizontalFieldManager(Manager.USE_ALL_WIDTH);
   		LabelField lblCategories = getLabel(_resources.getString(WordPressResource.LABEL_POST_CATEGORIES));
-        String[] availableCategories = controller.getPostCategories();
-        StringBuffer cats= new StringBuffer();
-  		for (int i = 0; i < availableCategories.length; i++) {
-			cats.append(availableCategories[i]);
-			cats.append(" ");
-		}
-  		categories = new LabelField(cats);
+        String availableCategories = controller.getPostCategoriesLabel();
+  		categories = new LabelField(availableCategories);
   		categories.setMargin(margins);
-  		
-  		
+  		  		
   		Bitmap imgOpen = Bitmap.getBitmapResource("disclosure-indicator.png"); 
   		BitmapField bfOpenCat = new BitmapField(imgOpen, BitmapField.FOCUSABLE)
   		{			
@@ -99,30 +93,30 @@ public class PostView extends BaseView {
   		//row status
         HorizontalFieldManager rowStatus = new HorizontalFieldManager();
   		LabelField lblStatus =getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS));
-  		status = new LabelField("pubblicato");
-  		status.setMargin(5, 0, 0, 0);
+  		status = new LabelField("???");
+  		status.setMargin(margins);
+  		BitmapField bfOpenStatus = new BitmapField(imgOpen, BitmapField.FOCUSABLE)
+  		{			
+  		    //override context menu      
+	        protected void makeContextMenu(ContextMenu contextMenu) {
+	            contextMenu.addItem(_statusContextMenuItem);      
+	        }
+  		};
+  		bfOpenStatus.setMargin(margins);
+  		bfOpenStatus.setSpace(5, 5);
+  		
   		rowStatus.add(lblStatus);
-  		rowStatus.add(status); 
+  		rowStatus.add(status);
+  		rowStatus.add(bfOpenStatus); 
   		this.add(rowStatus);
   		this.add(new SeparatorField()); 
   		
         
   		//row photos
-  		
-        /*
-        String[] categories= controller.getAvailableCategories();
-		int selectedCat= controller.getPostCategoryIndex();
-		if(selectedCat != -1) {
-			categoryChoice=new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_POST_CATEGORIES), categories, selectedCat);
-		} else {
-			categoryChoice=new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_POST_CATEGORIES), categories);
-		}
-        
-		Date postAuth = post.getAuthoredOn();
-        long datetime= (postAuth == null) ? new Date().getTime() : postAuth.getTime();
-        
-        authoredOn= new DateField(_resources.getString(WordPressResource.LABEL_POST_PUBLISHEDON),datetime, DateField.DATE_TIME );
-		isPublished= new CheckboxField(_resources.getString(WordPressResource.LABEL_POST_ISPUBLISHED), mState.isPublished());
+
+      
+		/*
+        isPublished= new CheckboxField(_resources.getString(WordPressResource.LABEL_POST_ISPUBLISHED), mState.isPublished());
 		isConvertLinebreaksEnabled = new CheckboxField(_resources.getString(WordPressResource.LABEL_POST_CONVERTLINEBREAK), post.isConvertLinebreaksEnabled());
 		isCommentsEnabled = new CheckboxField(_resources.getString(WordPressResource.LABEL_POST_ALLOWCOMMENTS), post.isCommentsEnabled());
 		isTrackbackEnabled = new CheckboxField(_resources.getString(WordPressResource.LABEL_POST_ALLOWTRACKBACKS), post.isTrackbackEnabled());
@@ -142,6 +136,13 @@ public class PostView extends BaseView {
 		addMenuItem(_photosItem);
 		addMenuItem(_previewItem);
 		addMenuItem(_settingsItem);
+    }
+    
+    //update the cat label field
+    public void updateCategoriesField(){
+    	String availableCategories = controller.getPostCategoriesLabel();
+   		categories.setText(availableCategories);
+   		this.invalidate();
     }
     
     //save a local copy of post
@@ -184,13 +185,13 @@ public class PostView extends BaseView {
     
     private MenuItem _previewItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_PREVIEW, 110, 10) {
         public void run() {
-        	UiApplication.getUiApplication().pushScreen(new NotYetImpPopupScreen());
+        	controller.showPreview();
         }
     };
     
     private MenuItem _settingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SETTINGS, 110, 10) {
         public void run() {
-        	UiApplication.getUiApplication().pushScreen(new NotYetImpPopupScreen());
+        	controller.showSettingsView();
         }
     };
     	
@@ -200,7 +201,12 @@ public class PostView extends BaseView {
         }
     };
     	
-    
+    private MenuItem _statusContextMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_POST_STATUS, 10, 2) {
+        public void run() {
+        	
+        }
+    };
+    	
 	/*
 	 * update Post data model
 	 */

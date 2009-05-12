@@ -13,37 +13,27 @@ public class CheckBoxListField implements ListFieldCallback {
     private Vector _listData = new Vector();
     private ListField _checkList;
    
+   public boolean[] getSelected(){
+       int elementLength = _listData.size();
+       boolean[] selected= new boolean[elementLength];
+       //Populate the ListField & Vector with data.
+       for(int count = 0; count < elementLength; ++count)
+       {
+    	   //Get the ChecklistData for this row.
+           ChecklistData data = (ChecklistData)_listData.elementAt(count);
+           selected[count]= data.isChecked();
+       }
+       return selected;
+   }
     
-    public ListField get_checkList() {
-		return _checkList;
-	}
-
-	//The menu item added to the screen when the _checkList field has focus.
-    //This menu item toggles the checked/unchecked status of the selected row.
-    private MenuItem _toggleItem = new MenuItem("Change Option", 200, 10)    {
-        public void run()
-        {
-            //Get the index of the selected row.
-            int index = _checkList.getSelectedIndex();
-            
-            //Get the ChecklistData for this row.
-            ChecklistData data = (ChecklistData)_listData.elementAt(index);
-            
-            //Toggle its status.
-            data.toggleChecked();
-            
-            //Update the Vector with the new ChecklistData.
-            _listData.setElementAt(data, index);
-            
-            //Invalidate the modified row of the ListField.
-            _checkList.invalidate(index);
-        }
-    }; 
+   public void addElement(String label){
+	   int elementLength = _listData.size(); //the field start with 0 index!!
+       _listData.addElement(new ChecklistData(label, true));  
+       _checkList.insert(elementLength);
+   }
    
-    
    public CheckBoxListField(String[] _elements, boolean[] _elementsChecked) {  
-	   
- 
+	    
         _checkList = new ListField()
         {
             //Allow the space bar to toggle the status of the selected row.
@@ -84,10 +74,8 @@ public class CheckBoxListField implements ListFieldCallback {
         //Populate the ListField & Vector with data.
         for(int count = 0; count < elementLength; ++count)
         {
-           
-           _listData.addElement(new ChecklistData(_elements[count], _elementsChecked[count]));
-           
-            _checkList.insert(count);
+           _listData.addElement(new ChecklistData(_elements[count], _elementsChecked[count]));  
+           _checkList.insert(count);
         }    
     }
         
@@ -119,13 +107,40 @@ public class CheckBoxListField implements ListFieldCallback {
         graphics.drawText(rowString.toString(), 0, y, 0, w);
     }
     
+    
+    public ListField get_checkList() {
+		return _checkList;
+	}
+
+	//The menu item added to the screen when the _checkList field has focus.
+    //This menu item toggles the checked/unchecked status of the selected row.
+    private MenuItem _toggleItem = new MenuItem("Change Option", 200, 10)    {
+        public void run()
+        {
+            //Get the index of the selected row.
+            int index = _checkList.getSelectedIndex();
+            
+            //Get the ChecklistData for this row.
+            ChecklistData data = (ChecklistData)_listData.elementAt(index);
+            
+            //Toggle its status.
+            data.toggleChecked();
+            
+            //Update the Vector with the new ChecklistData.
+            _listData.setElementAt(data, index);
+            
+            //Invalidate the modified row of the ListField.
+            _checkList.invalidate(index);
+        }
+    }; 
+    
     //Returns the object at the specified index.
     public Object get(ListField list, int index) 
     {
         return _listData.elementAt(index);
     }
     
-    //Returns the first occurence of the given String, bbeginning the search at index, 
+    //Returns the first occurence of the given String, beginning the search at index, 
     //and testing for equality using the equals method.
     public int indexOfList(ListField list, String p, int s) 
     {

@@ -1,5 +1,7 @@
 package com.wordpress.view;
 
+import java.util.Vector;
+
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.MenuItem;
@@ -16,13 +18,21 @@ import com.wordpress.model.Category;
 import com.wordpress.view.component.CheckBoxListField;
 
 
-public class CategoriesView extends BaseView {
+public class PostCategoriesView extends BaseView {
 	
     private PostController controller; //controller associato alla view
+    private CheckBoxListField checkBoxController;
     private ListField chkField;
+    
     private Category[] blogCategories;
     
-    public CategoriesView(PostController _controller, Category[] blogCategories, int[] postCategoriesID) {
+    //add a category to the list
+    public void addCategory(String label, Category[] newBlogCategories){
+    	blogCategories = newBlogCategories;
+    	checkBoxController.addElement(label);
+    }
+    
+    public PostCategoriesView(PostController _controller, Category[] blogCategories, int[] postCategoriesID) {
     	super(_resources.getString(WordPressResource.MENUITEM_POST_CATEGORIES));
     	this.controller=_controller;
     	this.blogCategories=blogCategories;
@@ -44,7 +54,8 @@ public class CategoriesView extends BaseView {
 			}
     	}
     	
-    	this.chkField= new CheckBoxListField(catTitles,catCheck ).get_checkList();
+    	checkBoxController= new CheckBoxListField(catTitles,catCheck );
+    	this.chkField= checkBoxController.get_checkList();
     	add(chkField);
     	add(new SeparatorField());
  		      
@@ -64,9 +75,7 @@ public class CategoriesView extends BaseView {
   		bfOpenCat.setSpace(5, 5);
   		rowTitle.add(lblTitle);
   		rowTitle.add(bfOpenCat);
-  		this.add(rowTitle);
-  		
-  		
+  		this.add(rowTitle);  		
     }
     
     private MenuItem _newCategoryContextMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_POST_NEWCATEGORY, 10, 2) {
@@ -77,7 +86,17 @@ public class CategoriesView extends BaseView {
   
     //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
+		boolean[] selections = checkBoxController.getSelected(); //selected categories index
+		Vector selectedID = new Vector();
 		
+		for (int i = 0; i < selections.length; i++) {
+			if ( selections[i] ) {
+				Category category = blogCategories[i]; //the selected category
+				selectedID.addElement(category.getId()); //string..
+			}
+		}
+		
+		controller.setPostCategories(selectedID); //sets the post new selected categories
 		controller.backCmd();
 		return true;
     }

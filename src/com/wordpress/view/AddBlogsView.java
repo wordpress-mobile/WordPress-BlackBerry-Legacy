@@ -2,13 +2,10 @@ package com.wordpress.view;
 
 import java.util.Hashtable;
 
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
-import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.XYEdges;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.CheckboxField;
@@ -68,20 +65,9 @@ public class AddBlogsView extends BaseView {
 			boolean isResImg= ((Boolean)values.get("isresphotos")).booleanValue();
 	        //end loading
 
-            //common margin
-            XYEdges margins = new XYEdges(5,5,5,5);
-			  
             //row url
             HorizontalFieldManager rowURL = new HorizontalFieldManager();
-    		LabelField lblUrl = new LabelField(_resources.getString(WordPressResource.LABEL_BLOGURL))
-    		{
-    		    public void paint(Graphics graphics)
-    		    {
-    		        graphics.setColor(Color.GRAY);
-    		        super.paint(graphics);
-    		    }
-    		};
-    		lblUrl.setMargin(margins);
+    		LabelField lblUrl = getLabel(_resources.getString(WordPressResource.LABEL_BLOGURL)); 
             blogUrlField = new BasicEditField("", url, 100, Field.EDITABLE);
             blogUrlField.setFilter(new URLTextFilter());
             blogUrlField.setMargin(margins);
@@ -91,15 +77,7 @@ public class AddBlogsView extends BaseView {
             
             //row username
             HorizontalFieldManager rowUserName = new HorizontalFieldManager();
-    		LabelField lblUserName = new LabelField(_resources.getString(WordPressResource.LABEL_BLOGUSER))
-    		{
-    		    public void paint(Graphics graphics)
-    		    {
-    		        graphics.setColor(Color.GRAY);
-    		        super.paint(graphics);
-    		    }
-    		};
-    		lblUserName.setMargin(margins);
+    		LabelField lblUserName = getLabel(_resources.getString(WordPressResource.LABEL_BLOGUSER)); 
             userNameField = new BasicEditField("", user, 60, Field.EDITABLE);
             userNameField.setMargin(margins);
             rowUserName.add(lblUserName);
@@ -109,15 +87,7 @@ public class AddBlogsView extends BaseView {
 
             //row password
             HorizontalFieldManager rowPassword = new HorizontalFieldManager();
-    		LabelField lblPassword = new LabelField(_resources.getString(WordPressResource.LABEL_BLOGPASSWD))
-    		{
-    		    public void paint(Graphics graphics)
-    		    {
-    		        graphics.setColor(Color.GRAY);
-    		        super.paint(graphics);
-    		    }
-    		};
-    		lblPassword.setMargin(margins);
+    		LabelField lblPassword = getLabel(_resources.getString(WordPressResource.LABEL_BLOGPASSWD)); 
             passwordField = new PasswordEditField("", pass, 64, Field.EDITABLE);
             passwordField.setMargin(margins);
             rowPassword.add(lblPassword);
@@ -125,7 +95,6 @@ public class AddBlogsView extends BaseView {
             add(rowPassword);
           
             add(new SeparatorField());
-            //new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_AUDIOENCODING),lines,selectedIndex);            
             maxRecentPost = new ObjectChoiceField (_resources.getString(WordPressResource.LABEL_MAXRECENTPOST), recentPost,recentPostSelect);
             add(maxRecentPost);            
             
@@ -133,14 +102,7 @@ public class AddBlogsView extends BaseView {
 			add(resizePhoto);
 
 			//LabelField that displays text in the specified color.
-			LabelField lblDesc = new LabelField(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS))
-			{
-			    public void paint(Graphics graphics)
-			    {
-			        graphics.setColor(Color.GRAY);
-			        super.paint(graphics);
-			    }
-			};
+			LabelField lblDesc = getLabel(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS)); 
 			Font fnt = this.getFont().derive(Font.ITALIC);
 			lblDesc.setFont(fnt);
 			add(lblDesc);
