@@ -21,7 +21,6 @@ import com.wordpress.utils.PropertyUtils;
 public class AboutView extends BaseView {
 	private AboutController controller;
 
-	//FIXME: scrolling error
     public AboutView(AboutController _aboutController) {
     	super(_resources.getString(WordPressResource.TITLE_ABOUT_VIEW));
 		controller = _aboutController;

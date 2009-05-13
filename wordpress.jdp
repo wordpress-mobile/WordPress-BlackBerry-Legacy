@@ -37,6 +37,7 @@ src\com\wordpress\controller\AddBlogsController.java
 src\com\wordpress\controller\BaseController.java
 src\com\wordpress\controller\BlogController.java
 src\com\wordpress\controller\BlogOptionsController.java
+src\com\wordpress\controller\CommentsController.java
 src\com\wordpress\controller\ConnectionInProgressListener.java
 src\com\wordpress\controller\DraftPostsController.java
 src\com\wordpress\controller\FrontController.java
@@ -46,7 +47,9 @@ src\com\wordpress\controller\PostController.java
 src\com\wordpress\controller\PostsController.java
 src\com\wordpress\controller\PreferenceController.java
 src\com\wordpress\controller\RefreshBlogController.java
+src\com\wordpress\io\BaseDAO.java
 src\com\wordpress\io\BlogDAO.java
+src\com\wordpress\io\CommentsDAO.java
 src\com\wordpress\io\DraftDAO.java
 src\com\wordpress\io\FileUtils.java
 src\com\wordpress\io\JSR75FileSystem.java
@@ -77,6 +80,7 @@ src\com\wordpress\view\AddBlogsView.java
 src\com\wordpress\view\BaseView.java
 src\com\wordpress\view\BlogOptionsView.java
 src\com\wordpress\view\BlogView.java
+src\com\wordpress\view\CommentsView.java
 src\com\wordpress\view\component\CheckBoxListField.java
 src\com\wordpress\view\component\ColouredListField.java
 src\com\wordpress\view\component\FileSelectorPopupScreen.java
@@ -100,7 +104,6 @@ src\com\wordpress\view\PhotosView.java
 src\com\wordpress\view\PostCategoriesView.java
 src\com\wordpress\view\PostPreviewView.java
 src\com\wordpress\view\PostSettingsView.java
-src\com\wordpress\view\PostStatusView.java
 src\com\wordpress\view\PostsView.java
 src\com\wordpress\view\PostView.java
 src\com\wordpress\view\PreferencesView.java

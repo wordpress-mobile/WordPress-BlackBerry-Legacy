@@ -38,42 +38,46 @@ public class PostsController extends BaseController{
 		return currentBlog.getName();
 	}
 	
-	public void showView(){
-		
-		this.view= new PostsView(this,currentBlog.getRecentPostTitles());
+	
+	private int countRecentPost() {
+		Vector recentPostTitles = currentBlog.getRecentPostTitles();
+		Vector viewedPost = currentBlog.getViewedPost();
+		int count = 0;
 
-		UiApplication.getUiApplication().pushScreen(view);
+		for (int i = 0; i < recentPostTitles.size(); i++) {
+			boolean presence = false; 
+			Hashtable postData = (Hashtable) recentPostTitles.elementAt(i);
+             String postid = (String) postData.get("postid");
+			
+		    for (int j = 0; j < viewedPost.size(); j++) {
+		    	String elementAt = (String) viewedPost.elementAt(j);
+		    	if (elementAt.equalsIgnoreCase(postid)) {
+		    		presence = true;
+		    		break;
+		    	}
+			}
+		    
+		    if (!presence) 
+		    	count++;
+		}
+		return count;
 	}
 	
-	/**
-	 * return the title and the dateCreated or recent posts
-	 * @return
-	 
-	private String[] getRecentPost() {
-		Vector recentPostTitles = currentBlog.getRecentPostTitles();
-		if(recentPostTitles == null) return new String[0];
-		
-		String[] postCaricati= new String [recentPostTitles.size()*2]; //double size
-		
-         for (int i = 0; i < recentPostTitles.size(); i++) {
-        	 Hashtable postData = (Hashtable) recentPostTitles.elementAt(i);
-             String title = (String) postData.get("title");
-             if (title == null || title.length() == 0) {
-                 title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
-             }
-             postCaricati[i]=title;
-             
-         }
-		return postCaricati;
+	public void showView(){
+		this.view= new PostsView(this,currentBlog.getRecentPostTitles(), countRecentPost());
+		UiApplication.getUiApplication().pushScreen(view);
 	}
-	*/	
-		
+			
 	/** starts the  post loading */
 	public void editPost(int selected){
 		if(selected != -1){
 			
 			Hashtable postData = (Hashtable) currentBlog.getRecentPostTitles().elementAt(selected);
-
+			
+			String postid= (String) postData.get("postid");
+			currentBlog.addViewedPost(postid); //add the current post to the viewed post
+			view.refresh(currentBlog.getRecentPostTitles() , countRecentPost()); //refresh the ui 
+			
 			Post  post = new Post(currentBlog,(String) postData.get("postid"),
                                       (String) postData.get("title"),
                                       (String) postData.get("userid"),
@@ -184,10 +188,9 @@ public class PostsController extends BaseController{
 				        		recentPostTitles.removeElementAt(i);
 				        		break;
 				        	}
-						}
-				        
+						}			        
 						
-						view.refresh(currentBlog.getRecentPostTitles());
+						view.refresh(currentBlog.getRecentPostTitles(), countRecentPost());
 						
 						try{
 							BlogDAO.updateBlog(currentBlog);							
@@ -226,8 +229,8 @@ public class PostsController extends BaseController{
 						Vector recentPostTitle= (Vector) resp.getResponseObject();
 						currentBlog.setRecentPostTitles(recentPostTitle);
 						
-						
-						view.refresh(currentBlog.getRecentPostTitles());
+
+						view.refresh(currentBlog.getRecentPostTitles() , countRecentPost());
 						
 						try{
 							BlogDAO.updateBlog(currentBlog);							
@@ -274,5 +277,4 @@ public class PostsController extends BaseController{
 			});
 		}
 	}
-	
 }

@@ -35,6 +35,7 @@ public class GetCommentsConn extends BlogConn  {
 	        } else {
 	        	
 	        }
+			
             StructData.put("comment_status", status);
             
 			if (offset!=0 ) {
@@ -56,35 +57,7 @@ public class GetCommentsConn extends BlogConn  {
 				return;		
 			}
 			
-		
-			Vector respVector = (Vector) response;
-			Comment[] myCommentsList =new Comment[respVector.size()]; //my comment object list
-			
-			for (int i = 0; i < respVector.size(); i++) {
-				 Hashtable returnCommentData = (Hashtable)respVector.elementAt(i);
-				 
-				//String userId= (String) returnCommentData.get("user_id");
-				
-				 int commentID=Integer.parseInt((String)returnCommentData.get("comment_id"));
-   	            int commentParent=Integer.parseInt((String) returnCommentData.get("parent"));
-	            String status=(String) returnCommentData.get("status");
-	            String authorID= (String) returnCommentData.get("author_Id");
-	            String authorUrl=((String) returnCommentData.get("author_url"));
-	            String authorEmail=((String) returnCommentData.get("author_email"));
-	            String content= (String) returnCommentData.get("content");
-	            
-	            Comment comment= 
-	            	new Comment(commentParent, content, authorID,authorUrl,authorEmail,status);
-	            comment.setID(commentID);
-	            comment.setLink((String) returnCommentData.get("link"));
-	            comment.setPostID(Integer.parseInt((String)returnCommentData.get("post_id")));
-	            comment.setPostTitle((String) returnCommentData.get("title"));
-	            comment.setAuthor_Ip((String) returnCommentData.get("author_ip"));
-	            comment.setDate_created_gmt((Date) returnCommentData.get("dateCreated"));
-	            
-	            myCommentsList[i]=comment; //add comment to my return list
-			}
-			connResponse.setResponseObject(myCommentsList);
+			connResponse.setResponseObject((Vector)response);
 			}
 		
 			catch (Exception e) {

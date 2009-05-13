@@ -22,8 +22,6 @@ public class Comment{
     private int offset = 0;
     private int number = 0;
     private String count = "";
-
-
 	
     public int getID(){
         return commentId;

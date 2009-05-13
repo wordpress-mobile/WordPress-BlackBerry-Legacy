@@ -116,10 +116,11 @@ public class AddBlogsController extends BaseController implements Observer{
 		BlogConnResponse resp=(BlogConnResponse)object;
 		
 		if(!resp.isError()) {
-			System.out.println("Trovati blogs: "+((Blog[])resp.getResponseObject()).length);					 	
+							 	
 			if(resp.isStopped()){
 				return;
 			}
+			System.out.println("Trovati blogs: "+((Blog[])resp.getResponseObject()).length);	
 		 	Blog[]blogs=(Blog[])resp.getResponseObject();
 
 		 	for (int i = 0; i < blogs.length; i++) {

@@ -4,8 +4,13 @@ package com.wordpress.view;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BitmapField;
+import net.rim.device.api.ui.component.LabelField;
+import net.rim.device.api.ui.component.SeparatorField;
+import net.rim.device.api.ui.container.HorizontalFieldManager;
+import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
@@ -18,15 +23,34 @@ public class PhotosView extends BaseView {
 	
     private PostController controller; //controller associato alla view
     private VerticalFieldManager manager=null;
-		
+	private LabelField lblPhotoNumber;
+	private int counterPhotos = 0;
+	
     public PhotosView(PostController _controller) {
-    	super(_resources.getString(WordPressResource.TITLE_PHOTOSVIEW));
+    	super(_resources.getString(WordPressResource.TITLE_PHOTOSVIEW), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
     	this.controller=_controller;
-    	manager= new VerticalFieldManager( Field.FOCUSABLE| Field.FIELD_HCENTER);
+
+  	  //A HorizontalFieldManager to hold the photos number label
+        HorizontalFieldManager photoNumberManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
+            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
+
+        lblPhotoNumber = getLabel("");
+        setNumberOfPhotosLabel(counterPhotos);
+        photoNumberManager.add(lblPhotoNumber);
+        
+    	manager= new VerticalFieldManager( Field.FOCUSABLE| Field.FIELD_HCENTER | VerticalFieldManager.VERTICAL_SCROLL
+                | VerticalFieldManager.VERTICAL_SCROLLBAR);
+    	
         addMenuItem(_addPhotoItem);
+        add(photoNumberManager);
+        add(new SeparatorField());
         add(manager);
     }
     
+    //set the photos number label text
+    private void setNumberOfPhotosLabel(int count) {
+    	lblPhotoNumber.setText(count + " "+_resources.getString(WordPressResource.TITLE_PHOTOSVIEW));
+    }
     
     private MenuItem _addPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_PHOTOS_ADD, 110, 10) {
         public void run() {
@@ -74,10 +98,14 @@ public class PhotosView extends BaseView {
     		removeMenuItem(_deletePhotoItem);
     		removeMenuItem(_showPhotoItem);
     	}
+    	
+    	counterPhotos--;
+		setNumberOfPhotosLabel(counterPhotos);
     }
     
     //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
+		controller.setPhotosNumber(counterPhotos);
 		controller.backCmd();
 		return true;
     }
@@ -96,5 +124,7 @@ public class PhotosView extends BaseView {
 		PhotoBitmapField photoBitmapField = new PhotoBitmapField(bitmapRescale, BitmapField.FOCUSABLE | BitmapField.FIELD_HCENTER, key);
 		photoBitmapField.setSpace(5, 5);
 		manager.add(photoBitmapField);
+		counterPhotos++;
+		setNumberOfPhotosLabel(counterPhotos);
 	}
 }

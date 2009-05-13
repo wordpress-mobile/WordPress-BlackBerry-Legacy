@@ -27,6 +27,7 @@ import com.wordpress.view.NewCategoryView;
 import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostCategoriesView;
 import com.wordpress.view.PostSettingsView;
+import com.wordpress.view.PostStatusView;
 import com.wordpress.view.PostView;
 import com.wordpress.view.component.FileSelectorPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
@@ -45,13 +46,16 @@ import com.wordpress.xmlrpc.post.NewPostConn;
 public class PostController extends BaseController {
 	
 	private PostView view = null;
-	private PhotosView photoView= null;
-	private PostCategoriesView catView= null;
-	private PostSettingsView settingsView= null;
+	private PhotosView photoView = null;
+	private PostCategoriesView catView = null;
+	private PostSettingsView settingsView = null;
 	ConnectionInProgressView connectionProgressView=null;
 	private Post post=null;
 	private int draftPostFolder=-1; //identify draft post folder
 	private boolean isDraft= false; // identify if post is loaded from draft folder
+	
+	private String[] postStatusLabel; //labels for post status field
+	private String[] postStatusKey;
 		
 	public static final int PHOTO=1;
 	public static final int BROWSER=4;
@@ -71,8 +75,7 @@ public class PostController extends BaseController {
 		try {
 			draftPostFolder = DraftDAO.storePost(post, draftPostFolder);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			displayError(e, "Cannot create space on disk for your post!");
 		}
 	}
 	
@@ -85,27 +88,59 @@ public class PostController extends BaseController {
 	}
 	
 	public void showView() {
-		this.view= new PostView(this, post);
-		UiApplication.getUiApplication().pushScreen(view);
-			
-	}
-/*		
-	public String[] getBlogsCategories(){
-		Category[] availableCategories = post.getBlog().getCategories();
-		String[] categoryLabels;
-		if (availableCategories != null) {
-            categoryLabels = new String[availableCategories.length];
-            for (int i = 0; i < availableCategories.length; i++) {
-                categoryLabels[i] = availableCategories[i].getLabel();
-            }
-            
-		} else {
-			categoryLabels= new String[0];
+		//unfolds hashtable of status
+		Hashtable postStatusHash = post.getBlog().getPostStatusList();
+		postStatusLabel= new String [postStatusHash.size()+1]; 
+		postStatusKey = new String [postStatusHash.size()+1];
+    	
+    	Enumeration elements = postStatusHash.keys();
+    	int i = 0;
+
+    	for (; elements.hasMoreElements(); ) {
+			String key = (String) elements.nextElement();
+			String value = (String) postStatusHash.get(key);
+			postStatusLabel[i] = value; //label
+			postStatusKey[i] = key;
+			i++;
 		}
-		return categoryLabels;
+		postStatusLabel[postStatusLabel.length-1]= "Local Draft";
+		postStatusKey[postStatusLabel.length-1]= "localdraft";
+		// end 
+		
+		String[] draftPostPhotoList = new String[0];
+		try {
+			draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftPostFolder);
+		} catch (IOException e) {
+			displayError(e, "Cannot load photos of this post!");
+		}
+		this.view= new PostView(this, post);
+		view.setNumberOfPhotosLabel(draftPostPhotoList.length);
+		UiApplication.getUiApplication().pushScreen(view);
 	}
 	
-*/
+	public String[] getPostStatusLabels() {
+		return postStatusLabel;
+	}
+	
+	public int getPostStatusID() {
+		String status = post.getStatus();
+		if(post.getStatus() != null )
+		for (int i = 0; i < postStatusLabel.length; i++) {
+			String key = postStatusLabel[i];
+				
+			if( key.equals(status) ) {
+				return i;
+			}
+		}
+		
+		return postStatusLabel.length-1;
+	}
+	
+	public void setPostStatus(int selectedIndex) {
+		String status = postStatusKey[selectedIndex];
+		post.setStatus(status);
+	}
+		
 	
 	public String getPostCategoriesLabel() {
 		Category[] availableCategories = post.getBlog().getCategories();
@@ -170,28 +205,9 @@ public class PostController extends BaseController {
 			}
 			post.setCategories(selectedID);
 		}
-		view.updateCategoriesField(); 	//refresh the labelfield that contains cats..
+		view.updateCategoriesField(); 	//refresh the label field that contains cats..
 	}
 
-	/*
-	//return the post category n.b:change it
-	public int getPostCategoryIndex(){
-		return 0; //FIXME: categories managements
-		int primaryIndex = -1; 
-		Category primaryCategory = post.getPrimaryCategory();
-		if(primaryCategory == null) return primaryIndex;
-		
-		Category[] availableCategories = post.getBlog().getCategories();  
-		if (availableCategories != null) {
-            for (int i = 0; i < availableCategories.length; i++) {
-                if (availableCategories[i].equals(primaryCategory)) {
-                    primaryIndex = i;
-                }
-            }
-		}
-		return primaryIndex;
-	}
-	*/  
 	public void sendPostToBlog() {
 		
 		if (!view.getPostState().isModified()) { //post without change
@@ -211,8 +227,13 @@ public class PostController extends BaseController {
 	    
 		remoteFileInfo = new Hashtable(); 
 		String[] draftPostPhotoList;
+
 		try {
 			draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftPostFolder);
+		} catch (IOException e) {
+			displayError(e, "Cannot load photos from disk, publication failed!");
+			return;
+		}
 	
 		if(draftPostPhotoList.length > 0 ) {
 			files= new Queue(draftPostPhotoList.length);
@@ -224,10 +245,6 @@ public class PostController extends BaseController {
 			sendMultimediaContent();
 		} else {
 			sendPostContent();
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	
@@ -249,8 +266,7 @@ public class PostController extends BaseController {
 	    				DraftDAO.removePost(post.getBlog(), draftPostFolder);
 	    			}
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					displayError(e, "Cannot remove temporary files from disk!");
 				}
 	    		FrontController.getIstance().backAndRefreshView(false);
 	    		return true;
@@ -307,25 +323,30 @@ public class PostController extends BaseController {
 		UiApplication.getUiApplication().pushScreen(newCatView);
 	}
 
+
+	/*
+	 * set photos number on main post vire
+	 */
+	public void setPhotosNumber(int count){
+		view.setNumberOfPhotosLabel(count);
+	}
 	
 	public void showPhotosView(){
 		
 		String[] draftPostPhotoList;
 		try {
 			draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftPostFolder);
-		
 			photoView= new PhotosView(this);
 			for (int i = 0; i < draftPostPhotoList.length; i++) {
 				String currPhotoPath = draftPostPhotoList[i];
 				byte[] data=DraftDAO.loadPostPhoto(post, draftPostFolder, currPhotoPath);
 				EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
 				photoView.addPhoto(currPhotoPath, img);
-			}
-			
+			}			
 			UiApplication.getUiApplication().pushScreen(photoView);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			displayError(e, "Cannot load photos from disk!");
+			return;
 		}
 	}
 	
@@ -340,8 +361,8 @@ public class PostController extends BaseController {
 			EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
 			UiApplication.getUiApplication().pushScreen(new PhotoPreview(this, key ,img)); //modal screen...
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			displayError(e, "Cannot load photos from disk!");
+			return;
 		}
 	}
 	
@@ -357,17 +378,9 @@ public class PostController extends BaseController {
 			DraftDAO.removePostPhoto(post.getBlog(), draftPostFolder, key);
 			photoView.deletePhotoBitmapField(key); //delete the thumbnail
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			displayError(e, "Cannot remove photo from disk!");
 		}		
 		return true;
-		/*Object remove = dummyFS.remove(key);
-		if(remove != null){
-			photoView.deletePhotoBitmapField(key); //delete the thumbnail
-			return true;
-		} else {
-			return false;
-		}*/
 	}
 	
 	//* called by photoview */
@@ -393,8 +406,7 @@ public class PostController extends BaseController {
 					byte[] readFile = JSR75FileSystem.readFile(theFile);
 					addPhoto(readFile,ext);	
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					displayError(e, "Cannot load photo from disk!");
 				}
              }					
 			break;
@@ -424,10 +436,8 @@ public class PostController extends BaseController {
 		try {
 			DraftDAO.storePostPhoto(post, draftPostFolder, data, fileName);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			displayError(e, "Cannot save photo to disk!");
 		}
-		//dummyFS.put(fileName, img); //add to the dummy fs
 		
 		photoView.addPhoto(fileName, img);
 		view.setPostState(true); //mark post has changed
@@ -436,7 +446,7 @@ public class PostController extends BaseController {
 	public void refreshView() {
 		//resfresh the post view. not used.
 	}
-
+	
 	//send the post alphanumeric data to blog
 	private void sendPostContent(){
 		
@@ -482,8 +492,14 @@ public class PostController extends BaseController {
 			String poppedKey = (String)files.pop();
 			
 			byte[] data;
+			
 			try {
 				data = DraftDAO.loadPostPhoto(post, draftPostFolder, poppedKey);
+			} catch (IOException e) {
+				displayError(e, "Cannot upload photo file to the blog");
+				sendMultimediaContent(); //recursive... continue with next photo
+				return;
+			}
 			
 			EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);			
 
@@ -495,10 +511,6 @@ public class PostController extends BaseController {
 	
 			connection.addObserver(new sendImagesCallBack());
 			connection.startConnWork(); //starts connection
-			} catch (IOException e) {
-				// TODO controllare bene questa fase
-				e.printStackTrace();
-			}
 		}
 	}
 
@@ -563,8 +575,7 @@ public class PostController extends BaseController {
 						try {
 							BlogDAO.updateBlog(blog);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							displayError(e, "Cannot update blog information on disk!");
 						}              
 						catView.addCategory(label, newCategories);
 						catView.invalidate();

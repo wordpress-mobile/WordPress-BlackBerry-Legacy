@@ -47,12 +47,14 @@ public class GetPostConn extends BlogConn  {
             aPost.setExcerpt((String) postData.get("mt_excerpt"));
             aPost.setAuthoredOn(((Date) postData.get("dateCreated")).getTime());
             aPost.setTags( (String) postData.get("mt_keywords"));
+            aPost.setPassword((String) postData.get("wp_password"));
+            aPost.setStatus((String) postData.get("post_status"));
+            
             String breaks = (String) postData.get("mt_convert_breaks");
-            
-            
             if (breaks != null && !breaks.equals("__default__")) {
                 aPost.setConvertLinebreaksEnabled(breaks.equals("1"));
             }
+            
             Integer comments = (Integer) postData.get("mt_allow_comments");
             if (comments != null) {
                 aPost.setCommentsEnabled(comments.intValue() != 0);
@@ -82,7 +84,6 @@ public class GetPostConn extends BlogConn  {
         } catch (ClassCastException cce) {
         	setErrorMessage(cce, "Error while reading post categories");
         }
-		
         
         	connResponse.setResponseObject(aPost);
 		} catch (Exception cce) {

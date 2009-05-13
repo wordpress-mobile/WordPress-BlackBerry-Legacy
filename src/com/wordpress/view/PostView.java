@@ -2,20 +2,18 @@ package com.wordpress.view;
 
 
 import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.Font;
-import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.XYEdges;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
+import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
+import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
@@ -24,7 +22,6 @@ import com.wordpress.model.Category;
 import com.wordpress.model.Post;
 import com.wordpress.model.PostState;
 import com.wordpress.view.component.HtmlTextField;
-import com.wordpress.view.component.NotYetImpPopupScreen;
 
 public class PostView extends BaseView {
 	
@@ -36,16 +33,26 @@ public class PostView extends BaseView {
 	private BasicEditField title;
 	private HtmlTextField bodyTextBox;
 	private BasicEditField tags;
+	private ObjectChoiceField status;
 	private LabelField categories;
-	private LabelField status;
-
+	private LabelField lblPhotoNumber;
+	private VerticalFieldManager manager;
 	
     public PostView(PostController _controller, Post _post) {
-    	super(_resources.getString(WordPressResource.TITLE_POSTVIEW));
+    	super(_resources.getString(WordPressResource.TITLE_POSTVIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
     	this.controller=_controller;
 		this.post = _post;
 		this.mState= new PostState();
         
+   	  //A HorizontalFieldManager to hold the photos number label
+        HorizontalFieldManager photoNumberManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
+            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
+        lblPhotoNumber = getLabel("");
+        setNumberOfPhotosLabel(0);
+        photoNumberManager.add(lblPhotoNumber);
+        
+    	manager= new VerticalFieldManager( Field.FOCUSABLE | VerticalFieldManager.VERTICAL_SCROLL | VerticalFieldManager.VERTICAL_SCROLLBAR);          
+		
         //row title
         HorizontalFieldManager rowTitle = new HorizontalFieldManager();
 		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_POST_TITLE));
@@ -53,8 +60,8 @@ public class PostView extends BaseView {
         title.setMargin(margins);
         rowTitle.add(lblTitle);
         rowTitle.add(title);
-        this.add(rowTitle);
-        this.add(new SeparatorField());
+        manager.add(rowTitle);
+        manager.add(new SeparatorField());
         
         //row tags
         HorizontalFieldManager rowTags = new HorizontalFieldManager();
@@ -63,8 +70,8 @@ public class PostView extends BaseView {
 		tags.setMargin(margins);
         rowTags.add(lblTags);
         rowTags.add(tags);
-        this.add(rowTags);
-        this.add(new SeparatorField());
+        manager.add(rowTags);
+        manager.add(new SeparatorField());
         
         //row categories
         HorizontalFieldManager rowCategories = new HorizontalFieldManager(Manager.USE_ALL_WIDTH);
@@ -87,55 +94,36 @@ public class PostView extends BaseView {
   		rowCategories.add(lblCategories);
   		rowCategories.add(categories);
   		rowCategories.add(bfOpenCat);
-  		this.add(rowCategories);
-  		this.add(new SeparatorField());
+  		manager.add(rowCategories);
+  		manager.add(new SeparatorField());
   		
   		//row status
         HorizontalFieldManager rowStatus = new HorizontalFieldManager();
   		LabelField lblStatus =getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS));
-  		status = new LabelField("???");
-  		status.setMargin(margins);
-  		BitmapField bfOpenStatus = new BitmapField(imgOpen, BitmapField.FOCUSABLE)
-  		{			
-  		    //override context menu      
-	        protected void makeContextMenu(ContextMenu contextMenu) {
-	            contextMenu.addItem(_statusContextMenuItem);      
-	        }
-  		};
-  		bfOpenStatus.setMargin(margins);
-  		bfOpenStatus.setSpace(5, 5);
-  		
+  		status = new ObjectChoiceField("", controller.getPostStatusLabels(), controller.getPostStatusID());
   		rowStatus.add(lblStatus);
   		rowStatus.add(status);
-  		rowStatus.add(bfOpenStatus); 
-  		this.add(rowStatus);
-  		this.add(new SeparatorField()); 
+  		 
+  		manager.add(rowStatus);
+  		manager.add(new SeparatorField()); 
   		
-        
-  		//row photos
-
-      
-		/*
-        isPublished= new CheckboxField(_resources.getString(WordPressResource.LABEL_POST_ISPUBLISHED), mState.isPublished());
-		isConvertLinebreaksEnabled = new CheckboxField(_resources.getString(WordPressResource.LABEL_POST_CONVERTLINEBREAK), post.isConvertLinebreaksEnabled());
-		isCommentsEnabled = new CheckboxField(_resources.getString(WordPressResource.LABEL_POST_ALLOWCOMMENTS), post.isCommentsEnabled());
-		isTrackbackEnabled = new CheckboxField(_resources.getString(WordPressResource.LABEL_POST_ALLOWTRACKBACKS), post.isTrackbackEnabled());
-		*/
-		
-
-	/*	add(categoryChoice);
-		add(authoredOn);
-		add(isPublished);
-		add(isConvertLinebreaksEnabled);
-		add(isCommentsEnabled);
-		add(isTrackbackEnabled);*/
 		bodyTextBox= new HtmlTextField(post.getBody());
-        add(bodyTextBox);
+		manager.add(bodyTextBox);
 		addMenuItem(_saveDraftPostItem);
 		addMenuItem(_submitPostItem);
 		addMenuItem(_photosItem);
 		addMenuItem(_previewItem);
 		addMenuItem(_settingsItem);
+		
+		add(photoNumberManager);
+		add(new SeparatorField());
+		add(manager);
+    }
+    
+    
+    //set the photos number label text
+    public void setNumberOfPhotosLabel(int count) {
+    	lblPhotoNumber.setText(count + " "+_resources.getString(WordPressResource.TITLE_PHOTOSVIEW));
     }
     
     //update the cat label field
@@ -201,11 +189,6 @@ public class PostView extends BaseView {
         }
     };
     	
-    private MenuItem _statusContextMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_POST_STATUS, 10, 2) {
-        public void run() {
-        	
-        }
-    };
     	
 	/*
 	 * update Post data model

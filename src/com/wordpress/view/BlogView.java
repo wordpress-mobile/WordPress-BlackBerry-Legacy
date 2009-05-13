@@ -102,7 +102,7 @@ public class BlogView extends BaseView {
     	} else if (fieldWithFocus == rowPages) {
     		UiApplication.getUiApplication().pushScreen(new NotYetImpPopupScreen());
     	} else if (fieldWithFocus == rowComments) {
-    		UiApplication.getUiApplication().pushScreen(new NotYetImpPopupScreen());
+    		controller.showComments();
     	} else if (fieldWithFocus == rowOptions) {
     		controller.showBlogOptions();
     	} else if (fieldWithFocus == rowRefresh) {

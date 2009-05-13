@@ -12,7 +12,7 @@ import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
 import com.wordpress.utils.Tools;
 
-public class DraftDAO {
+public class DraftDAO implements BaseDAO{
 	
     //remove a draft post from the storage
     public static void removePost(Blog blog, int draftId) throws IOException {
@@ -85,6 +85,7 @@ public class DraftDAO {
     	ser.serialize(draftPost.getAuthoredOn());
     	ser.serialize(draftPost.getPassword());
     	ser.serialize(draftPost.getBody());
+    	ser.serialize(draftPost.getStatus());
     	ser.serialize(draftPost.getCategories());
     	ser.serialize(draftPost.getTags());
     	out.close();
@@ -139,6 +140,7 @@ public class DraftDAO {
     	Date authOn = (Date) ser.deserialize();
     	String password = (String) ser.deserialize();
     	String body = (String) ser.deserialize();
+    	String status = (String) ser.deserialize();
     	int[] cat = (int[])ser.deserialize();
     	String tags = (String)ser.deserialize();
     	Post draft= new Post(blog,id,title,author,authOn);
@@ -146,13 +148,14 @@ public class DraftDAO {
     	draft.setCategories(cat);
     	draft.setTags(tags);
     	draft.setPassword(password);
+    	draft.setStatus(status);
     	in.close();
     	System.out.println("loading draft post ok");
     	return draft;		
 	}
 
 
-	//restrive blog draftsFolder
+	//retrive blog draftsFolder
 	private static String getPath(Blog blog) throws UnsupportedEncodingException{
 		String blogNameMD5=BlogDAO.getBlogFolderName(blog);
     	String blogDraftsPath=BlogDAO.BASE_PATH+blogNameMD5+BlogDAO.DRAFT_FOLDER_PREFIX;

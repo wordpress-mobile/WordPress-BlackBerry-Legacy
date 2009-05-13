@@ -6,8 +6,6 @@ import net.rim.device.api.ui.UiApplication;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
 import com.wordpress.view.BaseView;
-import com.wordpress.view.BlogView;
-import com.wordpress.view.DraftPostsView;
 import com.wordpress.view.MainView;
 
 
@@ -123,6 +121,15 @@ public class FrontController {
 	public void newPost(Blog currentBlog){
 		Post post =new Post(currentBlog);
 		PostController ctrl=new PostController(post);
+		ctrl.showView();
+	}
+	
+	
+	/**
+	 * show comments view
+	 */
+	public void showCommentsView(Blog currentBlog){
+		CommentsController ctrl=new CommentsController(currentBlog);
 		ctrl.showView();
 	}
 	

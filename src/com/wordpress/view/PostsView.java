@@ -7,12 +7,15 @@ import java.util.Vector;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
+import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ButtonField;
-import net.rim.device.api.ui.component.ListField;
+import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectListField;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
+import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
@@ -23,15 +26,21 @@ public class PostsView extends BaseView {
     private PostsController controller= null;
     private ObjectListField listaPost; 
     private HorizontalFieldManager topButtonsManager;
-	private ButtonField buttonNewPost;
+    private VerticalFieldManager dataScroller;
+    private ButtonField buttonNewPost;
 	private ButtonField buttonDraftPosts;
 	private ButtonField buttonRefresh;
-    
-    
-	 public PostsView(PostsController _controller, Vector recentPostInfo) {
-	    	super(_controller.getBlogName()+" > "+_resources.getString(WordPressResource.TITLE_RECENTPOST));
+	private LabelField lblPostsNumber;
+
+	
+	 public PostsView(PostsController _controller, Vector recentPostInfo, int numberOfNewPosts) {
+	    	super(_controller.getBlogName()+" > "+_resources.getString(WordPressResource.TITLE_RECENTPOST), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 	    	this.controller=_controller;
-	        	        
+	        
+	    	  //A HorizontalFieldManager to hold the buttons headings.
+	        topButtonsManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
+	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
+	        
 	        //setup top buttons
 	        buttonNewPost = new ButtonField(_resources.getString(WordPressResource.BUTTON_NEWPOST));
 	        buttonNewPost.setChangeListener(listenerButton);
@@ -40,14 +49,27 @@ public class PostsView extends BaseView {
 	        buttonRefresh = new ButtonField(_resources.getString(WordPressResource.BUTTON_REFRESH_BLOG));
 	        buttonRefresh.setChangeListener(listenerButton);
 
-	        topButtonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
 	        topButtonsManager.add(buttonNewPost);
 	        topButtonsManager.add(buttonDraftPosts);
 	        topButtonsManager.add(buttonRefresh);
-			add(topButtonsManager); 
-			add(new SeparatorField());
 	        
-	        buildList(recentPostInfo);
+	    	  //A HorizontalFieldManager to hold the posts number label
+	        HorizontalFieldManager postNumberManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
+	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
+
+	        lblPostsNumber = getLabel("New Post " + numberOfNewPosts);
+	        postNumberManager.add(lblPostsNumber);
+	    	
+	        //A HorizontalFieldManager to hold the posts list
+	        dataScroller = new VerticalFieldManager(VerticalFieldManager.VERTICAL_SCROLL
+	                 | VerticalFieldManager.VERTICAL_SCROLLBAR);
+
+
+			add(topButtonsManager);
+			add(postNumberManager);
+			add(new SeparatorField());
+			add(dataScroller);
+			buildList(recentPostInfo);
 	 }
 
 /*
@@ -97,7 +119,7 @@ public class PostsView extends BaseView {
 	 
 	private void buildList(Vector recentPostInfo) {
 		removeAllMenuItems();
-
+        
 		String elements[]= new String[0];
 		
 		if(recentPostInfo != null) {						
@@ -122,7 +144,8 @@ public class PostsView extends BaseView {
 		//TestListCallback listCallback = new TestListCallback(elements.size());
 		//listaPost.setCallback(listCallback);
 
-		add(listaPost);
+		dataScroller.add(listaPost);
+
 
 		if(recentPostInfo.size() > 0 ) {
 			addMenuItem(_editPostItem);
@@ -174,11 +197,11 @@ public class PostsView extends BaseView {
 	};
 
     	 
-    public void refresh(Vector recentPostInfo){
-    	this.delete(listaPost);
+    public void refresh(Vector recentPostInfo, int count){
+    	dataScroller.delete(listaPost);
+    	lblPostsNumber.setText("New Post " + count);
     	buildList(recentPostInfo);
     }
-
 
 	public BaseController getController() {
 		return this.controller;

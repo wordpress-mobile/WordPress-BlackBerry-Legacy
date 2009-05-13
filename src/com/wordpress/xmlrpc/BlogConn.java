@@ -53,7 +53,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	 * blocca il funzionamento della connessione immediatamente.
 	 */
 	public void stopConnWork(){
-		if(!isWorking) return;
+		//if(!isWorking) return;
   	   System.out.println("Richiesta chiusura della connessione XML-RPC");
 		isWorking=false;
 		t=null;
@@ -230,7 +230,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 
 			blog.setPostStatusList(statusList);
 			
-			System.out.println("End reading post status list for the blog : : "
+			System.out.println("End reading post status list for the blog : "
 					+ blog.getName());
 		} catch (ClassCastException cce) {
 			throw new Exception("Error while reading post status list");

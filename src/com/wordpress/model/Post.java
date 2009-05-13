@@ -22,6 +22,7 @@ public class Post {
     private boolean allowComments = true;
     private boolean allowTrackback = true;
     private String body = "";
+    private String status = null;
     private String extended = "";
     private String excerpt = "";
         
@@ -144,6 +145,14 @@ public class Post {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 }

@@ -19,8 +19,30 @@ public class Blog {
 	private Hashtable postStatusList=null; 	
 	private Hashtable pageStatusList=null; 
 	private Tag[] tags=null;
-	private Vector recentPostTitles = null; //response of mt.getRecentPostTitles
 	
+	private Vector recentPostTitles = null; //response of mt.getRecentPostTitles
+	private Vector viewedPost = new Vector(); //id of the viewed post
+		
+	public Vector getViewedPost() {
+		return viewedPost;
+	}
+
+	public void setViewedPost(Vector viewedPost) {
+		this.viewedPost = viewedPost;
+	}
+	
+	public void addViewedPost(String viewedPostID) {
+		boolean presence = false;
+		for (int i = 0; i < viewedPost.size(); i++) {
+			String currPostID = (String) viewedPost.elementAt(i);
+			if(currPostID.equalsIgnoreCase(viewedPostID))
+				presence= true;
+		}
+		if( !presence ) { //if not present add the element number
+			viewedPost.addElement(viewedPostID);
+			System.out.println("Added post with ID: "+viewedPostID+ " to the viewed post list");
+		}
+	}
 	
 	public Blog(String blogId, String blogName, String blogUrl,String blogXmlRpcUrl, 
 			String userName, String pass) {
@@ -31,7 +53,6 @@ public class Blog {
 		this.username=userName;
 		this.password=pass;
 	}
-
 
 	public String getId() {
 		return id;

@@ -35,8 +35,7 @@ public class MainView extends BaseView {
 		try {
 			blogCaricati = BlogDAO.getBlogsName();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			mainController.displayError(e, "Cannot load your blogs!");
 		}
 
     	removeMenuItem(_deleteBlogItem);

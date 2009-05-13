@@ -3,6 +3,7 @@ package com.wordpress.view;
 import java.util.Date;
 
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.component.DateField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.PasswordEditField;
@@ -24,6 +25,15 @@ public class PostSettingsView extends BaseView {
     	super(_resources.getString(WordPressResource.MENUITEM_POST_SETTINGS));
     	this.controller=_controller;
 		long datetime= (postAuth == null) ? new Date().getTime() : postAuth.getTime();
+ 
+		//row date 
+        HorizontalFieldManager rowDate = new HorizontalFieldManager();
+		LabelField lblDate = getLabel(_resources.getString(WordPressResource.LABEL_POST_PUBLISHEDON));   
+	    authoredOn= new DateField("",datetime, DateField.DATE_TIME );
+	    authoredOn.setMargin(margins);
+		rowDate.add(lblDate);
+		rowDate.add(authoredOn);
+  		this.add(rowDate); 
 		
         //row password
         HorizontalFieldManager rowPassword = new HorizontalFieldManager();
@@ -33,15 +43,14 @@ public class PostSettingsView extends BaseView {
         rowPassword.add(lblPassword);
         rowPassword.add(passwordField);
         add(rowPassword);
-
-        //row date 
-        HorizontalFieldManager rowDate = new HorizontalFieldManager();
-		LabelField lblDate = getLabel(_resources.getString(WordPressResource.LABEL_POST_PUBLISHEDON));   
-	    authoredOn= new DateField("",datetime, DateField.DATE_TIME );
-	    authoredOn.setMargin(margins);
-		rowDate.add(lblDate);
-		rowDate.add(authoredOn);
-  		this.add(rowDate);  
+        
+        
+		//LabelField that displays text in the specified color.
+		LabelField lblDesc = getLabel(_resources.getString(WordPressResource.DESCRIPTION_POST_PASSWORD)); 
+		Font fnt = this.getFont().derive(Font.ITALIC);
+		lblDesc.setFont(fnt);
+		add(lblDesc);
+  
     }
     
  
@@ -55,7 +64,4 @@ public class PostSettingsView extends BaseView {
 	public BaseController getController() {
 		return controller;
 	}
-	
-		
 }
-

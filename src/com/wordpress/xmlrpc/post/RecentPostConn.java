@@ -17,7 +17,7 @@ public class RecentPostConn extends BlogConn  {
 	}
 
 	/**
-	 * reperisce da remoto gli i post più recenti
+	 * get recent posts title
 	 * @param provider
 	 */
 	public void run() {

@@ -14,12 +14,9 @@ import com.wordpress.utils.MD5;
 import com.wordpress.utils.Preferences;
 import com.wordpress.utils.Tools;
 
-public class BlogDAO {
+public class BlogDAO implements BaseDAO {
 	
-	public static String BASE_PATH = "file:///store/home/user/wordpress/";
-	public static String INST_FILE= BASE_PATH+"inst"; //check if the app is installed
-	public static String APP_PREFS_FILE= BASE_PATH+"prefs"; //check if the app is installed
-	public static String DRAFT_FOLDER_PREFIX = "d/";
+
 	
 	/**
      * add One  blog to the storage!
@@ -39,8 +36,8 @@ public class BlogDAO {
     		JSR75FileSystem.createDir(filePath+DRAFT_FOLDER_PREFIX); //create draft posts folder
     	}    	
     	
-    	JSR75FileSystem.createFile(filePath+"blog"); //create the blog file
-    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(filePath+"blog");
+    	JSR75FileSystem.createFile(filePath+BLOG_FILE); //create the blog file
+    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(filePath+BLOG_FILE);
     	storeBlog(blog, out);
     	    	
 		out.close();
@@ -63,7 +60,7 @@ public class BlogDAO {
     		throw new Exception("Cannot update this blog: " + name + " because not exist!");
     	}  	
     	
-    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(filePath+"blog");
+    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(filePath+BLOG_FILE);
     	storeBlog(blog, out);
     	System.out.println("blog updated succesfully");    	    	
 		out.close();
@@ -127,6 +124,7 @@ public class BlogDAO {
     	ser.serialize(blog.getPageStatusList());
     	ser.serialize(blog.getPostStatusList());
     	ser.serialize(blog.getRecentPostTitles());
+    	ser.serialize(blog.getViewedPost());
     	
     	Category[] categories = blog.getCategories();
         if (categories != null) {
@@ -169,7 +167,7 @@ public class BlogDAO {
     		throw new Exception("Cannot load this blog: " + name + " because not exist!");
     	}   	
     	
-    	DataInputStream in = JSR75FileSystem.getDataInputStream(filePath+"blog");
+    	DataInputStream in = JSR75FileSystem.getDataInputStream(filePath+BLOG_FILE);
     	Serializer ser= new Serializer(in);
     	
         Blog blog;
@@ -193,7 +191,8 @@ public class BlogDAO {
         blog.setPostStatusList(postStatusList);
         Vector recentPostTitleList= (Vector)ser.deserialize();
         blog.setRecentPostTitles(recentPostTitleList);
-
+        Vector viewedPostList= (Vector)ser.deserialize();
+        blog.setViewedPost(viewedPostList);
 
         int categoryLength= ((Integer)ser.deserialize()).intValue();
         Category[] categories;

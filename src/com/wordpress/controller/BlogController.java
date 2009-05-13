@@ -29,6 +29,11 @@ public class BlogController extends BaseController {
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 	
+	public void showComments() {
+		if (currentBlog != null) {
+			FrontController.getIstance().showCommentsView(currentBlog);
+		}
+	}
 	
 	public void showPosts() {
 		if (currentBlog != null) {

@@ -31,28 +31,8 @@ public class NewPostConn extends BlogConn  {
 			 notifyObservers(connResponse);
 	         return;
 	        }
-
-	        Hashtable content = new Hashtable(10);
-	        if (post.getTitle() != null) {
-	            content.put("title", post.getTitle());
-	        }
-	        if (post.getBody() != null) {
-	            content.put("description", post.getBody());
-	        }
-	        if (post.getExtendedBody() != null) {
-	            content.put("mt_text_more", post.getExtendedBody());
-	        }
-	        if (post.getExcerpt() != null) {
-	            content.put("mt_excerpt", post.getExcerpt());
-	        }
-	        if (post.getAuthoredOn() != null) {
-	            content.put("dateCreated", post.getAuthoredOn());
-	        }
-	        content.put("mt_convert_breaks", post.isConvertLinebreaksEnabled() ? "1" : "0");
-	        content.put("mt_allow_comments", new Integer(post.isCommentsEnabled() ? 1 : 0));
-	        content.put("mt_allow_pings", new Integer(post.isTrackbackEnabled() ? 1 : 0));
-	        //mt_keywords</name><value><string>secondotag, testtag</string></value></member>
-	        content.put("mt_keywords", post.getTags());
+		 
+		 	Hashtable content = EditPostConn.buildCallData(post);
 
 	        Vector args = new Vector(5);
 	        args.addElement(post.getBlog().getId());
