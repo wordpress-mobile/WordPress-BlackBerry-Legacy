@@ -41,21 +41,21 @@ public class DraftPostsView extends BaseView {
     	buildList(post);
     }
 	
-    private MenuItem _deletePostItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETEPOST, 220, 10) {
+    private MenuItem _deletePostItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE, 220, 10) {
         public void run() {
             int selectedPost = listaPost.getSelectedIndex();
             controller.deletePost(selectedPost);    
         }
     };
     
-    private MenuItem _editPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDITPOST, 200, 10) {
+    private MenuItem _editPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDIT, 200, 10) {
         public void run() {
             int selectedPost = listaPost.getSelectedIndex();
             controller.editPost(selectedPost);            
         }
     };
     
-    private MenuItem _newPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_NEWPOST, 210, 10) {
+    private MenuItem _newPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_NEW, 210, 10) {
         public void run() {
             controller.newPost();    
         }

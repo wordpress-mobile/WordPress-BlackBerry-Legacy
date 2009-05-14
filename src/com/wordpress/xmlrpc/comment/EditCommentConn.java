@@ -19,19 +19,15 @@ public class EditCommentConn extends BlogConn  {
 	
 	public void run() {
 		try {
-			if (comment.getBlogId() < 0 ) {
-				 setErrorMessage("Error BlogId");
-				 notifyObservers(connResponse);
-		         return;
-			}
+
 			if (comment.getID() < 0 ) {
 				 setErrorMessage("Error CommentId");
 				 notifyObservers(connResponse);
 		         return;
 			}
 	        Hashtable vcomment = new Hashtable(10);
-	        if (comment.getComment_status() != null) {
-	        	vcomment.put("status", comment.getComment_status());
+	        if (comment.getStatus() != null) {
+	        	vcomment.put("status", comment.getStatus());
 	        }
 	        if (comment.getDate_created_gmt() != null) {
 	        	vcomment.put("date_created_gmt", comment.getDate_created_gmt());
@@ -49,7 +45,7 @@ public class EditCommentConn extends BlogConn  {
 	            vcomment.put("author_email", comment.getAuthorEmail());
 	        }        
 	        Vector args = new Vector(8);
-	        args.addElement(String.valueOf(comment.getBlogId()));
+	    //    args.addElement(String.valueOf(blogId));
 	        args.addElement(mUsername);
 	        args.addElement(mPassword);
 	        args.addElement(String.valueOf(comment.getID()));

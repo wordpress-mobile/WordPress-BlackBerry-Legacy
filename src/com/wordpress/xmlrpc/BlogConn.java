@@ -52,19 +52,27 @@ public abstract class BlogConn extends Observable implements Runnable {
 	/**
 	 * blocca il funzionamento della connessione immediatamente.
 	 */
-	public void stopConnWork(){
-		//if(!isWorking) return;
-  	   System.out.println("Richiesta chiusura della connessione XML-RPC");
-		isWorking=false;
-		t=null;
-		mConnection=null;
-		setStopMessage("chiusura della connessione XML-RPC");
+	public void stopConnWork() {
+		if (!isWorking)
+			return;
+		
+		System.out.println("User requested stop the XML-RPC connection");
+		isWorking = false;
+		t = null;
+		mConnection = null;
+
+		connResponse = new BlogConnResponse();
+		connResponse.setError(false);
+		connResponse.setStopped(true);
+		connResponse.setResponse("connection stopped by user");
 		notifyObservers(connResponse);
 	}
 	
 	public abstract  void run();
 
 	protected Object execute(String aCommand, Vector aArgs){
+		isWorking=true;
+		
 		Object response = null;
 		if(mConnection == null)
 			mConnection = new XmlRpcClient(urlConnessione);
@@ -329,16 +337,6 @@ public abstract class BlogConn extends Observable implements Runnable {
 		}
 	}
 	
-	
-	
-	protected void setStopMessage(String stopMsg){
-		connResponse=new BlogConnResponse();
-		connResponse.setError(false);
-		connResponse.setStopped(true);
-		connResponse.setResponse(stopMsg);
-    	
-		System.out.println(stopMsg);
-	}
 	
 	protected void setErrorMessage(Exception e, String err){
 		connResponse=new BlogConnResponse();

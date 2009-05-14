@@ -22,7 +22,7 @@ public class PostSettingsView extends BaseView {
     
     
     public PostSettingsView(PostController _controller, Date postAuth, String password) {
-    	super(_resources.getString(WordPressResource.MENUITEM_POST_SETTINGS));
+    	super(_resources.getString(WordPressResource.MENUITEM_SETTINGS));
     	this.controller=_controller;
 		long datetime= (postAuth == null) ? new Date().getTime() : postAuth.getTime();
  

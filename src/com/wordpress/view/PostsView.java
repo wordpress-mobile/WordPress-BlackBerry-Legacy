@@ -42,9 +42,9 @@ public class PostsView extends BaseView {
 	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
 	        
 	        //setup top buttons
-	        buttonNewPost = new ButtonField(_resources.getString(WordPressResource.BUTTON_NEWPOST));
+	        buttonNewPost = new ButtonField(_resources.getString(WordPressResource.BUTTON_NEW));
 	        buttonNewPost.setChangeListener(listenerButton);
-	        buttonDraftPosts = new ButtonField(_resources.getString(WordPressResource.BUTTON_DRAFTPOSTS));
+	        buttonDraftPosts = new ButtonField(_resources.getString(WordPressResource.BUTTON_LOCALDRAFTS));
 	        buttonDraftPosts.setChangeListener(listenerButton);
 	        buttonRefresh = new ButtonField(_resources.getString(WordPressResource.BUTTON_REFRESH_BLOG));
 	        buttonRefresh.setChangeListener(listenerButton);
@@ -157,27 +157,27 @@ public class PostsView extends BaseView {
 	}
 	 
 
-    private MenuItem _editPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDITPOST, 200, 10) {
+    private MenuItem _editPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDIT, 200, 10) {
         public void run() {
             int selectedPost = listaPost.getSelectedIndex();
             controller.editPost(selectedPost);
         }
     };
 	
-	private MenuItem _deletePostItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETEPOST, 210, 10) {
+	private MenuItem _deletePostItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE, 210, 10) {
         public void run() {
             int selectedPost = listaPost.getSelectedIndex();
             controller.deletePost(selectedPost);
         }
     };
     
-    private MenuItem _refreshPostListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH_POSTSLIST, 220, 10) {
+    private MenuItem _refreshPostListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 220, 10) {
         public void run() {
         	controller.refreshView();
         }
     };
      
-    private MenuItem _draftPostsItem = new MenuItem( _resources, WordPressResource.MENUITEM_DRAFTPOSTS, 120, 10) {
+    private MenuItem _draftPostsItem = new MenuItem( _resources, WordPressResource.MENUITEM_LOCALDRAFT, 120, 10) {
         public void run() {
     	 controller.showDraftPosts(); 
         }

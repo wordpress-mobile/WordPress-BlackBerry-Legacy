@@ -18,16 +18,13 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostController;
-import com.wordpress.model.Category;
 import com.wordpress.model.Post;
-import com.wordpress.model.PostState;
 import com.wordpress.view.component.HtmlTextField;
 
 public class PostView extends BaseView {
 	
     private PostController controller; //controller associato alla view
     private Post post;    
-    private PostState mState = null;
 
     //content of tabs summary
 	private BasicEditField title;
@@ -42,7 +39,6 @@ public class PostView extends BaseView {
     	super(_resources.getString(WordPressResource.TITLE_POSTVIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
     	this.controller=_controller;
 		this.post = _post;
-		this.mState= new PostState();
         
    	  //A HorizontalFieldManager to hold the photos number label
         HorizontalFieldManager photoNumberManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
@@ -100,7 +96,7 @@ public class PostView extends BaseView {
   		//row status
         HorizontalFieldManager rowStatus = new HorizontalFieldManager();
   		LabelField lblStatus =getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS));
-  		status = new ObjectChoiceField("", controller.getPostStatusLabels(), controller.getPostStatusID());
+  		status = new ObjectChoiceField("", controller.getStatusLabels(),controller.getPostStatusID());
   		rowStatus.add(lblStatus);
   		rowStatus.add(status);
   		 
@@ -134,11 +130,11 @@ public class PostView extends BaseView {
     }
     
     //save a local copy of post
-    private MenuItem _saveDraftPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SAVEDRAFT, 10230, 10) {
+    private MenuItem _saveDraftPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 10230, 10) {
         public void run() {
     		try {
     			savePost();
-	    		if (mState.isModified()) {
+	    		if (controller.isPostChanged()) {
 	    			controller.saveDraftPost();
 	    		}
     		} catch (Exception e) {
@@ -152,7 +148,8 @@ public class PostView extends BaseView {
         public void run() {
     		try {
     			savePost();
-	    		controller.sendPostToBlog();
+   				controller.sendPostToBlog();
+    				
     		} catch (Exception e) {
     			controller.displayError(e, "Error Sending saving post data");
     		}
@@ -171,13 +168,13 @@ public class PostView extends BaseView {
         }
     };
     
-    private MenuItem _previewItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_PREVIEW, 110, 10) {
+    private MenuItem _previewItem = new MenuItem( _resources, WordPressResource.MENUITEM_PREVIEW, 110, 10) {
         public void run() {
         	controller.showPreview();
         }
     };
     
-    private MenuItem _settingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SETTINGS, 110, 10) {
+    private MenuItem _settingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETTINGS, 110, 10) {
         public void run() {
         	controller.showSettingsView();
         }
@@ -201,12 +198,12 @@ public class PostView extends BaseView {
 		if(oldTitle == null ) { //no previous title, setting the new title  
 			if(!title.getText().trim().equals("")){
 				post.setTitle(title.getText());
-				mState.setModified(true);
+				controller.setPostAsChanged();
 			}
 		} else {
 			if( !oldTitle.equals(title.getText()) ) { //title has changed
 				post.setTitle(title.getText());
-				mState.setModified(true);
+				controller.setPostAsChanged();
 			}
 		}
 		
@@ -214,92 +211,38 @@ public class PostView extends BaseView {
 		if(bodyTextBox != null) {
 			String newContent= bodyTextBox.getText();
 			if(!newContent.equals(post.getBody())){
-				mState.setModified(true);
 				post.setBody(newContent);
+				controller.setPostAsChanged();
 			}
 		}
 		
 		if(tags != null) {
 			String newContent= tags.getText();
 			if(!newContent.equals(post.getTags())){
-				mState.setModified(true);
 				post.setTags(newContent);
+				controller.setPostAsChanged();
 			}
 		}
 		
-		//categories
-		Category[] availableCategories = post.getBlog().getCategories();
-		if (availableCategories != null) {
-			//FIXME: doing multiple cats
-		/*	Category selectedCategory=availableCategories[categoryChoice.getSelectedIndex()];
-			
-			int currentPostCat= -1;
-			if(post.getPrimaryCategory() != null){
-				currentPostCat= Integer.parseInt(post.getPrimaryCategory().getId());
-			}
-			
-		  if(currentPostCat != Integer.parseInt(selectedCategory.getId())){
-			post.setPrimaryCategory(selectedCategory);
-			//mState.setModified(true); //TODO change with multiple categories
-		   }
-		*/
-		} else {
-			post.setCategories(null);
+		int selectedStatusID = status.getSelectedIndex();
+		String newState= controller.getStatusKeys()[selectedStatusID];
+		if (newState != post.getStatus()) {
+			post.setStatus(newState);
+			controller.setPostAsChanged();
 		}
-	/*	
-		//published date
-		Date postAuthoredOn = post.getAuthoredOn();
-		if(postAuthoredOn != null) {
-			if(authoredOn.getDate() != post.getAuthoredOn().getTime()){
-				post.setAuthoredOn(authoredOn.getDate());
-				mState.setModified(true);
-			}
-		} else {
-			//TODO add a change listener on date 
-			post.setAuthoredOn(authoredOn.getDate());
-		}
-		
-		//linebreaks
-		if(isConvertLinebreaksEnabled.getChecked() != post.isConvertLinebreaksEnabled()){
-			post.setConvertLinebreaksEnabled(isConvertLinebreaksEnabled.getChecked()); 
-			mState.setModified(true);
-		}
-		
-		//comments
-		if(isCommentsEnabled.getChecked() != post.isCommentsEnabled()){
-			post.setCommentsEnabled(isCommentsEnabled.getChecked());
-			mState.setModified(true);
-		}
-
-		//trackback
-		if(isTrackbackEnabled.getChecked() != post.isTrackbackEnabled()){
-			post.setTrackbackEnabled(isTrackbackEnabled.getChecked());
-			mState.setModified(true);
-		}		
-	
-		mState.setPublished(isPublished.getChecked());
-		*/				
 	}
 
 
     //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
 		try {
-			savePost();
+//			savePost();
+
 		} catch (Exception e) {
 			controller.displayError(e, "Error while saving post data");
 		}
 		return controller.dismissView();	
     }
-
-	public PostState getPostState() {
-		return mState;
-	}
-	
-	
-	public void setPostState(boolean value) {
-		 mState.setModified(value);
-	}
 	
 	public BaseController getController() {
 		return controller;

@@ -69,6 +69,7 @@ public class AddBlogsController extends BaseController implements Observer{
 	}
 	
 	public void addBlogs(){
+		
 		String pass= view.getBlogPass();
 		String url= view.getBlogUrl();
 		url=checkURL(url);

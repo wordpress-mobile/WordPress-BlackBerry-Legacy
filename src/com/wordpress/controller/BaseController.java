@@ -43,7 +43,7 @@ public abstract class BaseController {
 	
 	// Utility routine to display msg
 	public synchronized void displayMessage(final String msg) {
-		UiApplication.getUiApplication().invokeLater(new Runnable() {
+		UiApplication.getUiApplication().invokeAndWait(new Runnable() {
 			public void run() {
 				
 				System.out.println(msg);

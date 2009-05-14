@@ -4,7 +4,6 @@ import java.util.Hashtable;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import com.wordpress.model.Category;
 import com.wordpress.model.Post;
 import com.wordpress.xmlrpc.BlogConn;
 

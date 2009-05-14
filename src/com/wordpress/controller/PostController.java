@@ -1,7 +1,6 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -17,6 +16,7 @@ import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
+import com.wordpress.model.PostState;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Preferences;
 import com.wordpress.utils.Queue;
@@ -27,7 +27,6 @@ import com.wordpress.view.NewCategoryView;
 import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostCategoriesView;
 import com.wordpress.view.PostSettingsView;
-import com.wordpress.view.PostStatusView;
 import com.wordpress.view.PostView;
 import com.wordpress.view.component.FileSelectorPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
@@ -53,10 +52,11 @@ public class PostController extends BaseController {
 	private Post post=null;
 	private int draftPostFolder=-1; //identify draft post folder
 	private boolean isDraft= false; // identify if post is loaded from draft folder
+    private PostState postState = new PostState(); //the state of post. track changes on post..
 	
-	private String[] postStatusLabel; //labels for post status field
-	private String[] postStatusKey;
-		
+	private String[] postStatusKey; // = {"draft, pending, private, publish, localdraft"};
+	private String[] postStatusLabel; 
+
 	public static final int PHOTO=1;
 	public static final int BROWSER=4;
 	
@@ -106,6 +106,7 @@ public class PostController extends BaseController {
 		postStatusLabel[postStatusLabel.length-1]= "Local Draft";
 		postStatusKey[postStatusLabel.length-1]= "localdraft";
 		// end 
+
 		
 		String[] draftPostPhotoList = new String[0];
 		try {
@@ -118,28 +119,37 @@ public class PostController extends BaseController {
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 	
-	public String[] getPostStatusLabels() {
+
+	
+	public void setPostAsChanged() {
+		postState.setModified(true);
+	}
+	
+	public boolean isPostChanged() {
+		return postState.isModified();
+	}
+	
+	public String[] getStatusLabels() {
 		return postStatusLabel;
 	}
 	
+	public String[] getStatusKeys() {
+		return postStatusKey;
+	}
+		
 	public int getPostStatusID() {
 		String status = post.getStatus();
 		if(post.getStatus() != null )
-		for (int i = 0; i < postStatusLabel.length; i++) {
-			String key = postStatusLabel[i];
+		for (int i = 0; i < postStatusKey.length; i++) {
+			String key = postStatusKey[i];
 				
 			if( key.equals(status) ) {
 				return i;
 			}
 		}
-		
 		return postStatusLabel.length-1;
 	}
 	
-	public void setPostStatus(int selectedIndex) {
-		String status = postStatusKey[selectedIndex];
-		post.setStatus(status);
-	}
 		
 	
 	public String getPostCategoriesLabel() {
@@ -180,7 +190,7 @@ public class PostController extends BaseController {
 				post.getBlog().getPassword(),prefs.getTimeZone(),label, parentCatID);
 
 		
-		connection.addObserver(new sendNewCatCallBack(label,parentCatID)); 
+		connection.addObserver(new SendNewCatCallBack(label,parentCatID)); 
         
 		connectionProgressView= new ConnectionInProgressView(
         		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
@@ -194,6 +204,7 @@ public class PostController extends BaseController {
 	}
 	
 	public void setPostCategories(Vector newCatID){
+			
 		if ( newCatID == null || newCatID.size() == 0 ){
 			post.setCategories(null);
 		} else {
@@ -205,12 +216,18 @@ public class PostController extends BaseController {
 			}
 			post.setCategories(selectedID);
 		}
+		
 		view.updateCategoriesField(); 	//refresh the label field that contains cats..
+		postState.setModified(true);
 	}
 
 	public void sendPostToBlog() {
 		
-		if (!view.getPostState().isModified()) { //post without change
+		if (!postState.isModified()) { //post without change
+			return;
+		}
+		if(post.getStatus().equals("localdraft")) {
+			displayMessage("Local Draft post cannot be submitted");
 			return;
 		}
 		
@@ -222,7 +239,7 @@ public class PostController extends BaseController {
 		 * - send the post to blog
 		 *  
 		 */
-		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING_PHOTOS));
+		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
 		connectionProgressView.show();
 	    
 		remoteFileInfo = new Hashtable(); 
@@ -246,19 +263,23 @@ public class PostController extends BaseController {
 		} else {
 			sendPostContent();
 		}
+		
 	}
 	
+	//user save post as localdraft
 	public void saveDraftPost() {
 		try {
 		 draftPostFolder = DraftDAO.storePost(post, draftPostFolder);
-		 view.getPostState().setModified(false); //set the post as saved
+		 postState.setModified(false); //set the post as not modified because we have saved it.
+		 this.isDraft = true; //set as draft
 		} catch (Exception e) {
 			displayError(e,"Error while saving draft post!");
 		}
 	}
 			
 	public boolean dismissView() {
-		if(view.getPostState().isModified()){
+		
+		if( postState.isModified() ) {
 	    	int result=this.askQuestion("Changes Made, are sure to close this screen?");   
 	    	if(Dialog.YES==result) {
 	    		try {
@@ -268,22 +289,40 @@ public class PostController extends BaseController {
 				} catch (IOException e) {
 					displayError(e, "Cannot remove temporary files from disk!");
 				}
-	    		FrontController.getIstance().backAndRefreshView(false);
+	    		FrontController.getIstance().backAndRefreshView(true);
 	    		return true;
 	    	} else {
 	    		return false;
 	    	}
-		} else {
-			FrontController.getIstance().backAndRefreshView(true); //refresh prev view
-			return true;
 		}
+		
+		FrontController.getIstance().backAndRefreshView(true);		
+		return true;
 	}
 	
 	
 	
-	public void setSettingsView(long authoredOn, String password){			
-		//long datetime= (postAuth == null) ? new Date().getTime() : postAuth.getTime();
-		System.out.println("setting saved");		
+	public void setSettingsView(long authoredOn, String password){
+		
+		if(post.getAuthoredOn() != null ) {
+			if ( post.getAuthoredOn().getTime() != authoredOn ) {
+				post.setAuthoredOn(authoredOn);
+				postState.setModified(true);
+			}
+		} else {
+			post.setAuthoredOn(authoredOn);
+			postState.setModified(true);
+		}
+		
+		if( post.getPassword() != null && !post.getPassword().equalsIgnoreCase(password) ){
+			post.setPassword(password);
+			postState.setModified(true);
+		} else {
+			if(post.getPassword()== null ){
+				post.setPassword(password);
+				postState.setModified(true);
+			}
+		}
 	}
 	
 	public void showSettingsView(){			
@@ -298,7 +337,7 @@ public class PostController extends BaseController {
 				post.getBlog().getPassword(),prefs.getTimeZone());
 
 		
-		connection.addObserver(new sendGetTamplateCallBack()); 
+		connection.addObserver(new SendGetTamplateCallBack()); 
         
 		connectionProgressView= new ConnectionInProgressView(
         		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
@@ -372,7 +411,6 @@ public class PostController extends BaseController {
 	 */
 	public boolean deletePhoto(String key){
 		System.out.println("deleting photo: "+key);
-		view.setPostState(true); //mark post has changed
 		
 		try {
 			DraftDAO.removePostPhoto(post.getBlog(), draftPostFolder, key);
@@ -440,7 +478,6 @@ public class PostController extends BaseController {
 		}
 		
 		photoView.addPhoto(fileName, img);
-		view.setPostState(true); //mark post has changed
 	}
 	
 	public void refreshView() {
@@ -454,25 +491,35 @@ public class PostController extends BaseController {
 		String body = post.getBody();
 		if(remoteFileInfo.size() > 0 ) {
 			Enumeration keys = remoteFileInfo.keys();
-			
+			body+="<br /> <br />";
 			for (; keys.hasMoreElements(); ) {
 				String key = (String) keys.nextElement();
 				String url = (String) remoteFileInfo.get(key);
-				body+="<br/><a href=\""+url+"\"  alt=\""+key+"\">"+key+"</a>";				
+				body+="<a href=\""+url+"\">"
+				+"<img title=\""+key+"\" alt=\""+key+"\" src=\""+url+"\" /> </a> ";
 			}
+			post.setBody(body);
 		}
-		post.setBody(body);
+		
+		String remoteStatus = post.getStatus();
+		boolean publish=false;
+		
+		if( remoteStatus.equalsIgnoreCase("private") || remoteStatus.equalsIgnoreCase("publish"))
+			publish= true;
 		
 		if(post.getId() == null || post.getId().equalsIgnoreCase("-1")) { //new post
 	           connection = new NewPostConn (post.getBlog().getXmlRpcUrl(), 
-	        		post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post, view.getPostState().isPublished());
+	        		post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post, publish);
+		
 		} else { //edit post
 			
 			 connection = new EditPostConn (post.getBlog().getXmlRpcUrl(), 
-					 post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post, view.getPostState().isPublished());
+					 post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post, publish);
+		
 		}
+		
 		connectionProgressView.setDialogClosedListener(new ConnectionInProgressListener(connection));
-		connection.addObserver(new sendPostCallBack()); 
+		connection.addObserver(new SendPostCallBack()); 
 		connection.startConnWork(); //starts connection		
 	}
 	
@@ -484,9 +531,11 @@ public class PostController extends BaseController {
 		 	displayError((String)remoteFileInfo.get("err"));
 			return;
  		}
+		
 		//check if there are others file to be sent
 		if(files.isEmpty()) { 
 			sendPostContent();
+
 		} else {
 		
 			String poppedKey = (String)files.pop();
@@ -509,14 +558,14 @@ public class PostController extends BaseController {
 		    
 		    connectionProgressView.setDialogClosedListener(new ConnectionInProgressListener(connection));
 	
-			connection.addObserver(new sendImagesCallBack());
+			connection.addObserver(new SendMultimediaContentCallBack());
 			connection.startConnWork(); //starts connection
 		}
 	}
 
 
 	//callback for preview
-	private class sendGetTamplateCallBack implements Observer{
+	private class SendGetTamplateCallBack implements Observer{
 		public void update(Observable observable, final Object object) {
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
@@ -539,11 +588,11 @@ public class PostController extends BaseController {
 	
 	
 	//callback for send post to the blog
-	private class sendNewCatCallBack implements Observer{
+	private class SendNewCatCallBack implements Observer{
 		private String label;
 		private int parentCat=-1;
 		
-		sendNewCatCallBack(String label, int catId){
+		SendNewCatCallBack(String label, int catId){
 			this.label= label;
 			this.parentCat=catId;
 		}
@@ -591,18 +640,32 @@ public class PostController extends BaseController {
 	}
 	
 	//callback for send post to the blog
-	private class sendPostCallBack implements Observer{
+	private class SendPostCallBack implements Observer{
 		public void update(Observable observable, final Object object) {
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
 					
 					dismissDialog(connectionProgressView);
+
 					BlogConnResponse resp= (BlogConnResponse) object;
+
 					if(!resp.isError()) {
 						if(resp.isStopped()){
 							return;
 						}
+						
+						try {
+							//delete post from draft after sending
+							DraftDAO.removePost(post.getBlog(),	draftPostFolder);
+							
+							displayMessage("Post Saved to "+ post.getBlog().getName()+ 
+									" with status " + postStatusLabel[getPostStatusID()] );
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 						FrontController.getIstance().backAndRefreshView(true);
+						
 					} else {
 						final String respMessage=resp.getResponse();
 					 	displayError(respMessage);	
@@ -613,7 +676,7 @@ public class PostController extends BaseController {
 	}
 	
 	//callback for send Images to the blog
-	private class sendImagesCallBack implements Observer{
+	private class SendMultimediaContentCallBack implements Observer{
 		public void update(Observable observable, final Object object) {
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
@@ -640,6 +703,7 @@ public class PostController extends BaseController {
 		}
 	}
 	
+	/*
 	//callback for send post to the blog
 	private class getPostStatusListCallBack implements Observer{
 		public void update(Observable observable, final Object object) {
@@ -650,5 +714,5 @@ public class PostController extends BaseController {
 			});
 		}
 	}
-	
+	*/
 }

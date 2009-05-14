@@ -37,7 +37,7 @@ public class GetCommentConn extends BlogConn  {
 			
 		
             Hashtable returnCommentData = (Hashtable) response;
-            
+        /*    
             int commentID=Integer.parseInt((String)returnCommentData.get("comment_id"));
 	        int commentParent=Integer.parseInt((String) returnCommentData.get("parent"));
             String status=(String) returnCommentData.get("status");
@@ -51,10 +51,10 @@ public class GetCommentConn extends BlogConn  {
             comment.setLink((String) returnCommentData.get("link"));
             comment.setPostID(Integer.parseInt((String)returnCommentData.get("post_id")));
             comment.setPostTitle((String) returnCommentData.get("title"));
-            comment.setAuthor_Ip((String) returnCommentData.get("author_ip"));
+            comment.setAuthorIp((String) returnCommentData.get("author_ip"));
             comment.setDate_created_gmt((Date) returnCommentData.get("dateCreated"));
-            
-            connResponse.setResponseObject(comment);
+            */
+            //connResponse.setResponseObject(comment);
 			}
 			catch (Exception e) {
 				setErrorMessage(e, "GetComment error: Invalid server response");

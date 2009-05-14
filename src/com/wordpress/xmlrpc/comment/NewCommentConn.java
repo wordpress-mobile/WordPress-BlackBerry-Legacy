@@ -19,11 +19,6 @@ public class NewCommentConn extends BlogConn  {
 
 	public void run() {
 		try {
-			if (comment.getBlogId() == -1) {
-				setErrorMessage("Comment doesn't have BlogID");
-				notifyObservers(connResponse);
-				return;
-			}
 			if (comment.getPostID() == -1) {
 				setErrorMessage("Comment doesn't have PostID");
 				notifyObservers(connResponse);
@@ -31,8 +26,8 @@ public class NewCommentConn extends BlogConn  {
 			}
 
 			Hashtable vcomment = new Hashtable(10);
-			if (comment.getCommentParent() != 0) {
-				vcomment.put("comment_parent", String.valueOf(comment.getCommentParent()));
+			if (comment.getParent() != 0) {
+				vcomment.put("comment_parent", String.valueOf(comment.getParent()));
 			}
 			if (comment.getContent() != null) {
 				vcomment.put("content", comment.getContent());
@@ -47,7 +42,7 @@ public class NewCommentConn extends BlogConn  {
 				vcomment.put("author_email", comment.getAuthorEmail());
 			}        
 			Vector args = new Vector(5);
-			args.addElement(String.valueOf(comment.getBlogId()));
+		//	args.addElement(String.valueOf(comment.getBlogId()));
 			args.addElement(mUsername);
 			args.addElement(mPassword);
 			args.addElement(String.valueOf(comment.getPostID()));

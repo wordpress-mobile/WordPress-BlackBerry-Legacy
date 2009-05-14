@@ -9,7 +9,6 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BitmapField;
-import net.rim.device.api.ui.component.EditField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.container.MainScreen;
 
@@ -23,14 +22,13 @@ import com.wordpress.view.BaseView;
 public class PhotoSnapShotView extends BaseView {
 	
 	private MainScreen preview;
-	private EditField logField;
 	ObjectChoiceField qualityField;
 	private VideoControl vc;
 	private String encoding;
 	private Player p;
 	private Field viewFinder;
 	private BitmapField bitmapField;
-	private boolean isViewfinderVisible;
+	private boolean isViewfinderVisible = false;
 	
 	private Preferences prefs=Preferences.getIstance(); //main preferences object
 	private final PostController controller;
@@ -38,12 +36,11 @@ public class PhotoSnapShotView extends BaseView {
 	public PhotoSnapShotView(PostController _controller) {
 		super("");
 		this.controller = _controller;
-		logField = new EditField("Log:","");
 		bitmapField = new BitmapField();
 		
 		String[] choices = MultimediaUtils.getSupportedPhotoFormat();    
 		qualityField = new ObjectChoiceField("Quality", choices);
-		String photoEncoding = prefs.getPhotoEncoding(); //retrive preferecnes from the main setup
+		String photoEncoding = prefs.getPhotoEncoding(); //retrive preferences from the main setup
 		//select the preference 
 		for (int i = 0; i < choices.length; i++) {
         	if(choices[i].equalsIgnoreCase(photoEncoding)){
@@ -52,7 +49,6 @@ public class PhotoSnapShotView extends BaseView {
 		}
       
 		add(qualityField);
-		add(logField);		
 		addMenuItem(_snapshotMenuItem);
 		addMenuItem(_fullScreenMenuItem);
 		addMenuItem(_exitFullScreenMenuItem);
@@ -71,29 +67,22 @@ public class PhotoSnapShotView extends BaseView {
 			viewFinder = (Field)vc.initDisplayMode(VideoControl.USE_GUI_PRIMITIVE, "net.rim.device.api.ui.Field");
 			log("Initialized.");
 		} catch (Exception me){
+			controller.displayError(me, "Error during Camera Initialization");
 			log(me.getMessage());
 		}
-		isViewfinderVisible=false;
-		
-		
+				
 		setupEncoding();
-		logField.setText("");
 		log("Active Encoding: "+encoding);
 		if(vc!=null){					
-			
-			if(getFieldCount()<3){								
-				delete(logField);
-				add(viewFinder);								
-				add(logField);
-				viewFinder.setFocus();
-			}
+			add(viewFinder);								
+			viewFinder.setFocus();
 			vc.setVisible(true);			
 			isViewfinderVisible=true;
 			log("Initialized ViewFinder");								
 		}else {
+			controller.displayError("VideoControl not initialized");
 			log("VideoControl not initialized");
 		}
-	
 	}
 
 	private void setupEncoding(){
@@ -105,7 +94,6 @@ public class PhotoSnapShotView extends BaseView {
 	private MenuItem _snapshotMenuItem = new MenuItem("Snap", 1, 1) {
 		public void run() {			
 			try {
-				logField.setText("");
 				log("Taking snapshot");
 				setupEncoding();
 				if(vc!=null && isViewfinderVisible){	
@@ -115,14 +103,17 @@ public class PhotoSnapShotView extends BaseView {
 					log("Size: " + imageBytes.length);
 					controller.addPhoto(imageBytes,null);
 					controller.backCmd();
-				} else 
+				} else {
+					controller.displayError("Viewfinder not visible!");
 					log("Viewfinder not visible!");	
+				}
 				
 				if(isViewfinderVisible){
 					delete(viewFinder);				
 					isViewfinderVisible=false;
 				}
 			} catch(Throwable e){
+				controller.displayError(e.getMessage());
 				log(e + ":" + e.getMessage());
 			}
 		}
@@ -155,14 +146,13 @@ public class PhotoSnapShotView extends BaseView {
 	private void log(final String msg) {
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
-				logField.setText(logField.getText() + "\n" + msg);
+				System.out.println(msg);
 			}
 		});
 	}
 
 	public BaseController getController() {
-		// TODO Auto-generated method stub
-		return null;
+		return controller;
 	}
 	
 }

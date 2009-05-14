@@ -148,8 +148,10 @@ public class FrontController {
 				
 				if (scr instanceof BaseView){	
 					BaseController controller = ((BaseView)scr).getController();
-					if(wasRemoteUpdate)
+					if(wasRemoteUpdate) {
 						controller.refreshView();
+					} 
+					
 				}
 			} //end run
 		});

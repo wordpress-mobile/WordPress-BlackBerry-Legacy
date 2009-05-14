@@ -1,8 +1,6 @@
 package com.wordpress.view;
 
 import java.util.Date;
-import java.util.Hashtable;
-import java.util.Vector;
 
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
@@ -20,13 +18,12 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.CommentsController;
-import com.wordpress.controller.PostsController;
 import com.wordpress.model.Comment;
 
 public class CommentsView extends BaseView {
 	
     private CommentsController controller= null;
-    private ObjectListField listaPost; 
+    private ObjectListField commentsList; 
     private HorizontalFieldManager topManager;
     private VerticalFieldManager dataScroller;
     private ButtonField buttonNewPost;
@@ -36,7 +33,7 @@ public class CommentsView extends BaseView {
 
 	
 	 public CommentsView(CommentsController _controller, Comment[] comments) {
-	    	super(_controller.getBlogName()+" > "+_resources.getString(WordPressResource.TITLE_COMMENTS), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
+	    	super(_resources.getString(WordPressResource.TITLE_COMMENTS), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 	    	this.controller=_controller;
 	                
 	    	  //A HorizontalFieldManager to hold the posts number label
@@ -78,39 +75,28 @@ public class CommentsView extends BaseView {
 	         }			
 		}
 						
-		listaPost = new ObjectListField(); 	        
-		listaPost.set(elements);
-		listaPost.setEmptyString("Nothing to see here", DrawStyle.LEFT);
-		//TestListCallback listCallback = new TestListCallback(elements.size());
-		//listaPost.setCallback(listCallback);
+		commentsList = new ObjectListField(); 	        
+		commentsList.set(elements);
+		commentsList.setEmptyString("Nothing to see here", DrawStyle.LEFT);
 
-		dataScroller.add(listaPost);
+		dataScroller.add(commentsList);
 
 		if(comments.length > 0 ) {
-			addMenuItem(_editPostItem);
-			addMenuItem(_deletePostItem);
+			addMenuItem(_viewCommentsItem);
 		}
 		
-		addMenuItem(_refreshPostListItem);
-		//addMenuItem(_draftPostsItem);
+		addMenuItem(_refreshCommentsListItem);
 	}
 	 
 
-    private MenuItem _editPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDITPOST, 200, 10) {
+    private MenuItem _viewCommentsItem = new MenuItem( _resources, WordPressResource.MENUITEM_VIEW, 200, 10) {
         public void run() {
-            int selectedPost = listaPost.getSelectedIndex();
-            //controller.editPost(selectedPost);
+        	int selectedPost = commentsList.getSelectedIndex();
         }
     };
 	
-	private MenuItem _deletePostItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETEPOST, 210, 10) {
-        public void run() {
-            int selectedPost = listaPost.getSelectedIndex();
-           // controller.deletePost(selectedPost);
-        }
-    };
     
-    private MenuItem _refreshPostListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH_POSTSLIST, 220, 10) {
+    private MenuItem _refreshCommentsListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 220, 10) {
         public void run() {
         	controller.refreshView();
         }
@@ -120,18 +106,18 @@ public class CommentsView extends BaseView {
 	private FieldChangeListener listenerButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
 	    	if(field == buttonNewPost){
-	    		//controller.newPost();	    		
+
 	    	} else if(field == buttonRefresh){
 	    		controller.refreshView(); //reload only the posts list
 	    	} else if(field == buttonDraftPosts) {
-	    		//controller.showDraftPosts(); 
+
 	    	}
 	   }
 	};
 
     	 
     public void refresh(Comment[] comments, int count){
-    	dataScroller.delete(listaPost);
+    	dataScroller.delete(commentsList);
     	lblPostsNumber.setText("New Post " + count);
     	buildList(comments);
     }
