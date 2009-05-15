@@ -19,6 +19,10 @@ public class EditPostConn extends BlogConn  {
 		this.isPublished=isPublished;
 	}
 
+	public void setPost(Post post) {
+		this.post = post;
+	}
+	
 	/**
 	 * scrive in remoto un post di tipo draft 
 	 * @param provider

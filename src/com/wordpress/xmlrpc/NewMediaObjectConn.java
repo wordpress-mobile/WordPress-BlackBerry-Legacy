@@ -6,18 +6,28 @@ import java.util.Vector;
 
 public class NewMediaObjectConn extends BlogConn  {
 
-	
-	private String fileName =null;
-	private byte[] fileContent=null; //base64 Encoding
+	private String fileName =null;	
+	private byte[] fileContent=null; //base64 Encoding.
 	private String blogID;
 	
+
 	public NewMediaObjectConn(String hint,	String userHint, String passwordHint, TimeZone tz, String blogID,
-			String fileName, byte[] fileContent) {
+			String fileName) {
 		super(hint, userHint, passwordHint, tz);
-		this.fileContent=fileContent;
 		this.fileName=fileName;
 		this.blogID=blogID;
 	}
+
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	
+	public void setFileContent(byte[] fileContent) {
+		this.fileContent = fileContent;
+	}
+	
 	
 	/**
 	 * 

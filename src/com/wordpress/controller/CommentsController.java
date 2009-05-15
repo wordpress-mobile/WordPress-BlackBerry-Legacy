@@ -40,7 +40,7 @@ public class CommentsController extends BaseController{
 			comments = CommentsDAO.loadComments(currentBlog);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 				
@@ -145,7 +145,7 @@ public class CommentsController extends BaseController{
 						} catch (UnsupportedEncodingException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-						} catch (IOException e) {
+						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						} //store the comments

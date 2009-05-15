@@ -1,10 +1,10 @@
 package com.wordpress.io;
 
+
 public interface BaseDAO {
 	
-	public static final String BASE_PATH = "file:///store/home/user/wordpress/";
-	public static final String INST_FILE= BASE_PATH+"inst"; //check if the app is installed
-	public static final String APP_PREFS_FILE= BASE_PATH+"prefs"; //check if the app is installed
+	public static final String INST_FILE= "inst";
+	public static final String APP_PREFS_FILE= "prefs";
 	public static final String DRAFT_FOLDER_PREFIX = "d/";
 	public static final String COMMENTS_FILE = "comments";
 	public static final String BLOG_FILE = "blog";
@@ -19,4 +19,5 @@ public interface BaseDAO {
 	file:///store/home/user/wordpress/md5(blogname)/d/id-p-imgName (post imgs file)
 	
 */
+	
 }

@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.rms.RecordStoreException;
+
 import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
 import com.wordpress.utils.Tools;
@@ -15,7 +17,7 @@ import com.wordpress.utils.Tools;
 public class DraftDAO implements BaseDAO{
 	
     //remove a draft post from the storage
-    public static void removePost(Blog blog, int draftId) throws IOException {
+    public static void removePost(Blog blog, int draftId) throws IOException, RecordStoreException {
     	String draftFilePath = getPostFilePath(blog, draftId);  	
     	JSR75FileSystem.removeFile(draftFilePath);
     	String[] draftPostPhotoList = getPostPhotoList(blog, draftId);
@@ -25,14 +27,14 @@ public class DraftDAO implements BaseDAO{
     }
         
     //load a photos of the draft post
-	public static byte[] loadPostPhoto(Post draftPost, int draftId, String photoName) throws IOException {
+	public static byte[] loadPostPhoto(Post draftPost, int draftId, String photoName) throws IOException, RecordStoreException {
     	String draftPostPath = getPostFilePath(draftPost.getBlog(), draftId);
     	String photoFilePath = draftPostPath+"p-"+photoName;
     	return JSR75FileSystem.readFile(photoFilePath);
 	}
 	
     //delete a photos of the draft post
-	public static void removePostPhoto(Blog blog, int draftId, String photoName) throws IOException {
+	public static void removePostPhoto(Blog blog, int draftId, String photoName)  throws IOException, RecordStoreException{
     	String draftBlogPath = getPath(blog);
     	String photoFilePath = draftBlogPath+draftId+"p-"+photoName;
     	JSR75FileSystem.removeFile(photoFilePath);
@@ -40,7 +42,7 @@ public class DraftDAO implements BaseDAO{
 	}
     
     //store a photos of the draft post
-	public static void storePostPhoto(Post draftPost, int draftId, byte[] photoData, String photoName) throws IOException {
+	public static void storePostPhoto(Post draftPost, int draftId, byte[] photoData, String photoName) throws IOException, RecordStoreException {
     	String draftPostPath = getPostFilePath(draftPost.getBlog(), draftId);
     	JSR75FileSystem.createFile(draftPostPath);
     	String photoFilePath = draftPostPath+"p-"+photoName;
@@ -53,7 +55,7 @@ public class DraftDAO implements BaseDAO{
 	
 	
 	//retrive name of draft photos files
-	public static String[] getPostPhotoList(Blog blog, int draftId) throws IOException {
+	public static String[] getPostPhotoList(Blog blog, int draftId) throws IOException, RecordStoreException {
     	String blogDraftsPath=getPath(blog);
    // 	String postFile=getDraftFilePath(draftPost, draftId);
     	
@@ -72,7 +74,7 @@ public class DraftDAO implements BaseDAO{
         	return Tools.toStringArray(listDir);   	
 	}
     
-	public static int storePost(Post draftPost, int draftId) throws IOException {
+	public static int storePost(Post draftPost, int draftId) throws IOException, RecordStoreException {
     	String draftFilePath = getPostFilePath(draftPost.getBlog(), draftId);
     	int newPostID= getDraftPostID(draftPost.getBlog(), draftId);
     	JSR75FileSystem.createFile(draftFilePath);
@@ -95,7 +97,7 @@ public class DraftDAO implements BaseDAO{
 	
 	
 	//retrive drafts post info 
-	public static Hashtable getPostsInfo(Blog blog) throws IOException {
+	public static Hashtable getPostsInfo(Blog blog) throws IOException, RecordStoreException {
     	String blogDraftsPath=getPath(blog);
 
    		String[] listDraftFolder = JSR75FileSystem.listFiles(blogDraftsPath);
@@ -128,7 +130,7 @@ public class DraftDAO implements BaseDAO{
 	
 	
 	//retrive draft post by id from storage
-	public static Post loadPost(Blog blog, int draftId) throws IOException {
+	public static Post loadPost(Blog blog, int draftId) throws IOException, RecordStoreException {
 		String blogDraftsPath=getPath(blog);
 		String draftFile = blogDraftsPath + String.valueOf(draftId);
     	DataInputStream in = JSR75FileSystem.getDataInputStream(draftFile);
@@ -156,16 +158,15 @@ public class DraftDAO implements BaseDAO{
 
 
 	//retrive blog draftsFolder
-	private static String getPath(Blog blog) throws UnsupportedEncodingException{
+	private static String getPath(Blog blog) throws RecordStoreException, IOException{
 		String blogNameMD5=BlogDAO.getBlogFolderName(blog);
-    	String blogDraftsPath=BlogDAO.BASE_PATH+blogNameMD5+BlogDAO.DRAFT_FOLDER_PREFIX;
+    	String blogDraftsPath=AppDAO.getBaseDirPath()+blogNameMD5+BlogDAO.DRAFT_FOLDER_PREFIX;
     	return blogDraftsPath;
 	}
 	
 	
 	//retrive the draft post file
-	private static String getPostFilePath(Blog blog, int draftId) 
-			throws UnsupportedEncodingException, IOException {
+	private static String getPostFilePath(Blog blog, int draftId) throws RecordStoreException, IOException {
 		
     	String blogDraftsPath=getPath(blog);
     	String draftFolder = blogDraftsPath + String.valueOf(getDraftPostID(blog, draftId));
@@ -173,7 +174,7 @@ public class DraftDAO implements BaseDAO{
 		return draftFolder;
 	}
 	
-	private static int getDraftPostID(Blog blog, int draftId) throws IOException{	
+	private static int getDraftPostID(Blog blog, int draftId)  throws IOException, RecordStoreException{	
 	    	String blogDraftsPath=getPath(blog);
 	    	
 	    	//retrive the post file name

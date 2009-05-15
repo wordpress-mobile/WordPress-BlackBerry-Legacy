@@ -47,6 +47,7 @@ src\com\wordpress\controller\PostController.java
 src\com\wordpress\controller\PostsController.java
 src\com\wordpress\controller\PreferenceController.java
 src\com\wordpress\controller\RefreshBlogController.java
+src\com\wordpress\io\AppDAO.java
 src\com\wordpress\io\BaseDAO.java
 src\com\wordpress\io\BlogDAO.java
 src\com\wordpress\io\CommentsDAO.java
@@ -83,6 +84,7 @@ src\com\wordpress\view\BlogView.java
 src\com\wordpress\view\CommentsView.java
 src\com\wordpress\view\component\CheckBoxListField.java
 src\com\wordpress\view\component\ColouredListField.java
+src\com\wordpress\view\component\DirectorySelectorPopUpScreen.java
 src\com\wordpress\view\component\FileSelectorPopupScreen.java
 src\com\wordpress\view\component\HtmlTagPopupScreen.java
 src\com\wordpress\view\component\HtmlTextField.java
@@ -119,6 +121,7 @@ src\com\wordpress\xmlrpc\comment\GetCommentsConn.java
 src\com\wordpress\xmlrpc\comment\GetCommentStatusListConn.java
 src\com\wordpress\xmlrpc\comment\NewCommentConn.java
 src\com\wordpress\xmlrpc\GetAuthorsConn.java
+src\com\wordpress\xmlrpc\GetBlogsDataTask.java
 src\com\wordpress\xmlrpc\GetTemplateConn.java
 src\com\wordpress\xmlrpc\NewCategory.java
 src\com\wordpress\xmlrpc\NewCategoryConn.java
@@ -138,6 +141,7 @@ src\com\wordpress\xmlrpc\post\GetPostConn.java
 src\com\wordpress\xmlrpc\post\NewPostConn.java
 src\com\wordpress\xmlrpc\post\PostConn.java
 src\com\wordpress\xmlrpc\post\RecentPostConn.java
+src\com\wordpress\xmlrpc\SendPostDataTask.java
 src\disclosure-indicator.png
 src\drafts-folder.png
 src\License.txt

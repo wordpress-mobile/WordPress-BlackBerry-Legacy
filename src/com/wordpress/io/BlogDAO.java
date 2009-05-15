@@ -7,6 +7,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.rms.RecordStoreException;
+
 import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
 import com.wordpress.model.Tag;
@@ -22,16 +24,17 @@ public class BlogDAO implements BaseDAO {
      * add One  blog to the storage!
      * @param aBlog
      * @return
+	 * @throws Exception 
      */
     public static boolean newBlog(Blog blog, boolean overwrite) throws Exception{
     	String name = blog.getName();
     	String nameMD5=getBlogFolderName(blog);
-    	String filePath=BASE_PATH+nameMD5;
+    	String filePath=AppDAO.getBaseDirPath()+nameMD5;
     
     	if (JSR75FileSystem.isFileExist(filePath)){
     		throw new Exception("Cannot add this blog: " + name + " because another blog with same name already exist!");
     	} else {
-    		JSR75FileSystem.createDir(BASE_PATH); 
+    		JSR75FileSystem.createDir(AppDAO.getBaseDirPath()); 
     		JSR75FileSystem.createDir(filePath);
     		JSR75FileSystem.createDir(filePath+DRAFT_FOLDER_PREFIX); //create draft posts folder
     	}    	
@@ -54,7 +57,7 @@ public class BlogDAO implements BaseDAO {
     public static boolean updateBlog(Blog blog) throws Exception{   	
     	String name = blog.getName();
     	String nameMD5=getBlogFolderName(blog);
-    	String filePath=BASE_PATH+nameMD5;
+    	String filePath=AppDAO.getBaseDirPath()+nameMD5;
     
     	if (!JSR75FileSystem.isFileExist(filePath)){
     		throw new Exception("Cannot update this blog: " + name + " because not exist!");
@@ -77,8 +80,8 @@ public class BlogDAO implements BaseDAO {
         }
     }
     
-    private static String[] getBlogsPath() throws IOException{
-    	String[] listFilesAndDir = JSR75FileSystem.listFiles(BASE_PATH);
+    private static String[] getBlogsPath() throws IOException, RecordStoreException{
+    	String[] listFilesAndDir = JSR75FileSystem.listFiles(AppDAO.getBaseDirPath());
     	Vector listDir= new Vector();
     	
     	for (int i = 0; i < listFilesAndDir.length; i++) {
@@ -161,7 +164,7 @@ public class BlogDAO implements BaseDAO {
     private static Blog loadBlog(String name) throws Exception {
     	System.out.println("carico il blog " + name + " dal file system");
     	
-    	String filePath=BASE_PATH+name+"/";
+    	String filePath=AppDAO.getBaseDirPath()+name+"/";
         
     	if (!JSR75FileSystem.isFileExist(filePath)){
     		throw new Exception("Cannot load this blog: " + name + " because not exist!");
@@ -234,9 +237,9 @@ public class BlogDAO implements BaseDAO {
         return blog;     
      } 
     
-    public static void removeBlog(int aIndex) throws IOException{
+    public static void removeBlog(int aIndex)  throws IOException, RecordStoreException{
     	String blogName = getBlogsPath()[aIndex];
-    	String filePath=BASE_PATH+blogName+"/";
+    	String filePath=AppDAO.getBaseDirPath()+blogName+"/";
     	
     	if (!JSR75FileSystem.isFileExist(filePath)){
     		throw new IOException("Cannot delete this blog: " + blogName + " because not exist!");
@@ -245,60 +248,6 @@ public class BlogDAO implements BaseDAO {
     	}    
     }
     
-    public static boolean readApplicationPreferecens(Preferences pref) throws IOException {
-		System.out.println(">>>load application preferences");
-
-		if (!JSR75FileSystem.isFileExist(APP_PREFS_FILE)) {
-			return false;
-		}
-
-		DataInputStream in = JSR75FileSystem.getDataInputStream(APP_PREFS_FILE);
-		Serializer ser = new Serializer(in);
-
-		int tzOffsetIndex = ((Integer) ser.deserialize()).intValue();
-		int localeIndex = ((Integer) ser.deserialize()).intValue();
-		String videoEncoding = (String) ser.deserialize();
-		String audioEncoding = (String) ser.deserialize();
-		String photoEncoding = (String) ser.deserialize();
-		boolean deviceSideConnection = ((Boolean) ser.deserialize()).booleanValue();
-		
-		pref.setAudioEncoding(audioEncoding);
-		pref.setDeviceSideConnection(deviceSideConnection);
-		pref.setLocaleIndex(localeIndex);
-		pref.setPhotoEncoding(photoEncoding);
-		pref.setTimeZoneIndex(tzOffsetIndex);
-		pref.setVideoEncoding(videoEncoding);
-		System.out.println("Prefs loading succesfully!");
-		
-		in.close();
-		
-		return true;
-	}
-    
-    public static void storeApplicationPreferecens(Preferences pref) throws IOException {
-		System.out.println(">>>store application preferences");
-
-	  	JSR75FileSystem.createFile(APP_PREFS_FILE); 
-    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(APP_PREFS_FILE);
-    	
-    	int tzOffsetIndex = pref.getTimeZoneIndex();
-		int localeIndex = pref.getLocaleIndex();
-		String videoEncoding = pref.getVideoEncoding();
-		String audioEncoding = pref.getAudioEncoding();
-		String photoEncoding = pref.getPhotoEncoding();
-		boolean deviceSideConnection = pref.isDeviceSideConnection();
-		
-		Serializer ser= new Serializer(out);
-    	ser.serialize(new Integer(tzOffsetIndex));
-    	ser.serialize(new Integer(localeIndex));
-    	ser.serialize(videoEncoding);
-    	ser.serialize(audioEncoding);
-    	ser.serialize(photoEncoding);
-    	ser.serialize(new Boolean(deviceSideConnection));
-    	
-    	out.close();
-		System.out.println("Prefs stored succesfully!");
-	}
     
     /**
      * Calculate a MD5 hash of the blog object fields. The hash is the location 

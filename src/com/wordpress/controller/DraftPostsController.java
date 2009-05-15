@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import javax.microedition.rms.RecordStoreException;
+
 import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.io.DraftDAO;
@@ -34,12 +36,12 @@ public class DraftPostsController extends BaseController {
 	    		    	
 		    this.view= new DraftPostsView(this,loadedPostTitle);
 			UiApplication.getUiApplication().pushScreen(view);	    
-		} catch (IOException e) {
+		} catch (Exception e) {
 	    	displayError(e, "Error while reading drafts phones memory");
 		}
 	}
 
-	private void loadPostInfo() throws IOException {
+	private void loadPostInfo() throws IOException, RecordStoreException {
 		loadedPost = DraftDAO.getPostsInfo(currentBlog);
 		loadedPostTitle = new String[0];
 		loadedPostID = new int[0];
@@ -73,6 +75,8 @@ public class DraftPostsController extends BaseController {
 			refreshView();
 		} catch (IOException e) {
 	    	displayError(e, "Error while deleteing draft post");
+		} catch (RecordStoreException e) {
+			displayError(e, "Error while deleteing draft post");
 		}
 	}
 	
@@ -91,7 +95,7 @@ public class DraftPostsController extends BaseController {
 				Post post = DraftDAO.loadPost(currentBlog, draftPostID);
 				FrontController.getIstance().showDraftPost(post, draftPostID);
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			displayError(e, "Error while loading draft post");
 		}
 	}	
@@ -101,7 +105,7 @@ public class DraftPostsController extends BaseController {
 		 try {
 			loadPostInfo();
 			view.refresh(loadedPostTitle);
-		} catch (IOException e) {
+		} catch (Exception e) {
 	    	displayError(e, "Error while reading drafts phones memory");
 		}
 	}

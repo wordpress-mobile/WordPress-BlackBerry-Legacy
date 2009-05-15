@@ -29,6 +29,8 @@ public class MainController extends BaseController {
 	        BlogDAO.removeBlog(selectedBlog);
         } catch (IOException e) {
 			displayError(e, "Error while deleting the blog");
+		} catch (RecordStoreException e) {
+			displayError(e, "Error while deleting the blog");
 		}
 	}
 	
@@ -40,8 +42,15 @@ public class MainController extends BaseController {
 		} catch (Exception e) {
 			displayError(e, "Show Blog Error");
 		}
+		
 		if(currentBlog != null) {
-			FrontController.getIstance().showBlog(currentBlog);
+			if (currentBlog.getRecentPostTitles() == null ) {
+				//blog in caricamento
+				displayMessage("Loading blog. Try later..");
+			} else {
+				FrontController.getIstance().showBlog(currentBlog);
+			}
+			
 		}
 	}
 			

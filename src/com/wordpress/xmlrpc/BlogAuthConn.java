@@ -46,16 +46,8 @@ public class BlogAuthConn extends BlogConn  {
 				System.out.println("blogURL: " +(String) blogData.get("url"));
 				System.out.println("blogXMLRPC: " +(String) blogData.get("xmlrpc"));
 			
-
 				Blog currentBlog= new Blog((String)blogData.get("blogid") , (String)blogData.get("blogName"),
 						(String)blogData.get("url"), (String)blogData.get("xmlrpc"), this.mUsername, this.mPassword);
-				
-				getDefaultBlogData(currentBlog);
-				
-				System.out.println("reading recent post title list for the blog : "	+ currentBlog.getName());
-				Vector recentPostTitle = getRecentPostTitle(currentBlog.getId(), maxRecentPostCount);
-				currentBlog.setRecentPostTitles(recentPostTitle);
-				System.out.println("End reading recent post title list for the blog : " + currentBlog.getName());	
 				
 				myBlogs[i]=currentBlog;		
 			}		

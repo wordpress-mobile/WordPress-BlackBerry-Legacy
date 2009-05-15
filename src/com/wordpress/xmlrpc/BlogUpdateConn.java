@@ -21,8 +21,15 @@ public class BlogUpdateConn extends BlogConn  {
 	public void run() {
 		try {
 			connResponse = new BlogConnResponse();
-	        
-			getDefaultBlogData(blog);
+			//the following calls uses the same connection of the main function GetBlog..
+			//These calls can modify the state of the connection to isError=true;
+			//we ignore its errors now
+			getBlogCategories(blog);
+			getPageStatusList(blog);
+			getPostStatusList(blog);
+			getTagList(blog);
+			connResponse.setError(false);
+			connResponse.setResponse("");
 			
 			System.out.println("reading recent post title list for the blog : "	+ blog.getName());
 			Vector recentPostTitle = getRecentPostTitle(blog.getId(), blog.getMaxPostCount());
@@ -34,11 +41,9 @@ public class BlogUpdateConn extends BlogConn  {
 			
 		} catch (ClassCastException cce) {
 			setErrorMessage(cce, "update Blog error");
-			//notifyObservers(connResponse);
 		}
 		catch (Exception e) {
 			setErrorMessage(e, "Invalid server response");
-			//notifyObservers(connResponse);
 		}
 
 		try {
@@ -46,7 +51,6 @@ public class BlogUpdateConn extends BlogConn  {
 		} catch (Exception e) {
 			System.out.println("Blog Update Notify Error");
 		}
+		
 	}
-
-	
 }

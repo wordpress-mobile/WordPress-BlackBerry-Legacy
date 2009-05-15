@@ -38,6 +38,7 @@ import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.GetTemplateConn;
 import com.wordpress.xmlrpc.NewCategoryConn;
 import com.wordpress.xmlrpc.NewMediaObjectConn;
+import com.wordpress.xmlrpc.SendPostDataTask;
 import com.wordpress.xmlrpc.post.EditPostConn;
 import com.wordpress.xmlrpc.post.NewPostConn;
 
@@ -61,9 +62,6 @@ public class PostController extends BaseController {
 	public static final int BROWSER=4;
 	
 	Preferences prefs = Preferences.getIstance();
-	private Hashtable remoteFileInfo; ////contain files info on the WP server (used after sending MM files to the blog)
-	private Queue files;  //used while sending MM files to the 	blog 
-	private BlogConn connection; //used while sending MM files to the blog
 	
 	//used when new post/recent post
 	// 0 = new post
@@ -74,7 +72,7 @@ public class PostController extends BaseController {
 		//assign new space on draft folder, used for photo IO
 		try {
 			draftPostFolder = DraftDAO.storePost(post, draftPostFolder);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			displayError(e, "Cannot create space on disk for your post!");
 		}
 	}
@@ -111,7 +109,7 @@ public class PostController extends BaseController {
 		String[] draftPostPhotoList = new String[0];
 		try {
 			draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftPostFolder);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			displayError(e, "Cannot load photos of this post!");
 		}
 		this.view= new PostView(this, post);
@@ -229,41 +227,65 @@ public class PostController extends BaseController {
 		if(post.getStatus().equals("localdraft")) {
 			displayMessage("Local Draft post cannot be submitted");
 			return;
-		}
-		
-		/*
-		 * steps: 
-		 * - show the dialog (no modal)
-		 * - add the multimedia to blog and retrive response with id and url of files 
-		 * - added the file to the end of the post
-		 * - send the post to blog
-		 *  
-		 */
-		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
-		connectionProgressView.show();
-	    
-		remoteFileInfo = new Hashtable(); 
+		}	
+		 
 		String[] draftPostPhotoList;
 
 		try {
 			draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftPostFolder);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			displayError(e, "Cannot load photos from disk, publication failed!");
 			return;
 		}
-	
+		
+		SendPostDataTask sender = new SendPostDataTask (post, draftPostFolder);
+		
+		//adding multimedia connection
 		if(draftPostPhotoList.length > 0 ) {
-			files= new Queue(draftPostPhotoList.length);
 			String key="";
 			for (int i =0; i < draftPostPhotoList.length; i++ ) {
 				key = draftPostPhotoList[i];
-				files.push(key);				
+				NewMediaObjectConn connection = new NewMediaObjectConn (post.getBlog().getXmlRpcUrl(), 
+			       		   post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), 
+			       		   post.getBlog().getId(), key);				
+				sender.addConn(connection);
 			}
-			sendMultimediaContent();
-		} else {
-			sendPostContent();
 		}
+
 		
+		//adding post connection
+		BlogConn connection;
+		
+		String remoteStatus = post.getStatus();
+		boolean publish=false;
+		if( remoteStatus.equalsIgnoreCase("private") || remoteStatus.equalsIgnoreCase("publish"))
+			publish= true;
+		
+		if(post.getId() == null || post.getId().equalsIgnoreCase("-1")) { //new post
+	           connection = new NewPostConn (post.getBlog().getXmlRpcUrl(), 
+	        		post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post, publish);
+		
+		} else { //edit post
+			 connection = new EditPostConn (post.getBlog().getXmlRpcUrl(), 
+					 post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post, publish);
+		
+		}
+		sender.addConn(connection);
+		
+		
+		
+		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
+
+		sender.setDialog(connectionProgressView);
+		sender.startWorker(); //start sending post
+		
+		int choice = connectionProgressView.doModal();
+		if(choice == Dialog.CANCEL) {
+			System.out.println("Chiusura della conn dialog tramite cancel");
+			sender.quit();
+			if (sender.isTaskCompleted())
+				FrontController.getIstance().backAndRefreshView(true);
+		}
 	}
 	
 	//user save post as localdraft
@@ -286,7 +308,7 @@ public class PostController extends BaseController {
 	    			if( !isDraft ){ //not previous draft saved post
 	    				DraftDAO.removePost(post.getBlog(), draftPostFolder);
 	    			}
-				} catch (IOException e) {
+				} catch (Exception e) {
 					displayError(e, "Cannot remove temporary files from disk!");
 				}
 	    		FrontController.getIstance().backAndRefreshView(true);
@@ -383,7 +405,7 @@ public class PostController extends BaseController {
 				photoView.addPhoto(currPhotoPath, img);
 			}			
 			UiApplication.getUiApplication().pushScreen(photoView);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			displayError(e, "Cannot load photos from disk!");
 			return;
 		}
@@ -399,7 +421,7 @@ public class PostController extends BaseController {
 			data = DraftDAO.loadPostPhoto(post, draftPostFolder, key);
 			EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
 			UiApplication.getUiApplication().pushScreen(new PhotoPreview(this, key ,img)); //modal screen...
-		} catch (IOException e) {
+		} catch (Exception e) {
 			displayError(e, "Cannot load photos from disk!");
 			return;
 		}
@@ -415,7 +437,7 @@ public class PostController extends BaseController {
 		try {
 			DraftDAO.removePostPhoto(post.getBlog(), draftPostFolder, key);
 			photoView.deletePhotoBitmapField(key); //delete the thumbnail
-		} catch (IOException e) {
+		} catch (Exception e) {
 			displayError(e, "Cannot remove photo from disk!");
 		}		
 		return true;
@@ -473,7 +495,7 @@ public class PostController extends BaseController {
 
 		try {
 			DraftDAO.storePostPhoto(post, draftPostFolder, data, fileName);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			displayError(e, "Cannot save photo to disk!");
 		}
 		
@@ -484,84 +506,8 @@ public class PostController extends BaseController {
 		//resfresh the post view. not used.
 	}
 	
-	//send the post alphanumeric data to blog
-	private void sendPostContent(){
-		
-		//adding multimedia info to post
-		String body = post.getBody();
-		if(remoteFileInfo.size() > 0 ) {
-			Enumeration keys = remoteFileInfo.keys();
-			body+="<br /> <br />";
-			for (; keys.hasMoreElements(); ) {
-				String key = (String) keys.nextElement();
-				String url = (String) remoteFileInfo.get(key);
-				body+="<a href=\""+url+"\">"
-				+"<img title=\""+key+"\" alt=\""+key+"\" src=\""+url+"\" /> </a> ";
-			}
-			post.setBody(body);
-		}
-		
-		String remoteStatus = post.getStatus();
-		boolean publish=false;
-		
-		if( remoteStatus.equalsIgnoreCase("private") || remoteStatus.equalsIgnoreCase("publish"))
-			publish= true;
-		
-		if(post.getId() == null || post.getId().equalsIgnoreCase("-1")) { //new post
-	           connection = new NewPostConn (post.getBlog().getXmlRpcUrl(), 
-	        		post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post, publish);
-		
-		} else { //edit post
-			
-			 connection = new EditPostConn (post.getBlog().getXmlRpcUrl(), 
-					 post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post, publish);
-		
-		}
-		
-		connectionProgressView.setDialogClosedListener(new ConnectionInProgressListener(connection));
-		connection.addObserver(new SendPostCallBack()); 
-		connection.startConnWork(); //starts connection		
-	}
-	
-	//send the multimedia obj to blog
-	private void sendMultimediaContent(){
-		
-		//check for previous errors during MM sending
-		if(remoteFileInfo.containsKey("err")) {
-		 	displayError((String)remoteFileInfo.get("err"));
-			return;
- 		}
-		
-		//check if there are others file to be sent
-		if(files.isEmpty()) { 
-			sendPostContent();
 
-		} else {
-		
-			String poppedKey = (String)files.pop();
-			
-			byte[] data;
-			
-			try {
-				data = DraftDAO.loadPostPhoto(post, draftPostFolder, poppedKey);
-			} catch (IOException e) {
-				displayError(e, "Cannot upload photo file to the blog");
-				sendMultimediaContent(); //recursive... continue with next photo
-				return;
-			}
-			
-			EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);			
 
-			connection = new NewMediaObjectConn (post.getBlog().getXmlRpcUrl(), 
-	       		   post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post.getBlog().getId(), 
-	       		poppedKey,img.getData());
-		    
-		    connectionProgressView.setDialogClosedListener(new ConnectionInProgressListener(connection));
-	
-			connection.addObserver(new SendMultimediaContentCallBack());
-			connection.startConnWork(); //starts connection
-		}
-	}
 
 
 	//callback for preview
@@ -634,70 +580,6 @@ public class PostController extends BaseController {
 						final String respMessage=resp.getResponse();
 					 	displayError(respMessage);	
 					}			
-				}
-			});
-		}
-	}
-	
-	//callback for send post to the blog
-	private class SendPostCallBack implements Observer{
-		public void update(Observable observable, final Object object) {
-			UiApplication.getUiApplication().invokeLater(new Runnable() {
-				public void run() {
-					
-					dismissDialog(connectionProgressView);
-
-					BlogConnResponse resp= (BlogConnResponse) object;
-
-					if(!resp.isError()) {
-						if(resp.isStopped()){
-							return;
-						}
-						
-						try {
-							//delete post from draft after sending
-							DraftDAO.removePost(post.getBlog(),	draftPostFolder);
-							
-							displayMessage("Post Saved to "+ post.getBlog().getName()+ 
-									" with status " + postStatusLabel[getPostStatusID()] );
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						FrontController.getIstance().backAndRefreshView(true);
-						
-					} else {
-						final String respMessage=resp.getResponse();
-					 	displayError(respMessage);	
-					}			
-				}
-			});
-		}
-	}
-	
-	//callback for send Images to the blog
-	private class SendMultimediaContentCallBack implements Observer{
-		public void update(Observable observable, final Object object) {
-			UiApplication.getUiApplication().invokeLater(new Runnable() {
-				public void run() {
-					
-					BlogConnResponse resp= (BlogConnResponse) object;
-					if(!resp.isError()) {
-						if(resp.isStopped()){
-							remoteFileInfo.put("err", "stopped by user");
-						} else {
-							Hashtable content =(Hashtable)resp.getResponseObject();
-							System.out.println("url del file remoto: "+content.get("url") );
-							System.out.println("nome file remoto: "+content.get("file") );	
-							final String url=(String)content.get("url");
-							remoteFileInfo.put(content.get("file"), url);
-						}
-					} else {
-						dismissDialog(connectionProgressView);
-						final String respMessage=resp.getResponse();
-					 	remoteFileInfo.put("err", respMessage);
-					}
-					sendMultimediaContent(); //recursive...
 				}
 			});
 		}

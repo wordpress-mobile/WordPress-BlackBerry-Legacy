@@ -1,9 +1,6 @@
 package com.wordpress.view;
 
-import java.io.IOException;
-
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectListField;
 
 import com.wordpress.bb.WordPressResource;

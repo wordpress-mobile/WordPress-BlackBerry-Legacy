@@ -120,23 +120,6 @@ public abstract class BlogConn extends Observable implements Runnable {
 
 	}
 	
-	/**
-	 * Get most used data of current blog
-	 * @param currentBlog
-	 * @throws Exception
-	 */
-	protected synchronized void getDefaultBlogData(Blog currentBlog) throws Exception {
-		//the following calls uses the same connection of the main function GetBlog..
-		//These calls can modify the state of the connection to isError=true;
-		//we ignore its errors now
-		getBlogCategories(currentBlog);
-		getPageStatusList(currentBlog);
-		getPostStatusList(currentBlog);
-		getTagList(currentBlog);
-		connResponse.setError(false);
-		connResponse.setResponse("");
-	}
-	
 	//retrive "recent post title list"
 	protected synchronized Vector getRecentPostTitle(String blogID, int maxPost) throws Exception {
 		try {
@@ -162,7 +145,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 		}
 	}
 	
-	private synchronized void getBlogCategories(Blog blog) throws Exception {
+	protected synchronized void getBlogCategories(Blog blog) throws Exception {
   	   System.out.println("Reperisco le categorie del blog : "+ blog.getName());
 		Vector args;
 		Object response;
@@ -210,7 +193,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	}
 	
 //retrive the blog "post status list"
-	private synchronized void getPostStatusList(Blog blog) throws Exception {
+	protected synchronized void getPostStatusList(Blog blog) throws Exception {
 		try {
 			System.out.println("reading post status list for the blog : "
 					+ blog.getName());
@@ -246,7 +229,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	}
 	
 	//retrive the blog "page status list"
-	private synchronized void getPageStatusList(Blog blog) throws Exception {
+	protected synchronized void getPageStatusList(Blog blog) throws Exception {
 		try {
 			System.out.println("reading page status list for the blog : "
 					+ blog.getName());
@@ -283,7 +266,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	
 	
 	//retrive the blog "tag list"
-	private synchronized void getTagList(Blog blog) throws Exception {
+	protected synchronized void getTagList(Blog blog) throws Exception {
 		try {
 			System.out.println("reading tag list for the blog : "
 					+ blog.getName());

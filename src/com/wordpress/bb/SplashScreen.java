@@ -18,10 +18,11 @@ import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.controller.MainController;
+import com.wordpress.io.AppDAO;
 import com.wordpress.io.JSR75FileSystem;
-import com.wordpress.io.BlogDAO;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Preferences;
+import com.wordpress.view.component.DirectorySelectorPopUpScreen;
 import com.wordpress.view.dialog.ErrorView;
 
 
@@ -52,17 +53,25 @@ public class SplashScreen extends MainScreen {
 		application.pushScreen(this);
 		
 		try {
-			String filePath = BlogDAO.INST_FILE;
-			if (JSR75FileSystem.isFileExist(filePath)) {
-				//not first startup
-				BlogDAO.readApplicationPreferecens(blogPrefs); //load pref on startup
+			String baseDirPath = AppDAO.getBaseDirPath();
+			
+			if ( baseDirPath != null ) {
+				//not first startup 	
+				AppDAO.readApplicationPreferecens(blogPrefs); //load pref on startup
 				timer.schedule(new CountDown(), 3000); //3sec splash
 			} else { 
-				//first startup
-				JSR75FileSystem.createFile(filePath);
 				add(new LabelField("Installation in progress...",Field.FIELD_HCENTER| Field.FIELD_VCENTER));
-				//we can control connection type here...but it's too slow. 2 minute of timeout on http conn. 
-				timer.schedule(new CountDown(), 5000); //5 second splash
+				
+/*				SelectDirectoryThread sel = new SelectDirectoryThread(); //becouse i modifiy UI from non event thread
+				application.invokeLater(sel); */
+				//first startup
+				AppDAO.setBaseDirPath("file:///store/home/user/wordpress/");
+							
+	        	if(!JSR75FileSystem.isFileExist(AppDAO.getBaseDirPath())){
+					JSR75FileSystem.createDir(AppDAO.getBaseDirPath());
+				
+	        	}
+				timer.schedule(new CountDown(), 3000); //3sec splash
 			}
 		} catch (Exception e) {
 			timer.cancel();
@@ -75,12 +84,43 @@ public class SplashScreen extends MainScreen {
 			});
 		}
 	}
+
+   private class SelectDirectoryThread implements Runnable {
+	      public void run() {
+	    	  String theDir = null;
+				
+				while ( theDir == null ) {
+					DirectorySelectorPopUpScreen fps = new DirectorySelectorPopUpScreen();
+					fps.pickFile();
+			        theDir = fps.getFile();
+			        				
+					//first startup
+					//AppDAO.setBaseDirPath("file:///store/home/user/wordpress/");
+			        try {
+			        	if(!JSR75FileSystem.isFileExist(AppDAO.getBaseDirPath())){
+							JSR75FileSystem.createDir(AppDAO.getBaseDirPath());
+						
+			        	}
+			        } catch (Exception e) {
+						theDir = null;
+						ErrorView errView = new ErrorView("Directory not good");
+						errView.doModal();						
+					}
+				}
+			
+			timer.schedule(new CountDown(), 2000); //5 second splash
+	    	  
+	      }
+	   }
+	   
+   
    
    public void dismiss() {
       timer.cancel();
       application.popScreen(this);
       next.showView();
    }
+
    
    private class CountDown extends TimerTask {
       public void run() {

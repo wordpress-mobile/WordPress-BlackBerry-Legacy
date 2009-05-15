@@ -2,8 +2,6 @@ package com.wordpress.controller;
 
 import java.io.IOException;
 
-import javax.microedition.rms.RecordStoreException;
-
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.UiApplication;
@@ -11,9 +9,8 @@ import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 
-import com.wordpress.io.BlogDAO;
+import com.wordpress.io.AppDAO;
 import com.wordpress.utils.Preferences;
-import com.wordpress.utils.SimpleTimeZone;
 import com.wordpress.view.PreferencesView;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
@@ -71,7 +68,7 @@ public class PreferenceController extends BaseController {
 	}
 	
 	
-	private void savePref() throws IOException {
+	private void savePref() throws Exception {
 		if(!isStateChanged()) return; //if the state of ui isn't changed return immediatly
 		
 		if(audioEnc != null){
@@ -90,10 +87,7 @@ public class PreferenceController extends BaseController {
 			mPrefs.setDeviceSideConnection( deviceSideConnection == 1 ? true : false);
 		}
 		
-		BlogDAO.storeApplicationPreferecens(mPrefs);
-			
-		
-		
+		AppDAO.storeApplicationPreferecens(mPrefs);
 	}
 	
 	

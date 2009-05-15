@@ -18,6 +18,10 @@ public class NewPostConn extends BlogConn  {
 		this.isPublished=isPublished;
 	}
 
+	public void setPost(Post post) {
+		this.post = post;
+	}
+
 	/**
 	 * 
 	 * @param provider

@@ -17,6 +17,8 @@ import com.wordpress.view.AddBlogsView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogAuthConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
+import com.wordpress.xmlrpc.BlogUpdateConn;
+import com.wordpress.xmlrpc.GetBlogsDataTask;
 
 
 public class AddBlogsController extends BaseController implements Observer{
@@ -121,15 +123,29 @@ public class AddBlogsController extends BaseController implements Observer{
 			if(resp.isStopped()){
 				return;
 			}
+			
 			System.out.println("Trovati blogs: "+((Blog[])resp.getResponseObject()).length);	
 		 	Blog[]blogs=(Blog[])resp.getResponseObject();
+		 	
+		 	GetBlogsDataTask networkTask = new GetBlogsDataTask(); 
 
 		 	for (int i = 0; i < blogs.length; i++) {
 		 		blogs[i].setMaxPostCount(recentsPostValues[maxPostIndex]);
 		 		blogs[i].setResizePhotos(isResPhotos);
 		 		
-				BlogDAO.newBlog(blogs[i], true);
+				try {
+					BlogDAO.newBlog(blogs[i], true);
+					//add this blog to the queue
+					Preferences prefs = Preferences.getIstance();
+					final BlogUpdateConn connection = new BlogUpdateConn (prefs.getTimeZone(), blogs[i]);       
+			        networkTask.addConn(connection); 
+				} catch (Exception e) {
+					displayError(e.getMessage());	
+				}
 		    }
+		 	
+		 	networkTask.startWorker();
+		 	
 		 	FrontController.getIstance().backAndRefreshView(true);	 			 	
 		} else {
 			final String respMessage=resp.getResponse();
