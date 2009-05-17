@@ -14,8 +14,8 @@ import net.rim.device.api.ui.container.HorizontalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PreferenceController;
+import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
-import com.wordpress.utils.Preferences;
 import com.wordpress.utils.SimpleTimeZone;
 
 public class PreferencesView extends BaseView {

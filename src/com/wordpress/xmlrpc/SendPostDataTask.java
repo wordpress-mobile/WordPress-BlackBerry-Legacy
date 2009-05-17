@@ -12,7 +12,7 @@ import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.io.DraftDAO;
 import com.wordpress.model.Post;
-import com.wordpress.utils.Preferences;
+import com.wordpress.model.Preferences;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -32,6 +32,10 @@ public class SendPostDataTask {
 	private boolean stopping = false;
 	private boolean started = false;
 	private boolean taskCompleted = false;
+	private boolean isError = false; // true if there was errors in the connections
+	private StringBuffer errorMessage=new StringBuffer();
+	
+
 	private Dialog connectionProgressView;
 
 
@@ -42,6 +46,14 @@ public class SendPostDataTask {
 
 	 public void setDialog(Dialog dlg){
 		 this.connectionProgressView = dlg;
+	 }
+
+	 public boolean isError() {
+		 return isError;
+	 }
+	 	 
+	 public String getErrorMessage() {
+		 return errorMessage.toString();
 	 }
 	
 	public void startWorker() {
@@ -162,7 +174,8 @@ public class SendPostDataTask {
 				}
 			} else {
 				final String respMessage=resp.getResponse();
-			 	remoteFileInfo.put("err", respMessage);
+				errorMessage.append(respMessage+"\n");
+				isError=true;
 			}
 		
 			next(); // call to next

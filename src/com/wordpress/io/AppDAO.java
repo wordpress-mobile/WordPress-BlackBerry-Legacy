@@ -9,7 +9,7 @@ import java.io.IOException;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
 
-import com.wordpress.utils.Preferences;
+import com.wordpress.model.Preferences;
 
 public class AppDAO implements BaseDAO{
 

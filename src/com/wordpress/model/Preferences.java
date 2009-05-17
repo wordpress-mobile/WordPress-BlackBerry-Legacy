@@ -1,4 +1,4 @@
-package com.wordpress.utils;
+package com.wordpress.model;
 
 import com.wordpress.utils.SimpleTimeZone;
 

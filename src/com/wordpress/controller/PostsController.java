@@ -11,7 +11,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
-import com.wordpress.utils.Preferences;
+import com.wordpress.model.Preferences;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.PostsView;

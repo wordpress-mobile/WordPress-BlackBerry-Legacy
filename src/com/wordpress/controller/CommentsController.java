@@ -1,6 +1,5 @@
 package com.wordpress.controller;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.Hashtable;
@@ -13,7 +12,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Comment;
-import com.wordpress.utils.Preferences;
+import com.wordpress.model.Preferences;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.CommentsView;

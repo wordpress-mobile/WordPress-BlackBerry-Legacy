@@ -17,8 +17,8 @@ import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
 import com.wordpress.model.PostState;
+import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
-import com.wordpress.utils.Preferences;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -87,22 +87,27 @@ public class PostController extends BaseController {
 	public void showView() {
 		//unfolds hashtable of status
 		Hashtable postStatusHash = post.getBlog().getPostStatusList();
-		postStatusLabel= new String [postStatusHash.size()+1]; 
-		postStatusKey = new String [postStatusHash.size()+1];
-    	
-    	Enumeration elements = postStatusHash.keys();
-    	int i = 0;
-
-    	for (; elements.hasMoreElements(); ) {
-			String key = (String) elements.nextElement();
-			String value = (String) postStatusHash.get(key);
-			postStatusLabel[i] = value; //label
-			postStatusKey[i] = key;
-			i++;
+		postStatusLabel= new String [0];
+		postStatusKey = new String [0];
+		
+		if(postStatusHash != null) {
+			postStatusLabel= new String [postStatusHash.size()+1]; 
+			postStatusKey = new String [postStatusHash.size()+1];
+	    	
+	    	Enumeration elements = postStatusHash.keys();
+	    	int i = 0;
+	
+	    	for (; elements.hasMoreElements(); ) {
+				String key = (String) elements.nextElement();
+				String value = (String) postStatusHash.get(key);
+				postStatusLabel[i] = value; //label
+				postStatusKey[i] = key;
+				i++;
+			}
+			postStatusLabel[postStatusLabel.length-1]= "Local Draft";
+			postStatusKey[postStatusLabel.length-1]= "localdraft";
+			// end 
 		}
-		postStatusLabel[postStatusLabel.length-1]= "Local Draft";
-		postStatusKey[postStatusLabel.length-1]= "localdraft";
-		// end 
 
 		
 		String[] draftPostPhotoList = new String[0];
@@ -280,8 +285,10 @@ public class PostController extends BaseController {
 		if(choice == Dialog.CANCEL) {
 			System.out.println("Chiusura della conn dialog tramite cancel");
 			sender.quit();
-			if (sender.isTaskCompleted())
+			if (!sender.isError())
 				FrontController.getIstance().backAndRefreshView(true);
+			else
+				displayError(sender.getErrorMessage());
 		}
 	}
 	

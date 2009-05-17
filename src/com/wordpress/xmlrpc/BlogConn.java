@@ -14,8 +14,8 @@ import org.kxmlrpc.XmlRpcException;
 
 import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
+import com.wordpress.model.Preferences;
 import com.wordpress.model.Tag;
-import com.wordpress.utils.Preferences;
 import com.wordpress.utils.observer.Observable;
 
 public abstract class BlogConn extends Observable implements Runnable {

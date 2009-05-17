@@ -15,7 +15,7 @@ import net.rim.device.api.ui.container.MainScreen;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostController;
 import com.wordpress.utils.MultimediaUtils;
-import com.wordpress.utils.Preferences;
+import com.wordpress.model.Preferences;
 import com.wordpress.view.BaseView;
 
 

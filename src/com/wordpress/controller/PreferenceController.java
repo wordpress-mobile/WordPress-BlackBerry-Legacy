@@ -1,7 +1,5 @@
 package com.wordpress.controller;
 
-import java.io.IOException;
-
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.UiApplication;
@@ -10,7 +8,7 @@ import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 
 import com.wordpress.io.AppDAO;
-import com.wordpress.utils.Preferences;
+import com.wordpress.model.Preferences;
 import com.wordpress.view.PreferencesView;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
