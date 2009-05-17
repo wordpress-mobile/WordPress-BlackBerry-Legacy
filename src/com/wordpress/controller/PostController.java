@@ -19,7 +19,6 @@ import com.wordpress.model.Post;
 import com.wordpress.model.PostState;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Preferences;
-import com.wordpress.utils.Queue;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -271,9 +270,7 @@ public class PostController extends BaseController {
 		
 		}
 		sender.addConn(connection);
-		
-		
-		
+				
 		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
 
 		sender.setDialog(connectionProgressView);
@@ -316,6 +313,14 @@ public class PostController extends BaseController {
 	    	} else {
 	    		return false;
 	    	}
+		}
+		
+		try {
+			if( !isDraft ){ //not previous draft saved post
+				DraftDAO.removePost(post.getBlog(), draftPostFolder);
+			}
+		} catch (Exception e) {
+			displayError(e, "Cannot remove temporary files from disk!");
 		}
 		
 		FrontController.getIstance().backAndRefreshView(true);		

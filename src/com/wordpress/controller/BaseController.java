@@ -80,14 +80,4 @@ public abstract class BaseController {
 		});
 	}
 	
-	// Utility routine to ask question about exit application
-	public synchronized boolean exitApp() {
-    	int result=this.askQuestion("Are sure to exit?");   
-    	if(Dialog.YES==result) {
-    		System.exit(0);
-    		return true;
-    	} else {
-    		return false;
-    	}
-	}	
 }

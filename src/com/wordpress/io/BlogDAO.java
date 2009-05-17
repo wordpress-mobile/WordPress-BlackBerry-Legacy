@@ -10,10 +10,10 @@ import java.util.Vector;
 import javax.microedition.rms.RecordStoreException;
 
 import com.wordpress.model.Blog;
+import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Category;
 import com.wordpress.model.Tag;
 import com.wordpress.utils.MD5;
-import com.wordpress.utils.Preferences;
 import com.wordpress.utils.Tools;
 
 public class BlogDAO implements BaseDAO {
@@ -71,9 +71,10 @@ public class BlogDAO implements BaseDAO {
     }
     
     
-    public static Blog getBlog(int aIndex) throws Exception {
+    public static Blog getBlog(BlogInfo blogInfo) throws Exception {
         try {
-        	String blogName = getBlogsPath()[aIndex];
+        	//String blogName = getBlogsPath()[aIndex];
+        	String blogName = getBlogFolderName(blogInfo);
             return loadBlog(blogName);
         } catch (Exception e) {
         	throw new Exception("Failed to load blog: " + e.getMessage());            
@@ -87,30 +88,32 @@ public class BlogDAO implements BaseDAO {
     	for (int i = 0; i < listFilesAndDir.length; i++) {
     		String path=listFilesAndDir[i];
     		if (path.endsWith("/")) { //found directory
-    			listDir.addElement( path.substring(0,path.length()-1)	);
+    			listDir.addElement(path);
     		}
 		}
     	return Tools.toStringArray(listDir);
     }
     
     /**
-     * Retrive the name of all blogs
+     * Retrive a small set of infos for all blogs
      * @return
      * @throws Exception
      */
-    public static String[] getBlogsName() throws Exception{
+    public static BlogInfo[] getBlogsInfo() throws Exception{
     	String[] listFiles = getBlogsPath();
-    	String blogName[] = new String[listFiles.length];
-    	
+    	BlogInfo[] blogsInfo = new BlogInfo[listFiles.length];
+    	                                 
     	for (int i = 0; i < listFiles.length; i++) {
-    		   		
     		Blog loadedBlog = loadBlog(listFiles[i]);
-    		blogName[i]=loadedBlog.getName();
+    		String blogName = loadedBlog.getName();
+    		String blogXmlRpcUrl=loadedBlog.getXmlRpcUrl();
+    		String blogId= loadedBlog.getId();
+    		BlogInfo blogI = new BlogInfo(blogId, blogName,blogXmlRpcUrl,-1);
+    		blogsInfo[i]= blogI;
 		}
-    	return blogName;    	
+    	return blogsInfo;
     }
     
-
     
 	private static void storeBlog(Blog blog, DataOutputStream out)
 			throws IOException {
@@ -164,7 +167,7 @@ public class BlogDAO implements BaseDAO {
     private static Blog loadBlog(String name) throws Exception {
     	System.out.println("carico il blog " + name + " dal file system");
     	
-    	String filePath=AppDAO.getBaseDirPath()+name+"/";
+    	String filePath=AppDAO.getBaseDirPath()+name;
         
     	if (!JSR75FileSystem.isFileExist(filePath)){
     		throw new Exception("Cannot load this blog: " + name + " because not exist!");
@@ -237,9 +240,9 @@ public class BlogDAO implements BaseDAO {
         return blog;     
      } 
     
-    public static void removeBlog(int aIndex)  throws IOException, RecordStoreException{
-    	String blogName = getBlogsPath()[aIndex];
-    	String filePath=AppDAO.getBaseDirPath()+blogName+"/";
+    public static void removeBlog(BlogInfo blog)  throws IOException, RecordStoreException{
+    	String blogName = getBlogFolderName(blog);
+    	String filePath=AppDAO.getBaseDirPath()+blogName;
     	
     	if (!JSR75FileSystem.isFileExist(filePath)){
     		throw new IOException("Cannot delete this blog: " + blogName + " because not exist!");
@@ -258,15 +261,25 @@ public class BlogDAO implements BaseDAO {
      */
     protected static String getBlogFolderName(Blog blog) throws UnsupportedEncodingException{
     	if (blog == null) return null;
-    	String xmlrpcURL=blog.getXmlRpcUrl(); 
-    	if(xmlrpcURL==null || xmlrpcURL.equals(""))
+    	return getBlogFolderName(blog.getId(), blog.getXmlRpcUrl());
+    
+    }
+    
+    protected static String getBlogFolderName(String blogID, String xmlRpcUrl) throws UnsupportedEncodingException{
+    	if(xmlRpcUrl==null || xmlRpcUrl.equals("") || blogID==null || blogID.equals(""))
 			return null;
 		
- 	    MD5 md5 = new MD5();
-   	    md5.Update(xmlrpcURL, null);
-   	    String hash = md5.asHex();
-   	    md5.Final();
-   	    return hash+"/"; //as directory we return with ending trail slash
+    	String union = blogID.concat(xmlRpcUrl);
+    	MD5 md5 = new MD5();
+	    md5.Update(union, null);
+	    String hash = md5.asHex();
+	    md5.Final();
+	    return hash+"/"; //as directory we return with ending trail slash
+    }
+    
+    protected static String getBlogFolderName(BlogInfo blog) throws UnsupportedEncodingException{
+    	if (blog == null) return null;
+    	return getBlogFolderName(blog.getId(), blog.getXmlRpcUrl()); 	   
     }
 
 }

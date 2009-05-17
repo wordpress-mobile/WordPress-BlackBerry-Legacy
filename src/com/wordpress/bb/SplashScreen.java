@@ -62,7 +62,7 @@ public class SplashScreen extends MainScreen {
 			} else { 
 				add(new LabelField("Installation in progress...",Field.FIELD_HCENTER| Field.FIELD_VCENTER));
 				
-/*				SelectDirectoryThread sel = new SelectDirectoryThread(); //becouse i modifiy UI from non event thread
+/*				SelectDirectoryThread sel = new SelectDirectoryThread(); //because i modify UI from non event thread
 				application.invokeLater(sel); */
 				//first startup
 				AppDAO.setBaseDirPath("file:///store/home/user/wordpress/");

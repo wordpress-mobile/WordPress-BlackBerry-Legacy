@@ -38,20 +38,23 @@ public class PostsController extends BaseController{
 		return currentBlog.getName();
 	}
 	
-	
-	private int countRecentPost() {
-		Vector recentPostTitles = currentBlog.getRecentPostTitles();
-		Vector viewedPost = currentBlog.getViewedPost();
+	//count number of new posts and set the new number in the blog structure.
+	private int countNewPosts() {
+		Vector recentPostsTitle = currentBlog.getRecentPostTitles();
+		Vector viewedPostsTitle = currentBlog.getViewedPost();
+
 		int count = 0;
 
-		for (int i = 0; i < recentPostTitles.size(); i++) {
+		for (int i = 0; i < recentPostsTitle.size(); i++) {
 			boolean presence = false; 
-			Hashtable postData = (Hashtable) recentPostTitles.elementAt(i);
-             String postid = (String) postData.get("postid");
+			Hashtable recentPost = (Hashtable) recentPostsTitle.elementAt(i);
+            String postId = (String) recentPost.get("postid");
 			
-		    for (int j = 0; j < viewedPost.size(); j++) {
-		    	String elementAt = (String) viewedPost.elementAt(j);
-		    	if (elementAt.equalsIgnoreCase(postid)) {
+		    for (int j = 0; j < viewedPostsTitle.size(); j++) {
+		    	Hashtable viewedPost = (Hashtable) viewedPostsTitle.elementAt(j);
+	            String viewedPostId = (String) viewedPost.get("postid");
+		    	
+		    	if (postId.equalsIgnoreCase(viewedPostId)) {
 		    		presence = true;
 		    		break;
 		    	}
@@ -60,24 +63,33 @@ public class PostsController extends BaseController{
 		    if (!presence) 
 		    	count++;
 		}
+		currentBlog.setViewedPost(recentPostsTitle); //update viewed post in blog obj
 		return count;
 	}
 	
 	public void showView(){
-		this.view= new PostsView(this,currentBlog.getRecentPostTitles(), countRecentPost());
+		this.view= new PostsView(this,currentBlog.getRecentPostTitles(), countNewPosts());
 		UiApplication.getUiApplication().pushScreen(view);
 	}
-			
+	
+	//check if the user can do the action
+	private boolean checkUserRights(){
+		if (currentBlog.getPostStatusList() == null) 
+			return false;
+		return true;
+	}
+	
 	/** starts the  post loading */
 	public void editPost(int selected){
+		if(!checkUserRights()){
+			displayMessage("You cannot Manage Post!");
+			return;
+		}
+				
 		if(selected != -1){
 			
 			Hashtable postData = (Hashtable) currentBlog.getRecentPostTitles().elementAt(selected);
-			
-			String postid= (String) postData.get("postid");
-			currentBlog.addViewedPost(postid); //add the current post to the viewed post
-			view.refresh(currentBlog.getRecentPostTitles() , countRecentPost()); //refresh the ui 
-			
+						
 			Post  post = new Post(currentBlog,(String) postData.get("postid"),
                                       (String) postData.get("title"),
                                       (String) postData.get("userid"),
@@ -130,6 +142,10 @@ public class PostsController extends BaseController{
 	
 			
 	public void showDraftPosts(){
+		if(!checkUserRights()){
+			displayMessage("You cannot Manage Post!");
+			return;
+		}
 		if(currentBlog != null) {
 			FrontController.getIstance().showDraftPostsView(currentBlog);
 		}
@@ -137,13 +153,23 @@ public class PostsController extends BaseController{
 		
 
 	public void newPost() {
+		if(!checkUserRights()){
+			displayMessage("You cannot Manage Post!");
+			return;
+		}
+		
 		if (currentBlog != null) {
 			FrontController.getIstance().newPost(currentBlog); // show the new post view
 		}
 	}
 
-	//usually called from the front controller
+	//called from the front controller
 	public void refreshView() {
+		//no action..
+
+	}
+	
+	public void refreshPostsList() {
 		System.out.println(">>>refreshPosts");
 		Preferences prefs = Preferences.getIstance();
         final RecentPostConn connection = new RecentPostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
@@ -161,7 +187,6 @@ public class PostsController extends BaseController{
 			connection.stopConnWork(); //stop the connection if the user click on cancel button
 		}
 	}
-	
 	
 	
 	class deletePostCallBack implements Observer{
@@ -190,7 +215,7 @@ public class PostsController extends BaseController{
 				        	}
 						}			        
 						
-						view.refresh(currentBlog.getRecentPostTitles(), countRecentPost());
+						view.refresh(currentBlog.getRecentPostTitles(), countNewPosts());
 						
 						try{
 							BlogDAO.updateBlog(currentBlog);							
@@ -228,9 +253,8 @@ public class PostsController extends BaseController{
 						
 						Vector recentPostTitle= (Vector) resp.getResponseObject();
 						currentBlog.setRecentPostTitles(recentPostTitle);
-						
 
-						view.refresh(currentBlog.getRecentPostTitles() , countRecentPost());
+						view.refresh(currentBlog.getRecentPostTitles() , countNewPosts());
 						
 						try{
 							BlogDAO.updateBlog(currentBlog);							

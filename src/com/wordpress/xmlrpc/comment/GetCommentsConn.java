@@ -1,11 +1,9 @@
 package com.wordpress.xmlrpc.comment;
 
-import java.util.Date;
 import java.util.Hashtable;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import com.wordpress.model.Comment;
 import com.wordpress.xmlrpc.BlogConn;
 
 public class GetCommentsConn extends BlogConn  {

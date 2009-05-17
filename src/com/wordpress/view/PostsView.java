@@ -57,7 +57,9 @@ public class PostsView extends BaseView {
 	        HorizontalFieldManager postNumberManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
 	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
 
-	        lblPostsNumber = getLabel("New Post " + numberOfNewPosts);
+	        
+	      
+	        lblPostsNumber = getLabel(getNumberOfNewPostLabel(recentPostInfo.size(), numberOfNewPosts));
 	        postNumberManager.add(lblPostsNumber);
 	    	
 	        //A HorizontalFieldManager to hold the posts list
@@ -71,51 +73,23 @@ public class PostsView extends BaseView {
 			add(dataScroller);
 			buildList(recentPostInfo);
 	 }
-
-/*
-	 final class TestListCallback implements ListFieldCallback {
-		 private Vector _listElements ;
-		 		 
-		public TestListCallback(int length) {
-			super();
-			_listElements= new Vector(length, 1);
-		}
-
-		// Draws the list row.
-		public void drawListRow(ListField list, Graphics g, int index, int y, int w) {
-			// We don't need to draw anything here because it is handled
-			// by the paint method of our custom ColouredListField.
-		}
-
-		// Returns the object at the specified index.
-		public Object get(ListField list, int index) {
-			return _listElements.elementAt(index);
-		}
-
-		// Returns the first occurence of the given String, beginning the
-		// search at index,
-		// and testing for equality using the equals method.
-		public int indexOfList(ListField list, String p, int s) {
-			// return listElements.getSelectedIndex();
-			return _listElements.indexOf(p, s);
-		}
-
-		// Returns the screen width so the list uses the entire screen width.
-		public int getPreferredWidth(ListField list) {
-			return Graphics.getScreenWidth();
-		}
-
-		// Adds a String element at the specified index.
-		public void insert(String toInsert, int index) {
-			_listElements.insertElementAt(toInsert, index);
-		}
-
-		// Erases all contents.
-		public void erase() {
-			_listElements.removeAllElements();
-		}
-	}
-	 */
+	 
+	 
+	 private String getNumberOfNewPostLabel(int recentPostNum, int newPostNum) {
+		  //set the label for the post number object
+	        String numerOfPostLabel = null;
+	        
+	        if(recentPostNum > 1) 
+	        	numerOfPostLabel= recentPostNum+ " " +_resources.getString(WordPressResource.LABEL_POST_NUMBERS); 
+	        else 
+	        	numerOfPostLabel= recentPostNum+ " " +_resources.getString(WordPressResource.LABEL_POST_NUMBER);
+	        
+	        
+	        numerOfPostLabel+=" (" +newPostNum+" "+_resources.getString(WordPressResource.LABEL_POST_NUMBER_NEW)+")";
+	        
+	        return numerOfPostLabel;
+		 
+	 }
 	 
 	private void buildList(Vector recentPostInfo) {
 		removeAllMenuItems();
@@ -141,9 +115,6 @@ public class PostsView extends BaseView {
 		listaPost = new ObjectListField(); 	        
 		listaPost.set(elements);
 		listaPost.setEmptyString("Nothing to see here", DrawStyle.LEFT);
-		//TestListCallback listCallback = new TestListCallback(elements.size());
-		//listaPost.setCallback(listCallback);
-
 		dataScroller.add(listaPost);
 
 
@@ -173,7 +144,7 @@ public class PostsView extends BaseView {
     
     private MenuItem _refreshPostListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 220, 10) {
         public void run() {
-        	controller.refreshView();
+        	controller.refreshPostsList();
         }
     };
      
@@ -189,7 +160,7 @@ public class PostsView extends BaseView {
 	    	if(field == buttonNewPost){
 	    		controller.newPost();	    		
 	    	} else if(field == buttonRefresh){
-	    		controller.refreshView(); //reload only the posts list
+	    		controller.refreshPostsList(); //reload only the posts list
 	    	} else if(field == buttonDraftPosts) {
 	    		controller.showDraftPosts(); 
 	    	}
@@ -199,7 +170,7 @@ public class PostsView extends BaseView {
     	 
     public void refresh(Vector recentPostInfo, int count){
     	dataScroller.delete(listaPost);
-    	lblPostsNumber.setText("New Post " + count);
+    	lblPostsNumber.setText(getNumberOfNewPostLabel(recentPostInfo.size(), count));
     	buildList(recentPostInfo);
     }
 

@@ -24,7 +24,7 @@ import net.rim.device.api.ui.container.DialogFieldManager;
 import net.rim.device.api.ui.container.PopupScreen;
 
 /**
- * A PopupScreen with a file browser allowing for file selection.
+ * A PopupScreen with a directory browser allowing for file selection.
  */
 
 public class DirectorySelectorPopUpScreen extends PopupScreen {

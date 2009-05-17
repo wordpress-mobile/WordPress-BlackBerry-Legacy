@@ -1,12 +1,14 @@
 package com.wordpress.xmlrpc;
 
+import com.wordpress.controller.AddBlogsMediator;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 
-public class GetBlogsDataTask {
+public class GetBlogsDataTask extends Observable{
 
 	private final Queue executionQueue = new Queue(); // queue of BlogConn
 	private WorkerThread worker = null;
@@ -15,7 +17,6 @@ public class GetBlogsDataTask {
 	private boolean started = false;
 
 	public GetBlogsDataTask() {
-
 	}
 
 	public void startWorker() {
@@ -54,6 +55,8 @@ public class GetBlogsDataTask {
 
 		public void update(Observable observable, final Object object) {
 			BlogConnResponse resp = (BlogConnResponse) object;
+			AddBlogsMediator istance = AddBlogsMediator.getIstance();
+			
 			if (!resp.isError()) {
 				if (resp.isStopped()) {
 					return;
@@ -61,7 +64,14 @@ public class GetBlogsDataTask {
 				Blog currentBlog = (Blog) resp.getResponseObject(); // update
 				try {
 					BlogDAO.updateBlog(currentBlog);
+					
+					BlogInfo blogInfo = new BlogInfo(currentBlog.getId(), currentBlog.getName(), 
+							currentBlog.getXmlRpcUrl(), BlogInfo.STATE_LOADED);
+					istance.updateState(blogInfo);
 				} catch (final Exception e) {
+					BlogInfo blogInfo = new BlogInfo(currentBlog.getId(), currentBlog.getName(), 
+							currentBlog.getXmlRpcUrl(), BlogInfo.STATE_LOADED_WITH_ERROR);
+					istance.updateState(blogInfo);
 					//TODO err
 					System.out.println(e.getMessage());
 				}

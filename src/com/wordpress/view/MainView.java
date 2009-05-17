@@ -1,19 +1,25 @@
 package com.wordpress.view;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.component.ObjectListField;
+import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.ListField;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
-import com.wordpress.io.BlogDAO;
+import com.wordpress.model.BlogInfo;
+import com.wordpress.view.component.BlogListField;
 
 public class MainView extends BaseView {
 	
     private MainController mainController=null;
-    private ObjectListField listaBlog; 
-
+    private ListField listaBlog;
+    private BlogListField blogListController; 
+    private Timer timer = new Timer(); 
 
 	public MainView(MainController mainController) {
 		super(_resources.getString(WordPressResource.TITLE_APPLICATION));
@@ -28,27 +34,59 @@ public class MainView extends BaseView {
 	
 	
 	 public void setupUpBlogsView() {
-		String[] blogCaricati = new String[0];
-		try {
-			blogCaricati = BlogDAO.getBlogsName();
-		} catch (Exception e) {
-			mainController.displayError(e, "Cannot load your blogs!");
-		}
-
-    	removeMenuItem(_deleteBlogItem);
+	
+		 //resetta qua il timer!!!
+		timer.cancel();
+    	
+		removeMenuItem(_deleteBlogItem);
     	removeMenuItem(_showBlogItem);
-		
-        listaBlog = new ObjectListField();
+
+    	BlogInfo[] blogCaricati = mainController.getBlogsList();
+				
         if (blogCaricati.length == 0){
-        	blogCaricati= new String[1];
-        	blogCaricati[0]="Setup your blog...";
+        	blogCaricati = new BlogInfo[0];
         } else {
         	addMenuItem(_showBlogItem);
         	addMenuItem(_deleteBlogItem);
+            timer = new Timer();
+            timer.schedule(new CountDown(), 1000, 3000); //3 second splash
         }
-    	listaBlog.set(blogCaricati);
-        add(listaBlog);
-	}
+    	blogListController = new BlogListField(blogCaricati);
+		this.listaBlog = blogListController.getCheckList();
+        add(listaBlog);    
+	 }
+	 
+	 
+   private class CountDown extends TimerTask {
+	      public void run() {
+	    	  
+	    	  UiApplication.getUiApplication().invokeLater(new Runnable() {
+	  			public void run() {
+	  				
+	  				System.out.println("CountDown");
+	  				BlogInfo[] blogCaricati = mainController.getBlogsList();
+	  				boolean inLoading = false;
+	  		  		for (int i = 0; i < blogCaricati.length; i++) {
+	  		  			if (blogCaricati[i].getState() ==  BlogInfo.STATE_LOADING 
+	  		  					|| blogCaricati[i].getState() == BlogInfo.STATE_ADDED_TO_QUEUE ){
+	  		  				blogListController.setBlogState(blogCaricati[i]);
+	  		  				inLoading = true;
+	  		  			} else if(blogCaricati[i].getState() == BlogInfo.STATE_LOADED) {
+	  		  				blogListController.setBlogState(blogCaricati[i]);
+	  		  			}
+	  				}
+	  		  		
+	  		  		if ( !inLoading )
+	  		  			timer.cancel(); //cancel timer
+	  				
+	  			}
+	  		});
+	    	  
+	    	  
+	     
+	      }
+	   }
+
 	 
 	public void refreshBlogList(){	 
 		if(listaBlog != null){
@@ -78,8 +116,8 @@ public class MainView extends BaseView {
 	
     private MenuItem _showBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_SHOWBLOG, 130, 10) {
         public void run() {
-            int selectedBlog = listaBlog.getSelectedIndex();
-            mainController.showBlog(selectedBlog);
+        BlogInfo blogSelected = blogListController.getBlogSelected();
+        mainController.showBlog(blogSelected);
         }
     };
     
@@ -88,16 +126,16 @@ public class MainView extends BaseView {
     //add blog menu item 
     private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 150, 10) {
         public void run() {
-        	FrontController.getIstance().showAddBlogsView();
+        	mainController.addBlogs();
         }
     };
 
         
     private MenuItem _deleteBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE, 200, 10) {
         public void run() {
-            int selectedBlog = listaBlog.getSelectedIndex();
-            mainController.deleteBlog(selectedBlog);
-            refreshBlogList();
+        BlogInfo blogSelected = blogListController.getBlogSelected();
+        mainController.deleteBlog(blogSelected);
+        refreshBlogList();
         }
     };
     

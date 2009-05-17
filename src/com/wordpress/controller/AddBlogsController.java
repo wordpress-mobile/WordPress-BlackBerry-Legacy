@@ -10,6 +10,7 @@ import net.rim.device.api.ui.component.Dialog;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.Preferences;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -32,6 +33,7 @@ public class AddBlogsController extends BaseController implements Observer{
 	private Hashtable guiValues= new Hashtable();
 	
 	ConnectionInProgressView connectionProgressView=null;
+
 	
 	public AddBlogsController() {
 		super();
@@ -128,17 +130,20 @@ public class AddBlogsController extends BaseController implements Observer{
 		 	Blog[]blogs=(Blog[])resp.getResponseObject();
 		 	
 		 	GetBlogsDataTask networkTask = new GetBlogsDataTask(); 
-
+		 	AddBlogsMediator istance = AddBlogsMediator.getIstance();
+			Preferences prefs = Preferences.getIstance();
+			
 		 	for (int i = 0; i < blogs.length; i++) {
 		 		blogs[i].setMaxPostCount(recentsPostValues[maxPostIndex]);
-		 		blogs[i].setResizePhotos(isResPhotos);
-		 		
+		 		blogs[i].setResizePhotos(isResPhotos);	
 				try {
 					BlogDAO.newBlog(blogs[i], true);
-					//add this blog to the queue
-					Preferences prefs = Preferences.getIstance();
+					//add this blog to the queue	
 					final BlogUpdateConn connection = new BlogUpdateConn (prefs.getTimeZone(), blogs[i]);       
 			        networkTask.addConn(connection); 
+			        BlogInfo blogInfo = new BlogInfo(blogs[i].getId(), blogs[i].getName(), 
+			        		blogs[i].getXmlRpcUrl(), BlogInfo.STATE_ADDED_TO_QUEUE);
+			        istance.addBlog(blogInfo);
 				} catch (Exception e) {
 					displayError(e.getMessage());	
 				}

@@ -84,7 +84,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 		} catch (IOException ioe) {
 			setErrorMessage(ioe, "A server communications error occured:");
 		} catch (XmlRpcException xre) {
-			setErrorMessage(xre, "An error occured talking to the blog:");
+			setErrorMessage(xre, "Blog Message (code " +xre.code+")");
 		} catch (Exception t) {
 			setErrorMessage(t, "An error occured :");
 		} 
@@ -326,8 +326,8 @@ public abstract class BlogConn extends Observable implements Runnable {
 		connResponse.setError(true);
 		
 		if(e != null) {
-			connResponse.setResponse(err+" - "+e.getMessage());
-			System.out.println(err+" - "+e.getMessage());
+			connResponse.setResponse(err+" : "+e.getMessage());
+			System.out.println(err+" : "+e.getMessage());
 		} else {
 			connResponse.setResponse(err);
 			System.out.println(err);			

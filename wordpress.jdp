@@ -34,6 +34,7 @@ src\com\wordpress\bb\WordPress.rrc
 src\com\wordpress\bb\WordPress.rrh
 src\com\wordpress\controller\AboutController.java
 src\com\wordpress\controller\AddBlogsController.java
+src\com\wordpress\controller\AddBlogsMediator.java
 src\com\wordpress\controller\BaseController.java
 src\com\wordpress\controller\BlogController.java
 src\com\wordpress\controller\BlogOptionsController.java
@@ -57,6 +58,7 @@ src\com\wordpress\io\JSR75FileSystem.java
 src\com\wordpress\io\Serializer.java
 src\com\wordpress\model\Author.java
 src\com\wordpress\model\Blog.java
+src\com\wordpress\model\BlogInfo.java
 src\com\wordpress\model\Category.java
 src\com\wordpress\model\Comment.java
 src\com\wordpress\model\MediaObject.java
@@ -64,6 +66,7 @@ src\com\wordpress\model\Option.java
 src\com\wordpress\model\Page.java
 src\com\wordpress\model\Post.java
 src\com\wordpress\model\PostState.java
+src\com\wordpress\model\Preferences.java
 src\com\wordpress\model\Tag.java
 src\com\wordpress\utils\MD5.java
 src\com\wordpress\utils\MD5State.java
@@ -82,6 +85,7 @@ src\com\wordpress\view\BaseView.java
 src\com\wordpress\view\BlogOptionsView.java
 src\com\wordpress\view\BlogView.java
 src\com\wordpress\view\CommentsView.java
+src\com\wordpress\view\component\BlogListField.java
 src\com\wordpress\view\component\CheckBoxListField.java
 src\com\wordpress\view\component\ColouredListField.java
 src\com\wordpress\view\component\DirectorySelectorPopUpScreen.java
