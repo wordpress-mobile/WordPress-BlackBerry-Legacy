@@ -101,7 +101,7 @@ public class PhotoSnapShotView extends BaseView {
 					final byte[] imageBytes = vc.getSnapshot(encoding);
 					log("Encoding: "+encoding);
 					log("Size: " + imageBytes.length);
-					controller.addPhoto(imageBytes,null);
+					controller.addPhoto(imageBytes,System.currentTimeMillis()+".jpg");
 					controller.backCmd();
 				} else {
 					controller.displayError("Viewfinder not visible!");

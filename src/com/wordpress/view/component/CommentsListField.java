@@ -1,17 +1,34 @@
 package com.wordpress.view.component;
 
+import java.util.Date;
 import java.util.Vector;
+
+import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ListFieldCallback;
 
-public class CheckBoxListField implements ListFieldCallback {
+import com.wordpress.model.Comment;
+
+public class CommentsListField implements ListFieldCallback {
     private Vector _listData = new Vector();
     private ListField _checkList;
-   
-   public boolean[] getSelected(){
+    private boolean checkBoxVisible = false;
+    
+       
+   public boolean isCheckBoxVisible() {
+		return checkBoxVisible;
+	}
+
+	public void setCheckBoxVisible(boolean checkBoxVisible) {
+		this.checkBoxVisible = checkBoxVisible;
+		_checkList.invalidate(); //invalidate all list
+	}
+
+	public boolean[] getSelected(){
        int elementLength = _listData.size();
        boolean[] selected= new boolean[elementLength];
        //Populate the ListField & Vector with data.
@@ -23,26 +40,43 @@ public class CheckBoxListField implements ListFieldCallback {
        }
        return selected;
    }
-    
+
+	
+	public Comment[] getSelectedComments() {
+		Vector comments = new Vector();
+		int elementLength = _listData.size();
+		for (int count = 0; count < elementLength; ++count) {
+			// Get the ChecklistData for this row.
+			ChecklistData data = (ChecklistData) _listData.elementAt(count);
+			if (data.isChecked())
+				comments.addElement(data.getComment());
+
+		}
+		Comment[] commentsArray = new Comment[comments.size()];
+		comments.copyInto(commentsArray);
+		return commentsArray;
+	}
+	
 	//return the focused comment
-	public String getFocusedElement() {
+	public Comment getFocusedComment() {
 		int selectedIndex = _checkList.getSelectedIndex();
 		if (selectedIndex != -1) {
 			ChecklistData data = (ChecklistData) _listData.elementAt(selectedIndex);
-			return data.getStringVal();
+			return data.getComment();
 		} else {
 			return null;
 		}
 	}
 
-   
+	
+/*
    public void addElement(String label){
 	   int elementLength = _listData.size(); //the field start with 0 index!!
        _listData.addElement(new ChecklistData(label, true));  
        _checkList.insert(elementLength);
    }
-   
-   public CheckBoxListField(String[] _elements, boolean[] _elementsChecked) {  
+   */
+   public CommentsListField(Comment[] _elements, boolean[] _elementsChecked) {  
 	    
         _checkList = new ListField()
         {
@@ -52,8 +86,7 @@ public class CheckBoxListField implements ListFieldCallback {
                 boolean retVal = false;
                 
                 //If the spacebar was pressed...
-                if (key == Characters.SPACE)
-                {
+                if (key == Characters.SPACE && isCheckBoxVisible()) {
                     //Get the index of the selected row.
                     int index = getSelectedIndex();
                     
@@ -78,6 +111,7 @@ public class CheckBoxListField implements ListFieldCallback {
         
         //Set the ListFieldCallback
         _checkList.setCallback(this);
+        _checkList.setEmptyString("Nothing to see here", DrawStyle.LEFT);
         
         int elementLength = _elements.length;
         
@@ -99,22 +133,34 @@ public class CheckBoxListField implements ListFieldCallback {
         
         //If it is checked draw the String prefixed with a checked box,
         //prefix an unchecked box if it is not.
-        if (currentRow.isChecked())
-        {
-            rowString.append(Characters.BALLOT_BOX_WITH_CHECK);
-        }
-        else
-        {
-            rowString.append(Characters.BALLOT_BOX);
-        }
+		if (isCheckBoxVisible()) {
+			if (currentRow.isChecked()) {
+				rowString.append(Characters.BALLOT_BOX_WITH_CHECK);
+			} else {
+				rowString.append(Characters.BALLOT_BOX);
+			}
+		} else {
+			
+		}
         
         //Append a couple spaces and the row's text.
         rowString.append(Characters.SPACE);
         rowString.append(Characters.SPACE);
         rowString.append(currentRow.getStringVal());
         
-        //Draw the text.
-        graphics.drawText(rowString.toString(), 0, y, 0, w);
+        if (currentRow.getCommentStatus().equalsIgnoreCase("approve")) {
+			// approved comment
+			graphics.drawText("A "+rowString.toString(), 0, y, 0, w);
+		} else if (currentRow.getCommentStatus().equalsIgnoreCase("hold")) {
+			// holded comment
+			graphics.drawText("H "+rowString.toString(), 0, y, 0, w);
+
+		} else if (currentRow.getCommentStatus().equalsIgnoreCase("spam")) {
+			// spam comment
+			graphics.drawText("S "+rowString.toString(), 0, y, 0, w);
+		} else {
+			graphics.drawText(rowString.toString(), 0, y, 0, w);
+		}
     }
     
     
@@ -165,39 +211,39 @@ public class CheckBoxListField implements ListFieldCallback {
     }
     
     
-    //A class to hold the Strings in the CheckBox and it's checkbox state (checked or unchecked).
+    //A class to hold the comment in the CheckBox and it's checkbox state (checked or unchecked).
     private class ChecklistData  {
-        private String _stringVal;
-        private boolean _checked;
-        
-        ChecklistData()
+        private Comment comment;
+        public Comment getComment() {
+			return comment;
+		}
+
+		private boolean _checked;
+                
+        ChecklistData(Comment comment, boolean checked)
         {
-            _stringVal = "";
-            _checked = false;
-        }
-        
-        ChecklistData(String stringVal, boolean checked)
-        {
-            _stringVal = stringVal;
+        	this.comment = comment;
             _checked = checked;
         }
         
-        //Get/set methods.
+        private String getCommentStatus(){
+        	return comment.getStatus();
+        }
+        
+        //Get a rapresentation of the comment...
         private String getStringVal()
         {
-            return _stringVal;
+            Date dateCreated = comment.getDate_created_gmt();
+            SimpleDateFormat sdFormat3 = new SimpleDateFormat("yyyy/MM/dd hh:mm");
+            String format = sdFormat3.format(dateCreated);
+            return comment.getContent().substring(0, 10)+"...  "+format;
         }
         
         private boolean isChecked()
         {
             return _checked;
         }
-        
-        private void setStringVal(String stringVal)
-        {
-            _stringVal = stringVal;
-        }
-        
+                
         private void setChecked(boolean checked)
         {
             _checked = checked;

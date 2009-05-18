@@ -7,18 +7,18 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.io.file.FileSystemRegistry;
 
-import com.wordpress.bb.WordPressResource;
-
-import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
+import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.Dialog;
-import net.rim.device.api.ui.component.ObjectListField;
+import net.rim.device.api.ui.component.ListField;
+import net.rim.device.api.ui.component.ListFieldCallback;
 import net.rim.device.api.ui.component.RichTextField;
 import net.rim.device.api.ui.container.DialogFieldManager;
 import net.rim.device.api.ui.container.PopupScreen;
@@ -31,7 +31,8 @@ public class DirectorySelectorPopUpScreen extends PopupScreen {
 
 	String _currentPath; // The current path;
 	String[] _extensions; // File extensions to filter by.
-	ObjectListField _olf; // Lists fields and directories.
+	//ObjectListField _olf; // Lists fields and directories.
+	DirCheckBoxListField chkListController;
 
 		
 	/**
@@ -84,10 +85,11 @@ public class DirectorySelectorPopUpScreen extends PopupScreen {
 		dfm.setIcon(new BitmapField(Bitmap.getPredefinedBitmap(Bitmap.QUESTION)));
 		dfm.setMessage(new RichTextField("Select a folder"));
 		
-		_olf = new ObjectListField();
-		dfm.addCustomField(_olf);
-		updateList(path);
-		
+		chkListController = new DirCheckBoxListField(new String[0],new boolean[0]);
+		chkListController.get_checkList();
+		dfm.addCustomField(chkListController.get_checkList());
+
+		updateList(path);		
 		ButtonField buttonSelect = new ButtonField("Select");
 		buttonSelect.setChangeListener(listenerButton);
 		dfm.addCustomField(buttonSelect);	
@@ -95,8 +97,52 @@ public class DirectorySelectorPopUpScreen extends PopupScreen {
 
 	private FieldChangeListener listenerButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
-	    	System.out.println("Selected Folder");
-	    	doSelection();
+	    	
+	    	boolean[] sel = chkListController.getSelected();
+	    	int index=-1;
+	    	for (int i = 0; i < sel.length; i++) {
+				if(sel[i]) index=i;
+			}
+	    	if(index == -1) return;
+		    	
+	    	String newPath = chkListController.getFirstSelected();
+
+			if (newPath.equals("..")) {
+				// Go up a directory.
+				// Remove the trailing '/';
+				newPath = _currentPath.substring(0, _currentPath.length() - 2);
+
+				// Remove everything after the last '/' (the current directory).
+				// If a '/' is not found, the user is opening the
+				// file system roots.
+				// Return null to cause the screen to display the
+				// file system roots.
+				int lastSlash = newPath.lastIndexOf('/');
+
+				if (lastSlash == -1) {
+					newPath = null;
+				} else {
+					newPath = newPath.substring(0, lastSlash + 1);
+				}
+			} else if (newPath.lastIndexOf('/') == (newPath.length() - 1)) {
+				// If the path ends with /, a directory was selected.
+				// Prefix the _currentPath if it is not null (not in the
+				// root directory).
+				if (_currentPath != null) {
+					newPath = _currentPath + newPath;
+				}
+			} else {
+				// A file was selected.
+				_currentPath += newPath;
+
+				// Return *?* to stop the screen update process.
+				newPath = "*?*";
+			}
+			
+			_currentPath = newPath;
+
+			//return newPath;
+	    	
 	    	close();
 	    }
 	};
@@ -182,9 +228,22 @@ public class DirectorySelectorPopUpScreen extends PopupScreen {
 
 		// Create an array from the Vector.
 		Object fileArray[] = vectorToArray(fileList);
-
+		
+		String[] arrayFolder = new String[fileArray.length];
+		boolean[] arrayFolderSelected = new boolean[fileArray.length];
+		for (int i = 0; i < fileArray.length; i++) {
+			arrayFolder[i]=(String) fileArray[i];
+		}
+		
+		DialogFieldManager dfm = (DialogFieldManager) getDelegate();
+		dfm.deleteCustomField(chkListController.get_checkList());
+		
+		chkListController = new DirCheckBoxListField(arrayFolder,arrayFolderSelected);
+		chkListController.get_checkList();
+		dfm.addCustomField(chkListController.get_checkList());
+		
 		// Update the field with the new files.
-		_olf.set(fileArray);
+		//_olf.set(fileArray);
 	}
 
 	// Build a String that contains the full path of the user's selection.
@@ -192,7 +251,7 @@ public class DirectorySelectorPopUpScreen extends PopupScreen {
 	// Returns *?* if the user has selected a file.
 	private String buildPath() {
 
-		String newPath = (String) _olf.get(_olf, _olf.getSelectedIndex());
+		String newPath = chkListController.getFocusedElement();
 
 		if (newPath.equals("..")) {
 			// Go up a directory.
@@ -274,5 +333,228 @@ public class DirectorySelectorPopUpScreen extends PopupScreen {
 
 		return super.keyChar(c, status, time);
 	}
+	
+	
+	
+	private class DirCheckBoxListField implements ListFieldCallback {
+	    private Vector _listData = new Vector();
+	    private ListField _checkList;
+	   
+	   private boolean[] getSelected(){
+	       int elementLength = _listData.size();
+	       boolean[] selected= new boolean[elementLength];
+	       //Populate the ListField & Vector with data.
+	       for(int count = 0; count < elementLength; ++count)
+	       {
+	    	   //Get the ChecklistData for this row.
+	    	   DirChecklistData data = (DirChecklistData)_listData.elementAt(count);
+	           selected[count]= data.isChecked();
+	       }
+	       return selected;
+	   }
+	   
+	   private String getFirstSelected(){
+	       int elementLength = _listData.size();
+	       
+	       //Populate the ListField & Vector with data.
+	       for(int count = 0; count < elementLength; ++count)
+	       {
+	    	   //Get the ChecklistData for this row.
+	    	   DirChecklistData data = (DirChecklistData)_listData.elementAt(count);
+	         if (data.isChecked())
+	        	 return data.getStringVal();
+	       }
+	       
+	       return null;
+	   }
+	    
+		//return the focused comment
+		private String getFocusedElement() {
+			int selectedIndex = _checkList.getSelectedIndex();
+			if (selectedIndex != -1) {
+				DirChecklistData data = (DirChecklistData) _listData.elementAt(selectedIndex);
+				return data.getStringVal();
+			} else {
+				return null;
+			}
+		}
+
+	   
+	   public void addElement(String label){
+		   int elementLength = _listData.size(); //the field start with 0 index!!
+	       _listData.addElement(new DirChecklistData(label, true));  
+	       _checkList.insert(elementLength);
+	   }
+	   
+	   public DirCheckBoxListField(String[] _elements, boolean[] _elementsChecked) {  
+		    
+	        _checkList = new ListField()
+	        {
+	            //Allow the space bar to toggle the status of the selected row.
+	            protected boolean keyChar(char key, int status, int time)
+	            {
+	                boolean retVal = false;
+	                
+	                //If the spacebar was pressed...
+	                if (key == Characters.SPACE)
+	                {
+	                    //Get the index of the selected row.
+	                    int index = getSelectedIndex();
+	                    
+	                    //Get the ChecklistData for this row.
+	                    DirChecklistData data = (DirChecklistData)_listData.elementAt(index);
+	                    
+	                    //Toggle its status.
+	                    data.toggleChecked();
+	                    
+	                    //Update the Vector with the new ChecklistData.
+	                    _listData.setElementAt(data, index);
+	                    
+	                    //Invalidate the modified row of the ListField.
+	                    invalidate(index);
+	                    
+	                    //Consume this keyChar (key pressed).
+	                    retVal = true;
+	                }
+	                return retVal;
+	            }
+	        };
+	        
+	        //Set the ListFieldCallback
+	        _checkList.setCallback(this);
+	        
+	        int elementLength = _elements.length;
+	        
+	        //Populate the ListField & Vector with data.
+	        for(int count = 0; count < elementLength; ++count)
+	        {
+	           _listData.addElement(new DirChecklistData(_elements[count], _elementsChecked[count]));  
+	           _checkList.insert(count);
+	        }    
+	    }
+	        
+	    //Draws the list row.
+	    public void drawListRow(ListField list, Graphics graphics, int index, int y, int w) 
+	    {
+	        //Get the ChecklistData for the current row.
+	    	DirChecklistData currentRow = (DirChecklistData)this.get(list, index);
+	        
+	        StringBuffer rowString = new StringBuffer();
+	        
+	        //If it is checked draw the String prefixed with a checked box,
+	        //prefix an unchecked box if it is not.
+	        if (currentRow.isChecked())
+	        {
+	            rowString.append(Characters.BALLOT_BOX_WITH_CHECK);
+	        }
+	        else
+	        {
+	            rowString.append(Characters.BALLOT_BOX);
+	        }
+	        
+	        //Append a couple spaces and the row's text.
+	        rowString.append(Characters.SPACE);
+	        rowString.append(Characters.SPACE);
+	        rowString.append(currentRow.getStringVal());
+	        
+	        //Draw the text.
+	        graphics.drawText(rowString.toString(), 0, y, 0, w);
+	    }
+	    
+	    
+	    public ListField get_checkList() {
+			return _checkList;
+		}
+
+		//The menu item added to the screen when the _checkList field has focus.
+	    //This menu item toggles the checked/unchecked status of the selected row.
+	    private MenuItem _toggleItem = new MenuItem("Change Option", 200, 10)    {
+	        public void run()
+	        {
+	            //Get the index of the selected row.
+	            int index = _checkList.getSelectedIndex();
+	            
+	            //Get the ChecklistData for this row.
+	            DirChecklistData data = (DirChecklistData)_listData.elementAt(index);
+	            
+	            //Toggle its status.
+	            data.toggleChecked();
+	            
+	            //Update the Vector with the new ChecklistData.
+	            _listData.setElementAt(data, index);
+	            
+	            //Invalidate the modified row of the ListField.
+	            _checkList.invalidate(index);
+	        }
+	    }; 
+	    
+	    //Returns the object at the specified index.
+	    public Object get(ListField list, int index) 
+	    {
+	        return _listData.elementAt(index);
+	    }
+	    
+	    //Returns the first occurence of the given String, beginning the search at index, 
+	    //and testing for equality using the equals method.
+	    public int indexOfList(ListField list, String p, int s) 
+	    {
+	        //return listElements.getSelectedIndex();
+	        return _listData.indexOf(p, s);
+	    }
+	    
+	    //Returns the screen width so the list uses the entire screen width.
+	    public int getPreferredWidth(ListField list) 
+	    {
+	        return Graphics.getScreenWidth();
+	    }
+	    
+	    
+	    //A class to hold the Strings in the CheckBox and it's checkbox state (checked or unchecked).
+	    private class DirChecklistData  {
+	        private String _stringVal;
+	        private boolean _checked;
+	        
+	        DirChecklistData()
+	        {
+	            _stringVal = "";
+	            _checked = false;
+	        }
+	        
+	        DirChecklistData(String stringVal, boolean checked)
+	        {
+	            _stringVal = stringVal;
+	            _checked = checked;
+	        }
+	        
+	        //Get/set methods.
+	        private String getStringVal()
+	        {
+	            return _stringVal;
+	        }
+	        
+	        private boolean isChecked()
+	        {
+	            return _checked;
+	        }
+	        
+	        private void setStringVal(String stringVal)
+	        {
+	            _stringVal = stringVal;
+	        }
+	        
+	        private void setChecked(boolean checked)
+	        {
+	            _checked = checked;
+	        }
+	        
+	        //Toggle the checked status.
+	        private void toggleChecked()
+	        {
+	            _checked = !_checked;
+	        }
+	    }
+	
+}
+
 }
 

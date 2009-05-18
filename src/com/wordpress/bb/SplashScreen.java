@@ -62,16 +62,19 @@ public class SplashScreen extends MainScreen {
 			} else { 
 				add(new LabelField("Installation in progress...",Field.FIELD_HCENTER| Field.FIELD_VCENTER));
 				
-/*				SelectDirectoryThread sel = new SelectDirectoryThread(); //because i modify UI from non event thread
-				application.invokeLater(sel); */
-				//first startup
-				AppDAO.setBaseDirPath("file:///store/home/user/wordpress/");
-							
-	        	if(!JSR75FileSystem.isFileExist(AppDAO.getBaseDirPath())){
-					JSR75FileSystem.createDir(AppDAO.getBaseDirPath());
+			/*SelectDirectoryThread sel = new SelectDirectoryThread(); //because we modify UI from non event thread
+			application.invokeLater(sel); 
+	*/
+			//first startup
+			AppDAO.setBaseDirPath("file:///store/home/user/wordpress/");
+						
+        	if(!JSR75FileSystem.isFileExist(AppDAO.getBaseDirPath())){
+				JSR75FileSystem.createDir(AppDAO.getBaseDirPath());
+			
+        	}
+			timer.schedule(new CountDown(), 3000); //3sec splash
 				
-	        	}
-				timer.schedule(new CountDown(), 3000); //3sec splash
+				
 			}
 		} catch (Exception e) {
 			timer.cancel();
@@ -93,13 +96,13 @@ public class SplashScreen extends MainScreen {
 					DirectorySelectorPopUpScreen fps = new DirectorySelectorPopUpScreen();
 					fps.pickFile();
 			        theDir = fps.getFile();
-			        				
+			        System.out.println("sto provando con il file: "+theDir);			        				
 					//first startup
 					//AppDAO.setBaseDirPath("file:///store/home/user/wordpress/");
 			        try {
-			        	if(!JSR75FileSystem.isFileExist(AppDAO.getBaseDirPath())){
-							JSR75FileSystem.createDir(AppDAO.getBaseDirPath());
-						
+			        	if(!JSR75FileSystem.isFileExist(theDir)){
+							JSR75FileSystem.createDir(theDir);
+							AppDAO.setBaseDirPath(theDir);
 			        	}
 			        } catch (Exception e) {
 						theDir = null;
@@ -108,7 +111,7 @@ public class SplashScreen extends MainScreen {
 					}
 				}
 			
-			timer.schedule(new CountDown(), 2000); //5 second splash
+			timer.schedule(new CountDown(), 2000); //show splash
 	    	  
 	      }
 	   }

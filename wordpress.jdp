@@ -84,9 +84,11 @@ src\com\wordpress\view\BaseView.java
 src\com\wordpress\view\BlogOptionsView.java
 src\com\wordpress\view\BlogView.java
 src\com\wordpress\view\CommentsView.java
+src\com\wordpress\view\CommentView.java
 src\com\wordpress\view\component\BlogListField.java
 src\com\wordpress\view\component\CheckBoxListField.java
 src\com\wordpress\view\component\ColouredListField.java
+src\com\wordpress\view\component\CommentsListField.java
 src\com\wordpress\view\component\DirectorySelectorPopUpScreen.java
 src\com\wordpress\view\component\FileSelectorPopupScreen.java
 src\com\wordpress\view\component\HtmlTagPopupScreen.java
@@ -126,6 +128,7 @@ src\com\wordpress\xmlrpc\comment\NewCommentConn.java
 src\com\wordpress\xmlrpc\GetAuthorsConn.java
 src\com\wordpress\xmlrpc\GetBlogsDataTask.java
 src\com\wordpress\xmlrpc\GetTemplateConn.java
+src\com\wordpress\xmlrpc\ManageCommentsTask.java
 src\com\wordpress\xmlrpc\NewCategory.java
 src\com\wordpress\xmlrpc\NewCategoryConn.java
 src\com\wordpress\xmlrpc\NewMediaObjectConn.java

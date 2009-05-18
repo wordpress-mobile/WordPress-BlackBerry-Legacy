@@ -2,14 +2,11 @@ package com.wordpress.view;
 
 import java.util.Date;
 
-import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.LabelField;
-import net.rim.device.api.ui.component.ObjectListField;
+import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
@@ -19,18 +16,17 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.CommentsController;
 import com.wordpress.model.Comment;
+import com.wordpress.view.component.CommentsListField;
 
 public class CommentsView extends BaseView {
 	
     private CommentsController controller= null;
-    private ObjectListField commentsList; 
     private HorizontalFieldManager topManager;
     private VerticalFieldManager dataScroller;
-    private ButtonField buttonNewPost;
-	private ButtonField buttonDraftPosts;
-	private ButtonField buttonRefresh;
 	private LabelField lblPostsNumber;
-
+	
+	private CommentsListField commentListController;
+	private ListField commentsList; 
 	
 	 public CommentsView(CommentsController _controller, Comment[] comments) {
 	    	super(_resources.getString(WordPressResource.TITLE_COMMENTS), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -40,13 +36,14 @@ public class CommentsView extends BaseView {
 	    	topManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
 	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
 
-	        lblPostsNumber = getLabel("numero ");
+	        lblPostsNumber = getLabel(" ");
 	        topManager.add(lblPostsNumber);
 	    	
 	        //A Vertical FM to hold the comments list
 	        dataScroller = new VerticalFieldManager(VerticalFieldManager.VERTICAL_SCROLL
 	                 | VerticalFieldManager.VERTICAL_SCROLLBAR);
 
+	        
 			add(topManager);
 			add(new SeparatorField());
 			add(dataScroller);
@@ -57,68 +54,123 @@ public class CommentsView extends BaseView {
 	private void buildList(Comment[] comments) {
 		removeAllMenuItems();
         
-		String elements[]= new String[0];
+		Comment elements[]= new Comment[0];
+		boolean[] selectedCom = new boolean[0];
 		
-		if(comments != null) {						
-			elements= new String[comments.length];
-
-	        for (int i = 0; i < comments.length; i++) {
-	        	
-	        	 Comment comment = comments[i];
-	             String title = comment.getContent();
-	             Date dateCreated = comment.getDate_created_gmt();
-	             
-	             if (title == null || title.length() == 0) {
-	                 title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
-	             }
-	             elements[i]=title;
-	         }			
+		if(comments != null) {
+			elements = comments;
+			selectedCom = new boolean[comments.length];
 		}
-						
-		commentsList = new ObjectListField(); 	        
-		commentsList.set(elements);
-		commentsList.setEmptyString("Nothing to see here", DrawStyle.LEFT);
-
+		commentListController= new CommentsListField(elements,selectedCom);
+		
+    	this.commentsList= commentListController.get_checkList();
+    	
 		dataScroller.add(commentsList);
 
-		if(comments.length > 0 ) {
-			addMenuItem(_viewCommentsItem);
+		if( comments!= null && comments.length > 0 ) {
+			addMenuItem(_editModeItem);
+			addMenuItem(_approveCommentItem);
+			addMenuItem(_deleteCommentItem);
+			addMenuItem(_holdCommentItem);
+			addMenuItem(_spamCommentItem);
+			addMenuItem(_openCommentItem);
 		}
 		
 		addMenuItem(_refreshCommentsListItem);
 	}
 	 
+	private Comment[] getSelectedComment() {
+		Comment[] selectedComments = new Comment[1];
+		        
+		if (commentListController.isCheckBoxVisible()) {
+			selectedComments = commentListController.getSelectedComments();
+			for (int i = 0; i < selectedComments.length; i++) {
+				System.out.println("Selected comment: "+selectedComments[i].getContent());
+				
+			}
+		} else {
+			Comment focusedComment = commentListController.getFocusedComment();
+			System.out.println("Focus on comment: "+focusedComment.getContent());
+			selectedComments[0]= focusedComment;
+		}
+		return selectedComments;
+	}
+	
+	
+    private MenuItem _viewCommentsItem = new MenuItem( _resources, WordPressResource.MENUITEM_VIEW, 210, 100) {
+    	public void run() {
+    		if(commentListController.isCheckBoxVisible())
+        		commentListController.setCheckBoxVisible(false);
 
-    private MenuItem _viewCommentsItem = new MenuItem( _resources, WordPressResource.MENUITEM_VIEW, 200, 10) {
-        public void run() {
-        	int selectedPost = commentsList.getSelectedIndex();
+    		removeMenuItem(_viewCommentsItem);
+        	addMenuItem(_editModeItem);
+        	addMenuItem(_openCommentItem);
+     
         }
     };
 	
+    private MenuItem _editModeItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDIT, 210, 100) {
+    	public void run() {
+    		if(commentListController.isCheckBoxVisible())
+    			commentListController.setCheckBoxVisible(false);
+    		
+    		removeMenuItem(_editModeItem);
+    		removeMenuItem(_openCommentItem);
+    		addMenuItem(_viewCommentsItem);
+    		
+    		commentListController.setCheckBoxVisible(true);
+    	}
+    };
     
-    private MenuItem _refreshCommentsListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 220, 10) {
+    private MenuItem _openCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_OPEN, 220, 100) {
         public void run() {
-        	controller.refreshView();
+        	Comment selectedComment = getSelectedComment()[0]; //in this case return array with only one comment
+        	controller.openComment(selectedComment);
         }
     };
 
+    private MenuItem _refreshCommentsListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 220, 100) {
+    	public void run() {
+    		controller.updateCommentsList();
+    	}
+    };
     
-	private FieldChangeListener listenerButton = new FieldChangeListener() {
-	    public void fieldChanged(Field field, int context) {
-	    	if(field == buttonNewPost){
+    
+    private MenuItem _approveCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_APPROVE, 100000, 5) {
+        public void run() {
+        	Comment[] selectedComment = getSelectedComment();
+        	controller.updateComments(selectedComment, "approve");
+        }
+    };
+    
+    
+    private MenuItem _holdCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_HOLD, 100020, 5) {
+        public void run() {
+        	Comment[] selectedComment = getSelectedComment();
+        	controller.updateComments(selectedComment, "hold");
+        }
+    };
+    
+    private MenuItem _spamCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_SPAM, 100010, 5) {
+        public void run() {
+        	Comment[] selectedComment = getSelectedComment();
+        	controller.updateComments(selectedComment, "spam");
+        }
+    };
+    
+    
+    private MenuItem _deleteCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_DELETE, 100030, 5) {
+    	public void run() {
+    		Comment[] selectedComment = getSelectedComment();
+    		controller.deleteComments(selectedComment);
+    		    		
+    	}
+    };
+    
 
-	    	} else if(field == buttonRefresh){
-	    		controller.refreshView(); //reload only the posts list
-	    	} else if(field == buttonDraftPosts) {
-
-	    	}
-	   }
-	};
-
-    	 
+        	 
     public void refresh(Comment[] comments, int count){
     	dataScroller.delete(commentsList);
-    	lblPostsNumber.setText("New Post " + count);
     	buildList(comments);
     }
 

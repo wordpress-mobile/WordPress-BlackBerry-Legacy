@@ -35,9 +35,7 @@ public class SendPostDataTask {
 	private boolean isError = false; // true if there was errors in the connections
 	private StringBuffer errorMessage=new StringBuffer();
 	
-
 	private Dialog connectionProgressView;
-
 
 	public SendPostDataTask(Post post, int draftPostFolder) {
 		this.post = post;
@@ -163,14 +161,13 @@ public class SendPostDataTask {
 						try {
 							DraftDAO.removePost(post.getBlog(),	draftPostFolder);
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							final String respMessage=e.getMessage();
+							errorMessage.append(respMessage+"\n");
 						} catch (RecordStoreException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							final String respMessage=e.getMessage();
+							errorMessage.append(respMessage+"\n");
 						}
 					}
-				
 				}
 			} else {
 				final String respMessage=resp.getResponse();

@@ -11,9 +11,11 @@ import com.wordpress.xmlrpc.BlogConn;
 public class EditCommentConn extends BlogConn  {
 	
 	private Comment comment;
+	private final String blogId;
 	
-	public EditCommentConn(String hint, int blogId, String userHint, String passwordHint,  TimeZone tz, int commentId, Comment ncomment){
+	public EditCommentConn(String hint, String userHint, String passwordHint,  TimeZone tz, String blogId, Comment ncomment){
 		super(hint, userHint, passwordHint, tz);
+		this.blogId = blogId;
 		this.comment=ncomment;
 	}
 	
@@ -44,8 +46,8 @@ public class EditCommentConn extends BlogConn  {
 	        if (comment.getAuthorEmail() != null) {
 	            vcomment.put("author_email", comment.getAuthorEmail());
 	        }        
-	        Vector args = new Vector(8);
-	    //    args.addElement(String.valueOf(blogId));
+	        Vector args = new Vector(5);
+	        args.addElement(blogId);
 	        args.addElement(mUsername);
 	        args.addElement(mPassword);
 	        args.addElement(String.valueOf(comment.getID()));

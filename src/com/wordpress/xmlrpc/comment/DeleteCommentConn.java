@@ -8,9 +8,9 @@ import com.wordpress.xmlrpc.BlogConn;
 public class DeleteCommentConn extends BlogConn  {
 	
 	private final int commentID;
-	private final int blogID;
+	private final String blogID;
 
-	public DeleteCommentConn(String hint, int blogID, String userHint, String passwordHint,  TimeZone tz, int commentID){
+	public DeleteCommentConn(String hint, String userHint, String passwordHint,  TimeZone tz, String blogID, int commentID){
 		super(hint, userHint, passwordHint, tz);
 		this.blogID = blogID;
 		this.commentID = commentID;
@@ -19,8 +19,8 @@ public class DeleteCommentConn extends BlogConn  {
 	
 	public void run() {
 		try {
-			if (this.blogID < 0 ) {
-				 setErrorMessage("Error BlogId");
+			if (Integer.parseInt(blogID) < 0 ) {
+				 setErrorMessage("Error Missing Blog Identification");
 				 notifyObservers(connResponse);
 		         return;
 			}
@@ -29,8 +29,8 @@ public class DeleteCommentConn extends BlogConn  {
 				 notifyObservers(connResponse);
 		         return;
 			}
-				Vector args = new Vector(5);
-		        args.addElement(String.valueOf(this.blogID));
+				Vector args = new Vector(4);
+		        args.addElement(this.blogID);
 				args.addElement(mUsername);
 		        args.addElement(mPassword);
 		        args.addElement(String.valueOf(this.commentID));

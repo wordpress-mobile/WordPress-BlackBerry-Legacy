@@ -495,7 +495,7 @@ public class PostController extends BaseController {
 	
 	public void addPhoto(byte[] data, String fileName){
 		if(fileName == null) 
-			fileName= String.valueOf(System.currentTimeMillis());
+			fileName= String.valueOf(System.currentTimeMillis()+".jpg");
 		
 		EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
 				
