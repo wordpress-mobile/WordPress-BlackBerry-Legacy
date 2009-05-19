@@ -1,8 +1,10 @@
 package com.wordpress.xmlrpc;
 
+import java.io.UnsupportedEncodingException;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
 
 public class BlogUpdateConn extends BlogConn  {
@@ -21,22 +23,50 @@ public class BlogUpdateConn extends BlogConn  {
 	public void run() {
 		try {
 			connResponse = new BlogConnResponse();
-			//the following calls uses the same connection of the main function GetBlog..
+			//the following calls uses the same connection 
 			//These calls can modify the state of the connection to isError=true;
 			//we ignore its errors now
 			getBlogCategories(blog);
-			getPageStatusList(blog);
-			getPostStatusList(blog);
-			getTagList(blog);
 			connResponse.setError(false);
 			connResponse.setResponse("");
 			
+			getPageStatusList(blog);
+			connResponse.setError(false);
+			connResponse.setResponse("");
+			
+			getPostStatusList(blog);
+			connResponse.setError(false);
+			connResponse.setResponse("");
+			
+			getTagList(blog);
+			connResponse.setError(false);
+			connResponse.setResponse("");
+
+			getCommentStatusList(blog);
+			connResponse.setError(false);
+			connResponse.setResponse("");
+						
 			System.out.println("reading recent post title list for the blog : "	+ blog.getName());
 			Vector recentPostTitle = getRecentPostTitle(blog.getId(), blog.getMaxPostCount());
 			blog.setRecentPostTitles(recentPostTitle);
+			System.out.println("End reading recent post title list for the blog : " + blog.getName());
+			connResponse.setError(false);
+			connResponse.setResponse("");
 			
-			System.out.println("End reading recent post title list for the blog : " + blog.getName());	
-	        
+			System.out.println("reading comments for the blog : "	+ blog.getName());
+			Vector comments = getComments(Integer.parseInt(blog.getId()), -1, "", 0, 100);
+			connResponse.setError(false);
+			connResponse.setResponse("");
+			try {
+				CommentsDAO.storeComments(blog, comments);
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} //store the comments
+			System.out.println("End reading comments for the blog : " + blog.getName());
 			connResponse.setResponseObject(blog);
 			
 		} catch (ClassCastException cce) {
@@ -45,12 +75,16 @@ public class BlogUpdateConn extends BlogConn  {
 		catch (Exception e) {
 			setErrorMessage(e, "Invalid server response");
 		}
-
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
 			System.out.println("Blog Update Notify Error");
 		}
 		
+	}
+	
+	//return the blogs associated with this connection
+	public Blog getBlog() {
+		return blog;
 	}
 }

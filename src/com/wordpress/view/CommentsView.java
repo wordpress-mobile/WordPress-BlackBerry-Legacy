@@ -1,7 +1,5 @@
 package com.wordpress.view;
 
-import java.util.Date;
-
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
@@ -50,7 +48,7 @@ public class CommentsView extends BaseView {
 			buildList(comments);
 	 }
 
-	 
+	//create the list. if comments is null you can't manage comments 
 	private void buildList(Comment[] comments) {
 		removeAllMenuItems();
         
@@ -169,7 +167,7 @@ public class CommentsView extends BaseView {
     
 
         	 
-    public void refresh(Comment[] comments, int count){
+    public void refresh(Comment[] comments){
     	dataScroller.delete(commentsList);
     	buildList(comments);
     }

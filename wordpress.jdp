@@ -34,7 +34,6 @@ src\com\wordpress\bb\WordPress.rrc
 src\com\wordpress\bb\WordPress.rrh
 src\com\wordpress\controller\AboutController.java
 src\com\wordpress\controller\AddBlogsController.java
-src\com\wordpress\controller\AddBlogsMediator.java
 src\com\wordpress\controller\BaseController.java
 src\com\wordpress\controller\BlogController.java
 src\com\wordpress\controller\BlogOptionsController.java
@@ -124,11 +123,11 @@ src\com\wordpress\xmlrpc\comment\GetCommentConn.java
 src\com\wordpress\xmlrpc\comment\GetCommentCountConn.java
 src\com\wordpress\xmlrpc\comment\GetCommentsConn.java
 src\com\wordpress\xmlrpc\comment\GetCommentStatusListConn.java
+src\com\wordpress\xmlrpc\comment\ManageCommentsTask.java
 src\com\wordpress\xmlrpc\comment\NewCommentConn.java
 src\com\wordpress\xmlrpc\GetAuthorsConn.java
 src\com\wordpress\xmlrpc\GetBlogsDataTask.java
 src\com\wordpress\xmlrpc\GetTemplateConn.java
-src\com\wordpress\xmlrpc\ManageCommentsTask.java
 src\com\wordpress\xmlrpc\NewCategory.java
 src\com\wordpress\xmlrpc\NewCategoryConn.java
 src\com\wordpress\xmlrpc\NewMediaObjectConn.java
@@ -147,7 +146,7 @@ src\com\wordpress\xmlrpc\post\GetPostConn.java
 src\com\wordpress\xmlrpc\post\NewPostConn.java
 src\com\wordpress\xmlrpc\post\PostConn.java
 src\com\wordpress\xmlrpc\post\RecentPostConn.java
-src\com\wordpress\xmlrpc\SendPostDataTask.java
+src\com\wordpress\xmlrpc\post\SendPostDataTask.java
 src\disclosure-indicator.png
 src\drafts-folder.png
 src\License.txt

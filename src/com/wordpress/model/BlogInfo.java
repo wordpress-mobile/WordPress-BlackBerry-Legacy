@@ -79,9 +79,5 @@ public class BlogInfo {
 			return false;
 		return true;
 	}
-
-
-
-	
 }
 	

@@ -19,10 +19,10 @@ import com.wordpress.view.CommentView;
 import com.wordpress.view.CommentsView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConnResponse;
-import com.wordpress.xmlrpc.ManageCommentsTask;
 import com.wordpress.xmlrpc.comment.DeleteCommentConn;
 import com.wordpress.xmlrpc.comment.EditCommentConn;
 import com.wordpress.xmlrpc.comment.GetCommentsConn;
+import com.wordpress.xmlrpc.comment.ManageCommentsTask;
 
 
 public class CommentsController extends BaseController{
@@ -47,10 +47,10 @@ public class CommentsController extends BaseController{
 			e.printStackTrace(); //TODO err
 		}
 		
-		Comment[] myCommentsList = new Comment[0];
+		Comment[] myCommentsList;
 
-		if( comments != null )
-			myCommentsList = getComments(comments);
+		
+		myCommentsList = getComments(comments);
 			
 		view= new CommentsView(this, myCommentsList);
 		UiApplication.getUiApplication().pushScreen(view);
@@ -128,7 +128,7 @@ public class CommentsController extends BaseController{
 				
 				Comment[] myCommentsList = getComments(storedComments);
 				
-				view.refresh(myCommentsList, myCommentsList.length);
+				view.refresh(myCommentsList);
 				
 			} else {
 				displayError(task.getErrorMessage());
@@ -205,7 +205,7 @@ public class CommentsController extends BaseController{
 				
 				Comment[] myCommentsList = getComments(newCommentsVector);
 				
-				view.refresh(myCommentsList, myCommentsList.length);
+				view.refresh(myCommentsList);
 				
 			} else {
 				displayError(task.getErrorMessage());
@@ -228,7 +228,7 @@ public class CommentsController extends BaseController{
 		
 		final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
 				Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
-				currentBlog.getPassword(), prefs.getTimeZone(), -1, "", 0, 10);
+				currentBlog.getPassword(), prefs.getTimeZone(), -1, "", 0, 100);
 		
         connection.addObserver(new loadCommentsCallBack(this));  
         connectionProgressView= new ConnectionInProgressView(connMessage);
@@ -253,6 +253,10 @@ public class CommentsController extends BaseController{
 	
 	//retun array of comments from wp response
 	private Comment[] getComments(Vector respVector){
+		
+		if( respVector == null )
+			return null;
+		
 		Comment[] myCommentsList =new Comment[respVector.size()]; //my comment object list
 		
 		for (int i = 0; i < respVector.size(); i++) {
@@ -318,7 +322,7 @@ public class CommentsController extends BaseController{
 
 						Comment[] myCommentsList = getComments(respVector);
 						
-						view.refresh(myCommentsList, myCommentsList.length);
+						view.refresh(myCommentsList);
 						
 					} else {
 						final String respMessage=resp.getResponse();

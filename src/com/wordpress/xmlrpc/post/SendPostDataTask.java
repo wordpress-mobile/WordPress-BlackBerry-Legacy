@@ -1,4 +1,4 @@
-package com.wordpress.xmlrpc;
+package com.wordpress.xmlrpc.post;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -16,8 +16,9 @@ import com.wordpress.model.Preferences;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
-import com.wordpress.xmlrpc.post.EditPostConn;
-import com.wordpress.xmlrpc.post.NewPostConn;
+import com.wordpress.xmlrpc.BlogConn;
+import com.wordpress.xmlrpc.BlogConnResponse;
+import com.wordpress.xmlrpc.NewMediaObjectConn;
 
 public class SendPostDataTask {
 

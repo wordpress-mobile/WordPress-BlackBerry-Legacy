@@ -49,11 +49,12 @@ public class BlogListField implements ListFieldCallback {
 		int stato = currentRow.getState();
 
 		// If it is loading draw the String prefixed with a star,
-		if (stato != BlogInfo.STATE_LOADED) {
+		if (stato == BlogInfo.STATE_LOADING || stato == BlogInfo.STATE_ADDED_TO_QUEUE ) {
 			rowString.append(Characters.ASTERISK);
-		} else {
+		} else if (stato == BlogInfo.STATE_LOADED_WITH_ERROR ||  stato == BlogInfo.STATE_ERROR) { 
+			rowString.append(Characters.BLACK_UP_POINTING_SMALL_TRIANGLE);
+		} else 
 			rowString.append(Characters.SPACE);
-		}
 
 		// Append a couple spaces and the row's text.
 		rowString.append(Characters.SPACE);

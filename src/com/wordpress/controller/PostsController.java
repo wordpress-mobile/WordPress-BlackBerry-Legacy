@@ -42,7 +42,10 @@ public class PostsController extends BaseController{
 	private int countNewPosts() {
 		Vector recentPostsTitle = currentBlog.getRecentPostTitles();
 		Vector viewedPostsTitle = currentBlog.getViewedPost();
-
+		
+		if(recentPostsTitle == null) //if recentpost is null you are not allow to view the post of this blog
+			return 0;
+		
 		int count = 0;
 
 		for (int i = 0; i < recentPostsTitle.size(); i++) {

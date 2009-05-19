@@ -236,7 +236,10 @@ public class CommentsListField implements ListFieldCallback {
             Date dateCreated = comment.getDate_created_gmt();
             SimpleDateFormat sdFormat3 = new SimpleDateFormat("yyyy/MM/dd hh:mm");
             String format = sdFormat3.format(dateCreated);
-            return comment.getContent().substring(0, 10)+"...  "+format;
+            if(comment.getContent().length()>10)
+            	return comment.getContent().substring(0, 10)+"...  "+format;
+            else 
+            	return comment.getContent()+"...  "+format;
         }
         
         private boolean isChecked()

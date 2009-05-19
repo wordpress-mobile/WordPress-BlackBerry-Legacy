@@ -5,6 +5,8 @@ import java.util.Vector;
 
 public class Blog {
 
+	private int loadingState=-1; //loading state of this blog. see BlogInfo constants
+	
 	private String id;
 	private String name;
 	private String url; //user inserted blogs url
@@ -17,11 +19,12 @@ public class Blog {
 
 	private Category[] categories = null;
 	private Hashtable postStatusList=null; 	
-	private Hashtable pageStatusList=null; 
+	private Hashtable pageStatusList=null;
+	private Hashtable commentStatusList=null; 
 	private Tag[] tags=null;
 	
 	private Vector recentPostTitles = null; //response of mt.getRecentPostTitles
-	private Vector viewedPost = new Vector(); //the viewed post (response of previous mt.getRecentPostTitles) 
+	private Vector viewedPost = new Vector(); //the viewed post (similar to response of previous mt.getRecentPostTitles) 
 		
 	public Vector getViewedPost() {
 		return viewedPost;
@@ -140,5 +143,21 @@ public class Blog {
 
 	public void setRecentPostTitles(Vector recentPostTitles) {
 		this.recentPostTitles = recentPostTitles;
+	}
+
+	public Hashtable getCommentStatusList() {
+		return commentStatusList;
+	}
+
+	public void setCommentStatusList(Hashtable commentStatusList) {
+		this.commentStatusList = commentStatusList;
+	}
+
+	public int getLoadingState() {
+		return loadingState;
+	}
+
+	public void setLoadingState(int loadingState) {
+		this.loadingState = loadingState;
 	}
 }

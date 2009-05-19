@@ -68,10 +68,11 @@ public class SplashScreen extends MainScreen {
 			//first startup
 			AppDAO.setBaseDirPath("file:///store/home/user/wordpress/");
 						
-        	if(!JSR75FileSystem.isFileExist(AppDAO.getBaseDirPath())){
-				JSR75FileSystem.createDir(AppDAO.getBaseDirPath());
-			
+        	if(JSR75FileSystem.isFileExist(AppDAO.getBaseDirPath())){
+        		JSR75FileSystem.removeFile(AppDAO.getBaseDirPath());
         	}
+			
+        	JSR75FileSystem.createDir(AppDAO.getBaseDirPath());
 			timer.schedule(new CountDown(), 3000); //3sec splash
 				
 				

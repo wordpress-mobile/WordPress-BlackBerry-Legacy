@@ -130,28 +130,21 @@ public class AddBlogsController extends BaseController implements Observer{
 		 	Blog[]blogs=(Blog[])resp.getResponseObject();
 		 	
 		 	GetBlogsDataTask networkTask = new GetBlogsDataTask(); 
-		 	AddBlogsMediator istance = AddBlogsMediator.getIstance();
 			Preferences prefs = Preferences.getIstance();
 			
 		 	for (int i = 0; i < blogs.length; i++) {
 		 		blogs[i].setMaxPostCount(recentsPostValues[maxPostIndex]);
 		 		blogs[i].setResizePhotos(isResPhotos);	
-				try {
-					BlogDAO.newBlog(blogs[i], true);
-					//add this blog to the queue	
-					final BlogUpdateConn connection = new BlogUpdateConn (prefs.getTimeZone(), blogs[i]);       
-			        networkTask.addConn(connection); 
-			        BlogInfo blogInfo = new BlogInfo(blogs[i].getId(), blogs[i].getName(), 
-			        		blogs[i].getXmlRpcUrl(), BlogInfo.STATE_ADDED_TO_QUEUE);
-			        istance.addBlog(blogInfo);
-				} catch (Exception e) {
-					displayError(e.getMessage());	
-				}
+		 		blogs[i].setLoadingState(BlogInfo.STATE_ADDED_TO_QUEUE);
+				BlogDAO.newBlog(blogs[i], true);
+				//add this blog to the queue	
+				final BlogUpdateConn connection = new BlogUpdateConn (prefs.getTimeZone(), blogs[i]);       
+		        networkTask.addConn(connection); 
 		    }
 		 	
 		 	networkTask.startWorker();
+		 	FrontController.getIstance().backAndRefreshView(true);
 		 	
-		 	FrontController.getIstance().backAndRefreshView(true);	 			 	
 		} else {
 			final String respMessage=resp.getResponse();
 		 	displayError(respMessage);	

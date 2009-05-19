@@ -23,6 +23,24 @@ public class MainController extends BaseController {
 	}
 	
 	public void showView(){
+		//reset the state of blogs that are in loading or queue to loading error state
+		//.... maybe app crash during adding blog
+	   	 try {
+			BlogInfo[] blogsList = getBlogsList();
+			for (int i = 0; i < blogsList.length; i++) {
+				BlogInfo blogInfo = blogsList[i];
+				Blog blog = BlogDAO.getBlog(blogInfo);
+			
+				if (blog.getLoadingState() == BlogInfo.STATE_LOADING
+						|| blog.getLoadingState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
+					blog.setLoadingState(BlogInfo.STATE_LOADED_WITH_ERROR);
+					BlogDAO.updateBlog(blog);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();		
+		}
+		
 		this.view=new MainView(this); //main view init here!.	
 		UiApplication.getUiApplication().pushScreen(this.view);
 	}
@@ -30,34 +48,11 @@ public class MainController extends BaseController {
 	
 	public BlogInfo[] getBlogsList() {
 		
-		BlogInfo[] blogs = new BlogInfo[0];
-		
-		BlogInfo[]  blogsInLoading = AddBlogsMediator.getIstance().getBlogs();
-
+		BlogInfo[] blogs = new BlogInfo[0];		
 		try {
 			blogs = BlogDAO.getBlogsInfo();
 		} catch (Exception e) {
 			displayError(e, "Error while loading your blog");
-		}
-
-		for (int i = 0; i < blogs.length; i++) {
-			BlogInfo currentBlogInfo = blogs[i];
-			boolean presence = false;
-			int state=-1;
-			for (int j = 0; j < blogsInLoading.length; j++) {
-				if(currentBlogInfo.equals(blogsInLoading[j])){
-					presence = true;
-					state = blogsInLoading[j].getState();
-					break;
-				}
-			}
-									
-			if (!presence) { // already present blog
-				currentBlogInfo.setState(BlogInfo.STATE_LOADED);
-			} else {
-				currentBlogInfo.setState(state);
-			}
-			 blogs[i] = currentBlogInfo;
 		}
 
 		return blogs;
@@ -66,8 +61,7 @@ public class MainController extends BaseController {
 
 	
 	public void deleteBlog(BlogInfo selectedBlog) {
-		if (selectedBlog.getState() != BlogInfo.STATE_LOADED) {
-			// blog in caricamento
+		if (selectedBlog.getState() == BlogInfo.STATE_LOADING || selectedBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
 			displayMessage("Loading blog. Try later..");
 		} else {
 			try {
@@ -86,7 +80,7 @@ public class MainController extends BaseController {
 		
 	public void showBlog(BlogInfo selectedBlog){
 		
-		if( selectedBlog.getState() != BlogInfo.STATE_LOADED ) {
+		if (selectedBlog.getState() == BlogInfo.STATE_LOADING || selectedBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
 			//blog in caricamento
 			displayMessage("Loading blog. Try later..");
 		} else {
@@ -108,12 +102,12 @@ public class MainController extends BaseController {
 	// Utility routine to ask question about exit application
 	public synchronized boolean exitApp() {
 		
-		boolean inLoadingState = AddBlogsMediator.getIstance().isInLoadingState();
+/*		boolean inLoadingState = AddBlogsMediator.getIstance().isInLoadingState();
 		if( inLoadingState ) {
 			displayMessage("There are blogs in loading... Wait until blogs are loaded");
 			return false;
 		}
-		
+	*/	
     	int result=this.askQuestion("Are sure to exit?");   
     	if(Dialog.YES==result) {
     		System.exit(0);

@@ -58,8 +58,10 @@ public class PostsView extends BaseView {
 	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
 
 	        
-	      
-	        lblPostsNumber = getLabel(getNumberOfNewPostLabel(recentPostInfo.size(), numberOfNewPosts));
+	        if(recentPostInfo != null)
+	        	lblPostsNumber = getLabel(getNumberOfNewPostLabel(recentPostInfo.size(), numberOfNewPosts));
+	        else
+	        	lblPostsNumber = getLabel("You are not allowed access to details about this blog.");
 	        postNumberManager.add(lblPostsNumber);
 	    	
 	        //A HorizontalFieldManager to hold the posts list
@@ -118,7 +120,7 @@ public class PostsView extends BaseView {
 		dataScroller.add(listaPost);
 
 
-		if(recentPostInfo.size() > 0 ) {
+		if(recentPostInfo != null && recentPostInfo.size() > 0 ) {
 			addMenuItem(_editPostItem);
 			addMenuItem(_deletePostItem);
 		}

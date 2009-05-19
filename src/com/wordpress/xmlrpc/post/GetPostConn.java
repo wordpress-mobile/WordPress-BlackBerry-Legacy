@@ -39,7 +39,11 @@ public class GetPostConn extends BlogConn  {
 
         try {
             Hashtable postData = (Hashtable) response;
-            aPost.setId((String) postData.get("postid"));
+            if( postData.get("postid") instanceof String) {
+            	aPost.setId((String) postData.get("postid"));
+            } else {
+            	aPost.setId(String.valueOf(postData.get("postid")));
+            }
             aPost.setTitle((String) postData.get("title"));
             aPost.setAuthor((String) postData.get("userid"));
             aPost.setBody((String) postData.get("description"));

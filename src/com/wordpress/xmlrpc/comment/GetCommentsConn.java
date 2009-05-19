@@ -1,10 +1,10 @@
 package com.wordpress.xmlrpc.comment;
 
-import java.util.Hashtable;
 import java.util.TimeZone;
 import java.util.Vector;
 
 import com.wordpress.xmlrpc.BlogConn;
+import com.wordpress.xmlrpc.BlogConnResponse;
 
 public class GetCommentsConn extends BlogConn  {
 	
@@ -25,48 +25,23 @@ public class GetCommentsConn extends BlogConn  {
 	}
 	
 	public void run() {
-		try {
-			
-			Hashtable StructData = new Hashtable(5);
-			if (postID > 0) {
-	            StructData.put("post_id", String.valueOf(postID));
-	        } else {
-	        	
-	        }
-			
-            StructData.put("comment_status", status);
-            
-			if (offset!=0 ) {
-	            StructData.put("offset", String.valueOf(offset));
-	        }
-			if (number != 0) {
-	            StructData.put("number", String.valueOf(number));
-	        }
-			
-			Vector args = new Vector(5);
-	        args.addElement(String.valueOf(blogId));
-	        args.addElement(mUsername);
-	        args.addElement(mPassword);
-	        args.addElement(StructData);
 		
-	        Object response = execute("wp.getComments", args);
-			if(connResponse.isError()) {
-				notifyObservers(connResponse);
-				return;		
-			}
+		try{
 			
-			connResponse.setResponseObject((Vector)response);
-			}
+			connResponse = new BlogConnResponse();
+
+			//retrive the comments of the blog
+	        Vector comments = getComments(blogId, postID, status, offset, number);
+			connResponse.setResponseObject(comments);
 		
-			catch (Exception e) {
-				setErrorMessage(e, "GetComments error: Invalid server response");
-	        }
-			
-			try {
-				notifyObservers(connResponse);
-			} catch (Exception e) {
-				System.out.println("GetComments error: Notify error"); 
-			}
-			
+		} catch (Exception cce) {
+			setErrorMessage(cce, "loadPosts error");	
 		}
+		try {
+			notifyObservers(connResponse);
+		} catch (Exception e) {
+			System.out.println("Recent Post Notify Error");
+		}
+	}
+	
 	}

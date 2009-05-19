@@ -37,9 +37,9 @@ import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.GetTemplateConn;
 import com.wordpress.xmlrpc.NewCategoryConn;
 import com.wordpress.xmlrpc.NewMediaObjectConn;
-import com.wordpress.xmlrpc.SendPostDataTask;
 import com.wordpress.xmlrpc.post.EditPostConn;
 import com.wordpress.xmlrpc.post.NewPostConn;
+import com.wordpress.xmlrpc.post.SendPostDataTask;
 
 
 public class PostController extends BaseController {

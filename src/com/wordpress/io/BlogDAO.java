@@ -108,7 +108,8 @@ public class BlogDAO implements BaseDAO {
     		String blogName = loadedBlog.getName();
     		String blogXmlRpcUrl=loadedBlog.getXmlRpcUrl();
     		String blogId= loadedBlog.getId();
-    		BlogInfo blogI = new BlogInfo(blogId, blogName,blogXmlRpcUrl,-1);
+    		int blogLoadingState = loadedBlog.getLoadingState();
+    		BlogInfo blogI = new BlogInfo(blogId, blogName,blogXmlRpcUrl,blogLoadingState);
     		blogsInfo[i]= blogI;
 		}
     	return blogsInfo;
@@ -119,6 +120,7 @@ public class BlogDAO implements BaseDAO {
 			throws IOException {
 		Serializer ser= new Serializer(out);
     	
+		ser.serialize(new Integer(blog.getLoadingState()));
     	ser.serialize(blog.getXmlRpcUrl());
     	ser.serialize(blog.getUsername());
     	ser.serialize(blog.getPassword());
@@ -127,6 +129,7 @@ public class BlogDAO implements BaseDAO {
     	ser.serialize(blog.getUrl());
     	ser.serialize(new Integer(blog.getMaxPostCount()));
     	ser.serialize(new Boolean(blog.isResizePhotos()));
+    	ser.serialize(blog.getCommentStatusList());
     	ser.serialize(blog.getPageStatusList());
     	ser.serialize(blog.getPostStatusList());
     	ser.serialize(blog.getRecentPostTitles());
@@ -177,7 +180,8 @@ public class BlogDAO implements BaseDAO {
     	Serializer ser= new Serializer(in);
     	
         Blog blog;
-
+        
+        int loadingState= ((Integer)ser.deserialize()).intValue();
         String xmlRpcUrl = (String)ser.deserialize();
         String userName = (String)ser.deserialize();
         String password = (String)ser.deserialize();
@@ -188,15 +192,23 @@ public class BlogDAO implements BaseDAO {
         boolean isRes=((Boolean)ser.deserialize()).booleanValue();
         
         blog = new Blog(blodId, blogName, blodUrl, xmlRpcUrl, userName, password);
+        blog.setLoadingState(loadingState);
         blog.setMaxPostCount(maxPostCount);
         blog.setResizePhotos(isRes);
         
+        
+        Hashtable commentStatusList= (Hashtable)ser.deserialize();
+        blog.setCommentStatusList(commentStatusList);
+        
         Hashtable pageStatusList= (Hashtable)ser.deserialize();
         blog.setPageStatusList(pageStatusList);
+        
         Hashtable postStatusList= (Hashtable)ser.deserialize();
         blog.setPostStatusList(postStatusList);
+        
         Vector recentPostTitleList= (Vector)ser.deserialize();
         blog.setRecentPostTitles(recentPostTitleList);
+        
         Vector viewedPostList= (Vector)ser.deserialize();
         blog.setViewedPost(viewedPostList);
 

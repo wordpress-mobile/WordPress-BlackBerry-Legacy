@@ -9,7 +9,7 @@ public class Preferences {
 	
     private int timeZoneIndex=-1;
     private int localeIndex=0;
-    private boolean deviceSideConnection=false; //identify if the device require client side http connection
+    private boolean deviceSideConnection=true; //identify if the device require client side http connection
 
 	private String photoEncoding=""; //jpg, png, ecc
     private String audioEncoding="";

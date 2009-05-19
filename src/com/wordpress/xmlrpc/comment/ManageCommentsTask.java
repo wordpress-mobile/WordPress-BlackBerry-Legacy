@@ -1,4 +1,4 @@
-package com.wordpress.xmlrpc;
+package com.wordpress.xmlrpc.comment;
 
 import java.util.Hashtable;
 
@@ -9,6 +9,8 @@ import com.wordpress.model.Preferences;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
+import com.wordpress.xmlrpc.BlogConn;
+import com.wordpress.xmlrpc.BlogConnResponse;
 
 public class ManageCommentsTask {
 

@@ -49,7 +49,7 @@ public class MainView extends BaseView {
         	addMenuItem(_showBlogItem);
         	addMenuItem(_deleteBlogItem);
             timer = new Timer();
-            timer.schedule(new CountDown(), 1000, 3000); //3 second splash
+            timer.schedule(new CountDown(), 500, 2000); //observer on the blog status
         }
     	blogListController = new BlogListField(blogCaricati);
 		this.listaBlog = blogListController.getCheckList();
@@ -69,19 +69,17 @@ public class MainView extends BaseView {
 	  		  		for (int i = 0; i < blogCaricati.length; i++) {
 	  		  			if (blogCaricati[i].getState() ==  BlogInfo.STATE_LOADING 
 	  		  					|| blogCaricati[i].getState() == BlogInfo.STATE_ADDED_TO_QUEUE ){
-	  		  				blogListController.setBlogState(blogCaricati[i]);
 	  		  				inLoading = true;
-	  		  			} else if(blogCaricati[i].getState() == BlogInfo.STATE_LOADED) {
-	  		  				blogListController.setBlogState(blogCaricati[i]);
-	  		  			}
+	  		  			} 
+		
+	  		  			blogListController.setBlogState(blogCaricati[i]);
 	  				}
 	  		  		
 	  		  		if ( !inLoading )
 	  		  			timer.cancel(); //cancel timer
-	  				
+	  		  		
 	  			}
 	  		});
-	    	  
 	    	  
 	     
 	      }

@@ -1,6 +1,5 @@
 package com.wordpress.xmlrpc;
 
-import com.wordpress.controller.AddBlogsMediator;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
@@ -12,6 +11,7 @@ public class GetBlogsDataTask extends Observable{
 
 	private final Queue executionQueue = new Queue(); // queue of BlogConn
 	private WorkerThread worker = null;
+	private BlogUpdateConn blogConn; //the current blog conn 
 
 	private boolean stopping = false;
 	private boolean started = false;
@@ -47,7 +47,7 @@ public class GetBlogsDataTask extends Observable{
 
 		private void next() {
 			if (!executionQueue.isEmpty() && stopping == false) {
-				BlogUpdateConn blogConn = (BlogUpdateConn) executionQueue.pop();
+				blogConn = (BlogUpdateConn) executionQueue.pop();
 				blogConn.addObserver(this);
 				blogConn.startConnWork();
 			}
@@ -55,27 +55,32 @@ public class GetBlogsDataTask extends Observable{
 
 		public void update(Observable observable, final Object object) {
 			BlogConnResponse resp = (BlogConnResponse) object;
-			AddBlogsMediator istance = AddBlogsMediator.getIstance();
-			
 			if (!resp.isError()) {
 				if (resp.isStopped()) {
 					return;
 				}
 				Blog currentBlog = (Blog) resp.getResponseObject(); // update
 				try {
+					currentBlog.setLoadingState(BlogInfo.STATE_LOADED);
 					BlogDAO.updateBlog(currentBlog);
-					
-					BlogInfo blogInfo = new BlogInfo(currentBlog.getId(), currentBlog.getName(), 
-							currentBlog.getXmlRpcUrl(), BlogInfo.STATE_LOADED);
-					istance.updateState(blogInfo);
 				} catch (final Exception e) {
-					BlogInfo blogInfo = new BlogInfo(currentBlog.getId(), currentBlog.getName(), 
-							currentBlog.getXmlRpcUrl(), BlogInfo.STATE_LOADED_WITH_ERROR);
-					istance.updateState(blogInfo);
+
 					//TODO err
 					System.out.println(e.getMessage());
 				}
+			} else { //there was an xml-rpc error
+				Blog currentBlog =  blogConn.getBlog();
+				currentBlog.setLoadingState(BlogInfo.STATE_LOADED_WITH_ERROR);
+				try {
+					BlogDAO.updateBlog(currentBlog);
+				} catch (final Exception e) {
+					//TODO err
+					System.out.println(e.getMessage());	
+				}
+				//TODO err
+				System.out.println(resp.getResponse());
 			}
+			
 			next(); // call to next
 		}
 	}

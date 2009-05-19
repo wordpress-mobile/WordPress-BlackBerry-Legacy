@@ -20,6 +20,7 @@ import net.rim.device.api.ui.container.HorizontalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogController;
+import com.wordpress.controller.FrontController;
 import com.wordpress.view.component.NotYetImpPopupScreen;
 
 public class BlogView extends BaseView {
@@ -128,8 +129,7 @@ public class BlogView extends BaseView {
 	protected boolean keyChar(char c, int status, int time) {
 		// Close this screen if escape is selected.
 		if (c == Characters.ESCAPE) {
-			this.close();
-			return true;
+			return  this.onClose();
 		} else if (c == Characters.ENTER) {
 			doSelection();
 			return true;
@@ -151,9 +151,11 @@ public class BlogView extends BaseView {
 	}
 
 	*/
+	
 	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {
-		controller.backCmd();
+		//controller.backCmd();
+		FrontController.getIstance().backAndRefreshView(true);	
 		return true;
 	}
 
