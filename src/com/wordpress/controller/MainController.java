@@ -1,7 +1,6 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
-import java.util.Hashtable;
 
 import javax.microedition.rms.RecordStoreException;
 
@@ -12,9 +11,10 @@ import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.view.MainView;
+import com.wordpress.xmlrpc.TaskListener;
 
 
-public class MainController extends BaseController {
+public class MainController extends BaseController implements TaskListener{
 	
 	private MainView view = null;
 	
@@ -75,7 +75,8 @@ public class MainController extends BaseController {
 	}
 
 	public void addBlogs() {
-		FrontController.getIstance().showAddBlogsView();
+		AddBlogsController ctrl=new AddBlogsController(this);
+		ctrl.showView();
 	}
 		
 	public void showBlog(BlogInfo selectedBlog){
@@ -115,6 +116,22 @@ public class MainController extends BaseController {
     	} else {
     		return false;
     	}
+	}
+
+	//listener on adding blog task
+	public void taskComplete(Object obj) {
+		taskUpdate(obj);		
+	}
+
+	public void taskUpdate(Object obj) {
+		synchronized (view) {
+			Blog loadedBlog = (Blog)obj;
+			String blogName = loadedBlog.getName();
+			String blogXmlRpcUrl=loadedBlog.getXmlRpcUrl();
+			String blogId= loadedBlog.getId();
+			int blogLoadingState = loadedBlog.getLoadingState();
+			BlogInfo blogI = new BlogInfo(blogId, blogName,blogXmlRpcUrl,blogLoadingState);
+			view.setBlogItemViewState(blogI); 
+		}
 	}	
-	
 }

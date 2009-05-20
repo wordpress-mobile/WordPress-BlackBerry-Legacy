@@ -34,7 +34,7 @@ public class CommentsView extends BaseView {
 	    	topManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
 	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
 
-	        lblPostsNumber = getLabel(" ");
+	        lblPostsNumber = getLabel("Posts "+controller.getCommentsCount());
 	        topManager.add(lblPostsNumber);
 	    	
 	        //A Vertical FM to hold the comments list
@@ -65,18 +65,38 @@ public class CommentsView extends BaseView {
     	
 		dataScroller.add(commentsList);
 
-		if( comments!= null && comments.length > 0 ) {
-			addMenuItem(_editModeItem);
-			addMenuItem(_approveCommentItem);
-			addMenuItem(_deleteCommentItem);
-			addMenuItem(_holdCommentItem);
-			addMenuItem(_spamCommentItem);
-			addMenuItem(_openCommentItem);
-		}
+		switchMenu();
 		
 		addMenuItem(_refreshCommentsListItem);
 	}
 	 
+	//change the main menu. if we are in multiple edit mode add comment action item
+	private void switchMenu(){
+		if(commentListController.isCheckBoxVisible()) {
+			removeMenuItem(_openCommentItem);
+			removeMenuItem(_editModeItem);
+			if(commentsList != null && commentsList.getSize() > 0) {
+				addMenuItem(_approveCommentItem);
+				addMenuItem(_deleteCommentItem);
+				addMenuItem(_holdCommentItem);
+				addMenuItem(_spamCommentItem);
+				addMenuItem(_viewCommentsItem);
+			}
+		} else {
+			removeMenuItem(_viewCommentsItem);
+			if(commentsList != null && commentsList.getSize() > 0) {
+				addMenuItem(_openCommentItem);
+				addMenuItem(_editModeItem);
+			}
+			removeMenuItem(_approveCommentItem);
+			removeMenuItem(_deleteCommentItem);
+			removeMenuItem(_holdCommentItem);
+			removeMenuItem(_spamCommentItem);
+			removeMenuItem(_viewCommentsItem);
+		}
+		
+	}
+	
 	private Comment[] getSelectedComment() {
 		Comment[] selectedComments = new Comment[1];
 		        
@@ -97,26 +117,15 @@ public class CommentsView extends BaseView {
 	
     private MenuItem _viewCommentsItem = new MenuItem( _resources, WordPressResource.MENUITEM_VIEW, 210, 100) {
     	public void run() {
-    		if(commentListController.isCheckBoxVisible())
-        		commentListController.setCheckBoxVisible(false);
-
-    		removeMenuItem(_viewCommentsItem);
-        	addMenuItem(_editModeItem);
-        	addMenuItem(_openCommentItem);
-     
+    		commentListController.setCheckBoxVisible(false);
+    		switchMenu();
         }
     };
 	
     private MenuItem _editModeItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDIT, 210, 100) {
-    	public void run() {
-    		if(commentListController.isCheckBoxVisible())
-    			commentListController.setCheckBoxVisible(false);
-    		
-    		removeMenuItem(_editModeItem);
-    		removeMenuItem(_openCommentItem);
-    		addMenuItem(_viewCommentsItem);
-    		
+    	public void run() {    		
     		commentListController.setCheckBoxVisible(true);
+    		switchMenu();
     	}
     };
     
@@ -129,7 +138,7 @@ public class CommentsView extends BaseView {
 
     private MenuItem _refreshCommentsListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 220, 100) {
     	public void run() {
-    		controller.updateCommentsList();
+    		controller.refreshComments(true);
     	}
     };
     
@@ -137,7 +146,7 @@ public class CommentsView extends BaseView {
     private MenuItem _approveCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_APPROVE, 100000, 5) {
         public void run() {
         	Comment[] selectedComment = getSelectedComment();
-        	controller.updateComments(selectedComment, "approve");
+        	controller.updateComments(selectedComment, "approve", null);
         }
     };
     
@@ -145,14 +154,14 @@ public class CommentsView extends BaseView {
     private MenuItem _holdCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_HOLD, 100020, 5) {
         public void run() {
         	Comment[] selectedComment = getSelectedComment();
-        	controller.updateComments(selectedComment, "hold");
+        	controller.updateComments(selectedComment, "hold", null);
         }
     };
     
     private MenuItem _spamCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_SPAM, 100010, 5) {
         public void run() {
         	Comment[] selectedComment = getSelectedComment();
-        	controller.updateComments(selectedComment, "spam");
+        	controller.updateComments(selectedComment, "spam", null);
         }
     };
     
@@ -166,7 +175,7 @@ public class CommentsView extends BaseView {
     };
     
 
-        	 
+    //called when remote loading is finished
     public void refresh(Comment[] comments){
     	dataScroller.delete(commentsList);
     	buildList(comments);

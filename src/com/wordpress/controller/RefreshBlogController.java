@@ -67,7 +67,6 @@ public class RefreshBlogController extends BaseController implements Observer{
 					}
 					
 				} else {
-					//currentBlog.setLoadingState(BlogInfo.STATE_LOADED);
 					final String respMessage=resp.getResponse();
 				 	displayError(respMessage);	
 				}

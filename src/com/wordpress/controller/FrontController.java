@@ -7,6 +7,7 @@ import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
 import com.wordpress.view.BaseView;
 import com.wordpress.view.MainView;
+import com.wordpress.xmlrpc.TaskListener;
 
 
 /*
@@ -38,22 +39,12 @@ public class FrontController {
 	}
 		
 	/**
-	 * show add blogs view
-	 */
-	public void showAddBlogsView(){
-		AddBlogsController ctrl=new AddBlogsController();
-		ctrl.showView();
-	}
-	
-	
-	/**
 	 * show setupUp view
 	 */
 	public void showSetupView(){
 		PreferenceController ctrl=new PreferenceController();
 		ctrl.showView();		
 	}
-
 	
 	/**
 	 * show blog  view

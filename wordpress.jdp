@@ -147,6 +147,7 @@ src\com\wordpress\xmlrpc\post\NewPostConn.java
 src\com\wordpress\xmlrpc\post\PostConn.java
 src\com\wordpress\xmlrpc\post\RecentPostConn.java
 src\com\wordpress\xmlrpc\post\SendPostDataTask.java
+src\com\wordpress\xmlrpc\TaskListener.java
 src\disclosure-indicator.png
 src\drafts-folder.png
 src\License.txt
@@ -172,7 +173,7 @@ application-icon.png
 [Imports
 ]
 Listing=0
-Options=-deprecation
+Options=-deprecation -define=DEBUG
 OutputFileName=wordpress
 [PackageProtection
 ]

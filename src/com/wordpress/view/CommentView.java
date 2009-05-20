@@ -1,11 +1,14 @@
+//#preprocess
 package com.wordpress.view;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.NullField;
 import net.rim.device.api.ui.component.SeparatorField;
@@ -23,9 +26,14 @@ public class CommentView extends BaseView {
     private CommentsController controller= null;
     private HorizontalFieldManager topManager;
     private VerticalFieldManager dataScroller;
-	private LabelField lblPostsNumber;
-	private LabelField status; //this information can change by user interaction
+	
 	private Comment comment; 
+	private LabelField lblPostsNumber;
+	private LabelField from;
+	private LabelField title;
+	private LabelField date;
+	private LabelField status; //this information can change by user interaction
+	private BasicEditField commentContent;
 	
 	 public CommentView(CommentsController _controller, Comment comment) {
 	    	super(_resources.getString(WordPressResource.TITLE_COMMENTVIEW), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -36,7 +44,7 @@ public class CommentView extends BaseView {
 	    	topManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
 	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
 
-	        lblPostsNumber = getLabel("Sample fixed Label");
+	        lblPostsNumber = getLabel("");
 	        topManager.add(lblPostsNumber);
 	    	
 	        //A Vertical FM to hold the comments list
@@ -45,7 +53,7 @@ public class CommentView extends BaseView {
 	        //row from
 	        HorizontalFieldManager rowFrom = new HorizontalFieldManager();
 			LabelField lblFrom = getLabel(_resources.getString(WordPressResource.LABEL_COMMENT_FROM));
-			LabelField from = new LabelField(comment.getAuthor() + " "+ comment.getAuthorEmail(), LabelField.FOCUSABLE);
+			from = new LabelField("", LabelField.FOCUSABLE);
 			from.setMargin(margins);
 			rowFrom.add(lblFrom);
 			rowFrom.add(from);
@@ -55,7 +63,7 @@ public class CommentView extends BaseView {
 	        //row on (post of this comment)
 	        HorizontalFieldManager rowOn = new HorizontalFieldManager();
 			LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_COMMENT_ON));
-			LabelField title = new LabelField(comment.getPostTitle(), LabelField.FOCUSABLE);
+			title = new LabelField("", LabelField.FOCUSABLE);
 	        title.setMargin(margins);
 	        rowOn.add(lblTitle);
 	        rowOn.add(title);
@@ -65,12 +73,7 @@ public class CommentView extends BaseView {
 	        //row date
 	        HorizontalFieldManager rowDate = new HorizontalFieldManager();
 			LabelField lblDate = getLabel(_resources.getString(WordPressResource.LABEL_COMMENT_DATE));
-			//formatting date value
-			Date dateCreated = comment.getDate_created_gmt();
-	        SimpleDateFormat sdFormat3 = new SimpleDateFormat("yyyy/MM/dd hh:mm");
-	        String format = sdFormat3.format(dateCreated);
-			//end
-	        LabelField date = new LabelField(format, LabelField.FOCUSABLE);
+			date = new LabelField("", LabelField.FOCUSABLE);
 	        date.setMargin(margins);
 	        rowDate.add(lblDate);
 	        rowDate.add(date);
@@ -79,62 +82,171 @@ public class CommentView extends BaseView {
 	        
 	  		//row status
 	        HorizontalFieldManager rowStatus = new HorizontalFieldManager();
-	  		LabelField lblStatus =getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS));
-	  		status =new LabelField(comment.getStatus(), LabelField.FOCUSABLE); //TODO decodificare
+	        LabelField lblStatus = getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS));
+	  		status =new LabelField("", LabelField.FOCUSABLE);
 	  		rowStatus.add(lblStatus);
 	  		rowStatus.add(status); 
 	  		rowStatus.add(new NullField());
 	  		dataScroller.add(rowStatus);
 	  		dataScroller.add(new SeparatorField()); 
 	        	  			  		
-	  		LabelField commentContent= new LabelField(comment.getContent(), LabelField.FOCUSABLE);
+	  		commentContent = new BasicEditField("",comment.getContent());
 	  		dataScroller.add(commentContent);
 	  			        	  		
 			add(topManager);
 			add(new SeparatorField());
 			add(dataScroller);
-
+			
 			addMenuItem(_approveCommentItem);
-			addMenuItem(_deleteCommentItem);
 			addMenuItem(_holdCommentItem);
 			addMenuItem(_spamCommentItem);	
+			addMenuItem(_deleteCommentItem);
+			addMenuItem(_nextCommentItem);
+			addMenuItem(_prevCommentItem);
 			
+			refresh(comment);
 	 }
  
+	 //refresh the view with the new comment content
+	 private void refresh(Comment newComment){
+		 this.comment = newComment;
+		//#ifdef DEBUG
+		 System.out.println("DEBUG trovato");
+		//#endif
+
+		//#ifdef danilo
+		 System.out.println("DEBUG22 trovato");
+		//#endif 
+		 
+		/* removeMenuItem(_approveCommentItem);
+		 removeMenuItem(_holdCommentItem);
+		 removeMenuItem(_spamCommentItem);
+		 
+		 
+		if(!comment.getStatus().equalsIgnoreCase("approve"));
+			addMenuItem(_approveCommentItem);
+		if(!comment.getStatus().equalsIgnoreCase("hold"));
+			addMenuItem(_holdCommentItem);
+		if(!comment.getStatus().equalsIgnoreCase("spam"));
+			addMenuItem(_spamCommentItem);	
+*/
+			
+		 
+		 lblPostsNumber.setText(controller.getCommentIndex(comment)+"/"+controller.getCommentsCount());
+		 
+		 if(newComment.getAuthor() != null)
+			 from.setText(comment.getAuthor() + " "+ comment.getAuthorEmail());
+		 else 
+			 from.setText("");
+		 
+		 if(newComment.getPostTitle() != null)
+			 title.setText(newComment.getPostTitle());
+		 else 
+			 title.setText("");
+		 
+		 if(newComment.getDate_created_gmt() != null) {
+				Date dateCreated = comment.getDate_created_gmt();
+		        SimpleDateFormat sdFormat3 = new SimpleDateFormat("yyyy/MM/dd hh:mm");
+		        String format = sdFormat3.format(dateCreated);
+		        date.setText(format); 
+ 		 } else 
+			 date.setText("");
+		 
+		 
+		 if(newComment.getStatus() != null)
+			 status.setText(newComment.getStatus());  //TODO decodificare
+		 else 
+			 status.setText("");
+		 
+		 if(newComment.getContent() != null)
+			try {
+				commentContent.setText(new String(newComment.getContent().getBytes(),"UTF-8"));
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		else 
+			 commentContent.setText("");
+		 		 
+	 }
+	 
 	 	
-    private MenuItem _approveCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_APPROVE, 1000, 5) {
+    private MenuItem _approveCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_APPROVE, 1000, 100) {
         public void run() {
         	Comment[] selectedComment = {comment};
-        	controller.updateComments(selectedComment, "approve");
+        	controller.updateComments(selectedComment, "approve", commentContent.getText());
         	status.setText("Approved");
         }
     };
     
     
-    private MenuItem _holdCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_HOLD, 1020, 5) {
+    private MenuItem _holdCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_HOLD, 1020, 100) {
         public void run() {
         	Comment[] selectedComment =  {comment};
-        	controller.updateComments(selectedComment, "hold");
+        	controller.updateComments(selectedComment, "hold", commentContent.getText());
           	status.setText("Holded");
         }
     };
     
-    private MenuItem _spamCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_SPAM, 1010, 5) {
+    private MenuItem _spamCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_SPAM, 1010, 100) {
         public void run() {
         	Comment[] selectedComment =  {comment};
-        	controller.updateComments(selectedComment, "spam");
+        	controller.updateComments(selectedComment, "spam", commentContent.getText());
         	status.setText("Spam");
         }
     };
     
     
-    private MenuItem _deleteCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_DELETE, 1030, 5) {
+    private MenuItem _deleteCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_DELETE, 1030, 100) {
     	public void run() {
     		Comment[] selectedComment =  {comment};
+    		Comment next = controller.getNextComment(selectedComment[0]);
+    		if (next == null)
+    			next = controller.getPreviousComment(selectedComment[0]);
+    		    		
     		controller.deleteComments(selectedComment);
+    		
+    		if( next != null ) {
+    			System.out.println("Abbiamo altri commeni da visualizzare");
+    			refresh(next);
+    		} else
+    			controller.backCmd();
+    		
     	}
     };
     
+    private MenuItem _nextCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_NEXT, 100, 5) {
+    	public void run() {
+    		Comment[] selectedComment =  {comment};
+    		Comment next = controller.getNextComment(selectedComment[0]);
+    		if (next == null)
+    			controller.displayMessage("There arent next comments");   	
+    		else {
+    			System.out.println("abbiamo altri commenti");
+    			refresh(next);
+    		}
+    	}
+    };
+    
+    private MenuItem _prevCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_PREV, 110, 6) {
+    	public void run() {
+    		Comment[] selectedComment =  {comment};
+    		Comment prev = controller.getPreviousComment(selectedComment[0]);
+    		if (prev == null)
+    			controller.displayMessage("There arent next comments");
+    		else {
+    			refresh(prev);
+    			System.out.println("abbiamo altri commenti");
+    		}
+
+    		
+    	
+    	}
+    };
+
 
 	public BaseController getController() {
 		return this.controller;

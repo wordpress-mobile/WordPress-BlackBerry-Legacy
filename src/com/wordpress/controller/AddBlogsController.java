@@ -20,11 +20,14 @@ import com.wordpress.xmlrpc.BlogAuthConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.BlogUpdateConn;
 import com.wordpress.xmlrpc.GetBlogsDataTask;
+import com.wordpress.xmlrpc.TaskListener;
 
 
 public class AddBlogsController extends BaseController implements Observer{
 	
 	private AddBlogsView view = null;
+	private final TaskListener listener; //listener on add a blog task
+	ConnectionInProgressView connectionProgressView=null;
 	
 	private int maxPostIndex= -1;
 	private boolean isResPhotos= false;
@@ -32,11 +35,9 @@ public class AddBlogsController extends BaseController implements Observer{
 	public static final String[] recentsPostValuesLabel={"10","20","30","40","50"};
 	private Hashtable guiValues= new Hashtable();
 	
-	ConnectionInProgressView connectionProgressView=null;
-
-	
-	public AddBlogsController() {
+	public AddBlogsController(TaskListener listener) {
 		super();
+		this.listener = listener;
 		guiValues.put("user", "mopress");
 		guiValues.put("pass", "mopress");
 		guiValues.put("url", "http://localhost/wp_mopress");
@@ -129,7 +130,7 @@ public class AddBlogsController extends BaseController implements Observer{
 			System.out.println("Trovati blogs: "+((Blog[])resp.getResponseObject()).length);	
 		 	Blog[]blogs=(Blog[])resp.getResponseObject();
 		 	
-		 	GetBlogsDataTask networkTask = new GetBlogsDataTask(); 
+		 	GetBlogsDataTask networkTask = new GetBlogsDataTask(listener); 
 			Preferences prefs = Preferences.getIstance();
 			
 		 	for (int i = 0; i < blogs.length; i++) {
@@ -141,10 +142,8 @@ public class AddBlogsController extends BaseController implements Observer{
 				final BlogUpdateConn connection = new BlogUpdateConn (prefs.getTimeZone(), blogs[i]);       
 		        networkTask.addConn(connection); 
 		    }
-		 	
-		 	networkTask.startWorker();
-		 	FrontController.getIstance().backAndRefreshView(true);
-		 	
+		 	FrontController.getIstance().backAndRefreshView(true); //update the main view with new blogs
+		 	networkTask.startTask(); //start getting blog details
 		} else {
 			final String respMessage=resp.getResponse();
 		 	displayError(respMessage);	

@@ -1,6 +1,5 @@
 package com.wordpress.xmlrpc;
 
-import java.io.UnsupportedEncodingException;
 import java.util.TimeZone;
 import java.util.Vector;
 
@@ -28,22 +27,32 @@ public class BlogUpdateConn extends BlogConn  {
 			//we ignore its errors now
 			getBlogCategories(blog);
 			connResponse.setError(false);
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			connResponse.setStopped(false);
 			connResponse.setResponse("");
 			
 			getPageStatusList(blog);
 			connResponse.setError(false);
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			connResponse.setStopped(false);
 			connResponse.setResponse("");
 			
 			getPostStatusList(blog);
 			connResponse.setError(false);
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			connResponse.setStopped(false);
 			connResponse.setResponse("");
 			
 			getTagList(blog);
 			connResponse.setError(false);
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			connResponse.setStopped(false);
 			connResponse.setResponse("");
 
 			getCommentStatusList(blog);
 			connResponse.setError(false);
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			connResponse.setStopped(false);
 			connResponse.setResponse("");
 						
 			System.out.println("reading recent post title list for the blog : "	+ blog.getName());
@@ -51,21 +60,21 @@ public class BlogUpdateConn extends BlogConn  {
 			blog.setRecentPostTitles(recentPostTitle);
 			System.out.println("End reading recent post title list for the blog : " + blog.getName());
 			connResponse.setError(false);
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			connResponse.setStopped(false);
 			connResponse.setResponse("");
 			
 			System.out.println("reading comments for the blog : "	+ blog.getName());
 			Vector comments = getComments(Integer.parseInt(blog.getId()), -1, "", 0, 100);
 			connResponse.setError(false);
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			connResponse.setStopped(false);
 			connResponse.setResponse("");
 			try {
 				CommentsDAO.storeComments(blog, comments);
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} //store the comments
+			
+			} 
 			System.out.println("End reading comments for the blog : " + blog.getName());
 			connResponse.setResponseObject(blog);
 			

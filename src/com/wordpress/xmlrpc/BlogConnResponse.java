@@ -46,5 +46,5 @@ public class BlogConnResponse {
 	public void setStopped(boolean isStopped) {
 		this.isStopped = isStopped;
 	}
-
+	
 }

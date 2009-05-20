@@ -1,10 +1,6 @@
 package com.wordpress.view;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.ListField;
 
 import com.wordpress.bb.WordPressResource;
@@ -19,7 +15,6 @@ public class MainView extends BaseView {
     private MainController mainController=null;
     private ListField listaBlog;
     private BlogListField blogListController; 
-    private Timer timer = new Timer(); 
 
 	public MainView(MainController mainController) {
 		super(_resources.getString(WordPressResource.TITLE_APPLICATION));
@@ -34,9 +29,6 @@ public class MainView extends BaseView {
 	
 	
 	 public void setupUpBlogsView() {
-	
-		 //resetta qua il timer!!!
-		timer.cancel();
     	
 		removeMenuItem(_deleteBlogItem);
     	removeMenuItem(_showBlogItem);
@@ -48,8 +40,6 @@ public class MainView extends BaseView {
         } else {
         	addMenuItem(_showBlogItem);
         	addMenuItem(_deleteBlogItem);
-            timer = new Timer();
-            timer.schedule(new CountDown(), 500, 2000); //observer on the blog status
         }
     	blogListController = new BlogListField(blogCaricati);
 		this.listaBlog = blogListController.getCheckList();
@@ -57,41 +47,11 @@ public class MainView extends BaseView {
 	 }
 	 
 	 
-   private class CountDown extends TimerTask {
-	      public void run() {
-	    	  
-	    	  UiApplication.getUiApplication().invokeLater(new Runnable() {
-	  			public void run() {
-	  				
-	  				System.out.println("CountDown");
-	  				BlogInfo[] blogCaricati = mainController.getBlogsList();
-	  				boolean inLoading = false;
-	  		  		for (int i = 0; i < blogCaricati.length; i++) {
-	  		  			if (blogCaricati[i].getState() ==  BlogInfo.STATE_LOADING 
-	  		  					|| blogCaricati[i].getState() == BlogInfo.STATE_ADDED_TO_QUEUE ){
-	  		  				inLoading = true;
-	  		  			} 
-		
-	  		  			blogListController.setBlogState(blogCaricati[i]);
-	  				}
-	  		  		
-	  		  		if ( !inLoading )
-	  		  			timer.cancel(); //cancel timer
-	  		  		
-	  			}
-	  		});
-	    	  
-	     
-	      }
-	   }
-
-	 
-	public void refreshBlogList(){	 
-		if(listaBlog != null){
-			this.delete(listaBlog);
-			setupUpBlogsView();
-		}
+	 //update the view of blog list entry
+	 public synchronized void setBlogItemViewState(BlogInfo blogInfo) {
+		 blogListController.setBlogState(blogInfo);
 	 }
+	 
 
 /*	
 	// Handle trackball clicks.
@@ -131,11 +91,21 @@ public class MainView extends BaseView {
         
     private MenuItem _deleteBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE, 200, 10) {
         public void run() {
-        BlogInfo blogSelected = blogListController.getBlogSelected();
-        mainController.deleteBlog(blogSelected);
-        refreshBlogList();
+	        BlogInfo blogSelected = blogListController.getBlogSelected();
+	        mainController.deleteBlog(blogSelected);
+	        refreshBlogList();
         }
     };
+    
+    public void refreshBlogList() {
+    	synchronized (this) {
+	        if(listaBlog != null){
+				delete(listaBlog);
+				setupUpBlogsView(); //repaint entire list
+			}
+    	}
+    }
+    
     
     private MenuItem _setupItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETUP, 1000, 10) {
         public void run() {

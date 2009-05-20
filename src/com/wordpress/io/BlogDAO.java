@@ -18,15 +18,13 @@ import com.wordpress.utils.Tools;
 
 public class BlogDAO implements BaseDAO {
 	
-
-	
 	/**
      * add One  blog to the storage!
      * @param aBlog
      * @return
 	 * @throws Exception 
      */
-    public static boolean newBlog(Blog blog, boolean overwrite) throws Exception{
+    public static synchronized boolean newBlog(Blog blog, boolean overwrite) throws Exception{
     	String name = blog.getName();
     	String nameMD5=getBlogFolderName(blog);
     	String filePath=AppDAO.getBaseDirPath()+nameMD5;
@@ -54,7 +52,7 @@ public class BlogDAO implements BaseDAO {
      * @param aBlog
      * @return
      */
-    public static boolean updateBlog(Blog blog) throws Exception{   	
+    public static synchronized boolean updateBlog(Blog blog) throws Exception{   	
     	String name = blog.getName();
     	String nameMD5=getBlogFolderName(blog);
     	String filePath=AppDAO.getBaseDirPath()+nameMD5;
@@ -71,7 +69,7 @@ public class BlogDAO implements BaseDAO {
     }
     
     
-    public static Blog getBlog(BlogInfo blogInfo) throws Exception {
+    public static synchronized Blog getBlog(BlogInfo blogInfo) throws Exception {
         try {
         	//String blogName = getBlogsPath()[aIndex];
         	String blogName = getBlogFolderName(blogInfo);
@@ -81,7 +79,7 @@ public class BlogDAO implements BaseDAO {
         }
     }
     
-    private static String[] getBlogsPath() throws IOException, RecordStoreException{
+    private static synchronized String[] getBlogsPath() throws IOException, RecordStoreException{
     	String[] listFilesAndDir = JSR75FileSystem.listFiles(AppDAO.getBaseDirPath());
     	Vector listDir= new Vector();
     	
@@ -99,7 +97,7 @@ public class BlogDAO implements BaseDAO {
      * @return
      * @throws Exception
      */
-    public static BlogInfo[] getBlogsInfo() throws Exception{
+    public static synchronized BlogInfo[] getBlogsInfo() throws Exception{
     	String[] listFiles = getBlogsPath();
     	BlogInfo[] blogsInfo = new BlogInfo[listFiles.length];
     	                                 
@@ -116,7 +114,7 @@ public class BlogDAO implements BaseDAO {
     }
     
     
-	private static void storeBlog(Blog blog, DataOutputStream out)
+	private static synchronized void storeBlog(Blog blog, DataOutputStream out)
 			throws IOException {
 		Serializer ser= new Serializer(out);
     	
@@ -167,7 +165,7 @@ public class BlogDAO implements BaseDAO {
 	}
     
    
-    private static Blog loadBlog(String name) throws Exception {
+    private static synchronized Blog loadBlog(String name) throws Exception {
     	System.out.println("carico il blog " + name + " dal file system");
     	
     	String filePath=AppDAO.getBaseDirPath()+name;
@@ -252,7 +250,7 @@ public class BlogDAO implements BaseDAO {
         return blog;     
      } 
     
-    public static void removeBlog(BlogInfo blog)  throws IOException, RecordStoreException{
+    public static synchronized void removeBlog(BlogInfo blog)  throws IOException, RecordStoreException{
     	String blogName = getBlogFolderName(blog);
     	String filePath=AppDAO.getBaseDirPath()+blogName;
     	
@@ -271,13 +269,13 @@ public class BlogDAO implements BaseDAO {
      * @return
      * @throws UnsupportedEncodingException 
      */
-    protected static String getBlogFolderName(Blog blog) throws UnsupportedEncodingException{
+    protected static synchronized String getBlogFolderName(Blog blog) throws UnsupportedEncodingException{
     	if (blog == null) return null;
     	return getBlogFolderName(blog.getId(), blog.getXmlRpcUrl());
     
     }
     
-    protected static String getBlogFolderName(String blogID, String xmlRpcUrl) throws UnsupportedEncodingException{
+    protected static synchronized String getBlogFolderName(String blogID, String xmlRpcUrl) throws UnsupportedEncodingException{
     	if(xmlRpcUrl==null || xmlRpcUrl.equals("") || blogID==null || blogID.equals(""))
 			return null;
 		
@@ -289,7 +287,7 @@ public class BlogDAO implements BaseDAO {
 	    return hash+"/"; //as directory we return with ending trail slash
     }
     
-    protected static String getBlogFolderName(BlogInfo blog) throws UnsupportedEncodingException{
+    protected static synchronized String getBlogFolderName(BlogInfo blog) throws UnsupportedEncodingException{
     	if (blog == null) return null;
     	return getBlogFolderName(blog.getId(), blog.getXmlRpcUrl()); 	   
     }

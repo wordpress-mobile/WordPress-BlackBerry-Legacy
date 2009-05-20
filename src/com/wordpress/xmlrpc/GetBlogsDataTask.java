@@ -15,24 +15,20 @@ public class GetBlogsDataTask extends Observable{
 
 	private boolean stopping = false;
 	private boolean started = false;
+	private final TaskListener listener;
 
-	public GetBlogsDataTask() {
+	public GetBlogsDataTask(TaskListener listener) {
+		this.listener = listener;
 	}
 
-	public void startWorker() {
+	public void startTask() {
 		started = true;
 		worker = new WorkerThread();
 		worker.run();
-
 	}
-	
-	public void taskCompleted() {
-
-	}	
-  
-	public void quit() {
+	  
+	public void stopTask() {
 	    stopping = true;
-
 	}
 
 	public void addConn(BlogUpdateConn blogConn) {
@@ -63,6 +59,7 @@ public class GetBlogsDataTask extends Observable{
 				try {
 					currentBlog.setLoadingState(BlogInfo.STATE_LOADED);
 					BlogDAO.updateBlog(currentBlog);
+					listener.taskUpdate(currentBlog); //update listener task. 
 				} catch (final Exception e) {
 
 					//TODO err
@@ -73,6 +70,7 @@ public class GetBlogsDataTask extends Observable{
 				currentBlog.setLoadingState(BlogInfo.STATE_LOADED_WITH_ERROR);
 				try {
 					BlogDAO.updateBlog(currentBlog);
+					listener.taskUpdate(currentBlog); //update listener task. 
 				} catch (final Exception e) {
 					//TODO err
 					System.out.println(e.getMessage());	

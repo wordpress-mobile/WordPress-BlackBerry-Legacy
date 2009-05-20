@@ -30,14 +30,16 @@ public class CommentsController extends BaseController{
 	private CommentsView view = null;
 	private Blog currentBlog;
 	ConnectionInProgressView connectionProgressView=null;
-	 
+	private Comment[] storedComments;
+		
+
 	public CommentsController(Blog currentBlog) {
 		super();
 		this.currentBlog=currentBlog;
 	}
 				
 	public void showView() {
-		
+
 		Vector comments = null;
 		try {
 			comments = CommentsDAO.loadComments(currentBlog);
@@ -46,37 +48,108 @@ public class CommentsController extends BaseController{
 		} catch (Exception e) {
 			e.printStackTrace(); //TODO err
 		}
-		
-		Comment[] myCommentsList;
-
-		
-		myCommentsList = getComments(comments);
-			
-		view= new CommentsView(this, myCommentsList);
+		storedComments = buildCommentsArray(comments);		
+		view= new CommentsView(this, storedComments);
 		UiApplication.getUiApplication().pushScreen(view);
-
-		//check the comments cache
-		if( comments == null )
-			startGetCommentsConn(false);
+	
 	}
 
+
+	public int getCommentsCount() {
+		if(storedComments == null) return 0;
+		else 
+			return storedComments.length;
+		
+	}
 	
-	public void openComment(Comment comment){
+	public int  getCommentIndex(Comment currentComment) {
+		int index = -1;
+		for (int i = 0; i < storedComments.length; i++) {
+			Comment	comment = storedComments[i];
+				if (comment.getID() == currentComment.getID()) {
+					index = i;
+					break;
+				}
+		}
+		return index+1;
+	}
+	
+	public Comment getPreviousComment(Comment currentComment) {
+		int index = -1;
+		for (int i = 0; i < storedComments.length; i++) {
+			Comment	comment = storedComments[i];
+				if (comment.getID() == currentComment.getID()) {
+					index = i;
+					break;
+				}
+		}
+
+		if(storedComments.length > index+1) {
+			return storedComments[index+1];
+		} else
+		
+		return null;
+
+		
+	}
+	
+	/**
+	 * 	
+	 * @param currentComment
+	 * @return the next comment from the comments list.
+	 */
+	public Comment getNextComment(Comment currentComment){		
+		int index = -1;
+		for (int i = 0; i < storedComments.length; i++) {
+			Comment	comment = storedComments[i];
+				if (comment.getID() == currentComment.getID()) {
+					index = i;
+					break;
+				}
+		}
+		//index = 0 mean that currentComment is the most recent comment
+		if(index > 0) {
+			return storedComments[index-1];
+		} else
+		
+		return null;				
+	}
+	
+	public void openComment(Comment comment) {
 		CommentView commentView= new CommentView(this, comment);
 		UiApplication.getUiApplication().pushScreen(commentView);
 	}
 	
-	public void updateComments(Comment[] comments, String status) {
+	public void updateComments(Comment[] comments, String status, String commentContent) {
 		ManageCommentsTask task = new ManageCommentsTask();
 		Preferences prefs = Preferences.getIstance();
-		for (int i = 0; i < comments.length; i++) {
-			Comment comment = comments[i];
-			comment.setStatus(status);
 
-			EditCommentConn conn = new EditCommentConn(currentBlog.getXmlRpcUrl(), currentBlog.getUsername(),
-					currentBlog.getPassword(), prefs.getTimeZone(), currentBlog.getId(), comment);
-			task.addConn(conn);
+		boolean isModifiedComments = false; //true if there are comments that needs update
+		
+		for (int i = 0; i < comments.length; i++) {
+
+			Comment comment = comments[i];
+			boolean flag = false;
+			
+			if(commentContent != null && !commentContent.equalsIgnoreCase(comment.getContent()))
+				flag = true;
+				
+			if (!comment.getStatus().equals(status))
+				flag = true;
+			
+			if (flag) {
+				comment.setStatus(status);
+				if(commentContent != null)
+					comment.setContent(commentContent);
+	
+				EditCommentConn conn = new EditCommentConn(currentBlog.getXmlRpcUrl(), currentBlog.getUsername(),
+						currentBlog.getPassword(), prefs.getTimeZone(), currentBlog.getId(), comment);
+				task.addConn(conn);
+				isModifiedComments = true;
+			}
 		}
+		
+		if(!isModifiedComments) return; //there aren't modified comments
 		
 		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
 
@@ -89,35 +162,21 @@ public class CommentsController extends BaseController{
 			task.quit();
 			
 			if (!task.isError()) {
-				//delete comments from the list
-				
-				Vector storedComments = null;
-				try {
-					storedComments = CommentsDAO.loadComments(currentBlog);
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-						
-				//check the comments cache
-				for (int i = 0; i < storedComments.size(); i++) {
-					 Hashtable returnCommentData = (Hashtable)storedComments.elementAt(i);
-					 int commentID=Integer.parseInt((String)returnCommentData.get("comment_id"));
-					 
-					 
-					 for (int j = 0; j < comments.length; j++) {
+									
+				//update and storage the comments cache
+				for (int i = 0; i < storedComments.length; i++) {
+					Comment	comment = storedComments[i];
+					for (int j = 0; j < comments.length; j++) {
 						Comment	modifiedComment = comments[j];
-						if (commentID == modifiedComment.getID()) {
-							 returnCommentData.put("status", modifiedComment.getStatus());						
+						if (comment.getID() == modifiedComment.getID()) {
+							storedComments[i] = modifiedComment;
 							break;
 						}
-					} 
-					 
+					} 					 
 				}
 								
 				try {
-					CommentsDAO.storeComments(currentBlog, storedComments);
+					CommentsDAO.storeComments(currentBlog, buildCommentVector(storedComments));
 				} catch (UnsupportedEncodingException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -125,10 +184,7 @@ public class CommentsController extends BaseController{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} //store the comments
-				
-				Comment[] myCommentsList = getComments(storedComments);
-				
-				view.refresh(myCommentsList);
+				view.refresh(storedComments);
 				
 			} else {
 				displayError(task.getErrorMessage());
@@ -137,11 +193,11 @@ public class CommentsController extends BaseController{
 		}
 	}
 	
-	public void deleteComments(Comment[] comments) {
+	public void deleteComments(Comment[] deleteComments) {
 		ManageCommentsTask task = new ManageCommentsTask();
 		Preferences prefs = Preferences.getIstance();
-		for (int i = 0; i < comments.length; i++) {
-			Comment comment = comments[i];
+		for (int i = 0; i < deleteComments.length; i++) {
+			Comment comment = deleteComments[i];
 			DeleteCommentConn conn = new DeleteCommentConn(currentBlog.getXmlRpcUrl(), currentBlog.getUsername(),
 					currentBlog.getPassword(), prefs.getTimeZone(), currentBlog.getId(), comment.getID());
 			task.addConn(conn);
@@ -160,41 +216,37 @@ public class CommentsController extends BaseController{
 			if (!task.isError()) {
 				//delete comments from the list
 				
-				Vector storedComments = null;
-				try {
-					storedComments = CommentsDAO.loadComments(currentBlog);
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-						
-				//check the comments cache
-				for (int i = 0; i < storedComments.size(); i++) {
-					 Hashtable returnCommentData = (Hashtable)storedComments.elementAt(i);
-					 int commentID=Integer.parseInt((String)returnCommentData.get("comment_id"));
-					 
-					 for (int j = 0; j < comments.length; j++) {
-						Comment	modifiedComment = comments[j];
-						if (commentID == modifiedComment.getID()) {
-							storedComments.setElementAt(null, i);					
+				
+				//count the deleted comments 
+				int numOfdelete=deleteComments.length;
+				//create new comment array
+				Comment[] newComments = new Comment[storedComments.length - numOfdelete];
+				
+				//update and storage the comments cache
+				int k = 0;
+				for (int i = 0; i < storedComments.length; i++) {
+					Comment	comment = storedComments[i];
+					
+					boolean presence = false;
+					for (int j = 0; j < deleteComments.length; j++) {
+						Comment	modifiedComment = deleteComments[j];
+						if (comment.getID() == modifiedComment.getID()) {
+							presence = true;
 							break;
 						}
-					} 
+					}
+					
+					if(!presence) {
+						newComments[k] = comment;
+						k++;
+					}
+					
 				}
 				
-				//renew vector of comments
-				Vector newCommentsVector = new Vector();
-				for (int i = 0; i < storedComments.size(); i++) {
-					 Hashtable returnCommentData = (Hashtable)storedComments.elementAt(i);
-					 if(returnCommentData != null)
-						 newCommentsVector.addElement(returnCommentData);
-				}
-				
-				
-
+				storedComments = newComments;
+							
 				try {
-					CommentsDAO.storeComments(currentBlog, newCommentsVector);
+					CommentsDAO.storeComments(currentBlog, buildCommentVector(storedComments));
 				} catch (UnsupportedEncodingException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -203,9 +255,8 @@ public class CommentsController extends BaseController{
 					e.printStackTrace();
 				} //store the comments
 				
-				Comment[] myCommentsList = getComments(newCommentsVector);
-				
-				view.refresh(myCommentsList);
+							
+				view.refresh(storedComments);
 				
 			} else {
 				displayError(task.getErrorMessage());
@@ -216,7 +267,7 @@ public class CommentsController extends BaseController{
 	}
 	
 	
-	private void startGetCommentsConn(boolean refresh){
+	public void refreshComments(boolean refresh){
 
 		Preferences prefs = Preferences.getIstance();
         
@@ -242,20 +293,68 @@ public class CommentsController extends BaseController{
 	}
 	
 	
-	public void updateCommentsList(){
-		startGetCommentsConn(true);
-	}
-	
 	
 	public void refreshView() {
 				
 	}
 	
+
+	
+	//callback for post loading
+	private class loadCommentsCallBack implements Observer {
+		
+		private CommentsController ctrl;
+		
+		public loadCommentsCallBack(CommentsController ctrl) {
+			this.ctrl= ctrl;
+		}
+		
+		public void update(Observable observable, final Object object) {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+
+					dismissDialog(connectionProgressView);
+					BlogConnResponse resp= (BlogConnResponse) object;
+					Vector respVector= null;
+					
+					if(!resp.isError()) {
+						if(resp.isStopped()){
+							return;
+						}
+						
+						respVector = (Vector) resp.getResponseObject(); // the response from wp server
+						
+						try {
+							CommentsDAO.storeComments(currentBlog, respVector);
+						} catch (UnsupportedEncodingException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} //store the comments
+
+						storedComments = buildCommentsArray(respVector);
+						
+						Comment[] myCommentsList = buildCommentsArray(respVector);
+						
+						view.refresh(myCommentsList);
+						
+					} else {
+						final String respMessage=resp.getResponse();
+					 	displayError(respMessage);	
+					}
+				
+				}
+			});
+		}
+	}
+	
 	//retun array of comments from wp response
-	private Comment[] getComments(Vector respVector){
+	private Comment[] buildCommentsArray(Vector respVector){
 		
 		if( respVector == null )
-			return null;
+			return new Comment[0];
 		
 		Comment[] myCommentsList =new Comment[respVector.size()]; //my comment object list
 		
@@ -287,52 +386,32 @@ public class CommentsController extends BaseController{
 		return myCommentsList;
 	}
 	
-	//callback for post loading
-	private class loadCommentsCallBack implements Observer {
+	private Vector buildCommentVector(Comment[] comments){
+		Vector commentsVector= new Vector();
+		if( comments == null )
+			return commentsVector;
 		
-		private CommentsController ctrl;
-		
-		public loadCommentsCallBack(CommentsController ctrl) {
-			this.ctrl= ctrl;
+		for (int i = 0; i < comments.length; i++) {
+			Comment currentComment = comments[i];
+	        Hashtable hash = new Hashtable(13);
+	        hash.put("comment_id", String.valueOf(currentComment.getID()));
+	        hash.put("parent", String.valueOf(currentComment.getParent()));
+	        hash.put("status", currentComment.getStatus());
+	        hash.put("date_created_gmt", currentComment.getDate_created_gmt());
+	        hash.put("user_id", currentComment.getUserId());
+	        hash.put("content", currentComment.getContent());
+	        hash.put("link", currentComment.getLink());
+	        hash.put("post_id", String.valueOf(currentComment.getPostID()));
+	        hash.put("author", currentComment.getAuthor());
+	        hash.put("post_title", currentComment.getPostTitle());
+	        hash.put("author_email", currentComment.getAuthorEmail());
+	        hash.put("author_url", currentComment.getAuthorUrl());
+	        hash.put("author_ip", currentComment.getAuthorIp());
+	        commentsVector.addElement(hash);        
 		}
-		
-		public void update(Observable observable, final Object object) {
-			UiApplication.getUiApplication().invokeLater(new Runnable() {
-				public void run() {
-
-					dismissDialog(connectionProgressView);
-					BlogConnResponse resp= (BlogConnResponse) object;
-							
-					if(!resp.isError()) {
-						if(resp.isStopped()){
-							return;
-						}
-						
-						Vector respVector = (Vector) resp.getResponseObject(); // the response from wp server
-						
-						try {
-							CommentsDAO.storeComments(currentBlog, respVector);
-						} catch (UnsupportedEncodingException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} //store the comments
-
-						Comment[] myCommentsList = getComments(respVector);
-						
-						view.refresh(myCommentsList);
-						
-					} else {
-						final String respMessage=resp.getResponse();
-					 	displayError(respMessage);	
-					}
-				
-				}
-			});
-		}
+		return commentsVector;
 	}
+	
 
 }
 
