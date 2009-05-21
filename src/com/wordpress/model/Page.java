@@ -5,16 +5,13 @@ import java.util.Vector;
 
 public class Page {
 	
-
-	private int blogID;
-
-	private Date dateCreated;
-	private int userID;
-	private int pageID;
-	private String pageStatus;
+	private Date dateCreated = null;
+	private int userID = -1;
+	private int pageID = -1;
+	private String pageStatus = null;
 	private String description = "";
 	private String title = "";
-	private String link;
+	private String link = null;
 	private String permaLink;
 	private Vector categories = new Vector();
 	private String mtExcerpt = "";
@@ -24,22 +21,23 @@ public class Page {
 	private String wpSlug = "";
 	private String wpPassword = "";
 	private String wpAuthor;
-	private int wpPageParentID;
+	private int wpPageParentID = -1;
 	private String wpPageParentTitle;
-	private int wpPageOrder;
-	private int wpAuthorID;
+	private int wpPageOrder = -1;
+	private int wpAuthorID = -1;
 	private String wpAuthorDisplayName;
 	private Date dateCreatedGMT;
 	private Vector customField = new Vector();
 	private String wpPageTemplate;
 	
-	public Page(int blogId, int pageID, String Title, String description, Date dateCreated) {
-		this.blogID = blogId;
+	public Page(int pageID, String Title, String description, Date dateCreated) {
 		this.pageID = pageID;
 		this.title = Title;
 		this.description = description;
 		this.dateCreated = dateCreated;
 	}
+	
+	public Page() {}
 	
 	public int getWpAuthorID() {
 		return wpAuthorID;
@@ -47,14 +45,6 @@ public class Page {
 
 	public void setWpAuthorID(int wpAuthorID) {
 		this.wpAuthorID = wpAuthorID;
-	}
-	
-	public void setBlogId(int blogId) {
-		this.blogID = blogId;
-	}
-
-	public int getBlogId() {
-		return blogID;
 	}
 
 

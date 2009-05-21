@@ -11,9 +11,11 @@ public class EditPageConn extends BlogConn  {
 
 	private Page page;
 	private boolean isPublished=false;
+	private final int blogId;
 
 	public EditPageConn(String hint, int blogId, String userHint, String passwordHint, TimeZone tz, Page page, boolean isPublished) {
 		super(hint, userHint, passwordHint, tz);
+		this.blogId = blogId;
 		this.page=page;
 		this.isPublished=isPublished;
 	}
@@ -65,7 +67,7 @@ public class EditPageConn extends BlogConn  {
 
 
 			Vector args = new Vector(6);
-			args.addElement(String.valueOf(page.getBlogId()));
+			args.addElement(String.valueOf(blogId));
 			args.addElement(String.valueOf(page.getID()));
 			args.addElement(mUsername);
 			args.addElement(mPassword);

@@ -1,91 +1,50 @@
 package com.wordpress.view;
 
 import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.system.Characters;
-import net.rim.device.api.ui.Color;
+import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.FocusChangeListener;
-import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
-import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.XYEdges;
-import net.rim.device.api.ui.component.BitmapField;
-import net.rim.device.api.ui.component.LabelField;
-import net.rim.device.api.ui.component.NullField;
-import net.rim.device.api.ui.component.SeparatorField;
-import net.rim.device.api.ui.container.HorizontalFieldManager;
+import net.rim.device.api.ui.component.ListField;
+import net.rim.device.api.ui.component.ObjectListField;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogController;
 import com.wordpress.controller.FrontController;
-import com.wordpress.view.component.NotYetImpPopupScreen;
+
 
 public class BlogView extends BaseView {
 	
     private BlogController controller=null;
 
-	private MyHorizontalFieldManager rowPosts;
-	private MyHorizontalFieldManager rowPages;
-	private MyHorizontalFieldManager rowOptions;
-	private MyHorizontalFieldManager rowComments;
-	private MyHorizontalFieldManager rowRefresh;
-	  
-    	
-	private MyHorizontalFieldManager buildEntry(String label, Bitmap img){
-		MyHorizontalFieldManager currentRow = new MyHorizontalFieldManager();
-		currentRow.setFocusListener(listenerFocus);
-		
-		XYEdges margins = new XYEdges(5,5,5,5);
-
-		LabelField lblPosts = new LabelField(label);
-       	Font fnt = this.getFont().derive(Font.BOLD);
-       	lblPosts.setFont(fnt);
-		lblPosts.setMargin(margins);
-        
-		BitmapField bfPostsFolder = new BitmapField(img);
-   
-		
-		currentRow.add(bfPostsFolder);
-		currentRow.add(lblPosts);
-		currentRow.add(new NullField(LabelField.FOCUSABLE));
-		return currentRow;
-	}
+	private static final int mnuPosts = 100;
+	private static final int mnuPages = 110;
+	private static final int mnuComments = 120;
+	private static final int mnuOptions = 130;
+	private static final int mnuRefresh= 140;
+	//main menu entries
+	private int[] mainMenuItems = {mnuPosts, mnuPages, mnuComments, mnuOptions, mnuRefresh};
+	private String[] mainMenuItemsLabel = {
+			_resources.getString(WordPressResource.BUTTON_POSTS),
+			_resources.getString(WordPressResource.BUTTON_PAGES),
+			_resources.getString(WordPressResource.BUTTON_COMMENTS),
+			_resources.getString(WordPressResource.BUTTON_OPTIONS),
+			_resources.getString(WordPressResource.BUTTON_REFRESH_BLOG)
+			};
+	      	
 	
 	public BlogView(BlogController _controller) {
 		super(_controller.getBlogName(), Field.FIELD_HCENTER);
 		this.controller=_controller;
+		list = new BlogListField();
 		
-        //commons Img
-        Bitmap imgFolder = Bitmap.getBitmapResource("drafts-folder.png");
-        Bitmap imgSettings = Bitmap.getBitmapResource("settings.png"); 
-       
-        //posts
-        rowPosts = buildEntry(_resources.getString(WordPressResource.BUTTON_POSTS), imgFolder);
-        this.add(rowPosts);
-        this.add(new SeparatorField());
-        
-        //page        
-        rowPages = buildEntry(_resources.getString(WordPressResource.BUTTON_PAGES), imgFolder);
-        this.add(rowPages);
-        this.add(new SeparatorField());
-        
-        //options
-        rowComments =  buildEntry(_resources.getString(WordPressResource.BUTTON_COMMENTS), imgFolder);
-        this.add(rowComments);
-        this.add(new SeparatorField());
-        
-        //options
-        rowOptions =  buildEntry(_resources.getString(WordPressResource.BUTTON_OPTIONS), imgSettings);
-        this.add(rowOptions);
-        this.add(new SeparatorField());
+		  //Populate the ListField
+        for(int count = 0; count < mainMenuItems.length; ++count) {
+        	list.insert(count);
+        }
                
-        //refresh
-        rowRefresh = buildEntry(_resources.getString(WordPressResource.BUTTON_REFRESH_BLOG), imgFolder);
-        this.add(rowRefresh);
-        
+        add(list);   
         addMenuItem(_goItem);
 	}
 	
@@ -95,37 +54,45 @@ public class BlogView extends BaseView {
         	doSelection();
         }
     };
+
+	private BlogListField list;
     
+
     private void doSelection(){
-    	Field fieldWithFocus = this.getFieldWithFocus();
-    	if(fieldWithFocus == rowPosts) {
-    		controller.showPosts();
-    	} else if (fieldWithFocus == rowPages) {
-    		UiApplication.getUiApplication().pushScreen(new NotYetImpPopupScreen());
-    	} else if (fieldWithFocus == rowComments) {
-    		controller.showComments();
-    	} else if (fieldWithFocus == rowOptions) {
-    		controller.showBlogOptions();
-    	} else if (fieldWithFocus == rowRefresh) {
-    		controller.refreshBlog();
-    	}	
+    	
+    	int i = mainMenuItems[list.getSelectedIndex()];
+    	
+    	switch (i) {
+        
+        case (mnuPosts): 
+        	controller.showPosts();
+            break;
+        case (mnuPages):
+        	controller.showPages();
+            break;
+        case (mnuComments):
+        	controller.showComments();
+            break;
+
+        case (mnuOptions):
+        	controller.showBlogOptions();
+            break;
+
+        case (mnuRefresh):
+        	controller.refreshBlog();
+            break;       
+        
+        default:
+        controller.displayError("There was an error with the request.");
+        break;
+
     }
+    }
+
     
-	private FocusChangeListener listenerFocus = new FocusChangeListener() {
-		public void focusChanged(Field field, int eventType) {
-			if (eventType == FOCUS_GAINED) {
-				if (field instanceof MyHorizontalFieldManager) {
-					((MyHorizontalFieldManager)field).setMyColor(Color.AQUA);
-				}
-			} else if (eventType == FOCUS_LOST) {
-				if (field instanceof MyHorizontalFieldManager) {
-					((MyHorizontalFieldManager)field).setMyColor(Color.WHITE);
-				}
-			}
-		}
-	};
-
-
+ 
+    
+  /*
 	protected boolean keyChar(char c, int status, int time) {
 		// Close this screen if escape is selected.
 		if (c == Characters.ESCAPE) {
@@ -139,7 +106,7 @@ public class BlogView extends BaseView {
 	}
 	
 
-    /*
+    
 	 // Handle trackball clicks.
 	protected boolean navigationClick(int status, int time) {
 		Field fieldWithFocus = this.getFieldWithFocus();
@@ -163,25 +130,40 @@ public class BlogView extends BaseView {
 		return controller;
 	}   
 	
-	private class MyHorizontalFieldManager extends HorizontalFieldManager	{
-		private int myColor= -1;
+	
+	private class BlogListField extends ObjectListField {
+        
+        Bitmap imgFolder = Bitmap.getBitmapResource("drafts-folder.png");
+        Bitmap imgSettings = Bitmap.getBitmapResource("settings.png");
+        Bitmap imgRefresh = Bitmap.getBitmapResource("settings.png");  
+	    private Bitmap icon;
 
-		public void setMyColor(int myColor) {
-			this.myColor = myColor;
-			invalidate();
-		}
+	    // We are going to take care of drawing the item.
+	    public void drawListRow(ListField listField, Graphics graphics, int index, int y, int width) {
+	                
+	        if ( mainMenuItems[index] == mnuPosts) {
+	            icon = imgFolder;
+	        }   
+	        if ( mainMenuItems[index] == mnuPages) {
+	            icon = imgFolder;
+	        }  
+	        if ( mainMenuItems[index] == mnuComments) {
+	            icon = imgFolder;
+	        }
+	        if ( mainMenuItems[index] == mnuOptions) {
+	            icon = imgSettings;
+	        }
+	        if ( mainMenuItems[index] == mnuRefresh) {
+	            icon = imgRefresh;
+	        }
 
-		public void paint(Graphics graphics)
-	    {
-			if(myColor != -1) {
-				graphics.setBackgroundColor(myColor);
-				graphics.clear();
-			}
-	        super.paint(graphics);
+	        if (null != icon) {
+	            int offsetY = (this.getRowHeight() - icon.getHeight())/2; 
+	            graphics.drawBitmap(1,y + offsetY, icon.getWidth(), icon.getHeight(), icon, 0, 0);
+	            graphics.drawText(mainMenuItemsLabel[index], icon.getWidth() + 2, y, DrawStyle.ELLIPSIS, width - icon.getWidth() + 2);
+	        } else {
+	            graphics.drawText("- " + mainMenuItems[index], 0, y, DrawStyle.ELLIPSIS, width - graphics.getFont().getAdvance("- "));
+	        }
 	    }
-
-		public MyHorizontalFieldManager() {
-			super(Manager.FIELD_HCENTER | Manager.USE_ALL_WIDTH);
-		}
-	};
+	}
 }

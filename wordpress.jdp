@@ -43,6 +43,8 @@ src\com\wordpress\controller\DraftPostsController.java
 src\com\wordpress\controller\FrontController.java
 src\com\wordpress\controller\MainController.java
 src\com\wordpress\controller\MultimediaController.java
+src\com\wordpress\controller\PageController.java
+src\com\wordpress\controller\PagesController.java
 src\com\wordpress\controller\PostController.java
 src\com\wordpress\controller\PostsController.java
 src\com\wordpress\controller\PreferenceController.java
@@ -54,6 +56,7 @@ src\com\wordpress\io\CommentsDAO.java
 src\com\wordpress\io\DraftDAO.java
 src\com\wordpress\io\FileUtils.java
 src\com\wordpress\io\JSR75FileSystem.java
+src\com\wordpress\io\PageDAO.java
 src\com\wordpress\io\Serializer.java
 src\com\wordpress\model\Author.java
 src\com\wordpress\model\Blog.java
@@ -84,15 +87,15 @@ src\com\wordpress\view\BlogOptionsView.java
 src\com\wordpress\view\BlogView.java
 src\com\wordpress\view\CommentsView.java
 src\com\wordpress\view\CommentView.java
-src\com\wordpress\view\component\BlogListField.java
+src\com\wordpress\view\component\BlogsListField.java
 src\com\wordpress\view\component\CheckBoxListField.java
-src\com\wordpress\view\component\ColouredListField.java
 src\com\wordpress\view\component\CommentsListField.java
 src\com\wordpress\view\component\DirectorySelectorPopUpScreen.java
 src\com\wordpress\view\component\FileSelectorPopupScreen.java
 src\com\wordpress\view\component\HtmlTagPopupScreen.java
 src\com\wordpress\view\component\HtmlTextField.java
 src\com\wordpress\view\component\NotYetImpPopupScreen.java
+src\com\wordpress\view\component\TestListField.java
 src\com\wordpress\view\dialog\ConnectionInProgressView.java
 src\com\wordpress\view\dialog\DiscardChangeInquiryView.java
 src\com\wordpress\view\dialog\ErrorView.java
@@ -106,6 +109,8 @@ src\com\wordpress\view\mm\PhotoPreview.java
 src\com\wordpress\view\mm\PhotoSnapShotView.java
 src\com\wordpress\view\mm\ScrollableImageField.java
 src\com\wordpress\view\NewCategoryView.java
+src\com\wordpress\view\PagesView.java
+src\com\wordpress\view\PageView.java
 src\com\wordpress\view\PhotosView.java
 src\com\wordpress\view\PostCategoriesView.java
 src\com\wordpress\view\PostPreviewView.java
@@ -135,7 +140,6 @@ src\com\wordpress\xmlrpc\option\GetOptionsConn.java
 src\com\wordpress\xmlrpc\option\SetOptionsConn.java
 src\com\wordpress\xmlrpc\page\DeletePageConn.java
 src\com\wordpress\xmlrpc\page\EditPageConn.java
-src\com\wordpress\xmlrpc\page\GetPageConn.java
 src\com\wordpress\xmlrpc\page\GetPageListConn.java
 src\com\wordpress\xmlrpc\page\GetPagesConn.java
 src\com\wordpress\xmlrpc\page\GetPageTemplatesConn.java

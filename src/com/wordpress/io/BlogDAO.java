@@ -35,6 +35,7 @@ public class BlogDAO implements BaseDAO {
     		JSR75FileSystem.createDir(AppDAO.getBaseDirPath()); 
     		JSR75FileSystem.createDir(filePath);
     		JSR75FileSystem.createDir(filePath+DRAFT_FOLDER_PREFIX); //create draft posts folder
+    		JSR75FileSystem.createDir(filePath+PAGE_FOLDER_PREFIX); //create draft page folder
     	}    	
     	
     	JSR75FileSystem.createFile(filePath+BLOG_FILE); //create the blog file
@@ -132,6 +133,8 @@ public class BlogDAO implements BaseDAO {
     	ser.serialize(blog.getPostStatusList());
     	ser.serialize(blog.getRecentPostTitles());
     	ser.serialize(blog.getViewedPost());
+    	ser.serialize(blog.getPages());
+    	ser.serialize(blog.getViewedPages());
     	
     	Category[] categories = blog.getCategories();
         if (categories != null) {
@@ -209,6 +212,13 @@ public class BlogDAO implements BaseDAO {
         
         Vector viewedPostList= (Vector)ser.deserialize();
         blog.setViewedPost(viewedPostList);
+    	
+        Vector pagesList= (Vector)ser.deserialize();
+        blog.setPages(pagesList);
+        
+        int[] viewedPagesList= (int[])ser.deserialize();
+        blog.setViewedPages(viewedPagesList);
+        
 
         int categoryLength= ((Integer)ser.deserialize()).intValue();
         Category[] categories;

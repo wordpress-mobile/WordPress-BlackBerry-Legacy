@@ -10,7 +10,7 @@ public class DeletePageConn extends BlogConn {
 	private final int pageID;
 	private final int blogID;
 
-	public DeletePageConn(String hint, int blogID, String userHint, String passwordHint, TimeZone tz, int pageID) {
+	public DeletePageConn(String hint, String userHint, String passwordHint, TimeZone tz, int blogID, int pageID) {
 		super(hint, userHint, passwordHint, tz);
 		this.pageID = pageID;
 		this.blogID = blogID;

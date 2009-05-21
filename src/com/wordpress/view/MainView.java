@@ -8,13 +8,13 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
 import com.wordpress.model.BlogInfo;
-import com.wordpress.view.component.BlogListField;
+import com.wordpress.view.component.BlogsListField;
 
 public class MainView extends BaseView {
 	
     private MainController mainController=null;
     private ListField listaBlog;
-    private BlogListField blogListController; 
+    private BlogsListField blogListController; 
 
 	public MainView(MainController mainController) {
 		super(_resources.getString(WordPressResource.TITLE_APPLICATION));
@@ -41,7 +41,7 @@ public class MainView extends BaseView {
         	addMenuItem(_showBlogItem);
         	addMenuItem(_deleteBlogItem);
         }
-    	blogListController = new BlogListField(blogCaricati);
+    	blogListController = new BlogsListField(blogCaricati);
 		this.listaBlog = blogListController.getCheckList();
         add(listaBlog);    
 	 }

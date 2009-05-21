@@ -10,7 +10,18 @@ import net.rim.device.api.ui.component.ListFieldCallback;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.model.BlogInfo;
 
-public class BlogListField implements ListFieldCallback {
+/**
+ * This class is a wrapper around a list field that we used to
+ * show Blogs with their Status. 
+ * The Blog status are showed as a prefix character:
+ * Char STAR = blog is in loading
+ * Char Upper triangle = blog loading error 
+ * Char SPACE = blog loaded
+ * 
+ * @author dercoli
+ *
+ */
+public class BlogsListField implements ListFieldCallback {
     private BlogInfo[] _listData;
     private ListField _checkList;
     
@@ -22,7 +33,7 @@ public class BlogListField implements ListFieldCallback {
         _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
     }
     
-   public BlogListField(BlogInfo[] blogCaricati) {  
+   public BlogsListField(BlogInfo[] blogCaricati) {  
 	    
         _checkList = new ListField();
         _checkList.setEmptyString(_resources.getString(WordPressResource.LABEL_ADD_YOUR_BLOG), DrawStyle.LEFT);

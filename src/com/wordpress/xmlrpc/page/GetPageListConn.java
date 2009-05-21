@@ -1,11 +1,8 @@
 package com.wordpress.xmlrpc.page;
 
-import java.util.Date;
-import java.util.Hashtable;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import com.wordpress.model.Page;
 import com.wordpress.xmlrpc.BlogConn;
 
 public class GetPageListConn extends BlogConn  {
@@ -39,21 +36,8 @@ public class GetPageListConn extends BlogConn  {
 		try{
 
 			Vector temp = (Vector) response;
-			Page[] mypage= new Page[temp.size()];
-
-			Hashtable tempData = null;
-			for (int i=0; i<temp.size(); i++){
-				tempData = (Hashtable) temp.elementAt(i);
-
-				System.out.println("pageId: "+ Integer.parseInt((String) tempData.get("page_id")));
-				System.out.println("title: "+ (String) tempData.get("page_title"));
-				System.out.println("page_parent_id: "+ Integer.parseInt((String) tempData.get("page_parent_id")));
-				System.out.println("date: "+ ((Date)tempData.get("dateCreated")).getTime());
-				System.out.println("date_created_gmt: " + ((Date)tempData.get("date_created_gmt")).getTime());
-
-			}
-
-			connResponse.setResponseObject(mypage);
+			
+			connResponse.setResponseObject(temp);
 			notifyObservers(connResponse);
 
 		} catch (Exception cce) {
@@ -65,5 +49,4 @@ public class GetPageListConn extends BlogConn  {
 			System.out.println("GetPageList error: Notify error");
 		}
 	}
-
 }

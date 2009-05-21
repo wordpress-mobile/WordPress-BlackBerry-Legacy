@@ -41,6 +41,13 @@ public class BlogController extends BaseController {
 		}
 	}
 	
+	public void showPages() {
+		if (currentBlog != null) {
+			PagesController ctrl=new PagesController(currentBlog);
+			ctrl.showView();
+		}
+	}
+	
 	/** refresh all blog information */
 	public void refreshBlog(){
 		if(currentBlog != null) {

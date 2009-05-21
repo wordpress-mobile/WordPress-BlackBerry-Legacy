@@ -26,6 +26,9 @@ public class Blog {
 	private Vector recentPostTitles = null; //response of mt.getRecentPostTitles
 	private Vector viewedPost = new Vector(); //the viewed post (similar to response of previous mt.getRecentPostTitles) 
 		
+	private Vector pages = null;
+	private int[] viewedPages = new int[0]; //the viewed page. only the ID of the page as String
+	
 	public Vector getViewedPost() {
 		return viewedPost;
 	}
@@ -159,5 +162,21 @@ public class Blog {
 
 	public void setLoadingState(int loadingState) {
 		this.loadingState = loadingState;
+	}
+
+	public Vector getPages() {
+		return pages;
+	}
+
+	public int[] getViewedPages() {
+		return viewedPages;
+	}
+
+	public void setPages(Vector pages) {
+		this.pages = pages;
+	}
+
+	public void setViewedPages(int[] viewedPages) {
+		this.viewedPages = viewedPages;
 	}
 }
