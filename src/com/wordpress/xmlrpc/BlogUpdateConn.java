@@ -37,6 +37,13 @@ public class BlogUpdateConn extends BlogConn  {
 			connResponse.setStopped(false);
 			connResponse.setResponse("");
 			
+			
+			getPageTemplates(blog);
+			connResponse.setError(false);
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			connResponse.setStopped(false);
+			connResponse.setResponse("");
+			
 			getPostStatusList(blog);
 			connResponse.setError(false);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection

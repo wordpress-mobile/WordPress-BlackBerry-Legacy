@@ -13,9 +13,9 @@ import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.controller.BaseController;
-import com.wordpress.controller.PostController;
-import com.wordpress.utils.MultimediaUtils;
+import com.wordpress.controller.BlogObjectController;
 import com.wordpress.model.Preferences;
+import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.view.BaseView;
 
 
@@ -31,9 +31,9 @@ public class PhotoSnapShotView extends BaseView {
 	private boolean isViewfinderVisible = false;
 	
 	private Preferences prefs=Preferences.getIstance(); //main preferences object
-	private final PostController controller;
+	private final BlogObjectController controller;
 	
-	public PhotoSnapShotView(PostController _controller) {
+	public PhotoSnapShotView(BlogObjectController _controller) {
 		super("");
 		this.controller = _controller;
 		bitmapField = new BitmapField();

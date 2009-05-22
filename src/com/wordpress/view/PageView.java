@@ -1,18 +1,16 @@
 package com.wordpress.view;
 
-import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
-import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
+import net.rim.device.api.ui.text.TextFilter;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
@@ -26,13 +24,14 @@ public class PageView extends BaseView {
     private Page page;    
 
     //content of tabs summary
+    private VerticalFieldManager manager;
 	private BasicEditField title;
 	private HtmlTextField bodyTextBox;
-	private BasicEditField tags;
 	private ObjectChoiceField status;
-	private LabelField categories;
 	private LabelField lblPhotoNumber;
-	private VerticalFieldManager manager;
+	private BasicEditField pageOrderField;
+	private ObjectChoiceField parentPageField;
+	private ObjectChoiceField pageTemplateField;
 	
     public PageView(PageController _controller, Page _page) {
     	super(_resources.getString(WordPressResource.TITLE_POSTVIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -57,22 +56,50 @@ public class PageView extends BaseView {
         rowTitle.add(title);
         manager.add(rowTitle);
         manager.add(new SeparatorField());
-        
-        		
+             		
   		//row status
         HorizontalFieldManager rowStatus = new HorizontalFieldManager();
   		LabelField lblStatus =getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS));
-  		status = new ObjectChoiceField("", controller.getStatusLabels(),controller.getPageStatusID());
+  		status = new ObjectChoiceField("", controller.getStatusLabels(),controller.getPageStatusFieldIndex());
   		rowStatus.add(lblStatus);
   		rowStatus.add(status);
-  		 
   		manager.add(rowStatus);
   		manager.add(new SeparatorField()); 
+
+  		//row parentPage
+        HorizontalFieldManager rowParentPage = new HorizontalFieldManager();
+  		LabelField lblParentPage =getLabel(_resources.getString(WordPressResource.LABEL_PARENT_PAGE));
+  		parentPageField = new ObjectChoiceField("", controller.getParentPagesTitle(), controller.getParentPageFieldIndex());
+  		rowParentPage.add(lblParentPage);
+  		rowParentPage.add(parentPageField);
+  		manager.add(rowParentPage);
+  		manager.add(new SeparatorField());
+  		
+  		//row pageTemplate
+        HorizontalFieldManager rowPageTemplate = new HorizontalFieldManager();
+  		LabelField lblPageTemplate =getLabel(_resources.getString(WordPressResource.LABEL_PAGE_TEMPLATE));
+  		pageTemplateField = new ObjectChoiceField("", controller.getPageTemplatesTitle(), controller.getPageTemplateFieldIndex());
+  		rowPageTemplate.add(lblPageTemplate);
+  		rowPageTemplate.add(pageTemplateField);
+  		manager.add(rowPageTemplate);
+  		manager.add(new SeparatorField());
+  		
+  		//row pageOrder
+        HorizontalFieldManager rowPageOrder = new HorizontalFieldManager();
+  		LabelField lblPageOrder = getLabel(_resources.getString(WordPressResource.LABEL_PAGE_ORDER));
+  		int pageOrder = page.getWpPageOrder();
+  		if(pageOrder < 0) pageOrder=0;
+  		pageOrderField = new BasicEditField("",String.valueOf(pageOrder) , 100, Field.EDITABLE);
+  		pageOrderField.setFilter(TextFilter.get(TextFilter.NUMERIC));
+  		rowPageOrder.add(lblPageOrder);
+  		rowPageOrder.add(pageOrderField);
+  		manager.add(rowPageOrder);
+  		manager.add(new SeparatorField());
   		
 		bodyTextBox= new HtmlTextField(page.getDescription());
 		manager.add(bodyTextBox);
-		addMenuItem(_saveDraftPostItem);
-		addMenuItem(_submitPostItem);
+		addMenuItem(_saveDraftItem);
+		addMenuItem(_submitItem);
 		addMenuItem(_photosItem);
 		addMenuItem(_previewItem);
 		addMenuItem(_settingsItem);
@@ -91,25 +118,25 @@ public class PageView extends BaseView {
 
     
     //save a local copy of post
-    private MenuItem _saveDraftPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 10230, 10) {
+    private MenuItem _saveDraftItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 10230, 10) {
         public void run() {
     		try {
-    			savePost();
-	    		if (controller.isPostChanged()) {
-	    			controller.saveDraftPost();
+    			savePage();
+	    		if (controller.isPageChanged()) {
+	    			controller.saveDraftPage();
 	    		}
     		} catch (Exception e) {
-    			controller.displayError(e, "Error while saving post data");
+    			controller.displayError(e, "Error while saving data");
     		}
         }
     };
     
     //send post to blog
-    private MenuItem _submitPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 10220, 10) {
+    private MenuItem _submitItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 10220, 10) {
         public void run() {
     		try {
-    			savePost();
-   				controller.sendPostToBlog();
+    			savePage();
+   				controller.sendPageToBlog();
     				
     		} catch (Exception e) {
     			controller.displayError(e, "Error Sending saving post data");
@@ -143,56 +170,59 @@ public class PageView extends BaseView {
     	
        	
 	/*
-	 * update Post data model
+	 * update Page data model
 	 */
-	private void savePost() throws Exception{	
+	private void savePage() throws Exception{	
 		//track changes 
 		
-	/*	//title
-		String oldTitle=post.getTitle();
+		//title
+		String oldTitle=page.getTitle();
 		if(oldTitle == null ) { //no previous title, setting the new title  
 			if(!title.getText().trim().equals("")){
-				post.setTitle(title.getText());
-				controller.setPostAsChanged();
+				page.setTitle(title.getText());
+				controller.setPageAsChanged();
 			}
 		} else {
 			if( !oldTitle.equals(title.getText()) ) { //title has changed
-				post.setTitle(title.getText());
-				controller.setPostAsChanged();
+				page.setTitle(title.getText());
+				controller.setPageAsChanged();
 			}
 		}
 		
 		//track changes of body content
 		if(bodyTextBox != null) {
 			String newContent= bodyTextBox.getText();
-			if(!newContent.equals(post.getBody())){
-				post.setBody(newContent);
-				controller.setPostAsChanged();
-			}
-		}
-		
-		if(tags != null) {
-			String newContent= tags.getText();
-			if(!newContent.equals(post.getTags())){
-				post.setTags(newContent);
-				controller.setPostAsChanged();
+			if(!newContent.equals(page.getDescription())){
+				page.setDescription(newContent);
+				controller.setPageAsChanged();
 			}
 		}
 		
 		int selectedStatusID = status.getSelectedIndex();
 		String newState= controller.getStatusKeys()[selectedStatusID];
-		if (newState != post.getStatus()) {
-			post.setStatus(newState);
-			controller.setPostAsChanged();
+		if (newState != page.getPageStatus()) {
+			page.setPageStatus(newState);
+			controller.setPageAsChanged();
 		}
-		*/
+		
+		if(pageOrderField.isDirty()){
+			page.setWpPageOrder(Integer.parseInt(pageOrderField.getText()));
+			pageOrderField.setDirty(false);
+			System.out.println("campo page order cambiato");
+		}
+		
+		if(parentPageField.isDirty()) {
+						
+			System.out.println("campo parent page cambiato");
+		}
+		
 	}
 
 
     //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
 		try {
-//			savePost();
+		//	savePost();
 
 		} catch (Exception e) {
 			controller.displayError(e, "Error while saving post data");

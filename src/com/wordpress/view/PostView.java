@@ -96,7 +96,7 @@ public class PostView extends BaseView {
   		//row status
         HorizontalFieldManager rowStatus = new HorizontalFieldManager();
   		LabelField lblStatus =getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS));
-  		status = new ObjectChoiceField("", controller.getStatusLabels(),controller.getPostStatusID());
+  		status = new ObjectChoiceField("", controller.getStatusLabels(),controller.getPostStatusFieldIndex());
   		rowStatus.add(lblStatus);
   		rowStatus.add(status);
   		 

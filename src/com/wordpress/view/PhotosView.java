@@ -15,18 +15,18 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
-import com.wordpress.controller.PostController;
+import com.wordpress.controller.BlogObjectController;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.view.mm.PhotoBitmapField;
 
 public class PhotosView extends BaseView {
 	
-    private PostController controller; //controller associato alla view
+    private BlogObjectController controller; //controller associato alla view
     private VerticalFieldManager manager=null;
 	private LabelField lblPhotoNumber;
 	private int counterPhotos = 0;
 	
-    public PhotosView(PostController _controller) {
+    public PhotosView(BlogObjectController _controller) {
     	super(_resources.getString(WordPressResource.TITLE_PHOTOSVIEW), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
     	this.controller=_controller;
 

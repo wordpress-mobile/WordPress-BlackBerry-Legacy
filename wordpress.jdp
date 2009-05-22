@@ -36,9 +36,11 @@ src\com\wordpress\controller\AboutController.java
 src\com\wordpress\controller\AddBlogsController.java
 src\com\wordpress\controller\BaseController.java
 src\com\wordpress\controller\BlogController.java
+src\com\wordpress\controller\BlogObjectController.java
 src\com\wordpress\controller\BlogOptionsController.java
 src\com\wordpress\controller\CommentsController.java
 src\com\wordpress\controller\ConnectionInProgressListener.java
+src\com\wordpress\controller\DraftPagesController.java
 src\com\wordpress\controller\DraftPostsController.java
 src\com\wordpress\controller\FrontController.java
 src\com\wordpress\controller\MainController.java
@@ -101,6 +103,7 @@ src\com\wordpress\view\dialog\DiscardChangeInquiryView.java
 src\com\wordpress\view\dialog\ErrorView.java
 src\com\wordpress\view\dialog\InfoView.java
 src\com\wordpress\view\dialog\InquiryView.java
+src\com\wordpress\view\DraftPagesView.java
 src\com\wordpress\view\DraftPostsView.java
 src\com\wordpress\view\MainView.java
 src\com\wordpress\view\mm\MultimediaPopupScreen.java
@@ -142,7 +145,6 @@ src\com\wordpress\xmlrpc\page\DeletePageConn.java
 src\com\wordpress\xmlrpc\page\EditPageConn.java
 src\com\wordpress\xmlrpc\page\GetPageListConn.java
 src\com\wordpress\xmlrpc\page\GetPagesConn.java
-src\com\wordpress\xmlrpc\page\GetPageTemplatesConn.java
 src\com\wordpress\xmlrpc\page\NewPageConn.java
 src\com\wordpress\xmlrpc\post\DeletePostConn.java
 src\com\wordpress\xmlrpc\post\EditPostConn.java

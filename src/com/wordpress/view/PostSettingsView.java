@@ -11,17 +11,17 @@ import net.rim.device.api.ui.container.HorizontalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
-import com.wordpress.controller.PostController;
+import com.wordpress.controller.BlogObjectController;
 
 
 public class PostSettingsView extends BaseView {
 	
-    private PostController controller; //controller associato alla view
+    private BlogObjectController controller; //controller associato alla view
     private DateField  authoredOn;
     private PasswordEditField passwordField;
     
     
-    public PostSettingsView(PostController _controller, Date postAuth, String password) {
+    public PostSettingsView(BlogObjectController _controller, Date postAuth, String password) {
     	super(_resources.getString(WordPressResource.MENUITEM_SETTINGS));
     	this.controller=_controller;
 		long datetime= (postAuth == null) ? new Date().getTime() : postAuth.getTime();
@@ -56,7 +56,7 @@ public class PostSettingsView extends BaseView {
  
     //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
-		controller.setSettingsView(authoredOn.getDate(), passwordField.getText());
+		controller.setSettingsValues(authoredOn.getDate(), passwordField.getText());
 		controller.backCmd();
 		return true;
     }

@@ -9,6 +9,7 @@ import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
+import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.DraftDAO;
@@ -42,7 +43,7 @@ import com.wordpress.xmlrpc.post.NewPostConn;
 import com.wordpress.xmlrpc.post.SendPostDataTask;
 
 
-public class PostController extends BaseController {
+public class PostController extends BlogObjectController {
 	
 	private PostView view = null;
 	private PhotosView photoView = null;
@@ -104,7 +105,7 @@ public class PostController extends BaseController {
 				postStatusKey[i] = key;
 				i++;
 			}
-			postStatusLabel[postStatusLabel.length-1]= "Local Draft";
+			postStatusLabel[postStatusLabel.length-1]= _resources.getString(WordPress.LABEL_LOCAL_DRAFT);
 			postStatusKey[postStatusLabel.length-1]= "localdraft";
 			// end 
 		}
@@ -139,7 +140,7 @@ public class PostController extends BaseController {
 		return postStatusKey;
 	}
 		
-	public int getPostStatusID() {
+	public int getPostStatusFieldIndex() {
 		String status = post.getStatus();
 		if(post.getStatus() != null )
 		for (int i = 0; i < postStatusKey.length; i++) {
@@ -336,7 +337,7 @@ public class PostController extends BaseController {
 	
 	
 	
-	public void setSettingsView(long authoredOn, String password){
+	public void setSettingsValues(long authoredOn, String password){
 		
 		if(post.getAuthoredOn() != null ) {
 			if ( post.getAuthoredOn().getTime() != authoredOn ) {

@@ -130,6 +130,7 @@ public class BlogDAO implements BaseDAO {
     	ser.serialize(new Boolean(blog.isResizePhotos()));
     	ser.serialize(blog.getCommentStatusList());
     	ser.serialize(blog.getPageStatusList());
+    	ser.serialize(blog.getPageTemplates());
     	ser.serialize(blog.getPostStatusList());
     	ser.serialize(blog.getRecentPostTitles());
     	ser.serialize(blog.getViewedPost());
@@ -203,6 +204,9 @@ public class BlogDAO implements BaseDAO {
         
         Hashtable pageStatusList= (Hashtable)ser.deserialize();
         blog.setPageStatusList(pageStatusList);
+        
+        Hashtable pageTemplates= (Hashtable)ser.deserialize();
+        blog.setPageTemplates(pageTemplates);
         
         Hashtable postStatusList= (Hashtable)ser.deserialize();
         blog.setPostStatusList(postStatusList);

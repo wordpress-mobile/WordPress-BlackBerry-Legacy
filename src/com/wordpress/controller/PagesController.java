@@ -34,7 +34,7 @@ public class PagesController extends BaseController{
 	}
 			
 	public void showView(){
-		pages = buildPageArray(currentBlog.getPages());
+		pages = PageDAO.buildPagesArray(currentBlog.getPages());
 		this.view= new PagesView(this, pages, countNewPages());
 		UiApplication.getUiApplication().pushScreen(view);
 	}
@@ -74,23 +74,6 @@ public class PagesController extends BaseController{
 	}
 	
 	
-	//retun array of comments from wp.getPages
-	private Page[] buildPageArray(Vector respVector){
-		
-		if( respVector == null )
-			return new Page[0];
-		
-		Page[] myPageList =new Page[respVector.size()]; //my page object list
-		
-		for (int i = 0; i < respVector.size(); i++) {
-			Hashtable returnCommentData = (Hashtable)respVector.elementAt(i);
-			Page page = PageDAO.hashtable2Page(returnCommentData);
-			myPageList[i]= page;
-		}
-		return myPageList;
-	}
-	
-	
 	public void editPage(int selected){
 		Page selectedPage = pages[selected];
 		PageController ctrl=new PageController(currentBlog, selectedPage);
@@ -126,21 +109,24 @@ public class PagesController extends BaseController{
 			
 	public void showDraftPages(){
 		if(currentBlog != null) {
-		//	FrontController.getIstance().showDraftPostsView(currentBlog);
+			DraftPagesController ctrl=new DraftPagesController(currentBlog);
+			ctrl.showView();
 		}
 	}
 		
 
 	public void newPage() {
 		if (currentBlog != null) {
-			//FrontController.getIstance().newPost(currentBlog); // show the new post view
+			Page page =new Page();
+			//TODO add other page info here...?
+			PageController ctrl=new PageController(currentBlog, page);
+			ctrl.showView();
 		}
 	}
 
 	//called from the front controller
 	public void refreshView() {
 		//no action..
-
 	}
 	
 	public void refreshPagesList() {
@@ -163,7 +149,7 @@ public class PagesController extends BaseController{
 	}
 	
 	
-	class deletePageCallBack implements Observer{
+	private class deletePageCallBack implements Observer{
 		
 		int index;
 		
@@ -191,7 +177,7 @@ public class PagesController extends BaseController{
 							Vector blogPages = currentBlog.getPages();
 							blogPages.removeElementAt(index);
 							currentBlog.setPages(blogPages);
-							pages = buildPageArray(blogPages);
+							pages = PageDAO.buildPagesArray(blogPages);
 							view.refresh(pages , countNewPages());
 							try{
 								BlogDAO.updateBlog(currentBlog);							
@@ -231,7 +217,7 @@ public class PagesController extends BaseController{
 						
 						Vector respVector= (Vector) resp.getResponseObject();
 						currentBlog.setPages(respVector);
-						pages = buildPageArray(currentBlog.getPages());
+						pages = PageDAO.buildPagesArray(currentBlog.getPages());
 						view.refresh(pages , countNewPages());
 						
 						//setting the viewed page

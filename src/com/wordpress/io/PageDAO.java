@@ -12,6 +12,7 @@ import javax.microedition.rms.RecordStoreException;
 
 import com.wordpress.model.Blog;
 import com.wordpress.model.Page;
+import com.wordpress.model.Post;
 import com.wordpress.utils.Tools;
 
 public class PageDAO implements BaseDAO{
@@ -87,20 +88,42 @@ public class PageDAO implements BaseDAO{
 	}
 	
 	
-	//retrive draft page by id from storage
-	public static Hashtable loadPage(Blog blog, int draftId) throws IOException, RecordStoreException {
-		String blogDraftsPath=getPath(blog);
-		String draftFile = blogDraftsPath + String.valueOf(draftId);
+	
+	//retrive all page from the storage 
+	public static Hashtable loadPage(Blog blog, String fileName) throws IOException, RecordStoreException {
+    	String blogDraftsPath=getPath(blog);    	
+		String currPageFile = fileName;  		
+		String draftFile = blogDraftsPath + currPageFile;
 		DataInputStream in = JSR75FileSystem.getDataInputStream(draftFile);
-		
 		Serializer ser= new Serializer(in);
 		Hashtable page = (Hashtable) ser.deserialize();
 		in.close();
-		System.out.println("loading draft post ok");
-		return page;		
+    	return page;   	
 	}
 	
+	//retrive all page fileName from the storage 
+	public static String[] loadPagesFileName(Blog blog) throws IOException, RecordStoreException {
+    	String blogDraftsPath=getPath(blog);
+
+   		String[] listDraftFolder = JSR75FileSystem.listFiles(blogDraftsPath);
+    		Vector listDir= new Vector();
+        	for (int i = 0; i < listDraftFolder.length; i++) {
+        		String path=listDraftFolder[i];
+        		if (!path.endsWith("/")) { //found files
+        			if(isPageFile(path)) { //found page file
+        				String newDirPath = path; 
+        				listDir.addElement(newDirPath); //draft file are label as  1, 2, 3, ...
+        			}
+        		}
+    		}
+        
+        String[] files = new String[listDir.size()];
+        listDir.copyInto(files);
+        return files;	 	
+	}
+		
 	
+		
 	//retrive blog pages Folder
 	private static String getPath(Blog blog) throws RecordStoreException, IOException{
 		String blogNameMD5=BlogDAO.getBlogFolderName(blog);
@@ -116,10 +139,11 @@ public class PageDAO implements BaseDAO{
 		return draftFolder;
 	}
 	
+	//return the page draft id
 	private static int getDraftPageID(Blog blog, int draftId)  throws IOException, RecordStoreException{	
 	    	String blogDraftsPath=getPath(blog);
 	    	
-	    	//retrive the post file name
+	
 	    	if (draftId == -1) {
 	    		String[] listDraftFolder = JSR75FileSystem.listFiles(blogDraftsPath);
 	    		Vector listDir= new Vector();
@@ -154,6 +178,23 @@ public class PageDAO implements BaseDAO{
 		}
 	
 	
+	//returns array of Page builded from vector returned by wp.getPages response
+	public static Page[] buildPagesArray(Vector respVector){
+		
+		if( respVector == null )
+			return new Page[0];
+		
+		Page[] myPageList =new Page[respVector.size()]; //my page object list
+		
+		for (int i = 0; i < respVector.size(); i++) {
+			Hashtable returnCommentData = (Hashtable)respVector.elementAt(i);
+			Page page = PageDAO.hashtable2Page(returnCommentData);
+			myPageList[i]= page;
+		}
+		return myPageList;
+	}
+	
+	//returns Page builded the Hashtable returned by wp.getPage response
 	public static synchronized Page hashtable2Page(Hashtable returnPageData) {
 		
 		Page page = new Page();
@@ -161,15 +202,13 @@ public class PageDAO implements BaseDAO{
 		Date dateCreated = ((Date) returnPageData.get("dateCreated"));
 		page.setDateCreated(dateCreated);
 		
-		String userID = String.valueOf(returnPageData.get("userid"));
-		if( userID != null)
-			page.setUserID(Integer.parseInt(userID));
+		if( returnPageData.get("userid") != null)
+			page.setUserID(Integer.parseInt(String.valueOf(returnPageData.get("userid")))); // :-)
 		
-		String pageID = String.valueOf(returnPageData.get("page_id"));
-		if( pageID != null )
-			page.setPageId(Integer.parseInt(pageID));
+		if( returnPageData.get("page_id") != null )
+			page.setPageId(Integer.parseInt( String.valueOf(returnPageData.get("page_id"))));
 
-		page.setPageStatus((String) returnPageData.get("pageStatus"));
+		page.setPageStatus((String) returnPageData.get("page_status"));
 		String description = ((String) returnPageData.get("description"));
 		page.setDescription(description);
 		String title = ((String) returnPageData.get("title"));
@@ -181,13 +220,14 @@ public class PageDAO implements BaseDAO{
 		page.setMt_excerpt((String) returnPageData.get("excerpt"));
 		page.setMt_text_more((String) returnPageData.get("text_more"));
 
-		String comments = String.valueOf( returnPageData.get("mt_allow_comments") );
-		if (comments != null) {
+		
+		if (returnPageData.get("mt_allow_comments") != null) {
+			String comments = String.valueOf( returnPageData.get("mt_allow_comments") );
 			page.setCommentsEnabled(Integer.parseInt(comments) != 0);
 		}
-		
-		String pings = String.valueOf( returnPageData.get("mt_allow_pings"));
-		if (pings != null) {
+				
+		if ( returnPageData.get("mt_allow_pings") != null) {
+			String pings = String.valueOf( returnPageData.get("mt_allow_pings"));
 			page.setPingsEnabled(Integer.parseInt(pings) != 0);
 		}
 		
@@ -195,38 +235,43 @@ public class PageDAO implements BaseDAO{
 		page.setWpPassword((String) returnPageData.get("wp_password"));
 		page.setWpAuthor( (String) returnPageData.get("wp_author"));
 		
-		String parentID = String.valueOf( returnPageData.get("wp_page_parent_id") );
-		if(parentID != null )
+	
+		if(returnPageData.get("wp_page_parent_id") != null ) {
+			String parentID = String.valueOf(returnPageData.get("wp_page_parent_id"));
 			page.setWpPageParentID(Integer.parseInt(parentID));
+		}
 	
 		page.setWpPageParentTitle((String) returnPageData.get("wp_page_parent_title"));
 
-		String pageOrder = String.valueOf( returnPageData.get("wp_page_order") );
-		if(pageOrder != null)
+		if(returnPageData.get("wp_page_order") != null){
+			String pageOrder = String.valueOf( returnPageData.get("wp_page_order") );
 			page.setWpPageOrder(Integer.parseInt(pageOrder));
+		}
 		
-		
-		String pageAuthorID = String.valueOf( returnPageData.get("wp_author_id") );
-		if(pageAuthorID != null)
+		if(returnPageData.get("wp_author_id") != null) {
+			String pageAuthorID = String.valueOf( returnPageData.get("wp_author_id") );
 			page.setWpAuthorID(Integer.parseInt(pageAuthorID));
+		}
 		
 		page.setWpAuthorDisplayName((String) returnPageData.get("wp_author_display_name"));
 		Vector cf=(Vector) returnPageData.get("custom_fields");
 		page.setCustom_field(cf);
-		page.setWpPageTemplate((String) returnPageData.get("wpPageTemplate"));
+		page.setWpPageTemplate((String) returnPageData.get("wp_page_template"));
 		return page;
 	}
 	
 	public static synchronized Hashtable page2Hashtable(Page page) {
 		Hashtable content = new Hashtable();
-		content.put("dateCreated", page.getDateCreated());
+		
+		if (page.getDateCreated()!= null)
+			content.put("dateCreated", page.getDateCreated());
 		
 		if(page.getUserID() != -1)
 			content.put("userid", new Integer(page.getUserID()));
 		if(page.getID() != -1)
 			content.put("page_id", new Integer(page.getID()));
 		if (page.getPageStatus()!= null)
-			content.put("pageStatus", page.getPageStatus());
+			content.put("page_status", page.getPageStatus());
 		if (page.getDescription()!= null)
 			content.put("description", page.getDescription());
 		if (page.getTitle()!= null)

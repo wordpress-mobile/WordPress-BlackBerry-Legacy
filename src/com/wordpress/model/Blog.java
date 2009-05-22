@@ -20,6 +20,7 @@ public class Blog {
 	private Category[] categories = null;
 	private Hashtable postStatusList=null; 	
 	private Hashtable pageStatusList=null;
+	private Hashtable pageTemplates=null;
 	private Hashtable commentStatusList=null; 
 	private Tag[] tags=null;
 	
@@ -36,7 +37,6 @@ public class Blog {
 	public void setViewedPost(Vector viewedPost) {
 		this.viewedPost = viewedPost;
 	}
-
 	
 	public Blog(String blogId, String blogName, String blogUrl,String blogXmlRpcUrl, 
 			String userName, String pass) {
@@ -178,5 +178,13 @@ public class Blog {
 
 	public void setViewedPages(int[] viewedPages) {
 		this.viewedPages = viewedPages;
+	}
+
+	public Hashtable getPageTemplates() {
+		return pageTemplates;
+	}
+
+	public void setPageTemplates(Hashtable pageTemplates) {
+		this.pageTemplates = pageTemplates;
 	}
 }

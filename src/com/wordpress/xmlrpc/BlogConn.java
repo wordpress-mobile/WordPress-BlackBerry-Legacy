@@ -305,6 +305,42 @@ public abstract class BlogConn extends Observable implements Runnable {
 		}
 	}
 	
+	//retrive the blog "page status list"
+	protected synchronized void getPageTemplates(Blog blog) throws Exception {
+		try {
+			System.out.println("reading pages templates for the blog : "
+					+ blog.getName());
+
+			Vector args = new Vector(3);
+			args.addElement(String.valueOf(blog.getId()));
+			args.addElement(mUsername);
+			args.addElement(mPassword);
+
+			Object response = execute("wp.getPageTemplates", args);
+			if (connResponse.isError()) {
+				blog.setPageStatusList(null);
+				return;
+			}
+
+			Hashtable statusList = (Hashtable) response;
+
+/*			Enumeration elements = statusList.keys();
+			for (; elements.hasMoreElements();) {
+				String key = (String) elements.nextElement();
+				System.out.println("key: " + key);
+				System.out.println("value: " + statusList.get(key));
+			}
+*/
+			blog.setPageTemplates(statusList);
+			
+			System.out.println("End reading page templates for the blog : : "
+					+ blog.getName());
+		} catch (ClassCastException cce) {
+			throw new Exception("Error while reading post status list");
+		}
+	}
+	
+	
 	protected synchronized void getCommentStatusList(Blog blog) {
 		try {
 

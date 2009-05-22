@@ -1,5 +1,6 @@
 package com.wordpress.view;
 
+import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectListField;
@@ -15,7 +16,7 @@ public class DraftPostsView extends BaseView {
 	private ObjectListField listaPost; 
 	
 	 public DraftPostsView(DraftPostsController  _controller, String[] post) {
-	    	super(_controller.getCurrentBlogName()+" > "+_resources.getString(WordPressResource.TITLE_DRAFTPOST));
+	    	super(_controller.getCurrentBlogName()+" > "+_resources.getString(WordPressResource.TITLE_DRAFT_POSTS));
 	    	this.controller=_controller;	        
 	        buildList(post);
 	 }
@@ -24,14 +25,13 @@ public class DraftPostsView extends BaseView {
 	private void buildList(String[] post) {
 		removeAllMenuItems();	
 		listaPost = new ObjectListField(); 	        
+		listaPost.setEmptyString("No Draft Posts", DrawStyle.LEFT);
 		
 		if(post.length > 0 ){
 			listaPost.set(post);
 			addMenuItem(_editPostItem);
 			addMenuItem(_deletePostItem);
-		} else {
-			listaPost.set(new String[]{"No Draft posts"});
-		}
+		} 
 		addMenuItem(_newPostItem);
 		add(listaPost);
 	}
