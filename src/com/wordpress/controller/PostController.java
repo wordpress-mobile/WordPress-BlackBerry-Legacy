@@ -105,8 +105,8 @@ public class PostController extends BlogObjectController {
 				postStatusKey[i] = key;
 				i++;
 			}
-			postStatusLabel[postStatusLabel.length-1]= _resources.getString(WordPress.LABEL_LOCAL_DRAFT);
-			postStatusKey[postStatusLabel.length-1]= "localdraft";
+			postStatusLabel[postStatusLabel.length-1]= LOCAL_DRAFT_LABEL;
+			postStatusKey[postStatusLabel.length-1]= LOCAL_DRAFT_KEY;
 			// end 
 		}
 
@@ -122,7 +122,6 @@ public class PostController extends BlogObjectController {
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 	
-
 	
 	public void setPostAsChanged() {
 		postState.setModified(true);
@@ -187,11 +186,9 @@ public class PostController extends BlogObjectController {
 	}
 	
 	public void newCategory(String label, int parentCatID){	
-		Preferences prefs = Preferences.getIstance();
 		NewCategoryConn connection = new NewCategoryConn (post.getBlog().getXmlRpcUrl(), 
 				Integer.parseInt(post.getBlog().getId()), post.getBlog().getUsername(),
-				post.getBlog().getPassword(),prefs.getTimeZone(),label, parentCatID);
-
+				post.getBlog().getPassword(), label, parentCatID);
 		
 		connection.addObserver(new SendNewCatCallBack(label,parentCatID)); 
         
@@ -229,7 +226,7 @@ public class PostController extends BlogObjectController {
 		if (!postState.isModified()) { //post without change
 			return;
 		}
-		if(post.getStatus().equals("localdraft")) {
+		if(post.getStatus().equals(LOCAL_DRAFT_KEY)) {
 			displayMessage("Local Draft post cannot be submitted");
 			return;
 		}	
@@ -251,8 +248,7 @@ public class PostController extends BlogObjectController {
 			for (int i =0; i < draftPostPhotoList.length; i++ ) {
 				key = draftPostPhotoList[i];
 				NewMediaObjectConn connection = new NewMediaObjectConn (post.getBlog().getXmlRpcUrl(), 
-			       		   post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), 
-			       		   post.getBlog().getId(), key);				
+			       		   post.getBlog().getUsername(),post.getBlog().getPassword(), post.getBlog().getId(), key);				
 				sender.addConn(connection);
 			}
 		}
@@ -268,11 +264,11 @@ public class PostController extends BlogObjectController {
 		
 		if(post.getId() == null || post.getId().equalsIgnoreCase("-1")) { //new post
 	           connection = new NewPostConn (post.getBlog().getXmlRpcUrl(), 
-	        		post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post, publish);
+	        		post.getBlog().getUsername(),post.getBlog().getPassword(), post, publish);
 		
 		} else { //edit post
 			 connection = new EditPostConn (post.getBlog().getXmlRpcUrl(), 
-					 post.getBlog().getUsername(),post.getBlog().getPassword(),prefs.getTimeZone(), post, publish);
+					 post.getBlog().getUsername(),post.getBlog().getPassword(), post, publish);
 		
 		}
 		sender.addConn(connection);
@@ -369,7 +365,7 @@ public class PostController extends BlogObjectController {
 		Preferences prefs = Preferences.getIstance();
 		GetTemplateConn connection = new GetTemplateConn (post.getBlog().getXmlRpcUrl(), 
 				Integer.parseInt(post.getBlog().getId()), post.getBlog().getUsername(),
-				post.getBlog().getPassword(),prefs.getTimeZone());
+				post.getBlog().getPassword());
 
 		
 		connection.addObserver(new SendGetTamplateCallBack()); 

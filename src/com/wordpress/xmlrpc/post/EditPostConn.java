@@ -1,10 +1,8 @@
 package com.wordpress.xmlrpc.post;
 
 import java.util.Hashtable;
-import java.util.TimeZone;
 import java.util.Vector;
 
-import com.wordpress.model.Category;
 import com.wordpress.model.Post;
 import com.wordpress.xmlrpc.BlogConn;
 
@@ -13,8 +11,8 @@ public class EditPostConn extends BlogConn  {
 	private Post post=null;
 	private boolean isPublished=false;
 	
-	public EditPostConn(String hint, String userHint, String passwordHint, TimeZone tz, Post mPost, boolean isPublished) {
-		super(hint, userHint, passwordHint, tz);
+	public EditPostConn(String hint, String userHint, String passwordHint, Post mPost, boolean isPublished) {
+		super(hint, userHint, passwordHint);
 		this.post=mPost;
 		this.isPublished=isPublished;
 	}

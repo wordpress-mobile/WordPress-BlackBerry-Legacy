@@ -143,7 +143,7 @@ public class CommentsController extends BaseController{
 					comment.setContent(commentContent);
 	
 				EditCommentConn conn = new EditCommentConn(currentBlog.getXmlRpcUrl(), currentBlog.getUsername(),
-						currentBlog.getPassword(), prefs.getTimeZone(), currentBlog.getId(), comment);
+						currentBlog.getPassword(), currentBlog.getId(), comment);
 				task.addConn(conn);
 				isModifiedComments = true;
 			}
@@ -199,7 +199,7 @@ public class CommentsController extends BaseController{
 		for (int i = 0; i < deleteComments.length; i++) {
 			Comment comment = deleteComments[i];
 			DeleteCommentConn conn = new DeleteCommentConn(currentBlog.getXmlRpcUrl(), currentBlog.getUsername(),
-					currentBlog.getPassword(), prefs.getTimeZone(), currentBlog.getId(), comment.getID());
+					currentBlog.getPassword(), currentBlog.getId(), comment.getID());
 			task.addConn(conn);
 		}
 		
@@ -279,7 +279,7 @@ public class CommentsController extends BaseController{
 		
 		final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
 				Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
-				currentBlog.getPassword(), prefs.getTimeZone(), -1, "", 0, 100);
+				currentBlog.getPassword(), -1, "", 0, 100);
 		
         connection.addObserver(new loadCommentsCallBack(this));  
         connectionProgressView= new ConnectionInProgressView(connMessage);

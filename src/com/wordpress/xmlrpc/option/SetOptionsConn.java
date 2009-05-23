@@ -1,7 +1,6 @@
 package com.wordpress.xmlrpc.option;
 
 import java.util.Hashtable;
-import java.util.TimeZone;
 import java.util.Vector;
 
 import com.wordpress.model.Option;
@@ -13,8 +12,8 @@ public class SetOptionsConn extends BlogConn  {
 	private final int blogID;
 	private final Option[] options;
 
-	public SetOptionsConn(String hint, int blogID, String userHint, String passwordHint,  TimeZone tz, Option[] options){
-		super(hint, userHint, passwordHint, tz);
+	public SetOptionsConn(String hint, int blogID, String userHint, String passwordHint,  Option[] options){
+		super(hint, userHint, passwordHint);
 		this.blogID = blogID;
 		this.options = options;
 	}

@@ -2,6 +2,7 @@ package com.wordpress.view;
 
 import java.util.Date;
 
+import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.component.DateField;
@@ -12,6 +13,8 @@ import net.rim.device.api.ui.container.HorizontalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
+import com.wordpress.model.Preferences;
+import com.wordpress.utils.SimpleTimeZone;
 
 
 public class PostSettingsView extends BaseView {
@@ -29,8 +32,10 @@ public class PostSettingsView extends BaseView {
 		//row date 
         HorizontalFieldManager rowDate = new HorizontalFieldManager();
 		LabelField lblDate = getLabel(_resources.getString(WordPressResource.LABEL_POST_PUBLISHEDON));   
-	    authoredOn= new DateField("",datetime, DateField.DATE_TIME );
+	    authoredOn= new DateField("", datetime, DateField.DATE_TIME);
 	    authoredOn.setMargin(margins);
+	    SimpleTimeZone timeZone = Preferences.getIstance().getTimeZone();
+	    authoredOn.setTimeZone(timeZone); //setting the field time zone
 		rowDate.add(lblDate);
 		rowDate.add(authoredOn);
   		this.add(rowDate); 
@@ -56,6 +61,10 @@ public class PostSettingsView extends BaseView {
  
     //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
+        SimpleDateFormat sdFormat3 = new SimpleDateFormat("yyyy/MM/dd hh:mm");
+        String format = sdFormat3.format(new Date(authoredOn.getDate()));
+        System.out.println("la data selezionata formatta è "+ format);
+		System.out.println("la data selezionata è "+ authoredOn.getDate());
 		controller.setSettingsValues(authoredOn.getDate(), passwordField.getText());
 		controller.backCmd();
 		return true;

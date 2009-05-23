@@ -78,7 +78,7 @@ public class PageView extends BaseView {
   		//row pageTemplate
         HorizontalFieldManager rowPageTemplate = new HorizontalFieldManager();
   		LabelField lblPageTemplate =getLabel(_resources.getString(WordPressResource.LABEL_PAGE_TEMPLATE));
-  		pageTemplateField = new ObjectChoiceField("", controller.getPageTemplatesTitle(), controller.getPageTemplateFieldIndex());
+  		pageTemplateField = new ObjectChoiceField("", controller.getPageTemplateLabels(), controller.getPageTemplateFieldIndex());
   		rowPageTemplate.add(lblPageTemplate);
   		rowPageTemplate.add(pageTemplateField);
   		manager.add(rowPageTemplate);
@@ -121,7 +121,7 @@ public class PageView extends BaseView {
     private MenuItem _saveDraftItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 10230, 10) {
         public void run() {
     		try {
-    			savePage();
+    			getUIValues();
 	    		if (controller.isPageChanged()) {
 	    			controller.saveDraftPage();
 	    		}
@@ -135,7 +135,7 @@ public class PageView extends BaseView {
     private MenuItem _submitItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 10220, 10) {
         public void run() {
     		try {
-    			savePage();
+    			getUIValues();
    				controller.sendPageToBlog();
     				
     		} catch (Exception e) {
@@ -172,7 +172,7 @@ public class PageView extends BaseView {
 	/*
 	 * update Page data model
 	 */
-	private void savePage() throws Exception{	
+	private void getUIValues() throws Exception{	
 		//track changes 
 		
 		//title
@@ -197,23 +197,36 @@ public class PageView extends BaseView {
 				controller.setPageAsChanged();
 			}
 		}
-		
+
+		//page status
 		int selectedStatusID = status.getSelectedIndex();
 		String newState= controller.getStatusKeys()[selectedStatusID];
 		if (newState != page.getPageStatus()) {
 			page.setPageStatus(newState);
 			controller.setPageAsChanged();
 		}
-		
+
+		//page order field: : we have used the BB isDirty method instead of manual field change check
 		if(pageOrderField.isDirty()){
 			page.setWpPageOrder(Integer.parseInt(pageOrderField.getText()));
 			pageOrderField.setDirty(false);
-			System.out.println("campo page order cambiato");
+			controller.setPageAsChanged();
 		}
 		
+		//parent page field: we have used the BB isDirty method instead of manual field change check
 		if(parentPageField.isDirty()) {
-						
-			System.out.println("campo parent page cambiato");
+			int selectedIndex = parentPageField.getSelectedIndex();
+			controller.setParentPageID(selectedIndex);
+			pageOrderField.setDirty(false);
+			controller.setPageAsChanged();
+		}
+		
+		//page template
+		int selectedTemplateFieldID = pageTemplateField.getSelectedIndex();
+		String pageTemplate= controller.getPageTemplateKeys()[selectedTemplateFieldID];
+		if (pageTemplate != page.getWpPageTemplate()) {
+			page.setWpPageTemplate(pageTemplate);
+			controller.setPageAsChanged();
 		}
 		
 	}

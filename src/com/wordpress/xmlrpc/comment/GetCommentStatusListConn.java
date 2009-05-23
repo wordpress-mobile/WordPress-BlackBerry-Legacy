@@ -1,7 +1,6 @@
 package com.wordpress.xmlrpc.comment;
 
 import java.util.Hashtable;
-import java.util.TimeZone;
 import java.util.Vector;
 
 import com.wordpress.xmlrpc.BlogConn;
@@ -10,8 +9,8 @@ public class GetCommentStatusListConn extends BlogConn  {
 	
 	private int blogId=-1;
 	
-	public GetCommentStatusListConn(String hint, int blogId, String userHint, String passwordHint,  TimeZone tz){
-		super(hint, userHint, passwordHint, tz);
+	public GetCommentStatusListConn(String hint, int blogId, String userHint, String passwordHint){
+		super(hint, userHint, passwordHint);
 		this.blogId=blogId;
 	}
 	

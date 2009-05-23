@@ -2,7 +2,6 @@ package com.wordpress.xmlrpc.post;
 
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.TimeZone;
 import java.util.Vector;
 
 import com.wordpress.model.Post;
@@ -12,8 +11,8 @@ public class GetPostConn extends BlogConn  {
 	
 	private Post aPost=null;
 
-	public GetPostConn(String hint,	String userHint, String passwordHint, TimeZone tz, Post mPost) {
-		super(hint, userHint, passwordHint, tz);
+	public GetPostConn(String hint,	String userHint, String passwordHint, Post mPost) {
+		super(hint, userHint, passwordHint);
 		this.aPost=mPost;
 	}
 

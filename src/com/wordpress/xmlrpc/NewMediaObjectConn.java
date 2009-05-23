@@ -1,7 +1,6 @@
 package com.wordpress.xmlrpc;
 
 import java.util.Hashtable;
-import java.util.TimeZone;
 import java.util.Vector;
 
 public class NewMediaObjectConn extends BlogConn  {
@@ -11,9 +10,9 @@ public class NewMediaObjectConn extends BlogConn  {
 	private String blogID;
 	
 
-	public NewMediaObjectConn(String hint,	String userHint, String passwordHint, TimeZone tz, String blogID,
+	public NewMediaObjectConn(String hint,	String userHint, String passwordHint, String blogID,
 			String fileName) {
-		super(hint, userHint, passwordHint, tz);
+		super(hint, userHint, passwordHint);
 		this.fileName=fileName;
 		this.blogID=blogID;
 	}

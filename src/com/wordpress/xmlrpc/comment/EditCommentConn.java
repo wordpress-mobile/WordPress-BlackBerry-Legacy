@@ -1,9 +1,7 @@
 package com.wordpress.xmlrpc.comment;
 
-import java.util.TimeZone;
-import java.util.Vector;
-
 import java.util.Hashtable;
+import java.util.Vector;
 
 import com.wordpress.model.Comment;
 import com.wordpress.xmlrpc.BlogConn;
@@ -13,8 +11,8 @@ public class EditCommentConn extends BlogConn  {
 	private Comment comment;
 	private final String blogId;
 	
-	public EditCommentConn(String hint, String userHint, String passwordHint,  TimeZone tz, String blogId, Comment ncomment){
-		super(hint, userHint, passwordHint, tz);
+	public EditCommentConn(String hint, String userHint, String passwordHint, String blogId, Comment ncomment){
+		super(hint, userHint, passwordHint);
 		this.blogId = blogId;
 		this.comment=ncomment;
 	}

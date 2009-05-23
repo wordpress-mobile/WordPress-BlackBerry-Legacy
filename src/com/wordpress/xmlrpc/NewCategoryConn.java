@@ -1,7 +1,6 @@
 package com.wordpress.xmlrpc;
 
 import java.util.Hashtable;
-import java.util.TimeZone;
 import java.util.Vector;
 
 public class NewCategoryConn extends BlogConn  {
@@ -10,8 +9,8 @@ public class NewCategoryConn extends BlogConn  {
 	private final int blogId;
 	private final int parentCatID;
 
-	public NewCategoryConn(String url, int blogId, String user, String pass,  TimeZone tz, String catName, int parentCatID){
-		super(url, user, pass, tz);
+	public NewCategoryConn(String url, int blogId, String user, String pass, String catName, int parentCatID){
+		super(url, user, pass);
 		this.blogId = blogId;
 		this.catName=catName;
 		this.parentCatID = parentCatID;

@@ -1,7 +1,6 @@
 package com.wordpress.xmlrpc;
 
 import java.util.Hashtable;
-import java.util.TimeZone;
 import java.util.Vector;
 
 import com.wordpress.model.Author;
@@ -11,8 +10,8 @@ public class GetAuthorsConn extends BlogConn  {
 
 	private final int blogID;
 
-	public GetAuthorsConn(String hint, int blogID, String userHint, String passwordHint, TimeZone tz) {
-		super(hint, userHint, passwordHint, tz);
+	public GetAuthorsConn(String hint, int blogID, String userHint, String passwordHint) {
+		super(hint, userHint, passwordHint);
 		this.blogID = blogID;
 	}
 

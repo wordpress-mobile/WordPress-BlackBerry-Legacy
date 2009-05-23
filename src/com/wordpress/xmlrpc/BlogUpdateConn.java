@@ -1,6 +1,5 @@
 package com.wordpress.xmlrpc;
 
-import java.util.TimeZone;
 import java.util.Vector;
 
 import com.wordpress.io.CommentsDAO;
@@ -10,8 +9,8 @@ public class BlogUpdateConn extends BlogConn  {
 	
 	private Blog blog;
 	
-	public BlogUpdateConn(TimeZone tz, Blog blog) {
-		super(blog.getXmlRpcUrl(), blog.getUsername(), blog.getPassword(), tz);
+	public BlogUpdateConn(Blog blog) {
+		super(blog.getXmlRpcUrl(), blog.getUsername(), blog.getPassword());
 		this.blog=blog;
 	}
 

@@ -127,7 +127,6 @@ src\com\wordpress\xmlrpc\BlogConnResponse.java
 src\com\wordpress\xmlrpc\BlogUpdateConn.java
 src\com\wordpress\xmlrpc\comment\DeleteCommentConn.java
 src\com\wordpress\xmlrpc\comment\EditCommentConn.java
-src\com\wordpress\xmlrpc\comment\GetCommentConn.java
 src\com\wordpress\xmlrpc\comment\GetCommentCountConn.java
 src\com\wordpress\xmlrpc\comment\GetCommentsConn.java
 src\com\wordpress\xmlrpc\comment\GetCommentStatusListConn.java
@@ -146,6 +145,7 @@ src\com\wordpress\xmlrpc\page\EditPageConn.java
 src\com\wordpress\xmlrpc\page\GetPageListConn.java
 src\com\wordpress\xmlrpc\page\GetPagesConn.java
 src\com\wordpress\xmlrpc\page\NewPageConn.java
+src\com\wordpress\xmlrpc\page\SendPageDataTask.java
 src\com\wordpress\xmlrpc\post\DeletePostConn.java
 src\com\wordpress\xmlrpc\post\EditPostConn.java
 src\com\wordpress\xmlrpc\post\GetPostConn.java

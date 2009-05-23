@@ -30,7 +30,7 @@ public class RefreshBlogController extends BaseController implements Observer{
 
 	public void refreshBlog(){
 		Preferences prefs = Preferences.getIstance();
-		final BlogUpdateConn connection = new BlogUpdateConn (prefs.getTimeZone(), currentBlog);       
+		final BlogUpdateConn connection = new BlogUpdateConn (currentBlog);       
         connection.addObserver(this); 
          connectionProgressView= new ConnectionInProgressView(
         		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));

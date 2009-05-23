@@ -1,7 +1,6 @@
 package com.wordpress.xmlrpc.comment;
 
 import java.util.Hashtable;
-import java.util.TimeZone;
 import java.util.Vector;
 
 import com.wordpress.xmlrpc.BlogConn;
@@ -12,8 +11,8 @@ public class GetCommentCountConn extends BlogConn  {
 	private final int blogID;
 	private final int postID;
 
-	public GetCommentCountConn(String hint, int blogId, String userHint, String passwordHint, int postID,  TimeZone tz){
-		super(hint, userHint, passwordHint, tz);
+	public GetCommentCountConn(String hint, int blogId, String userHint, String passwordHint, int postID){
+		super(hint, userHint, passwordHint);
 		this.blogID = blogId;
 		this.postID = postID;
 	}

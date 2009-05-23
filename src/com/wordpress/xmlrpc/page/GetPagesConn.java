@@ -1,6 +1,5 @@
 package com.wordpress.xmlrpc.page;
 
-import java.util.TimeZone;
 import java.util.Vector;
 
 import com.wordpress.xmlrpc.BlogConn;
@@ -9,8 +8,8 @@ public class GetPagesConn extends BlogConn  {
 
 	private final int blogID;
 
-	public GetPagesConn(String hint, String userHint, String passwordHint, TimeZone tz,  int blogID) {
-		super(hint, userHint, passwordHint, tz);
+	public GetPagesConn(String hint, String userHint, String passwordHint, int blogID) {
+		super(hint, userHint, passwordHint);
 		this.blogID = blogID;
 	}
 

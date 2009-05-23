@@ -1,19 +1,14 @@
 package com.wordpress.xmlrpc;
 
 import java.util.Hashtable;
-import java.util.TimeZone;
 import java.util.Vector;
 
 import com.wordpress.model.Blog;
 
 public class BlogAuthConn extends BlogConn  {
-	
-	
-	private final int maxRecentPostCount; 
 
-	public BlogAuthConn(String hint,String userHint, String passwordHint, TimeZone tz, int maxRecentPostCount) {
-		super(hint, userHint, passwordHint, tz);
-		this.maxRecentPostCount = maxRecentPostCount;
+	public BlogAuthConn(String hint,String userHint, String passwordHint) {
+		super(hint, userHint, passwordHint);
 	}
 
 	/**

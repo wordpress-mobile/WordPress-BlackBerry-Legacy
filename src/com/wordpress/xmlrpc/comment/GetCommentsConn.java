@@ -1,6 +1,5 @@
 package com.wordpress.xmlrpc.comment;
 
-import java.util.TimeZone;
 import java.util.Vector;
 
 import com.wordpress.xmlrpc.BlogConn;
@@ -14,9 +13,8 @@ public class GetCommentsConn extends BlogConn  {
 	private int offset=0;
 	private int number=0; 
 	
-	public GetCommentsConn(String hint, int blogId, String userHint, String passwordHint,  TimeZone tz,
-			int postID, String status, int offset, int number){
-		super(hint, userHint, passwordHint, tz);
+	public GetCommentsConn(String hint, int blogId, String userHint, String passwordHint,  int postID, String status, int offset, int number){
+		super(hint, userHint, passwordHint);
 		this.blogId=blogId;
 		this.postID=postID;
 		this.status=status;

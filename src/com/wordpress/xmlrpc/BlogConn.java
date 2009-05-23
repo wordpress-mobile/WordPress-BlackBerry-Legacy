@@ -4,7 +4,6 @@ package com.wordpress.xmlrpc;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.TimeZone;
 import java.util.Vector;
 
 import javax.microedition.io.ConnectionNotFoundException;
@@ -30,7 +29,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	protected boolean isWorking = false;
 	protected Thread t = null;
 	
-	public BlogConn(String url, String user, String password, TimeZone timezone) {
+	public BlogConn(String url, String user, String password) {
 
 	    mUsername = user;
 	    mPassword = password;

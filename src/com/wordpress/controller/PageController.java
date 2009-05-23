@@ -10,6 +10,7 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPress;
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
@@ -28,7 +29,12 @@ import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.view.mm.MultimediaPopupScreen;
 import com.wordpress.view.mm.PhotoPreview;
 import com.wordpress.view.mm.PhotoSnapShotView;
+import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
+import com.wordpress.xmlrpc.NewMediaObjectConn;
+import com.wordpress.xmlrpc.page.EditPageConn;
+import com.wordpress.xmlrpc.page.NewPageConn;
+import com.wordpress.xmlrpc.page.SendPageDataTask;
 
 
 public class PageController extends BlogObjectController {
@@ -41,11 +47,11 @@ public class PageController extends BlogObjectController {
 	private boolean isDraft= false; // identify if post is loaded from draft folder
 	
 	private String[] pageStatusKey; // = {"draft, private, publish, localdraft"};
-	private String[] pageStatusLabel; 
+	private String[] pageStatusLabel;
+	
 	
 	private String[] pageTemplateKey; 
 	private String[] pageTemplateLabel; 
-	
 	
 	private Page[] remotePages; //the page on the blog
 	
@@ -104,8 +110,8 @@ public class PageController extends BlogObjectController {
 				i++;
 			}
 	    	
-			pageStatusLabel[pageStatusLabel.length-1]= _resources.getString(WordPress.LABEL_LOCAL_DRAFT);
-			pageStatusKey[pageStatusLabel.length-1]= "localdraft";
+			pageStatusLabel[pageStatusLabel.length-1]= LOCAL_DRAFT_LABEL;
+			pageStatusKey[pageStatusLabel.length-1]= LOCAL_DRAFT_KEY;
 			// end 
 		}
 		
@@ -158,12 +164,24 @@ public class PageController extends BlogObjectController {
 			if ( remotePages[i].getID() == page.getWpPageParentID() )
 				return i;
 		}
-		return remotePages.length; //selected no parent page
+		return remotePages.length; //selected no parent page (base Page page title)
 	}
 	
-	//create an array of page templates title
-	public String[] getPageTemplatesTitle() {
+	//find the id of the selected page parent
+	public void setParentPageID(int selectedFieldIndex) {
+		int parentPageID= -1;
+		if(remotePages.length > selectedFieldIndex)
+			parentPageID = remotePages[selectedFieldIndex].getID();
+		
+		page.setWpPageParentID(parentPageID);
+	}
+		
+	public String[] getPageTemplateLabels() {
 		return pageTemplateLabel;
+	}
+	
+	public String[] getPageTemplateKeys() {
+		return pageTemplateKey;
 	}
 	
 	public int getPageTemplateFieldIndex() {
@@ -216,7 +234,71 @@ public class PageController extends BlogObjectController {
 
 	public void sendPageToBlog() {
 		
-	
+		if (!postState.isModified()) { //post without change
+			return;
+		}
+		
+		if(page.getPageStatus().equals(LOCAL_DRAFT_KEY)) {
+			displayMessage("Local Draft post cannot be submitted");
+			return;
+		}	
+		 
+		String[] draftPagePhotoList;
+
+		try {
+			draftPagePhotoList = PageDAO.getPagePhotoList(blog, draftPageFolder);
+		} catch (Exception e) {
+			displayError(e, "Cannot load photos from disk, publication failed!");
+			return;
+		}
+		
+		SendPageDataTask sender = new SendPageDataTask (blog, page, draftPageFolder);
+		
+		//adding multimedia connection
+		if(draftPagePhotoList.length > 0 ) {
+			String key="";
+			for (int i =0; i < draftPagePhotoList.length; i++ ) {
+				key = draftPagePhotoList[i];
+				NewMediaObjectConn connection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
+			       		   blog.getUsername(), blog.getPassword(), blog.getId(), key);				
+				sender.addConn(connection);
+			}
+		}
+
+		
+		//adding post connection
+		BlogConn connection;
+		
+		String remoteStatus = page.getPageStatus();
+		boolean publish=false;
+		if( remoteStatus.equalsIgnoreCase("private") || remoteStatus.equalsIgnoreCase("publish"))
+			publish= true;
+		
+		if( page.getID()== -1 ) { //new page
+	           connection = new NewPageConn (blog.getXmlRpcUrl(), blog.getUsername(), 
+	        		   blog.getPassword(), Integer.parseInt(blog.getId()), page ,publish);
+		
+		} else { //edit post
+			 connection = new EditPageConn (blog.getXmlRpcUrl(), blog.getUsername(), 
+	        		   blog.getPassword(), Integer.parseInt(blog.getId()), page ,publish);
+		
+		}
+		sender.addConn(connection);
+				
+		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
+
+		sender.setDialog(connectionProgressView);
+		sender.startWorker(); //start sending post
+		
+		int choice = connectionProgressView.doModal();
+		if(choice == Dialog.CANCEL) {
+			System.out.println("Chiusura della conn dialog tramite cancel");
+			sender.quit();
+			if (!sender.isError())
+				FrontController.getIstance().backAndRefreshView(true);
+			else
+				displayError(sender.getErrorMessage());
+		}
 	}
 	
 	public void saveDraftPage() {

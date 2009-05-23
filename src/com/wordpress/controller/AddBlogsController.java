@@ -98,7 +98,7 @@ public class AddBlogsController extends BaseController implements Observer{
 */
         if (url != null && user != null && url.length() > 0 && user != null && user.length() > 0) {
             Preferences prefs = Preferences.getIstance();
-            BlogAuthConn connection = new BlogAuthConn (url,user,pass,prefs.getTimeZone(), recentsPostValues[maxPostIndex]);
+            BlogAuthConn connection = new BlogAuthConn (url,user,pass);
             connection.addObserver(this); 
              connectionProgressView= new ConnectionInProgressView(
             		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
@@ -139,7 +139,7 @@ public class AddBlogsController extends BaseController implements Observer{
 		 		blogs[i].setLoadingState(BlogInfo.STATE_ADDED_TO_QUEUE);
 				BlogDAO.newBlog(blogs[i], true);
 				//add this blog to the queue	
-				final BlogUpdateConn connection = new BlogUpdateConn (prefs.getTimeZone(), blogs[i]);       
+				final BlogUpdateConn connection = new BlogUpdateConn (blogs[i]);       
 		        networkTask.addConn(connection); 
 		    }
 		 	FrontController.getIstance().backAndRefreshView(true); //update the main view with new blogs

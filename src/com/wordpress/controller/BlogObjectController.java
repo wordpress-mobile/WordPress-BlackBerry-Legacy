@@ -1,6 +1,11 @@
 package com.wordpress.controller;
 
+import com.wordpress.bb.WordPress;
+
 public abstract class BlogObjectController extends BaseController {
+	
+	protected static final String LOCAL_DRAFT_KEY = "localdraft";
+	protected static final String LOCAL_DRAFT_LABEL = _resources.getString(WordPress.LABEL_LOCAL_DRAFT);
 
 	
 	public abstract void setSettingsValues(long authoredOn, String password);

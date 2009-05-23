@@ -1,6 +1,5 @@
 package com.wordpress.xmlrpc.page;
 
-import java.util.TimeZone;
 import java.util.Vector;
 
 import com.wordpress.xmlrpc.BlogConn;
@@ -10,8 +9,8 @@ public class DeletePageConn extends BlogConn {
 	private final int pageID;
 	private final int blogID;
 
-	public DeletePageConn(String hint, String userHint, String passwordHint, TimeZone tz, int blogID, int pageID) {
-		super(hint, userHint, passwordHint, tz);
+	public DeletePageConn(String hint, String userHint, String passwordHint, int blogID, int pageID) {
+		super(hint, userHint, passwordHint);
 		this.pageID = pageID;
 		this.blogID = blogID;
 	}

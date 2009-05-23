@@ -1,6 +1,5 @@
 package com.wordpress.xmlrpc.comment;
 
-import java.util.TimeZone;
 import java.util.Vector;
 
 import com.wordpress.xmlrpc.BlogConn;
@@ -10,8 +9,8 @@ public class DeleteCommentConn extends BlogConn  {
 	private final int commentID;
 	private final String blogID;
 
-	public DeleteCommentConn(String hint, String userHint, String passwordHint,  TimeZone tz, String blogID, int commentID){
-		super(hint, userHint, passwordHint, tz);
+	public DeleteCommentConn(String hint, String userHint, String passwordHint, String blogID, int commentID){
+		super(hint, userHint, passwordHint);
 		this.blogID = blogID;
 		this.commentID = commentID;
 	}

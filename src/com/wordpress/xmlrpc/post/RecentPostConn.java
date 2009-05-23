@@ -1,6 +1,5 @@
 package com.wordpress.xmlrpc.post;
 
-import java.util.TimeZone;
 import java.util.Vector;
 
 import com.wordpress.model.Blog;
@@ -11,8 +10,8 @@ public class RecentPostConn extends BlogConn  {
 	
 	private Blog blog;
 	
-	public RecentPostConn(String hint,String userHint, String passwordHint, TimeZone tz, Blog aBlog) {
-		super(hint, userHint, passwordHint, tz);
+	public RecentPostConn(String hint,String userHint, String passwordHint, Blog aBlog) {
+		super(hint, userHint, passwordHint);
 		this.blog=aBlog;
 	}
 

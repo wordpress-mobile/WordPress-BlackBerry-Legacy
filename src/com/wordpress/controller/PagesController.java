@@ -91,7 +91,7 @@ public class PagesController extends BaseController{
     		Preferences preferences = Preferences.getIstance();
     		    						 
 			DeletePageConn connection = new DeletePageConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
-					 currentBlog.getPassword(), preferences.getTimeZone(), Integer.parseInt(currentBlog.getId()), pageID);
+					 currentBlog.getPassword(), Integer.parseInt(currentBlog.getId()), pageID);
 		     
 			 connection.addObserver(new deletePageCallBack(selectedIndex)); //not page id, selectedID
 		     
@@ -133,7 +133,7 @@ public class PagesController extends BaseController{
 		System.out.println(">>>refreshPosts");
 		Preferences prefs = Preferences.getIstance();
         final GetPagesConn connection = new GetPagesConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
-        		currentBlog.getPassword(),  prefs.getTimeZone(), Integer.parseInt(currentBlog.getId()));
+        		currentBlog.getPassword(),  Integer.parseInt(currentBlog.getId()));
         
         connection.addObserver(new refreshPageCallBack()); 
         String connMsg=_resources.getString(WordPressResource.CONN_REFRESH_POSTLIST);

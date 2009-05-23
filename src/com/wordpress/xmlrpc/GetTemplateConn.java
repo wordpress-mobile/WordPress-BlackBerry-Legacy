@@ -1,15 +1,13 @@
 package com.wordpress.xmlrpc;
 
-import java.util.Hashtable;
-import java.util.TimeZone;
 import java.util.Vector;
 
 public class GetTemplateConn extends BlogConn  {
 
 	private final int blogId;
 
-	public GetTemplateConn(String url, int blogId, String user, String pass,  TimeZone tz){
-		super(url, user, pass, tz);
+	public GetTemplateConn(String url, int blogId, String user, String pass){
+		super(url, user, pass);
 		this.blogId = blogId;
 	}
 
