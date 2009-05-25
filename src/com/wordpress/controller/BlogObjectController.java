@@ -1,6 +1,9 @@
 package com.wordpress.controller;
 
+import net.rim.device.api.ui.UiApplication;
+
 import com.wordpress.bb.WordPress;
+import com.wordpress.view.PostPreviewView;
 
 public abstract class BlogObjectController extends BaseController {
 	
@@ -15,5 +18,9 @@ public abstract class BlogObjectController extends BaseController {
 	public abstract void addPhoto(byte[] data, String fileName);
 	public abstract boolean deletePhoto(String key);
 	public abstract void setPhotosNumber(int count);
+	
+	public void showPreview(){
+		UiApplication.getUiApplication().pushScreen(new PostPreviewView(""));
+	}
 	
 }

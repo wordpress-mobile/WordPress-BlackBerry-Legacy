@@ -104,7 +104,7 @@ public class PostsView extends BaseView {
 	        for (int i = 0; i < recentPostInfo.size(); i++) {
 	        	 Hashtable postData = (Hashtable) recentPostInfo.elementAt(i);
 	             String title = (String) postData.get("title");
-	             Date dateCreated = (Date) postData.get("dateCreated");
+	             Date dateCreated = (Date) postData.get("date_created_gmt");
 	             
 	             if (title == null || title.length() == 0) {
 	                 title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);

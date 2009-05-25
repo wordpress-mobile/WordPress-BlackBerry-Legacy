@@ -198,12 +198,12 @@ public class PostView extends BaseView {
 		if(oldTitle == null ) { //no previous title, setting the new title  
 			if(!title.getText().trim().equals("")){
 				post.setTitle(title.getText());
-				controller.setPostAsChanged();
+				controller.setPostAsChanged(true);
 			}
 		} else {
 			if( !oldTitle.equals(title.getText()) ) { //title has changed
 				post.setTitle(title.getText());
-				controller.setPostAsChanged();
+				controller.setPostAsChanged(true);
 			}
 		}
 		
@@ -212,7 +212,7 @@ public class PostView extends BaseView {
 			String newContent= bodyTextBox.getText();
 			if(!newContent.equals(post.getBody())){
 				post.setBody(newContent);
-				controller.setPostAsChanged();
+				controller.setPostAsChanged(true);
 			}
 		}
 		
@@ -220,7 +220,7 @@ public class PostView extends BaseView {
 			String newContent= tags.getText();
 			if(!newContent.equals(post.getTags())){
 				post.setTags(newContent);
-				controller.setPostAsChanged();
+				controller.setPostAsChanged(true);
 			}
 		}
 		
@@ -228,7 +228,7 @@ public class PostView extends BaseView {
 		String newState= controller.getStatusKeys()[selectedStatusID];
 		if (newState != post.getStatus()) {
 			post.setStatus(newState);
-			controller.setPostAsChanged();
+			controller.setPostAsChanged(true);
 		}
 	}
 

@@ -1,5 +1,7 @@
 package com.wordpress.view;
 
+import java.util.Hashtable;
+
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
@@ -24,17 +26,19 @@ public class CommentsView extends BaseView {
 	private LabelField lblPostsNumber;
 	
 	private CommentsListField commentListController;
-	private ListField commentsList; 
+	private ListField commentsList;
+	private final Hashtable commentStatusList; 
 	
-	 public CommentsView(CommentsController _controller, Comment[] comments) {
+	 public CommentsView(CommentsController _controller, Comment[] comments, Hashtable commentStatusList) {
 	    	super(_resources.getString(WordPressResource.TITLE_COMMENTS), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 	    	this.controller=_controller;
+			this.commentStatusList = commentStatusList;
 	                
 	    	  //A HorizontalFieldManager to hold the posts number label
 	    	topManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
 	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
 
-	        lblPostsNumber = getLabel("Posts "+controller.getCommentsCount());
+	        lblPostsNumber = getLabel(_resources.getString(WordPressResource.MENUITEM_COMMENTS)+" "+controller.getCommentsCount());
 	        topManager.add(lblPostsNumber);
 	    	
 	        //A Vertical FM to hold the comments list
@@ -62,11 +66,8 @@ public class CommentsView extends BaseView {
 		commentListController= new CommentsListField(elements,selectedCom);
 		
     	this.commentsList= commentListController.get_checkList();
-    	
 		dataScroller.add(commentsList);
-
 		switchMenu();
-		
 		addMenuItem(_refreshCommentsListItem);
 	}
 	 

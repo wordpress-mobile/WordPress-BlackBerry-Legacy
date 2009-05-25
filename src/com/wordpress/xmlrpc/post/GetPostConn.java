@@ -1,19 +1,23 @@
 package com.wordpress.xmlrpc.post;
 
-import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import com.wordpress.io.DraftDAO;
+import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
 import com.wordpress.xmlrpc.BlogConn;
 
 public class GetPostConn extends BlogConn  {
 	
-	private Post aPost=null;
 
-	public GetPostConn(String hint,	String userHint, String passwordHint, Post mPost) {
+	private final Blog blog;
+	private final String postID;
+
+	public GetPostConn(String hint,	String userHint, String passwordHint, Blog blog, String postID) {
 		super(hint, userHint, passwordHint);
-		this.aPost=mPost;
+		this.blog = blog;
+		this.postID = postID;
 	}
 
 	/**
@@ -24,10 +28,10 @@ public class GetPostConn extends BlogConn  {
 		try{
 		
         Vector args = new Vector(3);
-        args.addElement(aPost.getId());
+        args.addElement(postID);
         args.addElement(mUsername);
         args.addElement(mPassword);
-
+        Post aPost;
 
         Object response = execute("metaWeblog.getPost", args);
 		if(connResponse.isError()) {
@@ -38,37 +42,12 @@ public class GetPostConn extends BlogConn  {
 
         try {
             Hashtable postData = (Hashtable) response;
-            if( postData.get("postid") instanceof String) {
-            	aPost.setId((String) postData.get("postid"));
-            } else {
-            	aPost.setId(String.valueOf(postData.get("postid")));
-            }
-            aPost.setTitle((String) postData.get("title"));
-            aPost.setAuthor((String) postData.get("userid"));
-            aPost.setBody((String) postData.get("description"));
-            aPost.setExtendedBody((String) postData.get("mt_text_more"));
-            aPost.setExcerpt((String) postData.get("mt_excerpt"));
-            aPost.setAuthoredOn(((Date) postData.get("dateCreated")).getTime());
-            aPost.setTags( (String) postData.get("mt_keywords"));
-            aPost.setPassword((String) postData.get("wp_password"));
-            aPost.setStatus((String) postData.get("post_status"));
-            
-            String breaks = (String) postData.get("mt_convert_breaks");
-            if (breaks != null && !breaks.equals("__default__")) {
-                aPost.setConvertLinebreaksEnabled(breaks.equals("1"));
-            }
-            
-            Integer comments = (Integer) postData.get("mt_allow_comments");
-            if (comments != null) {
-                aPost.setCommentsEnabled(comments.intValue() != 0);
-            }
-            Integer trackback = (Integer) postData.get("mt_allow_pings");
-            if (trackback != null) {
-                aPost.setTrackbackEnabled(trackback.intValue() != 0);
-            }
+            aPost= DraftDAO.hashtable2Post(postData, blog);
+           
         } catch (ClassCastException cce) {
 			setErrorMessage(cce, "Invalid server response");
 			notifyObservers(connResponse);
+			return;
         }
 
         response = execute("mt.getPostCategories", args);

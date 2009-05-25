@@ -55,8 +55,7 @@ public class GetAuthorsConn extends BlogConn  {
 				String userLogin=(String) tempData.get("user_login");
 				String displayName= (String) tempData.get("display_name");
 				String userEmail= (String) tempData.get("user_email");
-				byte[] meta= (byte[]) tempData.get("meta_value"); //TODO what is metavalue?
-
+				byte[] meta= (byte[]) tempData.get("meta_value"); 
 				Author auth= new Author(blogID,userID, userLogin, displayName, userEmail,meta);
 
 				myauth[i]=auth;

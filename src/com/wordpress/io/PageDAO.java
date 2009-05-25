@@ -12,7 +12,6 @@ import javax.microedition.rms.RecordStoreException;
 
 import com.wordpress.model.Blog;
 import com.wordpress.model.Page;
-import com.wordpress.model.Post;
 import com.wordpress.utils.Tools;
 
 public class PageDAO implements BaseDAO{
@@ -194,13 +193,18 @@ public class PageDAO implements BaseDAO{
 		return myPageList;
 	}
 	
-	//returns Page builded the Hashtable returned by wp.getPage response
+	//returns Page builded from the Hashtable returned by wp.getPage response
 	public static synchronized Page hashtable2Page(Hashtable returnPageData) {
 		
 		Page page = new Page();
 
-		Date dateCreated = ((Date) returnPageData.get("dateCreated"));
-		page.setDateCreated(dateCreated);
+		//Date dateCreated = ((Date) returnPageData.get("dateCreated"));
+		//page.setDateCreated(dateCreated);
+		
+		Date dateCreated = ((Date) returnPageData.get("date_created_gmt"));
+		page.setDateCreatedGMT(dateCreated);
+		
+		
 		
 		if( returnPageData.get("userid") != null)
 			page.setUserID(Integer.parseInt(String.valueOf(returnPageData.get("userid")))); // :-)
@@ -256,6 +260,7 @@ public class PageDAO implements BaseDAO{
 		page.setWpAuthorDisplayName((String) returnPageData.get("wp_author_display_name"));
 		Vector cf=(Vector) returnPageData.get("custom_fields");
 		page.setCustom_field(cf);
+		
 		page.setWpPageTemplate((String) returnPageData.get("wp_page_template"));
 		return page;
 	}
@@ -263,8 +268,8 @@ public class PageDAO implements BaseDAO{
 	public static synchronized Hashtable page2Hashtable(Page page) {
 		Hashtable content = new Hashtable();
 		
-		if (page.getDateCreated()!= null)
-			content.put("dateCreated", page.getDateCreated());
+	//	if (page.getDateCreated()!= null)
+	//		content.put("dateCreated", page.getDateCreated());
 		
 		if(page.getUserID() != -1)
 			content.put("userid", new Integer(page.getUserID()));

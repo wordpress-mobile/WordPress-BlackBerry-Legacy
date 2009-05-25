@@ -103,7 +103,6 @@ public class DraftPagesController extends BaseController {
 	public void newPage() {
 		if (currentBlog != null) {
 			Page page =new Page();
-			//TODO add other page info here...?
 			PageController ctrl=new PageController(currentBlog, page);
 			ctrl.showView();
 		}

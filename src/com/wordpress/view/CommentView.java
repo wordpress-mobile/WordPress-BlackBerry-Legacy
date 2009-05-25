@@ -1,8 +1,8 @@
 //#preprocess
 package com.wordpress.view;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.Hashtable;
 
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.ui.Field;
@@ -34,11 +34,13 @@ public class CommentView extends BaseView {
 	private LabelField date;
 	private LabelField status; //this information can change by user interaction
 	private BasicEditField commentContent;
+	private final Hashtable commentStatusList;
 	
-	 public CommentView(CommentsController _controller, Comment comment) {
+	 public CommentView(CommentsController _controller, Comment comment, Hashtable commentStatusList) {
 	    	super(_resources.getString(WordPressResource.TITLE_COMMENTVIEW), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 	    	this.controller=_controller;
 			this.comment = comment;
+			this.commentStatusList = commentStatusList;
 	                
 	    	  //A HorizontalFieldManager to hold the posts number label
 	    	topManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
@@ -97,9 +99,6 @@ public class CommentView extends BaseView {
 			add(new SeparatorField());
 			add(dataScroller);
 			
-			addMenuItem(_approveCommentItem);
-			addMenuItem(_holdCommentItem);
-			addMenuItem(_spamCommentItem);	
 			addMenuItem(_deleteCommentItem);
 			addMenuItem(_nextCommentItem);
 			addMenuItem(_prevCommentItem);
@@ -113,26 +112,9 @@ public class CommentView extends BaseView {
 		//#ifdef DEBUG
 		 System.out.println("DEBUG trovato");
 		//#endif
-
-		//#ifdef danilo
-		 System.out.println("DEBUG22 trovato");
-		//#endif 
 		 
-		/* removeMenuItem(_approveCommentItem);
-		 removeMenuItem(_holdCommentItem);
-		 removeMenuItem(_spamCommentItem);
-		 
-		 
-		if(!comment.getStatus().equalsIgnoreCase("approve"));
-			addMenuItem(_approveCommentItem);
-		if(!comment.getStatus().equalsIgnoreCase("hold"));
-			addMenuItem(_holdCommentItem);
-		if(!comment.getStatus().equalsIgnoreCase("spam"));
-			addMenuItem(_spamCommentItem);	
-*/
-			
-		 
-		 lblPostsNumber.setText(controller.getCommentIndex(comment)+"/"+controller.getCommentsCount());
+		 lblPostsNumber.setText(_resources.getString(WordPressResource.LABEL_COMMENT) + " "
+				 + controller.getCommentIndex(comment)+"/"+controller.getCommentsCount());
 		 
 		 if(newComment.getAuthor() != null)
 			 from.setText(comment.getAuthor() + " "+ comment.getAuthorEmail());
@@ -152,25 +134,43 @@ public class CommentView extends BaseView {
  		 } else 
 			 date.setText("");
 		 
-		 
-		 if(newComment.getStatus() != null)
-			 status.setText(newComment.getStatus());  //TODO decodificare
-		 else 
+		 //retrive the string of comment state
+		 if(newComment.getStatus() != null) {	 
+			 if(commentStatusList != null && commentStatusList.containsKey(newComment.getStatus())){
+				 String decodedState = (String) commentStatusList.get(newComment.getStatus());
+				 status.setText(decodedState); 
+			 } else {
+				 status.setText(newComment.getStatus());
+			 }
+
+			
+			 //remove unused menu Item
+			removeMenuItem(_holdCommentItem);
+			removeMenuItem(_spamCommentItem);
+			removeMenuItem(_approveCommentItem);
+
+			if(comment.getStatus().equalsIgnoreCase("approve")) {
+				addMenuItem(_holdCommentItem);
+				addMenuItem(_spamCommentItem);	
+			} else if(comment.getStatus().equalsIgnoreCase("hold")){
+				addMenuItem(_approveCommentItem);
+				addMenuItem(_spamCommentItem);	
+			} else if(comment.getStatus().equalsIgnoreCase("spam")){
+				addMenuItem(_approveCommentItem);
+				addMenuItem(_holdCommentItem);
+			}
+
+		 } else {
 			 status.setText("");
+			 addMenuItem(_approveCommentItem);
+			 addMenuItem(_holdCommentItem);
+			 addMenuItem(_spamCommentItem);
+		 }
 		 
 		 if(newComment.getContent() != null)
-			try {
-				commentContent.setText(new String(newComment.getContent().getBytes(),"UTF-8"));
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			commentContent.setText(newComment.getContent());
 		else 
 			 commentContent.setText("");
-		 		 
 	 }
 	 
 	 	

@@ -55,16 +55,14 @@ public class PostSettingsView extends BaseView {
 		Font fnt = this.getFont().derive(Font.ITALIC);
 		lblDesc.setFont(fnt);
 		add(lblDesc);
-  
     }
     
- 
     //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
-        SimpleDateFormat sdFormat3 = new SimpleDateFormat("yyyy/MM/dd hh:mm");
+    /*    SimpleDateFormat sdFormat3 = new SimpleDateFormat("yyyy/MM/dd hh:mm");
         String format = sdFormat3.format(new Date(authoredOn.getDate()));
         System.out.println("la data selezionata formatta è "+ format);
-		System.out.println("la data selezionata è "+ authoredOn.getDate());
+		System.out.println("la data selezionata è "+ authoredOn.getDate()); */
 		controller.setSettingsValues(authoredOn.getDate(), passwordField.getText());
 		controller.backCmd();
 		return true;

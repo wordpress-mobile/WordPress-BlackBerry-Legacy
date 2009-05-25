@@ -73,15 +73,9 @@ public class SendPostDataTask {
 		executionQueue.push(blogConn);
 	}
 	
-	private byte[] getPhotosBytes(String key) {
+	private byte[] getPhotosBytes(String key) throws IOException, RecordStoreException {
 		byte[] data;
-
-		try {
-			data = DraftDAO.loadPostPhoto(post, draftPostFolder, key);
-		} catch (Exception e) {
-			//TODO err
-			return null;
-		}
+		data = DraftDAO.loadPostPhoto(post, draftPostFolder, key);
 		EncodedImage img = EncodedImage.createEncodedImage(data, 0, -1);
 		return img.getData();
 	}
@@ -94,12 +88,21 @@ public class SendPostDataTask {
 
 		private void next() {
 			
-			if (!executionQueue.isEmpty() && stopping == false) {
+			if (!executionQueue.isEmpty() && stopping == false && isError == false) {
 				BlogConn blogConn = (BlogConn) executionQueue.pop();
 				if(blogConn instanceof NewMediaObjectConn) {
 					String fileName = ((NewMediaObjectConn) blogConn).getFileName();
-					byte[] photosBytes = getPhotosBytes(fileName);
-					((NewMediaObjectConn) blogConn).setFileContent(photosBytes);					
+					byte[] photosBytes;
+					try {
+						photosBytes = getPhotosBytes(fileName);
+						((NewMediaObjectConn) blogConn).setFileContent(photosBytes);					
+					} catch (Exception e) {
+						final String respMessage=e.getMessage();
+						errorMessage.append(respMessage+"\n");
+						isError=true;
+						next(); //called next to exit
+						return;
+					}
 				} else {
 					
 					//adding multimedia info to post

@@ -142,21 +142,20 @@ public class XmlRpcClient {
             out.write( request );
             // Open an input stream on the server's response
             in = con.openInputStream();
-
-            // inizio 
-    		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    		int c;
-    		while ((c = in.read()) >= 0)
-    		{
-    			baos.write(c);
-    		}
-    		String response = new String (baos.toByteArray());
-    		//#debug
-    		System.out.println("risposta dal server wp: "+response);
-    	    //TODO passare direttamete al parser la variabile "in" quando sei in produzione
-    		ByteArrayInputStream bais = new ByteArrayInputStream(response.getBytes());
-    		// fine 
-    		
+            
+            //we now have an input stream. Create a reader and read out each character in the stream.
+            //TODO remove this block of code in production
+            InputStreamReader isr = new InputStreamReader(in,"UTF-8"); //@see http://java.sun.com/docs/books/tutorial/i18n/text/stream.html
+            int ch;
+            StringBuffer charBuff=new StringBuffer();
+            while ((ch = isr.read()) > -1) {  
+               charBuff.append((char)ch);
+            }
+            String response = charBuff.toString();
+            System.out.println("risposta dal server wp: "+response);
+         	ByteArrayInputStream bais = new ByteArrayInputStream(response.getBytes());
+            //end
+            
             // Parse response from server
             KXmlParser xp = new KXmlParser();
             xp.setInput(new InputStreamReader(bais));

@@ -1,9 +1,10 @@
 package com.wordpress.controller;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.Hashtable;
 import java.util.Vector;
+
+import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
@@ -12,7 +13,6 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Comment;
-import com.wordpress.model.Preferences;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.CommentView;
@@ -43,15 +43,16 @@ public class CommentsController extends BaseController{
 		Vector comments = null;
 		try {
 			comments = CommentsDAO.loadComments(currentBlog);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace(); //TODO err
-		} catch (Exception e) {
-			e.printStackTrace(); //TODO err
+		} catch (IOException e) {
+			displayError(e, "Error while loading comments from memory");
+		} catch (RecordStoreException e) {
+			displayError(e, "Error while loading comments from memory");
 		}
-		storedComments = buildCommentsArray(comments);		
-		view= new CommentsView(this, storedComments);
+
+		storedComments = CommentsDAO.vector2Comments(comments);	
+		
+		view= new CommentsView(this, storedComments, currentBlog.getCommentStatusList());
 		UiApplication.getUiApplication().pushScreen(view);
-	
 	}
 
 
@@ -116,13 +117,12 @@ public class CommentsController extends BaseController{
 	}
 	
 	public void openComment(Comment comment) {
-		CommentView commentView= new CommentView(this, comment);
+		CommentView commentView= new CommentView(this, comment, currentBlog.getCommentStatusList());
 		UiApplication.getUiApplication().pushScreen(commentView);
 	}
 	
 	public void updateComments(Comment[] comments, String status, String commentContent) {
 		ManageCommentsTask task = new ManageCommentsTask();
-		Preferences prefs = Preferences.getIstance();
 
 		boolean isModifiedComments = false; //true if there are comments that needs update
 		
@@ -176,14 +176,12 @@ public class CommentsController extends BaseController{
 				}
 								
 				try {
-					CommentsDAO.storeComments(currentBlog, buildCommentVector(storedComments));
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} //store the comments
+					CommentsDAO.storeComments(currentBlog, CommentsDAO.comments2Vector(storedComments));
+				} catch (IOException e) {
+					displayError(e, "Error while storing comments on phone memory");
+				} catch (RecordStoreException e) {
+					displayError(e, "Error while storing comments on phone memory");
+				}
 				view.refresh(storedComments);
 				
 			} else {
@@ -195,7 +193,6 @@ public class CommentsController extends BaseController{
 	
 	public void deleteComments(Comment[] deleteComments) {
 		ManageCommentsTask task = new ManageCommentsTask();
-		Preferences prefs = Preferences.getIstance();
 		for (int i = 0; i < deleteComments.length; i++) {
 			Comment comment = deleteComments[i];
 			DeleteCommentConn conn = new DeleteCommentConn(currentBlog.getXmlRpcUrl(), currentBlog.getUsername(),
@@ -246,13 +243,11 @@ public class CommentsController extends BaseController{
 				storedComments = newComments;
 							
 				try {
-					CommentsDAO.storeComments(currentBlog, buildCommentVector(storedComments));
+					CommentsDAO.storeComments(currentBlog, CommentsDAO.comments2Vector(storedComments));
 				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					displayError(e, "Error while updating phone memory");
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					displayError(e, "Error while updating phone memory");
 				} //store the comments
 				
 							
@@ -269,8 +264,6 @@ public class CommentsController extends BaseController{
 	
 	public void refreshComments(boolean refresh){
 
-		Preferences prefs = Preferences.getIstance();
-        
 		String connMessage = null;
 		if( !refresh ) 
 			connMessage = _resources.getString(WordPressResource.CONN_LOADING_COMMENTS);
@@ -326,17 +319,16 @@ public class CommentsController extends BaseController{
 						
 						try {
 							CommentsDAO.storeComments(currentBlog, respVector);
-						} catch (UnsupportedEncodingException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} //store the comments
+						} catch (IOException e) {
+							displayError(e, "Error while updating phone memory");
+						} catch (RecordStoreException e) {
+							displayError(e, "Error while updating phone memory");
+						}
 
-						storedComments = buildCommentsArray(respVector);
+
+						storedComments = CommentsDAO.vector2Comments(respVector);
 						
-						Comment[] myCommentsList = buildCommentsArray(respVector);
+						Comment[] myCommentsList = CommentsDAO.vector2Comments(respVector);
 						
 						view.refresh(myCommentsList);
 						
@@ -348,68 +340,6 @@ public class CommentsController extends BaseController{
 				}
 			});
 		}
-	}
-	
-	//retun array of comments from wp response
-	private Comment[] buildCommentsArray(Vector respVector){
-		
-		if( respVector == null )
-			return new Comment[0];
-		
-		Comment[] myCommentsList =new Comment[respVector.size()]; //my comment object list
-		
-		for (int i = 0; i < respVector.size(); i++) {
-			 Hashtable returnCommentData = (Hashtable)respVector.elementAt(i);
-			 
-			
-			Comment comment = new Comment();
-			 
-			int commentID=Integer.parseInt((String)returnCommentData.get("comment_id"));
-	        int commentParent=Integer.parseInt((String) returnCommentData.get("parent"));
-            String status=(String) returnCommentData.get("status");
-            comment.setDate_created_gmt((Date) returnCommentData.get("date_created_gmt"));
-            comment.setUserId( (String)returnCommentData.get("user_id") ) ;
-            comment.setID(commentID);
-            comment.setParent(commentParent);
-            comment.setStatus(status);
-            comment.setContent( (String) returnCommentData.get("content") );
-            comment.setLink((String) returnCommentData.get("link"));
-            comment.setPostID(Integer.parseInt((String)returnCommentData.get("post_id")));
-            comment.setPostTitle((String) returnCommentData.get("post_title"));
-            comment.setAuthor((String) returnCommentData.get("author"));
-            comment.setAuthorEmail((String) returnCommentData.get("author_email"));
-            comment.setAuthorUrl((String) returnCommentData.get("author_url"));
-            comment.setAuthorIp((String) returnCommentData.get("author_ip"));
-            myCommentsList[i]=comment; //add comment to my return list
-
-		}
-		return myCommentsList;
-	}
-	
-	private Vector buildCommentVector(Comment[] comments){
-		Vector commentsVector= new Vector();
-		if( comments == null )
-			return commentsVector;
-		
-		for (int i = 0; i < comments.length; i++) {
-			Comment currentComment = comments[i];
-	        Hashtable hash = new Hashtable(13);
-	        hash.put("comment_id", String.valueOf(currentComment.getID()));
-	        hash.put("parent", String.valueOf(currentComment.getParent()));
-	        hash.put("status", currentComment.getStatus());
-	        hash.put("date_created_gmt", currentComment.getDate_created_gmt());
-	        hash.put("user_id", currentComment.getUserId());
-	        hash.put("content", currentComment.getContent());
-	        hash.put("link", currentComment.getLink());
-	        hash.put("post_id", String.valueOf(currentComment.getPostID()));
-	        hash.put("author", currentComment.getAuthor());
-	        hash.put("post_title", currentComment.getPostTitle());
-	        hash.put("author_email", currentComment.getAuthorEmail());
-	        hash.put("author_url", currentComment.getAuthorUrl());
-	        hash.put("author_ip", currentComment.getAuthorIp());
-	        commentsVector.addElement(hash);        
-		}
-		return commentsVector;
 	}
 	
 

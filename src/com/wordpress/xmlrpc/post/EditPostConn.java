@@ -3,6 +3,7 @@ package com.wordpress.xmlrpc.post;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import com.wordpress.io.DraftDAO;
 import com.wordpress.model.Post;
 import com.wordpress.xmlrpc.BlogConn;
 
@@ -33,7 +34,7 @@ public class EditPostConn extends BlogConn  {
 	         return;
 	        }
 
-		 	Hashtable content = buildCallData(post);
+		 	Hashtable content = DraftDAO.post2Hashtable(post);
 	        
 			Vector args = new Vector(5);
 			args.addElement(post.getId());
@@ -77,36 +78,4 @@ public class EditPostConn extends BlogConn  {
 		}
 	}
 
-	protected static Hashtable buildCallData(Post post) {
-        Hashtable content = new Hashtable();
-        if (post.getTitle() != null) {
-            content.put("title", post.getTitle());
-        }
-        if (post.getBody() != null) {
-            content.put("description", post.getBody());
-        }
-        if (post.getExtendedBody() != null) {
-            content.put("mt_text_more", post.getExtendedBody());
-        }
-        if (post.getExcerpt() != null) {
-            content.put("mt_excerpt", post.getExcerpt());
-        }
-        if (post.getAuthoredOn() != null) {
-            content.put("dateCreated", post.getAuthoredOn());
-        }
-        if (post.getTags() != null) {
-        	content.put("mt_keywords", post.getTags());
-        }
-        if (post.getStatus() != null) {
-        	content.put("post_status", post.getStatus());
-        }
-        if (post.getPassword() != null) {
-        	content.put("wp_password", post.getPassword());
-        }	        
-        
-        content.put("mt_convert_breaks", post.isConvertLinebreaksEnabled() ? "1" : "0");
-        content.put("mt_allow_comments", new Integer(post.isCommentsEnabled() ? 1 : 0));
-        content.put("mt_allow_pings", new Integer(post.isTrackbackEnabled() ? 1 : 0));
-		return content;
-	}
 }

@@ -180,12 +180,12 @@ public class PageView extends BaseView {
 		if(oldTitle == null ) { //no previous title, setting the new title  
 			if(!title.getText().trim().equals("")){
 				page.setTitle(title.getText());
-				controller.setPageAsChanged();
+				controller.setPageAsChanged(true);
 			}
 		} else {
 			if( !oldTitle.equals(title.getText()) ) { //title has changed
 				page.setTitle(title.getText());
-				controller.setPageAsChanged();
+				controller.setPageAsChanged(true);
 			}
 		}
 		
@@ -194,7 +194,7 @@ public class PageView extends BaseView {
 			String newContent= bodyTextBox.getText();
 			if(!newContent.equals(page.getDescription())){
 				page.setDescription(newContent);
-				controller.setPageAsChanged();
+				controller.setPageAsChanged(true);
 			}
 		}
 
@@ -203,14 +203,14 @@ public class PageView extends BaseView {
 		String newState= controller.getStatusKeys()[selectedStatusID];
 		if (newState != page.getPageStatus()) {
 			page.setPageStatus(newState);
-			controller.setPageAsChanged();
+			controller.setPageAsChanged(true);
 		}
 
 		//page order field: : we have used the BB isDirty method instead of manual field change check
 		if(pageOrderField.isDirty()){
 			page.setWpPageOrder(Integer.parseInt(pageOrderField.getText()));
 			pageOrderField.setDirty(false);
-			controller.setPageAsChanged();
+			controller.setPageAsChanged(true);
 		}
 		
 		//parent page field: we have used the BB isDirty method instead of manual field change check
@@ -218,7 +218,7 @@ public class PageView extends BaseView {
 			int selectedIndex = parentPageField.getSelectedIndex();
 			controller.setParentPageID(selectedIndex);
 			pageOrderField.setDirty(false);
-			controller.setPageAsChanged();
+			controller.setPageAsChanged(true);
 		}
 		
 		//page template
@@ -226,9 +226,8 @@ public class PageView extends BaseView {
 		String pageTemplate= controller.getPageTemplateKeys()[selectedTemplateFieldID];
 		if (pageTemplate != page.getWpPageTemplate()) {
 			page.setWpPageTemplate(pageTemplate);
-			controller.setPageAsChanged();
+			controller.setPageAsChanged(true);
 		}
-		
 	}
 
 

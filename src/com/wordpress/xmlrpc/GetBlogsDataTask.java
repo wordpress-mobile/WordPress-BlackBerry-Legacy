@@ -59,12 +59,10 @@ public class GetBlogsDataTask extends Observable{
 				try {
 					currentBlog.setLoadingState(BlogInfo.STATE_LOADED);
 					BlogDAO.updateBlog(currentBlog);
-					listener.taskUpdate(currentBlog); //update listener task. 
 				} catch (final Exception e) {
-
-					//TODO err
-					System.out.println(e.getMessage());
+					currentBlog.setLoadingState(BlogInfo.STATE_ERROR);
 				}
+				listener.taskUpdate(currentBlog); //update listener task.
 			} else { //there was an xml-rpc error
 				Blog currentBlog =  blogConn.getBlog();
 				currentBlog.setLoadingState(BlogInfo.STATE_LOADED_WITH_ERROR);
@@ -72,13 +70,9 @@ public class GetBlogsDataTask extends Observable{
 					BlogDAO.updateBlog(currentBlog);
 					listener.taskUpdate(currentBlog); //update listener task. 
 				} catch (final Exception e) {
-					//TODO err
-					System.out.println(e.getMessage());	
+					currentBlog.setLoadingState(BlogInfo.STATE_ERROR);	
 				}
-				//TODO err
-				System.out.println(resp.getResponse());
 			}
-			
 			next(); // call to next
 		}
 	}

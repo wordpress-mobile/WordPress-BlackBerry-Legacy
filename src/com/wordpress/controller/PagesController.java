@@ -118,7 +118,6 @@ public class PagesController extends BaseController{
 	public void newPage() {
 		if (currentBlog != null) {
 			Page page =new Page();
-			//TODO add other page info here...?
 			PageController ctrl=new PageController(currentBlog, page);
 			ctrl.showView();
 		}
@@ -131,7 +130,6 @@ public class PagesController extends BaseController{
 	
 	public void refreshPagesList() {
 		System.out.println(">>>refreshPosts");
-		Preferences prefs = Preferences.getIstance();
         final GetPagesConn connection = new GetPagesConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
         		currentBlog.getPassword(),  Integer.parseInt(currentBlog.getId()));
         

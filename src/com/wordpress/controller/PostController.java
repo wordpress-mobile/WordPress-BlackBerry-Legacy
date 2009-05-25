@@ -17,7 +17,6 @@ import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
-import com.wordpress.model.PostState;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
@@ -53,7 +52,7 @@ public class PostController extends BlogObjectController {
 	private Post post=null;
 	private int draftPostFolder=-1; //identify draft post folder
 	private boolean isDraft= false; // identify if post is loaded from draft folder
-    private PostState postState = new PostState(); //the state of post. track changes on post..
+    private boolean isModified = false; //the state of post. track changes on post..
 	
 	private String[] postStatusKey; // = {"draft, pending, private, publish, localdraft"};
 	private String[] postStatusLabel; 
@@ -123,12 +122,12 @@ public class PostController extends BlogObjectController {
 	}
 	
 	
-	public void setPostAsChanged() {
-		postState.setModified(true);
+	public void setPostAsChanged(boolean value) {
+		isModified = value;
 	}
 	
 	public boolean isPostChanged() {
-		return postState.isModified();
+		return isModified;
 	}
 	
 	public String[] getStatusLabels() {
@@ -218,12 +217,12 @@ public class PostController extends BlogObjectController {
 		}
 		
 		view.updateCategoriesField(); 	//refresh the label field that contains cats..
-		postState.setModified(true);
+		setPostAsChanged(true);
 	}
 
 	public void sendPostToBlog() {
 		
-		if (!postState.isModified()) { //post without change
+		if (!isPostChanged()) { //post without change
 			return;
 		}
 		if(post.getStatus().equals(LOCAL_DRAFT_KEY)) {
@@ -252,7 +251,6 @@ public class PostController extends BlogObjectController {
 				sender.addConn(connection);
 			}
 		}
-
 		
 		//adding post connection
 		BlogConn connection;
@@ -293,7 +291,7 @@ public class PostController extends BlogObjectController {
 	public void saveDraftPost() {
 		try {
 		 draftPostFolder = DraftDAO.storePost(post, draftPostFolder);
-		 postState.setModified(false); //set the post as not modified because we have saved it.
+		 setPostAsChanged(false); //set the post as not modified because we have saved it.
 		 this.isDraft = true; //set as draft
 		} catch (Exception e) {
 			displayError(e,"Error while saving draft post!");
@@ -302,7 +300,7 @@ public class PostController extends BlogObjectController {
 			
 	public boolean dismissView() {
 		
-		if( postState.isModified() ) {
+		if( isPostChanged() ) {
 	    	int result=this.askQuestion("Changes Made, are sure to close this screen?");   
 	    	if(Dialog.YES==result) {
 	    		try {
@@ -338,20 +336,20 @@ public class PostController extends BlogObjectController {
 		if(post.getAuthoredOn() != null ) {
 			if ( post.getAuthoredOn().getTime() != authoredOn ) {
 				post.setAuthoredOn(authoredOn);
-				postState.setModified(true);
+				setPostAsChanged(true);
 			}
 		} else {
 			post.setAuthoredOn(authoredOn);
-			postState.setModified(true);
+			setPostAsChanged(true);
 		}
 		
 		if( post.getPassword() != null && !post.getPassword().equalsIgnoreCase(password) ){
 			post.setPassword(password);
-			postState.setModified(true);
+			setPostAsChanged(true);
 		} else {
 			if(post.getPassword()== null ){
 				post.setPassword(password);
-				postState.setModified(true);
+				setPostAsChanged(true);
 			}
 		}
 	}
@@ -361,6 +359,7 @@ public class PostController extends BlogObjectController {
 		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
 	 
+	/*
 	public void showPreview(){
 		Preferences prefs = Preferences.getIstance();
 		GetTemplateConn connection = new GetTemplateConn (post.getBlog().getXmlRpcUrl(), 
@@ -381,6 +380,7 @@ public class PostController extends BlogObjectController {
 		}
 		
 	}
+	*/
 	
 	public void showCategoriesView(){			
 		catView= new PostCategoriesView(this, post.getBlog().getCategories(), post.getCategories());

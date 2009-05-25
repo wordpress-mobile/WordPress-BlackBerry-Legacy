@@ -3,6 +3,7 @@ package com.wordpress.xmlrpc.post;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import com.wordpress.io.DraftDAO;
 import com.wordpress.model.Post;
 import com.wordpress.xmlrpc.BlogConn;
 
@@ -34,7 +35,7 @@ public class NewPostConn extends BlogConn  {
 	         return;
 	        }
 		 
-		 	Hashtable content = EditPostConn.buildCallData(post);
+		 	Hashtable content = DraftDAO.post2Hashtable(post);
 
 	        Vector args = new Vector(5);
 	        args.addElement(post.getBlog().getId());

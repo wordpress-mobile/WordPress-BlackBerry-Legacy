@@ -1,6 +1,5 @@
 package com.wordpress.controller;
 
-import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -93,15 +92,14 @@ public class PostsController extends BaseController{
 			
 			Hashtable postData = (Hashtable) currentBlog.getRecentPostTitles().elementAt(selected);
 						
-			Post  post = new Post(currentBlog,(String) postData.get("postid"),
+			/*Post  post = new Post(currentBlog,(String) postData.get("postid"),
                                       (String) postData.get("title"),
                                       (String) postData.get("userid"),
                                       (Date) postData.get("dateCreated"));
-			
-			Preferences prefs = Preferences.getIstance();
+			*/
 	        
 			final GetPostConn connection = new GetPostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
-	        		currentBlog.getPassword(), post);
+	        		currentBlog.getPassword(), currentBlog, (String) postData.get("postid"));
 	        
 	        connection.addObserver(new loadPostCallBack());  
 	        connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONN_LOADING_POST));

@@ -206,4 +206,75 @@ public class DraftDAO implements BaseDAO{
 		return false;
 	}
 	
+	public static synchronized Hashtable post2Hashtable(Post post) {
+		
+        Hashtable content = new Hashtable();
+        if (post.getTitle() != null) {
+            content.put("title", post.getTitle());
+        }
+        if (post.getBody() != null) {
+            content.put("description", post.getBody());
+        }
+        if (post.getExtendedBody() != null) {
+            content.put("mt_text_more", post.getExtendedBody());
+        }
+        if (post.getExcerpt() != null) {
+            content.put("mt_excerpt", post.getExcerpt());
+        }
+        if (post.getAuthoredOn() != null) {
+            //content.put("dateCreated", post.getAuthoredOn());
+        	content.put("date_created_gmt", post.getAuthoredOn());
+        }
+        if (post.getTags() != null) {
+        	content.put("mt_keywords", post.getTags());
+        }
+        if (post.getStatus() != null) {
+        	content.put("post_status", post.getStatus());
+        }
+        if (post.getPassword() != null) {
+        	content.put("wp_password", post.getPassword());
+        }	        
+        
+        content.put("mt_convert_breaks", post.isConvertLinebreaksEnabled() ? "1" : "0");
+        content.put("mt_allow_comments", new Integer(post.isCommentsEnabled() ? 1 : 0));
+        content.put("mt_allow_pings", new Integer(post.isTrackbackEnabled() ? 1 : 0));
+		return content;
+	}	
+	
+	public static synchronized Post hashtable2Post(Hashtable postData, Blog blog) {
+		Post aPost = new Post(blog);
+			
+        if( postData.get("postid") instanceof String) {
+        	aPost.setId((String) postData.get("postid"));
+        } else {
+        	aPost.setId(String.valueOf(postData.get("postid")));
+        }
+        aPost.setTitle((String) postData.get("title"));
+        aPost.setAuthor((String) postData.get("userid"));
+        aPost.setBody((String) postData.get("description"));
+        aPost.setExtendedBody((String) postData.get("mt_text_more"));
+        aPost.setExcerpt((String) postData.get("mt_excerpt"));
+        //aPost.setAuthoredOn(((Date) postData.get("dateCreated")).getTime());
+        //date_created_gmt
+        aPost.setAuthoredOn(((Date) postData.get("date_created_gmt")).getTime());
+        
+        aPost.setTags( (String) postData.get("mt_keywords"));
+        aPost.setPassword((String) postData.get("wp_password"));
+        aPost.setStatus((String) postData.get("post_status"));
+        
+        String breaks = (String) postData.get("mt_convert_breaks");
+        if (breaks != null && !breaks.equals("__default__")) {
+            aPost.setConvertLinebreaksEnabled(breaks.equals("1"));
+        }
+        
+        Integer comments = (Integer) postData.get("mt_allow_comments");
+        if (comments != null) {
+            aPost.setCommentsEnabled(comments.intValue() != 0);
+        }
+        Integer trackback = (Integer) postData.get("mt_allow_pings");
+        if (trackback != null) {
+            aPost.setTrackbackEnabled(trackback.intValue() != 0);
+        }
+        return aPost;
+	}
 }

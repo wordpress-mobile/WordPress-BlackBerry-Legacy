@@ -77,15 +77,9 @@ public class SendPageDataTask {
 		executionQueue.push(blogConn);
 	}
 	
-	private byte[] getPhotosBytes(String key) {
+	private byte[] getPhotosBytes(String key) throws IOException, RecordStoreException {
 		byte[] data;
-
-		try {
-			data = PageDAO.loadPagePhoto(blog, draftPageFolder, key);
-		} catch (Exception e) {
-			//TODO err
-			return null;
-		}
+		data = PageDAO.loadPagePhoto(blog, draftPageFolder, key);
 		EncodedImage img = EncodedImage.createEncodedImage(data, 0, -1);
 		return img.getData();
 	}
@@ -98,12 +92,23 @@ public class SendPageDataTask {
 
 		private void next() {
 			
-			if (!executionQueue.isEmpty() && stopping == false) {
+			if (!executionQueue.isEmpty() && stopping == false && isError == false) {
 				BlogConn blogConn = (BlogConn) executionQueue.pop();
 				if(blogConn instanceof NewMediaObjectConn) {
 					String fileName = ((NewMediaObjectConn) blogConn).getFileName();
-					byte[] photosBytes = getPhotosBytes(fileName);
-					((NewMediaObjectConn) blogConn).setFileContent(photosBytes);					
+					
+					byte[] photosBytes;
+					try {
+						photosBytes = getPhotosBytes(fileName);
+						((NewMediaObjectConn) blogConn).setFileContent(photosBytes);
+					} catch (Exception e) {
+						final String respMessage=e.getMessage();
+						errorMessage.append(respMessage+"\n");
+						isError=true;
+						next(); 
+						return;
+					}
+					
 				} else {
 					
 					//adding multimedia info to post
@@ -131,6 +136,7 @@ public class SendPageDataTask {
 				
 				blogConn.addObserver(this);
 				blogConn.startConnWork();
+				
 			} else {
 				taskCompleted = true; 
 				
@@ -160,7 +166,6 @@ public class SendPageDataTask {
 						final String url=(String)content.get("url");
 						remoteFileInfo.put(content.get("file"), url);
 					} else {
-					//response from post
 						
 						//delete page from draft after sending
 						try {
@@ -168,9 +173,11 @@ public class SendPageDataTask {
 						} catch (IOException e) {
 							final String respMessage=e.getMessage();
 							errorMessage.append(respMessage+"\n");
+							isError=true;
 						} catch (RecordStoreException e) {
 							final String respMessage=e.getMessage();
 							errorMessage.append(respMessage+"\n");
+							isError=true;
 						}
 					}
 				}

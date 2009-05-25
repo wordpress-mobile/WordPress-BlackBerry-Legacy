@@ -15,8 +15,6 @@ import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Page;
-import com.wordpress.model.PostState;
-import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.observer.Observable;
@@ -58,10 +56,9 @@ public class PageController extends BlogObjectController {
 	public static final int PHOTO=1;
 	public static final int BROWSER=4;
 	
-	private Preferences prefs = Preferences.getIstance();
 	private Page page=null; //page object
 	private final Blog blog;
-	private PostState postState = new PostState(); //the state of post. track changes on post..
+    private boolean isModified = false; //the state of page. track changes on post..
 	
 	//used when new page/edit page
 	public PageController(Blog blog, Page page) {
@@ -150,6 +147,7 @@ public class PageController extends BlogObjectController {
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 	
+		
 	public String[] getParentPagesTitle() {
 		String[] titles = new String[remotePages.length+1];
 		for (int i = 0; i < remotePages.length; i++) {
@@ -199,13 +197,12 @@ public class PageController extends BlogObjectController {
 		return 0; 
 	}
 
-
-	public void setPageAsChanged() {
-		postState.setModified(true);
+	public void setPageAsChanged(boolean value) {
+		isModified = value;
 	}
 	
 	public boolean isPageChanged() {
-		return postState.isModified();
+		return isModified;
 	}
 	
 	public String[] getStatusLabels() {
@@ -234,7 +231,7 @@ public class PageController extends BlogObjectController {
 
 	public void sendPageToBlog() {
 		
-		if (!postState.isModified()) { //post without change
+		if (!isPageChanged()) { //page without change
 			return;
 		}
 		
@@ -304,7 +301,7 @@ public class PageController extends BlogObjectController {
 	public void saveDraftPage() {
 		try {
 		 draftPageFolder = PageDAO.storePage(blog, page, draftPageFolder);
-		 postState.setModified(false); //set the post as not modified because we have saved it.
+		 setPageAsChanged(false); //set the post as not modified because we have saved it.
 		 this.isDraft = true; //set as draft
 		} catch (Exception e) {
 			displayError(e,"Error while saving draft page!");
@@ -313,7 +310,7 @@ public class PageController extends BlogObjectController {
 			
 	public boolean dismissView() {
 		
-		if( postState.isModified() ) {
+		if( isPageChanged() ) {
 	    	int result=this.askQuestion("Changes Made, are sure to close this screen?");   
 	    	if(Dialog.YES==result) {
 	    		try {
@@ -349,34 +346,29 @@ public class PageController extends BlogObjectController {
 		if(page.getDateCreatedGMT() != null ) {
 			if ( page.getDateCreatedGMT().getTime() != authoredOn ) {
 				page.setDateCreatedGMT(new Date(authoredOn));
-				postState.setModified(true);
+				setPageAsChanged(true);
 			}
 		} else {
 			page.setDateCreatedGMT(new Date(authoredOn));
-			postState.setModified(true);
+			setPageAsChanged(true);
 		}
 		
 		if( page.getWpPassword() != null && !page.getWpPassword().equalsIgnoreCase(password) ){
 			page.setWpPassword(password);
-			postState.setModified(true);
+			setPageAsChanged(true);
 		} else {
 			if(page.getWpPassword()== null ){
 				page.setWpPassword(password);
-				postState.setModified(true);
+				setPageAsChanged(true);
 			}
 		}
 	}
 	
 	public void showSettingsView(){			
-		settingsView= new PostSettingsView(this, page.getDateCreated(), page.getWpPassword());		
+		settingsView= new PostSettingsView(this, page.getDateCreatedGMT(), page.getWpPassword());		
 		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
 	 
-	public void showPreview(){
-		
-		
-	}
-
 	/*
 	 * set photos number on main post vire
 	 */
