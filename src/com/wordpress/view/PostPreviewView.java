@@ -1,12 +1,12 @@
 package com.wordpress.view;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 import javax.microedition.io.InputConnection;
 
@@ -16,40 +16,50 @@ import net.rim.device.api.browser.field.Event;
 import net.rim.device.api.browser.field.RedirectEvent;
 import net.rim.device.api.browser.field.RenderingApplication;
 import net.rim.device.api.browser.field.RenderingException;
+import net.rim.device.api.browser.field.RenderingOptions;
 import net.rim.device.api.browser.field.RenderingSession;
 import net.rim.device.api.browser.field.RequestedResource;
 import net.rim.device.api.browser.field.UrlRequestedEvent;
 import net.rim.device.api.io.http.HttpHeaders;
-import net.rim.device.api.io.http.HttpProtocolConstants;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Status;
-import net.rim.device.api.util.StringUtilities;
 
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
+import com.wordpress.utils.SecondaryResourceFetchThread;
+import com.wordpress.view.dialog.ConnectionInProgressView;
 
 public class PostPreviewView  extends BaseView implements RenderingApplication {
-
-	 private static final String REFERER = "referer";   
-	    
-	    private RenderingSession _renderingSession;   
-	    private InputConnection  _currentConnection;
+	ConnectionInProgressView connectionProgressView=null;
 	
-	public PostPreviewView(String title) {
-		super(title);
-		
-        _renderingSession = RenderingSession.getNewInstance();
+	private static final String REFERER = "referer";   
+	private RenderingSession _renderingSession;   
+	private InputConnection  _currentConnection;
+	
+	public PostPreviewView(String html) {
+		super(_resources.getString(WordPressResource.TITLE_POSTVIEW));
+				
         
+		_renderingSession = RenderingSession.getNewInstance();        
         // Enable javascript.
-        //_renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID, RenderingOptions.JAVASCRIPT_ENABLED, true);                        
-        
-        PrimaryResourceFetchThread thread = new PrimaryResourceFetchThread("http://www.google.com", null, null, null, this);
-        thread.start();      
-			
+       // _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.JAVASCRIPT_ENABLED, true);
+		
+		_renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ENABLE_CSS, true);
+        _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.CSS_MEDIA_TYPE, "screen");
+        _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ENABLE_IMAGE_SAVING, false);
+        _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ENABLE_AUDIO_SAVING, false);
+         
+        _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ADD_IMAGE_ADDRESS_MENU_ITEM, false);
+        _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ADD_LINK_ADDRESS_MENU_ITEM, false);
+        _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ALLOW_POPUPS, false);
+                        
+        PrimaryResourceFetchThread thread = new PrimaryResourceFetchThread(html, null, this);
+        thread.start();       
 	}
-
+	
    
 	  public void processConnection(InputConnection connection, Event e) 
 	    {
@@ -79,6 +89,7 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 	                
 	                if (field != null) 
 	                {
+	                	field.setMargin(margins);
 	                    synchronized (Application.getEventLock()) 
 	                    {
 	                        deleteAll();
@@ -88,7 +99,6 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 	                
 	                browserContent.finishLoading();
 	            }
-	                                                         
 	        } 
 	        catch (RenderingException re) 
 	        {
@@ -96,7 +106,7 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 	        } 
 	        finally 
 	        {
-	          //  SecondaryResourceFetchThread.doneAddingImages();
+	           SecondaryResourceFetchThread.doneAddingImages();
 	        }
 	        
 	    }    
@@ -116,12 +126,12 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 	                String absoluteUrl = urlRequestedEvent.getURL();
 	    
 	                HttpConnection conn = null;
-	                PrimaryResourceFetchThread thread = new PrimaryResourceFetchThread(urlRequestedEvent.getURL(),
+	             /*   PrimaryResourceFetchThread thread = new PrimaryResourceFetchThread(urlRequestedEvent.getURL(),
 	                                                                                         urlRequestedEvent.getHeaders(), 
 	                                                                                         urlRequestedEvent.getPostData(),
 	                                                                                         event, this);
 	                thread.start();
-	    
+	    */
 	                break;
 
 	            } 
@@ -188,8 +198,8 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 	                    
 	                    HttpHeaders requestHeaders = new HttpHeaders();
 	                    requestHeaders.setProperty(REFERER, referrer);
-	                    PrimaryResourceFetchThread thread = new PrimaryResourceFetchThread(e.getLocation(), requestHeaders,null, event, this);
-	                    thread.start();
+	                 //   PrimaryResourceFetchThread thread = new PrimaryResourceFetchThread(e.getLocation(), requestHeaders,null, event, this);
+	                   // thread.start();
 	                    break;
 
 	            } 
@@ -274,7 +284,7 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 	        // If referrer is null we must return the connection.
 	        if (referrer == null) 
 	        {
-	            HttpConnection connection = makeConnection(resource.getUrl(), resource.getRequestHeaders(), null);
+	            HttpConnection connection = SecondaryResourceFetchThread.makeConnection(resource.getUrl(), resource.getRequestHeaders(), null);
 	            
 	            return connection;
 	            
@@ -282,7 +292,7 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 	        else 
 	        {
 	            // If referrer is provided we can set up the connection on a separate thread.
-	           // SecondaryResourceFetchThread.enqueue(resource, referrer);
+	           SecondaryResourceFetchThread.enqueue(resource, referrer);
 	        }
 
 	        return null;
@@ -304,120 +314,33 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 	}
 	
 	
-	  public static HttpConnection makeConnection(String url, HttpHeaders requestHeaders, byte[] postData) 
-	    {
-	        HttpConnection conn = null;
-	        OutputStream out = null;
-	        
-	        try 
-	        {
-	           conn = (HttpConnection) Connector.open(url);           
-
-	        	
-	            if (requestHeaders != null) 
-	            {
-	                // From
-	                // http://www.w3.org/Protocols/rfc2616/rfc2616-sec15.html#sec15.1.3
-	                //
-	                // Clients SHOULD NOT include a Referer header field in a (non-secure) HTTP 
-	                // request if the referring page was transferred with a secure protocol.
-	                String referer = requestHeaders.getPropertyValue("referer");
-	                boolean sendReferrer = true;
-	                
-	                if (referer != null && StringUtilities.startsWithIgnoreCase(referer, "https:") && !StringUtilities.startsWithIgnoreCase(url, "https:")) 
-	                {             
-	                    sendReferrer = false;
-	                }
-	                
-	                int size = requestHeaders.size();
-	                for (int i = 0; i < size;) 
-	                {                    
-	                    String header = requestHeaders.getPropertyKey(i);
-	                    
-	                    // Remove referer header if needed.
-	                    if ( !sendReferrer && header.equals("referer")) 
-	                    {
-	                        requestHeaders.removeProperty(i);
-	                        --size;
-	                        continue;
-	                    }
-	                    
-	                    String value = requestHeaders.getPropertyValue( i++ );
-	                    if (value != null) 
-	                    {
-	                        conn.setRequestProperty( header, value);
-	                    }
-	                }                
-	            }                          
-	            
-	            if (postData == null) 
-	            {
-	                conn.setRequestMethod(HttpConnection.GET);
-	            } 
-	            else 
-	            {
-	                conn.setRequestMethod(HttpConnection.POST);
-
-	                conn.setRequestProperty(HttpProtocolConstants.HEADER_CONTENT_LENGTH, String.valueOf(postData.length));
-
-	                out = conn.openOutputStream();
-	                out.write(postData);
-
-	            }
-
-	        } 
-	        catch (IOException e1) 
-	        {
-	        } 
-	        finally 
-	        {
-	            if (out != null) 
-	            {
-	                try 
-	                {
-	                    out.close();
-	                } 
-	                catch (IOException e2) 
-	                {
-	                }
-	            }
-	        }    
-	        
-	        return conn;
-	    }
-	
 	private class PrimaryResourceFetchThread extends Thread 
 	{
 	    
 	    private PostPreviewView _application;
 	    private Event _event;
-	    private byte[] _postData;
-	    private HttpHeaders _requestHeaders;
-	    private String _url;
+		private final String html;
 	    
-	    PrimaryResourceFetchThread(String url, HttpHeaders requestHeaders, byte[] postData, 
-	                                  Event event, PostPreviewView application) 
+	    PrimaryResourceFetchThread(String html, Event event, PostPreviewView application) 
 	    {
-	        _url = url;
-	        _requestHeaders = requestHeaders;
-	        _postData = postData;
-	        _application = application;
+	        this.html = html;
+			_application = application;
 	        _event = event;
 	    }
 
 	    public void run() 
 	    {
-	        //HttpConnection connection = makeConnection(_url, _requestHeaders, _postData);
-	    	HttpConnection connection = new TestInputConn2http();
+	    	HttpConnection connection = new HttpConnOnString(html);
 	        _application.processConnection(connection, _event);        
 	    }
 	    
 	}
 	
-	class TestInputConn2http implements HttpConnection {
+	private class HttpConnOnString implements HttpConnection {
+		private InputStream is = null;
 
-		public TestInputConn2http(){
-			
+		public HttpConnOnString(String html){
+			is = new ByteArrayInputStream(html.getBytes());
 		}
 		
 		public long getDate() throws IOException {
@@ -462,111 +385,86 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 		}
 
 		public String getHost() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		public long getLastModified() throws IOException {
-			// TODO Auto-generated method stub
 			return 0;
 		}
 
 		public int getPort() {
-			// TODO Auto-generated method stub
 			return 0;
 		}
 
 		public String getProtocol() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		public String getQuery() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		public String getRef() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		public String getRequestMethod() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		public String getRequestProperty(String key) {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		public int getResponseCode() throws IOException {
-			// TODO Auto-generated method stub
-			return 0;
+			return 200;
 		}
 
 		public String getResponseMessage() throws IOException {
-			// TODO Auto-generated method stub
-			return null;
+			return "OK";
 		}
 
 		public String getURL() {
-			// TODO Auto-generated method stub
-			return null;
+			return "";
 		}
 
 		public void setRequestMethod(String method) throws IOException {
-			// TODO Auto-generated method stub
 			
 		}
 
 		public void setRequestProperty(String key, String value)
 				throws IOException {
-			// TODO Auto-generated method stub
 			
 		}
 
 		public String getEncoding() {
-			// TODO Auto-generated method stub
-			return "text/html";
+			return "UTF-8";
 		}
 
 		public long getLength() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-
-		public String getType() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		public DataInputStream openDataInputStream() throws IOException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		public InputStream openInputStream() throws IOException {
-			
-	         Class classs;
 			try {
-				classs = Class.forName("com.wordpress.view.PostPreviewView.TestInputConn2http");
-	            //to actually retrieve the resource prefix the name of the file with a "/"
-	            InputStream is = classs.getResourceAsStream("/defaultPostTemplate.html");
-	            
-	            return is;
-
-			} catch (ClassNotFoundException e) {
+				return is.available();
+			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			return null;
+			return 0L;
+		}
+
+		public String getType() {
+			return "text/html";
+		}
+
+		public DataInputStream openDataInputStream() throws IOException {
+			return new DataInputStream(is);
+		}
+
+		public InputStream openInputStream() throws IOException {
+			return is;
 		}
 
 		public void close() throws IOException {
-			// TODO Auto-generated method stub
+			is.close();
 			
 		}
 

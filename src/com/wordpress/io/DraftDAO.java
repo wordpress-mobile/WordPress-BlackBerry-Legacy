@@ -76,19 +76,11 @@ public class DraftDAO implements BaseDAO{
 	public static int storePost(Post draftPost, int draftId) throws IOException, RecordStoreException {
     	String draftFilePath = getPostFilePath(draftPost.getBlog(), draftId);
     	int newPostID= getDraftPostID(draftPost.getBlog(), draftId);
-    	JSR75FileSystem.createFile(draftFilePath);
-    	
+    	JSR75FileSystem.createFile(draftFilePath);    	
     	DataOutputStream out = JSR75FileSystem.getDataOutputStream(draftFilePath);
     	Serializer ser= new Serializer(out);
-    	ser.serialize(draftPost.getId());
-    	ser.serialize(draftPost.getTitle());
-    	ser.serialize(draftPost.getAuthor());
-    	ser.serialize(draftPost.getAuthoredOn());
-    	ser.serialize(draftPost.getPassword());
-    	ser.serialize(draftPost.getBody());
-    	ser.serialize(draftPost.getStatus());
-    	ser.serialize(draftPost.getCategories());
-    	ser.serialize(draftPost.getTags());
+    	Hashtable post2Hashtable = post2Hashtable(draftPost);
+    	ser.serialize(post2Hashtable);
     	out.close();
 		System.out.println("writing draft post ok");
 		return newPostID;
@@ -133,24 +125,12 @@ public class DraftDAO implements BaseDAO{
 		String blogDraftsPath=getPath(blog);
 		String draftFile = blogDraftsPath + String.valueOf(draftId);
     	DataInputStream in = JSR75FileSystem.getDataInputStream(draftFile);
-    	
+ 
     	Serializer ser= new Serializer(in);
-    	String id = (String) ser.deserialize();
-    	String title = (String) ser.deserialize();
-    	String author = (String) ser.deserialize();
-    	Date authOn = (Date) ser.deserialize();
-    	String password = (String) ser.deserialize();
-    	String body = (String) ser.deserialize();
-    	String status = (String) ser.deserialize();
-    	int[] cat = (int[])ser.deserialize();
-    	String tags = (String)ser.deserialize();
-    	Post draft= new Post(blog,id,title,author,authOn);
-    	draft.setBody(body);
-    	draft.setCategories(cat);
-    	draft.setTags(tags);
-    	draft.setPassword(password);
-    	draft.setStatus(status);
+    	Hashtable postHas = (Hashtable) ser.deserialize();
+    	Post draft = hashtable2Post(postHas, blog);
     	in.close();
+ 
     	System.out.println("loading draft post ok");
     	return draft;		
 	}
@@ -233,7 +213,10 @@ public class DraftDAO implements BaseDAO{
         }
         if (post.getPassword() != null) {
         	content.put("wp_password", post.getPassword());
-        }	        
+        }
+        if (post.getLink() != null) {
+        	content.put("link", post.getLink());
+        }	     
         
         content.put("mt_convert_breaks", post.isConvertLinebreaksEnabled() ? "1" : "0");
         content.put("mt_allow_comments", new Integer(post.isCommentsEnabled() ? 1 : 0));
@@ -261,6 +244,12 @@ public class DraftDAO implements BaseDAO{
         aPost.setTags( (String) postData.get("mt_keywords"));
         aPost.setPassword((String) postData.get("wp_password"));
         aPost.setStatus((String) postData.get("post_status"));
+        
+        
+        String link = (String) postData.get("link");
+        if (link != null ) {
+            aPost.setLink(link);
+        }
         
         String breaks = (String) postData.get("mt_convert_breaks");
         if (breaks != null && !breaks.equals("__default__")) {

@@ -158,7 +158,17 @@ public class PageView extends BaseView {
     
     private MenuItem _previewItem = new MenuItem( _resources, WordPressResource.MENUITEM_PREVIEW, 110, 10) {
         public void run() {
-        	controller.showPreview();
+        	
+        	if(title.isDirty() || bodyTextBox.isDirty() || 
+        			status.isDirty() || lblPhotoNumber.isDirty())
+        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "", lblPhotoNumber.getText());
+        	else       	
+    		if (controller.isPageChanged()) {
+    			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "", lblPhotoNumber.getText());
+    		} else {
+    			controller.startRemotePreview(page.getLink(), title.getText(), bodyTextBox.getText(), "", "", lblPhotoNumber.getText());
+    		}
+        	
         }
     };
     

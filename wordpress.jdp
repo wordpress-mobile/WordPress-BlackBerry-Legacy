@@ -78,6 +78,7 @@ src\com\wordpress\utils\observer\Observable.java
 src\com\wordpress\utils\observer\Observer.java
 src\com\wordpress\utils\PropertyUtils.java
 src\com\wordpress\utils\Queue.java
+src\com\wordpress\utils\SecondaryResourceFetchThread.java
 src\com\wordpress\utils\SimpleTimeZone.java
 src\com\wordpress\utils\StringUtils.java
 src\com\wordpress\utils\Tools.java

@@ -5,14 +5,14 @@ import javax.microedition.media.MediaException;
 import javax.microedition.media.Player;
 import javax.microedition.media.control.VideoControl;
 
+import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.component.BitmapField;
-import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
-import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.container.VerticalFieldManager;
 
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
 import com.wordpress.model.Preferences;
@@ -22,22 +22,20 @@ import com.wordpress.view.BaseView;
 
 public class PhotoSnapShotView extends BaseView {
 	
-	private MainScreen preview;
 	ObjectChoiceField qualityField;
+    private VerticalFieldManager _videoManager; //manager that hold the viewFiender
 	private VideoControl vc;
 	private String encoding;
 	private Player p;
 	private Field viewFinder;
-	private BitmapField bitmapField;
 	private boolean isViewfinderVisible = false;
 	
 	private Preferences prefs=Preferences.getIstance(); //main preferences object
 	private final BlogObjectController controller;
 	
 	public PhotoSnapShotView(BlogObjectController _controller) {
-		super("");
+		super(_resources.getString(WordPressResource.TITLE_SNAPSHOT_VIEW), VerticalFieldManager.USE_ALL_WIDTH | VerticalFieldManager.FIELD_HCENTER);
 		this.controller = _controller;
-		bitmapField = new BitmapField();
 		
 		String[] choices = MultimediaUtils.getSupportedPhotoFormat();    
 		qualityField = new ObjectChoiceField("Quality", choices);
@@ -48,45 +46,75 @@ public class PhotoSnapShotView extends BaseView {
         		qualityField.setSelectedIndex(i);
     	 	}
 		}
-      
-		add(qualityField);
-		addMenuItem(_snapshotMenuItem);
-		addMenuItem(_fullScreenMenuItem);
-		addMenuItem(_exitFullScreenMenuItem);
-		preview = new MainScreen();
-		preview.add(bitmapField);	
 		
-		try{						
-			p = Manager.createPlayer("capture://video");						
+		add(qualityField);
+				
+		try {
+			p = Manager.createPlayer("capture://video");
 			p.realize();
 			log("Player realized");
 			p.prefetch();
 			log("Player prefetched");
-			p.start();
-			log("Player started");				
+
+			//Get the Player VideoControl
 			vc = (VideoControl) p.getControl("VideoControl");
-			viewFinder = (Field)vc.initDisplayMode(VideoControl.USE_GUI_PRIMITIVE, "net.rim.device.api.ui.Field");
-			log("Initialized.");
-		} catch (Exception me){
+			
+			 //Initialize video display mode 
+			viewFinder = (Field) vc.initDisplayMode(VideoControl.USE_GUI_PRIMITIVE,	"net.rim.device.api.ui.Field");
+            
+            //Create a manager for the video field
+            _videoManager = new VerticalFieldManager(VerticalFieldManager.USE_ALL_WIDTH | VerticalFieldManager.FIELD_HCENTER);
+            _videoManager.add(viewFinder);
+            add(_videoManager);
+			
+            vc.setVisible(true);
+            isViewfinderVisible = true;
+            _videoManager.setFocus();
+            
+            p.start();
+            log("Player started");
+            
+		} catch (Exception me) {
 			controller.displayError(me, "Error during Camera Initialization");
 			log(me.getMessage());
 		}
-				
-		setupEncoding();
-		log("Active Encoding: "+encoding);
-		if(vc!=null){					
-			add(viewFinder);								
-			viewFinder.setFocus();
-			vc.setVisible(true);			
-			isViewfinderVisible=true;
-			log("Initialized ViewFinder");								
-		}else {
-			controller.displayError("VideoControl not initialized");
-			log("VideoControl not initialized");
-		}
+		
+		addMenuItem(_snapshotMenuItem);
+		addMenuItem(_fullScreenMenuItem);
+		addMenuItem(_exitFullScreenMenuItem);		
 	}
+	
+	
+    //override keyControl to handle photo snapshot
+    protected boolean keyControl(char c, int status, int time) 
+    {
+       //Handle volume up and down key presses to adjust Player volume
+       //if volume up is pressed call volumeUp() 
+        if (c == Characters.ENTER)
+        {
+        	takeSnapShot();
+            return true;
+        }
+        //else call the default keyControl handler of the super class
+        else 
+        {
+            return super.keyControl(c, status, time);
+        }
+    }
+    
+	 // Handle trackball clicks.
+	protected boolean navigationClick(int status, int time) {
+		Field fieldWithFocus = this.getFieldWithFocus();
+		if(fieldWithFocus == viewFinder) { 
+			takeSnapShot();
+			return true;
+		}
+		else 
+		 return super.navigationClick(status,time);
+	}
+	
 
-	private void setupEncoding(){
+	private void getSelectedEncoding(){
 		int selected = qualityField.getSelectedIndex();
 		encoding =	MultimediaUtils.getPhotoEncoding(selected);
 	}
@@ -94,37 +122,43 @@ public class PhotoSnapShotView extends BaseView {
 
 	private MenuItem _snapshotMenuItem = new MenuItem("Snap", 1, 1) {
 		public void run() {			
-			try {
-				log("Taking snapshot");
-				setupEncoding();
-				if(vc!=null && isViewfinderVisible){	
-					//String imageType = "encoding=jpeg&width=640&height=480&quality=superfine";
-					final byte[] imageBytes = vc.getSnapshot(encoding);
-					log("Encoding: "+encoding);
-					log("Size: " + imageBytes.length);
-					controller.addPhoto(imageBytes,System.currentTimeMillis()+".jpg");
-					controller.backCmd();
-				} else {
-					controller.displayError("Viewfinder not visible!");
-					log("Viewfinder not visible!");	
-				}
-				
-				if(isViewfinderVisible){
-					delete(viewFinder);				
-					isViewfinderVisible=false;
-				}
-			} catch(Throwable e){
-				controller.displayError(e.getMessage());
-				log(e + ":" + e.getMessage());
-			}
+			takeSnapShot();
 		}
+	
 	};
+	
+	private void takeSnapShot() {
+		try {
+			log("Taking snapshot");
+			getSelectedEncoding();
+			if(vc!=null && isViewfinderVisible){	
+				//String imageType = "encoding=jpeg&width=640&height=480&quality=superfine";
+				final byte[] imageBytes = vc.getSnapshot(encoding);
+				log("Encoding: "+encoding);
+				log("Size: " + imageBytes.length);
+				controller.addPhoto(imageBytes,System.currentTimeMillis()+".jpg");
+				onClose();
+				
+			} else {
+				controller.displayError("Viewfinder not visible!");
+				log("Viewfinder not visible!");	
+			}
+			
+			if(isViewfinderVisible){
+				_videoManager.delete(viewFinder);				
+				isViewfinderVisible=false;
+			}
+		} catch(Throwable e){
+			controller.displayError(e.getMessage());
+			log(e + ":" + e.getMessage());
+		}
+	}
 	
 	private MenuItem _fullScreenMenuItem = new MenuItem("FullScreen", 1, 1) {
 		public void run() {			
 			if(vc!=null){
 				try {					
-					vc.setDisplayFullScreen(true);
+					vc.setDisplayFullScreen(true); //The only camera preview sizes are full screen mode and the default non full screen size.
 				} catch (MediaException e) {
 					log(e.getMessage());
 				}
@@ -156,5 +190,46 @@ public class PhotoSnapShotView extends BaseView {
 		return controller;
 	}
 	
-}
+    // override onClose() to cleanup Player resources when the screen is closed
+	public boolean onClose() {
+		// Cleanup Player resources
+		// try block
+		try {
+			// Stop Player
+			if( p!= null)
+				p.stop();
+ 		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
+		if (p != null) {
+			// Close Player
+			p.close();
+			p = null;
+		} 
+		controller.backCmd();
+		return true;
+	}
+
+	//Manager to lay out the Player _videoField on the VideoScreen
+	private final class VideoManager extends net.rim.device.api.ui.Manager 
+	{
+	    public VideoManager() 
+	    {
+	        super(VerticalFieldManager.USE_ALL_WIDTH | VerticalFieldManager.FIELD_HCENTER);
+	    }
+
+	    //lay out the _videoField on the screen based on it's preferred width and height
+	    protected void sublayout(int width, int height) 
+	    {
+	        if (getFieldCount() > 0) 
+	        {
+	            Field videoField = getField(0);
+	            layoutChild(videoField, videoField.getPreferredWidth(), videoField.getPreferredHeight());
+	        }
+	        setExtent(width, height);
+	    }
+	    
+	}
+	
+}

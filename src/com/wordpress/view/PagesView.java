@@ -189,5 +189,4 @@ public class PagesView extends BaseView {
 		controller.backCmd();
 		return true;
 	}
-
 }

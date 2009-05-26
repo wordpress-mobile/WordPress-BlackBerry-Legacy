@@ -57,4 +57,17 @@ public class StringUtils {
 	  }
 		 
 	 
+	  public static String replaceAll(final String original, final String tokenToBeReplaced, final String value) {
+		    //TODO : optimize
+		    final StringBuffer result = new StringBuffer();
+		    final String[] originalSplit = split(original, tokenToBeReplaced);
+		    for (int i = 0; i < originalSplit.length; i++) {
+		      result.append(originalSplit[i]);
+		      if (i != originalSplit.length - 1) {
+		        result.append(value);
+		      }
+		    }
+		    return result.toString();
+		  }
+	  
 }

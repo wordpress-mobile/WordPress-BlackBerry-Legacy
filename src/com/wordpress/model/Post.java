@@ -25,6 +25,7 @@ public class Post {
     private String status = null;
     private String extended = "";
     private String excerpt = "";
+    private String link = null;
         
 
     public Post(Blog aBlog) {
@@ -153,6 +154,14 @@ public class Post {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public String getLink() {
+		return link;
+	}
+
+	public void setLink(String link) {
+		this.link = link;
 	}
 
 }

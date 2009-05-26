@@ -9,7 +9,6 @@ import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
-import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.DraftDAO;
@@ -34,7 +33,6 @@ import com.wordpress.view.mm.PhotoPreview;
 import com.wordpress.view.mm.PhotoSnapShotView;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
-import com.wordpress.xmlrpc.GetTemplateConn;
 import com.wordpress.xmlrpc.NewCategoryConn;
 import com.wordpress.xmlrpc.NewMediaObjectConn;
 import com.wordpress.xmlrpc.post.EditPostConn;
@@ -48,7 +46,6 @@ public class PostController extends BlogObjectController {
 	private PhotosView photoView = null;
 	private PostCategoriesView catView = null;
 	private PostSettingsView settingsView = null;
-	ConnectionInProgressView connectionProgressView=null;
 	private Post post=null;
 	private int draftPostFolder=-1; //identify draft post folder
 	private boolean isDraft= false; // identify if post is loaded from draft folder
@@ -515,32 +512,6 @@ public class PostController extends BlogObjectController {
 		//resfresh the post view. not used.
 	}
 	
-
-
-
-
-	//callback for preview
-	private class SendGetTamplateCallBack implements Observer{
-		public void update(Observable observable, final Object object) {
-			UiApplication.getUiApplication().invokeLater(new Runnable() {
-				public void run() {
-					
-					dismissDialog(connectionProgressView);
-					BlogConnResponse resp= (BlogConnResponse) object;
-					if(!resp.isError()) {
-						if(resp.isStopped()){
-							return;
-						}
-						
-					} else {
-						final String respMessage=resp.getResponse();
-					 	displayError(respMessage);	
-					}			
-				}
-			});
-		}
-	}
-	
 	
 	//callback for send post to the blog
 	private class SendNewCatCallBack implements Observer{
@@ -593,17 +564,4 @@ public class PostController extends BlogObjectController {
 			});
 		}
 	}
-	
-	/*
-	//callback for send post to the blog
-	private class getPostStatusListCallBack implements Observer{
-		public void update(Observable observable, final Object object) {
-			UiApplication.getUiApplication().invokeLater(new Runnable() {
-				public void run() {
-						
-				}
-			});
-		}
-	}
-	*/
 }

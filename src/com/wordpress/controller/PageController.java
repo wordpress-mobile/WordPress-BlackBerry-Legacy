@@ -17,8 +17,6 @@ import com.wordpress.model.Blog;
 import com.wordpress.model.Page;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
-import com.wordpress.utils.observer.Observable;
-import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.PageView;
 import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostSettingsView;
@@ -28,7 +26,6 @@ import com.wordpress.view.mm.MultimediaPopupScreen;
 import com.wordpress.view.mm.PhotoPreview;
 import com.wordpress.view.mm.PhotoSnapShotView;
 import com.wordpress.xmlrpc.BlogConn;
-import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.NewMediaObjectConn;
 import com.wordpress.xmlrpc.page.EditPageConn;
 import com.wordpress.xmlrpc.page.NewPageConn;
@@ -40,7 +37,6 @@ public class PageController extends BlogObjectController {
 	private PageView view = null;
 	private PhotosView photoView = null;
 	private PostSettingsView settingsView = null;
-	ConnectionInProgressView connectionProgressView=null;
 	private int draftPageFolder=-1; //identify draft post folder
 	private boolean isDraft= false; // identify if post is loaded from draft folder
 	
@@ -493,44 +489,4 @@ public class PageController extends BlogObjectController {
 		//resfresh the post view. not used.
 	}
 	
-
-
-
-
-	//callback for preview
-	private class SendGetTamplateCallBack implements Observer{
-		public void update(Observable observable, final Object object) {
-			UiApplication.getUiApplication().invokeLater(new Runnable() {
-				public void run() {
-					
-					dismissDialog(connectionProgressView);
-					BlogConnResponse resp= (BlogConnResponse) object;
-					if(!resp.isError()) {
-						if(resp.isStopped()){
-							return;
-						}
-						
-					} else {
-						final String respMessage=resp.getResponse();
-					 	displayError(respMessage);	
-					}			
-				}
-			});
-		}
-	}
-	
 }
-
-	/*
-	//callback for send post to the blog
-	private class getPostStatusListCallBack implements Observer{
-		public void update(Observable observable, final Object object) {
-			UiApplication.getUiApplication().invokeLater(new Runnable() {
-				public void run() {
-						
-				}
-			});
-		}
-	}
-	*/
-

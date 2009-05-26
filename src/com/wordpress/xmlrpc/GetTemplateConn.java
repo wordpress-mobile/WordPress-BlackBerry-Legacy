@@ -1,30 +1,60 @@
 package com.wordpress.xmlrpc;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.Vector;
+
+import javax.microedition.io.Connector;
+import javax.microedition.io.HttpConnection;
 
 public class GetTemplateConn extends BlogConn  {
 
-	private final int blogId;
 
-	public GetTemplateConn(String url, int blogId, String user, String pass){
-		super(url, user, pass);
-		this.blogId = blogId;
+	public GetTemplateConn(String url){
+		super(url, "", "");
 	}
+	
+	//we have overrided execute method, because there isn't xml-rpc conn, but only a simple http conn 
+	protected Object execute(String aCommand, Vector aArgs){
+		isWorking=true;
+		
+		HttpConnection conn = null;
+		String response = null;
+		
+		try {
+			conn = (HttpConnection) Connector.open(urlConnessione);
+			int rc = conn.getResponseCode();
+			if( rc == HttpConnection.HTTP_OK ){
+				
+				//read the response
+				
+				InputStream in = conn.openInputStream();
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				int c;
+				while ((c = in.read()) >= 0)
+				{
+					baos.write(c);
+				}
+				response = new String (baos.toByteArray());
+				
+			} else {
+			    // deal with errors, warnings, redirections, etc.
+				throw new Exception(""+conn.getResponseCode());
+			}
+
+		} catch (Exception e) {
+			 setErrorMessage(e, "A server communications error occured:");
+		}
+  	   System.out.println("termine richiesta HTTP-GET");
+		isWorking=false;
+		return response;
+	}
+	
 
 	public void run() {
 		try {
-			if (blogId < 0) {
-				setErrorMessage("Comment doesn't have BlogID");
-				notifyObservers(connResponse);
-				return;
-			}
-			Vector args = new Vector();
-			args.addElement("");
-			args.addElement(String.valueOf(blogId));
-			args.addElement(mUsername);
-			args.addElement(mPassword);
-			args.addElement("main");
-			Object response = execute("metaWeblog.getTemplate", args);
+			
+			Object response = execute("", null);
 
 			if(connResponse.isError()) {
 				notifyObservers(connResponse);
