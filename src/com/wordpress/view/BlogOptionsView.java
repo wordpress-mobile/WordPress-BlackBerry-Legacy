@@ -4,7 +4,6 @@ import java.util.Hashtable;
 
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
-import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.CheckboxField;
@@ -89,8 +88,8 @@ public class BlogOptionsView extends BaseView {
 			add(lblDesc);
 			
 						
-            ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK));
-            ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK));
+            ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
+            ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK),  ButtonField.CONSUME_CLICK);
     		buttonBACK.setChangeListener(blogsController.getBackButtonListener());
             buttonOK.setChangeListener(blogsController.getOkButtonListener());
             buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
@@ -100,7 +99,7 @@ public class BlogOptionsView extends BaseView {
     		add(new LabelField());
 	}
 	 
-	 // Handle trackball clicks.
+	/* // Handle trackball clicks.
 		protected boolean navigationClick(int status, int time) {
 			Field fieldWithFocus = UiApplication.getUiApplication().getActiveScreen().getFieldWithFocus();
 			if(fieldWithFocus == buttonsManager) { //focus on the bottom buttons, do not open menu on whell click
@@ -109,7 +108,7 @@ public class BlogOptionsView extends BaseView {
 			else 
 			 return super.navigationClick(status,time);
 		}
-	
+	*/
 
 	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {

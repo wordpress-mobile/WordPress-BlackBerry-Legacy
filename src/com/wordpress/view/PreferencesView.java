@@ -3,7 +3,6 @@ package com.wordpress.view;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.LabelField;
@@ -48,8 +47,8 @@ public class PreferencesView extends BaseView {
 			clientSideConn.setChangeListener(controller.getDeviceSideConnListener());
 			add(clientSideConn);
              			
-            ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK));
-            ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK));
+            ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
+            ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
     		buttonBACK.setChangeListener(controller.getBackButtonListener());
             buttonOK.setChangeListener(controller.getOkButtonListener());
             buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
@@ -129,7 +128,7 @@ public class PreferencesView extends BaseView {
 	        }
 	    };
 
-	 
+	/* 
 	 // Handle trackball clicks.
 		protected boolean navigationClick(int status, int time) {
 			Field fieldWithFocus = UiApplication.getUiApplication().getActiveScreen().getFieldWithFocus();
@@ -139,7 +138,7 @@ public class PreferencesView extends BaseView {
 			else 
 			 return super.navigationClick(status,time);
 		}
-	 
+	 */
 	    //override onClose() to display a dialog box when the application is closed    
 		public boolean onClose()   {
 	    	return controller.dismissView();

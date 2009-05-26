@@ -89,9 +89,7 @@ public class BlogView extends BaseView {
     }
     }
 
-    
- 
-    
+        
   /*
 	protected boolean keyChar(char c, int status, int time) {
 		// Close this screen if escape is selected.
@@ -104,20 +102,15 @@ public class BlogView extends BaseView {
 
 		return super.keyChar(c, status, time);
 	}
-	
-
+*/
     
 	 // Handle trackball clicks.
 	protected boolean navigationClick(int status, int time) {
-		Field fieldWithFocus = this.getFieldWithFocus();
-		if(fieldWithFocus == mainButtonsManager) { //focus on the top buttons, do not open menu on whell click
-			return true;
-		}
-		else 
-		 return super.navigationClick(status,time);
+		doSelection();
+		return true;
 	}
 
-	*/
+	
 	
 	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {

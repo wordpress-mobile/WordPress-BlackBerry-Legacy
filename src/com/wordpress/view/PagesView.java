@@ -39,11 +39,11 @@ public class PagesView extends BaseView {
 	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
 	        
 	        //setup top buttons
-	        buttonNewPost = new ButtonField(_resources.getString(WordPressResource.BUTTON_NEW));
+	        buttonNewPost = new ButtonField(_resources.getString(WordPressResource.BUTTON_NEW), ButtonField.CONSUME_CLICK);
 	        buttonNewPost.setChangeListener(listenerButton);
-	        buttonDraftPosts = new ButtonField(_resources.getString(WordPressResource.BUTTON_LOCALDRAFTS));
+	        buttonDraftPosts = new ButtonField(_resources.getString(WordPressResource.BUTTON_LOCALDRAFTS), ButtonField.CONSUME_CLICK);
 	        buttonDraftPosts.setChangeListener(listenerButton);
-	        buttonRefresh = new ButtonField(_resources.getString(WordPressResource.BUTTON_REFRESH_BLOG));
+	        buttonRefresh = new ButtonField(_resources.getString(WordPressResource.BUTTON_REFRESH_BLOG), ButtonField.CONSUME_CLICK);
 	        buttonRefresh.setChangeListener(listenerButton);
 
 	        topButtonsManager.add(buttonNewPost);
@@ -173,6 +173,7 @@ public class PagesView extends BaseView {
 		return this.controller;
 	}
 	
+	/*
 	 // Handle trackball clicks.
 	protected boolean navigationClick(int status, int time) {
 		Field fieldWithFocus = this.getFieldWithFocus();
@@ -182,7 +183,7 @@ public class PagesView extends BaseView {
 		else 
 		 return super.navigationClick(status,time);
 	}
-
+*/
 	
 	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {

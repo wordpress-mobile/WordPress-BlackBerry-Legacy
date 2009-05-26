@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.Hashtable;
 
 import net.rim.device.api.i18n.SimpleDateFormat;
-import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
@@ -252,7 +251,7 @@ public class CommentView extends BaseView {
 		return this.controller;
 	}
 
-	
+/*	
 	 // Handle trackball clicks.
 	protected boolean navigationClick(int status, int time) {
 		Field fieldWithFocus = this.getFieldWithFocus();
@@ -262,7 +261,7 @@ public class CommentView extends BaseView {
 		else 
 		 return super.navigationClick(status,time);
 	}
-
+*/
 	
 	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {

@@ -2,7 +2,6 @@ package com.wordpress.view;
 
 import java.util.Hashtable;
 
-import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.LabelField;
@@ -116,26 +115,27 @@ public class CommentsView extends BaseView {
 	}
 	
 	
-    private MenuItem _viewCommentsItem = new MenuItem( _resources, WordPressResource.MENUITEM_VIEW, 210, 100) {
+    private MenuItem _viewCommentsItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_SINGLE, 210, 100) {
     	public void run() {
     		commentListController.setCheckBoxVisible(false);
     		switchMenu();
         }
     };
 	
-    private MenuItem _editModeItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDIT, 210, 100) {
+    private MenuItem _openCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_OPEN, 210, 50) {
+    	public void run() {
+    		Comment selectedComment = getSelectedComment()[0]; //in this case return array with only one comment
+    		controller.openComment(selectedComment);
+    	}
+    };
+    
+    private MenuItem _editModeItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_MULTIPLE, 220, 100) {
     	public void run() {    		
     		commentListController.setCheckBoxVisible(true);
     		switchMenu();
     	}
     };
     
-    private MenuItem _openCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_OPEN, 220, 100) {
-        public void run() {
-        	Comment selectedComment = getSelectedComment()[0]; //in this case return array with only one comment
-        	controller.openComment(selectedComment);
-        }
-    };
 
     private MenuItem _refreshCommentsListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 220, 100) {
     	public void run() {
@@ -186,7 +186,7 @@ public class CommentsView extends BaseView {
 		return this.controller;
 	}
 
-	
+	/*
 	 // Handle trackball clicks.
 	protected boolean navigationClick(int status, int time) {
 		Field fieldWithFocus = this.getFieldWithFocus();
@@ -196,7 +196,7 @@ public class CommentsView extends BaseView {
 		else 
 		 return super.navigationClick(status,time);
 	}
-
+*/
 	
 	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {

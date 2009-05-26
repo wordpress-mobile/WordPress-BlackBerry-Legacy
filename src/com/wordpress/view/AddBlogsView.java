@@ -110,8 +110,8 @@ public class AddBlogsView extends BaseView {
 			
 			addMenuItem(_addBlogItem);
 						
-            ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK));
-            ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK));
+            ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
+            ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
     		buttonBACK.setChangeListener(addBlogsController.getBackButtonListener());
             buttonOK.setChangeListener(addBlogsController.getOkButtonListener());
             buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
@@ -121,6 +121,7 @@ public class AddBlogsView extends BaseView {
     		add(new LabelField());
 	}
 	 
+	/*
 	 // Handle trackball clicks.
 		protected boolean navigationClick(int status, int time) {
 			Field fieldWithFocus = UiApplication.getUiApplication().getActiveScreen().getFieldWithFocus();
@@ -130,7 +131,7 @@ public class AddBlogsView extends BaseView {
 			else 
 			 return super.navigationClick(status,time);
 		}
-	 
+	 */
 	    //add blog menu item 
 	    private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 140, 10) {
 	        public void run() {
