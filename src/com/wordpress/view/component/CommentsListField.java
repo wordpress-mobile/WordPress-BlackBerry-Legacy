@@ -170,7 +170,7 @@ public class CommentsListField implements ListFieldCallback {
 
 	//The menu item added to the screen when the _checkList field has focus.
     //This menu item toggles the checked/unchecked status of the selected row.
-    private MenuItem _toggleItem = new MenuItem("Change Option", 200, 10)    {
+    public MenuItem _toggleItem = new MenuItem("Change Option", 100200, 5)    {
         public void run()
         {
             //Get the index of the selected row.

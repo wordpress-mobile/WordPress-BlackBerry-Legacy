@@ -54,8 +54,6 @@ public class PostController extends BlogObjectController {
 	private String[] postStatusKey; // = {"draft, pending, private, publish, localdraft"};
 	private String[] postStatusLabel; 
 
-	public static final int PHOTO=1;
-	public static final int BROWSER=4;
 	
 	Preferences prefs = Preferences.getIstance();
 	
@@ -464,7 +462,7 @@ public class PostController extends BlogObjectController {
              fps.pickFile();
              String theFile = fps.getFile();
              if (theFile == null){
-                 Dialog.alert("Screen was dismissed. No file was selected.");
+                // Dialog.alert("Screen was dismissed. No file was selected.");
              } else {
             	 String[] fileNameSplitted = StringUtils.split(theFile, "/");
             	 String ext= fileNameSplitted[fileNameSplitted.length-1];
@@ -488,7 +486,9 @@ public class PostController extends BlogObjectController {
 	}
 	
 	public void addPhoto(byte[] data, String fileName){
-		if(fileName == null) 
+	    System.out.println("addPhoto " + fileName);
+	
+	    if(fileName == null) 
 			fileName= String.valueOf(System.currentTimeMillis()+".jpg");
 		
 		EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);

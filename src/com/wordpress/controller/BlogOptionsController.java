@@ -1,9 +1,6 @@
 package com.wordpress.controller;
 
-import java.io.IOException;
 import java.util.Hashtable;
-
-import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;

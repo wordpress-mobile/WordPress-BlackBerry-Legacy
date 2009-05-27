@@ -134,7 +134,7 @@ public class PagesController extends BaseController{
         		currentBlog.getPassword(),  Integer.parseInt(currentBlog.getId()));
         
         connection.addObserver(new refreshPageCallBack()); 
-        String connMsg=_resources.getString(WordPressResource.CONN_REFRESH_POSTLIST);
+        String connMsg=_resources.getString(WordPressResource.CONN_LOADING_PAGES);
         connectionProgressView= new ConnectionInProgressView(connMsg);
        
         connection.startConnWork(); //starts connection

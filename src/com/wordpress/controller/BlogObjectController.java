@@ -21,7 +21,11 @@ public abstract class BlogObjectController extends BaseController {
 	protected ConnectionInProgressView connectionProgressView=null;
 	
 	public abstract void setSettingsValues(long authoredOn, String password);
-		
+	
+	public static final int NONE=-1;
+	public static final int PHOTO=1;
+	public static final int BROWSER=4;
+	
 	public abstract void showAddPhotoPopUp();
 	public abstract void showEnlargedPhoto(String key);
 	public abstract void addPhoto(byte[] data, String fileName);

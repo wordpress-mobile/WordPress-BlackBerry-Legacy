@@ -7,9 +7,12 @@ import javax.microedition.media.control.VideoControl;
 
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
+import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
@@ -23,31 +26,43 @@ import com.wordpress.view.BaseView;
 public class PhotoSnapShotView extends BaseView {
 	
 	ObjectChoiceField qualityField;
-    private VerticalFieldManager _videoManager; //manager that hold the viewFiender
 	private VideoControl vc;
 	private String encoding;
 	private Player p;
 	private Field viewFinder;
 	private boolean isViewfinderVisible = false;
+	private ButtonField buttonOK;
 	
 	private Preferences prefs=Preferences.getIstance(); //main preferences object
 	private final BlogObjectController controller;
 	
 	public PhotoSnapShotView(BlogObjectController _controller) {
-		super(_resources.getString(WordPressResource.TITLE_SNAPSHOT_VIEW), VerticalFieldManager.USE_ALL_WIDTH | VerticalFieldManager.FIELD_HCENTER);
+		super(_resources.getString(WordPressResource.TITLE_SNAPSHOT_VIEW));
 		this.controller = _controller;
 		
 		String[] choices = MultimediaUtils.getSupportedPhotoFormat();    
 		qualityField = new ObjectChoiceField("Quality", choices);
 		String photoEncoding = prefs.getPhotoEncoding(); //retrive preferences from the main setup
 		//select the preference 
+		boolean flagP = false;
 		for (int i = 0; i < choices.length; i++) {
         	if(choices[i].equalsIgnoreCase(photoEncoding)){
         		qualityField.setSelectedIndex(i);
+        		flagP = true;
     	 	}
 		}
+		if(!flagP)
+			qualityField.setSelectedIndex(5);
 		
-		add(qualityField);
+		HorizontalFieldManager qualityFieldManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
+		qualityFieldManager.add(qualityField);
+		add(qualityFieldManager);
+		
+		buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK); 
+		buttonOK.setChangeListener(listenerOkButton); 
+		HorizontalFieldManager buttonsFieldManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
+		buttonsFieldManager.add(buttonOK);
+		add(buttonsFieldManager);
 				
 		try {
 			p = Manager.createPlayer("capture://video");
@@ -55,6 +70,8 @@ public class PhotoSnapShotView extends BaseView {
 			log("Player realized");
 			p.prefetch();
 			log("Player prefetched");
+			p.start();
+			log("Player started");
 
 			//Get the Player VideoControl
 			vc = (VideoControl) p.getControl("VideoControl");
@@ -63,27 +80,27 @@ public class PhotoSnapShotView extends BaseView {
 			viewFinder = (Field) vc.initDisplayMode(VideoControl.USE_GUI_PRIMITIVE,	"net.rim.device.api.ui.Field");
             
             //Create a manager for the video field
-            _videoManager = new VerticalFieldManager(VerticalFieldManager.USE_ALL_WIDTH | VerticalFieldManager.FIELD_HCENTER);
-            _videoManager.add(viewFinder);
-            add(_videoManager);
+            add(viewFinder);
 			
             vc.setVisible(true);
             isViewfinderVisible = true;
-            _videoManager.setFocus();
-            
-            p.start();
-            log("Player started");
-            
+                     
 		} catch (Exception me) {
 			controller.displayError(me, "Error during Camera Initialization");
 			log(me.getMessage());
 		}
 		
+		buttonOK.setFocus();
 		addMenuItem(_snapshotMenuItem);
 		addMenuItem(_fullScreenMenuItem);
 		addMenuItem(_exitFullScreenMenuItem);		
 	}
 	
+	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
+	    public void fieldChanged(Field field, int context) {
+	    	takeSnapShot();
+	   }
+	};
 	
     //override keyControl to handle photo snapshot
     protected boolean keyControl(char c, int status, int time) 
@@ -105,7 +122,7 @@ public class PhotoSnapShotView extends BaseView {
 	 // Handle trackball clicks.
 	protected boolean navigationClick(int status, int time) {
 		Field fieldWithFocus = this.getFieldWithFocus();
-		if(fieldWithFocus == viewFinder) { 
+		if(fieldWithFocus == buttonOK) { 
 			takeSnapShot();
 			return true;
 		}
@@ -116,7 +133,10 @@ public class PhotoSnapShotView extends BaseView {
 
 	private void getSelectedEncoding(){
 		int selected = qualityField.getSelectedIndex();
+		System.out.println("selected img quality index: "+selected);
+	
 		encoding =	MultimediaUtils.getPhotoEncoding(selected);
+		System.out.println("selected img quality: "+ encoding);
 	}
 	
 
@@ -131,12 +151,20 @@ public class PhotoSnapShotView extends BaseView {
 		try {
 			log("Taking snapshot");
 			getSelectedEncoding();
-			if(vc!=null && isViewfinderVisible){	
-				//String imageType = "encoding=jpeg&width=640&height=480&quality=superfine";
-				final byte[] imageBytes = vc.getSnapshot(encoding);
+			
+			if( vc != null && isViewfinderVisible){	
 				log("Encoding: "+encoding);
+
+				final byte[] imageBytes = vc.getSnapshot(encoding);
+				controller.addPhoto(imageBytes, System.currentTimeMillis()+".jpg");
+
 				log("Size: " + imageBytes.length);
-				controller.addPhoto(imageBytes,System.currentTimeMillis()+".jpg");
+
+				if(isViewfinderVisible){
+					delete(viewFinder);				
+					isViewfinderVisible=false;
+				}
+				
 				onClose();
 				
 			} else {
@@ -144,12 +172,8 @@ public class PhotoSnapShotView extends BaseView {
 				log("Viewfinder not visible!");	
 			}
 			
-			if(isViewfinderVisible){
-				_videoManager.delete(viewFinder);				
-				isViewfinderVisible=false;
-			}
-		} catch(Throwable e){
-			controller.displayError(e.getMessage());
+		} catch(Exception e){
+			controller.displayError(e, "Error while take photo, have you changed application permission settings?");
 			log(e + ":" + e.getMessage());
 		}
 	}

@@ -49,9 +49,6 @@ public class PageController extends BlogObjectController {
 	
 	private Page[] remotePages; //the page on the blog
 	
-	public static final int PHOTO=1;
-	public static final int BROWSER=4;
-	
 	private Page page=null; //page object
 	private final Blog blog;
     private boolean isModified = false; //the state of page. track changes on post..
@@ -440,7 +437,7 @@ public class PageController extends BlogObjectController {
              fps.pickFile();
              String theFile = fps.getFile();
              if (theFile == null){
-                 Dialog.alert("Screen was dismissed. No file was selected.");
+                // Dialog.alert("Screen was dismissed. No file was selected.");
              } else {
             	 String[] fileNameSplitted = StringUtils.split(theFile, "/");
             	 String ext= fileNameSplitted[fileNameSplitted.length-1];

@@ -5,8 +5,6 @@ import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
-import net.rim.device.api.ui.FocusChangeListener;
-import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.LabelField;
@@ -16,7 +14,6 @@ import net.rim.device.api.ui.container.PopupScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
-import com.wordpress.controller.MultimediaController;
 import com.wordpress.controller.PostController;
 import com.wordpress.utils.MultimediaUtils;
 
@@ -49,6 +46,7 @@ public class MultimediaPopupScreen extends PopupScreen {
         
         HorizontalFieldManager hManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
         if(MultimediaUtils.isPhotoCaptureSupported()) {
+      //  if(true){
 	    	Bitmap _bitmapCamera = Bitmap.getBitmapResource("camera.png");
 	    	bitmapFieldCamera = new BitmapField(_bitmapCamera, Field.NON_FOCUSABLE | Field.FIELD_HCENTER);
 	    	buttonCamera= new ButtonField("Take Photo with Camera");
@@ -65,19 +63,7 @@ public class MultimediaPopupScreen extends PopupScreen {
     	hManager2.add(bitmapBrowser);
     	hManager2.add(buttonBrowser);
     	
-    	//Bitmap _bitmapSound = Bitmap.getBitmapResource("sound.png");
-    	//Bitmap _bitmapVideo = Bitmap.getBitmapResource("video.png");
-    	//bitmapFieldSound = new BitmapField(_bitmapSound, Field.FOCUSABLE | Field.FIELD_HCENTER);
-    	//bitmapVideo = new BitmapField(_bitmapVideo, Field.FOCUSABLE | Field.FIELD_HCENTER);
-    	
-    	/*bitmapFieldCamera.setFocusListener(this);
-    	bitmapFieldSound.setFocusListener(this);
-    	bitmapVideo.setFocusListener(this);
-    	bitmapBrowser.setFocusListener(this);*/
-		    	
-    	//hManager.add(bitmapFieldSound);
-    	//hManager.add(bitmapVideo);
-    	//hManager.add(bitmapBrowser);
+
         add(hManager);
         add(hManager2);
     }
@@ -97,54 +83,16 @@ public class MultimediaPopupScreen extends PopupScreen {
     public int getResponse() {
         return response;
     }
-    
-    /*
-    public void focusChanged(Field field, int eventType) {
-		if (eventType == FOCUS_GAINED) {
+        
 
-			Field fieldWithFocus = field.getOriginal();
-			if (fieldWithFocus != null) {
-				if (fieldWithFocus == bitmapFieldCamera) {
-					response = MultimediaController.PHOTO;
-				} else if (fieldWithFocus == bitmapFieldSound) {
-					response = MultimediaController.AUDIO;
-				} else if (fieldWithFocus == bitmapVideo) {
-					response = MultimediaController.VIDEO; 
-				} else if (fieldWithFocus == bitmapBrowser) {
-					response = MultimediaController.BROWSER;
-				} else {
-					response = -1;
-				}
-			} else {
-				response = -1;
-			}
-		}
-	}
-	*/
-    
-    /*
-    private void doSelection(){
-    	this.close();
-    }
-    
- // Handle trackball clicks.
-	protected boolean navigationClick(int status, int time) {
-		doSelection();
-		return true;
-	}
-*/
-/*	protected boolean keyChar(char c, int status, int time) {
+	protected boolean keyChar(char c, int status, int time) {
 		// Close this screen if escape is selected.
 		if (c == Characters.ESCAPE) {
-			response= -1;
+			response= PostController.NONE;
 			this.close();
 			return true;
-		} else if (c == Characters.ENTER) {
-		 //action handled by button listener
-			return true;
-		}
-
+		} else
 		return super.keyChar(c, status, time);
 	}   
-	*/
+	
 }

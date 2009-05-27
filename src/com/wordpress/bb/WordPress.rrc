@@ -11,6 +11,7 @@ CONNECTION_INPROGRESS#0="Connection in Progress...";
 CONNECTION_SENDING#0="Sending data...";
 CONN_DELETE_POST#0="Deleting Post...";
 CONN_LOADING_COMMENTS#0="Loading Comments...";
+CONN_LOADING_PAGES#0="Loading Pages..";
 CONN_LOADING_POST#0="Loading Post...";
 CONN_LOADING_POSTLIST#0="Loading Posts...";
 CONN_LOADING_PREVIEW_TEMPLATE#0="Starting Preview...";

@@ -24,7 +24,9 @@ import net.rim.device.api.io.http.HttpHeaders;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.component.Status;
 
 import com.wordpress.bb.WordPressResource;
@@ -38,6 +40,7 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 	private static final String REFERER = "referer";   
 	private RenderingSession _renderingSession;   
 	private InputConnection  _currentConnection;
+	private BrowserContent browserContent = null;
 	
 	public PostPreviewView(String html) {
 		super(_resources.getString(WordPressResource.TITLE_POSTVIEW));
@@ -77,7 +80,7 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 	        
 	        _currentConnection = connection;
 	        
-	        BrowserContent browserContent = null;
+	       
 	        
 	        try   
 	        {
@@ -204,7 +207,6 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 
 	            } 
 	            case Event.EVENT_CLOSE :
-	                // TODO: close the appication
 	                break;
 	            
 	            case Event.EVENT_SET_HEADER :        // No cache support.
@@ -309,10 +311,30 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 
 	
 	public BaseController getController() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
+	protected void makeMenu(Menu menu, int instance)
+    {
+    	//menu.deleteAll();
+		removeMenuWithLabel("Get", menu);	
+		removeMenuWithLabel("Sel", menu);
+		removeMenuWithLabel("Find", menu);
+	
+       	super.makeMenu(menu, instance);
+    }
+	
+	private void removeMenuWithLabel(String labelToRemove, Menu menu) {
+		int size = menu.getSize();
+		for(int i=0; i < size; i++) {
+		    MenuItem item = menu.getItem(i);
+		    String label = item.toString();
+		    if(label.startsWith(labelToRemove)) {
+		    	menu.deleteItem(i);
+		    	break;
+	    	    }			
+		}
+	}
 	
 	private class PrimaryResourceFetchThread extends Thread 
 	{
@@ -344,43 +366,35 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 		}
 		
 		public long getDate() throws IOException {
-			// TODO Auto-generated method stub
 			return 0;
 		}
 
 		public long getExpiration() throws IOException {
-			// TODO Auto-generated method stub
 			return 0;
 		}
 
 		public String getFile() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		public String getHeaderField(String name) throws IOException {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		public String getHeaderField(int n) throws IOException {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		public long getHeaderFieldDate(String name, long def)
 				throws IOException {
-			// TODO Auto-generated method stub
 			return 0;
 		}
 
 		public int getHeaderFieldInt(String name, int def) throws IOException {
-			// TODO Auto-generated method stub
 			return 0;
 		}
 
 		public String getHeaderFieldKey(int n) throws IOException {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
@@ -443,10 +457,10 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 
 		public long getLength() {
 			try {
-				return is.available();
+				if (is != null )
+					return is.available();
+				else return 0;
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 			return 0L;
 		}
@@ -469,12 +483,10 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 		}
 
 		public DataOutputStream openDataOutputStream() throws IOException {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		public OutputStream openOutputStream() throws IOException {
-			// TODO Auto-generated method stub
 			return null;
 		}
 		

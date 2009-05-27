@@ -4,10 +4,13 @@ import java.util.Vector;
 
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.ContextMenu;
+import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
+import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 
@@ -78,7 +81,7 @@ public class PostCategoriesView extends BaseView {
   		this.add(rowTitle);  		
     }
     
-    private MenuItem _newCategoryContextMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_POST_NEWCATEGORY, 10, 2) {
+    private MenuItem _newCategoryContextMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_POST_NEWCATEGORY, 200, 100) {
         public void run() {
         	controller.showNewCategoriesView();
         }
@@ -105,5 +108,21 @@ public class PostCategoriesView extends BaseView {
 		return controller;
 	}
 	
+    //Override the makeMenu method so we can add a custom menu item
+    //if the checkbox ListField has focus.
+    protected void makeMenu(Menu menu, int instance)
+    {
+        Field focus = UiApplication.getUiApplication().getActiveScreen().getLeafFieldWithFocus();
+        if(focus == chkField) 
+        {
+            //The commentsList ListField instance has focus.
+            //Add the _toggleItem MenuItem.
+            menu.add(checkBoxController._toggleItem);
+        }
+                
+        //Create the default menu.
+        super.makeMenu(menu, instance);
+    }    
+
 		
 }

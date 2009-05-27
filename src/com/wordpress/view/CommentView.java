@@ -7,8 +7,9 @@ import java.util.Hashtable;
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.component.BasicEditField;
+import net.rim.device.api.ui.component.AutoTextEditField;
 import net.rim.device.api.ui.component.LabelField;
+import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.component.NullField;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
@@ -32,7 +33,7 @@ public class CommentView extends BaseView {
 	private LabelField title;
 	private LabelField date;
 	private LabelField status; //this information can change by user interaction
-	private BasicEditField commentContent;
+	private AutoTextEditField commentContent;
 	private final Hashtable commentStatusList;
 	
 	 public CommentView(CommentsController _controller, Comment comment, Hashtable commentStatusList) {
@@ -91,7 +92,7 @@ public class CommentView extends BaseView {
 	  		dataScroller.add(rowStatus);
 	  		dataScroller.add(new SeparatorField()); 
 	        	  			  		
-	  		commentContent = new BasicEditField("",comment.getContent());
+	  		commentContent = new AutoTextEditField("",comment.getContent());
 	  		dataScroller.add(commentContent);
 	  			        	  		
 			add(topManager);
@@ -99,8 +100,8 @@ public class CommentView extends BaseView {
 			add(dataScroller);
 			
 			addMenuItem(_deleteCommentItem);
-			addMenuItem(_nextCommentItem);
-			addMenuItem(_prevCommentItem);
+			//addMenuItem(_nextCommentItem);
+			//addMenuItem(_prevCommentItem);
 			
 			refresh(comment);
 	 }
@@ -219,8 +220,8 @@ public class CommentView extends BaseView {
     
     private MenuItem _nextCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_NEXT, 100, 5) {
     	public void run() {
-    		Comment[] selectedComment =  {comment};
-    		Comment next = controller.getNextComment(selectedComment[0]);
+    		
+    		Comment next = controller.getNextComment(comment);
     		if (next == null)
     			controller.displayMessage("There arent next comments");   	
     		else {
@@ -232,17 +233,14 @@ public class CommentView extends BaseView {
     
     private MenuItem _prevCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_PREV, 110, 6) {
     	public void run() {
-    		Comment[] selectedComment =  {comment};
-    		Comment prev = controller.getPreviousComment(selectedComment[0]);
+    		
+    		Comment prev = controller.getPreviousComment(comment);
     		if (prev == null)
     			controller.displayMessage("There arent next comments");
     		else {
     			refresh(prev);
     			System.out.println("abbiamo altri commenti");
-    		}
-
-    		
-    	
+    		}   		
     	}
     };
 
@@ -268,6 +266,22 @@ public class CommentView extends BaseView {
 		controller.backCmd();
 		return true;
 	}
+	
+    //Override the makeMenu method so we can add a custom menu item on fly
+    protected void makeMenu(Menu menu, int instance)
+    {
+		Comment next = controller.getNextComment(comment);
+		if (next != null)
+			menu.add(_nextCommentItem);
+		
+		Comment prev = controller.getPreviousComment(comment);
+		if (prev != null)
+			menu.add(_prevCommentItem);
+			   	
+                
+        //Create the default menu.
+        super.makeMenu(menu, instance);
+    }  
 
 }
 

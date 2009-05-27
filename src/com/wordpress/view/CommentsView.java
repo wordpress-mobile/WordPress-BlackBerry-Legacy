@@ -2,10 +2,13 @@ package com.wordpress.view;
 
 import java.util.Hashtable;
 
+import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
+import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
@@ -94,7 +97,6 @@ public class CommentsView extends BaseView {
 			removeMenuItem(_spamCommentItem);
 			removeMenuItem(_viewCommentsItem);
 		}
-		
 	}
 	
 	private Comment[] getSelectedComment() {
@@ -144,7 +146,7 @@ public class CommentsView extends BaseView {
     };
     
     
-    private MenuItem _approveCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_APPROVE, 100000, 5) {
+    private MenuItem _approveCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_APPROVE, 100200, 5) {
         public void run() {
         	Comment[] selectedComment = getSelectedComment();
         	controller.updateComments(selectedComment, "approve", null);
@@ -152,14 +154,14 @@ public class CommentsView extends BaseView {
     };
     
     
-    private MenuItem _holdCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_HOLD, 100020, 5) {
+    private MenuItem _holdCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_HOLD, 100200, 5) {
         public void run() {
         	Comment[] selectedComment = getSelectedComment();
         	controller.updateComments(selectedComment, "hold", null);
         }
     };
     
-    private MenuItem _spamCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_SPAM, 100010, 5) {
+    private MenuItem _spamCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_SPAM, 100300, 5) {
         public void run() {
         	Comment[] selectedComment = getSelectedComment();
         	controller.updateComments(selectedComment, "spam", null);
@@ -167,7 +169,7 @@ public class CommentsView extends BaseView {
     };
     
     
-    private MenuItem _deleteCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_DELETE, 100030, 5) {
+    private MenuItem _deleteCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_DELETE, 100400, 5) {
     	public void run() {
     		Comment[] selectedComment = getSelectedComment();
     		controller.deleteComments(selectedComment);
@@ -203,6 +205,23 @@ public class CommentsView extends BaseView {
 		controller.backCmd();
 		return true;
 	}
+	
+    //Override the makeMenu method so we can add a custom menu item
+    //if the checkbox ListField has focus.
+    protected void makeMenu(Menu menu, int instance)
+    {
+        Field focus = UiApplication.getUiApplication().getActiveScreen().getLeafFieldWithFocus();
+        if(focus == commentsList) 
+        {
+            //The commentsList ListField instance has focus and we are in edit mode
+            //Add the _toggleItem MenuItem.
+            if(commentListController.isCheckBoxVisible())
+            	menu.add(commentListController._toggleItem);
+        }
+                
+        //Create the default menu.
+        super.makeMenu(menu, instance);
+    }    
 
 }
 
