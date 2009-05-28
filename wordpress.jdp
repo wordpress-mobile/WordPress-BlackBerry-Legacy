@@ -32,6 +32,7 @@ src\com\wordpress\bb\SplashScreen.java
 src\com\wordpress\bb\WordPress.java
 src\com\wordpress\bb\WordPress.rrc
 src\com\wordpress\bb\WordPress.rrh
+src\com\wordpress\bb\WordPressApplicationPermissions.java
 src\com\wordpress\controller\AboutController.java
 src\com\wordpress\controller\AddBlogsController.java
 src\com\wordpress\controller\BaseController.java

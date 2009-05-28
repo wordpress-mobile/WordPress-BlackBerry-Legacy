@@ -1,16 +1,22 @@
 package com.wordpress.controller;
 
+import java.io.IOException;
+
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.FileUtils;
+import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.PostPreviewView;
+import com.wordpress.view.component.FileSelectorPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.view.mm.MultimediaPopupScreen;
+import com.wordpress.view.mm.PhotoSnapShotView;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.GetTemplateConn;
 
@@ -26,11 +32,48 @@ public abstract class BlogObjectController extends BaseController {
 	public static final int PHOTO=1;
 	public static final int BROWSER=4;
 	
-	public abstract void showAddPhotoPopUp();
 	public abstract void showEnlargedPhoto(String key);
 	public abstract void addPhoto(byte[] data, String fileName);
 	public abstract boolean deletePhoto(String key);
 	public abstract void setPhotosNumber(int count);
+	
+	//* show up multimedia type selection */
+	public void showAddPhotoPopUp() {
+		int response= BROWSER;
+		
+    	MultimediaPopupScreen multimediaPopupScreen = new MultimediaPopupScreen();
+    	UiApplication.getUiApplication().pushModalScreen(multimediaPopupScreen); //modal screen...
+		response = multimediaPopupScreen.getResponse();
+			
+		switch (response) {
+		case BROWSER:
+           	 String imageExtensions[] = {"jpg", "jpeg","bmp", "png", "gif"};
+             FileSelectorPopupScreen fps = new FileSelectorPopupScreen(null, imageExtensions);
+             fps.pickFile();
+             String theFile = fps.getFile();
+             if (theFile == null){
+                // Dialog.alert("Screen was dismissed. No file was selected.");
+             } else {
+            	 String[] fileNameSplitted = StringUtils.split(theFile, "/");
+            	 String ext= fileNameSplitted[fileNameSplitted.length-1];
+				try {
+					byte[] readFile = JSR75FileSystem.readFile(theFile);
+					addPhoto(readFile,ext);	
+				} catch (IOException e) {
+					displayError(e, "Cannot load photo from disk!");
+				}
+             }					
+			break;
+			
+		case PHOTO:
+			PhotoSnapShotView snapView = new PhotoSnapShotView(this);
+			UiApplication.getUiApplication().pushScreen(snapView); //modal screen...
+			break;
+			
+		default:
+			break;
+		}		
+	}
 	
 	
 	public void startRemotePreview(String objectLink, String title, String content, String tags, String cats, String photoNumber){

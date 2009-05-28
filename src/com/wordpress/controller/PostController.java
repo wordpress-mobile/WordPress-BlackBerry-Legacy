@@ -447,43 +447,6 @@ public class PostController extends BlogObjectController {
 		return true;
 	}
 	
-	//* called by photoview */
-	public void showAddPhotoPopUp() {
-		int response= BROWSER;
-		
-    	MultimediaPopupScreen multimediaPopupScreen = new MultimediaPopupScreen();
-    	UiApplication.getUiApplication().pushModalScreen(multimediaPopupScreen); //modal screen...
-		response = multimediaPopupScreen.getResponse();
-			
-		switch (response) {
-		case BROWSER:
-           	 String imageExtensions[] = {"jpg", "jpeg","bmp", "png", "gif"};
-             FileSelectorPopupScreen fps = new FileSelectorPopupScreen(null, imageExtensions);
-             fps.pickFile();
-             String theFile = fps.getFile();
-             if (theFile == null){
-                // Dialog.alert("Screen was dismissed. No file was selected.");
-             } else {
-            	 String[] fileNameSplitted = StringUtils.split(theFile, "/");
-            	 String ext= fileNameSplitted[fileNameSplitted.length-1];
-				try {
-					byte[] readFile = JSR75FileSystem.readFile(theFile);
-					addPhoto(readFile,ext);	
-				} catch (IOException e) {
-					displayError(e, "Cannot load photo from disk!");
-				}
-             }					
-			break;
-			
-		case PHOTO:
-			PhotoSnapShotView snapView = new PhotoSnapShotView(this);
-			UiApplication.getUiApplication().pushScreen(snapView); //modal screen...
-			break;
-			
-		default:
-			break;
-		}		
-	}
 	
 	public void addPhoto(byte[] data, String fileName){
 	    System.out.println("addPhoto " + fileName);

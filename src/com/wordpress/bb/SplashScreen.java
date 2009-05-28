@@ -52,6 +52,11 @@ public class SplashScreen extends MainScreen {
 		this.addKeyListener(listener);
 		application.pushScreen(this);
 		
+		//check application permission as first step
+		WordPressApplicationPermissions.getIstance().checkPermissions();
+		//could be actions here...
+		
+		
 		try {
 			String baseDirPath = AppDAO.getBaseDirPath();
 			

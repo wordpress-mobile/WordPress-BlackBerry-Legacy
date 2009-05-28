@@ -100,7 +100,7 @@ public class JSR75FileSystem  {
    *           if an exception occurs
    */
   public static synchronized byte[] readFile(String filename) throws IOException {
-    System.out.println("Loading file:///" + filename);
+    System.out.println("Start Loading file:///" + filename);
 
     FileConnection fconn = null;
     InputStream is = null;
@@ -111,8 +111,8 @@ public class JSR75FileSystem  {
     	 fconn = (FileConnection) Connector.open(filename, Connector.READ);
      }
       // commented to speed up
-      // if (!fconn.exists() || !fconn.canRead())
-      //   throw new Exception("File does not exist");
+     //  if (!fconn.exists() || !fconn.canRead())
+     //    throw new IOException("File does not exist");
 
       int sz = (int) fconn.fileSize();
       byte[] result = new byte[sz];
@@ -131,6 +131,7 @@ public class JSR75FileSystem  {
 
       return result;
     } finally {
+      System.out.println("End Loading file:///" + filename);
       FileUtils.closeStream(is);
       FileUtils.closeConnection(fconn);
     }
