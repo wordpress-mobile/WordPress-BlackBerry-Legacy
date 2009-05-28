@@ -87,8 +87,8 @@ public class DraftDAO implements BaseDAO{
 	}
 	
 	
-	//retrive drafts post info 
-	public static Hashtable getPostsInfo(Blog blog) throws IOException, RecordStoreException {
+	//retrive drafts index from disk 
+	public static String[]  getPostsInfo(Blog blog) throws IOException, RecordStoreException {
     	String blogDraftsPath=getPath(blog);
 
    		String[] listDraftFolder = JSR75FileSystem.listFiles(blogDraftsPath);
@@ -103,19 +103,10 @@ public class DraftDAO implements BaseDAO{
         		}
     		}
    	
-        	Hashtable infos= new Hashtable(listDir.size());
+    	String[] files = new String[listDir.size()];
+        listDir.copyInto(files);
+        return files;
         	
-        	for (int i = 0; i < listDir.size(); i++) {
-        		String currPostFile = (String)listDir.elementAt(i);
-        		Post loadDraftPost = loadPost(blog, Integer.parseInt(currPostFile));
-        		String title = loadDraftPost.getTitle();
-    		    if (title == null || title.length() == 0) {
-    		    	title = "No title";
-    		    }
-
-        		infos.put(currPostFile,title);
-			}
-        	return infos;   	
 	}
 	
 	
@@ -202,7 +193,6 @@ public class DraftDAO implements BaseDAO{
             content.put("mt_excerpt", post.getExcerpt());
         }
         if (post.getAuthoredOn() != null) {
-            //content.put("dateCreated", post.getAuthoredOn());
         	content.put("date_created_gmt", post.getAuthoredOn());
         }
         if (post.getTags() != null) {
@@ -239,7 +229,9 @@ public class DraftDAO implements BaseDAO{
         aPost.setExcerpt((String) postData.get("mt_excerpt"));
         //aPost.setAuthoredOn(((Date) postData.get("dateCreated")).getTime());
         //date_created_gmt
-        aPost.setAuthoredOn(((Date) postData.get("date_created_gmt")).getTime());
+        Date date_created_gmt = (Date) postData.get("date_created_gmt");
+        if (date_created_gmt != null )
+        	aPost.setAuthoredOn(date_created_gmt.getTime());
         
         aPost.setTags( (String) postData.get("mt_keywords"));
         aPost.setPassword((String) postData.get("wp_password"));
