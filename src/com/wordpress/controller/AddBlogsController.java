@@ -38,9 +38,9 @@ public class AddBlogsController extends BaseController implements Observer{
 	public AddBlogsController(TaskListener listener) {
 		super();
 		this.listener = listener;
-		guiValues.put("user", "mopress");
-		guiValues.put("pass", "mopress");
-		guiValues.put("url", "http://localhost/wp_mopress");
+		guiValues.put("user", "editore");
+		guiValues.put("pass", "cancello");
+		guiValues.put("url", "http://danais.no-ip.org/demo/wp_testing");
 		guiValues.put("recentpost", recentsPostValuesLabel);
 		guiValues.put("recentpostselected", new Integer(0));
 		guiValues.put("isresphotos", new Boolean(false));

@@ -42,7 +42,7 @@ public class PageDAO implements BaseDAO{
 	}
 	
 	//store a photos of the draft page
-	public static void storePagePhoto(Blog blog, int draftId, byte[] photoData, String photoName) throws IOException, RecordStoreException {
+	public static void storePhoto(Blog blog, int draftId, byte[] photoData, String photoName) throws IOException, RecordStoreException {
 		String draftPostPath = getPageFilePath(blog, draftId);
 		JSR75FileSystem.createFile(draftPostPath);
 		String photoFilePath = draftPostPath+"p-"+photoName;

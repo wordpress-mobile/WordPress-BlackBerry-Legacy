@@ -1,10 +1,10 @@
 package com.wordpress.controller;
 
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
@@ -12,13 +12,11 @@ import net.rim.device.api.ui.component.Dialog;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.DraftDAO;
-import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
-import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.NewCategoryView;
@@ -26,11 +24,8 @@ import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostCategoriesView;
 import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PostView;
-import com.wordpress.view.component.FileSelectorPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
-import com.wordpress.view.mm.MultimediaPopupScreen;
 import com.wordpress.view.mm.PhotoPreview;
-import com.wordpress.view.mm.PhotoSnapShotView;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.NewCategoryConn;
@@ -217,9 +212,6 @@ public class PostController extends BlogObjectController {
 
 	public void sendPostToBlog() {
 		
-		if (!isPostChanged()) { //post without change
-			return;
-		}
 		if(post.getStatus().equals(LOCAL_DRAFT_KEY)) {
 			displayMessage("Local Draft post cannot be submitted");
 			return;
@@ -299,7 +291,7 @@ public class PostController extends BlogObjectController {
 	    	int result=this.askQuestion("Changes Made, are sure to close this screen?");   
 	    	if(Dialog.YES==result) {
 	    		try {
-	    			if( !isDraft ){ //not previous draft saved post
+	    			if( !isDraft ){ //not remove post if it is a draft post
 	    				DraftDAO.removePost(post.getBlog(), draftPostFolder);
 	    			}
 				} catch (Exception e) {
@@ -453,23 +445,17 @@ public class PostController extends BlogObjectController {
 	
 	    if(fileName == null) 
 			fileName= String.valueOf(System.currentTimeMillis()+".jpg");
-		
-		EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
-				
-		//check if blog has "photo resize option" selected
-		if (post.getBlog().isResizePhotos()){
-			EncodedImage rescaled= MultimediaUtils.bestFit2(img, 640, 480);
-			img=rescaled;
-		} 
-
 		try {
-			DraftDAO.storePostPhoto(post, draftPostFolder, data, fileName);
+			EncodedImage img = createPhotoImg(post.getBlog().isResizePhotos(), data);
+			DraftDAO.storePhoto(post.getBlog(), draftPostFolder, img.getData(), fileName);
+			photoView.addPhoto(fileName, img);
 		} catch (Exception e) {
 			displayError(e, "Cannot save photo to disk!");
 		}
 		
-		photoView.addPhoto(fileName, img);
 	}
+	
+	
 	
 	public void refreshView() {
 		//resfresh the post view. not used.

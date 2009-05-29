@@ -1,7 +1,13 @@
 package com.wordpress.controller;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
+import javax.microedition.lcdui.Image;
+
+import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
@@ -9,6 +15,7 @@ import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.FileUtils;
 import com.wordpress.io.JSR75FileSystem;
+import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -34,8 +41,46 @@ public abstract class BlogObjectController extends BaseController {
 	
 	public abstract void showEnlargedPhoto(String key);
 	public abstract void addPhoto(byte[] data, String fileName);
-	public abstract boolean deletePhoto(String key);
+	public abstract boolean deletePhoto(String photoName); //delete 
 	public abstract void setPhotosNumber(int count);
+	
+	/*
+	protected EncodedImage createPhotoImg(boolean resize, byte[] data) {
+		EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
+		//check if blog has "photo resize option" selected
+		if (resize){
+			EncodedImage rescaled= MultimediaUtils.bestFit2(img, 128, 128);
+			img=rescaled;
+		} 
+		return img;		
+	}
+	*/
+	
+	protected EncodedImage createPhotoImg(boolean resize, byte[] data) throws IOException {
+		EncodedImage img = EncodedImage.createEncodedImage(data,0, -1);
+		//check if blog has "photo resize option" selected
+		/*if (resize){
+			EncodedImage rescaled= MultimediaUtils.bestFit2(img, 128, 128);
+			Bitmap original= rescaled.getBitmap();
+
+	    	int[] argb = new int[original.getWidth() * original.getHeight()];
+	    	original.getARGB(argb, 0, original.getWidth(), 0, 0, original.getWidth(), original.getHeight());
+	    	
+	    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(baos);
+
+            
+            for (int i = 0; i < argb.length; i++) {
+                dos.writeInt(argb[i]);
+            }
+	        
+	    	 img = EncodedImage.createEncodedImage(baos.toByteArray(),0, -1, null);
+	    	
+		} */
+		return img;		
+	}
+		
+	
 	
 	//* show up multimedia type selection */
 	public void showAddPhotoPopUp() {

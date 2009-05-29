@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import javax.microedition.rms.RecordStoreException;
+
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
@@ -224,10 +226,6 @@ public class PageController extends BlogObjectController {
 
 	public void sendPageToBlog() {
 		
-		if (!isPageChanged()) { //page without change
-			return;
-		}
-		
 		if(page.getPageStatus().equals(LOCAL_DRAFT_KEY)) {
 			displayMessage("Local Draft post cannot be submitted");
 			return;
@@ -425,26 +423,17 @@ public class PageController extends BlogObjectController {
 	public void addPhoto(byte[] data, String fileName){
 		if(fileName == null) 
 			fileName= String.valueOf(System.currentTimeMillis()+".jpg");
-		
-		EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
-				
-		//check if blog has "photo resize option" selected
-		if (blog.isResizePhotos()){
-			EncodedImage rescaled= MultimediaUtils.bestFit2(img, 640, 480);
-			img=rescaled;
-		} 
-
 		try {
-			PageDAO.storePagePhoto(blog, draftPageFolder, data, fileName);
+			EncodedImage img = createPhotoImg(blog.isResizePhotos(), data);
+			PageDAO.storePhoto(blog, draftPageFolder, data, fileName);
+			photoView.addPhoto(fileName, img);
 		} catch (Exception e) {
 			displayError(e, "Cannot save photo to disk!");
 		}
-		
-		photoView.addPhoto(fileName, img);
 	}
+	
 	
 	public void refreshView() {
 		//resfresh the post view. not used.
 	}
-	
 }

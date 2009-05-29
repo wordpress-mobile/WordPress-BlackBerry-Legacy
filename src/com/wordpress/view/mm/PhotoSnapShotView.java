@@ -155,7 +155,7 @@ public class PhotoSnapShotView extends BaseView {
 			
 			//check the app permissions
 			if(! WordPressApplicationPermissions.getIstance().isScreenCapturePermitted() ) {
-				controller.displayMessage("Error while take photo, have you changed application permission settings?");
+				controller.displayMessage("Error while taking a photo");
 				return;
 			}
 			

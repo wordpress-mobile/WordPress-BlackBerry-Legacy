@@ -79,8 +79,6 @@ public class SplashScreen extends MainScreen {
 			
         	JSR75FileSystem.createDir(AppDAO.getBaseDirPath());
 			timer.schedule(new CountDown(), 3000); //3sec splash
-				
-				
 			}
 		} catch (Exception e) {
 			timer.cancel();

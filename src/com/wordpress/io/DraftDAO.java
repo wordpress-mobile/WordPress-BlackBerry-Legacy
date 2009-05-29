@@ -41,8 +41,8 @@ public class DraftDAO implements BaseDAO{
 	}
     
     //store a photos of the draft post
-	public static void storePostPhoto(Post draftPost, int draftId, byte[] photoData, String photoName) throws IOException, RecordStoreException {
-    	String draftPostPath = getPostFilePath(draftPost.getBlog(), draftId);
+	public static void storePhoto(Blog blog, int draftId, byte[] photoData, String photoName) throws IOException, RecordStoreException {
+    	String draftPostPath = getPostFilePath(blog, draftId);
     	JSR75FileSystem.createFile(draftPostPath);
     	String photoFilePath = draftPostPath+"p-"+photoName;
     	JSR75FileSystem.createFile(photoFilePath);    	

@@ -155,6 +155,7 @@ public class PostView extends BaseView {
     		}
         }
     };
+    
     /*
     private MenuItem _htmlItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_HTML, 100, 10) {
         public void run() {
@@ -162,6 +163,7 @@ public class PostView extends BaseView {
         }
     };
 */
+    
     private MenuItem _photosItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_PHOTOS, 110, 10) {
         public void run() {
         	controller.showPhotosView();

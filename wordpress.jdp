@@ -95,9 +95,7 @@ src\com\wordpress\view\component\CheckBoxListField.java
 src\com\wordpress\view\component\CommentsListField.java
 src\com\wordpress\view\component\DirectorySelectorPopUpScreen.java
 src\com\wordpress\view\component\FileSelectorPopupScreen.java
-src\com\wordpress\view\component\HtmlTagPopupScreen.java
 src\com\wordpress\view\component\HtmlTextField.java
-src\com\wordpress\view\component\NotYetImpPopupScreen.java
 src\com\wordpress\view\component\TestListField.java
 src\com\wordpress\view\dialog\ConnectionInProgressView.java
 src\com\wordpress\view\dialog\DiscardChangeInquiryView.java

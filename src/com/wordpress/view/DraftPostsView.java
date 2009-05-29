@@ -2,7 +2,6 @@ package com.wordpress.view;
 
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectListField;
 
 import com.wordpress.bb.WordPressResource;

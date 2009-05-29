@@ -131,7 +131,11 @@ public class FileSelectorPopupScreen extends PopupScreen {
 							// This is a file. Check if its
 							// extension matches the filter.
 							for (int count = _extensions.length - 1; count >= 0; --count) {
-								if (currentFile.indexOf(_extensions[count]) != -1) {
+								
+								if (currentFile.indexOf(_extensions[count]) != -1
+										|| currentFile.indexOf(_extensions[count].toLowerCase()) != -1
+										|| currentFile.indexOf(_extensions[count].toUpperCase()) != -1
+								) {
 									// There was a match, add the file and
 									// stop looping.
 
