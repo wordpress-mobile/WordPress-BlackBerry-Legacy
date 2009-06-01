@@ -103,7 +103,7 @@ public class PostView extends BaseView {
   		manager.add(rowStatus);
   		manager.add(new SeparatorField()); 
   		
-		bodyTextBox= new HtmlTextField(post.getBody());
+		bodyTextBox= new HtmlTextField(controller, post.getBody());
 		manager.add(bodyTextBox);
 		addMenuItem(_saveDraftPostItem);
 		addMenuItem(_submitPostItem);

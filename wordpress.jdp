@@ -72,6 +72,10 @@ src\com\wordpress\model\Page.java
 src\com\wordpress\model\Post.java
 src\com\wordpress\model\Preferences.java
 src\com\wordpress\model\Tag.java
+src\com\wordpress\task\LocalTask.java
+src\com\wordpress\task\Task.java
+src\com\wordpress\task\TasksRunner.java
+src\com\wordpress\task\TaskWorker.java
 src\com\wordpress\utils\MD5.java
 src\com\wordpress\utils\MD5State.java
 src\com\wordpress\utils\mm\JpegEncoder.java
