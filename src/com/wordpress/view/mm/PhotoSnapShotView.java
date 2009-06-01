@@ -20,7 +20,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
 import com.wordpress.model.Preferences;
-import com.wordpress.utils.MultimediaUtils;
+import com.wordpress.utils.mm.MultimediaUtils;
 import com.wordpress.view.BaseView;
 
 

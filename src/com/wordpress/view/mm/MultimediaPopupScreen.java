@@ -15,7 +15,7 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.PostController;
-import com.wordpress.utils.MultimediaUtils;
+import com.wordpress.utils.mm.MultimediaUtils;
 
 public class MultimediaPopupScreen extends PopupScreen {
     

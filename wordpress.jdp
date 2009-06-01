@@ -74,7 +74,9 @@ src\com\wordpress\model\Preferences.java
 src\com\wordpress\model\Tag.java
 src\com\wordpress\utils\MD5.java
 src\com\wordpress\utils\MD5State.java
-src\com\wordpress\utils\MultimediaUtils.java
+src\com\wordpress\utils\mm\JpegEncoder.java
+src\com\wordpress\utils\mm\MultimediaUtils.java
+src\com\wordpress\utils\mm\PNGEncoder.java
 src\com\wordpress\utils\observer\Observable.java
 src\com\wordpress\utils\observer\Observer.java
 src\com\wordpress\utils\PropertyUtils.java
@@ -102,6 +104,7 @@ src\com\wordpress\view\dialog\DiscardChangeInquiryView.java
 src\com\wordpress\view\dialog\ErrorView.java
 src\com\wordpress\view\dialog\InfoView.java
 src\com\wordpress\view\dialog\InquiryView.java
+src\com\wordpress\view\dialog\WaitScreen.java
 src\com\wordpress\view\DraftPagesView.java
 src\com\wordpress\view\DraftPostsView.java
 src\com\wordpress\view\MainView.java

@@ -6,7 +6,6 @@ import java.util.Hashtable;
 
 import javax.microedition.rms.RecordStoreException;
 
-import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
@@ -73,12 +72,15 @@ public class SendPostDataTask {
 		executionQueue.push(blogConn);
 	}
 	
+	
 	private byte[] getPhotosBytes(String key) throws IOException, RecordStoreException {
 		byte[] data;
 		data = DraftDAO.loadPostPhoto(post, draftPostFolder, key);
-		EncodedImage img = EncodedImage.createEncodedImage(data, 0, -1);
-		return img.getData();
+		return data;
 	}
+	
+	
+	
 	
 	private class WorkerThread implements Runnable, Observer {
 

@@ -1,13 +1,86 @@
-package com.wordpress.utils;
+package com.wordpress.utils.mm;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Hashtable;
 
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
 import net.rim.device.api.math.Fixed32;
-import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.EncodedImage;
 
+import com.wordpress.utils.StringUtils;
+
 public class MultimediaUtils {
+	
+
+	public static Hashtable resizePhotoAndOutputJpeg(byte[] data, String fileName) throws IOException {
+		
+		Hashtable content = new Hashtable(2);
+		Image createImage = Image.createImage(new ByteArrayInputStream(data));	
+		//no resize
+		if(createImage.getWidth() <= 640 && createImage.getWidth() <= 480) {
+			content.put("name", fileName);
+			content.put("bits", data);
+			return content;
+		}
+				
+		Image resized = createResizedImg(createImage);
+			
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		OutputStream nuoviBytes= new DataOutputStream(out);
+		JpegEncoder jpgenc= new JpegEncoder(resized,100, nuoviBytes);
+
+		//check file name ext eventually add jpg ext
+		if (fileName.endsWith("jpg") || fileName.endsWith("JPG")){
+			
+		} else {
+			fileName+=".jpg";
+		}
+		
+		content.put("name", fileName);
+		content.put("bits",  out.toByteArray());
+		return content;
+		
+		/*EncodedImage rescaled= MultimediaUtils.bestFit2(img, 256, 256);
+		Bitmap original= img.getBitmap();
+    	
+    	PNGEncoder encoder = new PNGEncoder(original, true);
+    	byte[] imageBytes = encoder.encode(true);
+	    	*/
+	    	
+	}
+	
+
+	private static Image createResizedImg(Image image) {
+	    int sourceWidth = image.getWidth();
+	    int sourceHeight = image.getHeight();
+	    
+	    int thumbWidth = 640;
+	    int thumbHeight = -1;
+	    
+	    if (thumbHeight == -1)
+	        thumbHeight = thumbWidth * sourceHeight / sourceWidth;
+	    
+	    Image thumb = Image.createImage(thumbWidth, thumbHeight);
+	    Graphics g = thumb.getGraphics();
+	    
+	    for (int y = 0; y < thumbHeight; y++) {
+	        for (int x = 0; x < thumbWidth; x++) {
+	            g.setClip(x, y, 1, 1);
+	            int dx = x * sourceWidth / thumbWidth;
+	            int dy = y * sourceHeight / thumbHeight;
+	            g.drawImage(image, x - dx, y - dy, Graphics.LEFT | Graphics.TOP);
+	        }
+	    }
+	    
+	    Image immutableThumb = Image.createImage(thumb);
+	    return immutableThumb;
+	}
 	
 	
 	
@@ -22,21 +95,7 @@ public class MultimediaUtils {
 	        (newHeight - resized.getHeight()) / 2, Graphics.TOP | Graphics.LEFT);
 	    return result;
 	  }
-	
-	/**
-	 * Creates an immutable image which is decoded from the data stored in the specified byte array at
-	 * the specified offset and length. The data must be in a self-identifying image file format supported 
-	 * by the implementation, such as PNG. 
-
-	 * @param image
-	 * @return
-	 */
-	  public static Image createImage(byte[] imageData) {
-		    return Image.createImage(imageData,0,imageData.length-1 );
-		}
-	  
-	  
-	  
+	 
 	public static EncodedImage bestFit2(EncodedImage image, int maxWidth, int maxHeight)
 	{
 

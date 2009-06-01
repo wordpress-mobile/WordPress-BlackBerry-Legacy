@@ -14,8 +14,8 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PreferenceController;
 import com.wordpress.model.Preferences;
-import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.SimpleTimeZone;
+import com.wordpress.utils.mm.MultimediaUtils;
 
 public class PreferencesView extends BaseView {
 	

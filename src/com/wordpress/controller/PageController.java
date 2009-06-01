@@ -1,11 +1,8 @@
 package com.wordpress.controller;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
-
-import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
@@ -13,20 +10,16 @@ import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressResource;
-import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Page;
-import com.wordpress.utils.MultimediaUtils;
-import com.wordpress.utils.StringUtils;
+import com.wordpress.utils.mm.MultimediaUtils;
 import com.wordpress.view.PageView;
 import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostSettingsView;
-import com.wordpress.view.component.FileSelectorPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
-import com.wordpress.view.mm.MultimediaPopupScreen;
+import com.wordpress.view.dialog.WaitScreen;
 import com.wordpress.view.mm.PhotoPreview;
-import com.wordpress.view.mm.PhotoSnapShotView;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.NewMediaObjectConn;
 import com.wordpress.xmlrpc.page.EditPageConn;
@@ -423,8 +416,16 @@ public class PageController extends BlogObjectController {
 	public void addPhoto(byte[] data, String fileName){
 		if(fileName == null) 
 			fileName= String.valueOf(System.currentTimeMillis()+".jpg");
-		try {
-			EncodedImage img = createPhotoImg(blog.isResizePhotos(), data);
+	    try {
+	    	
+			if(blog.isResizePhotos()) {
+				Hashtable content = MultimediaUtils.resizePhotoAndOutputJpeg(data, fileName);
+				data =(byte[]) content.get("bits");
+				fileName = (String) content.get("name");
+			}
+						
+			EncodedImage img;
+			img = EncodedImage.createEncodedImage(data, 0, -1);
 			PageDAO.storePhoto(blog, draftPageFolder, data, fileName);
 			photoView.addPhoto(fileName, img);
 		} catch (Exception e) {
