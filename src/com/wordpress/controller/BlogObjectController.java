@@ -1,6 +1,7 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
+import java.util.Hashtable;
 
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
@@ -9,12 +10,18 @@ import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.FileUtils;
 import com.wordpress.io.JSR75FileSystem;
+import com.wordpress.model.Blog;
+import com.wordpress.task.ResizeImageTask;
+import com.wordpress.task.TaskProgressListener;
+import com.wordpress.task.TasksRunner;
+import com.wordpress.utils.Queue;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.PostPreviewView;
 import com.wordpress.view.component.FileSelectorPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.view.dialog.WaitScreen;
 import com.wordpress.view.mm.MultimediaPopupScreen;
 import com.wordpress.view.mm.PhotoSnapShotView;
 import com.wordpress.xmlrpc.BlogConnResponse;
@@ -22,6 +29,7 @@ import com.wordpress.xmlrpc.GetTemplateConn;
 
 public abstract class BlogObjectController extends BaseController {
 	
+	protected Blog blog;
 	protected static final String LOCAL_DRAFT_KEY = "localdraft";
 	protected static final String LOCAL_DRAFT_LABEL = _resources.getString(WordPress.LABEL_LOCAL_DRAFT);
 	protected ConnectionInProgressView connectionProgressView=null;
@@ -32,10 +40,9 @@ public abstract class BlogObjectController extends BaseController {
 	public static final int BROWSER=4;
 	
 	public abstract void showEnlargedPhoto(String key);
-	public abstract void addPhoto(byte[] data, String fileName);
 	public abstract boolean deletePhoto(String photoName); //delete 
 	public abstract void setPhotosNumber(int count);
-	
+	protected abstract void storePhoto(byte[] data, String fileName);
 	
 	//* show up multimedia type selection */
 	public void showAddPhotoPopUp() {
@@ -74,6 +81,76 @@ public abstract class BlogObjectController extends BaseController {
 			break;
 		}		
 	}
+	
+	
+	public void addPhoto(byte[] data, String fileName){
+	    System.out.println("addPhoto " + fileName);
+	
+	    if(fileName == null) 
+			fileName= String.valueOf(System.currentTimeMillis()+".jpg");
+
+			if(blog.isResizePhotos()) {
+				
+				WaitScreen waitScreen= new WaitScreen("Resizing...");
+				UiApplication.getUiApplication().pushScreen(waitScreen); 
+				Queue codaTask = new Queue(); //create empty queue of task
+				TasksRunner runner = new TasksRunner (codaTask); //task runner obj 
+				
+				ResizeImageTask resTask = new ResizeImageTask(data, fileName);
+				resTask.setProgressListener(new ResizeImgListener(waitScreen, runner, resTask));
+				codaTask.push(resTask); //push this task into the queue
+				runner.startWorker(); //start
+				
+			} else { 
+				storePhoto(data, fileName);
+			}
+	}
+	
+	private class ResizeImgListener implements TaskProgressListener {
+
+		private final WaitScreen waitScreen;
+		private final TasksRunner runner;
+		private final ResizeImageTask resTask;
+
+		// remove this 3 field when we use task in all app
+		public ResizeImgListener(WaitScreen waitScreen, TasksRunner runner,
+				ResizeImageTask resTask) {
+			this.waitScreen = waitScreen;
+			this.runner = runner;
+			this.resTask = resTask;
+
+		}
+
+		public void taskComplete(Object obj) {
+			
+			final Hashtable content = (Hashtable) obj;
+			
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					
+					waitScreen.close();
+					runner.quit(); //stop the runner thread
+
+					if (resTask.isError()) {
+						displayError(resTask.getErrorMsg());
+						return;
+					}
+					
+					String fileName = (String) content.get("name");
+					byte[] data = (byte[]) content.get("bits");
+					
+					storePhoto(data, fileName);
+					
+				}
+			});
+			
+		}
+
+		public void taskUpdate(Object obj) {
+
+		}
+	}
+	
 	
 	
 	public void startRemotePreview(String objectLink, String title, String content, String tags, String cats, String photoNumber){
@@ -131,11 +208,11 @@ public abstract class BlogObjectController extends BaseController {
 					
 					String html = null;
 					
+					if(resp.isStopped()){
+						return;
+					}
+					
 					if(!resp.isError()) {
-						if(resp.isStopped()){
-							return;
-						}
-
 						
 						try {
 							html = (String)resp.getResponseObject();

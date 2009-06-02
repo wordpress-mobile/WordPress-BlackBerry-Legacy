@@ -13,12 +13,10 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Page;
-import com.wordpress.utils.mm.MultimediaUtils;
 import com.wordpress.view.PageView;
 import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
-import com.wordpress.view.dialog.WaitScreen;
 import com.wordpress.view.mm.PhotoPreview;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.NewMediaObjectConn;
@@ -45,7 +43,6 @@ public class PageController extends BlogObjectController {
 	private Page[] remotePages; //the page on the blog
 	
 	private Page page=null; //page object
-	private final Blog blog;
     private boolean isModified = false; //the state of page. track changes on post..
 	
 	//used when new page/edit page
@@ -395,8 +392,7 @@ public class PageController extends BlogObjectController {
 		}
 		
 	}
-	
-	
+		
 	/*
 	 * delete selected photo
 	 */
@@ -412,18 +408,9 @@ public class PageController extends BlogObjectController {
 		return true;
 		
 	}
-		
-	public void addPhoto(byte[] data, String fileName){
-		if(fileName == null) 
-			fileName= String.valueOf(System.currentTimeMillis()+".jpg");
-	    try {
-	    	
-			if(blog.isResizePhotos()) {
-				Hashtable content = MultimediaUtils.resizePhotoAndOutputJpeg(data, fileName);
-				data =(byte[]) content.get("bits");
-				fileName = (String) content.get("name");
-			}
-						
+	
+	protected void storePhoto(byte[] data, String fileName) {
+		try {
 			EncodedImage img;
 			img = EncodedImage.createEncodedImage(data, 0, -1);
 			PageDAO.storePhoto(blog, draftPageFolder, data, fileName);
@@ -432,7 +419,6 @@ public class PageController extends BlogObjectController {
 			displayError(e, "Cannot save photo to disk!");
 		}
 	}
-	
 	
 	public void refreshView() {
 		//resfresh the post view. not used.

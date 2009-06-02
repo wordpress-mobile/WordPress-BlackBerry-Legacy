@@ -80,7 +80,7 @@ public class BlogDAO implements BaseDAO {
         }
     }
     
-    private static synchronized String[] getBlogsPath() throws IOException, RecordStoreException{
+    public static synchronized String[] getBlogsPath() throws IOException, RecordStoreException{
     	String[] listFilesAndDir = JSR75FileSystem.listFiles(AppDAO.getBaseDirPath());
     	Vector listDir= new Vector();
     	
@@ -94,24 +94,18 @@ public class BlogDAO implements BaseDAO {
     }
     
     /**
-     * Retrive a small set of infos for all blogs
+     * Retrive a small set of infos for blog
      * @return
      * @throws Exception
      */
-    public static synchronized BlogInfo[] getBlogsInfo() throws Exception{
-    	String[] listFiles = getBlogsPath();
-    	BlogInfo[] blogsInfo = new BlogInfo[listFiles.length];
-    	                                 
-    	for (int i = 0; i < listFiles.length; i++) {
-    		Blog loadedBlog = loadBlog(listFiles[i]);
-    		String blogName = loadedBlog.getName();
-    		String blogXmlRpcUrl=loadedBlog.getXmlRpcUrl();
-    		String blogId= loadedBlog.getId();
-    		int blogLoadingState = loadedBlog.getLoadingState();
-    		BlogInfo blogI = new BlogInfo(blogId, blogName,blogXmlRpcUrl,blogLoadingState);
-    		blogsInfo[i]= blogI;
-		}
-    	return blogsInfo;
+    public static synchronized BlogInfo getBlogInfo(String blogPath) throws Exception{
+		Blog loadedBlog = loadBlog(blogPath);
+		String blogName = loadedBlog.getName();
+		String blogXmlRpcUrl=loadedBlog.getXmlRpcUrl();
+		String blogId= loadedBlog.getId();
+		int blogLoadingState = loadedBlog.getLoadingState();
+		BlogInfo blogI = new BlogInfo(blogId, blogName,blogXmlRpcUrl,blogLoadingState);
+   		return blogI;
     }
     
     

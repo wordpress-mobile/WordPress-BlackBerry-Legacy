@@ -6,6 +6,7 @@ import java.util.Vector;
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.DrawStyle;
+import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ListField;
@@ -131,6 +132,10 @@ public class CommentsListField implements ListFieldCallback {
         
         StringBuffer rowString = new StringBuffer();
         
+        Font originalFont = graphics.getFont();
+        int originalColor = graphics.getColor();
+        
+        
         //If it is checked draw the String prefixed with a checked box,
         //prefix an unchecked box if it is not.
 		if (isCheckBoxVisible()) {
@@ -161,8 +166,60 @@ public class CommentsListField implements ListFieldCallback {
 		} else {
 			graphics.drawText(rowString.toString(), 0, y, 0, w);
 		}
+		
+ /*       int leftImageWidth = 5;
+        int rightImageWidth = 5;
+        int height = _checkList.getHeight();
+        
+        drawTitleText(graphics, leftImageWidth, y, w - rightImageWidth - leftImageWidth, height);
+
+        drawStatusText(graphics, leftImageWidth, y, w - rightImageWidth - leftImageWidth, height);
+
+        graphics.setFont(originalFont);
+        graphics.setColor(originalColor);*/
     }
     
+    //item.draw(graphics, 0, y, width, listField.getRowHeight());
+/*
+    private void drawStatusText(Graphics graphics, int x, int y, int width, int height) {
+        // Last sync takes bottom third
+        //int fontHeight = (height / 3) - (PADDING * 2);
+        int fontHeight = ((2* height) / 5) - (PADDING * 2);
+        graphics.setFont(font.derive(Font.PLAIN, fontHeight));
+
+        if (enabled) {
+            graphics.setColor(Color.BLACK);
+        } else {
+            graphics.setColor(Color.LIGHTGREY);
+        }
+
+        graphics.drawText(status, x + PADDING + 5, y - 4 + (height - fontHeight),
+                DrawStyle.LEFT | DrawStyle.TOP, width - PADDING);
+    }
+    
+    private void drawTitleText(Graphics graphics, int x, int y, int width, int height) {
+        //int fontHeight = ((int) (1.7 * (height / 3))) - (PADDING * 2);
+        int fontHeight = ((int) ((3* height) / 5)) - (PADDING * 2);
+        graphics.setFont(font.derive(Font.BOLD, fontHeight));
+
+        if (enabled) {
+            graphics.setColor(titleEnabledColor);
+        } else {
+            graphics.setColor(titleDisabledColor);
+        }
+
+        if (status != null) {
+            // Title takes top 2/3 of list item
+            graphics.drawText(title, x + PADDING + 3, y + PADDING + 2, DrawStyle.LEFT
+                    | DrawStyle.TOP, width - x - (PADDING * 2));
+        } else {
+            // Title is vertically centered
+            graphics.drawText(title, x + PADDING + 3, y + PADDING + 2 + (fontHeight / 2),
+                    DrawStyle.LEFT | DrawStyle.TOP, width - x - (PADDING * 2));
+        }
+
+    }
+    */
     
     public ListField get_checkList() {
 		return _checkList;

@@ -32,8 +32,8 @@ public class TaskWorker extends Thread {
 	        ((Task) currentObject).execute();
 	        done = true;
 	      } catch (final Exception e) {
-	    	  //TODO gestire errore
-	        System.out.println("Error in task runner: " + e.getMessage());
+	    	  tasksRunner.appendErrorMessage(e.getMessage());
+	    	  System.out.println("Error in task runner: " + e.getMessage());
 	      } finally {
 	        if (done) {
 	          tasksRunner.taskCompleted();

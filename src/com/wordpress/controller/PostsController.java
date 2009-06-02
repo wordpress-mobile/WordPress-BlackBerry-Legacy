@@ -199,10 +199,10 @@ public class PostsController extends BaseController{
 
 					dismissDialog(connectionProgressView);
 					BlogConnResponse resp= (BlogConnResponse) object;
+					if(resp.isStopped()){
+						return;
+					}
 					if(!resp.isError()) {
-						if(resp.isStopped()){
-							return;
-						}
 						
 				        String postID=(String) resp.getResponseObject();
 				        Vector recentPostTitles = currentBlog.getRecentPostTitles();
@@ -247,10 +247,10 @@ public class PostsController extends BaseController{
 					dismissDialog(connectionProgressView);
 					BlogConnResponse resp= (BlogConnResponse) object;
 							
+					if(resp.isStopped()){
+						return;
+					}
 					if(!resp.isError()) {
-						if(resp.isStopped()){
-							return;
-						}
 						
 						Vector recentPostTitle= (Vector) resp.getResponseObject();
 						currentBlog.setRecentPostTitles(recentPostTitle);
@@ -287,10 +287,10 @@ public class PostsController extends BaseController{
 					dismissDialog(connectionProgressView);
 					BlogConnResponse resp= (BlogConnResponse) object;
 							
+					if(resp.isStopped()){
+						return;
+					}
 					if(!resp.isError()) {
-						if(resp.isStopped()){
-							return;
-						}
 						Post post=(Post)resp.getResponseObject();
 						FrontController.getIstance().showPost(post);	
 					} else {

@@ -10,6 +10,8 @@ public class TasksRunner {
 
   private boolean stopping;
   private boolean started;
+  private boolean isError;
+  private StringBuffer errorMsg = new StringBuffer();
 
   private TaskWorker worker;
 
@@ -63,5 +65,20 @@ public class TasksRunner {
     synchronized (worker) {
       worker.start();
     }
+  }
+  
+  public synchronized void resetError() {
+	  isError = false;
+	  errorMsg = new StringBuffer();
+  }
+  public boolean isError() {
+	  return isError;
+  }
+  public synchronized void appendErrorMessage(String msg) {
+	  errorMsg.append(msg+"\n");
+  }
+  
+  public String getErrorMessage(String msg) {
+	  return errorMsg.toString();
   }
 }

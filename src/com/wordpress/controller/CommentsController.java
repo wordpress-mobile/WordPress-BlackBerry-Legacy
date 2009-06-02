@@ -310,10 +310,10 @@ public class CommentsController extends BaseController{
 					BlogConnResponse resp= (BlogConnResponse) object;
 					Vector respVector= null;
 					
+					if(resp.isStopped()){
+						return;
+					}
 					if(!resp.isError()) {
-						if(resp.isStopped()){
-							return;
-						}
 						
 						respVector = (Vector) resp.getResponseObject(); // the response from wp server
 						

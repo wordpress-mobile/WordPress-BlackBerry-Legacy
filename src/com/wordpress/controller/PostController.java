@@ -1,6 +1,5 @@
 package com.wordpress.controller;
 
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -8,8 +7,6 @@ import java.util.Vector;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
-import net.rim.device.api.ui.component.Status;
-import net.rim.device.api.ui.container.PopupScreen;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
@@ -18,7 +15,6 @@ import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
 import com.wordpress.model.Preferences;
-import com.wordpress.utils.mm.MultimediaUtils;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.NewCategoryView;
@@ -27,7 +23,6 @@ import com.wordpress.view.PostCategoriesView;
 import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PostView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
-import com.wordpress.view.dialog.WaitScreen;
 import com.wordpress.view.mm.PhotoPreview;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
@@ -61,6 +56,7 @@ public class PostController extends BlogObjectController {
 	public PostController(Post post) {
 		super();	
 		this.post=post;
+		this.blog = post.getBlog();
 		//assign new space on draft folder, used for photo IO
 		try {
 			draftPostFolder = DraftDAO.storePost(post, draftPostFolder);
@@ -73,6 +69,7 @@ public class PostController extends BlogObjectController {
 	public PostController(Post post,int _draftPostFolder) {
 		super();	
 		this.post=post;
+		this.blog = post.getBlog();
 		this.draftPostFolder=_draftPostFolder;
 		this.isDraft = true;
 	}
@@ -385,7 +382,7 @@ public class PostController extends BlogObjectController {
 
 
 	/*
-	 * set photos number on main post vire
+	 * set photos number on main post view
 	 */
 	public void setPhotosNumber(int count){
 		view.setNumberOfPhotosLabel(count);
@@ -443,77 +440,17 @@ public class PostController extends BlogObjectController {
 	}
 	
 	
-	public void addPhoto(byte[] data, String fileName){
-	    System.out.println("addPhoto " + fileName);
-	
-	    if(fileName == null) 
-			fileName= String.valueOf(System.currentTimeMillis()+".jpg");
-
-	    try {
-			
-			if(post.getBlog().isResizePhotos()) {
-				WaitScreen waitScreen= new WaitScreen("Resizing...");
-				
-				ResizeImgTask  resTask= new ResizeImgTask (waitScreen, data, fileName);
-				resTask.run();
-				UiApplication.getUiApplication().pushModalScreen(waitScreen);
-				
-				if(resTask.isError) {
-					displayError(resTask.errorMsg);
-					return;
-				}
-									
-				data =resTask.data;
-				fileName = resTask.fileName;
-			}
-			
+	protected void storePhoto(byte[] data, String fileName) {
+		try {
 			EncodedImage img;
 			img = EncodedImage.createEncodedImage(data, 0, -1);
-			
-			
+
 			DraftDAO.storePhoto(post.getBlog(), draftPostFolder, data, fileName);
 			photoView.addPhoto(fileName, img);
 		} catch (Exception e) {
 			displayError(e, "Cannot save photo to disk!");
-		}		
-	}
-	
-	private class ResizeImgTask implements Runnable {
-
-		private boolean isError = false;
-		private String errorMsg = "";
-		private byte[] data;
-		private String fileName;
-		private final PopupScreen waitScreen;
-
-		ResizeImgTask(PopupScreen waitScreen, byte[] data, String fileName){
-			this.waitScreen = waitScreen;
-			this.data = data;
-			this.fileName = fileName;
-			
 		}
-		
-		public void run() {
-			Hashtable content;
-			try {
-				content = MultimediaUtils.resizePhotoAndOutputJpeg(data, fileName);
-				data =(byte[]) content.get("bits");
-				fileName = (String) content.get("name");
-				
-				UiApplication.getUiApplication().invokeLater(new Runnable() {
-					public void run() {
-						waitScreen.close();
-					}
-				});
-				
-			} catch (IOException e) {
-				isError = true;
-				errorMsg = "Resizing Error: "+e.getMessage();
-			}
-		}
-		
 	}
-	
 	
 	public void refreshView() {
 		//resfresh the post view. not used.

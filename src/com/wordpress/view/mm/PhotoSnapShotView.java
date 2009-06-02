@@ -163,7 +163,6 @@ public class PhotoSnapShotView extends BaseView {
 				log("Encoding: "+encoding);
 
 				final byte[] imageBytes = vc.getSnapshot(encoding);
-				controller.addPhoto(imageBytes, System.currentTimeMillis()+".jpg");
 
 				log("Size: " + imageBytes.length);
 
@@ -173,6 +172,9 @@ public class PhotoSnapShotView extends BaseView {
 				}
 				
 				onClose();
+				
+				
+				controller.addPhoto(imageBytes, System.currentTimeMillis()+".jpg");
 				
 			} else {
 				controller.displayError("Viewfinder not visible!");
@@ -238,7 +240,8 @@ public class PhotoSnapShotView extends BaseView {
 			p.close();
 			p = null;
 		} 
-		controller.backCmd();
+		//controller.backCmd();
+		UiApplication.getUiApplication().popScreen(this); //remove screen immediatly
 		return true;
 	}
 

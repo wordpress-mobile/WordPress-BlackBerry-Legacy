@@ -163,10 +163,10 @@ public class PagesController extends BaseController{
 					System.out.println(">>>deletePageResponse");
 					dismissDialog(connectionProgressView);
 					BlogConnResponse resp= (BlogConnResponse) object;
+					if(resp.isStopped()){
+						return;
+					}
 					if(!resp.isError()) {
-						if(resp.isStopped()){
-							return;
-						}
 						
 						Boolean deleteResp= (Boolean) resp.getResponseObject();
 						if(deleteResp.booleanValue()) {
@@ -208,10 +208,10 @@ public class PagesController extends BaseController{
 					dismissDialog(connectionProgressView);
 					BlogConnResponse resp= (BlogConnResponse) object;
 							
+					if(resp.isStopped()){
+						return;
+					}
 					if(!resp.isError()) {
-						if(resp.isStopped()){
-							return;
-						}
 						
 						Vector respVector= (Vector) resp.getResponseObject();
 						currentBlog.setPages(respVector);

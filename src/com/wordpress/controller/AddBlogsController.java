@@ -119,13 +119,14 @@ public class AddBlogsController extends BaseController implements Observer{
 		try{
 			
 		dismissDialog(connectionProgressView);
+
 		BlogConnResponse resp=(BlogConnResponse)object;
 		
+		if(resp.isStopped()){
+			return;
+		}
+		
 		if(!resp.isError()) {
-							 	
-			if(resp.isStopped()){
-				return;
-			}
 			
 			System.out.println("Trovati blogs: "+((Blog[])resp.getResponseObject()).length);	
 		 	Blog[]blogs=(Blog[])resp.getResponseObject();

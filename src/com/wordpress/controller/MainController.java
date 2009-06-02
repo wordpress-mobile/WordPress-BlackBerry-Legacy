@@ -1,6 +1,7 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
+import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
@@ -47,13 +48,34 @@ public class MainController extends BaseController implements TaskListener{
 	
 	
 	public BlogInfo[] getBlogsList() {
-		
-		BlogInfo[] blogs = new BlogInfo[0];		
+
+		String[] listFiles = new String[0];
+		BlogInfo[] blogs = new BlogInfo[0];
+
 		try {
-			blogs = BlogDAO.getBlogsInfo();
-		} catch (Exception e) {
-			displayError(e, "Error while loading your blog");
+			listFiles = BlogDAO.getBlogsPath();
+		} catch (Exception e1) {
+			displayError(e1, "Error while loading your blogs index");
+			return blogs;
 		}
+
+		Vector blogsVector = new Vector();
+		for (int i = 0; i < listFiles.length; i++) {
+			String currBlogPath = listFiles[i];
+
+			try {
+				BlogInfo currBlogInfo = BlogDAO.getBlogInfo(currBlogPath);
+				blogsVector.addElement(currBlogInfo);
+			} catch (Exception e) {
+				displayError(e, "Error while loading blog: "+ currBlogPath);
+			}
+		}
+		
+		blogs = new BlogInfo[blogsVector.size()];
+		for (int i = 0; i < blogs.length; i++) {
+			blogs[i] = (BlogInfo) blogsVector.elementAt(i);
+		}
+		
 
 		return blogs;
 	}
