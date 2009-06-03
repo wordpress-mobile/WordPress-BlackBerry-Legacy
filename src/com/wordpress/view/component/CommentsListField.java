@@ -152,6 +152,7 @@ public class CommentsListField implements ListFieldCallback {
                 
                 data = (ChecklistData)_listData.elementAt(newSelection);
                 data.setSelected(true);
+                invalidate();
             }
             
         };

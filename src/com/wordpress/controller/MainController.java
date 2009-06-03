@@ -11,11 +11,11 @@ import net.rim.device.api.ui.component.Dialog;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
+import com.wordpress.task.TaskProgressListener;
 import com.wordpress.view.MainView;
-import com.wordpress.xmlrpc.TaskListener;
 
 
-public class MainController extends BaseController implements TaskListener{
+public class MainController extends BaseController implements TaskProgressListener{
 	
 	private MainView view = null;
 	
@@ -133,6 +133,7 @@ public class MainController extends BaseController implements TaskListener{
 	*/	
     	int result=this.askQuestion("Are sure to exit?");   
     	if(Dialog.YES==result) {
+    		runner.quit(); //stop the runner thread
     		System.exit(0);
     		return true;
     	} else {
@@ -140,11 +141,12 @@ public class MainController extends BaseController implements TaskListener{
     	}
 	}
 
-	//listener on adding blog task
+	//listener for the adding blogs task
 	public void taskComplete(Object obj) {
 		taskUpdate(obj);		
 	}
-
+	
+	//listener for the adding blogs task
 	public void taskUpdate(Object obj) {
 		synchronized (view) {
 			Blog loadedBlog = (Blog)obj;

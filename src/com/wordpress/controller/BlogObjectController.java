@@ -93,13 +93,11 @@ public abstract class BlogObjectController extends BaseController {
 				
 				WaitScreen waitScreen= new WaitScreen("Resizing...");
 				UiApplication.getUiApplication().pushScreen(waitScreen); 
-				Queue codaTask = new Queue(); //create empty queue of task
-				TasksRunner runner = new TasksRunner (codaTask); //task runner obj 
 				
 				ResizeImageTask resTask = new ResizeImageTask(data, fileName);
-				resTask.setProgressListener(new ResizeImgListener(waitScreen, runner, resTask));
-				codaTask.push(resTask); //push this task into the queue
-				runner.startWorker(); //start
+				resTask.setProgressListener(new ResizeImgListener(waitScreen, resTask));
+				//push into the Runner
+				runner.enqueue(resTask);
 				
 			} else { 
 				storePhoto(data, fileName);
@@ -109,14 +107,10 @@ public abstract class BlogObjectController extends BaseController {
 	private class ResizeImgListener implements TaskProgressListener {
 
 		private final WaitScreen waitScreen;
-		private final TasksRunner runner;
 		private final ResizeImageTask resTask;
 
-		// remove this 3 field when we use task in all app
-		public ResizeImgListener(WaitScreen waitScreen, TasksRunner runner,
-				ResizeImageTask resTask) {
+		public ResizeImgListener(WaitScreen waitScreen,	ResizeImageTask resTask) {
 			this.waitScreen = waitScreen;
-			this.runner = runner;
 			this.resTask = resTask;
 
 		}
@@ -129,7 +123,6 @@ public abstract class BlogObjectController extends BaseController {
 				public void run() {
 					
 					waitScreen.close();
-					runner.quit(); //stop the runner thread
 
 					if (resTask.isError()) {
 						displayError(resTask.getErrorMsg());

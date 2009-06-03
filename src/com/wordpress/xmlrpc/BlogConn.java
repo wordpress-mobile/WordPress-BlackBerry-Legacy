@@ -426,6 +426,8 @@ public abstract class BlogConn extends Observable implements Runnable {
 	
 	
 	protected void setErrorMessage(Exception e, String err){
+		if (!isWorking)
+			return;
 		connResponse=new BlogConnResponse();
 		connResponse.setError(true);
 		
@@ -439,6 +441,8 @@ public abstract class BlogConn extends Observable implements Runnable {
 	}
 	
 	protected void setErrorMessage(String err){
+		if (!isWorking)
+			return;
 		connResponse=new BlogConnResponse();
 		connResponse.setError(true);
 		connResponse.setResponse(err);

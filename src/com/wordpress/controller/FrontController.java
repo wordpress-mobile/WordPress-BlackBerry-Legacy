@@ -7,7 +7,6 @@ import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
 import com.wordpress.view.BaseView;
 import com.wordpress.view.MainView;
-import com.wordpress.xmlrpc.TaskListener;
 
 
 /*

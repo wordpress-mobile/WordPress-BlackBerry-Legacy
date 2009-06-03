@@ -61,36 +61,36 @@ public class BlogView extends BaseView {
 
     
 
-    private void doSelection(){
-    	
-    	int i = mainMenuItems[list.getSelectedIndex()];
-    	
-    	switch (i) {
-        
-        case (mnuPosts): 
-        	controller.showPosts();
-            break;
-        case (mnuPages):
-        	controller.showPages();
-            break;
-        case (mnuComments):
-        	controller.showComments();
-            break;
+    private void doSelection() {
 
-        case (mnuOptions):
-        	controller.showBlogOptions();
-            break;
+		int i = mainMenuItems[list.getSelectedIndex()];
 
-        case (mnuRefresh):
-        	controller.refreshBlog();
-            break;       
-        
-        default:
-        controller.displayError("There was an error with the request.");
-        break;
+		switch (i) {
 
-    }
-    }
+		case (mnuPosts):
+			controller.showPosts();
+			break;
+		case (mnuPages):
+			controller.showPages();
+			break;
+		case (mnuComments):
+			controller.showComments();
+			break;
+
+		case (mnuOptions):
+			controller.showBlogOptions();
+			break;
+
+		case (mnuRefresh):
+			controller.refreshBlog();
+			break;
+
+		default:
+			controller.displayError("There was an error with the request.");
+			break;
+
+		}
+	}
 
         
   /*
@@ -114,7 +114,6 @@ public class BlogView extends BaseView {
 	}
 
 	
-	
 	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {
 		//controller.backCmd();
@@ -125,7 +124,6 @@ public class BlogView extends BaseView {
 	public BaseController getController() {
 		return controller;
 	}   
-	
 	
 	private class BlogListField extends ObjectListField {
 		

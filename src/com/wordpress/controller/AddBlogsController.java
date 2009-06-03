@@ -12,6 +12,9 @@ import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Preferences;
+import com.wordpress.task.LoadBlogsDataTask;
+import com.wordpress.task.TaskProgressListener;
+import com.wordpress.utils.Queue;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.AddBlogsView;
@@ -19,14 +22,12 @@ import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogAuthConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.BlogUpdateConn;
-import com.wordpress.xmlrpc.GetBlogsDataTask;
-import com.wordpress.xmlrpc.TaskListener;
 
 
 public class AddBlogsController extends BaseController implements Observer{
 	
 	private AddBlogsView view = null;
-	private final TaskListener listener; //listener on add a blog task
+	private final TaskProgressListener listener; //listener on add a blog task
 	ConnectionInProgressView connectionProgressView=null;
 	
 	private int maxPostIndex= -1;
@@ -35,7 +36,7 @@ public class AddBlogsController extends BaseController implements Observer{
 	public static final String[] recentsPostValuesLabel={"10","20","30","40","50"};
 	private Hashtable guiValues= new Hashtable();
 	
-	public AddBlogsController(TaskListener listener) {
+	public AddBlogsController(TaskProgressListener listener) {
 		super();
 		this.listener = listener;
 		guiValues.put("user", "editore");
@@ -130,9 +131,7 @@ public class AddBlogsController extends BaseController implements Observer{
 			
 			System.out.println("Trovati blogs: "+((Blog[])resp.getResponseObject()).length);	
 		 	Blog[]blogs=(Blog[])resp.getResponseObject();
-		 	
-		 	GetBlogsDataTask networkTask = new GetBlogsDataTask(listener); 
-			Preferences prefs = Preferences.getIstance();
+		 	Queue connectionsQueue = new Queue(blogs.length);
 			
 		 	for (int i = 0; i < blogs.length; i++) {
 		 		blogs[i].setMaxPostCount(recentsPostValues[maxPostIndex]);
@@ -141,10 +140,15 @@ public class AddBlogsController extends BaseController implements Observer{
 				BlogDAO.newBlog(blogs[i], true);
 				//add this blog to the queue	
 				final BlogUpdateConn connection = new BlogUpdateConn (blogs[i]);       
-		        networkTask.addConn(connection); 
+				connectionsQueue.push(connection); 
 		    }
 		 	FrontController.getIstance().backAndRefreshView(true); //update the main view with new blogs
-		 	networkTask.startTask(); //start getting blog details
+
+		 	LoadBlogsDataTask loadBlogsTask = new LoadBlogsDataTask(connectionsQueue);
+			loadBlogsTask.setProgressListener(this.listener);
+			//push into the Runner
+			runner.enqueue(loadBlogsTask);
+		 	
 		} else {
 			final String respMessage=resp.getResponse();
 		 	displayError(respMessage);	

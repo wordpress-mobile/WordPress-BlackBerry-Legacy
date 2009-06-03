@@ -6,6 +6,8 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.task.TasksRunner;
+import com.wordpress.utils.Queue;
 import com.wordpress.view.dialog.ErrorView;
 import com.wordpress.view.dialog.InfoView;
 import com.wordpress.view.dialog.InquiryView;
@@ -14,12 +16,17 @@ public abstract class BaseController {
 
 	//create a variable to store the ResourceBundle for localization support
     protected static ResourceBundle _resources;
-	    
+    
+    protected static Queue codaTask = new Queue(); //create empty queue of task
+    protected static TasksRunner runner = new TasksRunner (codaTask); //task runner obj
+    	    
     static {
         //retrieve a reference to the ResourceBundle for localization support
         _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
+        runner.startWorker(); //start the task runner thread
     }
   	
+    
   abstract 	public void showView();
   abstract 	public void refreshView();
 	

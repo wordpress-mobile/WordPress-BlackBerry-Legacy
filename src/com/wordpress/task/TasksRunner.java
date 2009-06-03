@@ -71,9 +71,11 @@ public class TasksRunner {
 	  isError = false;
 	  errorMsg = new StringBuffer();
   }
+  
   public boolean isError() {
 	  return isError;
   }
+  
   public synchronized void appendErrorMessage(String msg) {
 	  errorMsg.append(msg+"\n");
   }

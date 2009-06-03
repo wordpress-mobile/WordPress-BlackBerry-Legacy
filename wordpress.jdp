@@ -76,6 +76,7 @@ src\com\wordpress\model\Page.java
 src\com\wordpress\model\Post.java
 src\com\wordpress\model\Preferences.java
 src\com\wordpress\model\Tag.java
+src\com\wordpress\task\LoadBlogsDataTask.java
 src\com\wordpress\task\LocalTask.java
 src\com\wordpress\task\ResizeImageTask.java
 src\com\wordpress\task\Task.java
@@ -108,7 +109,6 @@ src\com\wordpress\view\component\CommentsListField.java
 src\com\wordpress\view\component\DirectorySelectorPopUpScreen.java
 src\com\wordpress\view\component\FileSelectorPopupScreen.java
 src\com\wordpress\view\component\HtmlTextField.java
-src\com\wordpress\view\component\TestListField.java
 src\com\wordpress\view\dialog\ConnectionInProgressView.java
 src\com\wordpress\view\dialog\DiscardChangeInquiryView.java
 src\com\wordpress\view\dialog\ErrorView.java
@@ -145,7 +145,6 @@ src\com\wordpress\xmlrpc\comment\GetCommentStatusListConn.java
 src\com\wordpress\xmlrpc\comment\ManageCommentsTask.java
 src\com\wordpress\xmlrpc\comment\NewCommentConn.java
 src\com\wordpress\xmlrpc\GetAuthorsConn.java
-src\com\wordpress\xmlrpc\GetBlogsDataTask.java
 src\com\wordpress\xmlrpc\GetTemplateConn.java
 src\com\wordpress\xmlrpc\NewCategory.java
 src\com\wordpress\xmlrpc\NewCategoryConn.java
@@ -165,7 +164,6 @@ src\com\wordpress\xmlrpc\post\NewPostConn.java
 src\com\wordpress\xmlrpc\post\PostConn.java
 src\com\wordpress\xmlrpc\post\RecentPostConn.java
 src\com\wordpress\xmlrpc\post\SendPostDataTask.java
-src\com\wordpress\xmlrpc\TaskListener.java
 src\complete.png
 src\defaultPostTemplate.html
 src\disclosure-indicator.png
