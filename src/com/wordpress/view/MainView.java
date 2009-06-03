@@ -42,7 +42,7 @@ public class MainView extends BaseView {
         	addMenuItem(_deleteBlogItem);
         }
     	blogListController = new BlogsListField(blogCaricati);
-		this.listaBlog = blogListController.getCheckList();
+		this.listaBlog = blogListController.getList();
         add(listaBlog);    
 	 }
 	 

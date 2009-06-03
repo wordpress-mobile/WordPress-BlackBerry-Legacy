@@ -26,8 +26,12 @@ application-icon.png
 lib\kxml2-2.3.0.jar
 src\aboutscreenfooter.png
 src\application-icon.png
+src\bg_blue.png
+src\bg_light.png
 src\browser.png
 src\camera.png
+src\cancel.png
+src\check.png
 src\com\wordpress\bb\SplashScreen.java
 src\com\wordpress\bb\WordPress.java
 src\com\wordpress\bb\WordPress.rrc
@@ -162,6 +166,7 @@ src\com\wordpress\xmlrpc\post\PostConn.java
 src\com\wordpress\xmlrpc\post\RecentPostConn.java
 src\com\wordpress\xmlrpc\post\SendPostDataTask.java
 src\com\wordpress\xmlrpc\TaskListener.java
+src\complete.png
 src\defaultPostTemplate.html
 src\disclosure-indicator.png
 src\drafts-folder.png
@@ -172,8 +177,10 @@ src\org\kxmlrpc\XmlRpcClient.java
 src\org\kxmlrpc\XmlRpcException.java
 src\org\kxmlrpc\XmlRpcParser.java
 src\org\kxmlrpc\XmlRpcWriter.java
+src\refresh.png
 src\settings.png
 src\sound.png
+src\uncheck.png
 src\video.png
 src\wplogo.png
 ]

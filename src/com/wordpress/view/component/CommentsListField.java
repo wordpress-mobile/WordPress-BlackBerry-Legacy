@@ -1,10 +1,10 @@
 package com.wordpress.view.component;
 
-import java.util.Date;
 import java.util.Vector;
 
-import net.rim.device.api.i18n.SimpleDateFormat;
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
@@ -15,7 +15,15 @@ import net.rim.device.api.ui.component.ListFieldCallback;
 import com.wordpress.model.Comment;
 
 public class CommentsListField implements ListFieldCallback {
-    private Vector _listData = new Vector();
+    
+    protected Bitmap bg                    = null;
+    protected Bitmap bgSelected            = null;
+    protected Bitmap checkedBitmap         = null;
+    protected Bitmap uncheckedBitmap       = null;
+    
+    protected static final int PADDING     = 2;
+    
+	private Vector _listData = new Vector();
     private ListField _checkList;
     private boolean checkBoxVisible = false;
     
@@ -77,7 +85,11 @@ public class CommentsListField implements ListFieldCallback {
        _checkList.insert(elementLength);
    }
    */
-   public CommentsListField(Comment[] _elements, boolean[] _elementsChecked) {  
+   public CommentsListField(Comment[] _elements, boolean[] _elementsChecked) { 
+	   bg = Bitmap.getBitmapResource("bg_light.png");
+	   bgSelected = Bitmap.getBitmapResource("bg_blue.png");
+	   checkedBitmap = Bitmap.getBitmapResource("check.png");
+	   uncheckedBitmap = Bitmap.getBitmapResource("uncheck.png");
 	    
         _checkList = new ListField()
         {
@@ -108,20 +120,57 @@ public class CommentsListField implements ListFieldCallback {
                 }
                 return retVal;
             }
+            
+            protected int moveFocus(int amount, int status, int time) {
+
+                int oldSelection = getSelectedIndex();
+                ChecklistData data = (ChecklistData)_listData.elementAt(oldSelection);
+                data.setSelected(false);
+
+                // Forward the call
+                int ret = super.moveFocus(amount, status, time);
+
+                int newSelection = getSelectedIndex();
+
+                // Get the next enabled item;
+                data = (ChecklistData)_listData.elementAt(newSelection);
+                data.setSelected(true);
+
+                invalidate();
+
+                return ret;
+            }
+            
+            
+            
+            protected void moveFocus(int x, int y, int status, int time) {
+                int oldSelection = getSelectedIndex();
+                super.moveFocus(x, y, status, time);
+                int newSelection = getSelectedIndex();
+                ChecklistData data = (ChecklistData)_listData.elementAt(oldSelection);
+                data.setSelected(false);
+                
+                data = (ChecklistData)_listData.elementAt(newSelection);
+                data.setSelected(true);
+            }
+            
         };
         
         //Set the ListFieldCallback
         _checkList.setCallback(this);
         _checkList.setEmptyString("Nothing to see here", DrawStyle.LEFT);
+        _checkList.setRowHeight(42);
         
         int elementLength = _elements.length;
         
         //Populate the ListField & Vector with data.
         for(int count = 0; count < elementLength; ++count)
         {
-           _listData.addElement(new ChecklistData(_elements[count], _elementsChecked[count]));  
+           ChecklistData checklistData = new ChecklistData(_elements[count], _elementsChecked[count]);
+           if(count == 0) checklistData.setSelected(true); //select the first element
+           _listData.addElement(checklistData);
            _checkList.insert(count);
-        }    
+        }  
     }
         
     //Draws the list row.
@@ -129,65 +178,79 @@ public class CommentsListField implements ListFieldCallback {
     {
         //Get the ChecklistData for the current row.
         ChecklistData currentRow = (ChecklistData)this.get(list, index);
-        
-        StringBuffer rowString = new StringBuffer();
+        Comment currentComment = currentRow.getComment();
         
         Font originalFont = graphics.getFont();
         int originalColor = graphics.getColor();
+        int height = list.getRowHeight();
         
+        //drawXXX(graphics, 0, y, width, listField.getRowHeight());
+        drawBackground(graphics, 0, y, w, height, currentRow.isSelected);
+        drawBorder(graphics, 0, y, w, height);
         
+        int leftImageWidth = 0;
         //If it is checked draw the String prefixed with a checked box,
         //prefix an unchecked box if it is not.
 		if (isCheckBoxVisible()) {
 			if (currentRow.isChecked()) {
-				rowString.append(Characters.BALLOT_BOX_WITH_CHECK);
+				leftImageWidth = drawLeftImage(graphics, 0, y, height, true);
 			} else {
-				rowString.append(Characters.BALLOT_BOX);
+				leftImageWidth = drawLeftImage(graphics, 0, y, height, false);
 			}
 		} else {
 			
 		}
-        
-        //Append a couple spaces and the row's text.
-        rowString.append(Characters.SPACE);
-        rowString.append(Characters.SPACE);
-        rowString.append(currentRow.getStringVal());
-        
-        if (currentRow.getCommentStatus().equalsIgnoreCase("approve")) {
-			// approved comment
-			graphics.drawText("A "+rowString.toString(), 0, y, 0, w);
-		} else if (currentRow.getCommentStatus().equalsIgnoreCase("hold")) {
-			// holded comment
-			graphics.drawText("H "+rowString.toString(), 0, y, 0, w);
 
-		} else if (currentRow.getCommentStatus().equalsIgnoreCase("spam")) {
-			// spam comment
-			graphics.drawText("S "+rowString.toString(), 0, y, 0, w);
-		} else {
-			graphics.drawText(rowString.toString(), 0, y, 0, w);
-		}
-		
- /*       int leftImageWidth = 5;
-        int rightImageWidth = 5;
-        int height = _checkList.getHeight();
         
-        drawTitleText(graphics, leftImageWidth, y, w - rightImageWidth - leftImageWidth, height);
-
-        drawStatusText(graphics, leftImageWidth, y, w - rightImageWidth - leftImageWidth, height);
+        int authorWidth = drawAuthorText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getAuthor(), currentRow.isSelected);
+        drawEMailText(graphics, w -  leftImageWidth - authorWidth, y, w - leftImageWidth - authorWidth, height, currentComment.getAuthorEmail(), currentRow.isSelected);
+        drawContentText(graphics, leftImageWidth, y, w - leftImageWidth, height, currentComment.getContent(), currentRow.isSelected);
 
         graphics.setFont(originalFont);
-        graphics.setColor(originalColor);*/
+        graphics.setColor(originalColor);
+        
     }
     
-    //item.draw(graphics, 0, y, width, listField.getRowHeight());
-/*
-    private void drawStatusText(Graphics graphics, int x, int y, int width, int height) {
-        // Last sync takes bottom third
-        //int fontHeight = (height / 3) - (PADDING * 2);
-        int fontHeight = ((2* height) / 5) - (PADDING * 2);
-        graphics.setFont(font.derive(Font.PLAIN, fontHeight));
+    private int drawAuthorText(Graphics graphics, int x, int y, int width, int height, String title, boolean selected) {
+        //int fontHeight = ((int) (1.7 * (height / 3))) - (PADDING * 2);
+        int fontHeight = ((int) ((3* height) / 5)) - (PADDING * 2);
+        graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));
 
-        if (enabled) {
+        if (selected) {
+            graphics.setColor(Color.BLACK);
+        } else {
+            graphics.setColor(Color.GRAY);
+        }
+
+        if (title != null) {
+            // Title takes top 2/3 of list item
+        return   graphics.drawText(title, x + PADDING + 3, y + PADDING + 2, DrawStyle.LEFT
+                    | DrawStyle.TOP | DrawStyle.ELLIPSIS, width - x - (PADDING * 2));
+        }
+
+        return 0;
+    }
+    
+    private void drawEMailText(Graphics graphics, int x, int y, int width, int height, String email, boolean selected) {
+        int fontHeight = ((2* height) / 5) - (PADDING * 2);
+        graphics.setFont(Font.getDefault().derive(Font.PLAIN, fontHeight));
+
+        if (selected) {
+            graphics.setColor(Color.BLACK);
+        } else {
+            graphics.setColor(Color.LIGHTGREY);
+        }
+        graphics.drawText(email, x + PADDING + 3, y + PADDING + 2, DrawStyle.LEFT
+                | DrawStyle.TOP | DrawStyle.ELLIPSIS, width - (PADDING * 2));
+        
+    }
+    //item.draw(graphics, 0, y, width, listField.getRowHeight());
+
+    private void drawContentText(Graphics graphics, int x, int y, int width, int height, String status, boolean selected) {
+        int fontHeight = ((2* height) / 5) - (PADDING * 2);
+        graphics.setFont(Font.getDefault().derive(Font.PLAIN, fontHeight));
+
+        if (selected) {
             graphics.setColor(Color.BLACK);
         } else {
             graphics.setColor(Color.LIGHTGREY);
@@ -197,30 +260,53 @@ public class CommentsListField implements ListFieldCallback {
                 DrawStyle.LEFT | DrawStyle.TOP, width - PADDING);
     }
     
-    private void drawTitleText(Graphics graphics, int x, int y, int width, int height) {
-        //int fontHeight = ((int) (1.7 * (height / 3))) - (PADDING * 2);
-        int fontHeight = ((int) ((3* height) / 5)) - (PADDING * 2);
-        graphics.setFont(font.derive(Font.BOLD, fontHeight));
+    private int drawLeftImage(Graphics graphics, int x, int y, int height, boolean checked) {
+        Bitmap leftImage;
 
-        if (enabled) {
-            graphics.setColor(titleEnabledColor);
+        if (checked) {
+            graphics.setColor(Color.BLACK);
+            leftImage = checkedBitmap;
         } else {
-            graphics.setColor(titleDisabledColor);
+            graphics.setColor(Color.LIGHTGREY);
+            leftImage = uncheckedBitmap;
         }
 
-        if (status != null) {
-            // Title takes top 2/3 of list item
-            graphics.drawText(title, x + PADDING + 3, y + PADDING + 2, DrawStyle.LEFT
-                    | DrawStyle.TOP, width - x - (PADDING * 2));
-        } else {
-            // Title is vertically centered
-            graphics.drawText(title, x + PADDING + 3, y + PADDING + 2 + (fontHeight / 2),
-                    DrawStyle.LEFT | DrawStyle.TOP, width - x - (PADDING * 2));
-        }
+        int imageWidth = leftImage.getWidth();
+        int imageHeight = leftImage.getHeight();
+        int imageTop = y + ((height - imageHeight) / 2);
+        int imageLeft = x + ((height - imageWidth) / 2);
 
+        // Image on left side
+        graphics.drawBitmap(imageLeft, imageTop, imageWidth, imageHeight, leftImage, 0, 0);
+
+        return height;
     }
-    */
     
+    
+    
+    private void drawBackground(Graphics graphics, int x, int y, int width, int height, boolean selected) {
+            Bitmap toDraw = null;
+            if (selected) {
+                toDraw = bgSelected;
+            } else {
+                toDraw = bg;
+            }
+            int imgWidth = toDraw.getWidth();
+            while (width > -2) {
+                graphics.drawBitmap(x - 1, y - 1, width + 2, height + 1, toDraw, 0, 0);
+                width -= imgWidth;
+                // Overlap a little bit to avoid border issues
+                x += imgWidth - 2;
+            }
+    }
+    
+    private void drawBorder(Graphics graphics, int x, int y, int width, int height) {
+    	
+    	graphics.setColor(Color.GRAY);
+    	graphics.drawLine(x, y - 1, x + width, y - 1);
+    	graphics.drawLine(x, y + height - 1, x + width, y + height - 1);
+    }
+     
     public ListField get_checkList() {
 		return _checkList;
 	}
@@ -270,33 +356,23 @@ public class CommentsListField implements ListFieldCallback {
     
     //A class to hold the comment in the CheckBox and it's checkbox state (checked or unchecked).
     private class ChecklistData  {
-        private Comment comment;
-        public Comment getComment() {
-			return comment;
-		}
 
-		private boolean _checked;
-                
+    	private Comment comment;
+        private boolean _checked;
+        private boolean isSelected;
+
         ChecklistData(Comment comment, boolean checked)
         {
         	this.comment = comment;
-            _checked = checked;
+        	_checked = checked;
         }
-        
-        private String getCommentStatus(){
-        	return comment.getStatus();
+
+        public Comment getComment() {
+        	return comment;
         }
-        
-        //Get a rapresentation of the comment...
-        private String getStringVal()
-        {
-            Date dateCreated = comment.getDate_created_gmt();
-            SimpleDateFormat sdFormat3 = new SimpleDateFormat("yyyy/MM/dd hh:mm");
-            String format = sdFormat3.format(dateCreated);
-            if(comment.getContent().length()>10)
-            	return comment.getContent().substring(0, 10)+"...  "+format;
-            else 
-            	return comment.getContent()+"...  "+format;
+                   
+        private void setSelected(boolean flag){
+        	isSelected = flag;
         }
         
         private boolean isChecked()
