@@ -85,9 +85,7 @@ src\com\wordpress\task\TasksRunner.java
 src\com\wordpress\task\TaskWorker.java
 src\com\wordpress\utils\MD5.java
 src\com\wordpress\utils\MD5State.java
-src\com\wordpress\utils\mm\JpegEncoder.java
-src\com\wordpress\utils\mm\MultimediaUtils.java
-src\com\wordpress\utils\mm\PNGEncoder.java
+src\com\wordpress\utils\MultimediaUtils.java
 src\com\wordpress\utils\observer\Observable.java
 src\com\wordpress\utils\observer\Observer.java
 src\com\wordpress\utils\PropertyUtils.java

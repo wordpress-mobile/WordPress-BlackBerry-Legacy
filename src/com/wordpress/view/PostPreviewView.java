@@ -492,4 +492,10 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 		
 	}
 	
+    //override onClose() to stop all internet activity immediatly 
+	public boolean onClose()   {
+		SecondaryResourceFetchThread.stopAllActivity();
+		return super.onClose();
+    }
+	
 }

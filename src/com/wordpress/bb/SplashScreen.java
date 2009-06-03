@@ -21,7 +21,7 @@ import com.wordpress.controller.MainController;
 import com.wordpress.io.AppDAO;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Preferences;
-import com.wordpress.utils.mm.MultimediaUtils;
+import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.view.component.DirectorySelectorPopUpScreen;
 import com.wordpress.view.dialog.ErrorView;
 

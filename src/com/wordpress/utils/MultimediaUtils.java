@@ -1,23 +1,65 @@
-package com.wordpress.utils.mm;
+package com.wordpress.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Hashtable;
 
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
 import net.rim.device.api.math.Fixed32;
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.EncodedImage;
+import net.rim.device.api.system.JPEGEncodedImage;
 
-import com.wordpress.utils.StringUtils;
 
 public class MultimediaUtils {
-	
 
+	
+	public static Hashtable resizePhotoAndOutputJpeg(byte[] data, String fileName) throws IOException {
+				
+		EncodedImage originalImage = EncodedImage.createEncodedImage(data, 0, -1);
+		Hashtable content = new Hashtable(2);
+
+		//no resize
+		if(originalImage.getWidth() <= 640 && originalImage.getWidth() <= 480) {
+			content.put("name", fileName);
+			content.put("bits", data);
+			return content;
+		}
+		
+		int type = originalImage.getImageType();
+		
+		//starting resize
+		EncodedImage bestFit2 = bestFit2(originalImage, 640, 480);
+		originalImage = null;
+		Bitmap resizedBitmap = bestFit2.getBitmap();
+		
+		EncodedImage resizedEncodedImg = null;
+		
+		switch (type) {
+		case EncodedImage.IMAGE_TYPE_JPEG:
+			resizedEncodedImg= JPEGEncodedImage.encode(resizedBitmap, 100);
+			break;
+
+		default:
+			resizedEncodedImg= JPEGEncodedImage.encode(resizedBitmap, 75);
+			//check file name ext eventually add jpg ext
+			if (fileName.endsWith("jpg") || fileName.endsWith("JPG")){				
+			} else {
+				fileName+=".jpg";
+			}
+			break;
+		}
+		
+		
+		content.put("name", fileName);
+		content.put("bits",  resizedEncodedImg.getData());
+		return content;
+
+	    	
+	}
+
+/*
 	public static Hashtable resizePhotoAndOutputJpeg(byte[] data, String fileName) throws IOException {
 		
 		Hashtable content = new Hashtable(2);
@@ -46,16 +88,11 @@ public class MultimediaUtils {
 		content.put("bits",  out.toByteArray());
 		return content;
 		
-		/*EncodedImage rescaled= MultimediaUtils.bestFit2(img, 256, 256);
-		Bitmap original= img.getBitmap();
-    	
-    	PNGEncoder encoder = new PNGEncoder(original, true);
-    	byte[] imageBytes = encoder.encode(true);
-	    	*/
+
 	    	
 	}
 	
-
+*/
 	private static Image createResizedImg(Image image) {
 	    int sourceWidth = image.getWidth();
 	    int sourceHeight = image.getHeight();

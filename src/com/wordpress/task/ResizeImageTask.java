@@ -3,7 +3,7 @@ package com.wordpress.task;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import com.wordpress.utils.mm.MultimediaUtils;
+import com.wordpress.utils.MultimediaUtils;
 
 public class ResizeImageTask implements LocalTask {
 	
@@ -21,8 +21,7 @@ public class ResizeImageTask implements LocalTask {
 	public void execute() {
 		Hashtable content = null;
 		try {
-			content = MultimediaUtils.resizePhotoAndOutputJpeg(data,
-					fileName);
+			content = MultimediaUtils.resizePhotoAndOutputJpeg(data, fileName);
 		} catch (IOException e) {
 			isError = true;
 			errorMsg = "Resizing Error: " + e.getMessage();

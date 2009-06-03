@@ -113,6 +113,23 @@ public class SecondaryResourceFetchThread extends Thread
         }
     }
     
+    /**
+     * Indicate that all images have been enqueued for this browser field.
+     */
+    public static void stopAllActivity() 
+    {
+        synchronized( _syncObject ) 
+        {
+            if (_currentThread != null) 
+            {
+            	 _currentThread._imageQueue.removeAllElements(); //just remove all enqueed elements
+             //   _currentThread.interrupt();
+               // _currentThread = null;
+            }
+        }
+    }
+    
+    
     public void run() 
     {
         while (true) 
