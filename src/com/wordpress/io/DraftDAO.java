@@ -109,8 +109,7 @@ public class DraftDAO implements BaseDAO{
         	
 	}
 	
-	
-	
+		
 	//retrive draft post by id from storage
 	public static Post loadPost(Blog blog, int draftId) throws IOException, RecordStoreException {
 		String blogDraftsPath=getPath(blog);
@@ -180,6 +179,9 @@ public class DraftDAO implements BaseDAO{
 	public static synchronized Hashtable post2Hashtable(Post post) {
 		
         Hashtable content = new Hashtable();
+        if (post.getId() != null) {
+        	 content.put("postid", post.getId());
+        }
         if (post.getTitle() != null) {
             content.put("title", post.getTitle());
         }
@@ -216,12 +218,14 @@ public class DraftDAO implements BaseDAO{
 	
 	public static synchronized Post hashtable2Post(Hashtable postData, Blog blog) {
 		Post aPost = new Post(blog);
-			
+		
+		if(postData.get("postid") != null )
         if( postData.get("postid") instanceof String) {
         	aPost.setId((String) postData.get("postid"));
         } else {
         	aPost.setId(String.valueOf(postData.get("postid")));
         }
+		
         aPost.setTitle((String) postData.get("title"));
         aPost.setAuthor((String) postData.get("userid"));
         aPost.setBody((String) postData.get("description"));

@@ -277,23 +277,25 @@ public class PostController extends BlogObjectController {
 	//listener on send post to blog
 	private class SubmitPostTaskListener implements TaskProgressListener {
 
-		public void taskComplete(Object obj) {
+		public void taskComplete(Object obj) {			
+
+			//task  stopped previous
 			if (sendTask.isStopped()) 
-				return;  //task  stopped previous
+				return;  
 			
-			if (!sendTask.isError()){
-				if(connectionProgressView != null)
-					
-					UiApplication.getUiApplication().invokeLater(new Runnable() {
-						public void run() {
-							connectionProgressView.close();
-						}
-					});
+			if(connectionProgressView != null)
+				UiApplication.getUiApplication().invokeLater(new Runnable() {
+					public void run() {
+						connectionProgressView.close();
+					}
+				});
 			
+			if (!sendTask.isError()){			
 				FrontController.getIstance().backAndRefreshView(true);
 			}
-			else
-				displayError(sendTask.getErrorMsg());
+			else {
+				displayError(sendTask.getErrorMsg());				
+			}
 		}
 		
 		//listener for the adding blogs task

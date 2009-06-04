@@ -204,8 +204,6 @@ public class PageDAO implements BaseDAO{
 		Date dateCreated = ((Date) returnPageData.get("date_created_gmt"));
 		page.setDateCreatedGMT(dateCreated);
 		
-		
-		
 		if( returnPageData.get("userid") != null)
 			page.setUserID(Integer.parseInt(String.valueOf(returnPageData.get("userid")))); // :-)
 		

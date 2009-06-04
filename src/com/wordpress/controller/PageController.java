@@ -284,15 +284,14 @@ public class PageController extends BlogObjectController {
 			if (sendTask.isStopped()) 
 				return;  //task  stopped previous
 			
-			if (!sendTask.isError()){
-				if(connectionProgressView != null)
-					
-					UiApplication.getUiApplication().invokeLater(new Runnable() {
-						public void run() {
-							connectionProgressView.close();
-						}
-					});
+			if(connectionProgressView != null)
+				UiApplication.getUiApplication().invokeLater(new Runnable() {
+					public void run() {
+						connectionProgressView.close();
+					}
+				});
 			
+			if (!sendTask.isError()){
 				FrontController.getIstance().backAndRefreshView(true);
 			}
 			else
