@@ -10,22 +10,15 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ListField;
-import net.rim.device.api.ui.component.ListFieldCallback;
 
 import com.wordpress.model.Comment;
 
-public class CommentsListField implements ListFieldCallback {
-    
-    protected Bitmap bg                    = null;
-    protected Bitmap bgSelected            = null;
-    protected Bitmap checkedBitmap         = null;
-    protected Bitmap uncheckedBitmap       = null;
-    
-    protected static final int PADDING     = 2;
+public class CommentsListField {
     
 	private Vector _listData = new Vector();
     private ListField _checkList;
     private boolean checkBoxVisible = false;
+    private ListCallBack listFieldCallBack = null;
     
        
    public boolean isCheckBoxVisible() {
@@ -85,12 +78,8 @@ public class CommentsListField implements ListFieldCallback {
        _checkList.insert(elementLength);
    }
    */
-   public CommentsListField(Comment[] _elements, boolean[] _elementsChecked) { 
-	   bg = Bitmap.getBitmapResource("bg_light.png");
-	   bgSelected = Bitmap.getBitmapResource("bg_blue.png");
-	   checkedBitmap = Bitmap.getBitmapResource("check.png");
-	   uncheckedBitmap = Bitmap.getBitmapResource("uncheck.png");
-	    
+   public CommentsListField(Comment[] _elements, boolean[] _elementsChecked) {
+	   
         _checkList = new ListField()
         {
             //Allow the space bar to toggle the status of the selected row.
@@ -122,25 +111,26 @@ public class CommentsListField implements ListFieldCallback {
             }
             
             protected int moveFocus(int amount, int status, int time) {
-
+            	ChecklistData data = null;
                 int oldSelection = getSelectedIndex();
-                ChecklistData data = (ChecklistData)_listData.elementAt(oldSelection);
-                data.setSelected(false);
+                if(oldSelection != -1) {
+                	data = (ChecklistData)_listData.elementAt(oldSelection);
+                	data.setSelected(false);
+                }
 
                 // Forward the call
                 int ret = super.moveFocus(amount, status, time);
 
                 int newSelection = getSelectedIndex();
-
                 // Get the next enabled item;
-                data = (ChecklistData)_listData.elementAt(newSelection);
-                data.setSelected(true);
-
+                if(newSelection != -1) {
+	                data = (ChecklistData)_listData.elementAt(newSelection);
+	                data.setSelected(true);
+                }
                 invalidate();
 
                 return ret;
             }
-            
             
             
             protected void moveFocus(int x, int y, int status, int time) {
@@ -158,7 +148,8 @@ public class CommentsListField implements ListFieldCallback {
         };
         
         //Set the ListFieldCallback
-        _checkList.setCallback(this);
+        listFieldCallBack = new ListCallBack();
+        _checkList.setCallback(listFieldCallBack);
         _checkList.setEmptyString("Nothing to see here", DrawStyle.LEFT);
         _checkList.setRowHeight(42);
         
@@ -174,139 +165,9 @@ public class CommentsListField implements ListFieldCallback {
         }  
     }
         
-    //Draws the list row.
-    public void drawListRow(ListField list, Graphics graphics, int index, int y, int w) 
-    {
-        //Get the ChecklistData for the current row.
-        ChecklistData currentRow = (ChecklistData)this.get(list, index);
-        Comment currentComment = currentRow.getComment();
-        
-        Font originalFont = graphics.getFont();
-        int originalColor = graphics.getColor();
-        int height = list.getRowHeight();
-        
-        //drawXXX(graphics, 0, y, width, listField.getRowHeight());
-        drawBackground(graphics, 0, y, w, height, currentRow.isSelected);
-        drawBorder(graphics, 0, y, w, height);
-        
-        int leftImageWidth = 0;
-        //If it is checked draw the String prefixed with a checked box,
-        //prefix an unchecked box if it is not.
-		if (isCheckBoxVisible()) {
-			if (currentRow.isChecked()) {
-				leftImageWidth = drawLeftImage(graphics, 0, y, height, true);
-			} else {
-				leftImageWidth = drawLeftImage(graphics, 0, y, height, false);
-			}
-		} else {
-			
-		}
-
-        
-        int authorWidth = drawAuthorText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getAuthor(), currentRow.isSelected);
-        drawEMailText(graphics, w -  leftImageWidth - authorWidth, y, w - leftImageWidth - authorWidth, height, currentComment.getAuthorEmail(), currentRow.isSelected);
-        drawContentText(graphics, leftImageWidth, y, w - leftImageWidth, height, currentComment.getContent(), currentRow.isSelected);
-
-        graphics.setFont(originalFont);
-        graphics.setColor(originalColor);
-        
-    }
     
-    private int drawAuthorText(Graphics graphics, int x, int y, int width, int height, String title, boolean selected) {
-        //int fontHeight = ((int) (1.7 * (height / 3))) - (PADDING * 2);
-        int fontHeight = ((int) ((3* height) / 5)) - (PADDING * 2);
-        graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));
-
-        if (selected) {
-            graphics.setColor(Color.BLACK);
-        } else {
-            graphics.setColor(Color.GRAY);
-        }
-
-        if (title != null) {
-            // Title takes top 2/3 of list item
-        return   graphics.drawText(title, x + PADDING + 3, y + PADDING + 2, DrawStyle.LEFT
-                    | DrawStyle.TOP | DrawStyle.ELLIPSIS, width - x - (PADDING * 2));
-        }
-
-        return 0;
-    }
-    
-    private void drawEMailText(Graphics graphics, int x, int y, int width, int height, String email, boolean selected) {
-        int fontHeight = ((2* height) / 5) - (PADDING * 2);
-        graphics.setFont(Font.getDefault().derive(Font.PLAIN, fontHeight));
-
-        if (selected) {
-            graphics.setColor(Color.BLACK);
-        } else {
-            graphics.setColor(Color.LIGHTGREY);
-        }
-        graphics.drawText(email, x + PADDING + 3, y + PADDING + 2, DrawStyle.LEFT
-                | DrawStyle.TOP | DrawStyle.ELLIPSIS, width - (PADDING * 2));
-        
-    }
-    //item.draw(graphics, 0, y, width, listField.getRowHeight());
-
-    private void drawContentText(Graphics graphics, int x, int y, int width, int height, String status, boolean selected) {
-        int fontHeight = ((2* height) / 5) - (PADDING * 2);
-        graphics.setFont(Font.getDefault().derive(Font.PLAIN, fontHeight));
-
-        if (selected) {
-            graphics.setColor(Color.BLACK);
-        } else {
-            graphics.setColor(Color.LIGHTGREY);
-        }
-
-        graphics.drawText(status, x + PADDING + 5, y - 4 + (height - fontHeight),
-                DrawStyle.LEFT | DrawStyle.TOP, width - PADDING);
-    }
-    
-    private int drawLeftImage(Graphics graphics, int x, int y, int height, boolean checked) {
-        Bitmap leftImage;
-
-        if (checked) {
-            graphics.setColor(Color.BLACK);
-            leftImage = checkedBitmap;
-        } else {
-            graphics.setColor(Color.LIGHTGREY);
-            leftImage = uncheckedBitmap;
-        }
-
-        int imageWidth = leftImage.getWidth();
-        int imageHeight = leftImage.getHeight();
-        int imageTop = y + ((height - imageHeight) / 2);
-        int imageLeft = x + ((height - imageWidth) / 2);
-
-        // Image on left side
-        graphics.drawBitmap(imageLeft, imageTop, imageWidth, imageHeight, leftImage, 0, 0);
-
-        return height;
-    }
-    
-    
-    
-    private void drawBackground(Graphics graphics, int x, int y, int width, int height, boolean selected) {
-            Bitmap toDraw = null;
-            if (selected) {
-                toDraw = bgSelected;
-            } else {
-                toDraw = bg;
-            }
-            int imgWidth = toDraw.getWidth();
-            while (width > -2) {
-                graphics.drawBitmap(x - 1, y - 1, width + 2, height + 1, toDraw, 0, 0);
-                width -= imgWidth;
-                // Overlap a little bit to avoid border issues
-                x += imgWidth - 2;
-            }
-    }
-    
-    private void drawBorder(Graphics graphics, int x, int y, int width, int height) {
-    	
-    	graphics.setColor(Color.GRAY);
-    	graphics.drawLine(x, y - 1, x + width, y - 1);
-    	graphics.drawLine(x, y + height - 1, x + width, y + height - 1);
-    }
+  
+   
      
     public ListField get_checkList() {
 		return _checkList;
@@ -334,24 +195,88 @@ public class CommentsListField implements ListFieldCallback {
         }
     }; 
     
-    //Returns the object at the specified index.
-    public Object get(ListField list, int index) 
-    {
-        return _listData.elementAt(index);
-    }
+
     
-    //Returns the first occurence of the given String, beginning the search at index, 
-    //and testing for equality using the equals method.
-    public int indexOfList(ListField list, String p, int s) 
-    {
-        //return listElements.getSelectedIndex();
-        return _listData.indexOf(p, s);
-    }
-    
-    //Returns the screen width so the list uses the entire screen width.
-    public int getPreferredWidth(ListField list) 
-    {
-        return Graphics.getScreenWidth();
+    private class ListCallBack extends BasicListFieldCallBack {
+
+    	  
+        protected Bitmap checkedBitmap         = Bitmap.getBitmapResource("check.png");
+        protected Bitmap uncheckedBitmap       = Bitmap.getBitmapResource("uncheck.png");
+ 	    
+    	//Draws the list row.
+        public void drawListRow(ListField list, Graphics graphics, int index, int y, int w) 
+        {
+            //Get the ChecklistData for the current row.
+            ChecklistData currentRow = (ChecklistData)this.get(list, index);
+            Comment currentComment = currentRow.getComment();
+            
+            Font originalFont = graphics.getFont();
+            int originalColor = graphics.getColor();
+            int height = list.getRowHeight();
+            
+            //drawXXX(graphics, 0, y, width, listField.getRowHeight());
+            drawBackground(graphics, 0, y, w, height, currentRow.isSelected);
+            drawBorder(graphics, 0, y, w, height);
+            
+            int leftImageWidth = 0;
+            //If it is checked draw the String prefixed with a checked box,
+            //prefix an unchecked box if it is not.
+    		if (isCheckBoxVisible()) {
+    			if (currentRow.isChecked()) {
+    				leftImageWidth = drawLeftImage(graphics, 0, y, height, checkedBitmap);
+    			} else {
+    				leftImageWidth = drawLeftImage(graphics, 0, y, height, uncheckedBitmap);
+    			}
+    		} else {
+    			
+    		}
+
+            
+            int authorWidth = drawFirstRowMainText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getAuthor(), currentRow.isSelected);
+            drawEMailText(graphics, w -  leftImageWidth - authorWidth, y, w - leftImageWidth - authorWidth, height, currentComment.getAuthorEmail(), currentRow.isSelected);
+            drawSecondRowText(graphics, leftImageWidth, y, w - leftImageWidth, height, currentComment.getContent(), currentRow.isSelected);
+
+            graphics.setFont(originalFont);
+            graphics.setColor(originalColor);
+            
+        }
+        
+        private void drawEMailText(Graphics graphics, int x, int y, int width, int height, String email, boolean selected) {
+            int fontHeight = ((2* height) / 5) - (PADDING * 2);
+            graphics.setFont(Font.getDefault().derive(Font.PLAIN, fontHeight));
+
+            if (selected) {
+                graphics.setColor(Color.BLACK);
+            } else {
+                graphics.setColor(Color.LIGHTGREY);
+            }
+            graphics.drawText(email, x + PADDING + 3, y + PADDING + 2, DrawStyle.LEFT
+                    | DrawStyle.TOP | DrawStyle.ELLIPSIS, width - (PADDING * 2));
+            
+        }
+        
+    	 
+        //Returns the object at the specified index.
+        public Object get(ListField list, int index) 
+        {
+            return _listData.elementAt(index);
+        }
+        
+   /*     //Returns the first occurence of the given String, beginning the search at index, 
+        //and testing for equality using the equals method.
+        public int indexOfList(ListField list, String p, int s) 
+        {
+            //return listElements.getSelectedIndex();
+            return _listData.indexOf(p, s);
+        }
+        
+        //Returns the screen width so the list uses the entire screen width.
+        public int getPreferredWidth(ListField list) 
+        {
+            return Graphics.getScreenWidth();
+        }
+        
+	*/
     }
     
     

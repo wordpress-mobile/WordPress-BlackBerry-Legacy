@@ -5,13 +5,10 @@ import java.util.Hashtable;
 
 import com.wordpress.utils.MultimediaUtils;
 
-public class ResizeImageTask implements LocalTask {
+public class ResizeImageTask extends TaskImpl {
 	
-	private boolean isError = false;
-	private String errorMsg = "";
 	private byte[] data;
 	private String fileName;
-	private TaskProgressListener progressListener;
 	
 	public ResizeImageTask(byte[] data, String fileName) {
 		this.data = data;
@@ -24,24 +21,12 @@ public class ResizeImageTask implements LocalTask {
 			content = MultimediaUtils.resizePhotoAndOutputJpeg(data, fileName);
 		} catch (IOException e) {
 			isError = true;
-			errorMsg = "Resizing Error: " + e.getMessage();
+			appendErrorMsg("Resizing Error: " + e.getMessage());
 		}
 	
 		if (progressListener != null)
 			progressListener.taskComplete(content); 
 		
 	}
-	
 
-	public String getErrorMsg() {
-		return errorMsg;
-	}
-
-	public boolean isError() {
-		return isError;
-	}
-
-	public void setProgressListener(TaskProgressListener progressListener) {
-		this.progressListener = progressListener;
-	}
 }

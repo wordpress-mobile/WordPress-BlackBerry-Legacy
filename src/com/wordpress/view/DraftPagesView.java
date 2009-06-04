@@ -1,18 +1,21 @@
 package com.wordpress.view;
 
+import java.util.Date;
+import java.util.Hashtable;
+
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.component.ObjectListField;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.DraftPagesController;
 import com.wordpress.model.Page;
+import com.wordpress.view.component.PostsListField;
 
 public class DraftPagesView extends BaseView {
 	
     private DraftPagesController controller= null;
-	private ObjectListField pageListField; 
+	private PostsListField pageListField; 
 	
 	 public DraftPagesView(DraftPagesController  _controller, Page[] pages) {
 	    	super(_controller.getCurrentBlogName()+" > "+_resources.getString(WordPressResource.TITLE_DRAFT_PAGES));
@@ -23,21 +26,32 @@ public class DraftPagesView extends BaseView {
 
 	private void buildList(Page[] pages) {
 		removeAllMenuItems();	
-		pageListField = new ObjectListField();
+		pageListField = new PostsListField();
 		pageListField.setEmptyString("No Draft Pages", DrawStyle.LEFT);
 		
-		String[] draftPageTitle = new String[0];
+		Hashtable[] draftPageInfo = new Hashtable[0];
 		
 		if(pages != null) {
-			draftPageTitle = new String[pages.length];
+			draftPageInfo = new Hashtable[pages.length];
+			
 			for (int i = 0; i < pages.length; i++) {
 				String title = pages[i].getTitle();
-				draftPageTitle[i] = title;
+				if (title == null || title.length() == 0) {
+	                 title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
+	            }
+				
+			   Hashtable smallPostData = new Hashtable();
+			   smallPostData .put("title", title);
+			   Date dateCreated =  pages[i].getDateCreatedGMT();
+			   if (dateCreated != null)
+				   smallPostData .put("date_created_gmt", dateCreated);
+			   
+			   draftPageInfo[i] = smallPostData;
 			}
 		}
 		
 		if(pages.length > 0 ){
-			pageListField.set(draftPageTitle);
+			pageListField.set(draftPageInfo);
 			addMenuItem(_editItem);
 			addMenuItem(_deleteItem);
 		} 

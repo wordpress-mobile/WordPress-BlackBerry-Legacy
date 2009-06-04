@@ -78,7 +78,7 @@ public class NewPostConn extends BlogConn  {
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("New Post Conne Notify Error");
+			System.out.println("New Post Conn Notify Error");
 		}
 	}
 }

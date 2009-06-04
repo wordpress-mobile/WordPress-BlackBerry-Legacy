@@ -15,6 +15,9 @@ import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
 import com.wordpress.model.Preferences;
+import com.wordpress.task.SendPostTask;
+import com.wordpress.task.TaskProgressListener;
+import com.wordpress.utils.Queue;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.NewCategoryView;
@@ -30,7 +33,6 @@ import com.wordpress.xmlrpc.NewCategoryConn;
 import com.wordpress.xmlrpc.NewMediaObjectConn;
 import com.wordpress.xmlrpc.post.EditPostConn;
 import com.wordpress.xmlrpc.post.NewPostConn;
-import com.wordpress.xmlrpc.post.SendPostDataTask;
 
 
 public class PostController extends BlogObjectController {
@@ -49,6 +51,7 @@ public class PostController extends BlogObjectController {
 
 	
 	Preferences prefs = Preferences.getIstance();
+	private SendPostTask sendTask;
 	
 	//used when new post/recent post
 	// 0 = new post
@@ -140,7 +143,6 @@ public class PostController extends BlogObjectController {
 		}
 		return postStatusLabel.length-1;
 	}
-	
 		
 	
 	public String getPostCategoriesLabel() {
@@ -226,7 +228,7 @@ public class PostController extends BlogObjectController {
 			return;
 		}
 		
-		SendPostDataTask sender = new SendPostDataTask (post, draftPostFolder);
+		Queue connectionsQueue = new Queue();
 		
 		//adding multimedia connection
 		if(draftPostPhotoList.length > 0 ) {
@@ -235,7 +237,7 @@ public class PostController extends BlogObjectController {
 				key = draftPostPhotoList[i];
 				NewMediaObjectConn connection = new NewMediaObjectConn (post.getBlog().getXmlRpcUrl(), 
 			       		   post.getBlog().getUsername(),post.getBlog().getPassword(), post.getBlog().getId(), key);				
-				sender.addConn(connection);
+				connectionsQueue.push(connection);
 			}
 		}
 		
@@ -256,22 +258,48 @@ public class PostController extends BlogObjectController {
 					 post.getBlog().getUsername(),post.getBlog().getPassword(), post, publish);
 		
 		}
-		sender.addConn(connection);
-				
+		connectionsQueue.push(connection);		
 		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
-
-		sender.setDialog(connectionProgressView);
-		sender.startWorker(); //start sending post
+		
+		sendTask = new SendPostTask(post, draftPostFolder, connectionsQueue);
+		sendTask.setProgressListener(new SubmitPostTaskListener());
+		//push into the Runner
+		runner.enqueue(sendTask);
 		
 		int choice = connectionProgressView.doModal();
 		if(choice == Dialog.CANCEL) {
 			System.out.println("Chiusura della conn dialog tramite cancel");
-			sender.quit();
-			if (!sender.isError())
-				FrontController.getIstance().backAndRefreshView(true);
-			else
-				displayError(sender.getErrorMessage());
+			sendTask.stop();
 		}
+	}
+	
+		
+	//listener on send post to blog
+	private class SubmitPostTaskListener implements TaskProgressListener {
+
+		public void taskComplete(Object obj) {
+			if (sendTask.isStopped()) 
+				return;  //task  stopped previous
+			
+			if (!sendTask.isError()){
+				if(connectionProgressView != null)
+					
+					UiApplication.getUiApplication().invokeLater(new Runnable() {
+						public void run() {
+							connectionProgressView.close();
+						}
+					});
+			
+				FrontController.getIstance().backAndRefreshView(true);
+			}
+			else
+				displayError(sendTask.getErrorMsg());
+		}
+		
+		//listener for the adding blogs task
+		public void taskUpdate(Object obj) {
+		
+		}	
 	}
 	
 	//user save post as localdraft

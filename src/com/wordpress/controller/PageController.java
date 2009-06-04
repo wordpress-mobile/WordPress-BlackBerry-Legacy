@@ -13,6 +13,9 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Page;
+import com.wordpress.task.SendPageTask;
+import com.wordpress.task.TaskProgressListener;
+import com.wordpress.utils.Queue;
 import com.wordpress.view.PageView;
 import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostSettingsView;
@@ -22,7 +25,6 @@ import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.NewMediaObjectConn;
 import com.wordpress.xmlrpc.page.EditPageConn;
 import com.wordpress.xmlrpc.page.NewPageConn;
-import com.wordpress.xmlrpc.page.SendPageDataTask;
 
 
 public class PageController extends BlogObjectController {
@@ -35,15 +37,12 @@ public class PageController extends BlogObjectController {
 	
 	private String[] pageStatusKey; // = {"draft, private, publish, localdraft"};
 	private String[] pageStatusLabel;
-	
-	
 	private String[] pageTemplateKey; 
 	private String[] pageTemplateLabel; 
-	
 	private Page[] remotePages; //the page on the blog
-	
 	private Page page=null; //page object
     private boolean isModified = false; //the state of page. track changes on post..
+	private SendPageTask sendTask;
 	
 	//used when new page/edit page
 	public PageController(Blog blog, Page page) {
@@ -230,7 +229,8 @@ public class PageController extends BlogObjectController {
 			return;
 		}
 		
-		SendPageDataTask sender = new SendPageDataTask (blog, page, draftPageFolder);
+		//SendPageDataTask sender = new SendPageDataTask (blog, page, draftPageFolder);
+		Queue connectionsQueue = new Queue();
 		
 		//adding multimedia connection
 		if(draftPagePhotoList.length > 0 ) {
@@ -239,7 +239,7 @@ public class PageController extends BlogObjectController {
 				key = draftPagePhotoList[i];
 				NewMediaObjectConn connection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
 			       		   blog.getUsername(), blog.getPassword(), blog.getId(), key);				
-				sender.addConn(connection);
+				connectionsQueue.push(connection);
 			}
 		}
 
@@ -261,23 +261,50 @@ public class PageController extends BlogObjectController {
 	        		   blog.getPassword(), Integer.parseInt(blog.getId()), page ,publish);
 		
 		}
-		sender.addConn(connection);
+		connectionsQueue.push(connection);
 				
 		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
-
-		sender.setDialog(connectionProgressView);
-		sender.startWorker(); //start sending post
+		sendTask = new SendPageTask(blog, page, draftPageFolder, connectionsQueue);
+		sendTask.setProgressListener(new SubmitPageTaskListener());
+		//push into the Runner
+		runner.enqueue(sendTask);
 		
 		int choice = connectionProgressView.doModal();
 		if(choice == Dialog.CANCEL) {
 			System.out.println("Chiusura della conn dialog tramite cancel");
-			sender.quit();
-			if (!sender.isError())
-				FrontController.getIstance().backAndRefreshView(true);
-			else
-				displayError(sender.getErrorMessage());
+			sendTask.stop();
 		}
 	}
+	
+	
+	//listener on send page to blog
+	private class SubmitPageTaskListener implements TaskProgressListener {
+
+		public void taskComplete(Object obj) {
+			if (sendTask.isStopped()) 
+				return;  //task  stopped previous
+			
+			if (!sendTask.isError()){
+				if(connectionProgressView != null)
+					
+					UiApplication.getUiApplication().invokeLater(new Runnable() {
+						public void run() {
+							connectionProgressView.close();
+						}
+					});
+			
+				FrontController.getIstance().backAndRefreshView(true);
+			}
+			else
+				displayError(sendTask.getErrorMsg());
+		}
+		
+		//listener for the adding blogs task
+		public void taskUpdate(Object obj) {
+		
+		}	
+	}
+	
 	
 	public void saveDraftPage() {
 		try {

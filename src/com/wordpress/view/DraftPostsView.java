@@ -1,29 +1,31 @@
 package com.wordpress.view;
 
+import java.util.Hashtable;
+
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.component.ObjectListField;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.DraftPostsController;
+import com.wordpress.view.component.PostsListField;
 
 public class DraftPostsView extends BaseView {
 	
     private DraftPostsController controller= null;
 
-	private ObjectListField listaPost; 
+	private PostsListField listaPost; 
 	
-	 public DraftPostsView(DraftPostsController  _controller, String[] post) {
+	 public DraftPostsView(DraftPostsController  _controller, Hashtable[] post) {
 	    	super(_controller.getCurrentBlogName()+" > "+_resources.getString(WordPressResource.TITLE_DRAFT_POSTS));
 	    	this.controller=_controller;	        
 	        buildList(post);
 	 }
 
 
-	private void buildList(String[] post) {
+	private void buildList(Hashtable[] post) {
 		removeAllMenuItems();	
-		listaPost = new ObjectListField(); 	        
+		listaPost = new PostsListField(); 	        
 		listaPost.setEmptyString("No Draft Posts", DrawStyle.LEFT);
 		
 		if(post.length > 0 ){
@@ -35,7 +37,7 @@ public class DraftPostsView extends BaseView {
 		add(listaPost);
 	}
 	
-    public void refresh( String[] post){
+    public void refresh(Hashtable[] post){
     	this.delete(listaPost);
     	buildList(post);
     }

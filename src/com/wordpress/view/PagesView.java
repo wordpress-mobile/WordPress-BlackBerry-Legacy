@@ -1,5 +1,8 @@
 package com.wordpress.view;
 
+import java.util.Date;
+import java.util.Hashtable;
+
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
@@ -7,7 +10,6 @@ import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.LabelField;
-import net.rim.device.api.ui.component.ObjectListField;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
@@ -17,11 +19,12 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PagesController;
 import com.wordpress.model.Page;
+import com.wordpress.view.component.PostsListField;
 
 public class PagesView extends BaseView {
 	
     private PagesController controller= null;
-    private ObjectListField pagesList; 
+    private PostsListField  pagesList; 
     private HorizontalFieldManager topButtonsManager;
     private VerticalFieldManager dataScroller;
     private ButtonField buttonNewPost;
@@ -92,10 +95,10 @@ public class PagesView extends BaseView {
 	private void buildList(Page[] pages) {
 		removeAllMenuItems();
         
-		String elements[]= new String[0];
+		Hashtable elements[]= new Hashtable[0];
 		
 		if(pages != null) {						
-			elements= new String[pages.length];
+			elements= new Hashtable[pages.length];
 			//Populate the vector with the elements [title, data, title, data ....]
 	        for (int i = 0; i < pages.length; i++) {
 	        	Page currentPage = pages[i];
@@ -103,11 +106,19 @@ public class PagesView extends BaseView {
 	             if (title == null || title.length() == 0) {
 	                 title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
 	             }
-	             elements[i]=title;
+	             
+	             Hashtable smallPostData = new Hashtable();
+	        	 
+	             smallPostData .put("title", title);
+	             Date dateCreated = currentPage.getDateCreatedGMT();
+	             if (dateCreated != null)
+	            	 smallPostData .put("date_created_gmt", dateCreated);
+	             
+	             elements[i]=smallPostData;
 	         }			
 		}
 						
-		pagesList = new ObjectListField(); 	        
+		pagesList = new PostsListField(); 	        
 		pagesList.set(elements);
 		pagesList.setEmptyString("Nothing to see here", DrawStyle.LEFT);
 		dataScroller.add(pagesList);
@@ -143,12 +154,13 @@ public class PagesView extends BaseView {
         }
     };
      
+    /*
     private MenuItem _draftPostsItem = new MenuItem( _resources, WordPressResource.MENUITEM_LOCALDRAFT, 120, 10) {
         public void run() {
     	 controller.showDraftPages(); 
         }
     };
- 
+ */
     
 	private FieldChangeListener listenerButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {

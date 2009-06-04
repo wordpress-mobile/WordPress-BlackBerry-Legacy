@@ -11,7 +11,6 @@ import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.LabelField;
-import net.rim.device.api.ui.component.ObjectListField;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
@@ -20,11 +19,12 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostsController;
+import com.wordpress.view.component.PostsListField;
 
 public class PostsView extends BaseView {
 	
     private PostsController controller= null;
-    private ObjectListField listaPost; 
+    private PostsListField listaPost; 
     private HorizontalFieldManager topButtonsManager;
     private VerticalFieldManager dataScroller;
     private ButtonField buttonNewPost;
@@ -96,25 +96,31 @@ public class PostsView extends BaseView {
 	private void buildList(Vector recentPostInfo) {
 		removeAllMenuItems();
         
-		String elements[]= new String[0];
+		Hashtable elements[]= new Hashtable[0];
 		
 		if(recentPostInfo != null) {						
-			elements= new String[recentPostInfo.size()];
+			elements= new Hashtable[recentPostInfo.size()];
+
 			//Populate the vector with the elements [title, data, title, data ....]
 	        for (int i = 0; i < recentPostInfo.size(); i++) {
 	        	 Hashtable postData = (Hashtable) recentPostInfo.elementAt(i);
+	        	 Hashtable smallPostData = new Hashtable() ;
+	        	 
 	             String title = (String) postData.get("title");
-	             Date dateCreated = (Date) postData.get("date_created_gmt");
-	             
 	             if (title == null || title.length() == 0) {
-	                 title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
+	            	 title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
 	             }
-	             elements[i]=title;
-	            // elements.addElement(dateCreated.toString());
+	             smallPostData .put("title", title);
+
+	             Date dateCreated = (Date) postData.get("date_created_gmt");
+	             if (dateCreated != null)
+	            	 smallPostData .put("date_created_gmt", dateCreated);
+	             
+	             elements[i]=smallPostData; 
 	         }			
 		}
 						
-		listaPost = new ObjectListField(); 	        
+		listaPost = new PostsListField(); 	        
 		listaPost.set(elements);
 		listaPost.setEmptyString("Nothing to see here", DrawStyle.LEFT);
 		dataScroller.add(listaPost);

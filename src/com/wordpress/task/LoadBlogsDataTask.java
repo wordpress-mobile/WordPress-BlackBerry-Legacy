@@ -8,14 +8,16 @@ import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.BlogUpdateConn;
-
-public class LoadBlogsDataTask implements Task, Observer {
+/**
+ * Task used to load additional blog data in background.  
+ * @author dercoli
+ *
+ */
+public class LoadBlogsDataTask extends TaskImpl implements Observer {
 	
 	private Queue executionQueue = null; // queue of BlogConn
 	private BlogUpdateConn blogConn; //the current blog conn 
 
-	private TaskProgressListener progressListener;
-	
 	
 	public LoadBlogsDataTask(Queue executionQueue) {
 		this.executionQueue = executionQueue;
@@ -59,9 +61,5 @@ public class LoadBlogsDataTask implements Task, Observer {
 		}
 		next(); // call to next blog conn
 	}
-	
 
-	public void setProgressListener(TaskProgressListener progressListener) {
-		this.progressListener = progressListener;
-	}
 }
