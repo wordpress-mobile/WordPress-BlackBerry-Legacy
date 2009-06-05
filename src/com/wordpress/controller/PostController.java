@@ -348,7 +348,7 @@ public class PostController extends BlogObjectController {
 	
 	
 	
-	public void setSettingsValues(long authoredOn, String password){
+	public void setSettingsValues(long authoredOn, String password, boolean isPhotoRes){
 		
 		if(post.getAuthoredOn() != null ) {
 			if ( post.getAuthoredOn().getTime() != authoredOn ) {
@@ -364,15 +364,29 @@ public class PostController extends BlogObjectController {
 			post.setPassword(password);
 			setPostAsChanged(true);
 		} else {
-			if(post.getPassword()== null ){
+			if(post.getPassword() == null ){
 				post.setPassword(password);
+				setPostAsChanged(true);
+			}
+		}
+		
+		if( post.getIsPhotoResizing() != null && !post.getIsPhotoResizing().booleanValue()== isPhotoRes ){
+			post.setIsPhotoResizing(new Boolean(isPhotoRes));
+			setPostAsChanged(true);
+		} else {
+			if(post.getIsPhotoResizing() == null ){
+				post.setIsPhotoResizing(new Boolean(isPhotoRes));
 				setPostAsChanged(true);
 			}
 		}
 	}
 	
-	public void showSettingsView(){			
-		settingsView= new PostSettingsView(this, post.getAuthoredOn(), post.getPassword());		
+	public void showSettingsView(){
+		boolean isPhotoResing = blog.isResizePhotos(); //first set the value as the predefined blog value
+		if (post.getIsPhotoResizing() != null ) {
+			isPhotoResing = post.getIsPhotoResizing().booleanValue();			
+		}
+		settingsView= new PostSettingsView(this, post.getAuthoredOn(), post.getPassword(), isPhotoResing);		
 		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
 	 
@@ -409,7 +423,6 @@ public class PostController extends BlogObjectController {
 		NewCategoryView newCatView= new NewCategoryView(this, post.getBlog().getCategories());		
 		UiApplication.getUiApplication().pushScreen(newCatView);
 	}
-
 
 	/*
 	 * set photos number on main post view
@@ -470,7 +483,7 @@ public class PostController extends BlogObjectController {
 	}
 	
 	
-	protected void storePhoto(byte[] data, String fileName) {
+	public void storePhoto(byte[] data, String fileName) {
 		try {
 			EncodedImage img;
 			img = EncodedImage.createEncodedImage(data, 0, -1);

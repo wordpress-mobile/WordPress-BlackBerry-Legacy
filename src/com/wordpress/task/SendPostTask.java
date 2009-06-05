@@ -8,6 +8,7 @@ import javax.microedition.rms.RecordStoreException;
 
 import com.wordpress.io.DraftDAO;
 import com.wordpress.model.Post;
+import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -56,7 +57,23 @@ public class SendPostTask extends TaskImpl implements Observer {
 				byte[] photosBytes;
 				try {
 					photosBytes = getPhotosBytes(fileName);
-					((NewMediaObjectConn) blogConn).setFileContent(photosBytes);					
+					
+					boolean isRes = false;
+					if( post.getIsPhotoResizing() == null ){
+						isRes = post.getBlog().isResizePhotos(); //get the option from the blog settings
+					} else {
+						isRes = post.getIsPhotoResizing().booleanValue();
+					}
+					
+					if(isRes){
+						Hashtable content = MultimediaUtils.resizePhotoAndOutputJpeg(photosBytes, fileName);
+						fileName = (String) content.get("name");
+						photosBytes = (byte[]) content.get("bits");
+					}
+				
+					
+					((NewMediaObjectConn) blogConn).setFileContent(photosBytes);
+					((NewMediaObjectConn) blogConn).setFileName(fileName);
 				} catch (Exception e) {
 					final String respMessage=e.getMessage();
 					errorMsg.append(respMessage+"\n");

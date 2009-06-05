@@ -44,7 +44,8 @@ public class MultimediaUtils {
 		default:
 			resizedEncodedImg= JPEGEncodedImage.encode(resizedBitmap, 75);
 			//check file name ext eventually add jpg ext
-			if (fileName.endsWith("jpg") || fileName.endsWith("JPG")){				
+			if (fileName.endsWith("jpg") || fileName.endsWith("JPG")){
+				
 			} else {
 				fileName+=".jpg";
 			}

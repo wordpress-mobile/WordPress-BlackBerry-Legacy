@@ -75,7 +75,7 @@ public class AppDAO implements BaseDAO{
 			DataInputStream in = JSR75FileSystem.getDataInputStream(getAppPrefsFilePath());
 			Serializer ser = new Serializer(in);
 
-			int tzOffsetIndex = ((Integer) ser.deserialize()).intValue();
+			//int tzOffsetIndex = ((Integer) ser.deserialize()).intValue();
 			int localeIndex = ((Integer) ser.deserialize()).intValue();
 			String videoEncoding = (String) ser.deserialize();
 			String audioEncoding = (String) ser.deserialize();
@@ -86,7 +86,7 @@ public class AppDAO implements BaseDAO{
 			pref.setDeviceSideConnection(deviceSideConnection);
 			pref.setLocaleIndex(localeIndex);
 			pref.setPhotoEncoding(photoEncoding);
-			pref.setTimeZoneIndex(tzOffsetIndex);
+			//pref.setTimeZoneIndex(tzOffsetIndex);
 			pref.setVideoEncoding(videoEncoding);
 			System.out.println("Prefs loading succesfully!");
 			
@@ -101,7 +101,7 @@ public class AppDAO implements BaseDAO{
 		  	JSR75FileSystem.createFile(getAppPrefsFilePath()); 
 	    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(getAppPrefsFilePath());
 	    	
-	    	int tzOffsetIndex = pref.getTimeZoneIndex();
+	    	//int tzOffsetIndex = pref.getTimeZoneIndex();
 			int localeIndex = pref.getLocaleIndex();
 			String videoEncoding = pref.getVideoEncoding();
 			String audioEncoding = pref.getAudioEncoding();
@@ -109,7 +109,7 @@ public class AppDAO implements BaseDAO{
 			boolean deviceSideConnection = pref.isDeviceSideConnection();
 			
 			Serializer ser= new Serializer(out);
-	    	ser.serialize(new Integer(tzOffsetIndex));
+	    //	ser.serialize(new Integer(tzOffsetIndex));
 	    	ser.serialize(new Integer(localeIndex));
 	    	ser.serialize(videoEncoding);
 	    	ser.serialize(audioEncoding);

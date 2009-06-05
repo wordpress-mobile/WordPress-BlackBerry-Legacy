@@ -1,7 +1,6 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
-import java.util.Hashtable;
 
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
@@ -11,17 +10,12 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.FileUtils;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Blog;
-import com.wordpress.task.ResizeImageTask;
-import com.wordpress.task.TaskProgressListener;
-import com.wordpress.task.TasksRunner;
-import com.wordpress.utils.Queue;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
-import com.wordpress.view.PostPreviewView;
+import com.wordpress.view.PreviewView;
 import com.wordpress.view.component.FileSelectorPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
-import com.wordpress.view.dialog.WaitScreen;
 import com.wordpress.view.mm.MultimediaPopupScreen;
 import com.wordpress.view.mm.PhotoSnapShotView;
 import com.wordpress.xmlrpc.BlogConnResponse;
@@ -33,7 +27,7 @@ public abstract class BlogObjectController extends BaseController {
 	protected static final String LOCAL_DRAFT_KEY = "localdraft";
 	protected static final String LOCAL_DRAFT_LABEL = _resources.getString(WordPress.LABEL_LOCAL_DRAFT);
 	protected ConnectionInProgressView connectionProgressView=null;
-	public abstract void setSettingsValues(long authoredOn, String password);
+	public abstract void setSettingsValues(long authoredOn, String password, boolean isPhotoResizing);
 	
 	public static final int NONE=-1;
 	public static final int PHOTO=1;
@@ -42,7 +36,7 @@ public abstract class BlogObjectController extends BaseController {
 	public abstract void showEnlargedPhoto(String key);
 	public abstract boolean deletePhoto(String photoName); //delete 
 	public abstract void setPhotosNumber(int count);
-	protected abstract void storePhoto(byte[] data, String fileName);
+	public abstract void storePhoto(byte[] data, String fileName);
 	
 	//* show up multimedia type selection */
 	public void showAddPhotoPopUp() {
@@ -65,7 +59,7 @@ public abstract class BlogObjectController extends BaseController {
             	 String ext= fileNameSplitted[fileNameSplitted.length-1];
 				try {
 					byte[] readFile = JSR75FileSystem.readFile(theFile);
-					addPhoto(readFile,ext);	
+					storePhoto(readFile,ext);	
 				} catch (IOException e) {
 					displayError(e, "Cannot load photo from disk!");
 				}
@@ -81,69 +75,6 @@ public abstract class BlogObjectController extends BaseController {
 			break;
 		}		
 	}
-	
-	
-	public void addPhoto(byte[] data, String fileName){
-	    System.out.println("addPhoto " + fileName);
-	
-	    if(fileName == null) 
-			fileName= String.valueOf(System.currentTimeMillis()+".jpg");
-
-			if(blog.isResizePhotos()) {
-				
-				WaitScreen waitScreen= new WaitScreen("Resizing...");
-				UiApplication.getUiApplication().pushScreen(waitScreen); 
-				
-				ResizeImageTask resTask = new ResizeImageTask(data, fileName);
-				resTask.setProgressListener(new ResizeImgListener(waitScreen, resTask));
-				//push into the Runner
-				runner.enqueue(resTask);
-				
-			} else { 
-				storePhoto(data, fileName);
-			}
-	}
-	
-	private class ResizeImgListener implements TaskProgressListener {
-
-		private final WaitScreen waitScreen;
-		private final ResizeImageTask resTask;
-
-		public ResizeImgListener(WaitScreen waitScreen,	ResizeImageTask resTask) {
-			this.waitScreen = waitScreen;
-			this.resTask = resTask;
-
-		}
-
-		public void taskComplete(Object obj) {
-			
-			final Hashtable content = (Hashtable) obj;
-			
-			UiApplication.getUiApplication().invokeLater(new Runnable() {
-				public void run() {
-					
-					waitScreen.close();
-
-					if (resTask.isError()) {
-						displayError(resTask.getErrorMsg());
-						return;
-					}
-					
-					String fileName = (String) content.get("name");
-					byte[] data = (byte[]) content.get("bits");
-					
-					storePhoto(data, fileName);
-					
-				}
-			});
-			
-		}
-
-		public void taskUpdate(Object obj) {
-
-		}
-	}
-	
 	
 	
 	public void startRemotePreview(String objectLink, String title, String content, String tags, String cats, String photoNumber){
@@ -171,7 +102,7 @@ public abstract class BlogObjectController extends BaseController {
 		html = StringUtils.replaceAll(html, "!$mt_keywords$!", tags);
 		html = StringUtils.replaceAll(html, "!$categories$!", cats);
 		
-		UiApplication.getUiApplication().pushScreen(new PostPreviewView(html));	
+		UiApplication.getUiApplication().pushScreen(new PreviewView(html));	
 	}
 		
 		
@@ -214,7 +145,7 @@ public abstract class BlogObjectController extends BaseController {
 							return;
 						}
 						
-						UiApplication.getUiApplication().pushScreen(new PostPreviewView(html));	
+						UiApplication.getUiApplication().pushScreen(new PreviewView(html));	
 						
 					} else {
 						startLocalPreview(title,content,tags, cats, photoNumber);

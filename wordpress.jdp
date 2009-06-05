@@ -85,6 +85,7 @@ src\com\wordpress\task\TaskImpl.java
 src\com\wordpress\task\TaskProgressListener.java
 src\com\wordpress\task\TasksRunner.java
 src\com\wordpress\task\TaskWorker.java
+src\com\wordpress\utils\CalendarUtils.java
 src\com\wordpress\utils\MD5.java
 src\com\wordpress\utils\MD5State.java
 src\com\wordpress\utils\MultimediaUtils.java
@@ -130,11 +131,11 @@ src\com\wordpress\view\PagesView.java
 src\com\wordpress\view\PageView.java
 src\com\wordpress\view\PhotosView.java
 src\com\wordpress\view\PostCategoriesView.java
-src\com\wordpress\view\PostPreviewView.java
 src\com\wordpress\view\PostSettingsView.java
 src\com\wordpress\view\PostsView.java
 src\com\wordpress\view\PostView.java
 src\com\wordpress\view\PreferencesView.java
+src\com\wordpress\view\PreviewView.java
 src\com\wordpress\xmlrpc\BlogAuthConn.java
 src\com\wordpress\xmlrpc\BlogConn.java
 src\com\wordpress\xmlrpc\BlogConnResponse.java

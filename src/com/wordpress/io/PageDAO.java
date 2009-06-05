@@ -255,6 +255,11 @@ public class PageDAO implements BaseDAO{
 			page.setWpAuthorID(Integer.parseInt(pageAuthorID));
 		}
 		
+		//set the prop for photo res
+		if(returnPageData.get("IsPhotoResizing") != null) {
+			page.setIsPhotoResizing((Boolean) returnPageData.get("IsPhotoResizing"));
+		}
+		
 		page.setWpAuthorDisplayName((String) returnPageData.get("wp_author_display_name"));
 		Vector cf=(Vector) returnPageData.get("custom_fields");
 		page.setCustom_field(cf);
@@ -318,6 +323,9 @@ public class PageDAO implements BaseDAO{
 		if(page.getWpPageTemplate() !=null)
 			content.put("wp_page_template", page.getWpPageTemplate());
 		
+		if(page.getIsPhotoResizing() !=null)
+			content.put("IsPhotoResizing", page.getIsPhotoResizing());
+	
 		return content;
 	}
 	

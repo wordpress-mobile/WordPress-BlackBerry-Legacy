@@ -1,6 +1,5 @@
 package com.wordpress.model;
 
-import com.wordpress.utils.SimpleTimeZone;
 
 
 public class Preferences {
@@ -26,7 +25,7 @@ public class Preferences {
     private Preferences() {
 
     }
-
+/*
     public SimpleTimeZone getTimeZone() {
     	if(timeZoneIndex != -1)
     		return new SimpleTimeZone(timeZoneIndex);
@@ -41,6 +40,7 @@ public class Preferences {
     public void setTimeZoneIndex(int index) {
     	timeZoneIndex = index;
     }
+    */
    
     public int getLocaleIndex() {
 		return localeIndex;

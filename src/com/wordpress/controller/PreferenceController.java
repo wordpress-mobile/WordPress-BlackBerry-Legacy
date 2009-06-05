@@ -79,7 +79,7 @@ public class PreferenceController extends BaseController {
 			mPrefs.setPhotoEncoding(photoEnc);
 		}
 		if(timezoneIndex > 0){
-			mPrefs.setTimeZoneIndex(timezoneIndex);
+		//	mPrefs.setTimeZoneIndex(timezoneIndex);
 		}
 		if(deviceSideConnection > -1){ 
 			mPrefs.setDeviceSideConnection( deviceSideConnection == 1 ? true : false);

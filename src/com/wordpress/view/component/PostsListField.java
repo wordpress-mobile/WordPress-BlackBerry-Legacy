@@ -4,12 +4,17 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import net.rim.device.api.i18n.Locale;
+import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ObjectListField;
+
+import com.wordpress.bb.WordPressResource;
+import com.wordpress.utils.CalendarUtils;
 
 /**
  * This class is a list field that we used to
@@ -20,8 +25,15 @@ import net.rim.device.api.ui.component.ObjectListField;
  */
 public class PostsListField extends ObjectListField  {
 
-	private Vector _listData = new Vector();
+	//create a variable to store the ResourceBundle for localization support
+    protected static ResourceBundle _resources;
+    	    
+    static {
+        //retrieve a reference to the ResourceBundle for localization support
+        _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
+    }
 	
+	private Vector _listData = new Vector();
     private ListCallBack listFieldCallBack = null;
     		
 	public PostsListField() {
@@ -142,12 +154,14 @@ public class PostsListField extends ObjectListField  {
         
         public String getDate() {
 			if (data.containsKey("date_created_gmt")) {
-
 				Date dateCreated = (Date) data.get("date_created_gmt");
-				SimpleDateFormat sdFormat3 = new SimpleDateFormat(
-						"yyyy/MM/dd hh:mm");
-				String format = sdFormat3.format(dateCreated);
-				return format;
+				SimpleDateFormat sdFormat = new SimpleDateFormat(_resources.getString(WordPressResource.DEFAULT_DATE_FORMAT), Locale.getDefault());
+			
+				long time = dateCreated.getTime();
+				Date dateCreatedTZ = new Date(CalendarUtils.adjustTimeToDefaultTimezone(time));		
+				String format = sdFormat.format(dateCreatedTZ);
+				return format;	
+			
 			} else
 				return "";
 		}
@@ -157,5 +171,4 @@ public class PostsListField extends ObjectListField  {
         }
         
     }
-	
 }

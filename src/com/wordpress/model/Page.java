@@ -29,6 +29,7 @@ public class Page {
 	private Date dateCreatedGMT;
 	private Vector customField = new Vector();
 	private String wpPageTemplate;
+    private Boolean isPhotoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
 	
 	public Page(int pageID, String Title, String description, Date dateCreated) {
 		this.pageID = pageID;
@@ -231,5 +232,13 @@ public class Page {
 
 	public String getWpPageTemplate() {
 		return wpPageTemplate;
+	}
+
+	public Boolean getIsPhotoResizing() {
+		return isPhotoResizing;
+	}
+
+	public void setIsPhotoResizing(Boolean isPhotoResizing) {
+		this.isPhotoResizing = isPhotoResizing;
 	}
 }

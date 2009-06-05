@@ -17,6 +17,9 @@ public class NewMediaObjectConn extends BlogConn  {
 		this.blogID=blogID;
 	}
 
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
 
 	public String getFileName() {
 		return fileName;

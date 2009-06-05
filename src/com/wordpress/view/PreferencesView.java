@@ -15,7 +15,6 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PreferenceController;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
-import com.wordpress.utils.SimpleTimeZone;
 
 public class PreferencesView extends BaseView {
 	
@@ -36,13 +35,13 @@ public class PreferencesView extends BaseView {
             addMultimediaOption();
             add(new SeparatorField());
             
-            int selected = SimpleTimeZone.getIndexForOffset(mPrefs.getTimeZone().getRawOffset());
+       /*     int selected = SimpleTimeZone.getIndexForOffset(mPrefs.getTimeZone().getRawOffset());
             timezoneGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_TIMEZONE),SimpleTimeZone.TIME_ZONE_IDS,selected);
             timezoneGroup.setChangeListener(controller.getTimeZoneListener());
 			add( timezoneGroup );
 			
 			add(new SeparatorField());
-			
+		*/	
 			clientSideConn=new CheckboxField(_resources.getString(WordPressResource.LABEL_DEVICESIDECONN), mPrefs.isDeviceSideConnection());
 			clientSideConn.setChangeListener(controller.getDeviceSideConnListener());
 			add(clientSideConn);

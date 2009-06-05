@@ -17,6 +17,7 @@ CONN_LOADING_POSTLIST#0="Loading Posts...";
 CONN_LOADING_PREVIEW_TEMPLATE#0="Starting Preview...";
 CONN_REFRESH_COMMENTS#0="Refreshing Comments...";
 CONN_REFRESH_POSTLIST#0="Refreshing Posts";
+DEFAULT_DATE_FORMAT#0="MMMM d, yyyy h:mm aa";
 DESCRIPTION_POST_PASSWORD#0="Setting a password will require visitor to enter the above password to view this post and its comment.";
 DESCRIPTION_RESIZEPHOTOS#0="Resizing will result in a faster publishing but smaller photos. Resized photos will be  no langer then 640 x 480.";
 LABEL_ADD_YOUR_BLOG#0="Add your Blog...";

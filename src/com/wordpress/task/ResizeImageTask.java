@@ -30,3 +30,46 @@ public class ResizeImageTask extends TaskImpl {
 	}
 
 }
+
+
+/*	
+	private class ResizeImgListener implements TaskProgressListener {
+
+		private final WaitScreen waitScreen;
+		private final ResizeImageTask resTask;
+
+		public ResizeImgListener(WaitScreen waitScreen,	ResizeImageTask resTask) {
+			this.waitScreen = waitScreen;
+			this.resTask = resTask;
+
+		}
+
+		public void taskComplete(Object obj) {
+			
+			final Hashtable content = (Hashtable) obj;
+			
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					
+					waitScreen.close();
+
+					if (resTask.isError()) {
+						displayError(resTask.getErrorMsg());
+						return;
+					}
+					
+					String fileName = (String) content.get("name");
+					byte[] data = (byte[]) content.get("bits");
+					
+					storePhoto(data, fileName);
+					
+				}
+			});
+			
+		}
+
+		public void taskUpdate(Object obj) {
+
+		}
+	}
+	*/

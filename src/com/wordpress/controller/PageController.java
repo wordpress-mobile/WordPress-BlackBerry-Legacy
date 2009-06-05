@@ -348,7 +348,7 @@ public class PageController extends BlogObjectController {
 	
 	
 	
-	public void setSettingsValues(long authoredOn, String password){
+	public void setSettingsValues(long authoredOn, String password, boolean isPhotoRes){
 		
 		if(page.getDateCreatedGMT() != null ) {
 			if ( page.getDateCreatedGMT().getTime() != authoredOn ) {
@@ -364,15 +364,30 @@ public class PageController extends BlogObjectController {
 			page.setWpPassword(password);
 			setPageAsChanged(true);
 		} else {
-			if(page.getWpPassword()== null ){
+			if(page.getWpPassword() == null ){
 				page.setWpPassword(password);
 				setPageAsChanged(true);
 			}
 		}
+		
+		if( page.getIsPhotoResizing() != null && !page.getIsPhotoResizing().booleanValue()== isPhotoRes ){
+			page.setIsPhotoResizing(new Boolean(isPhotoRes));
+			setPageAsChanged(true);
+		} else {
+			if(page.getIsPhotoResizing() == null ){
+				page.setIsPhotoResizing(new Boolean(isPhotoRes));
+				setPageAsChanged(true);
+			}
+		}
+		
 	}
 	
-	public void showSettingsView(){			
-		settingsView= new PostSettingsView(this, page.getDateCreatedGMT(), page.getWpPassword());		
+	public void showSettingsView(){		
+		boolean isPhotoResing = blog.isResizePhotos(); //first set the value as the predefined blog value
+		if (page.getIsPhotoResizing() != null ) {
+			isPhotoResing = page.getIsPhotoResizing().booleanValue();			
+		}
+		settingsView= new PostSettingsView(this, page.getDateCreatedGMT(), page.getWpPassword(), isPhotoResing);		
 		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
 	 
@@ -435,7 +450,7 @@ public class PageController extends BlogObjectController {
 		
 	}
 	
-	protected void storePhoto(byte[] data, String fileName) {
+	public void storePhoto(byte[] data, String fileName) {
 		try {
 			EncodedImage img;
 			img = EncodedImage.createEncodedImage(data, 0, -1);

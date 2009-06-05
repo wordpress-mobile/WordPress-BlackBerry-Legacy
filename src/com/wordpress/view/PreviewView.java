@@ -23,6 +23,7 @@ import net.rim.device.api.browser.field.UrlRequestedEvent;
 import net.rim.device.api.io.http.HttpHeaders;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.Display;
+import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
@@ -34,7 +35,7 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.utils.SecondaryResourceFetchThread;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 
-public class PostPreviewView  extends BaseView implements RenderingApplication {
+public class PreviewView  extends BaseView implements RenderingApplication {
 	ConnectionInProgressView connectionProgressView=null;
 	
 	private static final String REFERER = "referer";   
@@ -42,7 +43,7 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 	private InputConnection  _currentConnection;
 	private BrowserContent browserContent = null;
 	
-	public PostPreviewView(String html) {
+	public PreviewView(String html) {
 		super(_resources.getString(WordPressResource.TITLE_POSTVIEW));
 				
         
@@ -313,37 +314,29 @@ public class PostPreviewView  extends BaseView implements RenderingApplication {
 	public BaseController getController() {
 		return null;
 	}
-	
-	protected void makeMenu(Menu menu, int instance)
-    {
-    	//menu.deleteAll();
-		removeMenuWithLabel("Get", menu);	
-		removeMenuWithLabel("Sel", menu);
-		removeMenuWithLabel("Find", menu);
-	
-       	super.makeMenu(menu, instance);
-    }
-	
-	private void removeMenuWithLabel(String labelToRemove, Menu menu) {
-		int size = menu.getSize();
-		for(int i=0; i < size; i++) {
-		    MenuItem item = menu.getItem(i);
-		    String label = item.toString();
-		    if(label.startsWith(labelToRemove)) {
-		    	menu.deleteItem(i);
-		    	break;
-	    	    }			
-		}
+		
+	protected void makeMenu(Menu menu, int instance) {
+		menu.deleteAll();
+		// The following will remove the menu items associated with the current
+		// browserfield with focus (Open link, etc...) to the top of the  menu.
+		Field focus = UiApplication.getUiApplication().getActiveScreen()
+				.getLeafFieldWithFocus();
+		if (focus != null && focus == browserContent) {
+				
+		} else   
+		super.makeMenu(menu, instance);
+		// call "super.makeMenu(menu, instance);" here the default menu
+		// items would be added (Close, Hide, etc...).
 	}
-	
+		
 	private class PrimaryResourceFetchThread extends Thread 
 	{
 	    
-	    private PostPreviewView _application;
+	    private PreviewView _application;
 	    private Event _event;
 		private final String html;
 	    
-	    PrimaryResourceFetchThread(String html, Event event, PostPreviewView application) 
+	    PrimaryResourceFetchThread(String html, Event event, PreviewView application) 
 	    {
 	        this.html = html;
 			_application = application;

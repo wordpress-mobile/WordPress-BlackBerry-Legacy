@@ -11,6 +11,7 @@ import net.rim.device.api.system.EncodedImage;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Page;
+import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -61,7 +62,22 @@ public class SendPageTask extends TaskImpl implements Observer {
 				byte[] photosBytes;
 				try {
 					photosBytes = getPhotosBytes(fileName);
-					((NewMediaObjectConn) blogConn).setFileContent(photosBytes);					
+					//check if resizing photo
+					boolean isRes = false;
+					if( page.getIsPhotoResizing() == null ){
+						isRes = blog.isResizePhotos(); //get the option from the blog settings
+					} else {
+						isRes = page.getIsPhotoResizing().booleanValue();
+					}
+					
+					if(isRes){
+						Hashtable content = MultimediaUtils.resizePhotoAndOutputJpeg(photosBytes, fileName);
+						fileName = (String) content.get("name");
+						photosBytes = (byte[]) content.get("bits");
+					}
+					
+					((NewMediaObjectConn) blogConn).setFileContent(photosBytes);
+					((NewMediaObjectConn) blogConn).setFileName(fileName);
 				} catch (Exception e) {
 					final String respMessage=e.getMessage();
 					errorMsg.append(respMessage+"\n");

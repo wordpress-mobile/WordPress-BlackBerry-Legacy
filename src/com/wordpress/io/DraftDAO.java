@@ -209,6 +209,11 @@ public class DraftDAO implements BaseDAO{
         if (post.getLink() != null) {
         	content.put("link", post.getLink());
         }	     
+            	
+		if(post.getIsPhotoResizing() !=null) {
+			content.put("IsPhotoResizing", post.getIsPhotoResizing());
+		}
+	
         
         content.put("mt_convert_breaks", post.isConvertLinebreaksEnabled() ? "1" : "0");
         content.put("mt_allow_comments", new Integer(post.isCommentsEnabled() ? 1 : 0));
@@ -260,6 +265,12 @@ public class DraftDAO implements BaseDAO{
         if (trackback != null) {
             aPost.setTrackbackEnabled(trackback.intValue() != 0);
         }
+        
+		//set the prop for photo res
+		if(postData.get("IsPhotoResizing") != null) {
+			aPost.setIsPhotoResizing((Boolean) postData.get("IsPhotoResizing"));
+		}
+        
         return aPost;
 	}
 }

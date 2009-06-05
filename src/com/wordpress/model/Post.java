@@ -26,6 +26,7 @@ public class Post {
     private String extended = "";
     private String excerpt = "";
     private String link = null;
+    private Boolean isPhotoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
         
 
     public Post(Blog aBlog) {
@@ -162,6 +163,14 @@ public class Post {
 
 	public void setLink(String link) {
 		this.link = link;
+	}
+
+	public Boolean getIsPhotoResizing() {
+		return isPhotoResizing;
+	}
+
+	public void setIsPhotoResizing(Boolean isPhotoResizing) {
+		this.isPhotoResizing = isPhotoResizing;
 	}
 
 }
