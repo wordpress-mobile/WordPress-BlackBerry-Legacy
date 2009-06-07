@@ -13,14 +13,12 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Page;
-import com.wordpress.task.SendPageTask;
+import com.wordpress.task.SendToBlogTask;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.Queue;
 import com.wordpress.view.PageView;
 import com.wordpress.view.PhotosView;
-import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
-import com.wordpress.view.mm.PhotoPreview;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.NewMediaObjectConn;
 import com.wordpress.xmlrpc.page.EditPageConn;
@@ -29,21 +27,13 @@ import com.wordpress.xmlrpc.page.NewPageConn;
 
 public class PageController extends BlogObjectController {
 	
-	private PageView view = null;
-	private PhotosView photoView = null;
-	private PostSettingsView settingsView = null;
-	private int draftPageFolder=-1; //identify draft post folder
-	private boolean isDraft= false; // identify if post is loaded from draft folder
-	
+	private PageView view = null;	
 	private String[] pageStatusKey; // = {"draft, private, publish, localdraft"};
 	private String[] pageStatusLabel;
 	private String[] pageTemplateKey; 
 	private String[] pageTemplateLabel; 
 	private Page[] remotePages; //the page on the blog
-	private Page page=null; //page object
-    private boolean isModified = false; //the state of page. track changes on post..
-	private SendPageTask sendTask;
-	
+
 	//used when new page/edit page
 	public PageController(Blog blog, Page page) {
 		super();	
@@ -51,7 +41,7 @@ public class PageController extends BlogObjectController {
 		this.page= page;	
 		//assign new space on draft folder, used for photo IO
 		try {
-			draftPageFolder = PageDAO.storePage(blog, page, draftPageFolder);
+			draftFolder = PageDAO.storePage(blog, page, draftFolder);
 		} catch (Exception e) {
 			displayError(e, "Cannot create space on disk for your page!");
 		}
@@ -65,7 +55,7 @@ public class PageController extends BlogObjectController {
 		super();
 		this.blog = blog;	
 		this.page=page;
-		this.draftPageFolder=_draftPostFolder;
+		this.draftFolder=_draftPostFolder;
 		this.isDraft = true;
 		remotePages = PageDAO.buildPagesArray(blog.getPages());
 	}
@@ -122,7 +112,7 @@ public class PageController extends BlogObjectController {
 		
 		String[] draftPostPhotoList = new String[0];
 		try {
-			draftPostPhotoList = PageDAO.getPagePhotoList(blog, draftPageFolder);
+			draftPostPhotoList = PageDAO.getPagePhotoList(blog, draftFolder);
 		} catch (Exception e) {
 			displayError(e, "Cannot load photos of this page!");
 		}
@@ -223,7 +213,7 @@ public class PageController extends BlogObjectController {
 		String[] draftPagePhotoList;
 
 		try {
-			draftPagePhotoList = PageDAO.getPagePhotoList(blog, draftPageFolder);
+			draftPagePhotoList = PageDAO.getPagePhotoList(blog, draftFolder);
 		} catch (Exception e) {
 			displayError(e, "Cannot load photos from disk, publication failed!");
 			return;
@@ -264,7 +254,7 @@ public class PageController extends BlogObjectController {
 		connectionsQueue.push(connection);
 				
 		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
-		sendTask = new SendPageTask(blog, page, draftPageFolder, connectionsQueue);
+		sendTask = new SendToBlogTask(blog, page, draftFolder, connectionsQueue);
 		sendTask.setProgressListener(new SubmitPageTaskListener());
 		//push into the Runner
 		runner.enqueue(sendTask);
@@ -307,7 +297,7 @@ public class PageController extends BlogObjectController {
 	
 	public void saveDraftPage() {
 		try {
-		 draftPageFolder = PageDAO.storePage(blog, page, draftPageFolder);
+		 draftFolder = PageDAO.storePage(blog, page, draftFolder);
 		 setPageAsChanged(false); //set the post as not modified because we have saved it.
 		 this.isDraft = true; //set as draft
 		} catch (Exception e) {
@@ -322,7 +312,7 @@ public class PageController extends BlogObjectController {
 	    	if(Dialog.YES==result) {
 	    		try {
 	    			if( !isDraft ){ //not previous draft saved post
-	    				PageDAO.removePage(blog, draftPageFolder);
+	    				PageDAO.removePage(blog, draftFolder);
 	    			}
 				} catch (Exception e) {
 					displayError(e, "Cannot remove temporary files from disk!");
@@ -336,7 +326,7 @@ public class PageController extends BlogObjectController {
 		
 		try {
 			if( !isDraft ){ //not previous draft saved post
-				PageDAO.removePage(blog, draftPageFolder);
+				PageDAO.removePage(blog, draftFolder);
 			}
 		} catch (Exception e) {
 			displayError(e, "Cannot remove temporary files from disk!");
@@ -382,15 +372,7 @@ public class PageController extends BlogObjectController {
 		
 	}
 	
-	public void showSettingsView(){		
-		boolean isPhotoResing = blog.isResizePhotos(); //first set the value as the predefined blog value
-		if (page.getIsPhotoResizing() != null ) {
-			isPhotoResing = page.getIsPhotoResizing().booleanValue();			
-		}
-		settingsView= new PostSettingsView(this, page.getDateCreatedGMT(), page.getWpPassword(), isPhotoResing);		
-		UiApplication.getUiApplication().pushScreen(settingsView);
-	}
-	 
+
 	/*
 	 * set photos number on main post vire
 	 */
@@ -402,11 +384,11 @@ public class PageController extends BlogObjectController {
 		
 		String[] draftPostPhotoList;
 		try {
-			draftPostPhotoList = PageDAO.getPagePhotoList(blog, draftPageFolder);
+			draftPostPhotoList = PageDAO.getPagePhotoList(blog, draftFolder);
 			photoView= new PhotosView(this);
 			for (int i = 0; i < draftPostPhotoList.length; i++) {
 				String currPhotoPath = draftPostPhotoList[i];
-				byte[] data=PageDAO.loadPagePhoto(blog, draftPageFolder, currPhotoPath);
+				byte[] data=PageDAO.loadPagePhoto(blog, draftFolder, currPhotoPath);
 				EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
 				photoView.addPhoto(currPhotoPath, img);
 			}			
@@ -416,50 +398,7 @@ public class PageController extends BlogObjectController {
 			return;
 		}
 	}
-	
-	/*
-	 * show selected photo
-	 */
-	public void showEnlargedPhoto(String key){
-		System.out.println("showed photos: "+key);
-		byte[] data;
-		try {
-			data = PageDAO.loadPagePhoto(blog, draftPageFolder, key);
-			EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
-			UiApplication.getUiApplication().pushScreen(new PhotoPreview(this, key ,img)); //modal screen...
-		} catch (Exception e) {
-			displayError(e, "Cannot load photos from disk!");
-			return;
-		}
-		
-	}
-		
-	/*
-	 * delete selected photo
-	 */
-	public boolean deletePhoto(String key){
-		System.out.println("deleting photo: "+key);
-		
-		try {
-			PageDAO.removePagePhoto(blog, draftPageFolder, key);
-			photoView.deletePhotoBitmapField(key); //delete the thumbnail
-		} catch (Exception e) {
-			displayError(e, "Cannot remove photo from disk!");
-		}		
-		return true;
-		
-	}
-	
-	public void storePhoto(byte[] data, String fileName) {
-		try {
-			EncodedImage img;
-			img = EncodedImage.createEncodedImage(data, 0, -1);
-			PageDAO.storePhoto(blog, draftPageFolder, data, fileName);
-			photoView.addPhoto(fileName, img);
-		} catch (Exception e) {
-			displayError(e, "Cannot save photo to disk!");
-		}
-	}
+			
 	
 	public void refreshView() {
 		//resfresh the post view. not used.

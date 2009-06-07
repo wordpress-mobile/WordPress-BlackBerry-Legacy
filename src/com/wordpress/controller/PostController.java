@@ -14,8 +14,7 @@ import com.wordpress.io.DraftDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
-import com.wordpress.model.Preferences;
-import com.wordpress.task.SendPostTask;
+import com.wordpress.task.SendToBlogTask;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.observer.Observable;
@@ -23,10 +22,8 @@ import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.NewCategoryView;
 import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostCategoriesView;
-import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PostView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
-import com.wordpress.view.mm.PhotoPreview;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.NewCategoryConn;
@@ -38,20 +35,11 @@ import com.wordpress.xmlrpc.post.NewPostConn;
 public class PostController extends BlogObjectController {
 	
 	private PostView view = null;
-	private PhotosView photoView = null;
 	private PostCategoriesView catView = null;
-	private PostSettingsView settingsView = null;
-	private Post post=null;
-	private int draftPostFolder=-1; //identify draft post folder
-	private boolean isDraft= false; // identify if post is loaded from draft folder
-    private boolean isModified = false; //the state of post. track changes on post..
 	
 	private String[] postStatusKey; // = {"draft, pending, private, publish, localdraft"};
 	private String[] postStatusLabel; 
 
-	
-	Preferences prefs = Preferences.getIstance();
-	private SendPostTask sendTask;
 	
 	//used when new post/recent post
 	// 0 = new post
@@ -62,7 +50,7 @@ public class PostController extends BlogObjectController {
 		this.blog = post.getBlog();
 		//assign new space on draft folder, used for photo IO
 		try {
-			draftPostFolder = DraftDAO.storePost(post, draftPostFolder);
+			draftFolder = DraftDAO.storePost(post, draftFolder);
 		} catch (Exception e) {
 			displayError(e, "Cannot create space on disk for your post!");
 		}
@@ -73,7 +61,7 @@ public class PostController extends BlogObjectController {
 		super();	
 		this.post=post;
 		this.blog = post.getBlog();
-		this.draftPostFolder=_draftPostFolder;
+		this.draftFolder=_draftPostFolder;
 		this.isDraft = true;
 	}
 	
@@ -105,7 +93,7 @@ public class PostController extends BlogObjectController {
 		
 		String[] draftPostPhotoList = new String[0];
 		try {
-			draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftPostFolder);
+			draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftFolder);
 		} catch (Exception e) {
 			displayError(e, "Cannot load photos of this post!");
 		}
@@ -222,7 +210,7 @@ public class PostController extends BlogObjectController {
 		String[] draftPostPhotoList;
 
 		try {
-			draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftPostFolder);
+			draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftFolder);
 		} catch (Exception e) {
 			displayError(e, "Cannot load photos from disk, publication failed!");
 			return;
@@ -261,7 +249,7 @@ public class PostController extends BlogObjectController {
 		connectionsQueue.push(connection);		
 		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
 		
-		sendTask = new SendPostTask(post, draftPostFolder, connectionsQueue);
+		sendTask = new SendToBlogTask(post, draftFolder, connectionsQueue);
 		sendTask.setProgressListener(new SubmitPostTaskListener());
 		//push into the Runner
 		runner.enqueue(sendTask);
@@ -307,7 +295,7 @@ public class PostController extends BlogObjectController {
 	//user save post as localdraft
 	public void saveDraftPost() {
 		try {
-		 draftPostFolder = DraftDAO.storePost(post, draftPostFolder);
+		 draftFolder = DraftDAO.storePost(post, draftFolder);
 		 setPostAsChanged(false); //set the post as not modified because we have saved it.
 		 this.isDraft = true; //set as draft
 		} catch (Exception e) {
@@ -322,7 +310,7 @@ public class PostController extends BlogObjectController {
 	    	if(Dialog.YES==result) {
 	    		try {
 	    			if( !isDraft ){ //not remove post if it is a draft post
-	    				DraftDAO.removePost(post.getBlog(), draftPostFolder);
+	    				DraftDAO.removePost(post.getBlog(), draftFolder);
 	    			}
 				} catch (Exception e) {
 					displayError(e, "Cannot remove temporary files from disk!");
@@ -336,7 +324,7 @@ public class PostController extends BlogObjectController {
 		
 		try {
 			if( !isDraft ){ //not previous draft saved post
-				DraftDAO.removePost(post.getBlog(), draftPostFolder);
+				DraftDAO.removePost(post.getBlog(), draftFolder);
 			}
 		} catch (Exception e) {
 			displayError(e, "Cannot remove temporary files from disk!");
@@ -381,14 +369,7 @@ public class PostController extends BlogObjectController {
 		}
 	}
 	
-	public void showSettingsView(){
-		boolean isPhotoResing = blog.isResizePhotos(); //first set the value as the predefined blog value
-		if (post.getIsPhotoResizing() != null ) {
-			isPhotoResing = post.getIsPhotoResizing().booleanValue();			
-		}
-		settingsView= new PostSettingsView(this, post.getAuthoredOn(), post.getPassword(), isPhotoResing);		
-		UiApplication.getUiApplication().pushScreen(settingsView);
-	}
+
 	 
 	/*
 	public void showPreview(){
@@ -435,11 +416,11 @@ public class PostController extends BlogObjectController {
 		
 		String[] draftPostPhotoList;
 		try {
-			draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftPostFolder);
+			draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftFolder);
 			photoView= new PhotosView(this);
 			for (int i = 0; i < draftPostPhotoList.length; i++) {
 				String currPhotoPath = draftPostPhotoList[i];
-				byte[] data=DraftDAO.loadPostPhoto(post, draftPostFolder, currPhotoPath);
+				byte[] data=DraftDAO.loadPostPhoto(post, draftFolder, currPhotoPath);
 				EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
 				photoView.addPhoto(currPhotoPath, img);
 			}			
@@ -450,50 +431,7 @@ public class PostController extends BlogObjectController {
 		}
 	}
 	
-	/*
-	 * show selected photo
-	 */
-	public void showEnlargedPhoto(String key){
-		System.out.println("showed photos: "+key);
-		byte[] data;
-		try {
-			data = DraftDAO.loadPostPhoto(post, draftPostFolder, key);
-			EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
-			UiApplication.getUiApplication().pushScreen(new PhotoPreview(this, key ,img)); //modal screen...
-		} catch (Exception e) {
-			displayError(e, "Cannot load photos from disk!");
-			return;
-		}
-	}
-	
-	
-	/*
-	 * delete selected photo
-	 */
-	public boolean deletePhoto(String key){
-		System.out.println("deleting photo: "+key);
-		
-		try {
-			DraftDAO.removePostPhoto(post.getBlog(), draftPostFolder, key);
-			photoView.deletePhotoBitmapField(key); //delete the thumbnail
-		} catch (Exception e) {
-			displayError(e, "Cannot remove photo from disk!");
-		}		
-		return true;
-	}
-	
-	
-	public void storePhoto(byte[] data, String fileName) {
-		try {
-			EncodedImage img;
-			img = EncodedImage.createEncodedImage(data, 0, -1);
 
-			DraftDAO.storePhoto(post.getBlog(), draftPostFolder, data, fileName);
-			photoView.addPhoto(fileName, img);
-		} catch (Exception e) {
-			displayError(e, "Cannot save photo to disk!");
-		}
-	}
 	
 	public void refreshView() {
 		//resfresh the post view. not used.

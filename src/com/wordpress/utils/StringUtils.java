@@ -23,6 +23,25 @@ public class StringUtils {
 		    return result;
 		  }
 	
+	  // Splits string by char
+	  public static String[] split(final String string, final char splitByChar) {
+		    final Vector tokens = new Vector();
+		    final int tokenLength = 1;
+
+		    int tokenStart = 0;
+		    int splitIndex;
+		    while ((splitIndex = string.indexOf(splitByChar, tokenStart)) != -1) {
+		      tokens.addElement(string.substring(tokenStart, splitIndex));
+		      tokenStart = splitIndex + tokenLength;
+		    }
+
+		    tokens.addElement(string.substring(tokenStart));
+
+		    final String[] result = new String[tokens.size()];
+		    tokens.copyInto(result);
+		    return result;
+		  }
+	  
 	
 	  // Split One string in 2 string 
 	 public synchronized static String[] split2Strings( String in, char ch ){

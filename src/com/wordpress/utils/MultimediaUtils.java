@@ -23,6 +23,8 @@ public class MultimediaUtils {
 		//no resize
 		if(originalImage.getWidth() <= 640 && originalImage.getWidth() <= 480) {
 			content.put("name", fileName);
+			content.put("height", String.valueOf(originalImage.getHeight()));
+			content.put("width", String.valueOf(originalImage.getWidth()));
 			content.put("bits", data);
 			return content;
 		}
@@ -54,6 +56,8 @@ public class MultimediaUtils {
 		
 		
 		content.put("name", fileName);
+		content.put("height", String.valueOf(resizedEncodedImg.getHeight()));
+		content.put("width", String.valueOf(resizedEncodedImg.getWidth()));
 		content.put("bits",  resizedEncodedImg.getData());
 		return content;
 

@@ -2,41 +2,137 @@ package com.wordpress.controller;
 
 import java.io.IOException;
 
+import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.io.DraftDAO;
 import com.wordpress.io.FileUtils;
 import com.wordpress.io.JSR75FileSystem;
+import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.model.Page;
+import com.wordpress.model.Post;
+import com.wordpress.task.SendToBlogTask;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
+import com.wordpress.view.PhotosView;
+import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PreviewView;
 import com.wordpress.view.component.FileSelectorPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.view.mm.MultimediaPopupScreen;
+import com.wordpress.view.mm.PhotoPreview;
 import com.wordpress.view.mm.PhotoSnapShotView;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.GetTemplateConn;
 
+/**
+ * This is the base class for Post and Page Obj
+ * @author dercoli
+ *
+ */
 public abstract class BlogObjectController extends BaseController {
 	
 	protected Blog blog;
-	protected static final String LOCAL_DRAFT_KEY = "localdraft";
-	protected static final String LOCAL_DRAFT_LABEL = _resources.getString(WordPress.LABEL_LOCAL_DRAFT);
-	protected ConnectionInProgressView connectionProgressView=null;
-	public abstract void setSettingsValues(long authoredOn, String password, boolean isPhotoResizing);
-	
+	protected Page page=null; //page object
+	protected Post post=null; //post object (mutually excluded with page obj) 
+	protected boolean isModified = false; //the state of post/page. track changes on post/page..
+	protected int draftFolder=-1; //identify draft post folder
+	protected boolean isDraft= false; // identify if post/page is loaded from draft folder
+
 	public static final int NONE=-1;
 	public static final int PHOTO=1;
 	public static final int BROWSER=4;
 	
-	public abstract void showEnlargedPhoto(String key);
-	public abstract boolean deletePhoto(String photoName); //delete 
+	//related view
+	protected SendToBlogTask sendTask;
+	protected PostSettingsView settingsView = null;
+	protected PhotosView photoView = null;
+	protected ConnectionInProgressView connectionProgressView=null;
+
+		
+	protected static final String LOCAL_DRAFT_KEY = "localdraft";
+	protected static final String LOCAL_DRAFT_LABEL = _resources.getString(WordPress.LABEL_LOCAL_DRAFT);
+	public abstract void setSettingsValues(long authoredOn, String password, boolean isPhotoResizing);	
 	public abstract void setPhotosNumber(int count);
-	public abstract void storePhoto(byte[] data, String fileName);
+	
+	
+	
+	public void showSettingsView(){
+		boolean isPhotoResing = blog.isResizePhotos(); //first set the value as the predefined blog value
+		if(post != null) {
+			if (post.getIsPhotoResizing() != null ) {
+				isPhotoResing = post.getIsPhotoResizing().booleanValue();			
+			}
+			settingsView= new PostSettingsView(this, post.getAuthoredOn(), post.getPassword(), isPhotoResing);		
+		} else {
+			if (page.getIsPhotoResizing() != null ) {
+				isPhotoResing = page.getIsPhotoResizing().booleanValue();			
+			}
+			settingsView= new PostSettingsView(this, page.getDateCreatedGMT(), page.getWpPassword(), isPhotoResing);		
+		}
+		
+		UiApplication.getUiApplication().pushScreen(settingsView);
+	}
+	
+	public void storePhoto(byte[] data, String fileName) {
+		try {
+			EncodedImage img;
+			img = EncodedImage.createEncodedImage(data, 0, -1);
+			if(post != null)
+				DraftDAO.storePhoto(post.getBlog(), draftFolder, data, fileName);
+			else
+				PageDAO.storePhoto(blog, draftFolder, data, fileName);
+			photoView.addPhoto(fileName, img);
+		} catch (Exception e) {
+			displayError(e, "Cannot save photo to disk!");
+		}
+	}
+	
+		
+	/*
+	 * delete selected photo
+	 */
+	public boolean deletePhoto(String key){
+		System.out.println("deleting photo: "+key);
+		
+		try {
+			if(post != null)
+				DraftDAO.removePostPhoto(post.getBlog(), draftFolder, key);
+			else
+				PageDAO.removePagePhoto(blog, draftFolder, key);
+				
+			photoView.deletePhotoBitmapField(key); //delete the thumbnail
+		} catch (Exception e) {
+			displayError(e, "Cannot remove photo from disk!");
+		}		
+		return true;
+	}
+	
+	
+	/*
+	 * show selected photo
+	 */
+	public void showEnlargedPhoto(String key){
+		System.out.println("showed photos: "+key);
+		byte[] data;
+		try {
+			if(post != null)
+				data = DraftDAO.loadPostPhoto(post, draftFolder, key);
+			else
+				data = PageDAO.loadPagePhoto(blog, draftFolder, key);
+			EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
+			UiApplication.getUiApplication().pushScreen(new PhotoPreview(this, key ,img)); //modal screen...
+		} catch (Exception e) {
+			displayError(e, "Cannot load photos from disk!");
+			return;
+		}
+	}
+	
 	
 	//* show up multimedia type selection */
 	public void showAddPhotoPopUp() {

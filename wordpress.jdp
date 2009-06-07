@@ -78,8 +78,7 @@ src\com\wordpress\model\Preferences.java
 src\com\wordpress\model\Tag.java
 src\com\wordpress\task\LoadBlogsDataTask.java
 src\com\wordpress\task\ResizeImageTask.java
-src\com\wordpress\task\SendPageTask.java
-src\com\wordpress\task\SendPostTask.java
+src\com\wordpress\task\SendToBlogTask.java
 src\com\wordpress\task\Task.java
 src\com\wordpress\task\TaskImpl.java
 src\com\wordpress\task\TaskProgressListener.java
@@ -94,7 +93,6 @@ src\com\wordpress\utils\observer\Observer.java
 src\com\wordpress\utils\PropertyUtils.java
 src\com\wordpress\utils\Queue.java
 src\com\wordpress\utils\SecondaryResourceFetchThread.java
-src\com\wordpress\utils\SimpleTimeZone.java
 src\com\wordpress\utils\StringUtils.java
 src\com\wordpress\utils\Tools.java
 src\com\wordpress\view\AboutView.java
