@@ -85,6 +85,12 @@ src\com\wordpress\task\TaskProgressListener.java
 src\com\wordpress\task\TasksRunner.java
 src\com\wordpress\task\TaskWorker.java
 src\com\wordpress\utils\CalendarUtils.java
+src\com\wordpress\utils\LocalHttpConn.java
+src\com\wordpress\utils\log\Appender.java
+src\com\wordpress\utils\log\BlackberryEventLogAppender.java
+src\com\wordpress\utils\log\ConsoleAppender.java
+src\com\wordpress\utils\log\FileAppender.java
+src\com\wordpress\utils\log\Log.java
 src\com\wordpress\utils\MD5.java
 src\com\wordpress\utils\MD5State.java
 src\com\wordpress\utils\MultimediaUtils.java
@@ -102,6 +108,7 @@ src\com\wordpress\view\BlogOptionsView.java
 src\com\wordpress\view\BlogView.java
 src\com\wordpress\view\CommentsView.java
 src\com\wordpress\view\CommentView.java
+src\com\wordpress\view\component\AnimatedGIFField.java
 src\com\wordpress\view\component\BasicListFieldCallBack.java
 src\com\wordpress\view\component\BlogsListField.java
 src\com\wordpress\view\component\CheckBoxListField.java

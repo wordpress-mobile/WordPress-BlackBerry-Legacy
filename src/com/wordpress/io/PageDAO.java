@@ -26,17 +26,21 @@ public class PageDAO implements BaseDAO{
 		}
 	}
 	    
+    public static String getPhotoRealPath(Blog blog, int draftId, String photoName) throws IOException, RecordStoreException {
+    	String draftPostPath = getPageFilePath(blog, draftId);
+    	String photoFilePath = draftPostPath+"p-"+photoName;
+    	return photoFilePath;
+    }
+    
 	//load a photos of the draft post
 	public static byte[] loadPagePhoto(Blog blog, int draftId, String photoName) throws IOException, RecordStoreException {
-		String draftPostPath = getPageFilePath(blog, draftId);
-		String photoFilePath = draftPostPath+"p-"+photoName;
+		String photoFilePath = getPhotoRealPath(blog, draftId, photoName);
 		return JSR75FileSystem.readFile(photoFilePath);
 	}
 	
 	//delete a photos of the draft post
 	public static void removePagePhoto(Blog blog, int draftId, String photoName)  throws IOException, RecordStoreException{
-		String draftBlogPath = getPath(blog);
-		String photoFilePath = draftBlogPath+draftId+"p-"+photoName;
+		String photoFilePath = getPhotoRealPath(blog, draftId, photoName);
 		JSR75FileSystem.removeFile(photoFilePath);
 		System.out.println("deleting page photo ok");   	
 	}

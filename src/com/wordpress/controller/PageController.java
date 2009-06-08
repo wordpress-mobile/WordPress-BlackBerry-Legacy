@@ -1,8 +1,11 @@
 package com.wordpress.controller;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+
+import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
@@ -10,14 +13,19 @@ import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.io.DraftDAO;
+import com.wordpress.io.FileUtils;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.model.Category;
 import com.wordpress.model.Page;
 import com.wordpress.task.SendToBlogTask;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.Queue;
+import com.wordpress.utils.StringUtils;
 import com.wordpress.view.PageView;
 import com.wordpress.view.PhotosView;
+import com.wordpress.view.PreviewView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.NewMediaObjectConn;
@@ -399,6 +407,35 @@ public class PageController extends BlogObjectController {
 		}
 	}
 			
+	
+	public void startLocalPreview(String title, String content, String tags){
+		//photo are reader from the model
+		
+		String[] draftPostPhotoList = getPhotoList();
+		StringBuffer photoHtmlFragment = new StringBuffer();
+		
+		for (int i = 0; i < draftPostPhotoList.length; i++) {
+			try {
+				String photoRealPath = PageDAO.getPhotoRealPath(blog, draftFolder, draftPostPhotoList[i]);
+				photoHtmlFragment.append("<p>"+
+						"<img class=\"alignnone size-full wp-image-364\"" +
+						" src=\""+photoRealPath+"\" alt=\"\" " +
+				"</p>");
+			} catch (IOException e) {
+			} catch (RecordStoreException e) {
+			}
+		}
+		photoHtmlFragment.append("<p>&nbsp;</p>");
+		
+		String html = FileUtils.readTxtFile("defaultPostTemplate.html");
+		if(title == null || title.length() == 0) title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
+		html = StringUtils.replaceAll(html, "!$title$!", title);
+		html = StringUtils.replaceAll(html, "<p>!$text$!</p>", buildBodyHtmlFragment(content)+ photoHtmlFragment.toString());
+		html = StringUtils.replaceAll(html, "!$mt_keywords$!", "");//The pages have no tags
+		html = StringUtils.replaceAll(html, "!$categories$!", ""); //The pages have no categories
+		
+		UiApplication.getUiApplication().pushScreen(new PreviewView(html));	
+	}
 	
 	public void refreshView() {
 		//resfresh the post view. not used.

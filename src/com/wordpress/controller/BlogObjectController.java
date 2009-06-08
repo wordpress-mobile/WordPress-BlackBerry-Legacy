@@ -2,6 +2,9 @@ package com.wordpress.controller;
 
 import java.io.IOException;
 
+import javax.microedition.rms.RecordStoreException;
+
+import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
@@ -9,7 +12,6 @@ import net.rim.device.api.ui.component.Dialog;
 import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.DraftDAO;
-import com.wordpress.io.FileUtils;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
@@ -79,6 +81,22 @@ public abstract class BlogObjectController extends BaseController {
 		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
 	
+	
+	
+	protected String[] getPhotoList() {
+		String[] draftPostPhotoList = new String [0];
+		try {
+			if( post != null )
+				draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftFolder);
+			else
+				draftPostPhotoList = PageDAO.getPagePhotoList(blog, draftFolder);
+		} catch (Exception e) {
+			displayError(e, "Cannot load photos from disk!");
+		}
+		return draftPostPhotoList;
+	}
+
+	
 	public void storePhoto(byte[] data, String fileName) {
 		try {
 			EncodedImage img;
@@ -122,7 +140,7 @@ public abstract class BlogObjectController extends BaseController {
 		byte[] data;
 		try {
 			if(post != null)
-				data = DraftDAO.loadPostPhoto(post, draftFolder, key);
+				data = DraftDAO.loadPostPhoto(blog, draftFolder, key);
 			else
 				data = PageDAO.loadPagePhoto(blog, draftFolder, key);
 			EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
@@ -173,13 +191,13 @@ public abstract class BlogObjectController extends BaseController {
 	}
 	
 	
-	public void startRemotePreview(String objectLink, String title, String content, String tags, String cats, String photoNumber){
+	public void startRemotePreview(String objectLink, String title, String content, String tags){
 		String connMessage = null;
 		connMessage = _resources.getString(WordPressResource.CONN_LOADING_PREVIEW_TEMPLATE);
 		
 		final GetTemplateConn connection = new GetTemplateConn(objectLink);
 		
-        connection.addObserver(new loadTemplateCallBack(title, content, tags, cats, photoNumber));  
+        connection.addObserver(new loadTemplateCallBack(title, content, tags));  
         connectionProgressView= new ConnectionInProgressView(connMessage);
        
         connection.startConnWork(); //starts connection
@@ -190,17 +208,8 @@ public abstract class BlogObjectController extends BaseController {
 		}		
 	}
 	
-	public void startLocalPreview(String title, String content, String tags, String cats, String photoNumber){
-		String html = FileUtils.readTxtFile("defaultPostTemplate.html");
-		
-		html = StringUtils.replaceAll(html, "!$title$!", title);
-		html = StringUtils.replaceAll(html, "!$text$!", content+"<br/>"+photoNumber);
-		html = StringUtils.replaceAll(html, "!$mt_keywords$!", tags);
-		html = StringUtils.replaceAll(html, "!$categories$!", cats);
-		
-		UiApplication.getUiApplication().pushScreen(new PreviewView(html));	
-	}
-		
+	public abstract void startLocalPreview(String title, String content, String tags);
+	
 		
 	//callback for post loading
 	private class loadTemplateCallBack implements Observer {
@@ -208,15 +217,11 @@ public abstract class BlogObjectController extends BaseController {
 		private final String title;
 		private final String content;
 		private final String tags;
-		private final String cats;
-		private final String photoNumber;
 
-		public loadTemplateCallBack(String title, String content, String tags, String cats, String photoNumber) {
+		public loadTemplateCallBack(String title, String content, String tags) {
 			this.title = title;
 			this.content = content;
 			this.tags = tags;
-			this.cats = cats;
-			this.photoNumber = photoNumber;
 		}
 
 		public void update(Observable observable, final Object object) {
@@ -237,14 +242,14 @@ public abstract class BlogObjectController extends BaseController {
 						try {
 							html = (String)resp.getResponseObject();
 						} catch (Exception e) {
-							startLocalPreview(title,content,tags, cats, photoNumber);
+							startLocalPreview(title,content,tags);
 							return;
 						}
 						
 						UiApplication.getUiApplication().pushScreen(new PreviewView(html));	
 						
 					} else {
-						startLocalPreview(title,content,tags, cats, photoNumber);
+						startLocalPreview(title,content,tags);
 					}
 					
 					
@@ -253,4 +258,21 @@ public abstract class BlogObjectController extends BaseController {
 		}
 	} 
 	
+	
+	/**
+	 * Build the html fragment for the body
+	 * @param body  original body text field content
+	 * @return
+	 */
+	public static synchronized String buildBodyHtmlFragment(String originalContent) {
+		String[] split = StringUtils.split(originalContent, Characters.ENTER);
+		StringBuffer newContentBuff = new StringBuffer();
+		for (int i = 0; i < split.length; i++) {
+			newContentBuff.append("<p>");
+			newContentBuff.append(split[i]);
+			newContentBuff.append("</p>");
+		}
+		return newContentBuff.toString();
+	}
+		
 }

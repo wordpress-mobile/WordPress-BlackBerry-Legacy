@@ -12,6 +12,7 @@ import javax.microedition.io.file.FileConnection;
 import javax.microedition.io.file.FileSystemRegistry;
 
 import com.wordpress.utils.Tools;
+import com.wordpress.utils.log.Log;
 
 
 /**
@@ -37,6 +38,23 @@ public class JSR75FileSystem  {
 	  return false;
   }
   
+  
+  /** 
+   * Renames this File to the name represented by the File dest. This works
+   * for both normal files and directories.
+   *
+   * @param newName - the File containing the new name. 
+   * @return true if the File was renamed, false otherwise.
+   */
+  public static synchronized void rename(String oldName, String newName) throws IOException {
+	  FileConnection filecon = null;
+		try {
+			filecon = (FileConnection) Connector.open(oldName);
+			filecon.rename(newName);
+		} finally {
+			FileUtils.closeConnection(filecon);
+		}
+  }
   
   public static synchronized boolean isFileExist(String filePath) throws IOException {
 		FileConnection filecon = null;
@@ -73,7 +91,7 @@ public class JSR75FileSystem  {
 		FileConnection filecon = (FileConnection) Connector.open(filePath);
 		if (!filecon.exists()) {
 			filecon.mkdir();
-			System.out.println("file creato con successo");
+			Log.debug("Dir successfully created: " + filePath);
 		}
 		filecon.close();
 	}
@@ -82,9 +100,9 @@ public class JSR75FileSystem  {
 		FileConnection filecon = (FileConnection) Connector.open(filePath);
 		if (!filecon.exists()) {
 			filecon.create();
-			System.out.println("file creato con successo: " + filePath);
+			Log.debug("File successfully created: " + filePath);
 		} else 
-			System.out.println("file gia presente : " + filePath);
+			System.out.println("file already created: " + filePath);
 	
 		filecon.close();
 	}
@@ -100,7 +118,7 @@ public class JSR75FileSystem  {
    *           if an exception occurs
    */
   public static synchronized byte[] readFile(String filename) throws IOException {
-    System.out.println("Start Loading file:///" + filename);
+   Log.debug("Start Loading file: " + filename);
 
     FileConnection fconn = null;
     InputStream is = null;
@@ -131,7 +149,7 @@ public class JSR75FileSystem  {
 
       return result;
     } finally {
-      System.out.println("End Loading file:///" + filename);
+      Log.debug("End Loading file: " + filename);
       FileUtils.closeStream(is);
       FileUtils.closeConnection(fconn);
     }

@@ -1,12 +1,8 @@
+//#preprocess
 package com.wordpress.bb;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
 
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
@@ -19,10 +15,14 @@ import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.controller.MainController;
 import com.wordpress.io.AppDAO;
+import com.wordpress.io.BaseDAO;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
-import com.wordpress.view.component.DirectorySelectorPopUpScreen;
+import com.wordpress.utils.log.Appender;
+import com.wordpress.utils.log.ConsoleAppender;
+import com.wordpress.utils.log.FileAppender;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.ErrorView;
 
 
@@ -55,8 +55,7 @@ public class SplashScreen extends MainScreen {
 		//check application permission as first step
 		WordPressApplicationPermissions.getIstance().checkPermissions();
 		//could be actions here...
-		
-		
+				
 		try {
 			String baseDirPath = AppDAO.getBaseDirPath();
 			
@@ -80,6 +79,15 @@ public class SplashScreen extends MainScreen {
         	JSR75FileSystem.createDir(AppDAO.getBaseDirPath());
 			timer.schedule(new CountDown(), 3000); //3sec splash
 			}
+			
+		// At the end of initialization phase we starts the logging onto file
+		//#ifdef DEBUG
+		 Appender fileAppender = new FileAppender(AppDAO.getBaseDirPath(), BaseDAO.LOG_FILE_PREFIX);
+		 fileAppender.setLogLevel(Log.DEBUG); //if we set level to TRACE the file log size grows too fast
+		 fileAppender.open();
+		 Log.addAppender(fileAppender);
+		//#endif
+			
 		} catch (Exception e) {
 			timer.cancel();
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
@@ -92,6 +100,7 @@ public class SplashScreen extends MainScreen {
 		}
 	}
 
+   /*
    private class SelectDirectoryThread implements Runnable {
 	      public void run() {
 	    	  String theDir = null;
@@ -120,7 +129,7 @@ public class SplashScreen extends MainScreen {
 	      }
 	   }
 	   
-   
+   */
    
    public void dismiss() {
       timer.cancel();
@@ -142,45 +151,7 @@ public class SplashScreen extends MainScreen {
       }
    }
    
-   /**
-    * this method check networks type connection on startup. Not used. 
-    * @author dercoli
-    *
-    */
-   private class checkConnThread implements Runnable {
-		public void run() {
-			try {
-				// try to make simple http conn
-				blogPrefs.setDeviceSideConnection(false);
-				final HttpConnection c = (HttpConnection) Connector.open("http://www.wordpress.com", Connector.READ_WRITE);
-				final InputStream is = c.openInputStream();
-				c.getLength();
-				
-			} catch (IOException ignore) {
-				// try to make simple http conn with BB client side connection
-				try {
-					blogPrefs.setDeviceSideConnection(true);
-					final HttpConnection c = (HttpConnection) Connector.open("http://www.wordpress.com" + ";deviceside=true",Connector.READ_WRITE);
-					final InputStream is = c.openInputStream();
-					c.getLength();
-				} catch (Exception e) {
-					//no internet activity, we should show a message
-					e.printStackTrace();
-					ErrorView errView = new ErrorView("Wordpress hasn't found network connection");
-					errView.doModal();
-					blogPrefs.setDeviceSideConnection(false);
-				}
-			}	
-			/*try {
-				blogPrefs.save(); //save connections setting on RMS
-			} catch (RecordStoreException e) {} 
-			catch (IOException e) {} 
-			*/
-			dismiss();
-		}
-	}
-	   
-   
+     
    
    protected boolean navigationClick(int status, int time) {
      // dismiss();

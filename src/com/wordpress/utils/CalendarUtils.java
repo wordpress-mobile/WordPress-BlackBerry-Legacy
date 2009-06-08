@@ -15,7 +15,46 @@ public class CalendarUtils {
 	public static final long  HOUR_FACTOR         = 60*MINUTE_FACTOR;
 	public static final long  DAY_FACTOR          = 24*HOUR_FACTOR;
 
-
+    /**
+     * Returns a string representation of number with at least 2 digits
+     */
+    private static String printTwoDigits(int number) {
+        if (number>9) {
+            return String.valueOf(number);
+        } else {
+            return "0"+number;
+        }
+    }
+	
+    /**
+     * Converts a <code>Date</code> object into a string in 'Zulu' format
+     *
+     * @param d
+     *            A <code>Date</code> object to be converted into a string in
+     *            'Zulu' format
+     * @return A string representing the date contained in the passed
+     *         <code>Date</code> object in 'Zulu' format (e.g.
+     *         yyyyMMDDThhmmssZ)
+     */
+    public static String dateToUTC(Date d) {
+        StringBuffer date = new StringBuffer();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(d);
+        
+        date.append(cal.get(Calendar.YEAR));
+        
+        date.append(printTwoDigits(cal.get(Calendar.MONTH) + 1))
+            .append(printTwoDigits(cal.get(Calendar.DATE)))
+            .append("T");
+        
+        date.append(printTwoDigits(cal.get(Calendar.HOUR_OF_DAY)))
+            .append(printTwoDigits(cal.get(Calendar.MINUTE)))
+            .append(printTwoDigits(cal.get(Calendar.SECOND)))
+            .append("Z");
+        
+        return date.toString();
+    }
+	
 
     /**
      * Get the offset between GMT and the local timezone

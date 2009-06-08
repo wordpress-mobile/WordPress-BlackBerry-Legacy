@@ -4,6 +4,7 @@ package com.wordpress.io;
 public interface BaseDAO {
 	
 	public static final String INST_FILE= "inst";
+	public static final String LOG_FILE_PREFIX = "log";
 	public static final String APP_PREFS_FILE= "prefs";
 	public static final String DRAFT_FOLDER_PREFIX = "d/";
 	public static final String PAGE_FOLDER_PREFIX = "p/";

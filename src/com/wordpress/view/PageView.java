@@ -161,14 +161,13 @@ public class PageView extends BaseView {
         	
         	if(title.isDirty() || bodyTextBox.isDirty() || 
         			status.isDirty() || lblPhotoNumber.isDirty())
-        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "", lblPhotoNumber.getText());
+        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "");
         	else       	
     		if (controller.isPageChanged()) {
-    			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "", lblPhotoNumber.getText());
+    			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "");
     		} else {
-    			controller.startRemotePreview(page.getLink(), title.getText(), bodyTextBox.getText(), "", "", lblPhotoNumber.getText());
+    			controller.startRemotePreview(page.getLink(), title.getText(), bodyTextBox.getText(), "");
     		}
-        	
         }
     };
     

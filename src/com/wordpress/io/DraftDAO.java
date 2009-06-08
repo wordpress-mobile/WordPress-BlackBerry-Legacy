@@ -25,17 +25,20 @@ public class DraftDAO implements BaseDAO{
 		}
     }
         
-    //load a photos of the draft post
-	public static byte[] loadPostPhoto(Post draftPost, int draftId, String photoName) throws IOException, RecordStoreException {
-    	String draftPostPath = getPostFilePath(draftPost.getBlog(), draftId);
+    public static String getPhotoRealPath(Blog blog, int draftId, String photoName) throws IOException, RecordStoreException {
+    	String draftPostPath = getPostFilePath(blog, draftId);
     	String photoFilePath = draftPostPath+"p-"+photoName;
+    	return photoFilePath;
+    }
+    //load a photos of the draft post
+	public static byte[] loadPostPhoto(Blog blog, int draftId, String photoName) throws IOException, RecordStoreException {
+    	String photoFilePath = getPhotoRealPath(blog, draftId, photoName);
     	return JSR75FileSystem.readFile(photoFilePath);
 	}
 	
     //delete a photos of the draft post
 	public static void removePostPhoto(Blog blog, int draftId, String photoName)  throws IOException, RecordStoreException{
-    	String draftBlogPath = getPath(blog);
-    	String photoFilePath = draftBlogPath+draftId+"p-"+photoName;
+    	String photoFilePath = getPhotoRealPath(blog, draftId, photoName);
     	JSR75FileSystem.removeFile(photoFilePath);
 		System.out.println("deleting draft photo ok");   	
 	}

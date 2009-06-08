@@ -1,8 +1,11 @@
 package com.wordpress.controller;
 
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+
+import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
@@ -11,18 +14,22 @@ import net.rim.device.api.ui.component.Dialog;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.DraftDAO;
+import com.wordpress.io.FileUtils;
+import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
 import com.wordpress.task.SendToBlogTask;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.Queue;
+import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.NewCategoryView;
 import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostCategoriesView;
 import com.wordpress.view.PostView;
+import com.wordpress.view.PreviewView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
@@ -91,12 +98,8 @@ public class PostController extends BlogObjectController {
 		}
 
 		
-		String[] draftPostPhotoList = new String[0];
-		try {
-			draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftFolder);
-		} catch (Exception e) {
-			displayError(e, "Cannot load photos of this post!");
-		}
+		String[] draftPostPhotoList =  getPhotoList();
+
 		this.view= new PostView(this, post);
 		view.setNumberOfPhotosLabel(draftPostPhotoList.length);
 		UiApplication.getUiApplication().pushScreen(view);
@@ -207,14 +210,7 @@ public class PostController extends BlogObjectController {
 			return;
 		}	
 		 
-		String[] draftPostPhotoList;
-
-		try {
-			draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftFolder);
-		} catch (Exception e) {
-			displayError(e, "Cannot load photos from disk, publication failed!");
-			return;
-		}
+		String[] draftPostPhotoList = getPhotoList();
 		
 		Queue connectionsQueue = new Queue();
 		
@@ -261,7 +257,6 @@ public class PostController extends BlogObjectController {
 		}
 	}
 	
-		
 	//listener on send post to blog
 	private class SubmitPostTaskListener implements TaskProgressListener {
 
@@ -370,30 +365,7 @@ public class PostController extends BlogObjectController {
 	}
 	
 
-	 
-	/*
-	public void showPreview(){
-		Preferences prefs = Preferences.getIstance();
-		GetTemplateConn connection = new GetTemplateConn (post.getBlog().getXmlRpcUrl(), 
-				Integer.parseInt(post.getBlog().getId()), post.getBlog().getUsername(),
-				post.getBlog().getPassword());
-
-		
-		connection.addObserver(new SendGetTamplateCallBack()); 
-        
-		connectionProgressView= new ConnectionInProgressView(
-        		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
-       
-        connection.startConnWork(); //starts connection
-        int choice = connectionProgressView.doModal();
-		if(choice==Dialog.CANCEL) {
-			System.out.println("Chiusura della conn dialog tramite cancel");
-			connection.stopConnWork(); //stop the connection if the user click on cancel button
-		}
-		
-	}
-	*/
-	
+	 	
 	public void showCategoriesView(){			
 		catView= new PostCategoriesView(this, post.getBlog().getCategories(), post.getCategories());
 		UiApplication.getUiApplication().pushScreen(catView);
@@ -416,11 +388,11 @@ public class PostController extends BlogObjectController {
 		
 		String[] draftPostPhotoList;
 		try {
-			draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftFolder);
+			draftPostPhotoList = getPhotoList();
 			photoView= new PhotosView(this);
 			for (int i = 0; i < draftPostPhotoList.length; i++) {
 				String currPhotoPath = draftPostPhotoList[i];
-				byte[] data=DraftDAO.loadPostPhoto(post, draftFolder, currPhotoPath);
+				byte[] data=DraftDAO.loadPostPhoto(blog, draftFolder, currPhotoPath);
 				EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
 				photoView.addPhoto(currPhotoPath, img);
 			}			
@@ -431,8 +403,64 @@ public class PostController extends BlogObjectController {
 		}
 	}
 	
-
 	
+	public void startLocalPreview(String title, String content, String tags){
+		//categories and photo are reader from the model
+		if(tags !=null && tags.trim().length()>0) 
+			tags= "Tags: "+tags;
+		
+		//start with categories
+		StringBuffer categoriesLabel = new StringBuffer();
+		int[] selectedCategories = post.getCategories();
+		Category[] blogCategories = post.getBlog().getCategories();
+		
+		if(selectedCategories != null && selectedCategories.length >0 )
+		categoriesLabel.append("Categories: ");
+		
+		for (int i = 0; i < blogCategories.length; i++) {
+			Category category = blogCategories[i];
+			
+			
+			if(selectedCategories != null) {
+				for (int j = 0; j < selectedCategories.length; j++) {
+					if(selectedCategories[j] == Integer.parseInt(category.getId()) ){
+						if(i != 0) //append the separator between cat label
+							categoriesLabel.append(", ");
+						categoriesLabel.append( category.getLabel());
+						break;
+					}
+				}
+			}
+    	}
+		//end with cat
+		
+		String[] draftPostPhotoList = getPhotoList();
+		StringBuffer photoHtmlFragment = new StringBuffer();
+		
+		for (int i = 0; i < draftPostPhotoList.length; i++) {
+			try {
+				String photoRealPath = DraftDAO.getPhotoRealPath(blog, draftFolder, draftPostPhotoList[i]);
+				photoHtmlFragment.append("<p>"+
+						"<img class=\"alignnone size-full wp-image-364\"" +
+						" src=\""+photoRealPath+"\" alt=\"\" " +
+				"</p>");
+			} catch (IOException e) {
+			} catch (RecordStoreException e) {
+			}
+		}
+		photoHtmlFragment.append("<p>&nbsp;</p>");
+		
+		String html = FileUtils.readTxtFile("defaultPostTemplate.html");
+		if(title == null || title.length() == 0) title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
+		html = StringUtils.replaceAll(html, "!$title$!", title);
+		html = StringUtils.replaceAll(html, "<p>!$text$!</p>", buildBodyHtmlFragment(content)+ photoHtmlFragment.toString());
+		html = StringUtils.replaceAll(html, "!$mt_keywords$!", tags);
+		html = StringUtils.replaceAll(html, "!$categories$!", categoriesLabel.toString());
+		
+		UiApplication.getUiApplication().pushScreen(new PreviewView(html));	
+	}
+		
+
 	public void refreshView() {
 		//resfresh the post view. not used.
 	}

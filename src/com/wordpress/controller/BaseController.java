@@ -8,6 +8,7 @@ import net.rim.device.api.ui.component.Dialog;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.task.TasksRunner;
 import com.wordpress.utils.Queue;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.ErrorView;
 import com.wordpress.view.dialog.InfoView;
 import com.wordpress.view.dialog.InquiryView;
@@ -39,8 +40,7 @@ public abstract class BaseController {
 	public synchronized void displayError(final String msg) {
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
-				
-				System.out.println(msg);
+				Log.error(msg);
 				ErrorView errView = new ErrorView(msg);
 				errView.doModal();
 				
@@ -52,8 +52,7 @@ public abstract class BaseController {
 	public synchronized void displayMessage(final String msg) {
 		UiApplication.getUiApplication().invokeAndWait(new Runnable() {
 			public void run() {
-				
-				System.out.println(msg);
+				Log.debug(msg);
 				InfoView infoView= new InfoView(msg);
 				infoView.doModal();
 				
@@ -63,7 +62,7 @@ public abstract class BaseController {
 	
 	// Utility routine to ask question to the user
 	public synchronized int askQuestion(String msg) {
-		System.out.println(msg);
+		Log.debug(msg);
 		InquiryView inqView= new InquiryView(msg);
 		return inqView.doModal();
 	}

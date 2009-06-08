@@ -174,12 +174,12 @@ public class PostView extends BaseView {
         public void run() {
         	if(title.isDirty() || bodyTextBox.isDirty() || 
         			tags.isDirty() || status.isDirty() || categories.isDirty() || lblPhotoNumber.isDirty())
-        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categories.getText(), lblPhotoNumber.getText());
+        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText());
         	else       	
     		if (controller.isPostChanged()) {
-    			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categories.getText(), lblPhotoNumber.getText());
+    			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText());
     		} else {
-    			controller.startRemotePreview(post.getLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categories.getText(), lblPhotoNumber.getText());
+    			controller.startRemotePreview(post.getLink(), title.getText(), bodyTextBox.getText(), tags.getText());
     		}
         	
         }

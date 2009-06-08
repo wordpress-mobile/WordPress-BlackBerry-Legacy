@@ -7,10 +7,12 @@ import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
+import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Preferences;
 
 import net.rim.device.api.browser.field.BrowserContent;
 import net.rim.device.api.browser.field.RequestedResource;
+import net.rim.device.api.io.FileInputStream;
 import net.rim.device.api.io.http.HttpHeaders;
 import net.rim.device.api.io.http.HttpProtocolConstants;
 import net.rim.device.api.util.StringUtilities;
@@ -164,9 +166,17 @@ public class SecondaryResourceFetchThread extends Thread
             
             if (resource != null) 
             {
-                
-                HttpConnection connection = makeConnection(resource.getUrl(), resource.getRequestHeaders(), null);
-                resource.setHttpConnection(connection);
+                //remote connection
+            	if(resource.getUrl().startsWith("http")) {
+            		HttpConnection connection = makeConnection(resource.getUrl(), resource.getRequestHeaders(), null);
+            		resource.setHttpConnection(connection);
+            	} else { //local connection
+            		try {
+						resource.setHttpConnection(new LocalHttpConn(JSR75FileSystem.readFile(resource.getUrl())));
+					} catch (IOException e) {
+
+					}
+            	}
                 
                 // Signal to the browser field that resource is ready.
                 if (_browserField != null) 

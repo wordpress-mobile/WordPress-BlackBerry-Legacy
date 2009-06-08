@@ -37,6 +37,8 @@ import javax.microedition.io.HttpConnection;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.io.KXmlSerializer;
 
+import com.wordpress.utils.log.Log;
+
 
 /**
  * A single-threaded, reusable XML-RPC client object.
@@ -126,7 +128,8 @@ public class XmlRpcClient {
             writer.writeCall(method, params);
             xw.flush();
             
-            if (debug) System.out.println(bos.toString());
+            //if (debug) System.out.println(bos.toString());
+            Log.trace("request sended to the wordpress server: "+bos.toString());
             request = bos.toByteArray();
             
             messageLength = request.length;
@@ -152,7 +155,7 @@ public class XmlRpcClient {
                charBuff.append((char)ch);
             }
             String response = charBuff.toString();
-            System.out.println("risposta dal server wp: "+response);
+            Log.trace("response from the wordpress server: "+response);
          	ByteArrayInputStream bais = new ByteArrayInputStream(response.getBytes());
             //end
             

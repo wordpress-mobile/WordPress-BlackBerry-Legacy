@@ -6,9 +6,9 @@ import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
-import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.EncodedImage;
 
+import com.wordpress.controller.BlogObjectController;
 import com.wordpress.io.DraftDAO;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
@@ -16,7 +16,6 @@ import com.wordpress.model.Page;
 import com.wordpress.model.Post;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Queue;
-import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.xmlrpc.BlogConn;
@@ -60,7 +59,7 @@ public class SendToBlogTask extends TaskImpl {
 	private byte[] getPhotosBytes(String key) throws IOException, RecordStoreException {
 		byte[] data;
 		if(post != null)
-			data = DraftDAO.loadPostPhoto(post, draftFolder, key);
+			data = DraftDAO.loadPostPhoto(blog, draftFolder, key);
 		else
 			data = PageDAO.loadPagePhoto(blog, draftFolder, key);
 		return data;
@@ -129,7 +128,7 @@ public class SendToBlogTask extends TaskImpl {
 				if( post != null ) {
 				
 					//adding multimedia info to post
-					String body = buildHtmlFragment(post.getBody());
+					String body = BlogObjectController.buildBodyHtmlFragment(post.getBody());
 					body+= htmlPhotosFragment;
 					post.setBody(body);
 					
@@ -141,7 +140,7 @@ public class SendToBlogTask extends TaskImpl {
 				} else {
 					
 					//adding multimedia info to post
-					String body = buildHtmlFragment(page.getDescription()) ;
+					String body = BlogObjectController.buildBodyHtmlFragment(page.getDescription()) ;
 					body+= htmlPhotosFragment;
 					page.setDescription(body);
 					
@@ -282,21 +281,7 @@ public class SendToBlogTask extends TaskImpl {
 	}
 	
 	
-	/**
-	 * Build the html fragment for the body
-	 * @param body  original body text field content
-	 * @return
-	 */
-	private static synchronized String buildHtmlFragment(String originalContent) {
-		String[] split = StringUtils.split(originalContent, Characters.ENTER);
-		StringBuffer newContentBuff = new StringBuffer();
-		for (int i = 0; i < split.length; i++) {
-			newContentBuff.append("<p>");
-			newContentBuff.append(split[i]);
-			newContentBuff.append("</p>");
-		}
-		return newContentBuff.toString();
-	}
+
 	
 	/**
 	 * Build the html fragment for the photos
