@@ -7,6 +7,8 @@ import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
+import com.wordpress.utils.conn.ConnectionManager;
+
 public class GetTemplateConn extends BlogConn  {
 
 
@@ -22,7 +24,8 @@ public class GetTemplateConn extends BlogConn  {
 		String response = null;
 		
 		try {
-			conn = (HttpConnection) Connector.open(urlConnessione);
+			//conn = (HttpConnection) Connector.open(urlConnessione);
+			conn = (HttpConnection) ConnectionManager.getInstance().open(urlConnessione);
 			int rc = conn.getResponseCode();
 			if( rc == HttpConnection.HTTP_OK ){
 				

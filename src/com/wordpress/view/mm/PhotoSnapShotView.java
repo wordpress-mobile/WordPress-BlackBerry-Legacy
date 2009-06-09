@@ -46,6 +46,7 @@ public class PhotoSnapShotView extends BaseView {
 		String photoEncoding = prefs.getPhotoEncoding(); //retrive preferences from the main setup
 		//select the preference 
 		boolean flagP = false;
+		if(photoEncoding != null)
 		for (int i = 0; i < choices.length; i++) {
         	if(choices[i].equalsIgnoreCase(photoEncoding)){
         		qualityField.setSelectedIndex(i);

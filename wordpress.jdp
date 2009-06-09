@@ -85,6 +85,17 @@ src\com\wordpress\task\TaskProgressListener.java
 src\com\wordpress\task\TasksRunner.java
 src\com\wordpress\task\TaskWorker.java
 src\com\wordpress\utils\CalendarUtils.java
+src\com\wordpress\utils\conn\AbstractConfiguration.java
+src\com\wordpress\utils\conn\BasicConnectionListener.java
+src\com\wordpress\utils\conn\BESConfig.java
+src\com\wordpress\utils\conn\ConnectionConfig.java
+src\com\wordpress\utils\conn\ConnectionManager.java
+src\com\wordpress\utils\conn\ConnectionUtils.java
+src\com\wordpress\utils\conn\CustomAPNConfig.java
+src\com\wordpress\utils\conn\ServiceBookConfig.java
+src\com\wordpress\utils\conn\TcpConfig.java
+src\com\wordpress\utils\conn\WapGateway.java
+src\com\wordpress\utils\conn\WiFiConfig.java
 src\com\wordpress\utils\LocalHttpConn.java
 src\com\wordpress\utils\log\Appender.java
 src\com\wordpress\utils\log\BlackberryEventLogAppender.java

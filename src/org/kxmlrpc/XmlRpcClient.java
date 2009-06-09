@@ -18,6 +18,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * 
+ * modified: Danilo Ercoli ercoli@gmail.com
  */
 
 package org.kxmlrpc;
@@ -31,12 +33,12 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Vector;
 
-import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
 import org.kxml2.io.KXmlParser;
 import org.kxml2.io.KXmlSerializer;
 
+import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Log;
 
 
@@ -119,7 +121,6 @@ public class XmlRpcClient {
         byte[]                  request;
         int                     messageLength;
         
-        try {
             bos = new ByteArrayOutputStream();
             xw = new KXmlSerializer();
             xw.setOutput(new OutputStreamWriter(bos));
@@ -128,13 +129,16 @@ public class XmlRpcClient {
             writer.writeCall(method, params);
             xw.flush();
             
-            //if (debug) System.out.println(bos.toString());
+         
             Log.trace("request sended to the wordpress server: "+bos.toString());
-            request = bos.toByteArray();
-            
+            request = bos.toByteArray();   
             messageLength = request.length;
             
-            con = (HttpConnection) Connector.open(url, Connector.READ_WRITE);
+            //con = (HttpConnection) Connector.open(url, Connector.READ_WRITE);
+          	con = (HttpConnection) ConnectionManager.getInstance().open(url);
+            
+      	try {
+      		
             con.setRequestMethod(HttpConnection.POST);
             con.setRequestProperty("Content-Length", Integer.toString(messageLength));
             con.setRequestProperty("Content-Type", "text/xml");
@@ -166,7 +170,8 @@ public class XmlRpcClient {
             result = parser.parseResponse();
             
         } catch (Exception x) {
-            x.printStackTrace();
+        	Log.error("Error in XmlRpcClient");
+        	throw (Exception) x;
         } finally {
             try {
                 if (con != null) con.close();

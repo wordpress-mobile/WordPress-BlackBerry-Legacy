@@ -13,8 +13,8 @@ import org.kxmlrpc.XmlRpcException;
 
 import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
-import com.wordpress.model.Preferences;
 import com.wordpress.model.Tag;
+import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 
 public abstract class BlogConn extends Observable implements Runnable {
@@ -33,11 +33,10 @@ public abstract class BlogConn extends Observable implements Runnable {
 
 	    mUsername = user;
 	    mPassword = password;
-	    if(Preferences.getIstance().isDeviceSideConnection())
-	    	urlConnessione=url+";deviceside=true";
-	    else urlConnessione=url;
-	   				
-  	   System.out.println("connection created");
+	    //if(Preferences.getIstance().isDeviceSideConnection())
+	    //urlConnessione=url+";deviceside=true";
+	    //else urlConnessione=url;
+	    urlConnessione=url;
 	}
 	
 		
@@ -433,10 +432,10 @@ public abstract class BlogConn extends Observable implements Runnable {
 		
 		if(e != null) {
 			connResponse.setResponse(err+" : "+e.getMessage());
-			System.out.println(err+" : "+e.getMessage());
+			Log.error(err+" : "+e.getMessage());
 		} else {
 			connResponse.setResponse(err);
-			System.out.println(err);			
+			Log.error(err);			
 		}
 	}
 	

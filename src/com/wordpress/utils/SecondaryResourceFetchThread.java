@@ -4,18 +4,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Vector;
 
-import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
-
-import com.wordpress.io.JSR75FileSystem;
-import com.wordpress.model.Preferences;
 
 import net.rim.device.api.browser.field.BrowserContent;
 import net.rim.device.api.browser.field.RequestedResource;
-import net.rim.device.api.io.FileInputStream;
 import net.rim.device.api.io.http.HttpHeaders;
 import net.rim.device.api.io.http.HttpProtocolConstants;
 import net.rim.device.api.util.StringUtilities;
+
+import com.wordpress.io.JSR75FileSystem;
+import com.wordpress.utils.conn.ConnectionManager;
 
 
 public class SecondaryResourceFetchThread extends Thread 
@@ -196,11 +194,9 @@ public class SecondaryResourceFetchThread extends Thread
         
         try 
         {
-    	    if(Preferences.getIstance().isDeviceSideConnection())
-    	    	url=url+";deviceside=true";
-    	   
-           conn = (HttpConnection) Connector.open(url);           
-
+        	//url=url+";deviceside=true";
+    	   //conn = (HttpConnection) Connector.open(url);           
+        	conn = (HttpConnection) ConnectionManager.getInstance().open(url);
         	
             if (requestHeaders != null) 
             {

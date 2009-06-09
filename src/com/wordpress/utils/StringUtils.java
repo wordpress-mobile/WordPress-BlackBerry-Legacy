@@ -41,9 +41,29 @@ public class StringUtils {
 		    tokens.copyInto(result);
 		    return result;
 		  }
+  
 	  
-	
-	  // Split One string in 2 string 
+    /**
+     * This method is missing in CLDC 1.0 String implementation
+     */
+    public static boolean equalsIgnoreCase(String string1, String string2) {
+        // Strings are both null, return true
+        if (string1 == null && string2 == null) {
+            return true;
+        }
+        // One of the two is null, return false
+        if (string1 == null || string2 == null) {
+            return false;
+        }
+        // Both are not null, compare the lowercase strings
+        if ((string1.toLowerCase()).equals(string2.toLowerCase())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+	  // Split string in 2 strings 
 	 public synchronized static String[] split2Strings( String in, char ch ){
 	      String[] result = new String[2];
 	      int      pos = in.indexOf( ch );

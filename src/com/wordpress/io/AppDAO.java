@@ -10,6 +10,7 @@ import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
 
 import com.wordpress.model.Preferences;
+import com.wordpress.utils.log.Log;
 
 public class AppDAO implements BaseDAO{
 
@@ -66,7 +67,7 @@ public class AppDAO implements BaseDAO{
 	
 	
 	  public static boolean readApplicationPreferecens(Preferences pref) throws IOException, RecordStoreException {
-			System.out.println(">>>load application preferences");
+			Log.debug(">>>load application preferences");
 
 			if (!JSR75FileSystem.isFileExist(getAppPrefsFilePath())) {
 				return false;
@@ -75,48 +76,60 @@ public class AppDAO implements BaseDAO{
 			DataInputStream in = JSR75FileSystem.getDataInputStream(getAppPrefsFilePath());
 			Serializer ser = new Serializer(in);
 
-			//int tzOffsetIndex = ((Integer) ser.deserialize()).intValue();
-			int localeIndex = ((Integer) ser.deserialize()).intValue();
 			String videoEncoding = (String) ser.deserialize();
 			String audioEncoding = (String) ser.deserialize();
 			String photoEncoding = (String) ser.deserialize();
-			boolean deviceSideConnection = ((Boolean) ser.deserialize()).booleanValue();
+			String apn = (String) ser.deserialize();
+		    String gateway = (String) ser.deserialize();
+		    String gatewayPort = (String) ser.deserialize();
+		    String sourceIP = (String) ser.deserialize();
+		    String sourcePort = (String) ser.deserialize();
+		    Boolean isUserOptionsEnabled =  (Boolean) ser.deserialize();
 			
 			pref.setAudioEncoding(audioEncoding);
-			pref.setDeviceSideConnection(deviceSideConnection);
-			pref.setLocaleIndex(localeIndex);
 			pref.setPhotoEncoding(photoEncoding);
-			//pref.setTimeZoneIndex(tzOffsetIndex);
 			pref.setVideoEncoding(videoEncoding);
-			System.out.println("Prefs loading succesfully!");
+			pref.setGateway(gateway);
+			pref.setGatewayPort(gatewayPort);
+			pref.setApn(apn);
+			pref.setSourceIP(sourceIP);
+			pref.setSourcePort(sourcePort);
+			pref.setUserWapOptionsEnabled(isUserOptionsEnabled.booleanValue());
 			
+			Log.debug("Prefs loading succesfully!");
 			in.close();
-			
 			return true;
 		}
 	    
 	    public static void storeApplicationPreferecens(Preferences pref) throws IOException, RecordStoreException  {
-			System.out.println(">>>store application preferences");
+			Log.debug(">>>store application preferences");
 
 		  	JSR75FileSystem.createFile(getAppPrefsFilePath()); 
 	    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(getAppPrefsFilePath());
 	    	
-	    	//int tzOffsetIndex = pref.getTimeZoneIndex();
-			int localeIndex = pref.getLocaleIndex();
 			String videoEncoding = pref.getVideoEncoding();
 			String audioEncoding = pref.getAudioEncoding();
 			String photoEncoding = pref.getPhotoEncoding();
-			boolean deviceSideConnection = pref.isDeviceSideConnection();
+			String apn = pref.getApn();
+		    String gateway = pref.getGateway();
+		    String gatewayPort = pref.getGatewayPort();
+		    String sourceIP = pref.getSourceIP();
+		    String sourcePort = pref.getSourcePort();
+		    Boolean isUserOptionsEnabled = new Boolean(pref.isUserWapOptionsEnabled());
 			
 			Serializer ser= new Serializer(out);
-	    //	ser.serialize(new Integer(tzOffsetIndex));
-	    	ser.serialize(new Integer(localeIndex));
 	    	ser.serialize(videoEncoding);
 	    	ser.serialize(audioEncoding);
 	    	ser.serialize(photoEncoding);
-	    	ser.serialize(new Boolean(deviceSideConnection));
+	    	ser.serialize(apn);
+	    	ser.serialize(gateway);
+	    	ser.serialize(gatewayPort);
+	    	ser.serialize(sourceIP);
+	    	ser.serialize(sourcePort);
+	    	ser.serialize(isUserOptionsEnabled);
+
 	    	
 	    	out.close();
-			System.out.println("Prefs stored succesfully!");
+			Log.debug("Prefs stored succesfully!");
 		}
 }

@@ -1,31 +1,42 @@
 package com.wordpress.view;
 
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.CheckboxField;
+import net.rim.device.api.ui.component.Dialog;
+import net.rim.device.api.ui.component.EditField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
+import net.rim.device.api.ui.text.URLTextFilter;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PreferenceController;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
+import com.wordpress.utils.StringUtils;
+import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
 public class PreferencesView extends BaseView {
 	
     private PreferenceController controller= null;
     private Preferences mPrefs=Preferences.getIstance();
+    
 	private ObjectChoiceField audioGroup;
 	private ObjectChoiceField photoGroup;
 	private ObjectChoiceField videoGroup;
-	private ObjectChoiceField timezoneGroup;
-	private CheckboxField clientSideConn;
 	private HorizontalFieldManager buttonsManager;
+	private EditField _gateway;
+    private EditField _gatewayPort;
+    private EditField _apn;
+    private EditField _sourceIP;
+    private EditField _sourcePort;
+	private CheckboxField userWapOptionsField;
 
 	
 	 public PreferencesView(PreferenceController _preferencesController) {
@@ -34,22 +45,14 @@ public class PreferencesView extends BaseView {
 	    	
             addMultimediaOption();
             add(new SeparatorField());
+            userWapOptionsField=new CheckboxField(_resources.getString(WordPressResource.WAPOPTIONSSCREEN_LABEL_ENABLED), mPrefs.isUserWapOptionsEnabled());
+			add(userWapOptionsField);
+            addWapOptionsFields();           
             
-       /*     int selected = SimpleTimeZone.getIndexForOffset(mPrefs.getTimeZone().getRawOffset());
-            timezoneGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_TIMEZONE),SimpleTimeZone.TIME_ZONE_IDS,selected);
-            timezoneGroup.setChangeListener(controller.getTimeZoneListener());
-			add( timezoneGroup );
-			
-			add(new SeparatorField());
-		*/	
-			clientSideConn=new CheckboxField(_resources.getString(WordPressResource.LABEL_DEVICESIDECONN), mPrefs.isDeviceSideConnection());
-			clientSideConn.setChangeListener(controller.getDeviceSideConnListener());
-			add(clientSideConn);
-             			
             ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
             ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
-    		buttonBACK.setChangeListener(controller.getBackButtonListener());
-            buttonOK.setChangeListener(controller.getOkButtonListener());
+    		buttonBACK.setChangeListener(listenerBackButton);
+            buttonOK.setChangeListener(listenerOkButton);
             buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
             buttonsManager.add(buttonOK);
     		buttonsManager.add(buttonBACK);
@@ -57,6 +60,53 @@ public class PreferencesView extends BaseView {
             addMenuItem(_saveItem);
 	 }
 	      
+	 private void addWapOptionsFields(){
+		 
+
+         //row _apn
+         HorizontalFieldManager rowAPN = new HorizontalFieldManager();
+         rowAPN.add( getLabel(_resources.getString(WordPressResource.WAPOPTIONSSCREEN_LABEL_APN)) ); 
+         _apn = new EditField("", mPrefs.getApn());
+         _apn.setMargin(margins);
+         rowAPN.add(_apn);
+         add(rowAPN);
+		 
+         //row _gateway
+         HorizontalFieldManager rowGTW = new HorizontalFieldManager();
+         rowGTW.add( getLabel(_resources.getString(WordPressResource.WAPOPTIONSSCREEN_LABEL_GWAY)) ); 
+         _gateway = new EditField("", mPrefs.getGateway(), 100, Field.EDITABLE);
+         _gateway.setFilter(new URLTextFilter());
+         _gateway.setMargin(margins);
+         rowGTW.add(_gateway);
+         add(rowGTW);
+         
+         //row _gatewayPort
+         HorizontalFieldManager rowGTWport = new HorizontalFieldManager();
+         rowGTWport.add( getLabel(_resources.getString(WordPressResource.WAPOPTIONSSCREEN_LABEL_GWAYPORT)) ); 
+         _gatewayPort = new EditField("", mPrefs.getGatewayPort(), EditField.DEFAULT_MAXCHARS, EditField.FILTER_INTEGER);
+         _gatewayPort.setMargin(margins);
+         rowGTWport.add(_gatewayPort);
+         add(rowGTWport);
+         
+         //row _sourcePort
+         HorizontalFieldManager rowSourcePort = new HorizontalFieldManager();
+         rowSourcePort.add( getLabel(_resources.getString(WordPressResource.WAPOPTIONSSCREEN_LABEL_SRCPORT)) ); 
+         _sourcePort = new EditField("", mPrefs.getSourcePort(), EditField.DEFAULT_MAXCHARS, EditField.FILTER_INTEGER);
+         _sourcePort.setMargin(margins);
+         rowSourcePort.add(_sourcePort);
+         add(rowSourcePort);
+         
+         //row _sourceIP
+         HorizontalFieldManager rowSourceIP = new HorizontalFieldManager();
+         rowSourceIP.add( getLabel(_resources.getString(WordPressResource.WAPOPTIONSSCREEN_LABEL_SRCIP)) ); 
+         _sourceIP = new EditField("", mPrefs.getSourceIP());
+         _sourceIP.setMargin(margins);
+         rowSourceIP.add(_sourceIP);
+         add(rowSourceIP);
+         
+	 }
+	 
+	 
 	 private void addMultimediaOption() {
 			//audio config 
 			if( MultimediaUtils.isAudioRecordingSuported()){
@@ -69,7 +119,7 @@ public class PreferencesView extends BaseView {
 				}
 		       
 		    	audioGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_AUDIOENCODING),lines,selectedIndex);
-		    	audioGroup.setChangeListener(controller.getAudioListener());
+		    	//audioGroup.setChangeListener(controller.getAudioListener());
 				add( audioGroup );
 			} else {
 				LabelField lbl = new LabelField(_resources.getString(WordPressResource.LABEL_AUDIORECORDING_NOTSUPPORTED));
@@ -89,7 +139,7 @@ public class PreferencesView extends BaseView {
 				}
 		       
 		    	photoGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_PHOTOENCODING),lines,selectedIndex);
-		    	photoGroup.setChangeListener(controller.getPhotoListener());
+		    	//photoGroup.setChangeListener(controller.getPhotoListener());
 				add( photoGroup );
 			} else {
 				LabelField lbl = new LabelField(_resources.getString(WordPressResource.LABEL_PHOTO_NOTSUPPORTED));
@@ -109,7 +159,7 @@ public class PreferencesView extends BaseView {
 				}
 		        
 		    	videoGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_VIDEOENCODING),lines,selectedIndex);
-		    	videoGroup.setChangeListener(controller.getVideoListener());
+		    	//videoGroup.setChangeListener(controller.getVideoListener());
 				add( videoGroup );
 			} else {
 				LabelField lbl = new LabelField(_resources.getString(WordPressResource.LABEL_VIDEORECORDING_NOTSUPPORTED));
@@ -120,27 +170,154 @@ public class PreferencesView extends BaseView {
 		}
 	 
 	 
-	    //create a menu item for users click to save
+	 
+	 
+	 //create a menu item for users click to save
 	    private MenuItem _saveItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVE, 1000, 10) {
 	        public void run() {
+	        	updateDataModel();
 	        	controller.savePrefAndBack();
 	        }
 	    };
 
-	/* 
-	 // Handle trackball clicks.
-		protected boolean navigationClick(int status, int time) {
-			Field fieldWithFocus = UiApplication.getUiApplication().getActiveScreen().getFieldWithFocus();
-			if(fieldWithFocus == buttonsManager) { //focus on the bottom buttons, do not open menu on whell click
-				return true;
+	    
+		private FieldChangeListener listenerOkButton = new FieldChangeListener() {
+		    public void fieldChanged(Field field, int context) {
+		    	updateDataModel();
+		    	controller.savePrefAndBack();
+		    }
+		};
+
+
+		private FieldChangeListener listenerBackButton = new FieldChangeListener() {
+		    public void fieldChanged(Field field, int context) {
+		    	onClose();
+		    }
+		};
+
+		/**
+		 * check changes on the UI preferences
+		 */
+		private boolean isUIChanged(){
+			boolean stateChanged = false;
+
+			if(audioGroup != null){
+				if(audioGroup.isDirty()) {
+					stateChanged = true;
+	        	}
 			}
-			else 
-			 return super.navigationClick(status,time);
+			if(videoGroup != null){
+				if(videoGroup.isDirty()) {
+					stateChanged = true;
+	        	}
+			}
+			if(photoGroup != null){
+				if(photoGroup.isDirty()) {
+					stateChanged = true;
+        		}
+			}
+			if(userWapOptionsField.isDirty()) {
+				 stateChanged = true;
+			}
+			
+			if(_gateway.isDirty()) {
+				 stateChanged = true;
+			}
+			if( _gatewayPort.isDirty()) {
+				 stateChanged = true;
+			}
+			if(_apn.isDirty()) {
+				 stateChanged = true;
+			}
+			if(_sourceIP.isDirty()) {
+				 stateChanged = true;
+			}
+			if(_sourcePort.isDirty()) {
+				 stateChanged = true;
+			}
+			return stateChanged;
 		}
-	 */
+		
+		//get the changes from the UI and update the model
+		private void updateDataModel(){
+			if(audioGroup != null && audioGroup.isDirty()){
+				
+				int selected= ((ObjectChoiceField)audioGroup).getSelectedIndex();
+	        	if(selected != -1) {
+	        		String choice=(String)((ObjectChoiceField)audioGroup).getChoice(selected);
+	        		if(!StringUtils.equalsIgnoreCase(choice, mPrefs.getAudioEncoding())){
+	        		 mPrefs.setAudioEncoding(choice);
+	        		}
+	        	}
+			}
+			if(videoGroup != null && videoGroup.isDirty()){
+				int selected= ((ObjectChoiceField)videoGroup).getSelectedIndex();
+	        	if(selected != -1) {
+	        		String choice=(String)((ObjectChoiceField)videoGroup).getChoice(selected);
+	        		if(!StringUtils.equalsIgnoreCase(choice, mPrefs.getVideoEncoding())){
+	        		 mPrefs.setVideoEncoding(choice);
+	        		}
+	        	}
+				
+			}
+			if(photoGroup != null && photoGroup.isDirty() ){
+				int selected= ((ObjectChoiceField)photoGroup).getSelectedIndex();
+	        	if(selected != -1) {
+	        		String choice=(String)((ObjectChoiceField)photoGroup).getChoice(selected);
+	        		if(!StringUtils.equalsIgnoreCase(choice, mPrefs.getPhotoEncoding())){
+	        		 mPrefs.setPhotoEncoding(choice);
+	        		}
+	        	}
+			}
+			
+			if(userWapOptionsField.isDirty()) {
+				mPrefs.setUserWapOptionsEnabled(userWapOptionsField.getChecked());
+			}
+			
+			if(_gateway.isDirty()) {
+				 mPrefs.setGateway(_gateway.getText());
+			}
+			if( _gatewayPort.isDirty()) {
+				mPrefs.setGatewayPort(_gatewayPort.getText());
+			}
+			if(_apn.isDirty()) {
+				mPrefs.setApn(_apn.getText());
+			}
+			if(_sourceIP.isDirty()) {
+				mPrefs.setSourceIP(_sourceIP.getText());
+			}
+			if(_sourcePort.isDirty()) {
+				mPrefs.setSourcePort(_sourcePort.getText());
+			}
+			setDirty(false);
+		}
+    
 	    //override onClose() to display a dialog box when the application is closed    
 		public boolean onClose()   {
-	    	return controller.dismissView();
+			
+			if(!isUIChanged()) {
+				controller.backCmd();
+				return true;
+			} 	
+			
+			String quest="Changes Made!";
+	    	DiscardChangeInquiryView infoView= new DiscardChangeInquiryView(quest);
+	    	int choice=infoView.doModal();    	 
+	    	
+	    	if(Dialog.DISCARD == choice) {
+	    		System.out.println("la scelta dell'utente è discard");
+	    		controller.backCmd();
+	    		return true;
+	    	}else if(Dialog.SAVE == choice) {
+	    		System.out.println("la scelta dell'utente è save");
+	    		//get the changes from the UI and update the model
+	    		updateDataModel();
+	    		controller.savePrefAndBack();
+	    		return true;
+	    	} else {
+	    		System.out.println("la scelta dell'utente è cancel");
+	    		return false;
+	    	}
 	    }
 		
 		public BaseController getController() {

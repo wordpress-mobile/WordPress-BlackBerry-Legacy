@@ -335,7 +335,6 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 	    	HttpConnection connection = new LocalHttpConn(html);
 	        _application.processConnection(connection, _event);        
 	    }
-	    
 	}
 		
     //override onClose() to stop all internet activity immediatly 

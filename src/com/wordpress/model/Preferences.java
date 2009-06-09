@@ -1,19 +1,21 @@
 package com.wordpress.model;
 
-
+import com.wordpress.utils.conn.ConnectionUtils;
 
 public class Preferences {
 
 	private static Preferences singletonObject;
 	
-    private int timeZoneIndex=-1;
-    private int localeIndex=0;
-    private boolean deviceSideConnection=true; //identify if the device require client side http connection
-
 	private String photoEncoding=""; //jpg, png, ecc
     private String audioEncoding="";
     private String videoEncoding="";
-        
+    private boolean isUserWapOptionsEnabled = false; 
+    private String gateway="";
+    private String apn="";
+    private String gatewayPort;
+    private String sourceIP;
+    private String sourcePort;
+    
 	public static Preferences getIstance() {
 		if (singletonObject == null) {
 			singletonObject = new Preferences();
@@ -21,35 +23,53 @@ public class Preferences {
 		return singletonObject;
 	}
     
-    //singleton
-    private Preferences() {
-
-    }
-/*
-    public SimpleTimeZone getTimeZone() {
-    	if(timeZoneIndex != -1)
-    		return new SimpleTimeZone(timeZoneIndex);
-    	else
-    		return new SimpleTimeZone();
-    }
-    
-    public int getTimeZoneIndex() {
-    	return timeZoneIndex;
-    }
-
-    public void setTimeZoneIndex(int index) {
-    	timeZoneIndex = index;
-    }
-    */
-   
-    public int getLocaleIndex() {
-		return localeIndex;
+    // singleton
+	private Preferences() {
+		gatewayPort = ConnectionUtils.WAP_DEFAULT_GWAYPORT;
+		sourceIP = ConnectionUtils.WAP_DEFAULT_SOURCEIP;
+		sourcePort = ConnectionUtils.WAP_DEFAULT_SOURCEPORT;
+	}
+            
+	public String getGateway() {
+		return gateway;
 	}
 
-	public void setLocaleIndex(int localeIndex) {
-		this.localeIndex = localeIndex;
-	} 
-    
+	public String getApn() {
+		return apn;
+	}
+
+	public String getGatewayPort() {
+		return gatewayPort;
+	}
+
+	public String getSourceIP() {
+		return sourceIP;
+	}
+
+	public String getSourcePort() {
+		return sourcePort;
+	}
+
+	public void setGateway(String gateway) {
+		this.gateway = gateway;
+	}
+
+	public void setApn(String apn) {
+		this.apn = apn;
+	}
+
+	public void setGatewayPort(String gatewayPort) {
+		this.gatewayPort = gatewayPort;
+	}
+
+	public void setSourceIP(String sourceIP) {
+		this.sourceIP = sourceIP;
+	}
+
+	public void setSourcePort(String sourcePort) {
+		this.sourcePort = sourcePort;
+	}
+  
     public String getPhotoEncoding() {
 		return photoEncoding;
 	}
@@ -73,12 +93,13 @@ public class Preferences {
 	public void setVideoEncoding(String videoEncoding) {
 		this.videoEncoding = videoEncoding;
 	}
-	
-	public boolean isDeviceSideConnection() {
-		return deviceSideConnection;
+
+	public boolean isUserWapOptionsEnabled() {
+		return isUserWapOptionsEnabled;
 	}
 
-	public void setDeviceSideConnection(boolean value) {
-		this.deviceSideConnection = value;
+	public void setUserWapOptionsEnabled(boolean isUserWapOptions) {
+		this.isUserWapOptionsEnabled = isUserWapOptions;
 	}
+	
 }
