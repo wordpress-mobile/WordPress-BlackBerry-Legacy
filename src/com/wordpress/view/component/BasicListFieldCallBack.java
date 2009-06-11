@@ -28,6 +28,24 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 
         return height;
     }
+    
+    protected int drawRightImage(Graphics graphics, int y, int width, int height, Bitmap toDraw) {
+        // Image on right side
+
+        int imageWidth = 0;
+        int imageHeight;
+        int imageTop;
+        int imageLeft;
+        imageWidth = toDraw.getWidth();
+        imageHeight = toDraw.getHeight();
+
+        imageTop = y + ((height - imageHeight) / 2);
+        imageLeft = (width - height) + ((height - imageWidth) / 2);
+        graphics.drawBitmap(imageLeft, imageTop, imageWidth, imageHeight, toDraw, 0, 0);
+
+        return height;
+    }
+
 	
 	
 	protected void drawBackground(Graphics graphics, int x, int y, int width, int height, boolean selected) {
@@ -52,6 +70,26 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 		graphics.drawLine(x, y - 1, x + width, y - 1);
 		graphics.drawLine(x, y + height - 1, x + width, y + height - 1);
 	}
+	
+	//SingleLine of Text in the row
+    protected int drawText(Graphics graphics, int x, int y, int width, int height, String title, boolean selected) {
+        int fontHeight = ((int) ((3* height) / 5)) - (PADDING * 2);
+        graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));
+
+        if (selected) {
+            graphics.setColor(Color.BLACK);
+        } else {
+            graphics.setColor(Color.GRAY);
+        }
+
+        if (title != null) {
+        	// Title is vertically centered
+        return   graphics.drawText(title, x + PADDING + 3, y + PADDING + 2 + (fontHeight / 2), DrawStyle.LEFT
+                    | DrawStyle.TOP | DrawStyle.ELLIPSIS, width - x - (PADDING * 2));
+        }
+
+        return 0;
+    }
 	
 	//text on the first row that fill 2/3 of the vertical space
 	 protected int drawFirstRowMainText(Graphics graphics, int x, int y, int width, int height, String title, boolean selected) {

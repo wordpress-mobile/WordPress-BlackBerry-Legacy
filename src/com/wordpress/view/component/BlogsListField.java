@@ -97,7 +97,7 @@ public class BlogsListField {
     }
     
     private class ListCallBack extends BasicListFieldCallBack {
-
+    	
         // Draws the list row.
     	public void drawListRow(ListField list, Graphics graphics, int index, int y, int w) {
     		// Get the blog info for the current row.
@@ -130,27 +130,6 @@ public class BlogsListField {
     	}
         
     	    	
-        private int drawText(Graphics graphics, int x, int y, int width, int height, String title, boolean selected) {
-            int fontHeight = ((int) ((3* height) / 5)) - (PADDING * 2);
-            graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));
-
-            if (selected) {
-                graphics.setColor(Color.BLACK);
-            } else {
-                graphics.setColor(Color.GRAY);
-            }
-
-            if (title != null) {
-            	// Title is vertically centered
-            return   graphics.drawText(title, x + PADDING + 3, y + PADDING + 2 + (fontHeight / 2), DrawStyle.LEFT
-                        | DrawStyle.TOP | DrawStyle.ELLIPSIS, width - x - (PADDING * 2));
-            }
-
-            return 0;
-        }
-        
-        
-    	 
         //Returns the object at the specified index.
         public Object get(ListField list, int index) 
         {

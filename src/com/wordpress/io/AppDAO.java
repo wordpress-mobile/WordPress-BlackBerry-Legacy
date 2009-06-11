@@ -85,6 +85,8 @@ public class AppDAO implements BaseDAO{
 		    String sourceIP = (String) ser.deserialize();
 		    String sourcePort = (String) ser.deserialize();
 		    Boolean isUserOptionsEnabled =  (Boolean) ser.deserialize();
+		    String userName = (String) ser.deserialize();
+		    String userPass = (String) ser.deserialize();
 			
 			pref.setAudioEncoding(audioEncoding);
 			pref.setPhotoEncoding(photoEncoding);
@@ -94,7 +96,9 @@ public class AppDAO implements BaseDAO{
 			pref.setApn(apn);
 			pref.setSourceIP(sourceIP);
 			pref.setSourcePort(sourcePort);
-			pref.setUserWapOptionsEnabled(isUserOptionsEnabled.booleanValue());
+			pref.setUserConnectionOptionsEnabled(isUserOptionsEnabled.booleanValue());
+			pref.setUsername(userName);
+			pref.setPassword(userPass);
 			
 			Log.debug("Prefs loading succesfully!");
 			in.close();
@@ -115,8 +119,10 @@ public class AppDAO implements BaseDAO{
 		    String gatewayPort = pref.getGatewayPort();
 		    String sourceIP = pref.getSourceIP();
 		    String sourcePort = pref.getSourcePort();
-		    Boolean isUserOptionsEnabled = new Boolean(pref.isUserWapOptionsEnabled());
-			
+		    Boolean isUserOptionsEnabled = new Boolean(pref.isUserConnectionOptionsEnabled());
+		    String userName = pref.getUsername();
+		    String userPass = pref.getPassword();
+		    
 			Serializer ser= new Serializer(out);
 	    	ser.serialize(videoEncoding);
 	    	ser.serialize(audioEncoding);
@@ -127,7 +133,8 @@ public class AppDAO implements BaseDAO{
 	    	ser.serialize(sourceIP);
 	    	ser.serialize(sourcePort);
 	    	ser.serialize(isUserOptionsEnabled);
-
+	    	ser.serialize(userName);
+	    	ser.serialize(userPass);
 	    	
 	    	out.close();
 			Log.debug("Prefs stored succesfully!");

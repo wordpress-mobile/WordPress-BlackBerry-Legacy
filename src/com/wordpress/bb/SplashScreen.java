@@ -19,6 +19,7 @@ import com.wordpress.io.BaseDAO;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
+import com.wordpress.utils.conn.ConnectionUtils;
 import com.wordpress.utils.log.Appender;
 import com.wordpress.utils.log.ConsoleAppender;
 import com.wordpress.utils.log.FileAppender;
@@ -87,6 +88,7 @@ public class SplashScreen extends MainScreen {
 		 fileAppender.open();
 		 Log.addAppender(fileAppender);
 		//#endif
+		 Log.debug(ConnectionUtils.getNetworkCoverageReport()); //log the network status at startup
 			
 		} catch (Exception e) {
 			timer.cancel();

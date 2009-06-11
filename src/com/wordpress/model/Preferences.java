@@ -9,9 +9,11 @@ public class Preferences {
 	private String photoEncoding=""; //jpg, png, ecc
     private String audioEncoding="";
     private String videoEncoding="";
-    private boolean isUserWapOptionsEnabled = false; 
-    private String gateway="";
-    private String apn="";
+    private boolean isUserConnectionOptionsEnabled = false;
+    private String username;
+    private String password;
+    private String gateway;
+    private String apn;
     private String gatewayPort;
     private String sourceIP;
     private String sourcePort;
@@ -94,12 +96,27 @@ public class Preferences {
 		this.videoEncoding = videoEncoding;
 	}
 
-	public boolean isUserWapOptionsEnabled() {
-		return isUserWapOptionsEnabled;
+	public boolean isUserConnectionOptionsEnabled() {
+		return isUserConnectionOptionsEnabled;
 	}
 
-	public void setUserWapOptionsEnabled(boolean isUserWapOptions) {
-		this.isUserWapOptionsEnabled = isUserWapOptions;
+	public void setUserConnectionOptionsEnabled(boolean isUserWapOptions) {
+		this.isUserConnectionOptionsEnabled = isUserWapOptions;
 	}
-	
+
+	public String getUsername() {
+		return username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
 }

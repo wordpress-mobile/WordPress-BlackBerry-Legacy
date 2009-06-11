@@ -136,29 +136,18 @@ public class ConnectionConfig {
      * added on the request url
      */
     private static String getAPNGatewayOptions() {
-        StringBuffer options = new StringBuffer("");
+       
         String[] serviceBookApn = ConnectionUtils.getAllActiveServiceBookAPNs();
         Log.debug("[ConnectionConfig]Trying to find gateway for APN: " + serviceBookApn);
 
         if (serviceBookApn != null) {
             WapGateway gateway = findGatewayByApn(serviceBookApn);
-            if (gateway != null) {
-                //We matched with a gateway in our list. Build connection options
-                options.append(";apn=" + gateway.getApn());
-                options.append(";WapGatewayAPN=" + gateway.getApn());
-                if (gateway.getUsername() != null) {
-                    options.append(";TunnelAuthUsername=" + gateway.getUsername());
-                }
-                if (gateway.getPassword() != null) {
-                    options.append(";TunnelAuthPassword=" + gateway.getPassword());
-                }
-                if (gateway.getGatewayIP() != null) {
-                    options.append(";WapGatewayIP=" + gateway.getGatewayIP());
-                }
-            }
-        }
-        return options.toString();
+            return ConnectionUtils.buildWapConnectionString(gateway);
+        } else 
+        	return("");
     }
+    
+    
 
     /**
      * Retrieves the APN for the given configuration
@@ -302,8 +291,7 @@ public class ConnectionConfig {
         //-------------------------
         // Vodafone DE, wap
         //-------------------------
-        WapGateway vodafoneDe = new WapGateway("wap.vodafone.de", null, null,
-                                               "139.7.29.1", COUNTRY_DE);
+        WapGateway vodafoneDe = new WapGateway("wap.vodafone.de", null, null, "139.7.29.1", COUNTRY_DE);
         apnTable.put("wap.vodafone.de", vodafoneDe);
 
         Log.debug("[ConnectionConfig] apntable created");

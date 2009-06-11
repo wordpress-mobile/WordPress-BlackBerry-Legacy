@@ -31,6 +31,8 @@ public class PreferencesView extends BaseView {
 	private ObjectChoiceField photoGroup;
 	private ObjectChoiceField videoGroup;
 	private HorizontalFieldManager buttonsManager;
+	private EditField _username;
+	private EditField _password;
 	private EditField _gateway;
     private EditField _gatewayPort;
     private EditField _apn;
@@ -45,7 +47,7 @@ public class PreferencesView extends BaseView {
 	    	
             addMultimediaOption();
             add(new SeparatorField());
-            userWapOptionsField=new CheckboxField(_resources.getString(WordPressResource.WAPOPTIONSSCREEN_LABEL_ENABLED), mPrefs.isUserWapOptionsEnabled());
+            userWapOptionsField=new CheckboxField(_resources.getString(WordPressResource.WAPOPTIONSSCREEN_LABEL_ENABLED), mPrefs.isUserConnectionOptionsEnabled());
 			add(userWapOptionsField);
             addWapOptionsFields();           
             
@@ -61,7 +63,6 @@ public class PreferencesView extends BaseView {
 	 }
 	      
 	 private void addWapOptionsFields(){
-		 
 
          //row _apn
          HorizontalFieldManager rowAPN = new HorizontalFieldManager();
@@ -70,8 +71,24 @@ public class PreferencesView extends BaseView {
          _apn.setMargin(margins);
          rowAPN.add(_apn);
          add(rowAPN);
+         
+         //row _username
+         HorizontalFieldManager rowUserName = new HorizontalFieldManager();
+         rowUserName.add( getLabel(_resources.getString(WordPressResource.LABEL_BLOGUSER)) ); 
+         _username = new EditField("", mPrefs.getUsername());
+         _username.setMargin(margins);
+         rowUserName.add(_username);
+         add(rowUserName);
+         
+         //row _password
+         HorizontalFieldManager rowPass = new HorizontalFieldManager();
+         rowPass.add( getLabel(_resources.getString(WordPressResource.LABEL_BLOGPASSWD)) ); 
+         _password = new EditField("", mPrefs.getPassword());
+         _password.setMargin(margins);
+         rowPass.add(_password);
+         add(rowPass);
 		 
-         //row _gateway
+         //row _gateway IP
          HorizontalFieldManager rowGTW = new HorizontalFieldManager();
          rowGTW.add( getLabel(_resources.getString(WordPressResource.WAPOPTIONSSCREEN_LABEL_GWAY)) ); 
          _gateway = new EditField("", mPrefs.getGateway(), 100, Field.EDITABLE);
@@ -216,23 +233,9 @@ public class PreferencesView extends BaseView {
 					stateChanged = true;
         		}
 			}
-			if(userWapOptionsField.isDirty()) {
-				 stateChanged = true;
-			}
-			
-			if(_gateway.isDirty()) {
-				 stateChanged = true;
-			}
-			if( _gatewayPort.isDirty()) {
-				 stateChanged = true;
-			}
-			if(_apn.isDirty()) {
-				 stateChanged = true;
-			}
-			if(_sourceIP.isDirty()) {
-				 stateChanged = true;
-			}
-			if(_sourcePort.isDirty()) {
+			if(_username.isDirty() || _password.isDirty() || userWapOptionsField.isDirty()
+					|| _gateway.isDirty() ||  _gatewayPort.isDirty() || _apn.isDirty()
+					|| _sourceIP.isDirty() || _sourcePort.isDirty()) {
 				 stateChanged = true;
 			}
 			return stateChanged;
@@ -271,23 +274,52 @@ public class PreferencesView extends BaseView {
 			}
 			
 			if(userWapOptionsField.isDirty()) {
-				mPrefs.setUserWapOptionsEnabled(userWapOptionsField.getChecked());
+				mPrefs.setUserConnectionOptionsEnabled(userWapOptionsField.getChecked());
+			}
+			
+			if(_username.isDirty()) {
+				if( _username.getText().trim().equals("") )
+					mPrefs.setUsername(null);
+				else
+					mPrefs.setUsername(_username.getText().trim());
+			}
+			
+			if(_password.isDirty()) {
+				if( _password.getText().trim().equals("") )
+					mPrefs.setPassword(null);
+				else
+					mPrefs.setPassword(_password.getText().trim());
 			}
 			
 			if(_gateway.isDirty()) {
-				 mPrefs.setGateway(_gateway.getText());
+				if( _gateway.getText().trim().equals("") )
+					mPrefs.setGateway(null);
+				else
+				 mPrefs.setGateway(_gateway.getText().trim());
 			}
 			if( _gatewayPort.isDirty()) {
-				mPrefs.setGatewayPort(_gatewayPort.getText());
+				if( _gatewayPort.getText().trim().equals("") )
+					mPrefs.setGatewayPort(null);
+				else
+				 mPrefs.setGatewayPort(_gatewayPort.getText().trim());
 			}
 			if(_apn.isDirty()) {
-				mPrefs.setApn(_apn.getText());
+				if( _apn.getText().trim().equals("") )
+					mPrefs.setApn(null);
+				else
+				 mPrefs.setApn(_apn.getText().trim());
 			}
 			if(_sourceIP.isDirty()) {
-				mPrefs.setSourceIP(_sourceIP.getText());
+				if( _sourceIP.getText().trim().equals("") )
+					mPrefs.setSourceIP(null);
+				else
+				 mPrefs.setSourceIP(_sourceIP.getText().trim());
 			}
 			if(_sourcePort.isDirty()) {
-				mPrefs.setSourcePort(_sourcePort.getText());
+				if( _sourcePort.getText().trim().equals("") )
+					mPrefs.setSourcePort(null);
+				else
+				 mPrefs.setSourcePort(_sourcePort.getText().trim());
 			}
 			setDirty(false);
 		}

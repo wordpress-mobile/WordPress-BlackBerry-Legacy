@@ -9,6 +9,7 @@ import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.SeparatorField;
+import net.rim.device.api.ui.container.FlowFieldManager;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
@@ -22,7 +23,7 @@ import com.wordpress.view.mm.PhotoBitmapField;
 public class PhotosView extends BaseView {
 	
     private BlogObjectController controller; //controller associato alla view
-    private VerticalFieldManager manager=null;
+    private FlowFieldManager manager=null;
 	private LabelField lblPhotoNumber;
 	private int counterPhotos = 0;
 	
@@ -38,8 +39,7 @@ public class PhotosView extends BaseView {
         setNumberOfPhotosLabel(counterPhotos);
         photoNumberManager.add(lblPhotoNumber);
         
-    	manager= new VerticalFieldManager( Field.FOCUSABLE| Field.FIELD_HCENTER | VerticalFieldManager.VERTICAL_SCROLL
-                | VerticalFieldManager.VERTICAL_SCROLLBAR);
+    	manager= new FlowFieldManager( Field.FOCUSABLE| VerticalFieldManager.VERTICAL_SCROLL | VerticalFieldManager.VERTICAL_SCROLLBAR);
     	
         addMenuItem(_addPhotoItem);
         add(photoNumberManager);

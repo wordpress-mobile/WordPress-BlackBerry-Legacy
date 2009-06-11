@@ -185,16 +185,17 @@ public class PostController extends BlogObjectController {
 		}
 	}
 	
-	public void setPostCategories(Vector newCatID){
+	public void setPostCategories(Category[] selectedCategories){
 			
-		if ( newCatID == null || newCatID.size() == 0 ){
+		if ( selectedCategories == null || selectedCategories.length == 0 ){
 			post.setCategories(null);
 		} else {
-			int[] selectedID = new int[newCatID.size()];
+			int[] selectedID = new int[selectedCategories.length];
 			
-			for (int i = 0; i < newCatID.size(); i++) {
-				String elementAt = (String)newCatID.elementAt(i);
-				selectedID[i]=Integer.parseInt(elementAt);
+			for (int i = 0; i < selectedCategories.length; i++) {
+				Category category = selectedCategories[i];
+				String catID = category.getId();
+				selectedID[i]=Integer.parseInt(catID);
 			}
 			post.setCategories(selectedID);
 		}
@@ -496,6 +497,7 @@ public class PostController extends BlogObjectController {
 							newCategories[i]= categories[i];
 						}
 						Category newCat= new Category(String.valueOf(intValue), label);
+						newCat.setParentCategory(parentCat);
 						newCategories[categories.length] = newCat;
 						
 						blog.setCategories(newCategories);
@@ -505,8 +507,7 @@ public class PostController extends BlogObjectController {
 						} catch (Exception e) {
 							displayError(e, "Cannot update blog information on disk!");
 						}              
-						catView.addCategory(label, newCategories);
-						catView.invalidate();
+						catView.refreshView(post.getBlog().getCategories(), post.getCategories());
 						backCmd(); //return to catView
 						
 					} else {

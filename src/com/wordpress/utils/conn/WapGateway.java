@@ -3,7 +3,7 @@ package com.wordpress.utils.conn;
 
 /**
  * Wrap around the concept of WAP gateway: provides the informations related to 
- * a WAP configurations like APN, Username, Password and country.
+ * a WAP configurations like APN, Username, Password and country....
  */
 public class WapGateway {
 
@@ -11,8 +11,12 @@ public class WapGateway {
     private String username;
     private String password;
     private String gatewayIP;
-    private String country;
+    private String country;    
+    private String gatewayPort;
+    private String sourceIP;
+    private String sourcePort;
 
+    
     /**
      * Default empty 
      */
@@ -97,4 +101,28 @@ public class WapGateway {
     public String getGatewayIP() {
         return gatewayIP;
     }
+
+	public String getGatewayPort() {
+		return gatewayPort;
+	}
+
+	public String getSourceIP() {
+		return sourceIP;
+	}
+
+	public String getSourcePort() {
+		return sourcePort;
+	}
+
+	public void setGatewayPort(String gatewayPort) {
+		this.gatewayPort = gatewayPort;
+	}
+
+	public void setSourceIP(String sourceIP) {
+		this.sourceIP = sourceIP;
+	}
+
+	public void setSourcePort(String sourcePort) {
+		this.sourcePort = sourcePort;
+	}
 }

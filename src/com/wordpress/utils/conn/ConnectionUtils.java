@@ -78,7 +78,7 @@ public class ConnectionUtils {
     public static String getNetworkCoverageReport() {
         StringBuffer sb = new StringBuffer();
         
-        
+        sb.append("\n*********************************************************");
         sb.append("\nWireless Access Families:");
         sb.append("\n3GPP: " + getNetworkCoverage(RadioInfo.WAF_3GPP));
         sb.append("\nCDMA: " + getNetworkCoverage(RadioInfo.WAF_CDMA));
@@ -94,6 +94,7 @@ public class ConnectionUtils {
         sb.append("\nVOICE: " + getNetworkCoverage(RadioInfo.NETWORK_SERVICE_VOICE));
         sb.append("\nUMTS: " + getNetworkCoverage(RadioInfo.NETWORK_SERVICE_UMTS));
         sb.append("\nEDGE: " + getNetworkCoverage(RadioInfo.NETWORK_SERVICE_EDGE));
+        sb.append("\n*********************************************************");
         return sb.toString();
     }
 
@@ -131,7 +132,7 @@ public class ConnectionUtils {
     
     /**
      * Retrieves the WAP/WAP2 Transport APN from service book
-     * @return the Stirng formatted WAP/WAP2 Transport APN. This entry is 
+     * @return the String formatted WAP/WAP2 Transport APN. This entry is 
      * unique for every ServiceBook.
      */
     public static String getServiceBookWapTransportApn() {
@@ -153,7 +154,7 @@ public class ConnectionUtils {
     }
 
     /**
-     * Retrieves only ACTIVE ServiceRecords (WAP2 type)from the native device's 
+     * Retrieves only ACTIVE ServiceRecords from the native device's 
      * ServiceBook checking if their CID is WPTCP and UID
      * @return String[] with the active APN found into the device's ServiceBook
      */
@@ -175,6 +176,8 @@ public class ConnectionUtils {
     }
     
     /**
+     * Get the Wireless service provider WAP 2.0 gateway from the device ServiceBooks
+     * 
      * Get the options to use the list of APN included into the device
      * ServiceBook
      * @return a string that should be added to the url parameters
@@ -184,14 +187,15 @@ public class ConnectionUtils {
         
         ServiceRecord[] records = sb.findRecordsByType(ServiceRecord.SRT_ACTIVE);
 
-        
-        //Obtain WAP2 ServiceBook Record
+        //Search through all service records to find the
+        //valid non-Wi-Fi and non-MMS 
+        //WAP 2.0 Gateway Service Record.         	
         for (int i = 0; i < records.length; i++) {
             //get the record
             ServiceRecord sr = records[i];
-
-            //check if CID is WPTCP and UID. 
-            //UID could be different per carrier. 
+            
+            //check if CID is WPTCP and UID.
+            //UID could be different per carrier.        
             if (StringUtils.equalsIgnoreCase(sr.getCid(), "WPTCP") &&
                     StringUtils.equalsIgnoreCase(sr.getUid(), "WAP2 trans")) {
                 if (records[i].getAPN() != null) {
@@ -213,5 +217,39 @@ public class ConnectionUtils {
                 !isWapGprsDataBearerOffline();
         Log.debug("[BlackberryUtils.isDataConnectionAvailable]Data connection availability: " + ret);
         return ret;
+    }
+    
+  // Return Wireless service provider WAP 1.x gateway connection string
+    static String buildWapConnectionString(WapGateway gateway){
+    	 StringBuffer options = new StringBuffer("");
+    	 if (gateway != null) {
+             //We matched with a gateway in our list. Build connection options
+    		 if(gateway.getApn() != null) {
+             options.append(";apn=" + gateway.getApn());
+             options.append(";WapGatewayAPN=" + gateway.getApn());
+    		 } else
+    		 {//exit immediately
+    			 return ""; 
+    		 }
+             if (gateway.getUsername() != null) {
+                 options.append(";TunnelAuthUsername=" + gateway.getUsername());
+             }
+             if (gateway.getPassword() != null) {
+                 options.append(";TunnelAuthPassword=" + gateway.getPassword());
+             }
+             if (gateway.getGatewayIP() != null) {
+                 options.append(";WapGatewayIP=" + gateway.getGatewayIP());
+             }
+             if (gateway.getGatewayPort() != null) {
+                 options.append(";WapGatewayPort=" + gateway.getGatewayPort());
+             }
+             if (gateway.getSourceIP() != null) {
+            	 options.append(";WapSourceIP=" + gateway.getSourceIP());
+             }
+             if (gateway.getSourcePort() != null) {
+                 options.append(";WapSourcePort=" + gateway.getSourcePort());
+             }
+         }
+    	 return options.toString();
     }
 }

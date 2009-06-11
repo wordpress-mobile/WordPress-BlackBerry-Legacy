@@ -75,6 +75,8 @@ public class ConnectionManager {
 
     private String connectionParameters = null;
     
+    private Preferences userPreferences = Preferences.getIstance();
+    
     /**
      * Singleton realization: Private constructor
      * Use getInstance() method to access the public methods
@@ -133,24 +135,18 @@ public class ConnectionManager {
         }
         
         //check user wap apn settings
-        if (Preferences.getIstance().isUserWapOptionsEnabled()) {
-        	Preferences pref = Preferences.getIstance();
+        if (userPreferences.isUserConnectionOptionsEnabled()) {
+        	WapGateway gtw = new WapGateway(userPreferences.getApn(), userPreferences.getUsername(),
+        			userPreferences.getPassword(), userPreferences.getGateway(), null);
+        	gtw.setGatewayPort(userPreferences.getGatewayPort());
+        	gtw.setSourceIP(userPreferences.getSourceIP());
+        	gtw.setSourcePort(userPreferences.getSourcePort());
+        	
+        	String gtwUrl = ConnectionUtils.buildWapConnectionString(gtw);
 
-            StringBuffer sb = new StringBuffer();
-            sb.append(";WapGatewayIP=");
-            sb.append(pref.getGateway());
-            sb.append(";WapGatewayPort=");
-            sb.append(pref.getGatewayPort());
-            sb.append(";WapGatewayAPN=");
-            sb.append(pref.getApn());
-            sb.append(";WapSourceIP=");
-            sb.append(pref.getSourceIP());
-            sb.append(";WapSourcePort=");
-            sb.append(pref.getSourcePort());
-            ;        
-               	
-            Log.debug("[ConnectionManager.open]User Apn parameters detected for this connection: " + url + this.connectionParameters);
-            return Connector.open(url + sb.toString());
+            Log.debug("[ConnectionManager.open]User Apn parameters detected for this connection: " + url + 
+            		 AbstractConfiguration.BASE_CONFIG_PARAMETERS + gtwUrl);
+            return Connector.open(url + AbstractConfiguration.BASE_CONFIG_PARAMETERS + gtwUrl);
         } 
         
         //If the GPRS coverage was lost the ServiceBook could have changed
@@ -250,8 +246,7 @@ public class ConnectionManager {
         String requestUrl = null;
         for (int i = 0; i < ConnectionConfig.MAX_CONFIG_NUMBER; i++) {
             try {
-                Log.debug("[ConnectionManager.setup]Looping configurations: "
-                          + (i+1) + "/" + ConnectionConfig.MAX_CONFIG_NUMBER);
+                Log.debug("[ConnectionManager.setup]Looping configurations: "+ (i+1) + "/" + ConnectionConfig.MAX_CONFIG_NUMBER);
                 //If the open operation fails a subclass of IOException is thrown by the system
                 if (isConfigurationAllowed(i)) {
                     Log.debug("[ConnectionManager.setup]Configuration Allowed: " + (i+1));
@@ -280,8 +275,7 @@ public class ConnectionManager {
                     try {
                         ret.close();
                     } catch (Exception e) {
-                        Log.debug("[ConnectionManager.setup]Failed Closing connection: " 
-                                  + "trying next configuration if exists");
+                        Log.debug("[ConnectionManager.setup]Failed Closing connection: trying next configuration if exists");
                         Log.debug("[ConnectionManager.setup]Exception: " + e);
                     }
                 }

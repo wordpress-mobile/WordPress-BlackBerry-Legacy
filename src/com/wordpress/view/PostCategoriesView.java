@@ -1,69 +1,50 @@
 package com.wordpress.view;
 
-import java.util.Vector;
-
-import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.component.BitmapField;
-import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.Menu;
-import net.rim.device.api.ui.component.SeparatorField;
-import net.rim.device.api.ui.container.HorizontalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Category;
-import com.wordpress.view.component.CheckBoxListField;
+import com.wordpress.view.component.CategoriesListField;
 
 
 public class PostCategoriesView extends BaseView {
 	
     private PostController controller; //controller associato alla view
-    private CheckBoxListField checkBoxController;
+    private CategoriesListField checkBoxController;
     private ListField chkField;
     
     private Category[] blogCategories;
     
-    //add a category to the list
-    public void addCategory(String label, Category[] newBlogCategories){
-    	blogCategories = newBlogCategories;
-    	checkBoxController.addElement(label);
+
+    public void refreshView(Category[] blogCategories, int[] postCategoriesID) {
+    	checkBoxController= new CategoriesListField(blogCategories, postCategoriesID);
+    	delete(chkField);
+    	this.chkField= checkBoxController.get_checkList();
+    	add(chkField);
+    	this.invalidate();
     }
+    
+    
     
     public PostCategoriesView(PostController _controller, Category[] blogCategories, int[] postCategoriesID) {
     	super(_resources.getString(WordPressResource.MENUITEM_POST_CATEGORIES));
     	this.controller=_controller;
     	this.blogCategories=blogCategories;
     	
-    	String[] catTitles = new String [blogCategories.length];
-    	boolean[] catCheck = new boolean [blogCategories.length];
-    	for (int i = 0; i < catCheck.length; i++) {
-			Category category = blogCategories[i];
-			catTitles[i]=category.getLabel();
-			catCheck[i]=false;
-			
-			if(postCategoriesID != null) {
-				for (int j = 0; j < postCategoriesID.length; j++) {
-					if(postCategoriesID[j] == Integer.parseInt(category.getId()) ){
-						catCheck[i]=true;
-						break;
-					}
-				}
-			}
-    	}
-    	
-    	checkBoxController= new CheckBoxListField(catTitles,catCheck );
+    	checkBoxController= new CategoriesListField(blogCategories, postCategoriesID);
     	this.chkField= checkBoxController.get_checkList();
     	add(chkField);
-    	add(new SeparatorField());
+    //	add(new SeparatorField());
  		      
     	 //row new cat 
-        HorizontalFieldManager rowTitle = new HorizontalFieldManager();
+      /*  HorizontalFieldManager rowTitle = new HorizontalFieldManager();
+
 		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.MENUITEM_POST_NEWCATEGORY));   
 		
     	Bitmap imgOpen = Bitmap.getBitmapResource("disclosure-indicator.png"); 
@@ -78,7 +59,9 @@ public class PostCategoriesView extends BaseView {
   		bfOpenCat.setSpace(5, 5);
   		rowTitle.add(lblTitle);
   		rowTitle.add(bfOpenCat);
-  		this.add(rowTitle);  		
+  		this.add(rowTitle);
+  		*/ 
+    	addMenuItem(_newCategoryContextMenuItem);
     }
     
     private MenuItem _newCategoryContextMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_POST_NEWCATEGORY, 200, 100) {
@@ -89,17 +72,8 @@ public class PostCategoriesView extends BaseView {
   
     //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
-		boolean[] selections = checkBoxController.getSelected(); //selected categories index
-		Vector selectedID = new Vector();
-		
-		for (int i = 0; i < selections.length; i++) {
-			if ( selections[i] ) {
-				Category category = blogCategories[i]; //the selected category
-				selectedID.addElement(category.getId()); //string..
-			}
-		}
-		
-		controller.setPostCategories(selectedID); //sets the post new selected categories
+		Category[] selectedCategories = checkBoxController.getSelectedCategories();
+		controller.setPostCategories(selectedCategories); //sets the post new selected categories
 		controller.backCmd();
 		return true;
     }
