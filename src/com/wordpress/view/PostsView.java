@@ -64,10 +64,11 @@ public class PostsView extends BaseView {
 	        	lblPostsNumber = getLabel("You are not allowed access to details about this blog.");
 	        postNumberManager.add(lblPostsNumber);
 	    	
+	       
 	        //A HorizontalFieldManager to hold the posts list
 	        dataScroller = new VerticalFieldManager(VerticalFieldManager.VERTICAL_SCROLL
 	                 | VerticalFieldManager.VERTICAL_SCROLLBAR);
-
+	        	
 
 			add(topButtonsManager);
 			add(postNumberManager);
@@ -75,7 +76,7 @@ public class PostsView extends BaseView {
 			add(dataScroller);
 			buildList(recentPostInfo);
 	 }
-	 
+
 	 
 	 private String getNumberOfNewPostLabel(int recentPostNum, int newPostNum) {
 		  //set the label for the post number object
@@ -132,6 +133,7 @@ public class PostsView extends BaseView {
 		}
 		
 		addMenuItem(_refreshPostListItem);
+		dataScroller.invalidate();
 		//addMenuItem(_draftPostsItem);
 	}
 	 

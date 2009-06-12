@@ -197,7 +197,7 @@ public class PageDAO implements BaseDAO{
 		return myPageList;
 	}
 	
-	//returns Page builded from the Hashtable returned by wp.getPage response
+	//return Page obj builded from the Hashtable returned by wp.getPage response
 	public static synchronized Page hashtable2Page(Hashtable returnPageData) {
 		
 		Page page = new Page();
@@ -209,10 +209,10 @@ public class PageDAO implements BaseDAO{
 		page.setDateCreatedGMT(dateCreated);
 		
 		if( returnPageData.get("userid") != null)
-			page.setUserID(Integer.parseInt(String.valueOf(returnPageData.get("userid")))); // :-)
+			page.setUserID(Tools.decodeInt(returnPageData.get("userid")));
 		
 		if( returnPageData.get("page_id") != null )
-			page.setPageId(Integer.parseInt( String.valueOf(returnPageData.get("page_id"))));
+			page.setPageId(Tools.decodeInt(returnPageData.get("page_id")));
 
 		page.setPageStatus((String) returnPageData.get("page_status"));
 		String description = ((String) returnPageData.get("description"));

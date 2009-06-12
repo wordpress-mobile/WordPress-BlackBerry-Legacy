@@ -73,10 +73,10 @@ public class PostView extends BaseView {
         HorizontalFieldManager rowCategories = new HorizontalFieldManager(Manager.USE_ALL_WIDTH);
   		LabelField lblCategories = getLabel(_resources.getString(WordPressResource.LABEL_POST_CATEGORIES));
         String availableCategories = controller.getPostCategoriesLabel();
-  		categories = new LabelField(availableCategories);
+  		categories = new LabelField(availableCategories, LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
   		categories.setMargin(margins);
   		  		
-  		Bitmap imgOpen = Bitmap.getBitmapResource("disclosure-indicator.png"); 
+  	/*	Bitmap imgOpen = Bitmap.getBitmapResource("disclosure-indicator.png"); 
   		BitmapField bfOpenCat = new BitmapField(imgOpen, BitmapField.FOCUSABLE)
   		{			
   		    //override context menu      
@@ -86,10 +86,10 @@ public class PostView extends BaseView {
   		};
   		bfOpenCat.setMargin(margins);
   		bfOpenCat.setSpace(5, 5);
-  		
+  		*/
   		rowCategories.add(lblCategories);
   		rowCategories.add(categories);
-  		rowCategories.add(bfOpenCat);
+  		//rowCategories.add(bfOpenCat);
   		manager.add(rowCategories);
   		manager.add(new SeparatorField());
   		
@@ -103,13 +103,18 @@ public class PostView extends BaseView {
   		manager.add(rowStatus);
   		manager.add(new SeparatorField()); 
   		
-		bodyTextBox= new HtmlTextField(controller, post.getBody());
+  		
+  		//decode the post html
+  		
+  		String buildBodyFieldContentFromHtml = controller.buildBodyFieldContentFromHtml(post.getBody());
+		bodyTextBox= new HtmlTextField(controller, buildBodyFieldContentFromHtml);
 		manager.add(bodyTextBox);
 		addMenuItem(_saveDraftPostItem);
 		addMenuItem(_submitPostItem);
 		addMenuItem(_photosItem);
 		addMenuItem(_previewItem);
 		addMenuItem(_settingsItem);
+		addMenuItem(_categoryContextMenuItem);
 		
 		add(photoNumberManager);
 		add(new SeparatorField());
@@ -191,7 +196,7 @@ public class PostView extends BaseView {
         }
     };
     	
-    private MenuItem _categoryContextMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_POST_CATEGORIES, 10, 2) {
+    private MenuItem _categoryContextMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_POST_CATEGORIES, 110, 10) {
         public void run() {
         	controller.showCategoriesView();
         }

@@ -3,7 +3,6 @@ package com.wordpress.controller;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
@@ -15,7 +14,6 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.DraftDAO;
 import com.wordpress.io.FileUtils;
-import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
@@ -138,9 +136,8 @@ public class PostController extends BlogObjectController {
 	
 	public String getPostCategoriesLabel() {
 		Category[] availableCategories = post.getBlog().getCategories();
-		
-		Vector categoryLabels = new Vector();
 		int[] postCategories = post.getCategories();
+		StringBuffer categoriesLabel = new StringBuffer();
 		
 		if (postCategories != null && availableCategories != null) {
             for (int i = 0; i < postCategories.length; i++) {
@@ -150,20 +147,18 @@ public class PostController extends BlogObjectController {
             		Category category = availableCategories[j];
             		String idString = category.getId();
             		int idCat = Integer.parseInt(idString);
-            		if( idCatPost == idCat ) categoryLabels.addElement(category.getLabel());
+            		if( idCatPost == idCat ) categoriesLabel.append(category.getLabel()+" ");
 				
             	}
             }
 		} 
 		
-		if(categoryLabels.size() == 0 ){
+		String labels = categoriesLabel.toString();
+		if(labels.length() == 0 ){
 			String emptyCatLabel = _resources.getString(WordPressResource.LABEL_OPTIONAL);
 			return emptyCatLabel;
 		} else {
-			//trim...
-			String firstCat= (String)categoryLabels.elementAt(0);
-			firstCat+= " ...";
-			return firstCat;
+			return labels;			
 		}
 	}
 	
@@ -186,22 +181,60 @@ public class PostController extends BlogObjectController {
 	}
 	
 	public void setPostCategories(Category[] selectedCategories){
-			
-		if ( selectedCategories == null || selectedCategories.length == 0 ){
-			post.setCategories(null);
+		
+		//first: find if there is any change in selected categories
+		int[] postPrevCategories = post.getCategories();
+		
+		if (postPrevCategories == null) {
+			if( selectedCategories.length > 0) {
+				int[] selectedIDs = new int[selectedCategories.length];
+				
+				for (int i = 0; i < selectedCategories.length; i++) {
+					Category category = selectedCategories[i];
+					String catID = category.getId();
+					selectedIDs[i]=Integer.parseInt(catID);
+				}
+				post.setCategories(selectedIDs);
+				setPostAsChanged(true);
+				
+			} else if (selectedCategories.length == 0) {
+				return;
+			} 
+		} else
+		if (postPrevCategories.length == 0 && selectedCategories.length == 0) {
+			return;
 		} else {
-			int[] selectedID = new int[selectedCategories.length];
-			
+
+			int[] selectedIDs = new int[selectedCategories.length];
 			for (int i = 0; i < selectedCategories.length; i++) {
 				Category category = selectedCategories[i];
 				String catID = category.getId();
-				selectedID[i]=Integer.parseInt(catID);
+				selectedIDs[i]=Integer.parseInt(catID);
 			}
-			post.setCategories(selectedID);
+			
+			if(selectedCategories.length != postPrevCategories.length) {
+				post.setCategories(selectedIDs);
+				setPostAsChanged(true);
+			} else {
+				//find differences			
+				for (int i = 0; i < selectedIDs.length; i++) {
+					int indexSelectedCat = selectedIDs[i];
+					boolean presence = false;
+					for (int j = 0; j < postPrevCategories.length; j++) {
+						if ( postPrevCategories[j] == indexSelectedCat ){
+							presence = true;
+							break;
+						}
+					}
+					if(!presence)  {
+						post.setCategories(selectedIDs);
+						setPostAsChanged(true);
+						break; //exit second if	
+					}
+				}
+			}
 		}
-		
 		view.updateCategoriesField(); 	//refresh the label field that contains cats..
-		setPostAsChanged(true);
 	}
 
 	public void sendPostToBlog() {

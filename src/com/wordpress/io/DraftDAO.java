@@ -227,20 +227,12 @@ public class DraftDAO implements BaseDAO{
 	public static synchronized Post hashtable2Post(Hashtable postData, Blog blog) {
 		Post aPost = new Post(blog);
 		
-		if(postData.get("postid") != null )
-        if( postData.get("postid") instanceof String) {
-        	aPost.setId((String) postData.get("postid"));
-        } else {
-        	aPost.setId(String.valueOf(postData.get("postid")));
-        }
-		
+        aPost.setId(Tools.decodeString(postData.get("postid")));
         aPost.setTitle((String) postData.get("title"));
         aPost.setAuthor((String) postData.get("userid"));
         aPost.setBody((String) postData.get("description"));
         aPost.setExtendedBody((String) postData.get("mt_text_more"));
         aPost.setExcerpt((String) postData.get("mt_excerpt"));
-        //aPost.setAuthoredOn(((Date) postData.get("dateCreated")).getTime());
-        //date_created_gmt
         Date date_created_gmt = (Date) postData.get("date_created_gmt");
         if (date_created_gmt != null )
         	aPost.setAuthoredOn(date_created_gmt.getTime());

@@ -4,6 +4,31 @@ import java.util.Vector;
 
 public class Tools {
 	
+	
+	 public static int decodeInt(Object input){	 
+		 if (input instanceof String){
+			 return Integer.parseInt((String)input);
+		 } else if (input instanceof Integer){
+			 return ((Integer)input).intValue();			 
+		 } else if (input instanceof Boolean) {
+			 if (((Boolean)input).booleanValue())
+				 return 1;
+			 else 
+				 return 0;
+		 }
+		 return -1;		 
+	 }
+	 
+	 public static String decodeString(Object input){
+		 if(input == null ) return null;
+		 if (input instanceof String)
+			 return (String) input;
+		  else 
+			 return String.valueOf(input);			 			 
+	 }
+	
+	
+	
 	  /**
 	   * Convert a vector to a string array.
 	   * 

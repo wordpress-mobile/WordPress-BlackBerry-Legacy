@@ -1,6 +1,7 @@
 package com.wordpress.view;
 
 import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
@@ -27,6 +28,9 @@ public class BlogView extends BaseView {
 	private static final int mnuRefresh= 140;
 
 	private BlogListField list;
+    private static final int MIN_HEIGHT = 36;
+    private static final int MAX_HEIGHT = 42;
+	
 	//main menu entries
 	private int[] mainMenuItems = {mnuPosts, mnuPages, mnuComments, mnuOptions, mnuRefresh};
 	private String[] mainMenuItemsLabel = {
@@ -37,16 +41,29 @@ public class BlogView extends BaseView {
 			_resources.getString(WordPressResource.BUTTON_REFRESH_BLOG)
 			};
 	      	
-	
 	public BlogView(BlogController _controller) {
 		super(_controller.getBlogName(), Field.FIELD_HCENTER);
 		this.controller=_controller;
 		list = new BlogListField();
-		list.setRowHeight(42);
+		
 		  //Populate the ListField
         for(int count = 0; count < mainMenuItems.length; ++count) {
         	list.insert(count);
         }
+        
+		 // Leave some space at the bottom to avoid scrolling issue
+       // on some devices. This is just a workaround
+       int allowSpace = Display.getHeight() - titleField.getHeight(); 
+       int screenHeight = (98 * allowSpace) / 100;
+       int rowHeight = screenHeight /  mainMenuItems.length;
+
+       if (rowHeight < MIN_HEIGHT) {
+           rowHeight = MIN_HEIGHT;
+       }
+       if (rowHeight > MAX_HEIGHT) {
+           rowHeight = MAX_HEIGHT;
+       }
+		list.setRowHeight(rowHeight);
                
         add(list);   
         addMenuItem(_goItem);

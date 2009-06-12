@@ -56,7 +56,7 @@ public class PagesController extends BaseController{
 		for (int i = 0; i < pages.size(); i++) {
 			boolean presence = false; 
 			Hashtable page = (Hashtable) pages.elementAt(i);
-            int pageId = Integer.parseInt((String) page.get("page_id"));
+            int pageId = Integer.parseInt( String.valueOf(page.get("page_id")));
 			
 		    for (int j = 0; j < viewedPages.length; j++) {
 		    	int viewedPageID = viewedPages[j];

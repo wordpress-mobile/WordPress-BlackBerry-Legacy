@@ -2,8 +2,6 @@ package com.wordpress.controller;
 
 import java.io.IOException;
 
-import javax.microedition.rms.RecordStoreException;
-
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
@@ -274,5 +272,16 @@ public abstract class BlogObjectController extends BaseController {
 		}
 		return newContentBuff.toString();
 	}
-		
+	
+	/**
+	 * Build the field body content from the html fragment of the body
+	 * @param body  original body text field content
+	 * @return
+	 */
+	public static synchronized String buildBodyFieldContentFromHtml(String originalContent) {
+		//String[] split = StringUtils.split(originalContent, Characters.ENTER);
+		String replaceAll = StringUtils.replaceAll(originalContent, "<p>", "");
+		replaceAll = StringUtils.replaceAll(replaceAll, "</p>", Characters.ENTER+"");
+		return replaceAll;		
+	}
 }

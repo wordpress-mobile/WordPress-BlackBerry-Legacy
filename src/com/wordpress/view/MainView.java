@@ -1,13 +1,22 @@
 package com.wordpress.view;
 
+import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.Display;
+import net.rim.device.api.system.EncodedImage;
+import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ListField;
+import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
 import com.wordpress.model.BlogInfo;
+import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.view.component.BlogsListField;
 
 public class MainView extends BaseView {
@@ -16,10 +25,70 @@ public class MainView extends BaseView {
     private ListField listaBlog;
     private BlogsListField blogListController; 
 
+    
+    protected Bitmap _backgroundBitmap = Bitmap.getBitmapResource("MainBackground.png");
+    private int deviceWidth = Display.getWidth();
+    private int deviceHeight = Display.getHeight();
+    private BitmapField wpLogoBitmapField;
+    private VerticalFieldManager   subManager;
+    
 	public MainView(MainController mainController) {
-		super(_resources.getString(WordPressResource.TITLE_APPLICATION));
+		super( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR 
+				| VerticalFieldManager.USE_ALL_WIDTH | VerticalFieldManager.USE_ALL_HEIGHT);
+		
 		this.mainController=mainController;
-	
+		
+		//Set the preferred width to the image size or screen width if the image is larger than the screen width.
+		EncodedImage _theImage= EncodedImage.getEncodedImageResource("wplogo.png");
+		int _preferredWidth = -1;
+        if (_theImage.getWidth() > Display.getWidth()) {
+            _preferredWidth = Display.getWidth();
+        }
+        if( _preferredWidth != -1) {        	
+        	EncodedImage resImg = MultimediaUtils.bestFit2(_theImage, _preferredWidth, _theImage.getHeight());
+        	_theImage = resImg;
+        }
+		wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER| Field.FIELD_VCENTER);
+		
+		//this manager is used for the static background image
+		VerticalFieldManager  mainManager = new VerticalFieldManager(VerticalFieldManager.USE_ALL_WIDTH | VerticalFieldManager.USE_ALL_HEIGHT 
+				| Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR )
+        {            
+            public void paint(Graphics graphics)
+            {
+               graphics.clear();
+               graphics.drawBitmap(0, 0, deviceWidth, deviceHeight, _backgroundBitmap, 0, 0);                       
+               super.paint(graphics);
+            } 
+            
+            protected void sublayout( int width, int height ) {
+                    int x = 0;
+                    int y = 0;
+
+                    for (int i = 0;  i < getFieldCount();  i++) {
+                        Field field = getField(i);
+                        if (i != 0){
+                        	layoutChild( field, width - 20, height-y );
+                        	setPositionChild(field, x+10, y);
+                        } else { 
+                        	layoutChild( field, width , height-y ); //the image field
+                        	setPositionChild(field, x, y);
+                        }                        	
+                        x = 0 ;
+                        y += field.getHeight();
+                    }
+                 setExtent(width, height);
+            } 
+        };
+        
+        //this manger is used for adding the componentes
+        subManager = new VerticalFieldManager(Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR  );
+
+        mainManager.add(wpLogoBitmapField);
+        mainManager.add(subManager);
+        //finally add the mainManager over the screen
+        this.add(mainManager);    
+		
         setupUpBlogsView();
 	
 		addMenuItem(_aboutItem);
@@ -43,7 +112,7 @@ public class MainView extends BaseView {
         }
     	blogListController = new BlogsListField(blogCaricati);
 		this.listaBlog = blogListController.getList();
-        add(listaBlog);    
+		subManager.add(listaBlog);    
 	 }
 	 
 	 
@@ -100,7 +169,7 @@ public class MainView extends BaseView {
     public void refreshBlogList() {
     	synchronized (this) {
 	        if(listaBlog != null){
-				delete(listaBlog);
+				subManager.delete(listaBlog);
 				setupUpBlogsView(); //repaint entire list
 			}
     	}

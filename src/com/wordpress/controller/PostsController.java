@@ -172,7 +172,6 @@ public class PostsController extends BaseController{
 	
 	public void refreshPostsList() {
 		System.out.println(">>>refreshPosts");
-		Preferences prefs = Preferences.getIstance();
         final RecentPostConn connection = new RecentPostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
         		currentBlog.getPassword(), currentBlog);
         

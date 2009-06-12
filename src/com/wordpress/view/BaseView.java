@@ -18,15 +18,21 @@ import com.wordpress.controller.BaseController;
  */
 public abstract class BaseView extends MainScreen{
 	
+	protected LabelField titleField; //main title of the screen
+	
+	public BaseView(long style) {
+		super(style);
+	}
+
     public BaseView(String title) {
 		super();
-		LabelField titleField = getTitleField(title);
+		titleField = getTitleField(title);
 		this.setTitle(titleField);
 	}
     
 	public BaseView(String title, long style) {
 		super(style);
-		LabelField titleField = getTitleField(title);
+		titleField = getTitleField(title);
 		this.setTitle(titleField);
 	}
 
@@ -39,7 +45,7 @@ public abstract class BaseView extends MainScreen{
     }
     
     
-    //return the controller associated with thi view
+    //return the controller associated with this view
     public abstract BaseController getController();
     
     //create the title filed
