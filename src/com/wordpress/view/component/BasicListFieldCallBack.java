@@ -134,5 +134,4 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
     	public int getPreferredWidth(ListField listField) {
     		return Graphics.getScreenWidth();
     	}
-
 }

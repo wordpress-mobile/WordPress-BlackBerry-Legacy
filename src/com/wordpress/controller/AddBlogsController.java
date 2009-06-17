@@ -41,7 +41,7 @@ public class AddBlogsController extends BaseController implements Observer{
 		this.listener = listener;
 		guiValues.put("user", "editore");
 		guiValues.put("pass", "cancello");
-		guiValues.put("url", "http://danais.no-ip.org/demo/wp_testing");
+		guiValues.put("url", "http://testing.mopress.danais.org");
 		guiValues.put("recentpost", recentsPostValuesLabel);
 		guiValues.put("recentpostselected", new Integer(0));
 		guiValues.put("isresphotos", new Boolean(false));
@@ -76,10 +76,10 @@ public class AddBlogsController extends BaseController implements Observer{
 	
 	public void addBlogs(){
 		
-		String pass= view.getBlogPass();
-		String url= view.getBlogUrl();
+		String pass= view.getBlogPass().trim();
+		String url= view.getBlogUrl().trim();
 		url=checkURL(url);
-		String user= view.getBlogUser();
+		String user= view.getBlogUser().trim();
 		maxPostIndex=view.getMaxRecentPostIndex();
 		System.out.println("Max Show posts index: "+maxPostIndex);
 		if(maxPostIndex < 0){

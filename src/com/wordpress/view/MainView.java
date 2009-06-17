@@ -23,12 +23,10 @@ public class MainView extends BaseView {
 	
     private MainController mainController=null;
     private ListField listaBlog;
-    private BlogsListField blogListController; 
-
+    private BlogsListField blogListController;
+    private int PADDING = 20;
     
     protected Bitmap _backgroundBitmap = Bitmap.getBitmapResource("MainBackground.png");
-    private int deviceWidth = Display.getWidth();
-    private int deviceHeight = Display.getHeight();
     private BitmapField wpLogoBitmapField;
     private VerticalFieldManager   subManager;
     
@@ -56,6 +54,11 @@ public class MainView extends BaseView {
         {            
             public void paint(Graphics graphics)
             {
+            	//height and width could change if the user tilt the device.
+            	//we use os4.5 in which we cannot access to tilt events
+            	//and so we need to retrive height and width at every paint...
+               int deviceWidth = Display.getWidth(); 
+               int deviceHeight = Display.getHeight();
                graphics.clear();
                graphics.drawBitmap(0, 0, deviceWidth, deviceHeight, _backgroundBitmap, 0, 0);                       
                super.paint(graphics);
@@ -68,11 +71,13 @@ public class MainView extends BaseView {
                     for (int i = 0;  i < getFieldCount();  i++) {
                         Field field = getField(i);
                         if (i != 0){
-                        	layoutChild( field, width - 20, height-y );
-                        	setPositionChild(field, x+10, y);
+                        	layoutChild( field, width - PADDING, height-y );
+                        	setPositionChild(field, x+(PADDING/2), y);
                         } else { 
-                        	layoutChild( field, width , height-y ); //the image field
-                        	setPositionChild(field, x, y);
+                        	 //the image field
+                        	x = width / 2;
+                        	layoutChild( field, width , height-y );
+                        	setPositionChild(field, x - field.getPreferredWidth()/2, y);
                         }                        	
                         x = 0 ;
                         y += field.getHeight();

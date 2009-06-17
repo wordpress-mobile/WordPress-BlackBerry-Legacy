@@ -33,6 +33,8 @@ public class PostsListField extends ObjectListField  {
         _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
     }
 	
+    private SimpleDateFormat sdFormat = new SimpleDateFormat(_resources.getString(WordPressResource.DEFAULT_DATE_FORMAT), Locale.getDefault());
+    
 	private Vector _listData = new Vector();
     private ListCallBack listFieldCallBack = null;
     		
@@ -65,45 +67,48 @@ public class PostsListField extends ObjectListField  {
 	
 	protected int moveFocus(int amount, int status, int time) {
 		ListData data = null;
+		
 		int oldSelection = getSelectedIndex();
-
 		if(oldSelection != -1) {
 			data = (ListData)_listData.elementAt(oldSelection);
 			data.setSelected(false);
+			invalidate(oldSelection);
 		}
+
 		// Forward the call
 		int ret = super.moveFocus(amount, status, time);
-		
 		int newSelection = getSelectedIndex();
 		
 		// Get the next enabled item;
 		if(newSelection != -1) {
 			data = (ListData)_listData.elementAt(newSelection);
 			data.setSelected(true);
+			invalidate(newSelection);
 		}
-		invalidate();
+		//invalidate();
 		
 		return ret;
 	}
 	
 	protected void moveFocus(int x, int y, int status, int time) {
 		ListData data = null;
-		
 		int oldSelection = getSelectedIndex();
 		super.moveFocus(x, y, status, time);
 		int newSelection = getSelectedIndex();
-
+		
 		if(oldSelection != -1) {
 			data = (ListData)_listData.elementAt(oldSelection);
 			data.setSelected(false);
+			invalidate(oldSelection);
 		}
 		
 		if(newSelection != -1) {
 			data = (ListData)_listData.elementAt(newSelection);
 			data.setSelected(true);
+			invalidate(newSelection);
 		}
 		
-		invalidate();
+		//invalidate();
 	}
 	
     private class ListCallBack extends BasicListFieldCallBack {
@@ -155,8 +160,6 @@ public class PostsListField extends ObjectListField  {
         public String getDate() {
 			if (data.containsKey("date_created_gmt")) {
 				Date dateCreated = (Date) data.get("date_created_gmt");
-				SimpleDateFormat sdFormat = new SimpleDateFormat(_resources.getString(WordPressResource.DEFAULT_DATE_FORMAT), Locale.getDefault());
-			
 				long time = dateCreated.getTime();
 				Date dateCreatedTZ = new Date(CalendarUtils.adjustTimeToDefaultTimezone(time));		
 				String format = sdFormat.format(dateCreatedTZ);

@@ -58,7 +58,7 @@ public class BlogOptionsView extends BaseView {
 			
             //row username
             HorizontalFieldManager rowUserName = new HorizontalFieldManager();
-    		LabelField lblUserName = getLabel(_resources.getString(WordPressResource.LABEL_BLOGUSER)); 
+    		LabelField lblUserName = getLabel(_resources.getString(WordPressResource.LABEL_USERNAME)); 
             userNameField = new BasicEditField("", user, 60, Field.EDITABLE);
             userNameField.setMargin(margins);
             rowUserName.add(lblUserName);
@@ -67,7 +67,7 @@ public class BlogOptionsView extends BaseView {
     		
             //row password
             HorizontalFieldManager rowPassword = new HorizontalFieldManager();
-    		LabelField lblPassword = getLabel(_resources.getString(WordPressResource.LABEL_BLOGPASSWD)); 
+    		LabelField lblPassword = getLabel(_resources.getString(WordPressResource.LABEL_PASSWD)); 
             passwordField = new PasswordEditField("", pass, 64, Field.EDITABLE);
             passwordField.setMargin(margins);
             rowPassword.add(lblPassword);

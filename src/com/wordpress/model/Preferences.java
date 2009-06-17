@@ -24,14 +24,14 @@ public class Preferences {
 		}
 		return singletonObject;
 	}
-    
-    // singleton
+		
+	// singleton
 	private Preferences() {
 		gatewayPort = ConnectionUtils.WAP_DEFAULT_GWAYPORT;
 		sourceIP = ConnectionUtils.WAP_DEFAULT_SOURCEIP;
 		sourcePort = ConnectionUtils.WAP_DEFAULT_SOURCEPORT;
 	}
-            
+    
 	public String getGateway() {
 		return gateway;
 	}

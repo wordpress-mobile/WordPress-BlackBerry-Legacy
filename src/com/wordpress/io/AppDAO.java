@@ -25,6 +25,7 @@ public class AppDAO implements BaseDAO{
 	}
 	
 	
+	
 	// return the application base path
 	public static String getBaseDirPath() throws RecordStoreException, IOException {
 		
@@ -43,6 +44,18 @@ public class AppDAO implements BaseDAO{
 		records.closeRecordStore();
 		return basePath;
 	}
+	
+	
+	public static void setUpFolderStructure() throws RecordStoreException, IOException {
+		setBaseDirPath("file:///store/home/user/wordpress/");
+		
+		if(JSR75FileSystem.isFileExist(getBaseDirPath())){
+			JSR75FileSystem.removeFile(getBaseDirPath());
+		}
+		
+		JSR75FileSystem.createDir(AppDAO.getBaseDirPath());
+	}
+
 	
 	// set the application base path
 	public static synchronized void setBaseDirPath(String basePath)

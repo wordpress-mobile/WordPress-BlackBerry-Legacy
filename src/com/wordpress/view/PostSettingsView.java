@@ -52,7 +52,7 @@ public class PostSettingsView extends BaseView {
 		
         //row password
         HorizontalFieldManager rowPassword = new HorizontalFieldManager();
-		LabelField lblPassword = getLabel(_resources.getString(WordPressResource.LABEL_BLOGPASSWD));		
+		LabelField lblPassword = getLabel(_resources.getString(WordPressResource.LABEL_PASSWD));		
         passwordField = new PasswordEditField("", password, 64, Field.EDITABLE);
         passwordField.setMargin(margins);
         rowPassword.add(lblPassword);

@@ -66,7 +66,7 @@ public class AddBlogsView extends BaseView {
 
             //row url
             HorizontalFieldManager rowURL = new HorizontalFieldManager();
-    		LabelField lblUrl = getLabel(_resources.getString(WordPressResource.LABEL_BLOGURL)); 
+    		LabelField lblUrl = getLabel(_resources.getString(WordPressResource.LABEL_URL)); 
             blogUrlField = new BasicEditField("", url, 100, Field.EDITABLE);
             blogUrlField.setFilter(new URLTextFilter());
             blogUrlField.setMargin(margins);
@@ -76,7 +76,7 @@ public class AddBlogsView extends BaseView {
             
             //row username
             HorizontalFieldManager rowUserName = new HorizontalFieldManager();
-    		LabelField lblUserName = getLabel(_resources.getString(WordPressResource.LABEL_BLOGUSER)); 
+    		LabelField lblUserName = getLabel(_resources.getString(WordPressResource.LABEL_USERNAME)); 
             userNameField = new BasicEditField("", user, 60, Field.EDITABLE);
             userNameField.setMargin(margins);
             rowUserName.add(lblUserName);
@@ -86,7 +86,7 @@ public class AddBlogsView extends BaseView {
 
             //row password
             HorizontalFieldManager rowPassword = new HorizontalFieldManager();
-    		LabelField lblPassword = getLabel(_resources.getString(WordPressResource.LABEL_BLOGPASSWD)); 
+    		LabelField lblPassword = getLabel(_resources.getString(WordPressResource.LABEL_PASSWD)); 
             passwordField = new PasswordEditField("", pass, 64, Field.EDITABLE);
             passwordField.setMargin(margins);
             rowPassword.add(lblPassword);

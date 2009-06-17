@@ -116,33 +116,43 @@ public class CommentsListField {
                 if(oldSelection != -1) {
                 	data = (ChecklistData)_listData.elementAt(oldSelection);
                 	data.setSelected(false);
+                	invalidate(oldSelection);
                 }
 
                 // Forward the call
                 int ret = super.moveFocus(amount, status, time);
-
                 int newSelection = getSelectedIndex();
+                
                 // Get the next enabled item;
                 if(newSelection != -1) {
 	                data = (ChecklistData)_listData.elementAt(newSelection);
 	                data.setSelected(true);
+	                invalidate(newSelection);
                 }
-                invalidate();
+                //invalidate();
 
                 return ret;
             }
             
             
             protected void moveFocus(int x, int y, int status, int time) {
+            	ChecklistData data = null;
                 int oldSelection = getSelectedIndex();
                 super.moveFocus(x, y, status, time);
                 int newSelection = getSelectedIndex();
-                ChecklistData data = (ChecklistData)_listData.elementAt(oldSelection);
-                data.setSelected(false);
                 
-                data = (ChecklistData)_listData.elementAt(newSelection);
-                data.setSelected(true);
-                invalidate();
+                if(oldSelection != -1) {
+                	data = (ChecklistData)_listData.elementAt(oldSelection);
+                	data.setSelected(false);
+                	invalidate(oldSelection);
+                }
+                
+                if(newSelection != -1) {
+                	data = (ChecklistData)_listData.elementAt(newSelection);
+                	data.setSelected(true);
+                	invalidate(newSelection);
+                }
+                //invalidate();
             }
             
         };
@@ -233,7 +243,7 @@ public class CommentsListField {
 
             
             int authorWidth = drawFirstRowMainText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getAuthor(), currentRow.isSelected);
-            drawEMailText(graphics, w -  leftImageWidth - authorWidth, y, w - leftImageWidth - authorWidth, height, currentComment.getAuthorEmail(), currentRow.isSelected);
+            drawEMailText(graphics, w -  leftImageWidth - authorWidth, y, w, height, currentComment.getAuthorEmail(), currentRow.isSelected);
             drawSecondRowText(graphics, leftImageWidth, y, w - leftImageWidth, height, currentComment.getContent(), currentRow.isSelected);
 
             graphics.setFont(originalFont);
@@ -241,17 +251,29 @@ public class CommentsListField {
             
         }
         
+        //width is the total row width, not the space free for email text
+        // x is the available space...
         private void drawEMailText(Graphics graphics, int x, int y, int width, int height, String email, boolean selected) {
             int fontHeight = ((2* height) / 5) - (PADDING * 2);
             graphics.setFont(Font.getDefault().derive(Font.PLAIN, fontHeight));
-
+            
+            int fullTextSpace =  Font.getDefault().derive(Font.PLAIN, fontHeight).getAdvance(email);
+            int spaceAvailable = x; //real space available for text.
+            
+            int textX = 0;
+            if(spaceAvailable > fullTextSpace) {
+            	textX = width - fullTextSpace; 
+            } else {
+            	textX = width - (spaceAvailable + PADDING);	
+            }
+            
             if (selected) {
                 graphics.setColor(Color.BLACK);
             } else {
                 graphics.setColor(Color.LIGHTGREY);
             }
-            graphics.drawText(email, x + PADDING + 3, y + PADDING + 2, DrawStyle.LEFT
-                    | DrawStyle.TOP | DrawStyle.ELLIPSIS, width - (PADDING * 2));
+            graphics.drawText(email, textX , y + PADDING + 2, DrawStyle.LEFT
+                    | DrawStyle.TOP | DrawStyle.ELLIPSIS, textX - (PADDING * 2));
             
         }
         

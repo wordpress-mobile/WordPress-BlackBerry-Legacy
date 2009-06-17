@@ -1,5 +1,11 @@
 package com.wordpress.view;
 
+import java.io.IOException;
+
+import javax.microedition.rms.RecordStoreException;
+
+import net.rim.device.api.system.ApplicationDescriptor;
+import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
@@ -17,9 +23,11 @@ import net.rim.device.api.ui.text.URLTextFilter;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PreferenceController;
+import com.wordpress.io.AppDAO;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
 public class PreferencesView extends BaseView {
@@ -59,7 +67,18 @@ public class PreferencesView extends BaseView {
             buttonsManager.add(buttonOK);
     		buttonsManager.add(buttonBACK);
     		add(buttonsManager); 
-            addMenuItem(_saveItem);
+
+            //reset app temp file option
+            add(new SeparatorField());
+			LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.DESCRIPTION_REMOVE_TEMPFILE)); 
+			Font fnt = this.getFont().derive(Font.ITALIC);
+			lblDescReset.setFont(fnt);
+			add(lblDescReset);
+			ButtonField buttonReset= new ButtonField(_resources.getString(WordPressResource.BUTTON_REMOVE), ButtonField.CONSUME_CLICK);
+			buttonReset.setChangeListener(listenerResetButton);
+            add(buttonReset);
+
+    		addMenuItem(_saveItem);
 	 }
 	      
 	 private void addWapOptionsFields(){
@@ -74,7 +93,7 @@ public class PreferencesView extends BaseView {
          
          //row _username
          HorizontalFieldManager rowUserName = new HorizontalFieldManager();
-         rowUserName.add( getLabel(_resources.getString(WordPressResource.LABEL_BLOGUSER)) ); 
+         rowUserName.add( getLabel(_resources.getString(WordPressResource.LABEL_USERNAME)) ); 
          _username = new EditField("", mPrefs.getUsername());
          _username.setMargin(margins);
          rowUserName.add(_username);
@@ -82,7 +101,7 @@ public class PreferencesView extends BaseView {
          
          //row _password
          HorizontalFieldManager rowPass = new HorizontalFieldManager();
-         rowPass.add( getLabel(_resources.getString(WordPressResource.LABEL_BLOGPASSWD)) ); 
+         rowPass.add( getLabel(_resources.getString(WordPressResource.LABEL_PASSWD)) ); 
          _password = new EditField("", mPrefs.getPassword());
          _password.setMargin(margins);
          rowPass.add(_password);
@@ -211,6 +230,37 @@ public class PreferencesView extends BaseView {
 		    	onClose();
 		    }
 		};
+		
+		private FieldChangeListener listenerResetButton = new FieldChangeListener() {
+		    public void fieldChanged(Field field, int context) {
+
+		    	int askQuestion = controller.askQuestion(_resources.getString(WordPressResource.MESSAGE_REMOVE_TEMPFILES));
+		    	if (askQuestion == Dialog.YES) {
+		    	
+		    	} else {
+		    		return;
+		    	}
+		    	
+		    	try {
+					AppDAO.setUpFolderStructure();
+					controller.displayMessage(_resources.getString(WordPressResource.MESSAGE_APP_RESTART));
+					Log.debug("Called application restart...");
+
+			        //Get the current application descriptor.
+			        ApplicationDescriptor current = ApplicationDescriptor.currentApplicationDescriptor();
+			        Log.debug("Scheduling the restart immediately...");
+			        controller.stopAllThread(); //stop bg thread
+			        ApplicationManager.getApplicationManager().scheduleApplication(current, System.currentTimeMillis() + 3000, true);
+			        Log.debug("Application is exiting...");
+			        System.exit(0);
+				} catch (RecordStoreException e) {
+					Log.error(e.getMessage());
+				} catch (IOException e) {
+					Log.error(e.getMessage());
+				}
+		    }
+		};
+
 
 		/**
 		 * check changes on the UI preferences

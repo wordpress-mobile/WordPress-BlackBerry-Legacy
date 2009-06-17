@@ -11,8 +11,9 @@ import net.rim.device.api.ui.text.URLTextFilter;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BlogObjectController;
+import com.wordpress.utils.log.Log;
 
-public class HtmlTextField extends AutoTextEditField{
+public class HtmlTextField extends AutoTextEditField {
 
 	private int mMark = -1;
 	//constant that identify type of marker tag
@@ -39,25 +40,123 @@ public class HtmlTextField extends AutoTextEditField{
     	super("",content, EditField.DEFAULT_MAXCHARS, EDITABLE | USE_ALL_HEIGHT | USE_ALL_WIDTH );
 		this.controller = controller;
         setText(content);
+        //this.setChangeListener(listener);
     }
     
     
-    protected boolean insert(char key, int status) {
-    	//System.out.println("char.key : "+key + " | status : "+status);
+/*
+	private FieldChangeListener listener = new FieldChangeListener() {
+	    public void fieldChanged(Field field, int context) {
+	    	
+	    	AutoTextEditField campoIntelligente = ((AutoTextEditField) field);
+	    	
+	   	Log.debug("field change listener: "+ ((AutoTextEditField) field).getText());
+	    	
+	    		int pos = campoIntelligente.getCursorPosition();
+	    		Log.info("current pos : "+pos);
+	    		//check the current pos
+	    		if(pos >= 3) {
+	    			//possibly match, compare the 3 prev chars
+	    			Log.info("prev 1 char : "+ campoIntelligente.charAt(pos-1)); //ht-t-p
+	    			Log.info("prev 2 char : "+ campoIntelligente.charAt(pos-2)); //h-t-tp
+	    			Log.info("prev 3 char : "+ campoIntelligente.charAt(pos-3));//h-ttp
+
+	    			if (campoIntelligente.charAt(pos-1) == 'p' && campoIntelligente.charAt(pos-2) == 't' && campoIntelligente.charAt(pos-3) == 't' 
+	    				&& ( campoIntelligente.charAt(pos-4) == 'h' || campoIntelligente.charAt(pos-4) == 'H'))
+	    				if( pos > 4 ){ //not at the begin of the field, we can check the -4 char
+	    					  if(campoIntelligente.charAt(pos-5) == Characters.SPACE || campoIntelligente.charAt(pos-5) == Characters.ENTER){
+	    						  Log.debug("match riconosciuto");
+	    						    //showRequestPopUp();
+	    					  }
+	    				} else {
+	    					Log.debug("match riconosciuto");
+	    					//showRequestPopUp();
+	    				}	
+	    		}
+	    	
+	  
+	   }
+	};
+ */   
+	/*
+    protected boolean keyDown(int keycode, int time) {
     	
-    	boolean isInserted = super.insert(key,status); //call super for char insertion
+    	super.keyDown(keycode, time); //call super for char insertion
+    
+    	//infer the modifier key state.
+    	int status =  Keypad.status(keycode);
+    
+    	Log.info("keyDown - status : "+status );
+    	Log.info("keyDown - keycode : "+keycode );
+    	
+    	Log.info("keyDown - keycode : "+keycode );
+    	Log.info("keyDown - Keypad.key(keycode) : "+ Keypad.key(keycode) );
+    	Log.info("keyDown - Keypad.getKeyCode('p',0) : "+Keypad.getKeyCode('p',0) );
+    	//Log.info("keyDown - Keypad.keyCode('p',0) : "+Keypad.keycode('p',0) );
+    	
+    	if(status == 0 && Keypad.key(keycode) == Keypad.getKeyCode('p',0)) {
+
+    	AutoTextEditField campoIntelligente = ((AutoTextEditField) this);
+    	
+	    		int pos = getCursorPosition();
+	    		Log.info("current pos : "+pos);
+	    		//check the current pos
+	    		if(pos >= 2) {
+	    			//possibly match, compare the 3 prev chars
+	    			Log.info("prev 1 char : "+ campoIntelligente.charAt(pos-1)); //ht-t-p
+	    			Log.info("prev 2 char : "+ campoIntelligente.charAt(pos-2)); //h-t-tp
+
+	    			if (campoIntelligente.charAt(pos-1) == 't' && campoIntelligente.charAt(pos-2) == 't' 
+	    				&& (campoIntelligente.charAt(pos-3) == 'h' || campoIntelligente.charAt(pos-3) == 'H')
+	    				)
+	    				if( pos > 3 ){ //not at the begin of the field, we can check the -4 char
+	    					  if(campoIntelligente.charAt(pos-4) == Characters.SPACE || campoIntelligente.charAt(pos-4) == Characters.ENTER){
+	    						  showRequestPopUp();
+	    					  }
+	    				} else {
+	    					showRequestPopUp();
+	    				}	
+	    		}
+    	
+    	}
+    	
+    	return false;
+    }
+    
+    private void showRequestPopUp() {
+    	
+    	int choice =  controller.askQuestion("Http link?");
+    	if (choice == Dialog.YES) {
+    		
+    		TestDialog pw = new TestDialog();
+    		if(pw.doModal() == Dialog.YES){
+    			//apply change on textField
+    			backspace(3, 1); //delete 4 chars
+    			insert("<a href=\""+pw.getUrlFromField()+"\"  alt=\""+pw.getDescriptionFromField()+"\">"+pw.getDescriptionFromField()+"</a>",1);
+    	      }
+    	} else {
+    		
+    	}
+    }
+    */
+   
+	
+	
+    protected boolean keyChar(char key, int status, int time) {
+    	Log.debug("keyChar - char.key : "+key + " | status : "+status);
+    	
+    	boolean isInserted = super.keyChar(key, status, time); //call super for char insertion
     	
     	if(isInserted && key == 'p') {
 
     		int pos = getCursorPosition();
-    	//	System.out.println("current pos : "+pos);
+    		//Log.debug("current pos : "+pos);
     		//check the current pos
     		if(pos >= 3) {
     			//possibly match, compare the 3 prev chars
-    		/*	System.out.println("prev 1 char : "+ this.charAt(pos-1)); //ht-t-p
-    			System.out.println("prev 2 char : "+ this.charAt(pos-2)); //h-t-tp
-    			System.out.println("prev 3 char : "+ this.charAt(pos-3));//h-ttp
-    			*/
+    		//	Log.info("prev 1 char : "+ this.charAt(pos-1)); //ht-t-p
+    		//	Log.info("prev 2 char : "+ this.charAt(pos-2)); //h-t-tp
+    		//	Log.info("prev 3 char : "+ this.charAt(pos-3));//h-ttp
 
     			if (this.charAt(pos-1) == 'p' && this.charAt(pos-2) == 't' && this.charAt(pos-3) == 't' 
     				&& ( this.charAt(pos-4) == 'h' || this.charAt(pos-4) == 'H'))
@@ -71,36 +170,67 @@ public class HtmlTextField extends AutoTextEditField{
     	}
     	return isInserted;
     }
-
-    private void showRequestPopUp() {
-    	System.out.println("trovato match");
+    
+    
+    
+  /*  
+   * this method works well on 8700 and 8900
+   
+    protected boolean insert(char key, int status) {
+    	//Log.info("insert");
+    	Log.info("insert.key : "+key + " | status : "+status);
     	
-    	int choice =  controller.askQuestion("Http link?");
+    	boolean isInserted = super.insert(key,status); //call super for char insertion
+    	
+    	if(isInserted && key == 'p') {
+
+    		int pos = getCursorPosition();
+    		Log.info("current pos : "+pos);
+    		//check the current pos
+    		if(pos >= 3) {
+    			//possibly match, compare the 3 prev chars
+    			Log.info("prev 1 char : "+ this.charAt(pos-1)); //ht-t-p
+    			Log.info("prev 2 char : "+ this.charAt(pos-2)); //h-t-tp
+    			Log.info("prev 3 char : "+ this.charAt(pos-3));//h-ttp
+
+    			if (this.charAt(pos-1) == 'p' && this.charAt(pos-2) == 't' && this.charAt(pos-3) == 't' 
+    				&& ( this.charAt(pos-4) == 'h' || this.charAt(pos-4) == 'H'))
+    				if( pos > 4 ){ //not at the begin of the field, we can check the -4 char
+    					  if(this.charAt(pos-5) == Characters.SPACE || this.charAt(pos-5) == Characters.ENTER)
+    						  showRequestPopUp();
+    				} else {
+    					showRequestPopUp();
+    				}	
+    		}
+    	}
+    	return isInserted;
+    }
+*/
+    private void showRequestPopUp() {
+    	
+    	int choice =  controller.askQuestion(_resources.getString(WordPressResource.MESSAGE_HTTP_LINK));
     	if (choice == Dialog.YES) {
-    		//System.out.println("ha detto si!!");
-    		
-    		TestDialog pw = new TestDialog();
+    		AddLinkDialog pw = new AddLinkDialog();
     		if(pw.doModal() == Dialog.YES){
-    			System.out.println("ha inserito bene i dati");
     			//apply change on textField
     			backspace(4, 1); //delete 4 chars
     			insert("<a href=\""+pw.getUrlFromField()+"\"  alt=\""+pw.getDescriptionFromField()+"\">"+pw.getDescriptionFromField()+"</a>",1);
     	      }
     	} else {
-    		//System.out.println("ha detto no!!");
+    		
     	}
     }
     
-    public final class TestDialog extends Dialog {
+    public final class AddLinkDialog extends Dialog {
 
         private EditField urlField;
         private EditField descriptionField;
 
-        public TestDialog(){
-            super(Dialog.D_YES_NO, "Insert Link Informations", Dialog.NO, Bitmap.getPredefinedBitmap(Bitmap.INFORMATION), Dialog.GLOBAL_STATUS);
-            urlField = new EditField("Url: ", "http://", 100, EditField.EDITABLE);
+        public AddLinkDialog(){
+            super(Dialog.D_YES_NO, _resources.getString(WordPressResource.LABEL_ADDLINK_TITLE), Dialog.NO, Bitmap.getPredefinedBitmap(Bitmap.INFORMATION), Dialog.GLOBAL_STATUS);
+            urlField = new EditField(_resources.getString(WordPressResource.LABEL_URL)+ " ", "http://", 100, EditField.EDITABLE);
             urlField.setFilter(new URLTextFilter());
-            descriptionField = new EditField("Description: ", "", 50, EditField.EDITABLE);
+            descriptionField = new EditField(_resources.getString(WordPressResource.LABEL_ADDLINK_DESC)+ " ", "", 50, EditField.EDITABLE);
             
             net.rim.device.api.ui.Manager delegate = getDelegate();
             if( delegate instanceof DialogFieldManager){
@@ -109,6 +239,7 @@ public class HtmlTextField extends AutoTextEditField{
                 if( manager != null ){
                     manager.insert(urlField, 0);
                     manager.insert(descriptionField, 1);
+                    urlField.setCursorPosition(7);
                 }
             }
         }    

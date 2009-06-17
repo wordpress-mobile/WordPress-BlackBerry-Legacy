@@ -1,6 +1,7 @@
 package com.wordpress.task;
 
 import com.wordpress.utils.Queue;
+import com.wordpress.utils.log.Log;
 
 
 public class TasksRunner {

@@ -16,6 +16,6 @@ public class TcpConfig extends AbstractConfiguration {
         //Grants automatically connections for specific TCP setting
         //manually set by the user in the Options -> Advanced Options -> TCP
         //device's configuration screen
-       setPermission(PERMISSION_GRANTED);
+       //  setPermission(PERMISSION_GRANTED);
 	}
 }

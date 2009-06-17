@@ -22,6 +22,6 @@ public class BESConfig extends AbstractConfiguration {
         setUrlParameters(BES_CONFIG_PARAMETERS);
         setDescription(BES_CONFIG_DESCRIPTION);
         //Grants automatically connections for BES configuration
-        setPermission(PERMISSION_GRANTED);
+       // setPermission(PERMISSION_GRANTED);
 	}
 }

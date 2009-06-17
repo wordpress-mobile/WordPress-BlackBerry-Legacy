@@ -242,9 +242,22 @@ public class BlogView extends BaseView {
 	    }
 	    
         protected int moveFocus(int amount, int status, int time) {
-            // Forward the call
-            int ret = super.moveFocus(amount, status, time);
-            invalidate(); //we can invalidate only the 2 involved rows
+    		
+    		int oldSelection = getSelectedIndex();
+    		if(oldSelection != -1) {
+    			invalidate(oldSelection);
+    		}
+    		
+    		// Forward the call
+    		int ret = super.moveFocus(amount, status, time);
+    		
+    		int newSelection = getSelectedIndex();
+    		// Get the next enabled item;
+    		if(newSelection != -1) {
+    			invalidate(newSelection);
+    		}
+            
+            //invalidate(); //we can invalidate only the 2 involved rows
             return ret;
         }
 	}

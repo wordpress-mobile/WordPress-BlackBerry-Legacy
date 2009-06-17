@@ -1,22 +1,68 @@
 package com.wordpress.utils.conn;
 
+import net.rim.device.api.i18n.ResourceBundle;
+import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.Dialog;
+
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.dialog.InquiryView;
 
 /**
- * the simplest connection handler ever. just save the config
+ * the simplest connection handler ever.
  * 
  */
 public class BasicConnectionListener {
 
+	
+
+	//create a variable to store the ResourceBundle for localization support
+    protected static ResourceBundle _resources;
+	    
+    static {
+        //retrieve a reference to the ResourceBundle for localization support
+        _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
+    
+    }
+	
+
+	// a simple class used to show dialog sync over the main event Thread
+	//a copy from BaseController...
+	private class AskThread implements Runnable {
+		int userResponse;
+		final String config; 
+		
+		public AskThread(String msg){
+			config = msg;
+		}
+		public void run() {
+			InquiryView inqView= new InquiryView(config);
+			userResponse = inqView.doModal();
+		}
+		public int getResponse (){
+			return userResponse;
+		}
+	}
+	
     /**
      * Check if the connection configuration is allowed
      * @param config is the configuration to be checked
-     * @return true in the basic implementation because no real check is 
+     * @return true in the user allow the conn configuration  
      * performed on the configuration permission
      */
-    public boolean isConnectionConfigurationAllowed(String config) {
-        Log.debug("[BasicConnectionListener]Configuration is always allowed in this implementation");
-        return true;
+    public boolean isConnectionConfigurationAllowed(final String config) {
+    	Log.debug("[BasicConnectionListener]Ask to user if the current config is allowed");
+
+    	AskThread ask = new AskThread(_resources.getString(WordPressResource.MESSAGE_CHOOSE_CONNECTION) + " "+ config);
+    	UiApplication.getUiApplication().invokeAndWait(ask); //get lock on main thread is required because we are on bg Thread
+    	if (ask.getResponse() == Dialog.YES) {
+    	//if (choose == Dialog.YES) {
+    	  	Log.debug("[BasicConnectionListener]user response for current config: Allowed");
+    		return true;
+    	} else {
+    		Log.debug("[BasicConnectionListener]user response for current config: NOT Allowed");
+    		return false;
+    	} 
     }
 
     /**

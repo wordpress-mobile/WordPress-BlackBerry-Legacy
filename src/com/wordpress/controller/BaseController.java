@@ -31,6 +31,13 @@ public abstract class BaseController {
   abstract 	public void showView();
   abstract 	public void refreshView();
 	
+  
+  	//stop runner thread
+	public synchronized void stopAllThread() {
+		Log.debug("Runner Thread stopped");
+		runner.quit();
+	}
+
 	// Utility routine to display errors
 	public synchronized void displayError(final Exception e, String message) {
 		displayError(message + "\n" + e.getMessage());
@@ -55,16 +62,25 @@ public abstract class BaseController {
 				Log.debug(msg);
 				InfoView infoView= new InfoView(msg);
 				infoView.doModal();
-				
 			}
 		});
 	}
 	
 	// Utility routine to ask question to the user
 	public synchronized int askQuestion(String msg) {
-		Log.debug(msg);
+		
+		AskThread ask = new AskThread(msg);
+    	UiApplication.getUiApplication().invokeAndWait(ask);
+    	if (ask.getResponse() == Dialog.YES) {
+    	  	Log.debug("user response YES");
+    	} else {
+    		Log.debug("user response NO");
+    	} 
+    	
+		return ask.getResponse();
+		/*Log.debug(msg);
 		InquiryView inqView= new InquiryView(msg);
-		return inqView.doModal();
+		return inqView.doModal();*/
 	}
 	
 	
@@ -84,6 +100,23 @@ public abstract class BaseController {
 			 	UiApplication.getUiApplication().popScreen(scr);			
 			}
 		});
+	}
+	
+	// a simple class used to show dialog sync over the main event Thread
+	private class AskThread implements Runnable {
+		int userResponse;
+		final String config; 
+		
+		public AskThread(String msg){
+			config = msg;
+		}
+		public void run() {
+			InquiryView inqView= new InquiryView(config);
+			userResponse = inqView.doModal();
+		}
+		public int getResponse (){
+			return userResponse;
+		}
 	}
 	
 }

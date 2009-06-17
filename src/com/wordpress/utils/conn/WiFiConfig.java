@@ -16,10 +16,10 @@ public class WiFiConfig extends AbstractConfiguration {
 		setDescription(WIFI_CONFIG_DESCRIPTION);
 		// Grants automatically wifi connections only if Wifi Bearer is present
 		// on the device
-		if (ConnectionUtils.isWifiAvailable()) {
+	/*	if (ConnectionUtils.isWifiAvailable()) {
 			setPermission(PERMISSION_GRANTED);
 		} else {
 			setPermission(PERMISSION_DENIED);
-		}
+		} */
 	}
 }

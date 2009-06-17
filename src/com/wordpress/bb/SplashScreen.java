@@ -16,12 +16,10 @@ import net.rim.device.api.ui.container.MainScreen;
 import com.wordpress.controller.MainController;
 import com.wordpress.io.AppDAO;
 import com.wordpress.io.BaseDAO;
-import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.conn.ConnectionUtils;
 import com.wordpress.utils.log.Appender;
-import com.wordpress.utils.log.ConsoleAppender;
 import com.wordpress.utils.log.FileAppender;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.ErrorView;
@@ -55,40 +53,27 @@ public class SplashScreen extends MainScreen {
 		
 		//check application permission as first step
 		WordPressApplicationPermissions.getIstance().checkPermissions();
-		//could be actions here...
-				
+						
 		try {
 			String baseDirPath = AppDAO.getBaseDirPath();
-			
 			if ( baseDirPath != null ) {
 				//not first startup 	
 				AppDAO.readApplicationPreferecens(blogPrefs); //load pref on startup
 				timer.schedule(new CountDown(), 3000); //3sec splash
 			} else { 
 				add(new LabelField("Installation in progress...",Field.FIELD_HCENTER| Field.FIELD_VCENTER));
-				
-			/*SelectDirectoryThread sel = new SelectDirectoryThread(); //because we modify UI from non event thread
-			application.invokeLater(sel); 
-	*/
-			//first startup
-			AppDAO.setBaseDirPath("file:///store/home/user/wordpress/");
-						
-        	if(JSR75FileSystem.isFileExist(AppDAO.getBaseDirPath())){
-        		JSR75FileSystem.removeFile(AppDAO.getBaseDirPath());
-        	}
-			
-        	JSR75FileSystem.createDir(AppDAO.getBaseDirPath());
-			timer.schedule(new CountDown(), 3000); //3sec splash
+				//first startup
+				AppDAO.setUpFolderStructure();
+				timer.schedule(new CountDown(), 3000); //3sec splash
 			}
 			
-		// At the end of initialization phase we starts the logging onto file
-		//#ifdef DEBUG
-		 Appender fileAppender = new FileAppender(AppDAO.getBaseDirPath(), BaseDAO.LOG_FILE_PREFIX);
-		 fileAppender.setLogLevel(Log.DEBUG); //if we set level to TRACE the file log size grows too fast
-		 fileAppender.open();
-		 Log.addAppender(fileAppender);
-		//#endif
-		 Log.debug(ConnectionUtils.getNetworkCoverageReport()); //log the network status at startup
+			//#ifdef DEBUG
+			Appender fileAppender = new FileAppender(AppDAO.getBaseDirPath(), BaseDAO.LOG_FILE_PREFIX);
+			fileAppender.setLogLevel(Log.DEBUG); //if we set level to TRACE the file log size grows too fast
+			fileAppender.open();
+			Log.addAppender(fileAppender);
+			//#endif
+			Log.debug(ConnectionUtils.getNetworkCoverageReport()); //log the network status at startup
 			
 		} catch (Exception e) {
 			timer.cancel();
