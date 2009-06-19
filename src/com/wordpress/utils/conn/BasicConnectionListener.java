@@ -5,6 +5,7 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.model.Preferences;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.InquiryView;
 
@@ -14,8 +15,6 @@ import com.wordpress.view.dialog.InquiryView;
  */
 public class BasicConnectionListener {
 
-	
-
 	//create a variable to store the ResourceBundle for localization support
     protected static ResourceBundle _resources;
 	    
@@ -24,45 +23,33 @@ public class BasicConnectionListener {
         _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
     
     }
-	
 
-	// a simple class used to show dialog sync over the main event Thread
-	//a copy from BaseController...
-	private class AskThread implements Runnable {
-		int userResponse;
-		final String config; 
-		
-		public AskThread(String msg){
-			config = msg;
-		}
-		public void run() {
-			InquiryView inqView= new InquiryView(config);
-			userResponse = inqView.doModal();
-		}
-		public int getResponse (){
-			return userResponse;
-		}
-	}
-	
     /**
      * Check if the connection configuration is allowed
      * @param config is the configuration to be checked
      * @return true in the user allow the conn configuration  
      * performed on the configuration permission
      */
-    public boolean isConnectionConfigurationAllowed(final String config) {
-    	Log.debug("[BasicConnectionListener]Ask to user if the current config is allowed");
-
-    	AskThread ask = new AskThread(_resources.getString(WordPressResource.MESSAGE_CHOOSE_CONNECTION) + " "+ config);
-    	UiApplication.getUiApplication().invokeAndWait(ask); //get lock on main thread is required because we are on bg Thread
-    	if (ask.getResponse() == Dialog.YES) {
-    	//if (choose == Dialog.YES) {
-    	  	Log.debug("[BasicConnectionListener]user response for current config: Allowed");
-    		return true;
-    	} else {
-    		Log.debug("[BasicConnectionListener]user response for current config: NOT Allowed");
-    		return false;
-    	} 
+    public boolean isConnectionConfigurationAllowed(final int conType, final String config) {
+    	Preferences pref = 	Preferences.getIstance();
+    	//Log.debug("[BasicConnectionListener] check if connection is Allowed: " + config);
+    	
+    	switch (conType) {
+    	case ConnectionConfig.WIFI_CONFIG: 
+    		return (ConnectionUtils.isWifiActive()&& ConnectionUtils.isWifiAvailable()
+    				&& pref.isWiFiConnectionPermitted() );
+    	case ConnectionConfig.TCP_CONFIG:
+    		return pref.isTcpConnectionPermitted();
+    	case ConnectionConfig.APN_TABLE_CONFIG:
+    		return pref.isWapConnectionPermitted();
+    	case ConnectionConfig.SERVICE_BOOK_CONFIG:
+    		return pref.isServiceBookConnectionPermitted();
+    	case ConnectionConfig.BES_CONFIG:
+    		return pref.isBESConnectionPermitted();
+    		
+		default:
+			return false;
+		}
     }
 
     /**

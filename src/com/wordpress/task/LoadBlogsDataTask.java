@@ -17,7 +17,6 @@ public class LoadBlogsDataTask extends TaskImpl implements Observer {
 	
 	private Queue executionQueue = null; // queue of BlogConn
 	private BlogUpdateConn blogConn; //the current blog conn 
-
 	
 	public LoadBlogsDataTask(Queue executionQueue) {
 		this.executionQueue = executionQueue;
@@ -37,28 +36,32 @@ public class LoadBlogsDataTask extends TaskImpl implements Observer {
 
 	public void update(Observable observable, final Object object) {
 		BlogConnResponse resp = (BlogConnResponse) object;
-		if (!resp.isError()) {
-			if (resp.isStopped()) {
-				return;
-			}
-			Blog currentBlog = (Blog) resp.getResponseObject(); // update
-			try {
-				currentBlog.setLoadingState(BlogInfo.STATE_LOADED);
-				BlogDAO.updateBlog(currentBlog);
-			} catch (final Exception e) {
-				currentBlog.setLoadingState(BlogInfo.STATE_ERROR);
-			}
-			progressListener.taskUpdate(currentBlog); //update listener task.
-		} else { //there was an xml-rpc error
-			Blog currentBlog =  blogConn.getBlog();
-			currentBlog.setLoadingState(BlogInfo.STATE_LOADED_WITH_ERROR);
-			try {
-				BlogDAO.updateBlog(currentBlog);
-				progressListener.taskUpdate(currentBlog); //update listener task. 
-			} catch (final Exception e) {
-				currentBlog.setLoadingState(BlogInfo.STATE_ERROR);	
-			}
+		if (resp.isStopped()) {
+			return;
 		}
+		Blog currentBlog = null;
+		if (!resp.isError()) {
+			try {
+				currentBlog = (Blog) resp.getResponseObject(); 
+				currentBlog.setLoadingState(BlogInfo.STATE_LOADED);
+			} catch (final Exception e) {
+				//there was an error, get the blog from the conn and mark it
+				currentBlog =  blogConn.getBlog();
+				currentBlog.setLoadingState(BlogInfo.STATE_LOADED_WITH_ERROR);
+			}
+		} else { 
+			currentBlog =  blogConn.getBlog();
+			currentBlog.setLoadingState(BlogInfo.STATE_ERROR);
+		}
+		
+		try {
+			BlogDAO.updateBlog(currentBlog);
+		} catch (final Exception e) {
+			currentBlog.setLoadingState(BlogInfo.STATE_ERROR);	
+		}
+		progressListener.taskUpdate(currentBlog); //update listener task.
+		
+		
 		next(); // call to next blog conn
 	}
 

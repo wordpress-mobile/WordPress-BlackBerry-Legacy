@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<project name="WordPress for BlackBerry" default="all" basedir="..">
+   
+    <target name="init">
+      <property file="build/build.properties" />
+    </target>
+
+    <!-- =============================================== -->
+    <!-- USAGE                                           -->
+    <!-- =============================================== -->
+    <target name="usage" depends="init">
+        <echo message=""/>
+        <echo message="WordPress for BlackBerry build file"/>
+        <echo message="------------------------------------------------------"/>
+        <echo message=""/>
+        <echo message=" Available targets are :"/>
+        <echo message=""/>
+        <echo message=" usage                --> Print this usage listing"/>
+        <echo message=" buildOS42            --> Build OS 4.2 version"/>
+        <echo message=" buildOS47            --> Build OS 4.7 version"/>
+        <echo message=" build                --> Build all versions"/>
+        <echo message=" cleanOS42            --> Clean OS 4.2 version"/>
+        <echo message=" cleanOS47            --> Clean OS 4.7 version"/>
+        <echo message=" clean                --> Clean all versions"/>
+        <echo message=" releaseOS42          --> "/>
+        <echo message=" releaseOS47          --> "/>
+        <echo message=" release              --> "/>
+        <echo message=" all                  --> Equivalent to build"/>
+        <echo message=" test                 --> Build test midlet (requires antenna)"/>
+        <echo message=" simulatorOS42        --> Install the application into the simulator dir"/>
+        <echo message=" simulatorOS47        --> Install the application into the simulator dir"/>
+        <echo message=" jdeOS42              --> Build a JDP project file for debugging the app within RIM JDE (OS 4.2 version)"/>
+        <echo message=" jdeOS47              --> Build a JDP project file for debugging the app within RIM JDE (OS 4.7 version)"/>
+        <echo message=" deployOS42           --> Deploy the OS 4.2 version to a remote ssh location"/>
+        <echo message=" deployOS47           --> Deploy the OS 4.7 version to a remote ssh location"/>
+        <echo message=" deploy               --> Deploy all versions to a remote ssh location"/>
+        <echo message=""/>
+    </target>
+
+    <target name="buildOS42" depends="init">
+        <ant antfile="build/build_single.xml" target="all">
+            <property name="platform"         value="os42"/>
+            <property name="module.name"      value="WordPress"/>
+            <property name="rim.home"         value="${rim.home.os42}"/>
+        </ant>
+    </target>
+
+    <target name="buildOS47" depends="init">
+        <ant antfile="build/build_single.xml" target="all">
+            <property name="platform"         value="os47"/>
+            <property name="rim.home"         value="${rim.home.os47}"/>
+        </ant>
+    </target>
+
+    <target name="cleanOS42" depends="init">
+        <ant antfile="build/build_single.xml" target="clean">
+            <property name="platform"         value="os42"/>
+            <property name="module.name"      value="WordPress"/>
+            <property name="rim.home"         value="${rim.home.os47}"/>
+        </ant>
+    </target>
+
+    <target name="cleanOS47" depends="init">
+        <ant antfile="build/build_single.xml" target="clean">
+            <property name="platform"         value="os47"/>
+            <property name="rim.home"         value="${rim.home.os47}"/>
+        </ant>
+    </target>
+
+    <target name="release" depends="releaseOS42, releaseOS47">
+    </target>
+
+    <target name="releaseOS42" depends="init">
+        <ant antfile="build/build_single.xml" target="release">
+            <property name="platform"         value="os42"/>
+            <property name="module.name"      value="WordPress"/>
+            <property name="rim.home"         value="${rim.home.os42}"/>
+        </ant>
+    </target>
+
+    <target name="releaseOS47" depends="init">
+        <ant antfile="build/build_single.xml" target="release">
+            <property name="platform"         value="os47"/>
+            <property name="rim.home"         value="${rim.home.os47}"/>
+        </ant>
+    </target>
+
+    <target name="simulatorOS42" depends="init">
+        <ant antfile="build/build_single.xml" target="simulator">
+            <property name="platform"         value="os42"/>
+            <property name="rim.home"         value="${rim.home.os47}"/>
+        </ant>
+    </target>
+
+    <target name="simulatorOS47" depends="init">
+        <ant antfile="build/build_single.xml" target="simulator">
+            <property name="platform"         value="os47"/>
+            <property name="rim.home"         value="${rim.home.os47}"/>
+        </ant>
+    </target>
+
+    <target name="jdeOS42" depends="init">
+        <ant antfile="build/build_single.xml" target="jde">
+            <property name="platform"         value="os42"/>
+            <property name="rim.home"         value="${rim.home.os47}"/>
+        </ant>
+    </target>
+
+    <target name="jdeOS47" depends="init">
+        <ant antfile="build/build_single.xml" target="jde">
+            <property name="platform"         value="os47"/>
+            <property name="rim.home"         value="${rim.home.os47}"/>
+        </ant>
+    </target>
+
+    <target name="deployOS42" depends="init" if="deploy.application">
+        <ant antfile="build/build_single.xml" target="deploy">
+            <property name="platform"         value="os42"/>
+            <property name="module.name"      value="WordPress"/>
+            <property name="rim.home"         value="${rim.home.os42}"/>
+        </ant>
+    </target>
+
+    <target name="deployOS47" depends="init" if="deploy.application">
+        <ant antfile="build/build_single.xml" target="deploy">
+            <property name="platform"         value="os47"/>
+            <property name="rim.home"         value="${rim.home.os47}"/>
+        </ant>
+    </target>
+
+    <target name="test" depends="init">
+        <ant antfile="build/build_utest.xml" target="build_test">
+        <property name="platform"         value="os42"/>
+        <property name="rim.home"         value="${rim.home.os42}"/>
+        </ant>
+    </target>
+    
+    <target name="clean"  depends="cleanOS42, cleanOS47" />
+    <target name="build"  depends="buildOS42, buildOS47" />
+    <target name="deploy" depends="deployOS42, deployOS47" />
+
+    <target name="all" depends="build" />
+
+</project>

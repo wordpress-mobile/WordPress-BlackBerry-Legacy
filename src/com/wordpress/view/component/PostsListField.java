@@ -113,7 +113,7 @@ public class PostsListField extends ObjectListField  {
 	
     private class ListCallBack extends BasicListFieldCallBack {
 
-    	// override methois of the callback
+    	// override method of the callback
     	public void drawListRow(ListField listField, Graphics graphics, int index, int y, int w) {
             Font originalFont = graphics.getFont();
             int originalColor = graphics.getColor();

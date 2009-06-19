@@ -223,12 +223,10 @@ public class ConnectionUtils {
     static String buildWapConnectionString(WapGateway gateway){
     	 StringBuffer options = new StringBuffer("");
     	 if (gateway != null) {
-             //We matched with a gateway in our list. Build connection options
     		 if(gateway.getApn() != null) {
-             options.append(";apn=" + gateway.getApn());
+             //options.append(";apn=" + gateway.getApn());
              options.append(";WapGatewayAPN=" + gateway.getApn());
-    		 } else
-    		 {//exit immediately
+    		 } else {//exit immediately
     			 return ""; 
     		 }
              if (gateway.getUsername() != null) {

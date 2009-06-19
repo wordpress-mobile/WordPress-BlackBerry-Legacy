@@ -30,18 +30,14 @@ public abstract class BlogConn extends Observable implements Runnable {
 	protected Thread t = null;
 	
 	public BlogConn(String url, String user, String password) {
-
 	    mUsername = user;
 	    mPassword = password;
-	    //if(Preferences.getIstance().isDeviceSideConnection())
-	    //urlConnessione=url+";deviceside=true";
-	    //else urlConnessione=url;
 	    urlConnessione=url;
 	}
 	
 		
 	public void startConnWork(){
-  	   System.out.println("Inizio richiesta XML-RPC");
+		Log.debug("Inizio richiesta XML-RPC");
 		isWorking=true;
 		t = new Thread(this);
 		t.start();
@@ -54,7 +50,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 		if (!isWorking)
 			return;
 		
-		System.out.println("User requested stop the XML-RPC connection");
+		Log.debug("User requested stop the XML-RPC connection");
 		isWorking = false;
 		t = null;
 		mConnection = null;
@@ -172,8 +168,6 @@ public abstract class BlogConn extends Observable implements Runnable {
 
 	        Object response = execute("mt.getRecentPostTitles", args);
 			if(connResponse.isError()) {
-				//se il server xml-rpc è andato in err
-				//notifyObservers(connResponse);
 				return null;		
 			}
 
@@ -200,7 +194,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 
 		response = execute("wp.getCategories", args);
 		if(connResponse.isError()) {
-			 blog.setCategories(null);
+			 //blog.setCategories(null);
 			 return;
 		}
 		
@@ -245,7 +239,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 
 			Object response = execute("wp.getPostStatusList", args);
 			if (connResponse.isError()) {
-				 blog.setPostStatusList(null);
+				// blog.setPostStatusList(null);
 				 return;
 				//throw new Exception("Cannot read post status list");
 			}
@@ -281,7 +275,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 
 			Object response = execute("wp.getPageStatusList", args);
 			if (connResponse.isError()) {
-				blog.setPageStatusList(null);
+				//blog.setPageStatusList(null);
 				return;
 			}
 
@@ -316,7 +310,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 
 			Object response = execute("wp.getPageTemplates", args);
 			if (connResponse.isError()) {
-				blog.setPageStatusList(null);
+				//blog.setPageStatusList(null);
 				return;
 			}
 
@@ -352,7 +346,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 
 			Object response = execute("wp.getCommentStatusList", args);
 			if (connResponse.isError()) {
-				blog.setCommentStatusList(null);
+				//blog.setCommentStatusList(null);
 				return;
 			}
 			
@@ -381,7 +375,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 
 			Object response = execute("wp.getTags", args);
 			if(connResponse.isError()) {
-				 blog.setTags(null);
+				// blog.setTags(null);
 				 return;
 				//throw new Exception("cannot read tag list");
 			}
@@ -395,29 +389,56 @@ public abstract class BlogConn extends Observable implements Runnable {
 			Hashtable tagData = null;
 			for (int i=0; i<tags.size(); i++){
 				tagData = (Hashtable) tags.elementAt(i);
-
-		/*		System.out.println("tag_id: "+ (Integer.parseInt((String)tagData.get("tag_id"))));
-				System.out.println("name: "+(String) tagData.get("name"));
-				System.out.println("count: "+(Integer.parseInt((String) tagData.get("count"))));
-				System.out.println("slug: "+(String) tagData.get("slug"));
-				System.out.println("html_url: "+(String) tagData.get("html_url"));
-				System.out.println("rss_url: "+(String) tagData.get("rss_url"));
-*/
 				int tagId=Integer.parseInt((String)tagData.get("tag_id"));
 				String tagName=(String) tagData.get("name");
 				int count=Integer.parseInt((String) tagData.get("count"));
 				String slug=(String) tagData.get("slug");
 				String htmlUrl=(String) tagData.get("html_url");
 				String rssUrl= (String) tagData.get("rss_url");
-
 				Tag myTag= new Tag(tagId,tagName,count,slug, htmlUrl, rssUrl);
 				mytags[i]=myTag;
 			}
-
 			blog.setTags(mytags);
 			
 			System.out.println("End reading tag list for the blog : "
 					+ blog.getName());
+		} catch (ClassCastException cce) {
+			throw new Exception("Error while reading post status list");
+		}
+	}
+	
+	
+	//retrive the blog "tag list"
+	protected synchronized void getOptions(Blog blog) throws Exception {
+		try {
+			System.out.println("reading option list for the blog : "
+					+ blog.getName());
+
+			Vector args = new Vector(3);
+			args.addElement(String.valueOf(blog.getId()));
+			args.addElement(mUsername);
+			args.addElement(mPassword);
+
+			Object response = execute("wp.getOptions", args);
+			if(connResponse.isError()) {
+				 blog.setTags(null);
+				 return;
+				//throw new Exception("cannot read tag list");
+			}
+
+			
+			Hashtable tagData = (Hashtable) response;
+
+			Enumeration elements = tagData.keys();
+			for (; elements.hasMoreElements();) {
+				String key = (String) elements.nextElement();
+				Log.debug("key: " + key);
+				Log.debug("value: " + tagData.get(key));
+			}
+			
+				
+//			blog.setTags(mytags);
+			
 		} catch (ClassCastException cce) {
 			throw new Exception("Error while reading post status list");
 		}
@@ -429,6 +450,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 			return;
 		connResponse=new BlogConnResponse();
 		connResponse.setError(true);
+		connResponse.setResponseObject(e); //set the exception as response option
 		
 		if(e != null) {
 			connResponse.setResponse(err+" : "+e.getMessage());
@@ -446,6 +468,6 @@ public abstract class BlogConn extends Observable implements Runnable {
 		connResponse.setError(true);
 		connResponse.setResponse(err);
     
-		System.out.println(err);
+		Log.error(err);
 	}
 }

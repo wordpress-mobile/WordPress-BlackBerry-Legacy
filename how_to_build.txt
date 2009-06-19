@@ -1,0 +1,74 @@
+WordPress for BlackBerry Building HOW-TO:
+---------------------------------------
+This file contains the instructions to build the source code provided with the zip package wordpress-src-1.0.0.zip
+
+1. Required tools
+
+    - Download and install Apache Ant: http://ant.apache.org/ (version 1.7)
+    - Download and install Sun Java Wireless Toolkit: http://java.sun.com/products/sjwtoolkit/ (version 2.5.2)
+    - Download and install Apache Antenna: http://antenna.sourceforge.net/ (version 1.0.1)
+    - Download and install Blackberry JDE: http://na.blackberry.com/eng/developers/ (version 4.5.0)
+    - Download and install bb-ant-tools: http://bb-ant-tools.sourceforge.net/main (version 1.1)
+
+2. Required certificates
+
+   WordPress for BlackBerry uses restricted APIs provided by RIM. For
+   the application to work on real devices, it is necessary to sign it with a
+   RIM certificate. Signature keys are provided directly by RIM. The application
+   uses all the APIs but the crypto ones.
+
+3. Pre-Build process configuration
+
+3.1 Unzip the package into your working directory (<blackberry-dir>)
+
+3.2 Open build.properties file in your editor
+
+3.3 Set the right values for:
+    Your blackberry JDE home:
+    - rim.home.os42=<JDE-home>
+      Example: rim.home=C:/Program Files/Research In Motion/BlackBerry JDE 4.2.1
+
+    - rim.home.os47=<JDE-home>
+      Example: rim.home=C:/Program Files/Research In Motion/BlackBerry JDE 4.7.0
+
+    - Your signature password. This password is provided by RIM together with
+      the certificates.
+      Example: bb.sigtool.password=XXXXX
+
+    - Your build type: default value is release but you may want to enable the debug options
+      Example: build.type=release
+
+    Save the file and exit.
+
+3.4 Make sure bb-ant-tools.jar is accessible by ant. We suggest you to copy it
+    into your <ant-home>\lib directory
+
+5. Building the source
+5.1 Open a command prompt and go to the directory <blackberry-dir>/build
+5.2 Type "ant release" and press ENTER to build the client. The build process
+    generates the required cod files. There are two sets of cod files:
+
+    - <blackberry-dir>/output/xxx/release contains cod files which are suitable for
+      the emulator (they are not broken into chunks by rapc). xxx can be os42 or
+      os47.
+
+    - <blackberry-dir>/output/xxx/release/ota contains the cod files suitable for
+      OTA installation. xxx can be os42 or os47.
+
+    In both directories there is a proper jad file for the installation.
+
+5.3 "ant usage" shows the target supported by the common build descriptor.
+    This is usually not required by standard building.
+    
+6. Deploying the application
+6.1 Add the deploy.application definition to the build.properties to activate
+    the deploy task:
+    - deploy.username defines the remote username
+    - deploy.host defines the remote host
+    - deploy.remotePath defines the remote path to which the application should be
+      deployed (new created if it doesn't exist)
+    - deploy.path defines the web path to the application (to be replaced into the 
+      jad file)
+    - deploy.host.port defines the remote host port
+    The password will be required during the task.
+

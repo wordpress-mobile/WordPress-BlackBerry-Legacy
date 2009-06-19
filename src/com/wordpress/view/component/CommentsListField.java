@@ -243,7 +243,7 @@ public class CommentsListField {
 
             
             int authorWidth = drawFirstRowMainText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getAuthor(), currentRow.isSelected);
-            drawEMailText(graphics, w -  leftImageWidth - authorWidth, y, w, height, currentComment.getAuthorEmail(), currentRow.isSelected);
+            drawEMailText(graphics, w, y, w -  leftImageWidth - authorWidth, height, currentComment.getAuthorEmail(), currentRow.isSelected);
             drawSecondRowText(graphics, leftImageWidth, y, w - leftImageWidth, height, currentComment.getContent(), currentRow.isSelected);
 
             graphics.setFont(originalFont);
@@ -252,19 +252,22 @@ public class CommentsListField {
         }
         
         //width is the total row width, not the space free for email text
-        // x is the available space...
+        // x is the device width
         private void drawEMailText(Graphics graphics, int x, int y, int width, int height, String email, boolean selected) {
             int fontHeight = ((2* height) / 5) - (PADDING * 2);
             graphics.setFont(Font.getDefault().derive(Font.PLAIN, fontHeight));
             
-            int fullTextSpace =  Font.getDefault().derive(Font.PLAIN, fontHeight).getAdvance(email);
-            int spaceAvailable = x; //real space available for text.
-            
             int textX = 0;
-            if(spaceAvailable > fullTextSpace) {
-            	textX = width - fullTextSpace; 
+            int fullTextWidth =  Font.getDefault().derive(Font.PLAIN, fontHeight).getAdvance(email); //space for the entire mail field
+            if (fullTextWidth +2*PADDING > width) {
+            	//space aren't enough for the entire email field
+            	
+            	//find the x position
+            	textX = x - (width - PADDING);
+               	width = width - 2*PADDING;
             } else {
-            	textX = width - (spaceAvailable + PADDING);	
+                textX = x - (fullTextWidth + PADDING);
+                width = fullTextWidth;
             }
             
             if (selected) {
@@ -273,8 +276,7 @@ public class CommentsListField {
                 graphics.setColor(Color.LIGHTGREY);
             }
             graphics.drawText(email, textX , y + PADDING + 2, DrawStyle.LEFT
-                    | DrawStyle.TOP | DrawStyle.ELLIPSIS, textX - (PADDING * 2));
-            
+                    | DrawStyle.TOP | DrawStyle.ELLIPSIS, width);
         }
         
     	 

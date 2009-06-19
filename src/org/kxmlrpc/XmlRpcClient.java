@@ -38,6 +38,7 @@ import javax.microedition.io.HttpConnection;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.io.KXmlSerializer;
 
+import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Log;
 
@@ -107,7 +108,7 @@ public class XmlRpcClient {
      * @return the primitive, collection, or custom object
      * returned by the server
      */
-    public Object execute( String method, Vector params) throws Exception {
+    public Object execute(String method, Vector params) throws Exception {
         // kxmlrpc classes
         KXmlSerializer          xw = null;
         XmlRpcWriter            writer = null;
@@ -147,6 +148,29 @@ public class XmlRpcClient {
             out = con.openOutputStream();
             // Push the request to the server
             out.write( request );
+/*
+            
+          // List all the response headers from the server.
+            // Note: The first call to getHeaderFieldKey() will implicit send
+            // the HTTP request to the server.
+            Log.debug("Response headers from the server");
+            String   key;
+            for( int i = 0;( key = con.getHeaderFieldKey( i ) )!= null; ++i ){
+            	String headerName = con.getHeaderFieldKey(i);
+            	String headerValue = con.getHeaderField(i);
+            	
+            	if (headerName == null && headerValue == null) {
+            		// No more headers
+            		break;
+            	}
+            	if (headerName == null) {
+            		// The header value contains the server's HTTP version
+            	}
+            	Log.debug(headerName + " " + headerValue);
+            }
+            Log.debug("End Response headers from the server");
+            
+  */          
             // Open an input stream on the server's response
             in = con.openInputStream();
             
@@ -159,10 +183,12 @@ public class XmlRpcClient {
                charBuff.append((char)ch);
             }
             String response = charBuff.toString();
-            Log.trace("response from the wordpress server: "+response);
-         	ByteArrayInputStream bais = new ByteArrayInputStream(response.getBytes());
-            //end
+            Log.trace("response from the wordpress server: "+response);                      
             
+            response = StringUtils.replaceAll(response, "&amp;amp;", "&amp;"); //FIX WP DOUBLE ENCODED AMPESAND;
+            ByteArrayInputStream bais = new ByteArrayInputStream(response.getBytes());
+            //end           
+         	         	
             // Parse response from server
             KXmlParser xp = new KXmlParser();
             xp.setInput(new InputStreamReader(bais));

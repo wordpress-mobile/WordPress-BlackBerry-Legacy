@@ -134,18 +134,35 @@ public class ConnectionManager {
             return Connector.open(url + this.connectionParameters);
         }
         
-        //check user wap apn settings
+        //check user defined APN settings
         if (userPreferences.isUserConnectionOptionsEnabled()) {
-        	WapGateway gtw = new WapGateway(userPreferences.getApn(), userPreferences.getUsername(),
-        			userPreferences.getPassword(), userPreferences.getGateway(), null);
-        	gtw.setGatewayPort(userPreferences.getGatewayPort());
-        	gtw.setSourceIP(userPreferences.getSourceIP());
-        	gtw.setSourcePort(userPreferences.getSourcePort());
-        	
-        	String gtwUrl = ConnectionUtils.buildWapConnectionString(gtw);
+        	String gtwUrl = "";
+        	if(userPreferences.isUserConnectionWap()) { //if the user APN is WAP
+	        	WapGateway gtw = new WapGateway(userPreferences.getApn(), userPreferences.getUsername(),
+	        			userPreferences.getPassword(), userPreferences.getGateway(), null);
+	        	
+	        	gtw.setGatewayPort(userPreferences.getGatewayPort());
+	        	gtw.setSourceIP(userPreferences.getSourceIP());
+	        	gtw.setSourcePort(userPreferences.getSourcePort());
+	        	
+	        	gtwUrl = ConnectionUtils.buildWapConnectionString(gtw);
+	
+	            Log.debug("[ConnectionManager.open]User Wap Apn parameters detected for this connection: " + url + 
+	            		 AbstractConfiguration.BASE_CONFIG_PARAMETERS + gtwUrl);
+        	} else {
 
-            Log.debug("[ConnectionManager.open]User Apn parameters detected for this connection: " + url + 
-            		 AbstractConfiguration.BASE_CONFIG_PARAMETERS + gtwUrl);
+        		gtwUrl =";apn="+userPreferences.getApn();
+        		if (userPreferences.getUsername() != null) {
+        			gtwUrl+=";tunnelauthusername="+userPreferences.getUsername();
+        		}
+        		if (userPreferences.getPassword() != null) {
+        			gtwUrl+=";tunnelauthpassword=" + userPreferences.getPassword();
+        		}
+        		
+        		Log.debug("[ConnectionManager.open]User Apn parameters detected for this connection: " + url + 
+        				AbstractConfiguration.BASE_CONFIG_PARAMETERS + gtwUrl);
+
+        	}
             return Connector.open(url + AbstractConfiguration.BASE_CONFIG_PARAMETERS + gtwUrl);
         } 
         
@@ -333,13 +350,13 @@ public class ConnectionManager {
         //Connection listener logic implemented for undefined permission when network is covered
         if (configurations[configNumber].getPermission()==AbstractConfiguration.PERMISSION_UNDEFINED){
             Log.debug("[ConnectionManager.isConfigurationAllowed]Permission not defined for: " + apn);
-            boolean isConfigurationAllowed = connectionListener.isConnectionConfigurationAllowed(apn);
+            boolean isConfigurationAllowed = connectionListener.isConnectionConfigurationAllowed(configNumber,apn);
             if (isConfigurationAllowed) {
                 Log.debug("[ConnectionManager.isConfigurationAllowed]Permission set to GRANTED");
-                configurations[configNumber].setPermission(AbstractConfiguration.PERMISSION_GRANTED);
+                //configurations[configNumber].setPermission(AbstractConfiguration.PERMISSION_GRANTED);
             } else {
                 Log.debug("[ConnectionManager.isConfigurationAllowed]Permission set to DENIED");
-                configurations[configNumber].setPermission(AbstractConfiguration.PERMISSION_DENIED);
+                //configurations[configNumber].setPermission(AbstractConfiguration.PERMISSION_DENIED);
             }
             return isConfigurationAllowed;
         }

@@ -1,0 +1,512 @@
+<?html version="1.0" enconding="UTF-8"?>
+<!--
+=======================================================
+Build file for WordPress
+=======================================================
+-->
+<project basedir=".." default="all" name="WordPress for BlackBerry">
+    <!--
+    ========================================================================
+    Setting variable
+    ========================================================================
+    -->
+    <taskdef name="rapc"    classpath="build/bb-ant-tools-1.1.jar" classname="ca.slashdev.bb.tasks.RapcTask" />
+    <taskdef name="jadtool" classpath="build/bb-ant-tools-1.1.jar" classname="ca.slashdev.bb.tasks.JadtoolTask" />
+    <taskdef name="alx"     classpath="build/bb-ant-tools-1.1.jar" classname="ca.slashdev.bb.tasks.AlxTask" />
+
+    <target name="init">
+        <property file="build/build.properties" />
+        <property file="build/release.properties" />
+        
+        <condition property="debug" value="true" else="false">
+            <equals arg1="${build.type}" arg2="debug" trim="true" casesensitive="false"/>
+        </condition>
+        <condition property="nodebug" value="false" else="true">
+            <equals arg1="${build.type}" arg2="debug" trim="true" casesensitive="false"/>
+        </condition>
+        
+        <condition property="javac.debug" value="on" else="off">
+            <equals arg1="${debug}" arg2="true" trim="true" casesensitive="false"/>
+        </condition>
+        <property name="module.version" value="${release.major}.${release.minor}.${build.number}" />
+
+        <property name="platform"              value="os42" />
+        <property name="module.name"           value="WordPress_${platform}"/>
+        <property name="module.release.prefix" value="WordPress"/>
+                        
+        <property name="module.fullname"       value="WordPress for BlackBerry"/>
+        <property name="module.desc"           value="WordPress - Based BlackBerry Client"/>
+        <property name="module.company"        value="Automattic - Danais"/>
+
+        <property name="dir.src"          value="src"  />
+        <property name="dir.lib"           value="lib"  />
+        <property name="dir.docs"          value="docs" />
+        <property name="dir.build"         value="build" />
+
+        <property name="dir.output.base" value="c:/tmp/output" />
+
+        <property name="dir.output"      value="${dir.output.base}/${platform}" />
+        
+        <property name="dir.output.lib"           value="${dir.output}/lib" />
+        <property name="dir.output.lib.compile"   value="${dir.output.lib}/compile" />
+        <property name="dir.output.lib.jar"       value="${dir.output.lib}/jar" />
+        <property name="dir.output.lib.preverify" value="${dir.output.lib}/preverify" />
+        
+        <property name="dir.output.app"           value="${dir.output}/app" />
+        <property name="dir.output.app.compile"   value="${dir.output.app}/compile" />
+        <property name="dir.output.app.jar"       value="${dir.output.app}/jar" />
+        <property name="dir.output.app.preverify" value="${dir.output.app}/preverify" />
+        <property name="dir.output.rapc"          value="${dir.output}/rapc" />
+        <property name="dir.output.sign"          value="${dir.output}/sign" />
+        <property name="dir.output.release"       value="${dir.output}/release" />
+
+        <property name="dir.export"               value="c:/tmp/export" />
+
+        <property name="icon"                 value="application-icon.png" />
+        <property name="icon_rollover"        value="application-icon.png" /> <!-- set to ${icon} to disable rollover -->
+
+        <property name="jde.prj" value="wordpress_${platform}.jdp"/>
+
+    </target>
+    
+    <target name="clean-lib" depends="init">
+     <!--   <mkdir  dir="${dir.lib}"/>
+        <delete dir="${funambol.j2me.common.output}"/>  
+        <delete dir="${funambol.j2me.syncml.output}"/>  
+        <delete dir="${funambol.j2me.pim.output}"/>  
+        <delete>
+            <fileset  dir="${dir.lib}" >
+                <include name="*.jar"/>
+            </fileset>
+        </delete> -->
+    </target>
+   
+    <target name="clean" depends="clean-lib">
+        <delete dir="${dir.output}" />
+        <delete dir="${dir.export}" />
+        
+        <mkdir dir="${dir.output}"/>
+        
+        <mkdir dir="${dir.output.lib}"/>
+        <mkdir dir="${dir.output.lib.compile}"/>
+        <mkdir dir="${dir.output.lib.jar}"/>
+        <mkdir dir="${dir.output.lib.preverify}"/>
+        
+        <mkdir dir="${dir.output.app}"/>
+        <mkdir dir="${dir.output.app.compile}"/>
+        <mkdir dir="${dir.output.app.jar}"/>
+        <mkdir dir="${dir.output.app.preverify}"/>
+ 
+        <mkdir dir="${dir.output.rapc}"/>
+        <mkdir dir="${dir.output.sign}"/>
+        <mkdir dir="${dir.output.release}"/>
+        <mkdir dir="${dir.export}"/>
+    </target>
+
+   
+    <target name="jar" depends="init,clean">
+        
+        <javac
+            debug="${javac.debug}"
+            deprecation="true"
+            srcdir="${dir.src}"
+            destdir="${dir.output.app.compile}"
+            includeAntRuntime = "no"
+            source            = "1.3"
+            includes          = "**/*java"
+        >
+            <classpath>
+                <fileset dir="${dir.lib}">
+                    <include name="**/*.jar"/>
+                </fileset>
+                <fileset dir="${rim.home}/lib/">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+        
+        <jar destfile="${dir.output.app.jar}/${module.name}.jar">
+            <fileset dir="${dir.output.app.compile}">
+            </fileset>
+        </jar>
+        
+
+        <!--
+        <javac
+            debug="${javac.debug}"
+            deprecation="true"
+            srcdir="${dir.src.test.java}"
+            destdir="${dir.output.test.compile}"
+            includeAntRuntime = "no"
+            source            = "1.3"
+            includes          = "**/*java"
+            excludes          = "com/funambol/blackberry/unit/**/*"
+        >
+            <classpath>
+                <fileset dir="${dir.output.lib.jar}">
+                    <include name="**/*.jar"/>
+                </fileset>
+                <fileset dir="${dir.lib}">
+                    <include name="**/*.jar"/>
+                </fileset>
+                <fileset dir="${rim.home}/lib/">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+        
+        <jar destfile="${dir.output.test.jar}/${module.name}_test.jar"
+            basedir="${dir.output.test.compile}">
+        </jar>
+        -->
+                 
+       
+    </target>
+
+    <target name="preverify" depends="init,jar">
+
+    	<!-- echo message="Preverifying j2me library"/ -->
+               
+        <echo message="Preverifying ${module.name} code"/>
+        
+        <exec executable="${rim.home}/bin/preverify.exe"
+            failonerror="true"
+            >
+            <!-- ARG ORDER MATTERS -->
+            <arg value="-verbose"/>
+            <arg value="-nonative"/>
+            <arg value="-d"/>
+            <arg value="${dir.output.app.preverify}"/>
+            <arg value="-classpath"/>
+            <arg value="${rim.home}/lib/net_rim_api.jar"/>
+            <arg value="${dir.output.app.jar}/${module.name}.jar"/>
+        </exec>
+        
+      
+    </target>
+
+    <target name="rapc" depends="init,preverify">
+        <echo message="Compiling ${module.name} with rapc"/>
+
+        <copy tofile="${dir.output.rapc}/${icon}"
+              file="${basedir}/src/${icon}"/>
+        
+        <echo message="Common"/>
+              <rapc jdehome="${rim.home}" quiet="true"
+            srcdir="${dir.output.app.preverify}"
+            destdir="${dir.output.rapc}"
+            output="${module.name}"
+            verbose="false"
+            nodebug="${nodebug}">
+
+            <jdp
+                type="cldc"
+                vendor="${module.company}"
+                title="${module.fullname}"
+                description="${module.desc}"
+                ribbonposition="1"
+                systemmodule="false"
+                runonstartup="false"
+                arguments=""
+                version="${module.version}"
+                startuptier="7"
+                icon="${icon}"/>
+            <import>
+                <fileset dir="${dir.output.rapc}">
+                    <!-- include name="${module.name}_lib.jar"/ -->
+                </fileset>
+            </import>
+        </rapc>
+    </target>
+
+    <target name="simulator" depends="rapc">
+        <copy todir="${rim.home}${file.separator}simulator">
+            <fileset dir="${dir.output.rapc}">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="sign" depends="rapc">
+        <copy todir="${dir.output.sign}">
+            <fileset dir="${dir.output.rapc}">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+        
+        <echo message="Please sign the .cod file located at ${dir.output.sign}" />
+    
+        <java jar="${rim.home}/bin/SignatureTool.jar" failonerror="false" fork="true">
+            <arg value="-a"/>
+            <!-- pwd_option <arg value="-p"/> -->
+            <!-- pwd_value  <arg value="${bb.sigtool.password}"/> -->
+            <arg value="-C"/>
+            <arg file="${dir.output.sign}/${module.name}.cod"/>
+        </java>
+        <exec executable="${rim.home}/bin/UpdateJad.exe" dir="${dir.output.sign}" failonerror="true">
+            <arg value="${module.name}.jad" />
+        </exec>
+
+    </target>
+
+    <target name="jad">
+         <propertyfile file="build/release.properties">
+            <entry key="build.date" type="date" value="now" pattern="yyyyMMdd"/>
+        </propertyfile>
+
+        <copy todir="${dir.output.release}">
+            <fileset dir="${dir.output.sign}">
+                <include name="**/*"/>
+                <exclude name="*.debug"/>
+            </fileset>
+        </copy>
+        <copy todir="${dir.output.release}/docs">
+            <fileset dir="${dir.docs}">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+
+        <jadtool input="${dir.output.sign}/${module.name}.jad"
+                 destdir="${dir.output.release}/ota">
+            <fileset dir="${dir.output.sign}" includes="*.cod" />
+        </jadtool>
+    </target>
+
+    <target name="alx" depends="init">
+        <alx destdir="${dir.output.release}/alx" filename="${module.name}.alx">
+            <application id="com.wordpress.bb.${module.name}" name="${module.fullname}"
+                         description="${module.desc}"
+                         version="${module.version}"
+                         vendor="${module.company}">
+
+                <codset>
+                    <fileset dir="${dir.output.release}/ota" includes="*.cod" />
+                </codset>
+            </application>
+        </alx>
+
+        <zip zipfile="${dir.output.release}/alx/${module.name}-${module.version}.zip">
+            <zipfileset dir="${dir.output.release}/alx" includes="*.cod, *.alx" />
+        </zip>
+    </target>
+
+    <target name="release" depends="init,sign,jad,alx">
+
+        <zip zipfile="${dir.output.release}/ota/${module.name}-${module.version}.zip">
+            <zipfileset dir="${dir.output.release}/ota" includes="*.jad, *.cod, *.alx" />
+        </zip>
+
+    </target>
+
+    <target name="package" depends="init,release,export">
+        <mkdir dir="${dir.output.release}/${module.release.prefix}"/>
+        <copy todir="${dir.output.release}/${module.release.prefix}">
+            <fileset dir="${dir.output.release}">
+                <exclude name="${module.release.prefix}" />
+                <exclude name="ota//" />
+            </fileset>
+        </copy>
+        <zip destfile="${dir.output.release}/${module.name}-${module.version}.zip">
+            <fileset dir="${dir.output.release}/${module.release.prefix}" />
+        </zip>
+        <delete dir="${dir.output.release}/${module.release.prefix}" />
+        <copy todir="${dir.output.release}">
+            <fileset dir="${dir.export}">
+                <include name="*.zip" />
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="all" depends="release,export" />
+
+    <target name="export" depends="clean">
+        
+        <copy todir="${dir.export}/${dir.src}" preservelastmodified="true">
+            <fileset dir="${dir.src}/"/>
+        </copy>
+
+
+        <copy todir="${dir.export}/${dir.lib}" preservelastmodified="true">
+            <fileset dir="${dir.lib}/"/>
+        </copy>
+
+        <copy todir="${dir.export}/${dir.docs}" preservelastmodified="true">
+             <fileset dir="${dir.docs}/"/>
+        </copy>
+
+        <copy todir="${dir.export}/${dir.build}" preservelastmodified="true">
+                    <fileset dir="${dir.build}/"/>
+        </copy>
+
+        <zip destfile="${dir.export}/${module.name}-src-${module.version}.zip">
+            <zipfileset dir="${dir.export}" prefix="${module.release.prefix}"/>
+        </zip>
+    </target>
+    
+    <!--  Deploy the app ta a remote ssh location -->
+    <target name="deploy" depends="init">
+        
+        <property name="deploy.url" value="${deploy.host}:${deploy.remotePath}/${platform}" />
+        <echo message="Deploying application to ${deploy.path}/${platform}..." />
+        
+        <!-- Replace the cod files path -->
+        <replaceregexp byline="true">
+            <regexp pattern="RIM-COD-URL(.*) ${module.name}"/>
+            <substitution expression="RIM-COD-URL\1 ${deploy.path}/${platform}/${module.name}"/>
+            <fileset dir="${dir.output.release}/ota">
+                <include name="*.jad"/>
+            </fileset>
+        </replaceregexp>
+        
+        <!-- Get the password -->
+        <input message="Please enter the remote server password for ${deploy.username}: " 
+               addproperty="deploy.password" />
+        
+        <!-- Create the remote folder -->
+        <sshexec host="${deploy.host}"
+            	 username="${deploy.username}"
+            	 password="${deploy.password}"
+            	 command="mkdir -p ${deploy.remotePath}/${platform}" 
+                 port="${deploy.host.port}"
+                 trust="true"/>
+        
+        <!-- Copy the application files (cod&jad) -->
+        <scp todir="${deploy.username}:${deploy.password}@${deploy.url}" 
+             port="${deploy.host.port}" trust="true">
+            <fileset dir="${dir.output.release}/ota">
+                <include name="*.cod"/>
+                <include name="*.jad"/>
+            </fileset>
+        </scp>
+    </target>
+
+    <target name="test" depends="init, jar">
+        <ant antfile="build/build_utest.xml"     target="build_test">
+        </ant>
+    </target>
+
+    <target name="jde" depends="init">
+
+        <fileset dir="${dir.src.java}" casesensitive="yes" id="src.files">
+            <include name="**/*.java"/>
+        </fileset>
+        <pathconvert property="javafiles" pathsep=";"
+                     refid="src.files"/>
+        <echo message="${javafiles}" file="srcfilelist"/>
+
+        <pathconvert property="pjavafiles" pathsep=";" refid="pdsrc.files"/>
+        <echo message="${line.separator}" file="srcfilelist" append="true"/>
+        <echo message="${pjavafiles}" file="srcfilelist" append="true"/>
+
+
+        <replace file="srcfilelist"
+                 token=";"
+                 value="${line.separator}"/>
+
+        <replace file="srcfilelist"
+                 token="${basedir}${file.separator}"
+                 value=""/>
+                 
+        <echo message="## RIM Java Development Environment" append="false" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="# RIM Project file" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="AddOn=0" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="AlwaysBuild=0" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="[AlxImports" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="]" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="AutoRestart=0" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="[ClassProtection" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="]" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="[CustomBuildFiles" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="]" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="[CustomBuildRules" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="]" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="[DefFiles" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="]" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="[DependsOn" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="]" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="ExcludeFromBuildAll=0" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="[Files" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <concat destfile="${jde.prj}" append="true">
+            <file file="srcfilelist"/>
+        </concat>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <echo message="]" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <echo message="HaveAlxImports=0" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <echo message="HaveDefs=0" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <echo message="HaveImports=0" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <echo message="[Icons" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="]" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <echo message="[ImplicitRules" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="]" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <echo message="[Imports" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="]" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <echo message="Listing=0" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <echo message="Options=-quiet" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <echo message="OutputFileName=BBSyncClient" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <echo message="[PackageProtection" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+        <echo message="]" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <echo message="RibbonPosition=0" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <echo message="RunOnStartup=1" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <echo message="StartupTier=1" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <echo message="SystemModule=0" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+
+        <echo message="Type=0" append="true" file="${jde.prj}"/>
+        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
+    </target>
+
+</project>
+

@@ -9,8 +9,17 @@ public class Preferences {
 	private String photoEncoding=""; //jpg, png, ecc
     private String audioEncoding="";
     private String videoEncoding="";
+    
     private boolean isUserConnectionOptionsEnabled = false;
-    private String username;
+    private boolean isUserConnectionWap = false; //flag that indicate that user connetion is wap type
+    
+    private boolean isWiFiConnectionPermitted = true;
+    private boolean isTcpConnectionPermitted = true;
+    private boolean isBESConnectionPermitted = true;
+    private boolean isServiceBookConnectionPermitted = true;
+    private boolean isWapConnectionPermitted = true;
+
+	private String username;
     private String password;
     private String gateway;
     private String apn;
@@ -32,6 +41,56 @@ public class Preferences {
 		sourcePort = ConnectionUtils.WAP_DEFAULT_SOURCEPORT;
 	}
     
+	
+	public boolean isUserConnectionWap() {
+		return isUserConnectionWap;
+	}
+	
+	public boolean isWiFiConnectionPermitted() {
+		return isWiFiConnectionPermitted;
+	}
+
+	public boolean isTcpConnectionPermitted() {
+		return isTcpConnectionPermitted;
+	}
+
+	public boolean isBESConnectionPermitted() {
+		return isBESConnectionPermitted;
+	}
+
+	public boolean isServiceBookConnectionPermitted() {
+		return isServiceBookConnectionPermitted;
+	}
+
+	public void setWiFiConnectionPermitted(boolean isWiFiConnectionPermitted) {
+		this.isWiFiConnectionPermitted = isWiFiConnectionPermitted;
+	}
+
+	public void setTcpConnectionPermitted(boolean isTcpConnectionPermitted) {
+		this.isTcpConnectionPermitted = isTcpConnectionPermitted;
+	}
+
+	public void setBESConnectionPermitted(boolean isBESConnectionPermitted) {
+		this.isBESConnectionPermitted = isBESConnectionPermitted;
+	}
+
+	public void setServiceBookConnectionPermitted(
+			boolean isServiceBookConnectionPermitted) {
+		this.isServiceBookConnectionPermitted = isServiceBookConnectionPermitted;
+	}
+
+	public boolean isWapConnectionPermitted() {
+		return isWapConnectionPermitted;
+	}
+
+	public void setWapConnectionPermitted(boolean isWapConnectionPermitted) {
+		this.isWapConnectionPermitted = isWapConnectionPermitted;
+	}
+
+	public void setUserConnectionWap(boolean isUserConnectionWap) {
+		this.isUserConnectionWap = isUserConnectionWap;
+	}
+	
 	public String getGateway() {
 		return gateway;
 	}

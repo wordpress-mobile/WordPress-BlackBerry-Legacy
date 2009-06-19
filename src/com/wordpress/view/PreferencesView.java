@@ -46,7 +46,13 @@ public class PreferencesView extends BaseView {
     private EditField _apn;
     private EditField _sourceIP;
     private EditField _sourcePort;
-	private CheckboxField userWapOptionsField;
+	private CheckboxField userConnectionEnabledField;
+	private CheckboxField userConnectionWapTypeField;
+	private CheckboxField _userAllowWap;
+	private CheckboxField _userAllowWiFi;
+	private CheckboxField _userAllowTCP;
+	private CheckboxField _userAllowWAP2;
+	private CheckboxField _userAllowBES;
 
 	
 	 public PreferencesView(PreferenceController _preferencesController) {
@@ -55,8 +61,8 @@ public class PreferencesView extends BaseView {
 	    	
             addMultimediaOption();
             add(new SeparatorField());
-            userWapOptionsField=new CheckboxField(_resources.getString(WordPressResource.WAPOPTIONSSCREEN_LABEL_ENABLED), mPrefs.isUserConnectionOptionsEnabled());
-			add(userWapOptionsField);
+            addConnectionOptionsFields();
+            add(new SeparatorField());
             addWapOptionsFields();           
             
             ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
@@ -80,12 +86,43 @@ public class PreferencesView extends BaseView {
 
     		addMenuItem(_saveItem);
 	 }
-	      
+
+	 private void addConnectionOptionsFields(){
+
+         //row allow description
+         LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_DESC)); 
+		 Font fnt = this.getFont().derive(Font.ITALIC);
+		 lblDescReset.setFont(fnt);
+		 add(lblDescReset);
+
+		 _userAllowWiFi=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_WIFI), mPrefs.isWiFiConnectionPermitted());
+		 add(_userAllowWiFi);
+		 _userAllowTCP=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_TCP), mPrefs.isTcpConnectionPermitted());
+		 add(_userAllowTCP);
+		 _userAllowWap=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_WAP), mPrefs.isWapConnectionPermitted());
+		 add(_userAllowWap);
+		 _userAllowWAP2=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_WAP2), mPrefs.isServiceBookConnectionPermitted());
+		 add(_userAllowWAP2);
+		 _userAllowBES=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_BES), mPrefs.isBESConnectionPermitted());
+		 add(_userAllowBES);
+	 }
+
+	 
+	 
 	 private void addWapOptionsFields(){
 
+	      //row allow description
+         LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_USERDEFINEDCONN_DESC)); 
+		 Font fnt = this.getFont().derive(Font.ITALIC);
+		 lblDescReset.setFont(fnt);
+		 add(lblDescReset);
+		 
+		 userConnectionEnabledField=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_ENABLED), mPrefs.isUserConnectionOptionsEnabled());
+         add(userConnectionEnabledField);
+		 
          //row _apn
          HorizontalFieldManager rowAPN = new HorizontalFieldManager();
-         rowAPN.add( getLabel(_resources.getString(WordPressResource.WAPOPTIONSSCREEN_LABEL_APN)) ); 
+         rowAPN.add( getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_APN)) ); 
          _apn = new EditField("", mPrefs.getApn());
          _apn.setMargin(margins);
          rowAPN.add(_apn);
@@ -106,10 +143,14 @@ public class PreferencesView extends BaseView {
          _password.setMargin(margins);
          rowPass.add(_password);
          add(rowPass);
-		 
+
+         //row is wap connection?
+         userConnectionWapTypeField=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_ISWAP), mPrefs.isUserConnectionWap());
+         add(userConnectionWapTypeField);
+         
          //row _gateway IP
          HorizontalFieldManager rowGTW = new HorizontalFieldManager();
-         rowGTW.add( getLabel(_resources.getString(WordPressResource.WAPOPTIONSSCREEN_LABEL_GWAY)) ); 
+         rowGTW.add( getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_GWAY)) ); 
          _gateway = new EditField("", mPrefs.getGateway(), 100, Field.EDITABLE);
          _gateway.setFilter(new URLTextFilter());
          _gateway.setMargin(margins);
@@ -118,7 +159,7 @@ public class PreferencesView extends BaseView {
          
          //row _gatewayPort
          HorizontalFieldManager rowGTWport = new HorizontalFieldManager();
-         rowGTWport.add( getLabel(_resources.getString(WordPressResource.WAPOPTIONSSCREEN_LABEL_GWAYPORT)) ); 
+         rowGTWport.add( getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_GWAYPORT)) ); 
          _gatewayPort = new EditField("", mPrefs.getGatewayPort(), EditField.DEFAULT_MAXCHARS, EditField.FILTER_INTEGER);
          _gatewayPort.setMargin(margins);
          rowGTWport.add(_gatewayPort);
@@ -126,7 +167,7 @@ public class PreferencesView extends BaseView {
          
          //row _sourcePort
          HorizontalFieldManager rowSourcePort = new HorizontalFieldManager();
-         rowSourcePort.add( getLabel(_resources.getString(WordPressResource.WAPOPTIONSSCREEN_LABEL_SRCPORT)) ); 
+         rowSourcePort.add( getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_SRCPORT)) ); 
          _sourcePort = new EditField("", mPrefs.getSourcePort(), EditField.DEFAULT_MAXCHARS, EditField.FILTER_INTEGER);
          _sourcePort.setMargin(margins);
          rowSourcePort.add(_sourcePort);
@@ -134,7 +175,7 @@ public class PreferencesView extends BaseView {
          
          //row _sourceIP
          HorizontalFieldManager rowSourceIP = new HorizontalFieldManager();
-         rowSourceIP.add( getLabel(_resources.getString(WordPressResource.WAPOPTIONSSCREEN_LABEL_SRCIP)) ); 
+         rowSourceIP.add( getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_SRCIP)) ); 
          _sourceIP = new EditField("", mPrefs.getSourceIP());
          _sourceIP.setMargin(margins);
          rowSourceIP.add(_sourceIP);
@@ -267,8 +308,13 @@ public class PreferencesView extends BaseView {
 		 */
 		private boolean isUIChanged(){
 			boolean stateChanged = false;
+			
+			if(isDirty()){
+				 stateChanged = true;
+			}
 
-			if(audioGroup != null){
+			
+		/*	if(audioGroup != null){
 				if(audioGroup.isDirty()) {
 					stateChanged = true;
 	        	}
@@ -283,11 +329,21 @@ public class PreferencesView extends BaseView {
 					stateChanged = true;
         		}
 			}
-			if(_username.isDirty() || _password.isDirty() || userWapOptionsField.isDirty()
+			if(_username.isDirty() || _password.isDirty() || userConnectionEnabledField.isDirty()
 					|| _gateway.isDirty() ||  _gatewayPort.isDirty() || _apn.isDirty()
-					|| _sourceIP.isDirty() || _sourcePort.isDirty()) {
+					|| _sourceIP.isDirty() || _sourcePort.isDirty() 
+					|| userConnectionWapTypeField.isDirty()
+					|| _userAllowWap.isDirty() 
+					|| _userAllowWiFi.isDirty()
+					|| _userAllowTCP.isDirty()
+					|| _userAllowWAP2.isDirty()
+					|| _userAllowBES.isDirty()
+			) {
 				 stateChanged = true;
 			}
+			
+			*/
+			
 			return stateChanged;
 		}
 		
@@ -323,8 +379,8 @@ public class PreferencesView extends BaseView {
 	        	}
 			}
 			
-			if(userWapOptionsField.isDirty()) {
-				mPrefs.setUserConnectionOptionsEnabled(userWapOptionsField.getChecked());
+			if(userConnectionEnabledField.isDirty()) {
+				mPrefs.setUserConnectionOptionsEnabled(userConnectionEnabledField.getChecked());
 			}
 			
 			if(_username.isDirty()) {
@@ -371,6 +427,15 @@ public class PreferencesView extends BaseView {
 				else
 				 mPrefs.setSourcePort(_sourcePort.getText().trim());
 			}
+			
+			mPrefs.setUserConnectionWap(userConnectionWapTypeField.getChecked());
+			mPrefs.setTcpConnectionPermitted(_userAllowTCP.getChecked());
+			mPrefs.setBESConnectionPermitted(_userAllowBES.getChecked());
+			mPrefs.setServiceBookConnectionPermitted(_userAllowWAP2.getChecked());
+			mPrefs.setWiFiConnectionPermitted(_userAllowWiFi.getChecked());
+			mPrefs.setWapConnectionPermitted(_userAllowWap.getChecked());
+			
+			
 			setDirty(false);
 		}
     

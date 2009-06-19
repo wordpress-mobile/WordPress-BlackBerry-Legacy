@@ -6,25 +6,14 @@ Introduction
 
 This source distribution allows you to modify and build WordPress for BlackBerry yourself.
 If you just want to install and use WordPress for BlackBerry, you probably don't want
-this distribution, but want to install the pre-built version available
-from the WordPress website:
+this distribution, but want to install the pre-built version available from the WordPress website:
 
   http://blackberry.wordpress.org
 
-Please see the MoPress website for up-to-date information on the project.
+You can get all info to build the app in the how_to_build.txt file.
 
-
-Building WordPress for BB
--------------------------
-
- a) Sun WTK must be installed, set WTK_HOME, e.g. WTK_HOME=C:\WTK2.5.1
-    Download Link: http://java.sun.com/products/sjwtoolkit/
-
- b) Eclipse 3.4.X
+Please see the WordPress for BlackBerry website for up-to-date information on the project.
  
- c) BlackBerry JDE Plug.in for Eclipse v1.0
- 
- d) BlackBerry JDE ComponentPackage v4.2
  
  
 License information.
@@ -46,7 +35,6 @@ License information.
 
 See the file "LICENSE.txt" for the full text of the GNU General Public License.
 
-
 WordPress for BlackBerry uses a modified version of kXML-RPC <http://sourceforge.net/projects/kxmlrpc/>,
 which in turn uses the kXML parser <http://sourceforge.net/projects/kxml/>. These two
 products are licensed under licensed under the GNU Library or Lesser General Public License (LGPL).
@@ -59,4 +47,5 @@ Please use the forums for bug reports, feature requests or questions about
 
 
 The WordPress for BlackBerry Team consists of:
+Danilo Ercoli - dercoli@danais.it, ercoli@gmail.com
 

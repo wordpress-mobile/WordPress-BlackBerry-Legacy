@@ -97,7 +97,13 @@ public class AppDAO implements BaseDAO{
 		    String gatewayPort = (String) ser.deserialize();
 		    String sourceIP = (String) ser.deserialize();
 		    String sourcePort = (String) ser.deserialize();
-		    Boolean isUserOptionsEnabled =  (Boolean) ser.deserialize();
+		    Boolean isUserConnectionOptionsEnabled = (Boolean) ser.deserialize();
+		    Boolean isUserConnectionWap = (Boolean) ser.deserialize();
+		    Boolean isWiFiConnectionPermitted = (Boolean) ser.deserialize();
+		    Boolean isTcpConnectionPermitted = (Boolean) ser.deserialize();
+		    Boolean isBESConnectionPermitted = (Boolean) ser.deserialize();
+		    Boolean isServiceBookConnectionPermitted = (Boolean) ser.deserialize();
+		    Boolean isWapConnectionPermitted = (Boolean) ser.deserialize();
 		    String userName = (String) ser.deserialize();
 		    String userPass = (String) ser.deserialize();
 			
@@ -109,7 +115,15 @@ public class AppDAO implements BaseDAO{
 			pref.setApn(apn);
 			pref.setSourceIP(sourceIP);
 			pref.setSourcePort(sourcePort);
-			pref.setUserConnectionOptionsEnabled(isUserOptionsEnabled.booleanValue());
+			pref.setUserConnectionOptionsEnabled(isUserConnectionOptionsEnabled.booleanValue());
+			pref.setUserConnectionWap(isUserConnectionWap.booleanValue());
+			pref.setWiFiConnectionPermitted(isWiFiConnectionPermitted.booleanValue());
+			pref.setTcpConnectionPermitted(isTcpConnectionPermitted.booleanValue());
+			pref.setWapConnectionPermitted(isWapConnectionPermitted.booleanValue());
+			pref.setBESConnectionPermitted(isBESConnectionPermitted.booleanValue());
+			pref.setServiceBookConnectionPermitted(isServiceBookConnectionPermitted.booleanValue());
+				
+			
 			pref.setUsername(userName);
 			pref.setPassword(userPass);
 			
@@ -132,9 +146,16 @@ public class AppDAO implements BaseDAO{
 		    String gatewayPort = pref.getGatewayPort();
 		    String sourceIP = pref.getSourceIP();
 		    String sourcePort = pref.getSourcePort();
-		    Boolean isUserOptionsEnabled = new Boolean(pref.isUserConnectionOptionsEnabled());
-		    String userName = pref.getUsername();
+		    Boolean isUserConnectionOptionsEnabled = new Boolean(pref.isUserConnectionOptionsEnabled());
+		    Boolean isUserConnectionWap = new Boolean(pref.isUserConnectionWap());
+		    Boolean isWiFiConnectionPermitted =new Boolean(pref.isWiFiConnectionPermitted());
+		    Boolean isTcpConnectionPermitted = new Boolean(pref.isTcpConnectionPermitted());
+		    Boolean isBESConnectionPermitted = new Boolean(pref.isBESConnectionPermitted());
+		    Boolean isServiceBookConnectionPermitted = new Boolean(pref.isServiceBookConnectionPermitted());
+		    Boolean isWapConnectionPermitted = new Boolean(pref.isWapConnectionPermitted());
 		    String userPass = pref.getPassword();
+		    String userName = pref.getUsername();
+		    
 		    
 			Serializer ser= new Serializer(out);
 	    	ser.serialize(videoEncoding);
@@ -145,7 +166,13 @@ public class AppDAO implements BaseDAO{
 	    	ser.serialize(gatewayPort);
 	    	ser.serialize(sourceIP);
 	    	ser.serialize(sourcePort);
-	    	ser.serialize(isUserOptionsEnabled);
+	    	ser.serialize(isUserConnectionOptionsEnabled);
+	    	ser.serialize(isUserConnectionWap);
+	    	ser.serialize(isWiFiConnectionPermitted);
+	    	ser.serialize(isTcpConnectionPermitted);
+	    	ser.serialize(isBESConnectionPermitted);
+	    	ser.serialize(isServiceBookConnectionPermitted);
+	    	ser.serialize(isWapConnectionPermitted);
 	    	ser.serialize(userName);
 	    	ser.serialize(userPass);
 	    	

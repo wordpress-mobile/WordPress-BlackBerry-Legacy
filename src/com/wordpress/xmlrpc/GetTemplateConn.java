@@ -11,7 +11,6 @@ import com.wordpress.utils.conn.ConnectionManager;
 
 public class GetTemplateConn extends BlogConn  {
 
-
 	public GetTemplateConn(String url){
 		super(url, "", "");
 	}
