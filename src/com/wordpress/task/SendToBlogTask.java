@@ -128,7 +128,7 @@ public class SendToBlogTask extends TaskImpl {
 				if( post != null ) {
 				
 					//adding multimedia info to post
-					String body = BlogObjectController.buildBodyHtmlFragment(post.getBody());
+					String body = post.getBody();
 					body+= htmlPhotosFragment;
 					post.setBody(body);
 					
@@ -140,7 +140,7 @@ public class SendToBlogTask extends TaskImpl {
 				} else {
 					
 					//adding multimedia info to post
-					String body = BlogObjectController.buildBodyHtmlFragment(page.getDescription()) ;
+					String body = page.getDescription() ;
 					body+= htmlPhotosFragment;
 					page.setDescription(body);
 					

@@ -258,19 +258,27 @@ public abstract class BlogObjectController extends BaseController {
 	
 	
 	/**
-	 * Build the html fragment for the body
+	 * Build the html fragment for the body preview
 	 * @param body  original body text field content
 	 * @return
 	 */
 	public static synchronized String buildBodyHtmlFragment(String originalContent) {
-		String[] split = StringUtils.split(originalContent, Characters.ENTER);
+		String[] split = StringUtils.split(originalContent, "\n\n");
 		StringBuffer newContentBuff = new StringBuffer();
 		for (int i = 0; i < split.length; i++) {
 			newContentBuff.append("<p>");
 			newContentBuff.append(split[i]);
 			newContentBuff.append("</p>");
 		}
+		
+		split = StringUtils.split(newContentBuff.toString(), "\n");
+		newContentBuff = new StringBuffer();
+		for (int i = 0; i < split.length; i++) {
+			newContentBuff.append("<br/>");
+			newContentBuff.append(split[i]);
+		}
 		return newContentBuff.toString();
+		//return originalContent;
 	}
 	
 	/**

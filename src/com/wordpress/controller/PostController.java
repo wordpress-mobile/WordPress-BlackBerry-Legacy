@@ -458,7 +458,7 @@ public class PostController extends BlogObjectController {
 			if(selectedCategories != null) {
 				for (int j = 0; j < selectedCategories.length; j++) {
 					if(selectedCategories[j] == Integer.parseInt(category.getId()) ){
-						if(i != 0) //append the separator between cat label
+						if(j != 0) //append the separator between cat label
 							categoriesLabel.append(", ");
 						categoriesLabel.append( category.getLabel());
 						break;
