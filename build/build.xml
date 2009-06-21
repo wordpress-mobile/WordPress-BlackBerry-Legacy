@@ -28,8 +28,6 @@
         <echo message=" release              --> "/>
         <echo message=" all                  --> Equivalent to build"/>
         <echo message=" test                 --> Build test midlet (requires antenna)"/>
-        <echo message=" simulatorOS42        --> Install the application into the simulator dir"/>
-        <echo message=" simulatorOS47        --> Install the application into the simulator dir"/>
         <echo message=" jdeOS42              --> Build a JDP project file for debugging the app within RIM JDE (OS 4.2 version)"/>
         <echo message=" jdeOS47              --> Build a JDP project file for debugging the app within RIM JDE (OS 4.7 version)"/>
         <echo message=" deployOS42           --> Deploy the OS 4.2 version to a remote ssh location"/>
@@ -86,20 +84,6 @@
         </ant>
     </target>
 
-    <target name="simulatorOS42" depends="init">
-        <ant antfile="build/build_single.xml" target="simulator">
-            <property name="platform"         value="os42"/>
-            <property name="rim.home"         value="${rim.home.os47}"/>
-        </ant>
-    </target>
-
-    <target name="simulatorOS47" depends="init">
-        <ant antfile="build/build_single.xml" target="simulator">
-            <property name="platform"         value="os47"/>
-            <property name="rim.home"         value="${rim.home.os47}"/>
-        </ant>
-    </target>
-
     <target name="jdeOS42" depends="init">
         <ant antfile="build/build_single.xml" target="jde">
             <property name="platform"         value="os42"/>
@@ -129,17 +113,9 @@
         </ant>
     </target>
 
-    <target name="test" depends="init">
-        <ant antfile="build/build_utest.xml" target="build_test">
-        <property name="platform"         value="os42"/>
-        <property name="rim.home"         value="${rim.home.os42}"/>
-        </ant>
-    </target>
-    
     <target name="clean"  depends="cleanOS42, cleanOS47" />
     <target name="build"  depends="buildOS42, buildOS47" />
     <target name="deploy" depends="deployOS42, deployOS47" />
-
     <target name="all" depends="build" />
 
 </project>

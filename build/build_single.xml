@@ -69,19 +69,8 @@ Build file for WordPress
 
     </target>
     
-    <target name="clean-lib" depends="init">
-     <!--   <mkdir  dir="${dir.lib}"/>
-        <delete dir="${funambol.j2me.common.output}"/>  
-        <delete dir="${funambol.j2me.syncml.output}"/>  
-        <delete dir="${funambol.j2me.pim.output}"/>  
-        <delete>
-            <fileset  dir="${dir.lib}" >
-                <include name="*.jar"/>
-            </fileset>
-        </delete> -->
-    </target>
-   
-    <target name="clean" depends="clean-lib">
+    
+    <target name="clean" depends="init">
         <delete dir="${dir.output}" />
         <delete dir="${dir.export}" />
         
@@ -103,100 +92,22 @@ Build file for WordPress
         <mkdir dir="${dir.export}"/>
     </target>
 
+  
+
+
+    <target name="rapc" depends="init">
    
-    <target name="jar" depends="init,clean">
-        
-        <javac
-            debug="${javac.debug}"
-            deprecation="true"
-            srcdir="${dir.src}"
-            destdir="${dir.output.app.compile}"
-            includeAntRuntime = "no"
-            source            = "1.3"
-            includes          = "**/*java"
-        >
-            <classpath>
-                <fileset dir="${dir.lib}">
-                    <include name="**/*.jar"/>
-                </fileset>
-                <fileset dir="${rim.home}/lib/">
-                    <include name="**/*.jar"/>
-                </fileset>
-            </classpath>
-        </javac>
-        
-        <jar destfile="${dir.output.app.jar}/${module.name}.jar">
-            <fileset dir="${dir.output.app.compile}">
-            </fileset>
-        </jar>
-        
-
-        <!--
-        <javac
-            debug="${javac.debug}"
-            deprecation="true"
-            srcdir="${dir.src.test.java}"
-            destdir="${dir.output.test.compile}"
-            includeAntRuntime = "no"
-            source            = "1.3"
-            includes          = "**/*java"
-            excludes          = "com/funambol/blackberry/unit/**/*"
-        >
-            <classpath>
-                <fileset dir="${dir.output.lib.jar}">
-                    <include name="**/*.jar"/>
-                </fileset>
-                <fileset dir="${dir.lib}">
-                    <include name="**/*.jar"/>
-                </fileset>
-                <fileset dir="${rim.home}/lib/">
-                    <include name="**/*.jar"/>
-                </fileset>
-            </classpath>
-        </javac>
-        
-        <jar destfile="${dir.output.test.jar}/${module.name}_test.jar"
-            basedir="${dir.output.test.compile}">
-        </jar>
-        -->
-                 
-       
-    </target>
-
-    <target name="preverify" depends="init,jar">
-
-    	<!-- echo message="Preverifying j2me library"/ -->
-               
-        <echo message="Preverifying ${module.name} code"/>
-        
-        <exec executable="${rim.home}/bin/preverify.exe"
-            failonerror="true"
-            >
-            <!-- ARG ORDER MATTERS -->
-            <arg value="-verbose"/>
-            <arg value="-nonative"/>
-            <arg value="-d"/>
-            <arg value="${dir.output.app.preverify}"/>
-            <arg value="-classpath"/>
-            <arg value="${rim.home}/lib/net_rim_api.jar"/>
-            <arg value="${dir.output.app.jar}/${module.name}.jar"/>
-        </exec>
-        
-      
-    </target>
-
-    <target name="rapc" depends="init,preverify">
-        <echo message="Compiling ${module.name} with rapc"/>
+    	<echo message="Compiling ${module.name} with rapc"/>
 
         <copy tofile="${dir.output.rapc}/${icon}"
               file="${basedir}/src/${icon}"/>
-        
-        <echo message="Common"/>
-              <rapc jdehome="${rim.home}" quiet="true"
-            srcdir="${dir.output.app.preverify}"
+    	
+        <rapc jdehome="${rim.home}" quiet="true"
+            srcdir="${dir.src}"
+        	import = "${dir.lib}/kxml2-2.3.0.jar"
             destdir="${dir.output.rapc}"
             output="${module.name}"
-            verbose="false"
+            verbose="true"
             nodebug="${nodebug}">
 
             <jdp
@@ -212,20 +123,13 @@ Build file for WordPress
                 startuptier="7"
                 icon="${icon}"/>
             <import>
-                <fileset dir="${dir.output.rapc}">
-                    <!-- include name="${module.name}_lib.jar"/ -->
-                </fileset>
+            	<fileset dir="${rim.home}/lib/">
+            	                    <include name="**/*.jar"/>
+ 	                </fileset>
             </import>
         </rapc>
     </target>
 
-    <target name="simulator" depends="rapc">
-        <copy todir="${rim.home}${file.separator}simulator">
-            <fileset dir="${dir.output.rapc}">
-                <include name="**/*"/>
-            </fileset>
-        </copy>
-    </target>
 
     <target name="sign" depends="rapc">
         <copy todir="${dir.output.sign}">
@@ -380,10 +284,6 @@ Build file for WordPress
         </scp>
     </target>
 
-    <target name="test" depends="init, jar">
-        <ant antfile="build/build_utest.xml"     target="build_test">
-        </ant>
-    </target>
 
     <target name="jde" depends="init">
 
