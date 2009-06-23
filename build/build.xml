@@ -69,7 +69,7 @@
     <target name="release" depends="releaseOS42, releaseOS47">
     </target>
 
-    <target name="releaseOS42" depends="init">
+    <target name="releaseOS42" depends="init, cleanOS42">
         <ant antfile="build/build_single.xml" target="release">
             <property name="platform"         value="os42"/>
             <property name="module.name"      value="WordPress"/>
@@ -114,8 +114,10 @@
     </target>
 
     <target name="clean"  depends="cleanOS42, cleanOS47" />
-    <target name="build"  depends="buildOS42, buildOS47" />
-    <target name="deploy" depends="deployOS42, deployOS47" />
-    <target name="all" depends="build" />
+    <!-- target name="build"  depends="buildOS42, buildOS47" / -->
+	<target name="build"  depends="buildOS42" />
+	<target name="deploy" depends="deployOS42, deployOS47" />
+
+	<target name="all" depends="clean, build" />
 
 </project>

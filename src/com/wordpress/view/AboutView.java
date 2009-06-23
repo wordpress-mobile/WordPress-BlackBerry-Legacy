@@ -9,7 +9,6 @@ import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
-import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
@@ -27,10 +26,16 @@ public class AboutView extends BaseView {
     	
 		//Bitmap _bitmap = Bitmap.getBitmapResource("application-icon.png");
         Bitmap _bitmap = PropertyUtils.getAppIcon();
-    	
-        
     	String name = PropertyUtils.getAppName();
-        String version = PropertyUtils.getAppVersion();
+        
+    	String version = PropertyUtils.getAppVersion(); //read from the alx files
+        if(version == null || version.trim().equals("")) { //read value from jad file
+        	//MIDlet-Version
+        	version = PropertyUtils.getIstance().get("MIDlet-Version");
+        	if(version == null)
+        		version = "";
+        }
+        
     	HorizontalFieldManager row= new HorizontalFieldManager(Manager.VERTICAL_SCROLL);
     	VerticalFieldManager col1= new VerticalFieldManager();
     	VerticalFieldManager col2= new VerticalFieldManager(Manager.VERTICAL_SCROLL);
@@ -45,14 +50,14 @@ public class AboutView extends BaseView {
     	titleField.setFont(fnt);
 		col2.add(titleField);
     	
-    	col2.add(new LabelField("version 1.0"));
+    	col2.add(new LabelField("version "+version));
     	col2.add(new LabelField("",Field.FOCUSABLE));
-    	col2.add(new LabelField("An Open Source BlackBerry app for Wordpress blogs."));
+    	col2.add(new LabelField("An Open Source BlackBerry app for Wordpress sites."));
     	col2.add(new LabelField());
-    	col2.add(new LabelField("Designed by Automattic in XXX. Developed by Danais and the WordPress Community"));
+    	col2.add(new LabelField("Designed by Automattic & developed by Danais."));
     	col2.add(new LabelField());
-    	col2.add(new LabelField("For more information or to contribute to the project, visit out web site at"));
-    	LabelField urlAddr = new LabelField("blackberry.wordpress.com")
+    	col2.add(new LabelField("For more information or to contribute to the project, visit our web site at"));
+    	LabelField urlAddr = new LabelField("blackberry.wordpress.org")
 		{
 		    public void paint(Graphics graphics)
 		    {

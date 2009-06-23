@@ -14,6 +14,21 @@ Build file for WordPress
     <taskdef name="jadtool" classpath="build/bb-ant-tools-1.1.jar" classname="ca.slashdev.bb.tasks.JadtoolTask" />
     <taskdef name="alx"     classpath="build/bb-ant-tools-1.1.jar" classname="ca.slashdev.bb.tasks.AlxTask" />
 
+	<taskdef resource="org/tigris/subversion/svnant/svnantlib.xml">
+	    <classpath>
+	      <fileset dir="build/svnant-1.2.1" includes="svn*.jar" />
+	    </classpath>
+	</taskdef>
+
+	<!-- target name="pippo">
+		  <svn>
+		    <status path="${basedir}" revisionProperty="svn.revision" />
+		  	<info target="${basedir}"/>
+		  </svn>
+	  <echo>Sandbox Revision: ${svn.revision}</echo>
+	  <echo>Sandbox Revision: ${svn.info.lastRev}</echo>
+	</target -->
+	
     <target name="init">
         <property file="build/build.properties" />
         <property file="build/release.properties" />
@@ -28,14 +43,21 @@ Build file for WordPress
         <condition property="javac.debug" value="on" else="off">
             <equals arg1="${debug}" arg2="true" trim="true" casesensitive="false"/>
         </condition>
-        <property name="module.version" value="${release.major}.${release.minor}.${build.number}" />
+    	
+    	<svn>
+    		<!-- status path="${basedir}" revisionProperty="svn.revision" / -->
+    		<info target="${basedir}"/>
+    	 </svn>
+    	 <echo>Last Code Revision: ${svn.info.lastRev}</echo>
+    	        	
+        <property name="module.version" value="${release.major}.${release.minor}.${build.number} - build${svn.info.lastRev}" />
 
         <property name="platform"              value="os42" />
         <property name="module.name"           value="WordPress_${platform}"/>
         <property name="module.release.prefix" value="WordPress"/>
                         
         <property name="module.fullname"       value="WordPress for BlackBerry"/>
-        <property name="module.desc"           value="WordPress - Based BlackBerry Client"/>
+        <property name="module.desc"           value="WordPress for BlackBerry mobile app"/>
         <property name="module.company"        value="Automattic - Danais"/>
 
         <property name="dir.src"          value="src"  />
@@ -43,7 +65,8 @@ Build file for WordPress
         <property name="dir.docs"          value="docs" />
         <property name="dir.build"         value="build" />
 
-        <property name="dir.output.base" value="c:/tmp/output" />
+        <!-- from prop file 
+        property name="dir.output.base" value="c:/tmp/output" / -->
 
         <property name="dir.output"      value="${dir.output.base}/${platform}" />
         
@@ -60,7 +83,7 @@ Build file for WordPress
         <property name="dir.output.sign"          value="${dir.output}/sign" />
         <property name="dir.output.release"       value="${dir.output}/release" />
 
-        <property name="dir.export"               value="c:/tmp/export" />
+        <property name="dir.export"               value="${dir.output.base}/export" />
 
         <property name="icon"                 value="application-icon.png" />
         <property name="icon_rollover"        value="application-icon.png" /> <!-- set to ${icon} to disable rollover -->
@@ -104,7 +127,6 @@ Build file for WordPress
     	
         <rapc jdehome="${rim.home}" quiet="true"
             srcdir="${dir.src}"
-        	import = "${dir.lib}/kxml2-2.3.0.jar"
             destdir="${dir.output.rapc}"
             output="${module.name}"
             verbose="true"
@@ -115,18 +137,29 @@ Build file for WordPress
                 vendor="${module.company}"
                 title="${module.fullname}"
                 description="${module.desc}"
-                ribbonposition="1"
+                ribbonposition="0"
                 systemmodule="false"
                 runonstartup="false"
                 arguments=""
                 version="${module.version}"
                 startuptier="7"
                 icon="${icon}"/>
+        	<src>
+           		<fileset dir="${dir.src}">
+            		   	<include name="**/*java"/>
+            		</fileset>
+        		<fileset dir="${dir.lib}">
+        		   	<include name="**/*.jar"/>
+        		</fileset>
+			</src>
+
+        	
             <import>
             	<fileset dir="${rim.home}/lib/">
-            	                    <include name="**/*.jar"/>
- 	                </fileset>
+            	     <include name="**/*.jar"/>
+ 	           </fileset>
             </import>
+        	
         </rapc>
     </target>
 
@@ -142,10 +175,10 @@ Build file for WordPress
     
         <java jar="${rim.home}/bin/SignatureTool.jar" failonerror="false" fork="true">
             <arg value="-a"/>
-            <!-- pwd_option <arg value="-p"/> -->
-            <!-- pwd_value  <arg value="${bb.sigtool.password}"/> -->
+           <arg value="-p"/> 
+            <arg value="${bb.sigtool.password}"/> 
             <arg value="-C"/>
-            <arg file="${dir.output.sign}/${module.name}.cod"/>
+            <arg file="${dir.output.sign}/${module.name}.cod"/> 
         </java>
         <exec executable="${rim.home}/bin/UpdateJad.exe" dir="${dir.output.sign}" failonerror="true">
             <arg value="${module.name}.jad" />
@@ -158,6 +191,7 @@ Build file for WordPress
             <entry key="build.date" type="date" value="now" pattern="yyyyMMdd"/>
         </propertyfile>
 
+    	
         <copy todir="${dir.output.release}">
             <fileset dir="${dir.output.sign}">
                 <include name="**/*"/>
@@ -170,10 +204,13 @@ Build file for WordPress
             </fileset>
         </copy>
 
-        <jadtool input="${dir.output.sign}/${module.name}.jad"
-                 destdir="${dir.output.release}/ota">
+        <jadtool input="${dir.output.sign}/${module.name}.jad" destdir="${dir.output.release}/ota">
             <fileset dir="${dir.output.sign}" includes="*.cod" />
         </jadtool>
+    	
+    <!-- 	<propertyfile file="${dir.output.release}/ota/${module.name}.jad">
+    	            <entry key="build_date" type="date" value="now" pattern="yyyyMMdd"/>
+    	</propertyfile> -->
     </target>
 
     <target name="alx" depends="init">
@@ -182,7 +219,6 @@ Build file for WordPress
                          description="${module.desc}"
                          version="${module.version}"
                          vendor="${module.company}">
-
                 <codset>
                     <fileset dir="${dir.output.release}/ota" includes="*.cod" />
                 </codset>
@@ -194,13 +230,6 @@ Build file for WordPress
         </zip>
     </target>
 
-    <target name="release" depends="init,sign,jad,alx">
-
-        <zip zipfile="${dir.output.release}/ota/${module.name}-${module.version}.zip">
-            <zipfileset dir="${dir.output.release}/ota" includes="*.jad, *.cod, *.alx" />
-        </zip>
-
-    </target>
 
     <target name="package" depends="init,release,export">
         <mkdir dir="${dir.output.release}/${module.release.prefix}"/>
@@ -221,6 +250,14 @@ Build file for WordPress
         </copy>
     </target>
     
+	
+
+	<target name="release" depends="init,sign,jad,alx">
+        <zip zipfile="${dir.output.release}/ota/${module.name}-${module.version}.zip">
+            <zipfileset dir="${dir.output.release}/ota" includes="*.jad, *.cod, *.alx" />
+        </zip>
+    </target>
+
     <target name="all" depends="release,export" />
 
     <target name="export" depends="clean">

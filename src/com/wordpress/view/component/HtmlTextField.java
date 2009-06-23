@@ -3,6 +3,8 @@ package com.wordpress.view.component;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.component.AutoTextEditField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.EditField;
@@ -44,6 +46,40 @@ public class HtmlTextField extends AutoTextEditField {
     }
     
     
+    /*
+	private FieldChangeListener listener = new FieldChangeListener() {
+	    public void fieldChanged(Field field, int context) {
+	    	
+	    	AutoTextEditField campoIntelligente = ((AutoTextEditField) field);
+	    	
+	   	Log.debug("field change listener: "+ ((AutoTextEditField) field).getText());
+	    	
+	    		int pos = campoIntelligente.getCursorPosition();
+	    		Log.info("current pos : "+pos);
+	    		//check the current pos
+	    		if(pos >= 3) {
+	    			//possibly match, compare the 3 prev chars
+	    			Log.info("prev 1 char : "+ campoIntelligente.charAt(pos-1)); //ht-t-p
+	    			Log.info("prev 2 char : "+ campoIntelligente.charAt(pos-2)); //h-t-tp
+	    			Log.info("prev 3 char : "+ campoIntelligente.charAt(pos-3));//h-ttp
+
+	    			if (campoIntelligente.charAt(pos-1) == Characters.SPACE && campoIntelligente.charAt(pos-2) == 'a'
+	    				&& campoIntelligente.charAt(pos-3) == '<' )
+	    				if( pos > 3 ){ //not at the begin of the field, we can check the -4 char
+	    					  if(campoIntelligente.charAt(pos-4) == Characters.SPACE || campoIntelligente.charAt(pos-4) == Characters.ENTER){
+	    						  Log.debug("match riconosciuto");
+	    						   showRequestPopUp();
+	    					  }
+	    				} else {
+	    					Log.debug("match riconosciuto");
+	    					showRequestPopUp();
+	    				}	
+	    		}
+	    	
+	  
+	   }
+	};
+    */
 /*
 	private FieldChangeListener listener = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
@@ -77,7 +113,7 @@ public class HtmlTextField extends AutoTextEditField {
 	  
 	   }
 	};
- */   
+    */
 	/*
     protected boolean keyDown(int keycode, int time) {
     	
