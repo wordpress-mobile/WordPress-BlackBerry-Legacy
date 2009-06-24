@@ -345,9 +345,7 @@ public class PageController extends BlogObjectController {
 	}
 	
 	
-	
-	public void setSettingsValues(long authoredOn, String password, boolean isPhotoRes){
-		
+	public void setAuthDate(long authoredOn) {
 		if(page.getDateCreatedGMT() != null ) {
 			if ( page.getDateCreatedGMT().getTime() != authoredOn ) {
 				page.setDateCreatedGMT(new Date(authoredOn));
@@ -357,6 +355,10 @@ public class PageController extends BlogObjectController {
 			page.setDateCreatedGMT(new Date(authoredOn));
 			setPageAsChanged(true);
 		}
+	}
+
+
+	public void setPassword(String password) {
 		
 		if( page.getWpPassword() != null && !page.getWpPassword().equalsIgnoreCase(password) ){
 			page.setWpPassword(password);
@@ -367,6 +369,9 @@ public class PageController extends BlogObjectController {
 				setPageAsChanged(true);
 			}
 		}
+	}
+	
+	public void setPhotoResizing(boolean isPhotoRes) {
 		
 		if( page.getIsPhotoResizing() != null && !page.getIsPhotoResizing().booleanValue()== isPhotoRes ){
 			page.setIsPhotoResizing(new Boolean(isPhotoRes));
@@ -380,9 +385,8 @@ public class PageController extends BlogObjectController {
 		
 	}
 	
-
 	/*
-	 * set photos number on main post vire
+	 * set photos number on main post view
 	 */
 	public void setPhotosNumber(int count){
 		view.setNumberOfPhotosLabel(count);

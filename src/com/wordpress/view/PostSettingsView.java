@@ -78,8 +78,20 @@ public class PostSettingsView extends BaseView {
     
     //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
-		long gmtTime = CalendarUtils.adjustTimeFromDefaultTimezone(authoredOn.getDate()); 
-		controller.setSettingsValues(gmtTime, passwordField.getText(), resizePhoto.getChecked());
+
+		if(authoredOn.isDirty()) {
+			long gmtTime = CalendarUtils.adjustTimeFromDefaultTimezone(authoredOn.getDate());
+			controller.setAuthDate(gmtTime);
+		}
+		
+		if(passwordField.isDirty()) {
+			controller.setPassword(passwordField.getText());
+		}
+		
+		if(resizePhoto.isDirty()){
+			controller.setPhotoResizing(resizePhoto.getChecked());
+		}
+		
 		controller.backCmd();
 		return true;
     }

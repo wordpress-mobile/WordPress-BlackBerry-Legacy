@@ -364,9 +364,7 @@ public class PostController extends BlogObjectController {
 	}
 	
 	
-	
-	public void setSettingsValues(long authoredOn, String password, boolean isPhotoRes){
-		
+	public void setAuthDate(long authoredOn) {
 		if(post.getAuthoredOn() != null ) {
 			if ( post.getAuthoredOn().getTime() != authoredOn ) {
 				post.setAuthoredOn(authoredOn);
@@ -376,7 +374,9 @@ public class PostController extends BlogObjectController {
 			post.setAuthoredOn(authoredOn);
 			setPostAsChanged(true);
 		}
-		
+	}
+	
+	public void setPassword(String password) {
 		if( post.getPassword() != null && !post.getPassword().equalsIgnoreCase(password) ){
 			post.setPassword(password);
 			setPostAsChanged(true);
@@ -386,7 +386,10 @@ public class PostController extends BlogObjectController {
 				setPostAsChanged(true);
 			}
 		}
-		
+	}
+	
+	public void setPhotoResizing(boolean isPhotoRes) {
+
 		if( post.getIsPhotoResizing() != null && !post.getIsPhotoResizing().booleanValue()== isPhotoRes ){
 			post.setIsPhotoResizing(new Boolean(isPhotoRes));
 			setPostAsChanged(true);
@@ -397,7 +400,6 @@ public class PostController extends BlogObjectController {
 			}
 		}
 	}
-	
 
 	 	
 	public void showCategoriesView(){			

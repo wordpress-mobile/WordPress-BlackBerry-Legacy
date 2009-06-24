@@ -33,7 +33,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 		
 		//init the log system
 		Appender eventAppender = new BlackberryEventLogAppender("WordPress for BlackBerry");
-		eventAppender.setLogLevel(Log.DEBUG); //TODO lower log level on production
+		eventAppender.setLogLevel(Log.INFO); //TODO lower log level on production
 		eventAppender.open();
 		Log.addAppender(eventAppender);
 		//#ifdef DEBUG

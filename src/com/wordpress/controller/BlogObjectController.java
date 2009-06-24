@@ -57,9 +57,10 @@ public abstract class BlogObjectController extends BaseController {
 		
 	protected static final String LOCAL_DRAFT_KEY = "localdraft";
 	protected static final String LOCAL_DRAFT_LABEL = _resources.getString(WordPress.LABEL_LOCAL_DRAFT);
-	public abstract void setSettingsValues(long authoredOn, String password, boolean isPhotoResizing);	
 	public abstract void setPhotosNumber(int count);
-	
+	public abstract void setAuthDate(long authoredOn);
+	public abstract void setPassword(String password);
+	public abstract void setPhotoResizing(boolean isPhotoRes);
 	
 	
 	public void showSettingsView(){

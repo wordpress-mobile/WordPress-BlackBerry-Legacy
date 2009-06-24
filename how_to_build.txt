@@ -6,9 +6,12 @@ This file contains the instructions to build the source code provided with the z
 
     - Download and install Apache Ant: http://ant.apache.org/ (version 1.7)
     - Download and install Sun Java Wireless Toolkit: http://java.sun.com/products/sjwtoolkit/ (version 2.5.2)
-    - Download and install Apache Antenna: http://antenna.sourceforge.net/ (version 1.0.1)
-    - Download and install Blackberry JDE: http://na.blackberry.com/eng/developers/ (version 4.5.0)
-    - Download and install bb-ant-tools: http://bb-ant-tools.sourceforge.net/main (version 1.1)
+    - Download and install Blackberry JDE Component Package: http://na.blackberry.com/eng/developers/ (version 4.5.0.16)
+
+Note: Ant build task uses feature from svnant-1.2.1 library. That library read inside svn properties files to get 
+some informations that are used during build. You should checkout this project from svn server using svn client 
+compatible with the svnant library (now svn client 1.5.x). 
+If you checkout the project using svn client 1.6.x you should not be able to build the project.
 
 2. Required certificates
 
