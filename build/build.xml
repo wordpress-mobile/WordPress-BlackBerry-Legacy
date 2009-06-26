@@ -1,105 +1,105 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 
 <project name="WordPress for BlackBerry" default="all" basedir="..">
-   
-    <target name="init">
-      <property file="build/build.properties" />
-    </target>
+
+	<target name="init">
+		<property file="build/build.properties" />
+	</target>
 
 	<taskdef resource="org/tigris/subversion/svnant/svnantlib.xml">
-	    <classpath>
-	      <fileset dir="build/svnant-1.2.1" includes="svn*.jar" />
-	    </classpath>
+		<classpath>
+			<fileset dir="build/svnant-1.2.1" includes="svn*.jar" />
+		</classpath>
 	</taskdef>
 
-	
-    <!-- =============================================== -->
-    <!-- USAGE                                           -->
-    <!-- =============================================== -->
-    <target name="usage" depends="init">
-        <echo message=""/>
-        <echo message="WordPress for BlackBerry build file"/>
-        <echo message="------------------------------------------------------"/>
-        <echo message=""/>
-        <echo message=" Available targets are :"/>
-        <echo message=""/>
-        <echo message=" usage                --> Print this usage listing"/>
-        <echo message=" buildOS42            --> Build OS 4.2 version"/>
-        <echo message=" buildOS47            --> Build OS 4.7 version"/>
-        <echo message=" build                --> Build all versions"/>
-        <echo message=" cleanOS42            --> Clean OS 4.2 version"/>
-        <echo message=" cleanOS47            --> Clean OS 4.7 version"/>
-        <echo message=" clean                --> Clean all versions"/>
-        <echo message=" releaseOS42          --> "/>
-        <echo message=" releaseOS47          --> "/>
-        <echo message=" release              --> "/>
-        <echo message=" all                  --> Equivalent to build"/>
-        <echo message=""/>
-    </target>
 
-    <target name="buildOS42" depends="init">
-        <ant antfile="build/build_single.xml" target="all">
-            <property name="platform"         value="os42"/>
-            <property name="module.name"      value="WordPress_${platform}"/>
-            <property name="rim.home"         value="${rim.home.os42}"/>
-        </ant>
-    </target>
+	<!-- =============================================== -->
+	<!-- USAGE                                           -->
+	<!-- =============================================== -->
+	<target name="usage" depends="init">
+		<echo message=""/>
+		<echo message="WordPress for BlackBerry build file"/>
+		<echo message="------------------------------------------------------"/>
+		<echo message=""/>
+		<echo message=" Available targets are :"/>
+		<echo message=""/>
+		<echo message=" usage                --> Print this usage listing"/>
+		<echo message=" buildOS42            --> Build OS 4.2 version"/>
+		<echo message=" buildOS47            --> Build OS 4.7 version"/>
+		<echo message=" build                --> Build all versions"/>
+		<echo message=" cleanOS42            --> Clean OS 4.2 version"/>
+		<echo message=" cleanOS47            --> Clean OS 4.7 version"/>
+		<echo message=" clean                --> Clean all versions"/>
+		<echo message=" releaseOS42          --> "/>
+		<echo message=" releaseOS47          --> "/>
+		<echo message=" release              --> "/>
+		<echo message=" all                  --> Equivalent to build"/>
+		<echo message=""/>
+	</target>
 
-    <target name="buildOS47" depends="init">
-        <ant antfile="build/build_single.xml" target="all">
-            <property name="platform"         value="os47"/>
-            <property name="rim.home"         value="${rim.home.os47}"/>
-        </ant>
-    </target>
+	<target name="buildOS42" depends="init">
+		<ant antfile="build/build_single.xml" target="all">
+			<property name="platform"         value="os42"/>
+			<property name="module.name"      value="WordPress_${platform}"/>
+			<property name="rim.home"         value="${rim.home.os42}"/>
+		</ant>
+	</target>
 
-    <target name="cleanOS42" depends="init">
-        <ant antfile="build/build_single.xml" target="clean">
-            <property name="platform"         value="os42"/>
-            <property name="module.name"      value="WordPress"/>
-            <property name="rim.home"         value="${rim.home.os47}"/>
-        </ant>
-    </target>
+	<target name="buildOS47" depends="init">
+		<ant antfile="build/build_single.xml" target="all">
+			<property name="platform"         value="os47"/>
+			<property name="rim.home"         value="${rim.home.os47}"/>
+		</ant>
+	</target>
 
-    <target name="cleanOS47" depends="init">
-        <ant antfile="build/build_single.xml" target="clean">
-            <property name="platform"         value="os47"/>
-            <property name="rim.home"         value="${rim.home.os47}"/>
-        </ant>
-    </target>
+	<target name="cleanOS42" depends="init">
+		<ant antfile="build/build_single.xml" target="clean">
+			<property name="platform"         value="os42"/>
+			<property name="module.name"      value="WordPress"/>
+			<property name="rim.home"         value="${rim.home.os47}"/>
+		</ant>
+	</target>
 
-    <target name="release" depends="releaseOS42, releaseOS47">
-    </target>
+	<target name="cleanOS47" depends="init">
+		<ant antfile="build/build_single.xml" target="clean">
+			<property name="platform"         value="os47"/>
+			<property name="rim.home"         value="${rim.home.os47}"/>
+		</ant>
+	</target>
 
-    <target name="releaseOS42" depends="init, cleanOS42">
-        <ant antfile="build/build_single.xml" target="release">
-            <property name="platform"         value="os42"/>
-            <property name="rim.home"         value="${rim.home.os42}"/>
-        </ant>
-    </target>
+	<target name="release" depends="releaseOS42, releaseOS47">
+	</target>
+
+	<target name="releaseOS42" depends="init, cleanOS42">
+		<ant antfile="build/build_single.xml" target="release">
+			<property name="platform"         value="os42"/>
+			<property name="rim.home"         value="${rim.home.os42}"/>
+		</ant>
+	</target>
+
+	<target name="releaseOS47" depends="init">
+		<ant antfile="build/build_single.xml" target="release">
+			<property name="platform" value="os47" />
+			<property name="rim.home" value="${rim.home.os47}" />
+		</ant>
+	</target>
+
+	<target name="clean" depends="cleanOS42, cleanOS47" />
+	<!-- target name="build"  depends="buildOS42, buildOS47" / -->
+	<target name="build" depends="buildOS42" />
 	
 	<target name="nightly" depends="init, cleanOS42">
 		<svn>
-	    	<!-- status path="${basedir}" revisionProperty="svn.revision" / -->
-	    	<info target="${basedir}"/>
-	    </svn>
-		
-	        <ant antfile="build/build_single.xml" target="release">
-	            <property name="platform"         value="os42"/>
-				<property name="module.name"      value="WordPress_rev${svn.info.lastRev}"/>
-	            <property name="rim.home"         value="${rim.home.os42}"/>
-	        </ant>
-	    </target>
-	
-    <target name="releaseOS47" depends="init">
-        <ant antfile="build/build_single.xml" target="release">
-            <property name="platform"         value="os47"/>
-            <property name="rim.home"         value="${rim.home.os47}"/>
-        </ant>
-    </target>
-	
-    <target name="clean"  depends="cleanOS42, cleanOS47" />
-    <!-- target name="build"  depends="buildOS42, buildOS47" / -->
-	<target name="build"  depends="buildOS42" />
+			<!-- status path="${basedir}" revisionProperty="svn.revision" / -->
+			<info target="${basedir}" />
+		</svn>
+
+		<ant antfile="build/build_single.xml" target="release">
+			<property name="platform" value="os42" />
+			<property name="module.name" value="WordPress_rev${svn.info.lastRev}" />
+			<property name="rim.home" value="${rim.home.os42}" />
+		</ant>
+	</target>
 
 	<target name="all" depends="clean, build" />
 

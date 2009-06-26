@@ -24,8 +24,6 @@ Build file for WordPress
     <target name="init">
         <property file="build/build.properties" />
         <property file="build/release.properties" />
-        
-    	
     	
         <condition property="debug" value="true" else="false">
             <equals arg1="${build.type}" arg2="debug" trim="true" casesensitive="false"/>
@@ -39,7 +37,7 @@ Build file for WordPress
     		<info target="${basedir}"/>
     	 </svn>
     	        	
-        <property name="module.version" value="${release.major}.${release.minor}.${build.number}" />
+        <property name="module.version" value="${release.major}.${release.minor}.${svn.info.lastRev}" />
 
         <property name="platform"              value="os42" />
         <property name="module.name"           value="WordPress"/>
@@ -196,6 +194,10 @@ Build file for WordPress
         <jadtool input="${dir.output.sign}/${module.name}.jad" destdir="${dir.output.release}/ota">
             <fileset dir="${dir.output.sign}" includes="*.cod" />
         </jadtool>
+        
+    	<copy file="${dir.output.release}/ota/${module.name}.jad"
+    		tofile="${dir.output.release}/ota/${module.release.prefix}.jad" />
+    		
     	
     <!-- 	<propertyfile file="${dir.output.release}/ota/${module.name}.jad">
     	            <entry key="build_date" type="date" value="now" pattern="yyyyMMdd"/>
