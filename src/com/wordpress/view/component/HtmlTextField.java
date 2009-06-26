@@ -75,10 +75,16 @@ public class HtmlTextField extends AutoTextEditField {
     				
     				Log.debug("match riconosciuto");
     		    	InquiryView inqView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_HTTP_LINK));
-    		    	inqView.setDialogClosedListener(new MyDialogClosedListener());
+    		    	inqView.setDialogClosedListener(new MyDialogClosedListener(3));
     		    	inqView.show();
-
-    			}	
+    		    	
+    			} else if (campoIntelligente.charAt(pos-1) == 'p' && campoIntelligente.charAt(pos-2) == 't' && campoIntelligente.charAt(pos-3) == 't' 
+    				&& ( campoIntelligente.charAt(pos-4) == 'h' || campoIntelligente.charAt(pos-4) == 'H')){
+    				Log.debug("match riconosciuto");
+    				InquiryView inqView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_HTTP_LINK));
+    				inqView.setDialogClosedListener(new MyDialogClosedListener(4));
+    				inqView.show();
+    			}		
     		}
     	}
     };
@@ -86,18 +92,26 @@ public class HtmlTextField extends AutoTextEditField {
 	
 	private class MyDialogClosedListener implements DialogClosedListener {
 		
+		private int charsNumber = 0;
+		
+		public MyDialogClosedListener(int charsNumber) {
+			super();
+			this.charsNumber = charsNumber;
+		}
+
+		
 		public void dialogClosed(Dialog dialog, int choice) {
 			if(dialog instanceof InquiryView) {
 				if (choice == Dialog.YES) {
 					AddLinkDialog pw = new AddLinkDialog();
-					pw.setDialogClosedListener(new MyDialogClosedListener());
+					pw.setDialogClosedListener(new MyDialogClosedListener(this.charsNumber));
 					pw.show();
 				}
 			} else {
 				if (choice == Dialog.YES) {
 					AddLinkDialog pw = (AddLinkDialog) dialog;
 	    			//apply change on textField
-	    			backspace(3, 1); //delete 3 chars
+	    			backspace(this.charsNumber, 1); //delete chars
 	    			insert("<a href=\""+pw.getUrlFromField()+"\"  alt=\""+pw.getDescriptionFromField()+"\">"+pw.getDescriptionFromField()+"</a>",1);
 	    	      }
 			}

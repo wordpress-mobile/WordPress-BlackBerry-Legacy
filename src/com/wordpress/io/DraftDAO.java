@@ -84,6 +84,7 @@ public class DraftDAO implements BaseDAO{
     	Serializer ser= new Serializer(out);
     	Hashtable post2Hashtable = post2Hashtable(draftPost);
     	ser.serialize(post2Hashtable);
+    	ser.serialize(draftPost.getCategories());
     	out.close();
 		System.out.println("writing draft post ok");
 		return newPostID;
@@ -121,7 +122,9 @@ public class DraftDAO implements BaseDAO{
  
     	Serializer ser= new Serializer(in);
     	Hashtable postHas = (Hashtable) ser.deserialize();
+    	int[] postCat = (int[]) ser.deserialize();
     	Post draft = hashtable2Post(postHas, blog);
+    	draft.setCategories(postCat);
     	in.close();
  
     	System.out.println("loading draft post ok");

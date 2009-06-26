@@ -56,7 +56,7 @@ public class DraftPostsController extends BaseController {
 			loadedPostIndex = DraftDAO.getPostsInfo(currentBlog);
 		} catch (Exception e) {
 			isLoadError = true;
-			loadErrorMessage = "Could not load draft pages index from disk";
+			loadErrorMessage = "Could not load draft posts index from disk";
 			return;
 		}
 		

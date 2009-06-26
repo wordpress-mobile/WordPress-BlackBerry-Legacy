@@ -3,6 +3,7 @@ package com.wordpress.controller;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
@@ -181,7 +182,7 @@ public class PostController extends BlogObjectController {
 	}
 	
 	public void setPostCategories(Category[] selectedCategories){
-		
+		//TODO: simply this methods.
 		//first: find if there is any change in selected categories
 		int[] postPrevCategories = post.getCategories();
 		
@@ -446,28 +447,40 @@ public class PostController extends BlogObjectController {
 			tags= "Tags: "+tags;
 		
 		//start with categories
-		StringBuffer categoriesLabel = new StringBuffer();
 		int[] selectedCategories = post.getCategories();
 		Category[] blogCategories = post.getBlog().getCategories();
 		
-		if(selectedCategories != null && selectedCategories.length >0 )
-		categoriesLabel.append("Categories: ");
+		Vector categoriesLabelVector;		
+		if(selectedCategories != null && selectedCategories.length >0 ) {
+			categoriesLabelVector  = new Vector(selectedCategories.length);
 		
-		for (int i = 0; i < blogCategories.length; i++) {
-			Category category = blogCategories[i];
-			
-			
-			if(selectedCategories != null) {
-				for (int j = 0; j < selectedCategories.length; j++) {
-					if(selectedCategories[j] == Integer.parseInt(category.getId()) ){
-						if(j != 0) //append the separator between cat label
-							categoriesLabel.append(", ");
-						categoriesLabel.append( category.getLabel());
-						break;
+			for (int i = 0; i < blogCategories.length; i++) {
+				Category category = blogCategories[i];
+				
+				if(selectedCategories != null) {
+					for (int j = 0; j < selectedCategories.length; j++) {
+						if(selectedCategories[j] == Integer.parseInt(category.getId()) ){
+							categoriesLabelVector.addElement( category.getLabel());
+							break;
+						}
 					}
 				}
 			}
-    	}
+		
+		} else {
+			categoriesLabelVector  = new Vector(0);
+		}
+
+		//fill the cat string buffer
+		StringBuffer categoriesLabel = new StringBuffer();
+		for (int i = 0; i < categoriesLabelVector.size(); i++) {
+			String catLabel = (String) categoriesLabelVector.elementAt(i);
+			if(i == 0) {
+				categoriesLabel.append("Categories: "+catLabel);
+			} else {
+				categoriesLabel.append(", "+catLabel);
+			}
+		}
 		//end with cat
 		
 		String[] draftPostPhotoList = getPhotoList();
@@ -485,7 +498,6 @@ public class PostController extends BlogObjectController {
 			}
 		}
 		photoHtmlFragment.append("<p>&nbsp;</p>");
-		
 		String html = FileUtils.readTxtFile("defaultPostTemplate.html");
 		if(title == null || title.length() == 0) title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
 		html = StringUtils.replaceAll(html, "!$title$!", title);

@@ -299,7 +299,7 @@ public class SendToBlogTask extends TaskImpl {
 			photoFragment.append("<p><a href=\""+remoteFileInfo.getUrl()+"\">" +
 							"<img class=\"alignnone size-full wp-image-364\"" +
 							" src=\""+remoteFileInfo.getUrl()+"\" alt=\"\" " +
-							"width=\""+remoteFileInfo.getWidth()+"\" height=\""+remoteFileInfo.getHeight()+"\" " +
+							"width=\""+remoteFileInfo.getWidth()+"\" height=\""+remoteFileInfo.getHeight()+"\" />" +
 									"</a></p>");
 		}
 		

@@ -1,0 +1,31 @@
+Q How do I set up the WordPress for Blackberry development environment?
+
+A: On a computer that meets the requirements described here, perform the following:
+
+   1. If you do not already have eclipse installed, download and extract the Windows version of the Eclipse IDE for Java Developers.
+   2. Download and install the BlackBerry JDE Plug-in for Eclipse (registration required). 
+   (Note: To build WordPress for Blackberry, a BlackBerry Component Pack for JDE v4.2 or higher is required)
+   3. Install Subclipse SVN Plug-in for Eclipse.
+   4. Open Eclipse and create a new BlackBerry project to initialize the BlackBerry workspace.
+          * Open the File menu and select New -> Project
+          * Select BlackBerry Project from the available Wizards and click Next
+          * Name the project something arbitrary, such as 'test' or 'dummy' and click Finish
+          * This project can be deleted after creation 
+   5. Configure the BlackBerry workspace
+          * Open the BlackBerry menu and select Configure BlackBerry Workspace
+          * In the panel on the left under BlackBerry JDE, select Code Signing
+          * Check each of the three boxes to allow access to all APIs
+          * Click OK 
+   6. Check out a copy of WordPress for Blackberry
+          * Open the File menu and select New -> Project
+          * Select Checkout Projects from SVN from the available Wizards and click Next
+          * Choose Create a new repository location and click Next
+          * Type http://blackberry.svn.wordpress.org/trunk/ for the Url and click Next
+          * Select the folder trunk and click Finish 
+   7. Configure the BlackBerry debugger for Wordpress
+          * Select WordPress for Blackberry in the Package Explorer
+          * Open the Run menu and click Debug Configurations
+          * In the panel on the left, select BlackBerry Simulator and press the New button to create a new debug configuration
+          * On the right, change the Name to wordpress_debug
+          * Click the simulator tab and choose a JDE profile for the device on which you want to test WordPress for Blackberry
+          * Click the Debug button to save the configuration, compile, and launch it in the debugger 

@@ -20,19 +20,13 @@ Build file for WordPress
 	    </classpath>
 	</taskdef>
 
-	<!-- target name="pippo">
-		  <svn>
-		    <status path="${basedir}" revisionProperty="svn.revision" />
-		  	<info target="${basedir}"/>
-		  </svn>
-	  <echo>Sandbox Revision: ${svn.revision}</echo>
-	  <echo>Sandbox Revision: ${svn.info.lastRev}</echo>
-	</target -->
 	
     <target name="init">
         <property file="build/build.properties" />
         <property file="build/release.properties" />
         
+    	
+    	
         <condition property="debug" value="true" else="false">
             <equals arg1="${build.type}" arg2="debug" trim="true" casesensitive="false"/>
         </condition>
@@ -40,20 +34,15 @@ Build file for WordPress
             <equals arg1="${build.type}" arg2="debug" trim="true" casesensitive="false"/>
         </condition>
         
-        <condition property="javac.debug" value="on" else="off">
-            <equals arg1="${debug}" arg2="true" trim="true" casesensitive="false"/>
-        </condition>
-    	
     	<svn>
     		<!-- status path="${basedir}" revisionProperty="svn.revision" / -->
     		<info target="${basedir}"/>
     	 </svn>
-    	 <echo>Last Code Revision: ${svn.info.lastRev}</echo>
     	        	
-        <property name="module.version" value="${release.major}.${release.minor}.${build.number} - build${svn.info.lastRev}" />
+        <property name="module.version" value="${release.major}.${release.minor}.${build.number}" />
 
         <property name="platform"              value="os42" />
-        <property name="module.name"           value="WordPress_${platform}"/>
+        <property name="module.name"           value="WordPress"/>
         <property name="module.release.prefix" value="WordPress"/>
                         
         <property name="module.fullname"       value="WordPress for BlackBerry"/>
@@ -117,7 +106,6 @@ Build file for WordPress
 
   
 
-
     <target name="rapc" depends="init">
    
     	<echo message="Compiling ${module.name} with rapc"/>
@@ -131,6 +119,8 @@ Build file for WordPress
             output="${module.name}"
             verbose="true"
             nodebug="${nodebug}">
+        	        	
+        	<define tag="DEBUG" if="${debug}"/> <!-- define preprocessor tag -->
 
             <jdp
                 type="cldc"
@@ -190,7 +180,6 @@ Build file for WordPress
          <propertyfile file="build/release.properties">
             <entry key="build.date" type="date" value="now" pattern="yyyyMMdd"/>
         </propertyfile>
-
     	
         <copy todir="${dir.output.release}">
             <fileset dir="${dir.output.sign}">
@@ -225,7 +214,7 @@ Build file for WordPress
             </application>
         </alx>
 
-        <zip zipfile="${dir.output.release}/alx/${module.name}-${module.version}.zip">
+        <zip zipfile="${dir.output.release}/alx/${module.name}.zip">
             <zipfileset dir="${dir.output.release}/alx" includes="*.cod, *.alx" />
         </zip>
     </target>
@@ -239,7 +228,7 @@ Build file for WordPress
                 <exclude name="ota//" />
             </fileset>
         </copy>
-        <zip destfile="${dir.output.release}/${module.name}-${module.version}.zip">
+        <zip destfile="${dir.output.release}/${module.name}.zip">
             <fileset dir="${dir.output.release}/${module.release.prefix}" />
         </zip>
         <delete dir="${dir.output.release}/${module.release.prefix}" />
@@ -250,10 +239,8 @@ Build file for WordPress
         </copy>
     </target>
     
-	
-
 	<target name="release" depends="init,sign,jad,alx">
-        <zip zipfile="${dir.output.release}/ota/${module.name}-${module.version}.zip">
+        <zip zipfile="${dir.output.release}/ota/${module.name}.zip">
             <zipfileset dir="${dir.output.release}/ota" includes="*.jad, *.cod, *.alx" />
         </zip>
     </target>
@@ -284,166 +271,6 @@ Build file for WordPress
         </zip>
     </target>
     
-    <!--  Deploy the app ta a remote ssh location -->
-    <target name="deploy" depends="init">
-        
-        <property name="deploy.url" value="${deploy.host}:${deploy.remotePath}/${platform}" />
-        <echo message="Deploying application to ${deploy.path}/${platform}..." />
-        
-        <!-- Replace the cod files path -->
-        <replaceregexp byline="true">
-            <regexp pattern="RIM-COD-URL(.*) ${module.name}"/>
-            <substitution expression="RIM-COD-URL\1 ${deploy.path}/${platform}/${module.name}"/>
-            <fileset dir="${dir.output.release}/ota">
-                <include name="*.jad"/>
-            </fileset>
-        </replaceregexp>
-        
-        <!-- Get the password -->
-        <input message="Please enter the remote server password for ${deploy.username}: " 
-               addproperty="deploy.password" />
-        
-        <!-- Create the remote folder -->
-        <sshexec host="${deploy.host}"
-            	 username="${deploy.username}"
-            	 password="${deploy.password}"
-            	 command="mkdir -p ${deploy.remotePath}/${platform}" 
-                 port="${deploy.host.port}"
-                 trust="true"/>
-        
-        <!-- Copy the application files (cod&jad) -->
-        <scp todir="${deploy.username}:${deploy.password}@${deploy.url}" 
-             port="${deploy.host.port}" trust="true">
-            <fileset dir="${dir.output.release}/ota">
-                <include name="*.cod"/>
-                <include name="*.jad"/>
-            </fileset>
-        </scp>
-    </target>
-
-
-    <target name="jde" depends="init">
-
-        <fileset dir="${dir.src.java}" casesensitive="yes" id="src.files">
-            <include name="**/*.java"/>
-        </fileset>
-        <pathconvert property="javafiles" pathsep=";"
-                     refid="src.files"/>
-        <echo message="${javafiles}" file="srcfilelist"/>
-
-        <pathconvert property="pjavafiles" pathsep=";" refid="pdsrc.files"/>
-        <echo message="${line.separator}" file="srcfilelist" append="true"/>
-        <echo message="${pjavafiles}" file="srcfilelist" append="true"/>
-
-
-        <replace file="srcfilelist"
-                 token=";"
-                 value="${line.separator}"/>
-
-        <replace file="srcfilelist"
-                 token="${basedir}${file.separator}"
-                 value=""/>
-                 
-        <echo message="## RIM Java Development Environment" append="false" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="# RIM Project file" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="AddOn=0" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="AlwaysBuild=0" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="[AlxImports" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="]" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="AutoRestart=0" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="[ClassProtection" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="]" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="[CustomBuildFiles" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="]" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="[CustomBuildRules" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="]" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="[DefFiles" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="]" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="[DependsOn" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="]" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="ExcludeFromBuildAll=0" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="[Files" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <concat destfile="${jde.prj}" append="true">
-            <file file="srcfilelist"/>
-        </concat>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <echo message="]" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <echo message="HaveAlxImports=0" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <echo message="HaveDefs=0" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <echo message="HaveImports=0" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <echo message="[Icons" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="]" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <echo message="[ImplicitRules" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="]" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <echo message="[Imports" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="]" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <echo message="Listing=0" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <echo message="Options=-quiet" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <echo message="OutputFileName=BBSyncClient" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <echo message="[PackageProtection" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-        <echo message="]" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <echo message="RibbonPosition=0" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <echo message="RunOnStartup=1" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <echo message="StartupTier=1" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <echo message="SystemModule=0" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-
-        <echo message="Type=0" append="true" file="${jde.prj}"/>
-        <echo message="${line.separator}" append="true" file="${jde.prj}"/>
-    </target>
 
 </project>
 
