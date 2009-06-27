@@ -16,6 +16,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AboutController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.utils.PropertyUtils;
+import com.wordpress.view.component.VerticalPaddedFieldManager;
 
 public class AboutView extends BaseView {
 	private AboutController controller;
@@ -38,13 +39,9 @@ public class AboutView extends BaseView {
         
     	HorizontalFieldManager row= new HorizontalFieldManager(Manager.VERTICAL_SCROLL);
     	VerticalFieldManager col1= new VerticalFieldManager();
-    	VerticalFieldManager col2= new VerticalFieldManager(Manager.VERTICAL_SCROLL);
-    	col2.setMargin(10, 10, 5, 5);
-    	col1.setMargin(10, 10, 5, 5);
-    	
-    	
-    	col1.add(new BitmapField(_bitmap, Field.FIELD_HCENTER | Field.FIELD_VCENTER));
-    	
+    	VerticalFieldManager col2= new VerticalPaddedFieldManager();
+    	    	
+    	col1.add(new BitmapField(_bitmap, Field.FIELD_HCENTER | Field.FIELD_VCENTER));    	
     	LabelField titleField = new LabelField("WordPress for BlackBerry");
     	Font fnt = this.getFont().derive(Font.BOLD);
     	titleField.setFont(fnt);
@@ -68,10 +65,9 @@ public class AboutView extends BaseView {
 		col2.add(urlAddr);
     	//col2.add(new LabelField());
     	Bitmap img = Bitmap.getBitmapResource("aboutscreenfooter.png");
-    	BitmapField bf = new BitmapField(img);
-    	
-    	col2.add(new LabelField("",Field.FOCUSABLE));
+    	BitmapField bf = new BitmapField(img);    	
     	col2.add(bf);
+    	col2.add(new LabelField("",Field.FOCUSABLE));
     	
     	row.add(col1);
     	row.add(col2);

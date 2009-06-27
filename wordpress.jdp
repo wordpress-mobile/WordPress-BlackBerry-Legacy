@@ -123,13 +123,17 @@ src\com\wordpress\view\CommentView.java
 src\com\wordpress\view\component\AnimatedGIFField.java
 src\com\wordpress\view\component\BasicListFieldCallBack.java
 src\com\wordpress\view\component\BlogsListField.java
+src\com\wordpress\view\component\BorderedFieldManager.java
 src\com\wordpress\view\component\CategoriesListField.java
 src\com\wordpress\view\component\CheckBoxListField.java
 src\com\wordpress\view\component\CommentsListField.java
 src\com\wordpress\view\component\DirectorySelectorPopUpScreen.java
 src\com\wordpress\view\component\FileSelectorPopupScreen.java
+src\com\wordpress\view\component\HeaderField.java
+src\com\wordpress\view\component\HorizontalPaddedFieldManager.java
 src\com\wordpress\view\component\HtmlTextField.java
 src\com\wordpress\view\component\PostsListField.java
+src\com\wordpress\view\component\VerticalPaddedFieldManager.java
 src\com\wordpress\view\dialog\ConnectionInProgressView.java
 src\com\wordpress\view\dialog\DiscardChangeInquiryView.java
 src\com\wordpress\view\dialog\ErrorView.java

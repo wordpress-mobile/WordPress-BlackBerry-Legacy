@@ -20,6 +20,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.CommentsController;
 import com.wordpress.model.Comment;
+import com.wordpress.view.component.HorizontalPaddedFieldManager;
 
 public class CommentView extends BaseView {
 	
@@ -43,7 +44,7 @@ public class CommentView extends BaseView {
 			this.commentStatusList = commentStatusList;
 	                
 	    	  //A HorizontalFieldManager to hold the posts number label
-	    	topManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
+	    	topManager = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
 	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
 
 	        lblPostsNumber = getLabel("");
@@ -53,37 +54,34 @@ public class CommentView extends BaseView {
 	        dataScroller = new VerticalFieldManager(VerticalFieldManager.VERTICAL_SCROLL | VerticalFieldManager.VERTICAL_SCROLLBAR);
 	        	        
 	        //row from
-	        HorizontalFieldManager rowFrom = new HorizontalFieldManager();
+	        HorizontalFieldManager rowFrom = new HorizontalPaddedFieldManager();
 			LabelField lblFrom = getLabel(_resources.getString(WordPressResource.LABEL_COMMENT_FROM));
 			from = new LabelField("", LabelField.FOCUSABLE);
-			from.setMargin(margins);
 			rowFrom.add(lblFrom);
 			rowFrom.add(from);
 	        dataScroller.add(rowFrom);
 	        dataScroller.add(new SeparatorField());
 	        
 	        //row on (post of this comment)
-	        HorizontalFieldManager rowOn = new HorizontalFieldManager();
+	        HorizontalFieldManager rowOn = new HorizontalPaddedFieldManager();
 			LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_COMMENT_ON));
 			title = new LabelField("", LabelField.FOCUSABLE);
-	        title.setMargin(margins);
 	        rowOn.add(lblTitle);
 	        rowOn.add(title);
 	        dataScroller.add(rowOn);
 	        dataScroller.add(new SeparatorField());
 	        	        
 	        //row date
-	        HorizontalFieldManager rowDate = new HorizontalFieldManager();
+	        HorizontalFieldManager rowDate = new HorizontalPaddedFieldManager();
 			LabelField lblDate = getLabel(_resources.getString(WordPressResource.LABEL_COMMENT_DATE));
 			date = new LabelField("", LabelField.FOCUSABLE);
-	        date.setMargin(margins);
 	        rowDate.add(lblDate);
 	        rowDate.add(date);
 	        dataScroller.add(rowDate);
 	        dataScroller.add(new SeparatorField());	        
 	        
 	  		//row status
-	        HorizontalFieldManager rowStatus = new HorizontalFieldManager();
+	        HorizontalFieldManager rowStatus = new HorizontalPaddedFieldManager();
 	        LabelField lblStatus = getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS));
 	  		status =new LabelField("", LabelField.FOCUSABLE);
 	  		rowStatus.add(lblStatus);

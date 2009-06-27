@@ -19,6 +19,7 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.CommentsController;
 import com.wordpress.model.Comment;
 import com.wordpress.view.component.CommentsListField;
+import com.wordpress.view.component.HorizontalPaddedFieldManager;
 
 public class CommentsView extends BaseView {
 	
@@ -37,7 +38,7 @@ public class CommentsView extends BaseView {
 			this.commentStatusList = commentStatusList;
 	                
 	    	  //A HorizontalFieldManager to hold the posts number label
-	    	topManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
+	    	topManager = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
 	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
 
 	        lblPostsNumber = getLabel(_resources.getString(WordPressResource.MENUITEM_COMMENTS)+" "+controller.getCommentsCount());

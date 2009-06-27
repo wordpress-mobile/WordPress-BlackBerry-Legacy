@@ -18,6 +18,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
 import com.wordpress.utils.MultimediaUtils;
+import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.mm.PhotoBitmapField;
 
 public class PhotosView extends BaseView {
@@ -32,7 +33,7 @@ public class PhotosView extends BaseView {
     	this.controller=_controller;
 
   	  //A HorizontalFieldManager to hold the photos number label
-        HorizontalFieldManager photoNumberManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
+        HorizontalFieldManager photoNumberManager = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
             | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
 
         lblPhotoNumber = getLabel("");

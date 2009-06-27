@@ -1,6 +1,7 @@
 package com.wordpress.view;
 
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.LabelField;
@@ -11,6 +12,8 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Category;
+import com.wordpress.view.component.BorderedFieldManager;
+import com.wordpress.view.component.HorizontalPaddedFieldManager;
 
 
 public class NewCategoryView extends BaseView {
@@ -34,21 +37,31 @@ public class NewCategoryView extends BaseView {
     	catTitles[0]= "Optional";
     	    	
         //row Label 
-        HorizontalFieldManager rowTitle = new HorizontalFieldManager();
+        BorderedFieldManager rowTitle = new BorderedFieldManager(
+        		Manager.NO_HORIZONTAL_SCROLL
+        		| Manager.NO_VERTICAL_SCROLL
+        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
+        
 		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_POST_TITLE));
 		catField = new BasicEditField("", "", 100, Field.EDITABLE);
-		catField.setMargin(margins);
         rowTitle.add(lblTitle);
         rowTitle.add(catField);
         this.add(rowTitle);
         
         //row Parent
-        HorizontalFieldManager rowParent = new HorizontalFieldManager();
+        BorderedFieldManager rowParent = new BorderedFieldManager(
+        		Manager.NO_HORIZONTAL_SCROLL
+        		| Manager.NO_VERTICAL_SCROLL
+        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
+        
+        HorizontalFieldManager innerContainerForParentField = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
+                | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
+
 		LabelField lblParent = getLabel(_resources.getString(WordPressResource.LABEL_POST_PARENTCATEGORY));
 		parentCat = new ObjectChoiceField("", catTitles, 0);
-		parentCat.setMargin(margins);
-		rowParent.add(lblParent);
-		rowParent.add(parentCat);
+		innerContainerForParentField.add(lblParent);
+		innerContainerForParentField.add(parentCat);
+		rowParent.add(innerContainerForParentField);
         this.add(rowParent);
         addMenuItem(_newCategoryContextMenuItem);
     	

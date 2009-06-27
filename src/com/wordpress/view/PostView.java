@@ -1,13 +1,10 @@
 package com.wordpress.view;
 
 
-import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
-import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.SeparatorField;
@@ -20,6 +17,7 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Post;
 import com.wordpress.view.component.HtmlTextField;
+import com.wordpress.view.component.HorizontalPaddedFieldManager;
 
 public class PostView extends BaseView {
 	
@@ -41,7 +39,7 @@ public class PostView extends BaseView {
 		this.post = _post;
         
    	  //A HorizontalFieldManager to hold the photos number label
-        HorizontalFieldManager photoNumberManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
+		HorizontalPaddedFieldManager photoNumberManager = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
             | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
         lblPhotoNumber = getLabel("");
         setNumberOfPhotosLabel(0);
@@ -50,31 +48,29 @@ public class PostView extends BaseView {
     	manager= new VerticalFieldManager( Field.FOCUSABLE | VerticalFieldManager.VERTICAL_SCROLL | VerticalFieldManager.VERTICAL_SCROLLBAR);          
 		
         //row title
-        HorizontalFieldManager rowTitle = new HorizontalFieldManager();
-		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_POST_TITLE));
+    	HorizontalPaddedFieldManager rowTitle = new HorizontalPaddedFieldManager();
+		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_POST_TITLE)+":");
 		title = new BasicEditField("", post.getTitle(), 100, Field.EDITABLE);
-        title.setMargin(margins);
+        //title.setMargin(margins);
         rowTitle.add(lblTitle);
         rowTitle.add(title);
         manager.add(rowTitle);
         manager.add(new SeparatorField());
         
         //row tags
-        HorizontalFieldManager rowTags = new HorizontalFieldManager();
-		LabelField lblTags = getLabel(_resources.getString(WordPressResource.LABEL_POST_TAGS));
+        HorizontalPaddedFieldManager rowTags = new HorizontalPaddedFieldManager();
+		LabelField lblTags = getLabel(_resources.getString(WordPressResource.LABEL_POST_TAGS)+":");
 		tags = new BasicEditField("", post.getTags(), 100, Field.EDITABLE);
-		tags.setMargin(margins);
         rowTags.add(lblTags);
         rowTags.add(tags);
         manager.add(rowTags);
         manager.add(new SeparatorField());
         
         //row categories
-        HorizontalFieldManager rowCategories = new HorizontalFieldManager(Manager.USE_ALL_WIDTH);
-  		LabelField lblCategories = getLabel(_resources.getString(WordPressResource.LABEL_POST_CATEGORIES));
+        HorizontalFieldManager rowCategories = new HorizontalPaddedFieldManager(Manager.USE_ALL_WIDTH);
+  		LabelField lblCategories = getLabel(_resources.getString(WordPressResource.LABEL_POST_CATEGORIES)+":");
         String availableCategories = controller.getPostCategoriesLabel();
   		categories = new LabelField(availableCategories, LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
-  		categories.setMargin(margins);
   		  		
   	/*	Bitmap imgOpen = Bitmap.getBitmapResource("disclosure-indicator.png"); 
   		BitmapField bfOpenCat = new BitmapField(imgOpen, BitmapField.FOCUSABLE)
@@ -94,8 +90,8 @@ public class PostView extends BaseView {
   		manager.add(new SeparatorField());
   		
   		//row status
-        HorizontalFieldManager rowStatus = new HorizontalFieldManager();
-  		LabelField lblStatus =getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS));
+        HorizontalFieldManager rowStatus = new HorizontalPaddedFieldManager();
+  		LabelField lblStatus =getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":");
   		status = new ObjectChoiceField("", controller.getStatusLabels(),controller.getPostStatusFieldIndex());
   		rowStatus.add(lblStatus);
   		rowStatus.add(status);
@@ -105,7 +101,6 @@ public class PostView extends BaseView {
   		
   		
   		//decode the post html
-  		
   		String buildBodyFieldContentFromHtml = controller.buildBodyFieldContentFromHtml(post.getBody());
 		bodyTextBox= new HtmlTextField(controller, buildBodyFieldContentFromHtml);
 		manager.add(bodyTextBox);

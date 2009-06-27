@@ -19,6 +19,7 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostsController;
+import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.component.PostsListField;
 
 public class PostsView extends BaseView {
@@ -54,7 +55,7 @@ public class PostsView extends BaseView {
 	        topButtonsManager.add(buttonRefresh);
 	        
 	    	  //A HorizontalFieldManager to hold the posts number label
-	        HorizontalFieldManager postNumberManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
+	        HorizontalFieldManager postNumberManager = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
 	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
 
 	        

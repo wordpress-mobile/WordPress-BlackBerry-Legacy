@@ -33,7 +33,7 @@ public class PostsListField extends ObjectListField  {
         _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
     }
 	
-    private SimpleDateFormat sdFormat = new SimpleDateFormat(_resources.getString(WordPressResource.DEFAULT_DATE_FORMAT), Locale.getDefault());
+    private SimpleDateFormat sdFormat = new SimpleDateFormat(_resources.getString(WordPressResource.DEFAULT_DATE_FORMAT));
     
 	private Vector _listData = new Vector();
     private ListCallBack listFieldCallBack = null;

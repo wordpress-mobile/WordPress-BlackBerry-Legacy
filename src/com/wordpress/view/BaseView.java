@@ -2,6 +2,7 @@ package com.wordpress.view;
 
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.ui.Color;
+import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.XYEdges;
@@ -10,6 +11,7 @@ import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
+import com.wordpress.view.component.HeaderField;
 
 /**
  * Base class for all Application Screen
@@ -18,7 +20,15 @@ import com.wordpress.controller.BaseController;
  */
 public abstract class BaseView extends MainScreen{
 	
-	protected LabelField titleField; //main title of the screen
+	protected Field titleField; //main title of the screen
+	
+	//create a variable to store the ResourceBundle for localization support
+	protected static ResourceBundle _resources;
+	
+	static {
+		//retrieve a reference to the ResourceBundle for localization support
+		_resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
+	}
 	
 	public BaseView(long style) {
 		super(style);
@@ -35,25 +45,18 @@ public abstract class BaseView extends MainScreen{
 		titleField = getTitleField(title);
 		this.setTitle(titleField);
 	}
-
-	//create a variable to store the ResourceBundle for localization support
-    protected static ResourceBundle _resources;
-	    
-    static {
-        //retrieve a reference to the ResourceBundle for localization support
-        _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
-    }
-    
     
     //return the controller associated with this view
     public abstract BaseController getController();
     
     //create the title filed
-	protected LabelField getTitleField(String title) {
-		LabelField titleField = new LabelField(title, LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH | LabelField.HCENTER);
+	protected Field getTitleField(String title) {
+	/*	LabelField titleField = new LabelField(title, LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH | LabelField.HCENTER);
 		Font fnt = this.getFont().derive(Font.BOLD);
 		titleField.setFont(fnt);
-		return titleField;
+		return titleField;*/
+		HeaderField headerField = new HeaderField(title);
+		return (Field)headerField;
 	}
     
 	//common margin
@@ -61,7 +64,7 @@ public abstract class BaseView extends MainScreen{
     
     protected LabelField getLabel(String label) {
 		
-		LabelField lblField = new LabelField(label)
+		LabelField lblField = new LabelField(label + " ")
 		{
 		    public void paint(Graphics graphics)
 		    {
@@ -71,7 +74,6 @@ public abstract class BaseView extends MainScreen{
 		};
 	  	Font fnt = this.getFont().derive(Font.BOLD);
 	  	lblField.setFont(fnt);
-		lblField.setMargin(margins);
 		return lblField;
 	}
 	

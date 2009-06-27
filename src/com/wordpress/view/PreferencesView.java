@@ -9,6 +9,7 @@ import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
+import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.CheckboxField;
@@ -28,6 +29,7 @@ import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
 public class PreferencesView extends BaseView {
@@ -60,9 +62,7 @@ public class PreferencesView extends BaseView {
 	    	this.controller=_preferencesController;
 	    	
             addMultimediaOption();
-            add(new SeparatorField());
             addConnectionOptionsFields();
-            add(new SeparatorField());
             addWapOptionsFields();           
             
             ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
@@ -72,8 +72,10 @@ public class PreferencesView extends BaseView {
             buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
             buttonsManager.add(buttonOK);
     		buttonsManager.add(buttonBACK);
+    		
+    		this.add(new LabelField("", Field.NON_FOCUSABLE)); //space before buttons
     		add(buttonsManager); 
-
+    		
             //reset app temp file option
             add(new SeparatorField());
 			LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.DESCRIPTION_REMOVE_TEMPFILE)); 
@@ -89,162 +91,176 @@ public class PreferencesView extends BaseView {
 
 	 private void addConnectionOptionsFields(){
 
+		 BorderedFieldManager optManager = new BorderedFieldManager(
+				 Manager.NO_HORIZONTAL_SCROLL
+				 | Manager.NO_VERTICAL_SCROLL
+				 | BorderedFieldManager.BOTTOM_BORDER_NONE);
+		 
          //row allow description
          LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_DESC)); 
 		 Font fnt = this.getFont().derive(Font.ITALIC);
 		 lblDescReset.setFont(fnt);
-		 add(lblDescReset);
+		 optManager.add(lblDescReset);
 
 		 _userAllowWiFi=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_WIFI), mPrefs.isWiFiConnectionPermitted());
-		 add(_userAllowWiFi);
+		 optManager.add(_userAllowWiFi);
 		 _userAllowTCP=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_TCP), mPrefs.isTcpConnectionPermitted());
-		 add(_userAllowTCP);
+		 optManager.add(_userAllowTCP);
 		 _userAllowWap=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_WAP), mPrefs.isWapConnectionPermitted());
-		 add(_userAllowWap);
+		 optManager.add(_userAllowWap);
 		 _userAllowWAP2=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_WAP2), mPrefs.isServiceBookConnectionPermitted());
-		 add(_userAllowWAP2);
+		 optManager.add(_userAllowWAP2);
 		 _userAllowBES=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_BES), mPrefs.isBESConnectionPermitted());
-		 add(_userAllowBES);
+		 optManager.add(_userAllowBES);
+		 
+		 add(optManager);
 	 }
 
 	 
 	 
 	 private void addWapOptionsFields(){
-
+		 
+		 BorderedFieldManager optManager = new BorderedFieldManager(
+				 Manager.NO_HORIZONTAL_SCROLL
+				 | Manager.NO_VERTICAL_SCROLL
+				 | BorderedFieldManager.BOTTOM_BORDER_NONE);
+		 
 	      //row allow description
          LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_USERDEFINEDCONN_DESC)); 
 		 Font fnt = this.getFont().derive(Font.ITALIC);
 		 lblDescReset.setFont(fnt);
-		 add(lblDescReset);
+		 optManager.add(lblDescReset);
 		 
 		 userConnectionEnabledField=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_ENABLED), mPrefs.isUserConnectionOptionsEnabled());
-         add(userConnectionEnabledField);
+		 optManager.add(userConnectionEnabledField);
 		 
          //row _apn
          HorizontalFieldManager rowAPN = new HorizontalFieldManager();
          rowAPN.add( getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_APN)) ); 
          _apn = new EditField("", mPrefs.getApn());
-         _apn.setMargin(margins);
          rowAPN.add(_apn);
-         add(rowAPN);
+         optManager.add(rowAPN);
          
          //row _username
          HorizontalFieldManager rowUserName = new HorizontalFieldManager();
          rowUserName.add( getLabel(_resources.getString(WordPressResource.LABEL_USERNAME)) ); 
          _username = new EditField("", mPrefs.getUsername());
-         _username.setMargin(margins);
          rowUserName.add(_username);
-         add(rowUserName);
+         optManager.add(rowUserName);
          
          //row _password
          HorizontalFieldManager rowPass = new HorizontalFieldManager();
          rowPass.add( getLabel(_resources.getString(WordPressResource.LABEL_PASSWD)) ); 
          _password = new EditField("", mPrefs.getPassword());
-         _password.setMargin(margins);
          rowPass.add(_password);
-         add(rowPass);
+         optManager.add(rowPass);
 
          //row is wap connection?
          userConnectionWapTypeField=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_ISWAP), mPrefs.isUserConnectionWap());
-         add(userConnectionWapTypeField);
+         optManager.add(userConnectionWapTypeField);
          
          //row _gateway IP
          HorizontalFieldManager rowGTW = new HorizontalFieldManager();
          rowGTW.add( getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_GWAY)) ); 
          _gateway = new EditField("", mPrefs.getGateway(), 100, Field.EDITABLE);
          _gateway.setFilter(new URLTextFilter());
-         _gateway.setMargin(margins);
          rowGTW.add(_gateway);
-         add(rowGTW);
+         optManager.add(rowGTW);
          
          //row _gatewayPort
          HorizontalFieldManager rowGTWport = new HorizontalFieldManager();
          rowGTWport.add( getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_GWAYPORT)) ); 
          _gatewayPort = new EditField("", mPrefs.getGatewayPort(), EditField.DEFAULT_MAXCHARS, EditField.FILTER_INTEGER);
-         _gatewayPort.setMargin(margins);
          rowGTWport.add(_gatewayPort);
-         add(rowGTWport);
+         optManager.add(rowGTWport);
          
          //row _sourcePort
          HorizontalFieldManager rowSourcePort = new HorizontalFieldManager();
          rowSourcePort.add( getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_SRCPORT)) ); 
          _sourcePort = new EditField("", mPrefs.getSourcePort(), EditField.DEFAULT_MAXCHARS, EditField.FILTER_INTEGER);
-         _sourcePort.setMargin(margins);
          rowSourcePort.add(_sourcePort);
-         add(rowSourcePort);
+         optManager.add(rowSourcePort);
          
          //row _sourceIP
          HorizontalFieldManager rowSourceIP = new HorizontalFieldManager();
          rowSourceIP.add( getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_SRCIP)) ); 
          _sourceIP = new EditField("", mPrefs.getSourceIP());
-         _sourceIP.setMargin(margins);
          rowSourceIP.add(_sourceIP);
-         add(rowSourceIP);
+         optManager.add(rowSourceIP);
+         
+         add(optManager);
          
 	 }
 	 
 	 
 	 private void addMultimediaOption() {
-			//audio config 
-			if( MultimediaUtils.isAudioRecordingSuported()){
-				String[] lines=MultimediaUtils.getSupportedAudioFormat();
-				int selectedIndex=0;
-		        for (int i = 0; i < lines.length; i++) {
-		        	if(lines[i].equalsIgnoreCase(mPrefs.getAudioEncoding())){
-		        		selectedIndex=i;
-		    	 	}
-				}
-		       
-		    	audioGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_AUDIOENCODING),lines,selectedIndex);
-		    	//audioGroup.setChangeListener(controller.getAudioListener());
-				add( audioGroup );
-			} else {
-				LabelField lbl = new LabelField(_resources.getString(WordPressResource.LABEL_AUDIORECORDING_NOTSUPPORTED));
-				Font fnt = this.getFont().derive(Font.ITALIC);
-				lbl.setFont(fnt);
-				add(lbl);
-			}
-			
-			//photo config
-			if(MultimediaUtils.isPhotoCaptureSupported()){
-				String[] lines=MultimediaUtils.getSupportedPhotoFormat();
-				int selectedIndex=0;
-		        for (int i = 0; i < lines.length; i++) {
-		        	if(lines[i].equalsIgnoreCase(mPrefs.getPhotoEncoding())){
-		        		selectedIndex=i;
-		    	 	}
-				}
-		       
-		    	photoGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_PHOTOENCODING),lines,selectedIndex);
-		    	//photoGroup.setChangeListener(controller.getPhotoListener());
-				add( photoGroup );
-			} else {
-				LabelField lbl = new LabelField(_resources.getString(WordPressResource.LABEL_PHOTO_NOTSUPPORTED));
-				Font fnt = this.getFont().derive(Font.ITALIC);
-				lbl.setFont(fnt);
-				add(lbl);
-			}
-			
-			//video config
-			if(MultimediaUtils.isVideoRecordingSupported()){
-				String[] lines=MultimediaUtils.getSupportedVideoFormat();
-				int selectedIndex=0;
-		        for (int i = 0; i < lines.length; i++) {
-		        	if(lines[i].equalsIgnoreCase(mPrefs.getVideoEncoding())){
-		        		selectedIndex=i; 
-		    	 	}
-				}
-		        
-		    	videoGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_VIDEOENCODING),lines,selectedIndex);
-		    	//videoGroup.setChangeListener(controller.getVideoListener());
-				add( videoGroup );
-			} else {
-				LabelField lbl = new LabelField(_resources.getString(WordPressResource.LABEL_VIDEORECORDING_NOTSUPPORTED));
-				Font fnt = this.getFont().derive(Font.ITALIC);
-				lbl.setFont(fnt);
-				add(lbl);
-			}
-		}
+		 
+		 BorderedFieldManager multimediaOptManager = new BorderedFieldManager(
+				 Manager.NO_HORIZONTAL_SCROLL
+				 | Manager.NO_VERTICAL_SCROLL
+				 | BorderedFieldManager.BOTTOM_BORDER_NONE);
+		 
+		 //audio config 
+		 if( MultimediaUtils.isAudioRecordingSuported()){
+			 String[] lines=MultimediaUtils.getSupportedAudioFormat();
+			 int selectedIndex=0;
+			 for (int i = 0; i < lines.length; i++) {
+				 if(lines[i].equalsIgnoreCase(mPrefs.getAudioEncoding())){
+					 selectedIndex=i;
+				 }
+			 }
+			 
+			 audioGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_AUDIOENCODING),lines,selectedIndex);
+			 //audioGroup.setChangeListener(controller.getAudioListener());
+			 multimediaOptManager.add( audioGroup );
+		 } else {
+			 LabelField lbl = new LabelField(_resources.getString(WordPressResource.LABEL_AUDIORECORDING_NOTSUPPORTED));
+			 Font fnt = this.getFont().derive(Font.ITALIC);
+			 lbl.setFont(fnt);
+			 multimediaOptManager.add(lbl);
+		 }
+		 
+		 //photo config
+		 if(MultimediaUtils.isPhotoCaptureSupported()){
+			 String[] lines=MultimediaUtils.getSupportedPhotoFormat();
+			 int selectedIndex=0;
+			 for (int i = 0; i < lines.length; i++) {
+				 if(lines[i].equalsIgnoreCase(mPrefs.getPhotoEncoding())){
+					 selectedIndex=i;
+				 }
+			 }
+			 
+			 photoGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_PHOTOENCODING),lines,selectedIndex);
+			 //photoGroup.setChangeListener(controller.getPhotoListener());
+			 multimediaOptManager.add( photoGroup );
+		 } else {
+			 LabelField lbl = new LabelField(_resources.getString(WordPressResource.LABEL_PHOTO_NOTSUPPORTED));
+			 Font fnt = this.getFont().derive(Font.ITALIC);
+			 lbl.setFont(fnt);
+			 multimediaOptManager.add(lbl);
+		 }
+		 
+		 //video config
+		 if(MultimediaUtils.isVideoRecordingSupported()){
+			 String[] lines=MultimediaUtils.getSupportedVideoFormat();
+			 int selectedIndex=0;
+			 for (int i = 0; i < lines.length; i++) {
+				 if(lines[i].equalsIgnoreCase(mPrefs.getVideoEncoding())){
+					 selectedIndex=i; 
+				 }
+			 }
+			 
+			 videoGroup = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_VIDEOENCODING),lines,selectedIndex);
+			 //videoGroup.setChangeListener(controller.getVideoListener());
+			 multimediaOptManager.add( videoGroup );
+		 } else {
+			 LabelField lbl = new LabelField(_resources.getString(WordPressResource.LABEL_VIDEORECORDING_NOTSUPPORTED));
+			 Font fnt = this.getFont().derive(Font.ITALIC);
+			 lbl.setFont(fnt);
+			 multimediaOptManager.add(lbl);
+		 }
+		 add(multimediaOptManager);	
+	 }
 	 
 	 
 	 

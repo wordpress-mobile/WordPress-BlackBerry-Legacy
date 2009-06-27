@@ -19,6 +19,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PagesController;
 import com.wordpress.model.Page;
+import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.component.PostsListField;
 
 public class PagesView extends BaseView {
@@ -53,8 +54,8 @@ public class PagesView extends BaseView {
 	        topButtonsManager.add(buttonDraftPosts);
 	        topButtonsManager.add(buttonRefresh);
 	        
-	    	  //A HorizontalFieldManager to hold the posts number label
-	        HorizontalFieldManager postNumberManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
+	    	  //A HorizontalFieldManager to hold the page number label
+	        HorizontalFieldManager postNumberManager = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
 	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
 
 	        
