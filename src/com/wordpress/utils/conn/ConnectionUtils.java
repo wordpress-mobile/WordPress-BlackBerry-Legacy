@@ -102,7 +102,7 @@ public class ConnectionUtils {
         if (RadioInfo.areWAFsSupported(networkType)) {
             int status = CoverageInfo.getCoverageStatus(networkType, false);
             switch (status) {
-                case CoverageInfo.COVERAGE_DIRECT: //TODO if we switch back to < 4.5 we must use CARRIER
+                case CoverageInfo.COVERAGE_CARRIER: //TODO if we switch back to < 4.5 we must use CARRIER
                     return COVERAGE_CARRIER;
                 case CoverageInfo.COVERAGE_MDS:
                     return COVERAGE_MDS;

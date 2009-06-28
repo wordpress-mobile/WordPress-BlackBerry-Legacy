@@ -9,13 +9,11 @@ import javax.microedition.lcdui.Image;
 import net.rim.device.api.math.Fixed32;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.EncodedImage;
-import net.rim.device.api.system.JPEGEncodedImage;
 
 
 public class MultimediaUtils {
 
-	
-	public static Hashtable resizePhotoAndOutputJpeg(byte[] data, String fileName) throws IOException {
+		public static Hashtable resizePhotoAndOutputJpeg(byte[] data, String fileName) throws IOException {
 				
 		EncodedImage originalImage = EncodedImage.createEncodedImage(data, 0, -1);
 		Hashtable content = new Hashtable(2);
@@ -35,33 +33,22 @@ public class MultimediaUtils {
 		EncodedImage bestFit2 = bestFit2(originalImage, 640, 480);
 		originalImage = null;
 		Bitmap resizedBitmap = bestFit2.getBitmap();
-		
-		EncodedImage resizedEncodedImg = null;
-		
-		switch (type) {
-		case EncodedImage.IMAGE_TYPE_JPEG:
-			resizedEncodedImg= JPEGEncodedImage.encode(resizedBitmap, 100);
-			break;
-
-		default:
-			resizedEncodedImg= JPEGEncodedImage.encode(resizedBitmap, 75);
-			//check file name ext eventually add jpg ext
-			if (fileName.endsWith("jpg") || fileName.endsWith("JPG")){
-				
-			} else {
-				fileName+=".jpg";
-			}
-			break;
+	
+		if (fileName.endsWith("png") || fileName.endsWith("PNG")){
+			
+		} else {
+			fileName+=".png";
 		}
 		
+		PNGEncoder encoderPNG = new PNGEncoder(resizedBitmap,true);
+		byte[] imageBytes = encoderPNG.encode(true);
 		
+		//EncodedImage fullImage = EncodedImage.createEncodedImage(imageBytes, 0, imageBytes.length);
 		content.put("name", fileName);
-		content.put("height", String.valueOf(resizedEncodedImg.getHeight()));
-		content.put("width", String.valueOf(resizedEncodedImg.getWidth()));
-		content.put("bits",  resizedEncodedImg.getData());
+		content.put("height", String.valueOf(resizedBitmap.getHeight()));
+		content.put("width", String.valueOf(resizedBitmap.getWidth()));
+		content.put("bits", imageBytes );
 		return content;
-
-	    	
 	}
 
 

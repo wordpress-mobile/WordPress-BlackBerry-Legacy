@@ -3,7 +3,6 @@ package com.wordpress.view;
 import java.util.Date;
 import java.util.TimeZone;
 
-import net.rim.device.api.i18n.Locale;
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
@@ -12,7 +11,6 @@ import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.DateField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.PasswordEditField;
-import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 
 import com.wordpress.bb.WordPressResource;

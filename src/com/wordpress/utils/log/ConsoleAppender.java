@@ -2,7 +2,6 @@ package com.wordpress.utils.log;
 
 import java.util.Date;
 
-import javax.microedition.global.Formatter;
 
 import com.wordpress.utils.CalendarUtils;
 

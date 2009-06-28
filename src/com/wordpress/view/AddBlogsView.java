@@ -127,7 +127,7 @@ public class AddBlogsView extends BaseView {
             
             HorizontalFieldManager buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
             buttonsManager.add(buttonOK);
-    		buttonsManager.add(buttonBACK);
+            buttonsManager.add(buttonBACK);
     		this.add(new LabelField("", Field.NON_FOCUSABLE)); //space before buttons
     		add(buttonsManager); 
     		

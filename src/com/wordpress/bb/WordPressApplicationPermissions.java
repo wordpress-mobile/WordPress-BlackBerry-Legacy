@@ -46,8 +46,9 @@ public class WordPressApplicationPermissions{
         // Capture the current state of permissions and check against the requirements.
         ApplicationPermissions original = ApplicationPermissionsManager.getInstance().getApplicationPermissions();
         
-        if( original.getPermission( ApplicationPermissions.PERMISSION_MEDIA ) == ApplicationPermissions.VALUE_ALLOW &&
-            original.getPermission( ApplicationPermissions.PERMISSION_SCREEN_CAPTURE ) == ApplicationPermissions.VALUE_ALLOW &&
+        if( //original.getPermission( ApplicationPermissions.PERMISSION_MEDIA ) == ApplicationPermissions.VALUE_ALLOW &&
+            original.getPermission( ApplicationPermissions.PERMISSION_IDLE_TIMER ) == ApplicationPermissions.VALUE_ALLOW &&
+            original.getPermission( ApplicationPermissions.PERMISSION_EVENT_INJECTOR ) == ApplicationPermissions.VALUE_ALLOW &&
             original.getPermission( ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS ) == ApplicationPermissions.VALUE_ALLOW &&
             original.getPermission( ApplicationPermissions.PERMISSION_FILE_API ) == ApplicationPermissions.VALUE_ALLOW ) 
         {
@@ -60,8 +61,8 @@ public class WordPressApplicationPermissions{
         // values since that provides little value for the application or the user.  
         // Please only request the permissions needed for your application.
         ApplicationPermissions permRequest = new ApplicationPermissions();
-        permRequest.addPermission( ApplicationPermissions.PERMISSION_MEDIA );
-        permRequest.addPermission( ApplicationPermissions.PERMISSION_SCREEN_CAPTURE );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_IDLE_TIMER );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_EVENT_INJECTOR );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_FILE_API );
         
@@ -91,7 +92,8 @@ public class WordPressApplicationPermissions{
     
    
    public boolean  isScreenCapturePermitted(){
-	  return isAllowed(ApplicationPermissions.PERMISSION_SCREEN_CAPTURE);
+	   return true;
+	//  return isAllowed(ApplicationPermissions.PERMISSION_SCREEN_CAPTURE);
     }
   
 }

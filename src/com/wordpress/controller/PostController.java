@@ -136,31 +136,44 @@ public class PostController extends BlogObjectController {
 		
 	
 	public String getPostCategoriesLabel() {
-		Category[] availableCategories = post.getBlog().getCategories();
-		int[] postCategories = post.getCategories();
-		StringBuffer categoriesLabel = new StringBuffer();
+		//start with categories
+		int[] selectedCategories = post.getCategories();
+		Category[] blogCategories = post.getBlog().getCategories();
 		
-		if (postCategories != null && availableCategories != null) {
-            for (int i = 0; i < postCategories.length; i++) {
-            	int idCatPost = postCategories[i];
-            	
-            	for (int j = 0; j < availableCategories.length; j++) {
-            		Category category = availableCategories[j];
-            		String idString = category.getId();
-            		int idCat = Integer.parseInt(idString);
-            		if( idCatPost == idCat ) categoriesLabel.append(category.getLabel()+" ");
+		Vector categoriesLabelVector;		
+		if(selectedCategories != null && selectedCategories.length >0 ) {
+			categoriesLabelVector  = new Vector(selectedCategories.length);
+		
+			for (int i = 0; i < blogCategories.length; i++) {
+				Category category = blogCategories[i];
 				
-            	}
-            }
-		} 
+				if(selectedCategories != null) {
+					for (int j = 0; j < selectedCategories.length; j++) {
+						if(selectedCategories[j] == Integer.parseInt(category.getId()) ){
+							categoriesLabelVector.addElement( category.getLabel());
+							break;
+						}
+					}
+				}
+			}
 		
-		String labels = categoriesLabel.toString();
-		if(labels.length() == 0 ){
-			String emptyCatLabel = _resources.getString(WordPressResource.LABEL_OPTIONAL);
-			return emptyCatLabel;
 		} else {
-			return labels;			
+			categoriesLabelVector  = new Vector(0);
 		}
+
+		//fill the cat string buffer
+		StringBuffer categoriesLabel = new StringBuffer();
+		for (int i = 0; i < categoriesLabelVector.size(); i++) {
+			String catLabel = (String) categoriesLabelVector.elementAt(i);
+			if(i == 0) {
+				categoriesLabel.append(catLabel);
+			} else {
+				categoriesLabel.append(", "+catLabel);
+			}
+		}
+		//end with cat
+		
+		return categoriesLabel.toString();
 	}
 	
 	public void newCategory(String label, int parentCatID){	
@@ -446,43 +459,6 @@ public class PostController extends BlogObjectController {
 		if(tags !=null && tags.trim().length()>0) 
 			tags= "Tags: "+tags;
 		
-		//start with categories
-		int[] selectedCategories = post.getCategories();
-		Category[] blogCategories = post.getBlog().getCategories();
-		
-		Vector categoriesLabelVector;		
-		if(selectedCategories != null && selectedCategories.length >0 ) {
-			categoriesLabelVector  = new Vector(selectedCategories.length);
-		
-			for (int i = 0; i < blogCategories.length; i++) {
-				Category category = blogCategories[i];
-				
-				if(selectedCategories != null) {
-					for (int j = 0; j < selectedCategories.length; j++) {
-						if(selectedCategories[j] == Integer.parseInt(category.getId()) ){
-							categoriesLabelVector.addElement( category.getLabel());
-							break;
-						}
-					}
-				}
-			}
-		
-		} else {
-			categoriesLabelVector  = new Vector(0);
-		}
-
-		//fill the cat string buffer
-		StringBuffer categoriesLabel = new StringBuffer();
-		for (int i = 0; i < categoriesLabelVector.size(); i++) {
-			String catLabel = (String) categoriesLabelVector.elementAt(i);
-			if(i == 0) {
-				categoriesLabel.append("Categories: "+catLabel);
-			} else {
-				categoriesLabel.append(", "+catLabel);
-			}
-		}
-		//end with cat
-		
 		String[] draftPostPhotoList = getPhotoList();
 		StringBuffer photoHtmlFragment = new StringBuffer();
 		
@@ -503,7 +479,7 @@ public class PostController extends BlogObjectController {
 		html = StringUtils.replaceAll(html, "!$title$!", title);
 		html = StringUtils.replaceAll(html, "<p>!$text$!</p>", buildBodyHtmlFragment(content)+ photoHtmlFragment.toString());
 		html = StringUtils.replaceAll(html, "!$mt_keywords$!", tags);
-		html = StringUtils.replaceAll(html, "!$categories$!", categoriesLabel.toString());
+		html = StringUtils.replaceAll(html, "!$categories$!", "Categories: "+getPostCategoriesLabel());
 		
 		UiApplication.getUiApplication().pushScreen(new PreviewView(html));	
 	}

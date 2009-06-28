@@ -41,7 +41,9 @@ public class AboutView extends BaseView {
     	VerticalFieldManager col1= new VerticalFieldManager();
     	VerticalFieldManager col2= new VerticalPaddedFieldManager();
     	    	
-    	col1.add(new BitmapField(_bitmap, Field.FIELD_HCENTER | Field.FIELD_VCENTER));    	
+    	BitmapField wpLogo = new BitmapField(_bitmap, Field.FIELD_HCENTER | Field.FIELD_VCENTER);
+    	wpLogo.setSpace(5, 5);
+		col1.add(wpLogo);    	
     	LabelField titleField = new LabelField("WordPress for BlackBerry");
     	Font fnt = this.getFont().derive(Font.BOLD);
     	titleField.setFont(fnt);
@@ -49,7 +51,7 @@ public class AboutView extends BaseView {
     	
     	col2.add(new LabelField("version "+version));
     	col2.add(new LabelField("",Field.FOCUSABLE));
-    	col2.add(new LabelField("An Open Source BlackBerry app for Wordpress sites."));
+    	col2.add(new LabelField("An Open Source BlackBerry app for WordPress sites."));
     	col2.add(new LabelField());
     	col2.add(new LabelField("Designed by Automattic & developed by Danais."));
     	col2.add(new LabelField());

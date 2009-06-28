@@ -108,6 +108,7 @@ src\com\wordpress\utils\MD5State.java
 src\com\wordpress\utils\MultimediaUtils.java
 src\com\wordpress\utils\observer\Observable.java
 src\com\wordpress\utils\observer\Observer.java
+src\com\wordpress\utils\PNGEncoder.java
 src\com\wordpress\utils\PropertyUtils.java
 src\com\wordpress\utils\Queue.java
 src\com\wordpress\utils\SecondaryResourceFetchThread.java

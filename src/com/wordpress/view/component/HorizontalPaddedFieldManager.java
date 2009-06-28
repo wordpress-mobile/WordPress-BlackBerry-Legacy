@@ -25,13 +25,13 @@ public class HorizontalPaddedFieldManager extends HorizontalFieldManager {
         for (int i = 0;  i < getFieldCount();  i++) {
             
         	Field field = getField(i);    
-        	availableWidth= availableWidth - PADDING; //remove the space occupied by left padding from available width
+        	availableWidth= availableWidth - PADDING; //remove the space occupied by padding from available width
             layoutChild( field, availableWidth,  getPreferredHeightOfChild(field));
             availableWidth= availableWidth - (field.getWidth()); 
             
             setPositionChild(field, x+(PADDING/2), y);
                                   	
-            x += field.getWidth()+PADDING ;
+            x += field.getWidth()+(PADDING/2) ;
             y = 5;
         }
      //setExtent(width, height);
