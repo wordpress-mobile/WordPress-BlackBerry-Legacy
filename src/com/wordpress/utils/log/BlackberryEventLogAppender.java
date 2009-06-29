@@ -4,7 +4,7 @@ import net.rim.device.api.system.EventLogger;
 
 public class BlackberryEventLogAppender implements Appender {
 
-    private final static long guid =0x7b7f78a7b708bd7aL;
+    private final static long guid = 0x7b7f78a7b708bd7aL;
     private String appName;
     private boolean isOpen = false;
 

@@ -9,13 +9,8 @@ public class TcpConfig extends AbstractConfiguration {
 	 * TCP Settings Class
 	 */
 	public TcpConfig() {
-		super();
-		
+		super();	
        setUrlParameters(BASE_CONFIG_PARAMETERS);
        setDescription(TCP_CONFIG_DESCRIPTION);
-        //Grants automatically connections for specific TCP setting
-        //manually set by the user in the Options -> Advanced Options -> TCP
-        //device's configuration screen
-       //  setPermission(PERMISSION_GRANTED);
 	}
 }

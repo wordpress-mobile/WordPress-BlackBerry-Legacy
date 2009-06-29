@@ -108,7 +108,7 @@ public class ConnectionConfig {
         boolean isUsCountry = false;
         if (serviceBookApn != null) {
             Log.trace("[ConnectionConfig.isUSCarrier]ServiceBook APN is not null");
-            WapGateway gateway = findGatewayByApn(serviceBookApn);
+            Gateway gateway = findGatewayByApn(serviceBookApn);
             if (gateway != null) {
                 Log.trace("[ConnectionConfig.isUSCarrier]Gateway is not null");
                 Log.trace("[ConnectionConfig.isUSCarrier]APN: " + gateway.getApn());
@@ -141,7 +141,7 @@ public class ConnectionConfig {
         Log.debug("[ConnectionConfig]Trying to find gateway for APN: " + serviceBookApn);
 
         if (serviceBookApn != null) {
-            WapGateway gateway = findGatewayByApn(serviceBookApn);
+            Gateway gateway = findGatewayByApn(serviceBookApn);
             return ConnectionUtils.buildWapConnectionString(gateway);
         } else 
         	return("");
@@ -205,10 +205,10 @@ public class ConnectionConfig {
      * ibox.tim.it as apnList, this is due to the fact that some apns does not allow
      * tcp communications
      */
-    private static WapGateway findGatewayByApn(String[] apnList) {
+    private static Gateway findGatewayByApn(String[] apnList) {
         for (int i = 0; i < apnList.length; i++) {
             if (apnList[i] != null) {
-                WapGateway ret = (WapGateway) apnTable.get(apnList[i].toLowerCase());
+                Gateway ret = (Gateway) apnTable.get(apnList[i].toLowerCase());
                 if (ret != null) {
                     Log.debug("[ConnectionConfig]ApnTable returned " + ret.getApn() + " for apn " + apnList[i]);
                     return ret;
@@ -236,23 +236,23 @@ public class ConnectionConfig {
         //  ATT Orange (Cingular)
         //-------------------------
         apnTable.put("wap.cingular",
-                new WapGateway("wap.cingular", "WAP@CINGULARGPRS.COM", "CINGULAR1", COUNTRY_US));
+                new Gateway("wap.cingular", "WAP@CINGULARGPRS.COM", "CINGULAR1", COUNTRY_US));
         //-------------------------
         //T-Mobile US1
         //-------------------------
         apnTable.put("internet2.voicestream.com",
-                new WapGateway("internet2.voicestream.com", null, null, COUNTRY_US));
+                new Gateway("internet2.voicestream.com", null, null, COUNTRY_US));
         //-------------------------
         //T-Mobile US2
         //-------------------------
         apnTable.put("wap.voicestream.com",
-                new WapGateway("wap.voicestream.com", null, null, COUNTRY_US));
+                new Gateway("wap.voicestream.com", null, null, COUNTRY_US));
         //-------------------------
         //Sprint: 
         // NOTE: should be internet.com but there could be other parameters
         //-------------------------
         apnTable.put("internet.com",
-                new WapGateway("internet.com", null, null, COUNTRY_US));
+                new Gateway("internet.com", null, null, COUNTRY_US));
 
         //-------------------------
         //Verizon: should work with no apnList
@@ -265,14 +265,14 @@ public class ConnectionConfig {
         //-------------------------
         //Tim, both gprs and wap
         //-------------------------
-        WapGateway tim = new WapGateway("ibox.tim.it", null, null, COUNTRY_IT);
+        Gateway tim = new Gateway("ibox.tim.it", null, null, COUNTRY_IT);
         apnTable.put("ibox.tim.it", tim);
         apnTable.put("wap.tim.it", tim);
         
         //-------------------------
         // Wind
         //-------------------------
-        WapGateway wind = new WapGateway("internet.wind", null, null, COUNTRY_IT);
+        Gateway wind = new Gateway("internet.wind", null, null, COUNTRY_IT);
         apnTable.put("internet.wind", wind);
         apnTable.put("internet.wind.biz", wind);
         apnTable.put("wap.wind.biz", wind);
@@ -280,7 +280,7 @@ public class ConnectionConfig {
         //-------------------------
         // Omnitel (Vodafone IT)
         //-------------------------
-        WapGateway omni = new WapGateway("web.omnitel.it", null, null, COUNTRY_IT);
+        Gateway omni = new Gateway("web.omnitel.it", null, null, COUNTRY_IT);
         apnTable.put("web.omnitel.it", omni);
         apnTable.put("wap.omnitel.it", omni);
 
@@ -291,7 +291,7 @@ public class ConnectionConfig {
         //-------------------------
         // Vodafone DE, wap
         //-------------------------
-        WapGateway vodafoneDe = new WapGateway("wap.vodafone.de", null, null, "139.7.29.1", COUNTRY_DE);
+        Gateway vodafoneDe = new Gateway("wap.vodafone.de", null, null, "139.7.29.1", COUNTRY_DE);
         apnTable.put("wap.vodafone.de", vodafoneDe);
 
         Log.debug("[ConnectionConfig] apntable created");

@@ -1,19 +1,12 @@
 package com.wordpress.utils.conn;
 
 import net.rim.device.api.i18n.ResourceBundle;
-import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.log.Log;
-import com.wordpress.view.dialog.InquiryView;
 
-/**
- * the simplest connection handler ever.
- * 
- */
-public class BasicConnectionListener {
+public class ConnectionListener {
 
 	//create a variable to store the ResourceBundle for localization support
     protected static ResourceBundle _resources;

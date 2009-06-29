@@ -220,7 +220,7 @@ public class ConnectionUtils {
     }
     
   // Return Wireless service provider WAP 1.x gateway connection string
-    static String buildWapConnectionString(WapGateway gateway){
+    static String buildWapConnectionString(Gateway gateway){
     	 StringBuffer options = new StringBuffer("");
     	 if (gateway != null) {
     		 if(gateway.getApn() != null) {

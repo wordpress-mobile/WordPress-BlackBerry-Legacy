@@ -195,13 +195,15 @@ Build file for WordPress
             <fileset dir="${dir.output.sign}" includes="*.cod" />
         </jadtool>
         
-    	<copy file="${dir.output.release}/ota/${module.name}.jad"
+    	<!-- disable storm compatibility mode -->
+   	<!-- propertyfile file="${dir.output.release}/ota/${module.name}.jad">
+        	  <entry key="RIM-TouchCompatibilityMode" value="false" />
+              <entry key="RIM-TouchCompatibilityMode-UserChangeable" value="true" />
+   	</propertyfile -->
+
+    <copy file="${dir.output.release}/ota/${module.name}.jad"
     		tofile="${dir.output.release}/ota/${module.release.prefix}.jad" />
     		
-    	
-    <!-- 	<propertyfile file="${dir.output.release}/ota/${module.name}.jad">
-    	            <entry key="build_date" type="date" value="now" pattern="yyyyMMdd"/>
-    	</propertyfile> -->
     </target>
 
     <target name="alx" depends="init">

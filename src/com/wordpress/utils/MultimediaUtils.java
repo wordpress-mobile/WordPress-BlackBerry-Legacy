@@ -6,6 +6,8 @@ import java.util.Hashtable;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
+import com.wordpress.utils.log.Log;
+
 import net.rim.device.api.math.Fixed32;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.EncodedImage;
@@ -40,8 +42,15 @@ public class MultimediaUtils {
 			fileName+=".png";
 		}
 		
-		PNGEncoder encoderPNG = new PNGEncoder(resizedBitmap,true);
-		byte[] imageBytes = encoderPNG.encode(true);
+		//PNGEncoder encoderPNG = new PNGEncoder(resizedBitmap,true);
+		//byte[] imageBytes = encoderPNG.encode(true);
+		byte[] imageBytes;
+		try {
+			imageBytes = toPNG(resizedBitmap);
+		} catch (Exception e) {
+			Log.error(e, "Error during PNG encoding");
+			imageBytes = data;
+		}
 		
 		//EncodedImage fullImage = EncodedImage.createEncodedImage(imageBytes, 0, imageBytes.length);
 		content.put("name", fileName);
@@ -51,7 +60,43 @@ public class MultimediaUtils {
 		return content;
 	}
 
-
+		
+		/** 
+		 * Returns a PNG stored in a byte array from the supplied Image.
+		 *
+		 * @param image   an Image object
+		 * @return        a byte array containing PNG data
+		 * @throws IOException 
+		 *
+		 */
+		public static byte[] toPNG(Bitmap image) throws IOException {
+			
+			int imageSize = image.getWidth() * image.getHeight();
+			int[] rgbs = new int[imageSize];
+			byte[] a, r, g, b;
+			int colorToDecode;
+			
+			image.getARGB(rgbs, 0, image.getWidth() , 0, 0, image.getWidth(), image.getHeight());
+			
+			a = new byte[imageSize];
+			r = new byte[imageSize];
+			g = new byte[imageSize];
+			b = new byte[imageSize];
+			
+			for (int i = 0; i < imageSize; i++) {
+				colorToDecode = rgbs[i];
+				
+				a[i] = (byte) ((colorToDecode & 0xFF000000) >>> 24);
+				r[i] = (byte) ((colorToDecode & 0x00FF0000) >>> 16);
+				g[i] = (byte) ((colorToDecode & 0x0000FF00) >>> 8);
+				b[i] = (byte) ((colorToDecode & 0x000000FF));
+			}
+			
+			return MinimalPNGEncoder.toPNG(image.getWidth(), image.getHeight(), a, r, g, b);
+		}
+		
+		
+		
 	private static Image createResizedImg(Image image) {
 	    int sourceWidth = image.getWidth();
 	    int sourceHeight = image.getHeight();

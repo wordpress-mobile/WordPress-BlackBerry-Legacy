@@ -58,9 +58,6 @@ import com.wordpress.utils.log.Log;
 
 public class ConnectionManager {
 
-	/**String representation of SMS connection*/
-    private static final String SMS_URL = "sms://:";
-
     /**WORKING configurations ID*/
     protected static int workingConfigID = ConnectionConfig.CONFIG_NONE;
 
@@ -71,7 +68,7 @@ public class ConnectionManager {
     private static ConnectionManager instance = null;
     
     /**ConnectionListener*/
-    private BasicConnectionListener connectionListener = new BasicConnectionListener();
+    private ConnectionListener connectionListener = new ConnectionListener();
 
     private String connectionParameters = null;
     
@@ -94,7 +91,7 @@ public class ConnectionManager {
         if (instance == null) {
             Log.debug("[ConnectionManager.getInstance]Creating new connection manager");
             instance = new ConnectionManager();
-            instance.setConnectionListener(new BasicConnectionListener());
+            instance.setConnectionListener(new ConnectionListener());
         }
         return instance;
     }
@@ -124,10 +121,6 @@ public class ConnectionManager {
     public synchronized Connection open(String url, int accessMode, boolean enableTimeoutException)
     throws IOException {
 
-        //A message connection is required. It needs no parameters
-        if (url.indexOf(SMS_URL)>0) {
-            return Connector.open(url);
-        }
         
         if (this.connectionParameters!=null) {
             Log.debug("[ConnectionManager.open]Fixed Apn parameters detected for this connection: " + url + this.connectionParameters);
@@ -138,7 +131,7 @@ public class ConnectionManager {
         if (userPreferences.isUserConnectionOptionsEnabled()) {
         	String gtwUrl = "";
         	if(userPreferences.isUserConnectionWap()) { //if the user APN is WAP
-	        	WapGateway gtw = new WapGateway(userPreferences.getApn(), userPreferences.getUsername(),
+	        	Gateway gtw = new Gateway(userPreferences.getApn(), userPreferences.getUsername(),
 	        			userPreferences.getPassword(), userPreferences.getGateway(), null);
 	        	
 	        	gtw.setGatewayPort(userPreferences.getGatewayPort());
@@ -369,7 +362,7 @@ public class ConnectionManager {
      * Accessor method to set the connection listener 
      * @param cl the connection listener to be set
      */
-    public void setConnectionListener(BasicConnectionListener cl) {
+    public void setConnectionListener(ConnectionListener cl) {
         this.connectionListener = cl;
     }
 
@@ -377,7 +370,7 @@ public class ConnectionManager {
      * Accessor method to get the current connection listener 
      * @return ConnectionListener related to this ConnectionManager instance
      */
-    public BasicConnectionListener getConnectionListener() {
+    public ConnectionListener getConnectionListener() {
         return connectionListener;
     }
 
