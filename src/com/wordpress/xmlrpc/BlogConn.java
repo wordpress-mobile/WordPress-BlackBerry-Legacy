@@ -76,11 +76,11 @@ public abstract class BlogConn extends Observable implements Runnable {
 		} catch (ConnectionNotFoundException cnfe) {
 			setErrorMessage(cnfe, "The server was not found");
 		} catch (IOException ioe) {
-			setErrorMessage(ioe, "A server communications error occured:");
+			setErrorMessage(ioe, "A server communications error occured");
 		} catch (XmlRpcException xre) {
 			setErrorMessage(xre, "Blog Message (code " +xre.code+")");
 		} catch (Exception t) {
-			setErrorMessage(t, "An error occured :");
+			setErrorMessage(t, "An error occured");
 		} 
    	 
   	   System.out.println("termine richiesta XML-RPC");
@@ -119,43 +119,42 @@ public abstract class BlogConn extends Observable implements Runnable {
 		try{
 			
 			Hashtable StructData = new Hashtable(5);
-	
-			if (postId > 0) {
-	            StructData.put("post_id", String.valueOf(postId));
-	        } else {
-	        	
-	        }
 			
-	        StructData.put("comment_status", status);
-	        
+			if (postId > 0) {
+				StructData.put("post_id", String.valueOf(postId));
+			} else {
+				
+			}
+			
+			StructData.put("comment_status", status);
+			
 			if (offset!=0 ) {
-	            StructData.put("offset", String.valueOf(offset));
-	        }
+				StructData.put("offset", String.valueOf(offset));
+			}
 			if (number != 0) {
-	            StructData.put("number", String.valueOf(number));
-	        }
+				StructData.put("number", String.valueOf(number));
+			}
 			
 			Vector args = new Vector(5);
-	        args.addElement(String.valueOf(blogId));
-	        args.addElement(mUsername);
-	        args.addElement(mPassword);
-	        args.addElement(StructData);
-		
-	        Object response = execute("wp.getComments", args);
+			args.addElement(String.valueOf(blogId));
+			args.addElement(mUsername);
+			args.addElement(mPassword);
+			args.addElement(StructData);
+			
+			Object response = execute("wp.getComments", args);
 			if(connResponse.isError()) {
 				//notifyObservers(connResponse);
 				return null;		
 			}
 			
 			return ((Vector)response);
-			}
-			catch (ClassCastException e) {
-				throw new ClassCastException("GetComments error: Invalid server response "+ e.getMessage());
-	        }
-	        
+		}
+		catch (ClassCastException e) {
+			throw new ClassCastException("GetComments error: Invalid server response "+ e.getMessage());
+		}
+		
 	}
-	
-	
+		
 	//retrive "recent post title list"
 	protected synchronized Vector getRecentPostTitle(String blogID, int maxPost) throws Exception {
 		try {
@@ -259,6 +258,27 @@ public abstract class BlogConn extends Observable implements Runnable {
 					+ blog.getName());
 		} catch (ClassCastException cce) {
 			throw new Exception("Error while reading post status list");
+		}
+	}
+	
+	//retrive all pages from blog
+	protected synchronized Vector getPages(String blogID) throws Exception{
+		try{
+			Vector args = new Vector(3);
+			args.addElement(blogID);
+			args.addElement(mUsername);
+			args.addElement(mPassword);
+			
+			Object response = execute("wp.getPages", args);
+			if(connResponse.isError()) {
+				return null;		
+			}
+			
+			Vector pagesVector = (Vector) response;
+			return pagesVector;
+			
+		} catch (ClassCastException cce) {
+			throw new Exception("Error while reading pages data from blog");
 		}
 	}
 	
@@ -452,7 +472,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 		connResponse.setError(true);
 		connResponse.setResponseObject(e); //set the exception as response option
 		
-		if(e != null) {
+		if(e != null && e.getMessage()!= null ) {
 			connResponse.setResponse(err+" : "+e.getMessage());
 			Log.error(err+" : "+e.getMessage());
 		} else {

@@ -71,6 +71,8 @@ public class AddBlogsView extends BaseView {
     		LabelField lblUrl = getLabel(_resources.getString(WordPressResource.LABEL_URL)); 
             blogUrlField = new BasicEditField("", url, 100, Field.EDITABLE);
             blogUrlField.setFilter(new URLTextFilter());
+            if(blogUrlField.getTextLength() > 0)
+            	blogUrlField.setCursorPosition(blogUrlField.getTextLength());//set the cursor at the end
             rowURL.add(lblUrl);
             rowURL.add(blogUrlField);
             add(rowURL);

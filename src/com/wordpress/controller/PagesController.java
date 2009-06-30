@@ -47,6 +47,7 @@ public class PagesController extends BaseController{
 	private int countNewPages() {
 		Vector pages = currentBlog.getPages();
 		int[] viewedPages = currentBlog.getViewedPages();
+		int[] newViewedPage = new int[pages.size()];
 		
 		if(pages == null) 
 			return 0;
@@ -57,6 +58,8 @@ public class PagesController extends BaseController{
 			boolean presence = false; 
 			Hashtable page = (Hashtable) pages.elementAt(i);
             int pageId = Integer.parseInt( String.valueOf(page.get("page_id")));
+            //add the pages into NEW viewedpages array
+            newViewedPage[i]= pageId;
 			
 		    for (int j = 0; j < viewedPages.length; j++) {
 		    	int viewedPageID = viewedPages[j];
@@ -70,6 +73,8 @@ public class PagesController extends BaseController{
 		    if (!presence) 
 		    	count++;
 		}
+		
+		currentBlog.setViewedPages(newViewedPage);
 		return count;
 	}
 	
@@ -218,7 +223,8 @@ public class PagesController extends BaseController{
 						pages = PageDAO.buildPagesArray(currentBlog.getPages());
 						view.refresh(pages , countNewPages());
 						
-						//setting the viewed page
+						/*
+						//setting the NEW viewed page
 						int[] pagesID = new int[pages.length];
 						for (int i = 0; i < pages.length; i++) {
 							Page curr = pages[i];
@@ -226,6 +232,7 @@ public class PagesController extends BaseController{
 							pagesID[i] = id;
 						}
 						currentBlog.setViewedPages(pagesID);
+						*/
 						
 						try{
 							BlogDAO.updateBlog(currentBlog);							

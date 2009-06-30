@@ -30,7 +30,6 @@ src\bg_blue.png
 src\bg_light.png
 src\browser.png
 src\camera.png
-src\cancel.png
 src\category_child.png
 src\check.png
 src\com\wordpress\bb\SplashScreen.java
@@ -194,6 +193,7 @@ src\Default.png
 src\defaultPostTemplate.html
 src\disclosure-indicator.png
 src\drafts-folder.png
+src\important.png
 src\License.txt
 src\MainBackground.png
 src\org\kobjects\base64\Base64.java

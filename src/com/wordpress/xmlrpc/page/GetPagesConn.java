@@ -2,7 +2,9 @@ package com.wordpress.xmlrpc.page;
 
 import java.util.Vector;
 
+import com.wordpress.utils.log.Log;
 import com.wordpress.xmlrpc.BlogConn;
+import com.wordpress.xmlrpc.BlogConnResponse;
 
 public class GetPagesConn extends BlogConn  {
 
@@ -20,7 +22,21 @@ public class GetPagesConn extends BlogConn  {
 			notifyObservers(connResponse);
 			return;
 		}
-
+		
+		try{
+			connResponse = new BlogConnResponse();
+	        Vector recentPostTitle = getPages(String.valueOf(blogID));
+	        
+			connResponse.setResponseObject(recentPostTitle);
+		} catch (Exception cce) {
+			setErrorMessage(cce, "loadPages error");	
+		}
+		try {
+			notifyObservers(connResponse);
+		} catch (Exception e) {
+			Log.error("Recent Post Notify Error");
+		}
+/*
 		Vector args = new Vector(3);
 		args.addElement(String.valueOf(this.blogID));
 		args.addElement(mUsername);
@@ -42,6 +58,6 @@ public class GetPagesConn extends BlogConn  {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
 			System.out.println("GetPages error: Notify error"); 
-		}
+		}*/
 	}
 }

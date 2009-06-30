@@ -42,12 +42,9 @@ If you checkout the project using svn client 1.6.x you should not be able to bui
 
     Save the file and exit.
 
-3.4 Make sure bb-ant-tools.jar is accessible by ant. We suggest you to copy it
-    into your <ant-home>\lib directory
-
-5. Building the source
-5.1 Open a command prompt and go to the directory <blackberry-dir>/build
-5.2 Type "ant release" and press ENTER to build the client. The build process
+4. Building the source
+4.1 Open a command prompt and go to the directory <blackberry-dir>/build
+4.2 Type "ant release" and press ENTER to build the client. The build process
     generates the required cod files. There are two sets of cod files:
 
     - <blackberry-dir>/output/xxx/release contains cod files which are suitable for
@@ -59,18 +56,5 @@ If you checkout the project using svn client 1.6.x you should not be able to bui
 
     In both directories there is a proper jad file for the installation.
 
-5.3 "ant usage" shows the target supported by the common build descriptor.
+4.3 "ant usage" shows the target supported by the common build descriptor.
     This is usually not required by standard building.
-    
-6. Deploying the application
-6.1 Add the deploy.application definition to the build.properties to activate
-    the deploy task:
-    - deploy.username defines the remote username
-    - deploy.host defines the remote host
-    - deploy.remotePath defines the remote path to which the application should be
-      deployed (new created if it doesn't exist)
-    - deploy.path defines the web path to the application (to be replaced into the 
-      jad file)
-    - deploy.host.port defines the remote host port
-    The password will be required during the task.
-

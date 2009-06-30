@@ -4,6 +4,15 @@ import java.util.Vector;
 
 public class StringUtils {
 
+	//	FIX WP DOUBLE ENCODED AMPESAND
+	//@see http://blackberry.trac.wordpress.org/ticket/17
+	public static String  fixWordPressDoubleEncodedAmpersand(String xmlInput) {
+		String output = StringUtils.replaceAll(xmlInput, "&amp;amp;", "&amp;"); //FIX WP DOUBLE ENCODED AMPESAND;
+		output = StringUtils.replaceAll(output, "&amp;#038;", "&#038;"); 
+		
+		return output; 
+	}
+	
 	  // Splits string 
 	  public static String[] split(final String string, final String splitBy) {
 		    final Vector tokens = new Vector();

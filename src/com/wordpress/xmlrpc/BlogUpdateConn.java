@@ -16,8 +16,6 @@ public class BlogUpdateConn extends BlogConn  {
 		this.blog=blog;
 	}
 
-	
-	
 	private void checkConnectionResponse() throws Exception {
 		if(connResponse.isError()) {
 			if ( connResponse.getResponseObject() instanceof XmlRpcException) {
@@ -73,6 +71,13 @@ public class BlogUpdateConn extends BlogConn  {
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				blog.setRecentPostTitles(recentPostTitle);
+			checkConnectionResponse();
+			
+			
+			Vector blogPages = getPages(blog.getId());
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			if(connResponse.isError() == false )
+				blog.setPages(blogPages);
 			checkConnectionResponse();
 		
 			Vector comments = getComments(Integer.parseInt(blog.getId()), -1, "", 0, 100);

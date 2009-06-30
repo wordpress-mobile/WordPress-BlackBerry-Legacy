@@ -3,6 +3,7 @@ package com.wordpress.xmlrpc.post;
 import java.util.Vector;
 
 import com.wordpress.model.Blog;
+import com.wordpress.utils.log.Log;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 
@@ -32,7 +33,7 @@ public class RecentPostConn extends BlogConn  {
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("Recent Post Notify Error");
+			Log.error("Recent Post Notify Error");
 		}
 	}
 }

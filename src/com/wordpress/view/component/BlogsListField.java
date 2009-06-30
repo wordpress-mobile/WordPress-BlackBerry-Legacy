@@ -2,7 +2,6 @@ package com.wordpress.view.component;
 
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
@@ -118,7 +117,7 @@ public class BlogsListField {
     		if (stato == BlogInfo.STATE_LOADING || stato == BlogInfo.STATE_ADDED_TO_QUEUE ) {
     			icon = Bitmap.getBitmapResource("refresh.png"); 
     		} else if (stato == BlogInfo.STATE_LOADED_WITH_ERROR ||  stato == BlogInfo.STATE_ERROR) {
-    			icon = Bitmap.getBitmapResource("cancel.png");
+    			icon = Bitmap.getBitmapResource("important.png");
     		} else 
     			icon = Bitmap.getBitmapResource("complete.png");
 
@@ -135,21 +134,6 @@ public class BlogsListField {
         {
             return _listData[index];
         }
-        /*
-        //Returns the first occurence of the given String, beginning the search at index, 
-        //and testing for equality using the equals method.
-        public int indexOfList(ListField list, String p, int s) 
-        {
-            return -1;
-           // return _listData.indexOf(p, s);
-        }
-        
-        //Returns the screen width so the list uses the entire screen width.
-        public int getPreferredWidth(ListField list) 
-        {
-            return Graphics.getScreenWidth();
-        }
-	*/
     }
        
 } 

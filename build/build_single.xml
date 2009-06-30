@@ -1,25 +1,15 @@
 <?html version="1.0" enconding="UTF-8"?>
-<!--
-=======================================================
-Build file for WordPress
-=======================================================
--->
+
 <project basedir=".." default="all" name="WordPress for BlackBerry">
-    <!--
-    ========================================================================
-    Setting variable
-    ========================================================================
-    -->
-    <taskdef name="rapc"    classpath="build/bb-ant-tools-1.1.jar" classname="ca.slashdev.bb.tasks.RapcTask" />
-    <taskdef name="jadtool" classpath="build/bb-ant-tools-1.1.jar" classname="ca.slashdev.bb.tasks.JadtoolTask" />
-    <taskdef name="alx"     classpath="build/bb-ant-tools-1.1.jar" classname="ca.slashdev.bb.tasks.AlxTask" />
+    <taskdef name="rapc"    classpath="build/bb-ant-tools-1.2.1.jar" classname="ca.slashdev.bb.tasks.RapcTask" />
+    <taskdef name="jadtool" classpath="build/bb-ant-tools-1.2.1.jar" classname="ca.slashdev.bb.tasks.JadtoolTask" />
+    <taskdef name="alx"     classpath="build/bb-ant-tools-1.2.1.jar" classname="ca.slashdev.bb.tasks.AlxTask" />
 
 	<taskdef resource="org/tigris/subversion/svnant/svnantlib.xml">
 	    <classpath>
 	      <fileset dir="build/svnant-1.2.1" includes="svn*.jar" />
 	    </classpath>
 	</taskdef>
-
 	
     <target name="init">
         <property file="build/build.properties" />
@@ -51,57 +41,29 @@ Build file for WordPress
         <property name="dir.lib"           value="lib"  />
         <property name="dir.docs"          value="docs" />
         <property name="dir.build"         value="build" />
-
-        <!-- from prop file 
+        <!-- get the value from prop file  
         property name="dir.output.base" value="c:/tmp/output" / -->
-
         <property name="dir.output"      value="${dir.output.base}/${platform}" />
-        
-        <property name="dir.output.lib"           value="${dir.output}/lib" />
-        <property name="dir.output.lib.compile"   value="${dir.output.lib}/compile" />
-        <property name="dir.output.lib.jar"       value="${dir.output.lib}/jar" />
-        <property name="dir.output.lib.preverify" value="${dir.output.lib}/preverify" />
-        
-        <property name="dir.output.app"           value="${dir.output}/app" />
-        <property name="dir.output.app.compile"   value="${dir.output.app}/compile" />
-        <property name="dir.output.app.jar"       value="${dir.output.app}/jar" />
-        <property name="dir.output.app.preverify" value="${dir.output.app}/preverify" />
         <property name="dir.output.rapc"          value="${dir.output}/rapc" />
         <property name="dir.output.sign"          value="${dir.output}/sign" />
         <property name="dir.output.release"       value="${dir.output}/release" />
 
-        <property name="dir.export"               value="${dir.output.base}/export" />
-
-        <property name="icon"                 value="application-icon.png" />
-        <property name="icon_rollover"        value="application-icon.png" /> <!-- set to ${icon} to disable rollover -->
-
-        <property name="jde.prj" value="wordpress_${platform}.jdp"/>
-
+    	<property name="dir.export"      value="${dir.output.base}/export" />
+        
+    	<property name="icon"            value="application-icon.png" />
+        <property name="icon_rollover"   value="application-icon.png" />
     </target>
     
     
     <target name="clean" depends="init">
         <delete dir="${dir.output}" />
         <delete dir="${dir.export}" />
-        
         <mkdir dir="${dir.output}"/>
-        
-        <mkdir dir="${dir.output.lib}"/>
-        <mkdir dir="${dir.output.lib.compile}"/>
-        <mkdir dir="${dir.output.lib.jar}"/>
-        <mkdir dir="${dir.output.lib.preverify}"/>
-        
-        <mkdir dir="${dir.output.app}"/>
-        <mkdir dir="${dir.output.app.compile}"/>
-        <mkdir dir="${dir.output.app.jar}"/>
-        <mkdir dir="${dir.output.app.preverify}"/>
- 
         <mkdir dir="${dir.output.rapc}"/>
         <mkdir dir="${dir.output.sign}"/>
         <mkdir dir="${dir.output.release}"/>
         <mkdir dir="${dir.export}"/>
     </target>
-
   
 
     <target name="rapc" depends="init">
@@ -141,7 +103,6 @@ Build file for WordPress
         		</fileset>
 			</src>
 
-        	
             <import>
             	<fileset dir="${rim.home}/lib/">
             	     <include name="**/*.jar"/>
@@ -151,13 +112,19 @@ Build file for WordPress
         </rapc>
     </target>
 
-
     <target name="sign" depends="rapc">
         <copy todir="${dir.output.sign}">
             <fileset dir="${dir.output.rapc}">
                 <include name="**/*"/>
             </fileset>
         </copy>
+
+    	<!-- copy to rhe Sign dir the additional jad file info -->
+    	<copy todir="${dir.output.sign}">
+             <fileset dir="${dir.build}">
+                 <include name="additional.jad"/>
+             </fileset>
+         </copy>
         
         <echo message="Please sign the .cod file located at ${dir.output.sign}" />
     
@@ -168,10 +135,11 @@ Build file for WordPress
             <arg value="-C"/>
             <arg file="${dir.output.sign}/${module.name}.cod"/> 
         </java>
-        <exec executable="${rim.home}/bin/UpdateJad.exe" dir="${dir.output.sign}" failonerror="true">
-            <arg value="${module.name}.jad" />
-        </exec>
 
+    	<exec executable="${rim.home}/bin/UpdateJad.exe" dir="${dir.output.sign}" failonerror="true">
+            <arg value="${module.name}.jad" />
+    		<arg value="additional.jad" />
+        </exec>
     </target>
 
     <target name="jad">
@@ -191,29 +159,29 @@ Build file for WordPress
             </fileset>
         </copy>
 
-        <jadtool input="${dir.output.sign}/${module.name}.jad" destdir="${dir.output.release}/ota">
+       	<jadtool input="${dir.output.sign}/${module.name}.jad" destdir="${dir.output.release}/ota">
             <fileset dir="${dir.output.sign}" includes="*.cod" />
         </jadtool>
-        
-    	<!-- disable storm compatibility mode -->
-   	<!-- propertyfile file="${dir.output.release}/ota/${module.name}.jad">
-        	  <entry key="RIM-TouchCompatibilityMode" value="false" />
-              <entry key="RIM-TouchCompatibilityMode-UserChangeable" value="true" />
-   	</propertyfile -->
-
-    <copy file="${dir.output.release}/ota/${module.name}.jad"
+    	
+ 	   <copy file="${dir.output.release}/ota/${module.name}.jad"
     		tofile="${dir.output.release}/ota/${module.release.prefix}.jad" />
-    		
     </target>
 
     <target name="alx" depends="init">
-        <alx destdir="${dir.output.release}/alx" filename="${module.name}.alx">
-            <application id="com.wordpress.bb.${module.name}" name="${module.fullname}"
+       <!-- copy the the cod files from OTA dir to Alx dir -->
+        <copy todir="${dir.output.release}/alx">
+            <fileset dir="${dir.output.release}/ota">
+                <include name="*.cod"/>
+            </fileset>
+        </copy>
+    	
+    	<alx destdir="${dir.output.release}/alx" filename="${module.name}.alx">
+            <application id="com.wordpress.bb.${module.release.prefix}" name="${module.fullname}"
                          description="${module.desc}"
                          version="${module.version}"
                          vendor="${module.company}">
                 <codset>
-                    <fileset dir="${dir.output.release}/ota" includes="*.cod" />
+                    <fileset dir="${dir.output.release}/alx" includes="*.cod" />
                 </codset>
             </application>
         </alx>
@@ -223,26 +191,6 @@ Build file for WordPress
         </zip>
     </target>
 
-
-    <target name="package" depends="init,release,export">
-        <mkdir dir="${dir.output.release}/${module.release.prefix}"/>
-        <copy todir="${dir.output.release}/${module.release.prefix}">
-            <fileset dir="${dir.output.release}">
-                <exclude name="${module.release.prefix}" />
-                <exclude name="ota//" />
-            </fileset>
-        </copy>
-        <zip destfile="${dir.output.release}/${module.name}.zip">
-            <fileset dir="${dir.output.release}/${module.release.prefix}" />
-        </zip>
-        <delete dir="${dir.output.release}/${module.release.prefix}" />
-        <copy todir="${dir.output.release}">
-            <fileset dir="${dir.export}">
-                <include name="*.zip" />
-            </fileset>
-        </copy>
-    </target>
-    
 	<target name="release" depends="init,sign,jad,alx">
         <zip zipfile="${dir.output.release}/ota/${module.name}.zip">
             <zipfileset dir="${dir.output.release}/ota" includes="*.jad, *.cod, *.alx" />
@@ -275,6 +223,4 @@ Build file for WordPress
         </zip>
     </target>
     
-
 </project>
-

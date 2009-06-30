@@ -185,7 +185,7 @@ public class XmlRpcClient {
             String response = charBuff.toString();
             Log.trace("response from the wordpress server: "+response);                      
             
-            response = StringUtils.replaceAll(response, "&amp;amp;", "&amp;"); //FIX WP DOUBLE ENCODED AMPESAND;
+            response = StringUtils.fixWordPressDoubleEncodedAmpersand(response);
             ByteArrayInputStream bais = new ByteArrayInputStream(response.getBytes());
             //end           
          	         	
