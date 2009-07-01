@@ -40,7 +40,13 @@ public abstract class BaseController {
 
 	// Utility routine to display errors
 	public synchronized void displayError(final Exception e, String message) {
-		displayError(message + "\n" + e.getMessage());
+		
+		if(e != null && e.getMessage()!= null ) {
+			displayError(message + "\n" + e.getMessage());
+		} else {
+			displayError(message);			
+		}
+		
 	}
 
 	// Utility routine to display errors

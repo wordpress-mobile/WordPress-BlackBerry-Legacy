@@ -4,6 +4,49 @@ import java.util.Vector;
 
 public class StringUtils {
 
+	
+	
+	/**
+	 * Turn any HTML escape entities in the string into
+	 * characters and return the resulting string.
+	 
+	public static String unescapeHTML(String s){
+		StringBuffer result = new StringBuffer(s.length());
+		int ampInd = s.indexOf("&");
+		int lastEnd = 0;
+		while (ampInd >= 0){
+			int nextAmp = s.indexOf("&", ampInd+1);
+			int nextSemi = s.indexOf(";", ampInd+1);
+			if (nextSemi != -1 && (nextAmp == -1 || nextSemi < nextAmp)){ //check if html entity
+				int value = -1;
+				String escape = s.substring(ampInd+1,nextSemi);
+				try {
+					if (escape.startsWith("#")){
+						value = Integer.parseInt(escape.substring(1), 10);
+					} else {
+						if (htmlEntities.containsKey(escape)){
+							value = htmlEntities.get(escape).intValue();
+						}
+					}
+				} catch (NumberFormatException x){
+					// Could not parse the entity,
+					// output it verbatim
+				}
+				result.append(s.substring(lastEnd, ampInd));
+				lastEnd = nextSemi + 1;
+				if (value >= 0 && value <= 0xffff){
+					result.append((char)value);
+				} else {
+					result.append("&").append(escape).append(";");
+				}
+			}
+			ampInd = nextAmp;
+		}
+		result.append(s.substring(lastEnd));
+		return result.toString();
+	}
+*/
+	
 	//	FIX WP DOUBLE ENCODED AMPESAND
 	//@see http://blackberry.trac.wordpress.org/ticket/17
 	public static String  fixWordPressDoubleEncodedAmpersand(String xmlInput) {
@@ -32,9 +75,7 @@ public class StringUtils {
 		    return result;
 		  }
 	
-    /**
-     * This method is missing in CLDC 1.0 String implementation
-     */
+
     public static boolean equalsIgnoreCase(String string1, String string2) {
         // Strings are both null, return true
         if (string1 == null && string2 == null) {

@@ -2,14 +2,12 @@ package com.wordpress.utils.conn;
 
 public class ServiceBookConfig extends AbstractConfiguration {
 	
-	/**Service book configurations description*/
-    protected static final String SERVICE_BOOK_CONFIG_DESCRIPTION = "Service book Configuration";
+    protected static final String CONFIG_DESCRIPTION = "Service book Configuration";
 
-    /**
-     *  Device's ServiceBook content related configurations 
-     */
 	public ServiceBookConfig() {
 		super();
-        setDescription(SERVICE_BOOK_CONFIG_DESCRIPTION);
+        setDescription(CONFIG_DESCRIPTION);
+        
+        //config url could change. we set it during open conn call
 	}
 }

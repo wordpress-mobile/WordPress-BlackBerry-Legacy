@@ -1,7 +1,6 @@
 package com.wordpress.view.mm;
 
 import javax.microedition.media.Manager;
-import javax.microedition.media.MediaException;
 import javax.microedition.media.Player;
 import javax.microedition.media.control.VideoControl;
 
@@ -13,7 +12,6 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
-import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressApplicationPermissions;
 import com.wordpress.bb.WordPressResource;
@@ -21,6 +19,7 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.BaseView;
 
 
@@ -69,11 +68,11 @@ public class PhotoSnapShotView extends BaseView {
 		try {
 			p = Manager.createPlayer("capture://video");
 			p.realize();
-			log("Player realized");
+			Log.info("Player realized");
 			p.prefetch();
-			log("Player prefetched");
+			Log.info("Player prefetched");
 			p.start();
-			log("Player started");
+			Log.info("Player started");
 
 			//Get the Player VideoControl
 			vc = (VideoControl) p.getControl("VideoControl");
@@ -89,13 +88,12 @@ public class PhotoSnapShotView extends BaseView {
                      
 		} catch (Exception me) {
 			controller.displayError(me, "Error during Camera Initialization");
-			log(me.getMessage());
 		}
 		
 		buttonOK.setFocus();
 		addMenuItem(_snapshotMenuItem);
-		addMenuItem(_fullScreenMenuItem);
-		addMenuItem(_exitFullScreenMenuItem);		
+		/*addMenuItem(_fullScreenMenuItem);
+		addMenuItem(_exitFullScreenMenuItem); */		
 	}
 	
 	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
@@ -135,10 +133,10 @@ public class PhotoSnapShotView extends BaseView {
 
 	private void getSelectedEncoding(){
 		int selected = qualityField.getSelectedIndex();
-		System.out.println("selected img quality index: "+selected);
+		Log.info("selected img quality index: "+selected);
 	
 		encoding =	MultimediaUtils.getPhotoEncoding(selected);
-		System.out.println("selected img quality: "+ encoding);
+		Log.info("selected img quality: "+ encoding);
 	}
 	
 
@@ -151,7 +149,7 @@ public class PhotoSnapShotView extends BaseView {
 	
 	private void takeSnapShot() {
 		try {
-			log("Taking snapshot");
+			Log.info("Taking snapshot");
 			getSelectedEncoding();
 			
 			//check the app permissions
@@ -161,11 +159,11 @@ public class PhotoSnapShotView extends BaseView {
 			}
 			
 			if( vc != null && isViewfinderVisible){	
-				log("Encoding: "+encoding);
+				Log.info("Encoding: "+encoding);
 
 				final byte[] imageBytes = vc.getSnapshot(encoding);
 
-				log("Size: " + imageBytes.length);
+				Log.info("Size: " + imageBytes.length);
 
 				if(isViewfinderVisible){
 					delete(viewFinder);				
@@ -173,30 +171,26 @@ public class PhotoSnapShotView extends BaseView {
 				}
 				
 				onClose();
-				
-				
 				controller.storePhoto(imageBytes, System.currentTimeMillis()+".jpg");
 				
 			} else {
 				controller.displayError("Viewfinder not visible!");
-				log("Viewfinder not visible!");	
 			}
 			
 		} catch(Exception e){
-			controller.displayError(e, "Error while take photo, have you changed application permission settings?");
-			log(e + ":" + e.getMessage());
+			controller.displayError(e, "Error while take photo");
 		}
 	}
-	
+	/*
 	private MenuItem _fullScreenMenuItem = new MenuItem("FullScreen", 1, 1) {
 		public void run() {			
 			if(vc!=null){
 				try {					
 					vc.setDisplayFullScreen(true); //The only camera preview sizes are full screen mode and the default non full screen size.
 				} catch (MediaException e) {
-					log(e.getMessage());
+					Log.info(e.getMessage());
 				}
-			} else log("VideoControl is not initialized");
+			} else Log.info("VideoControl is not initialized");
 		}
 	};
 	
@@ -206,20 +200,12 @@ public class PhotoSnapShotView extends BaseView {
 				try {					
 					vc.setDisplayFullScreen(false);
 				} catch (MediaException e) {
-					log(e.getMessage());
+					Log.info(e.getMessage());
 				}
-			} else log("VideoControl is not initialized");
+			} else Log.info("VideoControl is not initialized");
 		}
 	};
-	
-	private void log(final String msg) {
-		UiApplication.getUiApplication().invokeLater(new Runnable() {
-			public void run() {
-				System.out.println(msg);
-			}
-		});
-	}
-
+	*/
 	public BaseController getController() {
 		return controller;
 	}
@@ -244,27 +230,5 @@ public class PhotoSnapShotView extends BaseView {
 		//controller.backCmd();
 		UiApplication.getUiApplication().popScreen(this); //remove screen immediatly
 		return true;
-	}
-
-	//Manager to lay out the Player _videoField on the VideoScreen
-	private final class VideoManager extends net.rim.device.api.ui.Manager 
-	{
-	    public VideoManager() 
-	    {
-	        super(VerticalFieldManager.USE_ALL_WIDTH | VerticalFieldManager.FIELD_HCENTER);
-	    }
-
-	    //lay out the _videoField on the screen based on it's preferred width and height
-	    protected void sublayout(int width, int height) 
-	    {
-	        if (getFieldCount() > 0) 
-	        {
-	            Field videoField = getField(0);
-	            layoutChild(videoField, videoField.getPreferredWidth(), videoField.getPreferredHeight());
-	        }
-	        setExtent(width, height);
-	    }
-	    
-	}
-	
+	}	
 }
