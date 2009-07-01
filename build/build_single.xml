@@ -81,7 +81,6 @@
             nodebug="${nodebug}">
         	        	
         	<define tag="DEBUG" if="${debug}"/> <!-- define preprocessor tag -->
-
             <jdp
                 type="cldc"
                 vendor="${module.company}"
@@ -186,13 +185,13 @@
             </application>
         </alx>
 
-        <zip zipfile="${dir.output.release}/alx/${module.name}.zip">
+        <zip zipfile="${dir.output.release}/alx/${module.name}_rev${svn.info.lastRev}.zip">
             <zipfileset dir="${dir.output.release}/alx" includes="*.cod, *.alx" />
         </zip>
     </target>
 
 	<target name="release" depends="init,sign,jad,alx">
-        <zip zipfile="${dir.output.release}/ota/${module.name}.zip">
+        <zip zipfile="${dir.output.release}/ota/${module.name}_rev${svn.info.lastRev}.zip">
             <zipfileset dir="${dir.output.release}/ota" includes="*.jad, *.cod, *.alx" />
         </zip>
     </target>

@@ -88,17 +88,8 @@ public class ConnectionUtils {
         return "";
     }
     
-    /**
-     * Give global information about the data connection bearer activity
-     * @return true if there is an active bearer including the check for 
-     * WIFI and WAP/GPRS bearer
-     */
     public static boolean isDataConnectionAvailable() {
-        boolean ret = 
-                (isWifiAvailable()&&isWifiActive())||
-                !isDataBearerOffline();
-        Log.debug("[BlackberryUtils.isDataConnectionAvailable]Data connection availability: " + ret);
-        return ret;
+        return ( !isDataBearerOffline() || isWifiAvailable()&&isWifiActive() );
     }
     
   // Return Wireless service provider WAP 1.x gateway connection string

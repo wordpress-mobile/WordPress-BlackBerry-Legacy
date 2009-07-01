@@ -21,14 +21,14 @@ public class ConnectionManager {
 	protected static final int TCP_CONFIG = 1;
 	protected static final int SERVICE_BOOK_CONFIG = 2;
 	protected static final int BES_CONFIG = 3;
-	private static AbstractConfiguration[] configurations = null;
+	private static AbstractConfiguration[] connections = null;
 	
 	private Preferences userPreferences = Preferences.getIstance();
 	protected static int currConfigID = CONFIG_NONE;
     
     
     private ConnectionManager() {
-        configurations = initConfig(); 
+        connections = initConnectionType(); 
     }
 
     //	singleton
@@ -105,7 +105,7 @@ public class ConnectionManager {
         	
             Connection ret = null;
             try {
-                String fullUrl = url + configurations[currConfigID].getUrlParameters();
+                String fullUrl = url + connections[currConfigID].getUrlParameters();
                 Log.trace("Opening url: " + fullUrl);
                 ret = Connector.open(fullUrl, accessMode, enableTimeoutException);
             } catch (Exception ioe) {
@@ -127,10 +127,10 @@ public class ConnectionManager {
             try {
 
 
-                if (isConfigurationAllowed(i)) {
+                if (isConnectionAllowed(i)) {
                     Log.debug("Configuration Allowed: " + (i+1));
-                    currConfigID = i % configurations.length;
-                    String options = configurations[i].getUrlParameters();
+                    currConfigID = i % connections.length;
+                    String options = connections[i].getUrlParameters();
                     Log.debug("Using parameters: " + options);
                     requestUrl = url + options;
                 } else {
@@ -170,26 +170,26 @@ public class ConnectionManager {
     	
     }
 
-    private boolean isConfigurationAllowed(int configNumber) {
+    private boolean isConnectionAllowed(int configNumber) {
         if (!isAvailable(configNumber)) {
             Log.debug("Connection not available");
             return false;
         }
 
         //Permission is denied
-        if (configurations[configNumber].getPermission()== AbstractConfiguration.PERMISSION_DENIED){
+        if (connections[configNumber].getPermission()== AbstractConfiguration.PERMISSION_DENIED){
             Log.debug("Connection denied");
             return false;
         }
 
         //Permission is granted
-        if (configurations[configNumber].getPermission()== AbstractConfiguration.PERMISSION_GRANTED){
+        if (connections[configNumber].getPermission()== AbstractConfiguration.PERMISSION_GRANTED){
             Log.debug("Connection granted");
             return true;
         } 
         
-        if (configurations[configNumber].getPermission() == AbstractConfiguration.PERMISSION_UNDEFINED){
-            boolean isConfigurationAllowed = isConnectionConfigurationAllowed(configNumber,configurations[configNumber].getDescription());
+        if (connections[configNumber].getPermission() == AbstractConfiguration.PERMISSION_UNDEFINED){
+            boolean isConfigurationAllowed = isConnectionConfigurationAllowed(configNumber,connections[configNumber].getDescription());
             return isConfigurationAllowed;
         }
         
@@ -237,22 +237,22 @@ public class ConnectionManager {
     }
         
     
-    static AbstractConfiguration[] initConfig() {
-        configurations = new AbstractConfiguration[MAX_CONFIG_NUMBER];
-        configurations[WIFI_CONFIG] = new WiFiConfig();
-        configurations[TCP_CONFIG] = new TcpConfig();
-        configurations[SERVICE_BOOK_CONFIG] = new ServiceBookConfig();
-        configurations[SERVICE_BOOK_CONFIG].setUrlParameters(AbstractConfiguration.BASE_CONFIG_PARAMETERS + ConnectionUtils.getServiceBookOptions());
-        configurations[BES_CONFIG] = new BESConfig();
+    static AbstractConfiguration[] initConnectionType() {
+        connections = new AbstractConfiguration[MAX_CONFIG_NUMBER];
+        connections[WIFI_CONFIG] = new WiFiConfig();
+        connections[TCP_CONFIG] = new TcpConfig();
+        connections[SERVICE_BOOK_CONFIG] = new ServiceBookConfig();
+        connections[SERVICE_BOOK_CONFIG].setUrlParameters(AbstractConfiguration.BASE_CONFIG_PARAMETERS + ConnectionUtils.getServiceBookOptions());
+        connections[BES_CONFIG] = new BESConfig();
         
-        return configurations;
+        return connections;
     }
     
     /**
      * Refresh the configuration parameters. Useful when the servicebook changed
      */
     protected static void refreshServiceBookConfigurations() {
-        configurations[SERVICE_BOOK_CONFIG].setUrlParameters(AbstractConfiguration.BASE_CONFIG_PARAMETERS + 
+        connections[SERVICE_BOOK_CONFIG].setUrlParameters(AbstractConfiguration.BASE_CONFIG_PARAMETERS + 
                                                              ConnectionUtils.getServiceBookOptions());
     }
     

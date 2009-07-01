@@ -15,7 +15,7 @@ public class Preferences {
     
     private boolean isWiFiConnectionPermitted = true;
     private boolean isTcpConnectionPermitted = true;
-    private boolean isBESConnectionPermitted = true;
+    private boolean isBESConnectionPermitted = false;
     private boolean isServiceBookConnectionPermitted = true;
     private boolean isWapConnectionPermitted = true;
 

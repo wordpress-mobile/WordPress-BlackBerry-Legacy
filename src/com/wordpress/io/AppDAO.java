@@ -50,7 +50,7 @@ public class AppDAO implements BaseDAO{
 		setBaseDirPath("file:///store/home/user/wordpress/");
 		
 		if(JSR75FileSystem.isFileExist(getBaseDirPath())){
-			JSR75FileSystem.removeFile(getBaseDirPath());
+			//JSR75FileSystem.removeFile(getBaseDirPath());
 		}
 		
 		JSR75FileSystem.createDir(AppDAO.getBaseDirPath());
