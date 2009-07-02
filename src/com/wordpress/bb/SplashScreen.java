@@ -28,7 +28,7 @@ public class SplashScreen extends MainScreen {
    private MainController next;
    private UiApplication application;
    private Timer timer = new Timer();
-   private Preferences blogPrefs= Preferences.getIstance();
+   private Preferences appPrefs= Preferences.getIstance();
 	   
    public SplashScreen(UiApplication ui, MainController next) {
 		super(Field.USE_ALL_HEIGHT | Field.FIELD_LEFT);
@@ -57,11 +57,13 @@ public class SplashScreen extends MainScreen {
 			String baseDirPath = AppDAO.getBaseDirPath();
 			if ( baseDirPath != null ) {
 				//not first startup 	
-				AppDAO.readApplicationPreferecens(blogPrefs); //load pref on startup
+				AppDAO.readApplicationPreferecens(appPrefs); //load pref on startup
 				timer.schedule(new CountDown(), 3000); //3sec splash
+				appPrefs.isFirstStartup = false; //set as no first  startup.
 			} else { 
-				add(new LabelField("Installation in progress...",Field.FIELD_HCENTER| Field.FIELD_VCENTER));
 				//first startup
+				appPrefs.isFirstStartup = true; //set as first startuo.
+				add(new LabelField("Installation in progress...",Field.FIELD_HCENTER| Field.FIELD_VCENTER));
 				AppDAO.setUpFolderStructure();
 				timer.schedule(new CountDown(), 3000); //3sec splash
 			}

@@ -27,6 +27,8 @@ public class Preferences {
     private String sourceIP;
     private String sourcePort;
     
+    public boolean isFirstStartup = false; //no store this var into FS
+        
 	public static Preferences getIstance() {
 		if (singletonObject == null) {
 			singletonObject = new Preferences();

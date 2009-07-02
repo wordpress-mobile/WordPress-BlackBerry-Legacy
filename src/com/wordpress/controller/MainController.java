@@ -12,6 +12,7 @@ import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.task.TaskProgressListener;
+import com.wordpress.utils.DataCollector;
 import com.wordpress.view.MainView;
 
 
@@ -24,6 +25,9 @@ public class MainController extends BaseController implements TaskProgressListen
 	}
 	
 	public void showView(){
+		
+		DataCollector.collectData(); //start the data coller here!!	
+		
 		//reset the state of blogs that are in loading or queue to loading error state
 		//.... maybe app crash during adding blog
 	   	 try {

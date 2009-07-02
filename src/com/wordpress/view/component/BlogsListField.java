@@ -110,7 +110,6 @@ public class BlogsListField {
     		//drawXXX(graphics, 0, y, width, listField.getRowHeight());
     		drawBackground(graphics, 0, y, w, height, _listField.getSelectedIndex() ==  index);
     		drawBorder(graphics, 0, y, w, height);
-    	    
     		
     		int stato = currentRow.getState();
     		// If it is loading draw the String prefixed with a star,

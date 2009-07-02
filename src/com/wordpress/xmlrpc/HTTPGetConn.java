@@ -9,9 +9,9 @@ import javax.microedition.io.HttpConnection;
 
 import com.wordpress.utils.conn.ConnectionManager;
 
-public class GetTemplateConn extends BlogConn  {
+public class HTTPGetConn extends BlogConn  {
 
-	public GetTemplateConn(String url){
+	public HTTPGetConn(String url){
 		super(url, "", "");
 	}
 	

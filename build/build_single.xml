@@ -27,7 +27,7 @@
     		<info target="${basedir}"/>
     	 </svn>
     	        	
-        <property name="module.version" value="${release.major}.${release.minor}.${svn.info.lastRev}" />
+        <property name="module.version" value="${release.major}.${release.minor}.${build.number}.${svn.info.lastRev}" />
 
         <property name="platform"              value="os42" />
         <property name="module.name"           value="WordPress"/>
@@ -111,20 +111,16 @@
         </rapc>
     </target>
 
+	
     <target name="sign" depends="rapc">
-        <copy todir="${dir.output.sign}">
+       <copy todir="${dir.output.sign}">
             <fileset dir="${dir.output.rapc}">
                 <include name="**/*"/>
             </fileset>
         </copy>
 
-    	<!-- copy to rhe Sign dir the additional jad file info -->
-    	<copy todir="${dir.output.sign}">
-             <fileset dir="${dir.build}">
-                 <include name="additional.jad"/>
-             </fileset>
-         </copy>
-        
+    	<copy todir="${dir.output.sign}" file="${basedir}/${dir.build}/additional.jad" />
+    	        
         <echo message="Please sign the .cod file located at ${dir.output.sign}" />
     
         <java jar="${rim.home}/bin/SignatureTool.jar" failonerror="false" fork="true">
@@ -142,9 +138,9 @@
     </target>
 
     <target name="jad">
-         <propertyfile file="build/release.properties">
+         <!-- propertyfile file="build/release.properties">
             <entry key="build.date" type="date" value="now" pattern="yyyyMMdd"/>
-        </propertyfile>
+        </propertyfile -->
     	
         <copy todir="${dir.output.release}">
             <fileset dir="${dir.output.sign}">
@@ -161,9 +157,7 @@
        	<jadtool input="${dir.output.sign}/${module.name}.jad" destdir="${dir.output.release}/ota">
             <fileset dir="${dir.output.sign}" includes="*.cod" />
         </jadtool>
-    	
- 	   <copy file="${dir.output.release}/ota/${module.name}.jad"
-    		tofile="${dir.output.release}/ota/${module.release.prefix}.jad" />
+ 
     </target>
 
     <target name="alx" depends="init">

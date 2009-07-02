@@ -28,7 +28,7 @@ import com.wordpress.view.mm.MultimediaPopupScreen;
 import com.wordpress.view.mm.PhotoPreview;
 import com.wordpress.view.mm.PhotoSnapShotView;
 import com.wordpress.xmlrpc.BlogConnResponse;
-import com.wordpress.xmlrpc.GetTemplateConn;
+import com.wordpress.xmlrpc.HTTPGetConn;
 
 /**
  * This is the base class for Post and Page Obj
@@ -182,7 +182,13 @@ public abstract class BlogObjectController extends BaseController {
 		case PHOTO:
 			PhotoSnapShotView snapView = new PhotoSnapShotView(this);
 			UiApplication.getUiApplication().pushScreen(snapView); //modal screen...
-			break;
+		/*	try {
+					Invoke.invokeApplication(Invoke.APP_TYPE_CAMERA, new CameraArguments());
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			break;*/
 			
 		default:
 			break;
@@ -194,7 +200,7 @@ public abstract class BlogObjectController extends BaseController {
 		String connMessage = null;
 		connMessage = _resources.getString(WordPressResource.CONN_LOADING_PREVIEW_TEMPLATE);
 		
-		final GetTemplateConn connection = new GetTemplateConn(objectLink);
+		final HTTPGetConn connection = new HTTPGetConn(objectLink);
 		
         connection.addObserver(new loadTemplateCallBack(title, content, tags));  
         connectionProgressView= new ConnectionInProgressView(connMessage);

@@ -93,6 +93,7 @@ src\com\wordpress\utils\conn\Gateway.java
 src\com\wordpress\utils\conn\ServiceBookConfig.java
 src\com\wordpress\utils\conn\TcpConfig.java
 src\com\wordpress\utils\conn\WiFiConfig.java
+src\com\wordpress\utils\DataCollector.java
 src\com\wordpress\utils\LocalHttpConn.java
 src\com\wordpress\utils\log\Appender.java
 src\com\wordpress\utils\log\BlackberryEventLogAppender.java
@@ -168,7 +169,7 @@ src\com\wordpress\xmlrpc\comment\GetCommentStatusListConn.java
 src\com\wordpress\xmlrpc\comment\ManageCommentsTask.java
 src\com\wordpress\xmlrpc\comment\NewCommentConn.java
 src\com\wordpress\xmlrpc\GetAuthorsConn.java
-src\com\wordpress\xmlrpc\GetTemplateConn.java
+src\com\wordpress\xmlrpc\HTTPGetConn.java
 src\com\wordpress\xmlrpc\NewCategory.java
 src\com\wordpress\xmlrpc\NewCategoryConn.java
 src\com\wordpress\xmlrpc\NewMediaObjectConn.java
