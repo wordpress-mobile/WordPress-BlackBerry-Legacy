@@ -1,7 +1,10 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
+import java.util.Hashtable;
 
+import net.rim.blackberry.api.invoke.CameraArguments;
+import net.rim.blackberry.api.invoke.Invoke;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
@@ -24,9 +27,9 @@ import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PreviewView;
 import com.wordpress.view.component.FileSelectorPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.view.mm.PhotoFileJournalListener;
 import com.wordpress.view.mm.MultimediaPopupScreen;
 import com.wordpress.view.mm.PhotoPreview;
-import com.wordpress.view.mm.PhotoSnapShotView;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.HTTPGetConn;
 
@@ -61,7 +64,10 @@ public abstract class BlogObjectController extends BaseController {
 	public abstract void setAuthDate(long authoredOn);
 	public abstract void setPassword(String password);
 	public abstract void setPhotoResizing(boolean isPhotoRes);
-	
+
+	//journal listener
+	PhotoFileJournalListener photoFSListener = null;
+	private Hashtable photoName = new Hashtable(); //FIXME: this field is used to hack the FS listener
 	
 	public void showSettingsView(){
 		boolean isPhotoResing = blog.isResizePhotos(); //first set the value as the predefined blog value
@@ -96,8 +102,14 @@ public abstract class BlogObjectController extends BaseController {
 	}
 
 	
-	public void storePhoto(byte[] data, String fileName) {
+	public synchronized void storePhoto(byte[] data, String fileName) {
 		try {
+			
+			if(photoName.get(fileName)!= null)
+				return;
+			else
+				photoName.put(fileName, "fix");
+			
 			EncodedImage img;
 			img = EncodedImage.createEncodedImage(data, 0, -1);
 			if(post != null)
@@ -114,8 +126,9 @@ public abstract class BlogObjectController extends BaseController {
 	/*
 	 * delete selected photo
 	 */
-	public boolean deletePhoto(String key){
+	public synchronized boolean deletePhoto(String key){
 		System.out.println("deleting photo: "+key);
+		photoName.remove(key); //only for fix 
 		
 		try {
 			if(post != null)
@@ -151,7 +164,7 @@ public abstract class BlogObjectController extends BaseController {
 	}
 	
 	
-	//* show up multimedia type selection */
+	/** show up multimedia type selection */
 	public void showAddPhotoPopUp() {
 		int response= BROWSER;
 		
@@ -180,21 +193,37 @@ public abstract class BlogObjectController extends BaseController {
 			break;
 			
 		case PHOTO:
-			PhotoSnapShotView snapView = new PhotoSnapShotView(this);
-			UiApplication.getUiApplication().pushScreen(snapView); //modal screen...
-		/*	try {
+			//PhotoSnapShotView snapView = new PhotoSnapShotView(this);
+			//UiApplication.getUiApplication().pushScreen(snapView); //modal screen...
+			try {
+				 	addPhotoJournalListener();
 					Invoke.invokeApplication(Invoke.APP_TYPE_CAMERA, new CameraArguments());
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					removePhotoJournalListener();
+					displayError(e, "Cannot invoke camera!");
 				}
-			break;*/
+			break;
 			
 		default:
 			break;
 		}		
 	}
 	
+	private void addPhotoJournalListener() {
+		//create a new listener only if it is null
+		if(photoFSListener != null ) {
+			photoFSListener = new PhotoFileJournalListener(this);
+		}
+		UiApplication.getUiApplication().addFileSystemJournalListener(photoFSListener);
+	}
+	
+	//called when photoview is closed
+	public void removePhotoJournalListener() {
+		if(photoFSListener != null) {
+			UiApplication.getUiApplication().removeFileSystemJournalListener(photoFSListener);
+			photoFSListener = null;
+		} 
+	}
 	
 	public void startRemotePreview(String objectLink, String title, String content, String tags){
 		String connMessage = null;

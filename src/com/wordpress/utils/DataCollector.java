@@ -20,11 +20,31 @@ public class DataCollector {
 		Preferences appPrefs= Preferences.getIstance();
 
 		if(appPrefs.isFirstStartup) {
-			getAppVersion();
-			getLanguage();
-			getCarrier();
-			getDeviceOS();
-			getDeviceVersion();
+			try {
+				getAppVersion();
+			} catch (Exception e) {
+				Log.error(e, "Could not retrive App version");
+			}
+			try {
+				getLanguage();
+			} catch (Exception e) {
+				Log.error(e, "Could not retrive Devices Language");			
+			}
+			try {
+				getCarrier();
+			} catch (Exception e) {
+				Log.error(e, "Could not retrive Carrier");
+			}
+			try {
+				getDeviceOS();
+			} catch (Exception e) {
+				Log.error(e, "Could not retrive Os version");
+			}
+			try {
+				getDeviceVersion();
+			} catch (Exception e) {
+				Log.error(e, "Could not retrive Device Version");
+			}
 			
 			//crate the link
 			URLEncodedPostData urlEncoder = new URLEncodedPostData("UTF-8", false);
@@ -79,7 +99,6 @@ public class DataCollector {
 	    		return CodeModuleManager.getModuleVersion(handles[i]);
 	    	}
     	}
-	
     	return "";
 	}
 }

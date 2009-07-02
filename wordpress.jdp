@@ -144,6 +144,7 @@ src\com\wordpress\view\DraftPostsView.java
 src\com\wordpress\view\MainView.java
 src\com\wordpress\view\mm\MultimediaPopupScreen.java
 src\com\wordpress\view\mm\PhotoBitmapField.java
+src\com\wordpress\view\mm\PhotoFileJournalListener.java
 src\com\wordpress\view\mm\PhotoPreview.java
 src\com\wordpress\view\mm\PhotoSnapShotView.java
 src\com\wordpress\view\mm\ScrollableImageField.java

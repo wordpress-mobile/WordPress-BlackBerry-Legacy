@@ -105,7 +105,8 @@ public class PhotosView extends BaseView {
     }
     
     //override onClose() to display a dialog box when the application is closed    
-	public boolean onClose()   {
+	public boolean onClose() {
+		controller.removePhotoJournalListener();
 		controller.setPhotosNumber(counterPhotos);
 		controller.backCmd();
 		return true;
