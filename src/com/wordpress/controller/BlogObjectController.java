@@ -211,7 +211,7 @@ public abstract class BlogObjectController extends BaseController {
 	
 	private void addPhotoJournalListener() {
 		//create a new listener only if it is null
-		if(photoFSListener != null ) {
+		if(photoFSListener == null ) {
 			photoFSListener = new PhotoFileJournalListener(this);
 		}
 		UiApplication.getUiApplication().addFileSystemJournalListener(photoFSListener);

@@ -5,6 +5,8 @@ import java.io.IOException;
 import net.rim.device.api.io.file.FileSystemJournal;
 import net.rim.device.api.io.file.FileSystemJournalEntry;
 import net.rim.device.api.io.file.FileSystemJournalListener;
+import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.EventInjector;
 
 import com.wordpress.controller.BlogObjectController;
 import com.wordpress.io.JSR75FileSystem;
@@ -70,12 +72,15 @@ public final class PhotoFileJournalListener implements FileSystemJournalListener
                 			String[] split = StringUtils.split(path, "/"); //get only the filename
                 			_screen.storePhoto(readFile, split[split.length-1]);
 
-						
                     	} catch (IOException e) {
 							Log.error(e, "Error while taking camera");
 						}
                        
-                        break;
+                    	// Try to kill camera app here by injecting esc.
+                       EventInjector.KeyEvent inject = new EventInjector.KeyEvent(EventInjector.KeyEvent.KEY_DOWN, Characters.ESCAPE, 0, 50);
+                       inject.post();
+                       inject.post();
+                       break;
                 }
             }// path != null 
         }

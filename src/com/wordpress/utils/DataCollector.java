@@ -80,11 +80,11 @@ public class DataCollector {
 			urlEncoder.append("device_os", deviceOS);
 			urlEncoder.append("device_version", deviceSoftwareVersion);
 			urlEncoder.append("num_blogs", ""+numberOfBlog);
-			
+			//http://localhost/geo4you/info.php
+			//http://api.wordpress.org/bbapp/update-check/1.0/
 			final HTTPPostConn connection = new HTTPPostConn( "http://api.wordpress.org/bbapp/update-check/1.0/"  , urlEncoder.getBytes());
 	        connection.startConnWork(); //starts connection
 		}
-	
 	}
 	
 	
