@@ -121,8 +121,10 @@ public class PhotosView extends BaseView {
     		addMenuItem(_deletePhotoItem);
     		addMenuItem(_showPhotoItem);
     	}
-    	EncodedImage rescaled= MultimediaUtils.bestFit2(photo, 128, 128);
-    	Bitmap bitmapRescale= rescaled.getBitmap();
+    	photo.setScale(5); //set the scale
+    	Bitmap bitmapRescale= photo.getBitmap();
+    	//EncodedImage rescaled= MultimediaUtils.bestFit2(photo, 128, 128);
+    	//Bitmap bitmapRescale= rescaled.getBitmap();
 		PhotoBitmapField photoBitmapField = new PhotoBitmapField(bitmapRescale, BitmapField.FOCUSABLE | BitmapField.FIELD_HCENTER, key);
 		photoBitmapField.setSpace(5, 5);
 		manager.add(photoBitmapField);

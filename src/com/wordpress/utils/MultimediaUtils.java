@@ -161,7 +161,6 @@ public class MultimediaUtils {
 		{
 			return image.scaleImage32(scaleW, scaleW);
 		}
-				
 	}
 	
 	public static boolean isPhotoCaptureSupported(){

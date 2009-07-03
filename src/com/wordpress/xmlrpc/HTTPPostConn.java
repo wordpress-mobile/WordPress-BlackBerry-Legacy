@@ -8,6 +8,7 @@ import java.util.Vector;
 import javax.microedition.io.HttpConnection;
 
 import com.wordpress.utils.conn.ConnectionManager;
+import com.wordpress.utils.log.Log;
 
 public class HTTPPostConn extends BlogConn  {
 
@@ -49,7 +50,7 @@ public class HTTPPostConn extends BlogConn  {
 					baos.write(c);
 				}
 				response = new String (baos.toByteArray());
-				
+				Log.trace("Response from HTTP POST conn: "+response);
 			} else {
 			    // deal with errors, warnings, redirections, etc.
 				throw new Exception(""+conn.getResponseCode());

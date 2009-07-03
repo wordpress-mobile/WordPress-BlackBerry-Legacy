@@ -3,10 +3,13 @@ package com.wordpress.io;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStoreException;
 
 import com.wordpress.model.Blog;
@@ -44,6 +47,35 @@ public class DraftDAO implements BaseDAO{
 	}
     
     //store a photos of the draft post
+	public static void storePhotoFast(Blog blog, int draftId, String completePath, String photoName) throws IOException, RecordStoreException {
+    	String draftPostPath = getPostFilePath(blog, draftId);
+    	JSR75FileSystem.createFile(draftPostPath);
+    	String photoFilePath = draftPostPath+"p-"+photoName;
+    	JSR75FileSystem.createFile(photoFilePath);    	
+    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(photoFilePath);
+    
+    	//read from the source and store the photo
+    	FileConnection source;
+    	if(!completePath.startsWith("file:///")) {
+    		source = (FileConnection) Connector.open("file:///" + completePath, Connector.READ);
+    	} else {
+    		source = (FileConnection) Connector.open(completePath, Connector.READ);
+    	}
+    	  
+    	InputStream inStream = source.openInputStream();
+    	byte[] buffer = new byte[1024];
+    	int length = -1;
+    	while ((length = inStream.read(buffer)) > 0) {
+    		out.write(buffer, 0 , length);
+    	}
+    	
+    	inStream.close();
+    	out.close();
+		System.out.println("writing draft photo ok");   	
+	}
+		
+    //store a photos of the draft post 
+	//FIXME can we remove this 
 	public static void storePhoto(Blog blog, int draftId, byte[] photoData, String photoName) throws IOException, RecordStoreException {
     	String draftPostPath = getPostFilePath(blog, draftId);
     	JSR75FileSystem.createFile(draftPostPath);

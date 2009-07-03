@@ -54,12 +54,13 @@ public final class PhotoFileJournalListener implements FileSystemJournalListener
                 switch (entry.getEvent()) {
                 
                     case FileSystemJournalEntry.FILE_ADDED:
-                    	try {
+                    	
                     		
                     		Log.debug("picture taked: "+path);
                     		_lastUSN = nextUSN;
 
                     		//check path
+                    		//path start with only one / 
                     		if(!path.startsWith("file://")) {
                     			if(path.startsWith("/"))
                     				path="file://"+path;
@@ -68,14 +69,10 @@ public final class PhotoFileJournalListener implements FileSystemJournalListener
                     		}
                     		
 
-                			byte[] readFile = JSR75FileSystem.readFile(path);
+                			//byte[] readFile = JSR75FileSystem.readFile(path);
                 			String[] split = StringUtils.split(path, "/"); //get only the filename
-                			_screen.storePhoto(readFile, split[split.length-1]);
+                			_screen.storePhotoFast(path, split[split.length-1]);
 
-                    	} catch (IOException e) {
-							Log.error(e, "Error while taking camera");
-						}
-                       
                     	// Try to kill camera app here by injecting esc.
                        EventInjector.KeyEvent inject = new EventInjector.KeyEvent(EventInjector.KeyEvent.KEY_DOWN, Characters.ESCAPE, 0, 50);
                        inject.post();

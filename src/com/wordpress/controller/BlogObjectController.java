@@ -102,6 +102,33 @@ public abstract class BlogObjectController extends BaseController {
 	}
 
 	
+	public synchronized void storePhotoFast(String completePath, String fileName) {
+		try {
+			
+			if(photoName.get(fileName)!= null)
+				return;
+			else
+				photoName.put(fileName, "fix");
+			
+			if(post != null)
+				DraftDAO.storePhotoFast(post.getBlog(), draftFolder, completePath, fileName);
+			else
+				PageDAO.storePhotoFast(blog, draftFolder, completePath, fileName);
+
+			byte[] readFile = JSR75FileSystem.readFile(completePath);
+			EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
+									
+			photoView.addPhoto(fileName, img);
+			removePhotoJournalListener(); //for security reason remove the listener if any (if we don't close 
+		} catch (Exception e) {
+			photoName.remove(fileName);
+			displayError(e, "Cannot save photo to disk!");
+		}
+	}
+	
+	
+	//old method for storing a photo
+	//FIXME can we remove this 
 	public synchronized void storePhoto(byte[] data, String fileName) {
 		try {
 			
@@ -183,12 +210,12 @@ public abstract class BlogObjectController extends BaseController {
              } else {
             	 String[] fileNameSplitted = StringUtils.split(theFile, "/");
             	 String ext= fileNameSplitted[fileNameSplitted.length-1];
-				try {
-					byte[] readFile = JSR75FileSystem.readFile(theFile);
-					storePhoto(readFile,ext);	
-				} catch (IOException e) {
-					displayError(e, "Cannot load photo from disk!");
-				}
+			//	try {
+					//byte[] readFile = JSR75FileSystem.readFile(theFile);
+				storePhotoFast(theFile,ext);	
+			//	} catch (IOException e) {
+				//	displayError(e, "Cannot load photo from disk!");
+				//}
              }					
 			break;
 			

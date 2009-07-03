@@ -70,6 +70,10 @@ public class CommentsView extends BaseView {
 		
     	this.commentsList= commentListController.get_checkList();
 		dataScroller.add(commentsList);
+		
+		//update comment number
+		lblPostsNumber.setText(_resources.getString(WordPressResource.MENUITEM_COMMENTS)+" "+comments.length);
+		
 		switchMenu();
 		addMenuItem(_refreshCommentsListItem);
 	}
@@ -225,4 +229,3 @@ public class CommentsView extends BaseView {
     }    
 
 }
-
