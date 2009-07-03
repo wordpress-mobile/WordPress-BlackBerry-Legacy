@@ -1,21 +1,24 @@
 package com.wordpress.xmlrpc;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.util.Vector;
 
-import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
 import com.wordpress.utils.conn.ConnectionManager;
 
-public class HTTPGetConn extends BlogConn  {
+public class HTTPPostConn extends BlogConn  {
 
-	public HTTPGetConn(String url) {
+	private final byte[] postContent;
+
+	public HTTPPostConn (String url, byte[] postContent) {
 		super(url, "", "");
+		this.postContent = postContent;
 	}
-
-	//we have overrided execute method, because there isn't xml-rpc conn, but only a simple http conn 
+	
+	//we have overrided execute method, because there isn't xml-rpc conn, but only a simple POST http conn 
 	protected Object execute(String aCommand, Vector aArgs){
 		isWorking=true;
 		
@@ -25,6 +28,13 @@ public class HTTPGetConn extends BlogConn  {
 		try {
 			//conn = (HttpConnection) Connector.open(urlConnessione);
 			conn = (HttpConnection) ConnectionManager.getInstance().open(urlConnessione);
+			conn.setRequestMethod( HttpConnection.POST ); //setupPost method for this conn
+			conn.openOutputStream().write(postContent);
+
+		//	DataOutputStream dos = new DataOutputStream( conn.openOutputStream() );
+		//	dos.write(postContent);
+		//	dos.close();
+			
 			int rc = conn.getResponseCode();
 			if( rc == HttpConnection.HTTP_OK ){
 				

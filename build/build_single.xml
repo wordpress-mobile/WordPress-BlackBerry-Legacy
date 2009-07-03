@@ -123,7 +123,7 @@
     	        
         <echo message="Please sign the .cod file located at ${dir.output.sign}" />
     
-        <java jar="${rim.home}/bin/SignatureTool.jar" failonerror="false" fork="true">
+        <java jar="${rim.home}/bin/SignatureTool.jar" failonerror="true" fork="true">
             <arg value="-a"/>
            <arg value="-p"/> 
             <arg value="${bb.sigtool.password}"/> 

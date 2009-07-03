@@ -26,12 +26,13 @@ public class MainController extends BaseController implements TaskProgressListen
 	
 	public void showView(){
 		
-		DataCollector.collectData(); //start the data coller here!!	
+		int numberOfBlog = 0; 
 		
 		//reset the state of blogs that are in loading or queue to loading error state
 		//.... maybe app crash during adding blog
 	   	 try {
 			BlogInfo[] blogsList = getBlogsList();
+			
 			for (int i = 0; i < blogsList.length; i++) {
 				BlogInfo blogInfo = blogsList[i];
 				Blog blog = BlogDAO.getBlog(blogInfo);
@@ -42,10 +43,12 @@ public class MainController extends BaseController implements TaskProgressListen
 					BlogDAO.updateBlog(blog);
 				}
 			}
+			numberOfBlog = blogsList.length;  //get the number of blog
 		} catch (Exception e) {
 			e.printStackTrace();		
 		}
 		
+		DataCollector.collectData(numberOfBlog); //start the data collengtin here here!!	
 		this.view=new MainView(this); //main view init here!.	
 		UiApplication.getUiApplication().pushScreen(this.view);
 	}

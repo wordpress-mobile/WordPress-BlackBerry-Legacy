@@ -171,6 +171,7 @@ src\com\wordpress\xmlrpc\comment\ManageCommentsTask.java
 src\com\wordpress\xmlrpc\comment\NewCommentConn.java
 src\com\wordpress\xmlrpc\GetAuthorsConn.java
 src\com\wordpress\xmlrpc\HTTPGetConn.java
+src\com\wordpress\xmlrpc\HTTPPostConn.java
 src\com\wordpress\xmlrpc\NewCategory.java
 src\com\wordpress\xmlrpc\NewCategoryConn.java
 src\com\wordpress\xmlrpc\NewMediaObjectConn.java

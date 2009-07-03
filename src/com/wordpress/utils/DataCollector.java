@@ -8,7 +8,7 @@ import net.rim.device.api.system.RadioInfo;
 
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.log.Log;
-import com.wordpress.xmlrpc.HTTPGetConn;
+import com.wordpress.xmlrpc.HTTPPostConn;
 
 /*
  * 
@@ -16,41 +16,73 @@ import com.wordpress.xmlrpc.HTTPGetConn;
 
 public class DataCollector {
 	
-	public static void collectData() {
+	public static void collectData(int numberOfBlog) {
 		Preferences appPrefs= Preferences.getIstance();
 
+		String appVersion = "";
 		if(appPrefs.isFirstStartup) {
 			try {
-				getAppVersion();
+				appVersion = getAppVersion();
 			} catch (Exception e) {
 				Log.error(e, "Could not retrive App version");
 			}
+			
+			String language = "";
 			try {
-				getLanguage();
+				language = getLanguage();
 			} catch (Exception e) {
 				Log.error(e, "Could not retrive Devices Language");			
 			}
+			
+			int mobileNetworkNumber = -1;
+			int mobileCountryCode = -1;
 			try {
-				getCarrier();
+				mobileNetworkNumber = getMobileNetworkNumber();
+				mobileCountryCode = getMobileCountryCode();
 			} catch (Exception e) {
-				Log.error(e, "Could not retrive Carrier");
+				Log.error(e, "Could not retrive Carrier Info");
 			}
+			
+			String deviceOS = "";
 			try {
-				getDeviceOS();
+				deviceOS = getDeviceOS();
+				if("".equals(deviceOS)) {
+					//could be simulator. do one more check
+					if(DeviceInfo.isSimulator()) {
+						deviceOS= "Simulator";
+					} else {
+						deviceOS= "Unknown";
+					}
+				}
 			} catch (Exception e) {
 				Log.error(e, "Could not retrive Os version");
 			}
+			
+			
+			String deviceSoftwareVersion = "";
 			try {
-				getDeviceVersion();
+				deviceSoftwareVersion = getDeviceSoftwareVersion();
 			} catch (Exception e) {
 				Log.error(e, "Could not retrive Device Version");
 			}
 			
 			//crate the link
 			URLEncodedPostData urlEncoder = new URLEncodedPostData("UTF-8", false);
-			//urlEncoder.append(name, value);
-			final HTTPGetConn connection = new HTTPGetConn("");
-	     //   connection.startConnWork(); //starts connection
+			urlEncoder.append("app_version", appVersion);
+			urlEncoder.append("device_language", language);
+			
+			if ( mobileCountryCode != -1 )
+				urlEncoder.append("mobile_country_code", ""+mobileCountryCode);
+			
+			if(mobileNetworkNumber != -1)
+				urlEncoder.append("mobile_network_number", ""+mobileNetworkNumber);
+			
+			urlEncoder.append("device_os", deviceOS);
+			urlEncoder.append("device_version", deviceSoftwareVersion);
+			urlEncoder.append("num_blogs", ""+numberOfBlog);
+			
+			final HTTPPostConn connection = new HTTPPostConn( "http://api.wordpress.org/bbapp/update-check/1.0/"  , urlEncoder.getBytes());
+	        connection.startConnWork(); //starts connection
 		}
 	
 	}
@@ -62,12 +94,16 @@ public class DataCollector {
 		return language;
 	}
 	
-	public static String getCarrier() {
-		int mcc = RadioInfo.getMCC( RadioInfo.getCurrentNetworkIndex() );
+	public static int getMobileNetworkNumber() {
 		int mnc = RadioInfo.getMNC(RadioInfo.getCurrentNetworkIndex());
-		Log.debug("mobile Country Code: "+ mcc+" Mobile NetworkNumber:"+mnc);
-		return "MCC:"+mcc+" MNC:"+mnc; 
-
+		Log.debug("Mobile NetworkNumber:"+mnc);
+		return mnc;
+	}
+	
+	public static int getMobileCountryCode() {
+		int mcc = RadioInfo.getMCC( RadioInfo.getCurrentNetworkIndex() );
+		Log.debug("mobile Country Code: "+ mcc);
+		return mcc;
 	}
 	
 	public static String getAppVersion() {
@@ -82,13 +118,16 @@ public class DataCollector {
         return version;
 	}
 	
+	//A string representing the platform version. 
+	//An empty string is returned when program is being run on a simulator.
 	public static String getDeviceOS(){
 		String deviceOS = DeviceInfo.getPlatformVersion();
 		Log.debug("deviceOS: "+deviceOS);
 		return deviceOS;
 	}
 	
-	public static String getDeviceVersion() {
+	//ex. 4.6.1
+	public static String getDeviceSoftwareVersion() {
 		  // Get the platform version
     	int[] handles = CodeModuleManager.getModuleHandles();
     	int size = handles.length;
