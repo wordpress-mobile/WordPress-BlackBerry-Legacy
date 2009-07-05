@@ -15,6 +15,7 @@ import com.wordpress.model.Category;
 import com.wordpress.model.Tag;
 import com.wordpress.utils.MD5;
 import com.wordpress.utils.Tools;
+import com.wordpress.utils.log.Log;
 
 public class BlogDAO implements BaseDAO {
 	
@@ -164,7 +165,7 @@ public class BlogDAO implements BaseDAO {
     
    
     private static synchronized Blog loadBlog(String name) throws Exception {
-    	System.out.println("carico il blog " + name + " dal file system");
+    	Log.debug("loading blog " + name + " from file system");
     	
     	String filePath=AppDAO.getBaseDirPath()+name;
         

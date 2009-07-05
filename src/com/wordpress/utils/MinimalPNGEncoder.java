@@ -1,7 +1,7 @@
 /*
  * Minimal PNG encoder to create PNG streams (and MIDP images) from RGBA arrays.
  * 
- * Copyright 2006-2009 Christian Fröschlin 
+ * Copyright 2006-2009 Christian Frï¿½schlin 
  *
  * www.chrfr.de
  *
@@ -25,7 +25,7 @@
  * If you have a suitable location in GUI or documentation for giving credit,
  * I'd appreciate a mention of
  * 
- *  PNG encoder (C) 2006-2009 by Christian Fröschlin, www.chrfr.de
+ *  PNG encoder (C) 2006-2009 by Christian Frï¿½schlin, www.chrfr.de
  *
  * but that's not mandatory.
  *
@@ -171,15 +171,13 @@ public class MinimalPNGEncoder
      compression, call another encoder (such as JZLib?) here. */
   public static byte[] toZLIB(byte[] raw) throws IOException
   {
-	  
 	  //used the BB ZLib ...
 	  ByteArrayOutputStream outBytes = new ByteArrayOutputStream(1024);
       ZLibOutputStream compBytes = new ZLibOutputStream(outBytes);
 	  compBytes.write(raw, 0, raw.length);
 	  compBytes.close();
 	  return outBytes.toByteArray();
-	  
-    //return ZLIB.toZLIB(raw);    
+	  //ZLIB.toZLIB(raw);
   }
 }
 

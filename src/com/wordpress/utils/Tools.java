@@ -1,9 +1,23 @@
 package com.wordpress.utils;
 
+import java.util.Random;
 import java.util.Vector;
 
 public class Tools {
 	
+	
+  public static double round(final double num) {
+	    final double floor = Math.floor(num);
+	    if (num - floor >= 0.5) {
+	      return Math.ceil(num);
+	    } else {
+	      return floor;
+	    }
+	  }
+	
+	public static long generateDeviceUUID() {
+		return (new Random()).nextLong();
+	}
 	
 	 public static int decodeInt(Object input){	 
 		 if (input instanceof String){

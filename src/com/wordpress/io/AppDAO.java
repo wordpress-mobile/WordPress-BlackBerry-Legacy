@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Hashtable;
 
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
@@ -106,6 +107,13 @@ public class AppDAO implements BaseDAO{
 		    Boolean isWapConnectionPermitted = (Boolean) ser.deserialize();
 		    String userName = (String) ser.deserialize();
 		    String userPass = (String) ser.deserialize();
+
+		    Hashtable opt = new Hashtable(); 
+		    // try to read the added hashtable in the rev108
+		    //in this hashtable we should store all next needed variable
+		    if(in.available() != 0) { 
+		    	opt = (Hashtable) ser.deserialize();
+		    }
 			
 			pref.setAudioEncoding(audioEncoding);
 			pref.setPhotoEncoding(photoEncoding);
@@ -122,10 +130,9 @@ public class AppDAO implements BaseDAO{
 			pref.setWapConnectionPermitted(isWapConnectionPermitted.booleanValue());
 			pref.setBESConnectionPermitted(isBESConnectionPermitted.booleanValue());
 			pref.setServiceBookConnectionPermitted(isServiceBookConnectionPermitted.booleanValue());
-				
-			
 			pref.setUsername(userName);
 			pref.setPassword(userPass);
+			pref.setOpt(opt);
 			
 			Log.debug("Prefs loading succesfully!");
 			in.close();
@@ -175,6 +182,7 @@ public class AppDAO implements BaseDAO{
 	    	ser.serialize(isWapConnectionPermitted);
 	    	ser.serialize(userName);
 	    	ser.serialize(userPass);
+	    	ser.serialize(pref.getOpt());
 	    	
 	    	out.close();
 			Log.debug("Prefs stored succesfully!");

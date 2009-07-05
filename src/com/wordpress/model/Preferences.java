@@ -1,5 +1,7 @@
 package com.wordpress.model;
 
+import java.util.Hashtable;
+
 import com.wordpress.utils.conn.ConnectionUtils;
 
 public class Preferences {
@@ -27,7 +29,9 @@ public class Preferences {
     private String sourceIP;
     private String sourcePort;
     
-    public boolean isFirstStartup = false; //no store this var into FS
+    public boolean isFirstStartupOrUpgrade = false; //no store this var into FS
+    //we use this hashtable to store opt parameters. now only uuid is present
+    private Hashtable opt = new Hashtable(); 
         
 	public static Preferences getIstance() {
 		if (singletonObject == null) {
@@ -180,4 +184,13 @@ public class Preferences {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+	public Hashtable getOpt() {
+		return opt;
+	}
+
+	public void setOpt(Hashtable opt) {
+		this.opt = opt;
+	}
+
 }

@@ -1,6 +1,7 @@
 //#preprocess
 package com.wordpress.bb;
 
+import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -16,8 +17,10 @@ import net.rim.device.api.ui.container.MainScreen;
 import com.wordpress.controller.MainController;
 import com.wordpress.io.AppDAO;
 import com.wordpress.io.BaseDAO;
+import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
+import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Appender;
 import com.wordpress.utils.log.FileAppender;
 import com.wordpress.utils.log.Log;
@@ -54,27 +57,48 @@ public class SplashScreen extends MainScreen {
 		WordPressApplicationPermissions.getIstance().checkPermissions();
 						
 		try {
-			String baseDirPath = AppDAO.getBaseDirPath();
+			String baseDirPath = AppDAO.getBaseDirPath(); //read from rms the base dir path
+			AppDAO.setUpFolderStructure();
+			
 			if ( baseDirPath != null ) {
 				//not first startup 	
 				AppDAO.readApplicationPreferecens(appPrefs); //load pref on startup
 				timer.schedule(new CountDown(), 3000); //3sec splash
-				appPrefs.isFirstStartup = false; //set as no first  startup.
+				appPrefs.isFirstStartupOrUpgrade = false; //set as no first  startup.
 			} else { 
 				//first startup
-				appPrefs.isFirstStartup = true; //set as first startuo.
+				appPrefs.isFirstStartupOrUpgrade = true; //set as first startup.
+				
+				//check if this is a new inst or an upgrade. 
+				//if prefs file exist, this is an upgrade.
+				String appPrefsFilePath = AppDAO.getAppPrefsFilePath();
+				if (JSR75FileSystem.isFileExist(appPrefsFilePath)) {
+					//upgrading
+					Log.trace("App upgrading");
+					AppDAO.readApplicationPreferecens(appPrefs); //load pref on upgrading
+				} else {
+					//new inst
+					Log.trace("App first installation");
+				}
 				add(new LabelField("Installation in progress...",Field.FIELD_HCENTER| Field.FIELD_VCENTER));
-				AppDAO.setUpFolderStructure();
 				timer.schedule(new CountDown(), 3000); //3sec splash
 			}
 			
+			//check the existence of UUID var.
+			//if UUID does not exists, generate it and put it in the prefs
+			Hashtable opt = appPrefs.getOpt();
+			if(opt.get("device_uuid") == null)
+				opt.put("device_uuid", ""+(Tools.generateDeviceUUID())); 
+			AppDAO.storeApplicationPreferecens(appPrefs); //store app pref, trick for store pref when added new parameters
+			
+	/*		
 			//#ifdef DEBUG
-			Appender fileAppender = new FileAppender(AppDAO.getBaseDirPath(), BaseDAO.LOG_FILE_PREFIX);
+			Appender fileAppender = new FileAppender(baseDirPath, BaseDAO.LOG_FILE_PREFIX);
 			fileAppender.setLogLevel(Log.DEBUG); //if we set level to TRACE the file log size grows too fast
 			fileAppender.open();
 			Log.addAppender(fileAppender);
 			//#endif
-
+		*/	
 			
 		} catch (Exception e) {
 			timer.cancel();

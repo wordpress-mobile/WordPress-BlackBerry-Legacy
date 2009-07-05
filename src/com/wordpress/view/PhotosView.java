@@ -18,6 +18,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
 import com.wordpress.utils.MultimediaUtils;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.mm.PhotoBitmapField;
 
@@ -121,8 +122,13 @@ public class PhotosView extends BaseView {
     		addMenuItem(_deletePhotoItem);
     		addMenuItem(_showPhotoItem);
     	}
-    	photo.setScale(5); //set the scale
+    	//find the photo size
+    	int scale = MultimediaUtils.findBestImgScale(photo, 128, 128);
+    	if(scale > 1)
+    		photo.setScale(scale); //set the scale
+    	
     	Bitmap bitmapRescale= photo.getBitmap();
+    	Log.trace(bitmapRescale.getHeight()+" "+ bitmapRescale.getWidth());
     	//EncodedImage rescaled= MultimediaUtils.bestFit2(photo, 128, 128);
     	//Bitmap bitmapRescale= rescaled.getBitmap();
 		PhotoBitmapField photoBitmapField = new PhotoBitmapField(bitmapRescale, BitmapField.FOCUSABLE | BitmapField.FIELD_HCENTER, key);

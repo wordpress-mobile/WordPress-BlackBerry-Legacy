@@ -79,7 +79,8 @@ public class ConnectionManager {
         //user hasn't personal conn settings. Load them from devices setting
         
         Log.debug("Reload configuration from device");
-        refreshServiceBookConfigurations();
+        connections[SERVICE_BOOK_CONFIG].setUrlParameters(AbstractConfiguration.BASE_CONFIG_PARAMETERS + 
+                ConnectionUtils.getServiceBookOptions());
 
         if (!ConnectionUtils.isWifiActive() || !ConnectionUtils.isWifiAvailable()) {
             Log.debug("WI-FI not available");
@@ -102,6 +103,12 @@ public class ConnectionManager {
             return setupConnection(url, accessMode, enableTimeoutException);
         
         } else {
+
+        	//check if the current config is already allowed
+        	if (!isConnectionAllowed(currConfigID)) {
+        		currConfigID=CONFIG_NONE;
+        		return setupConnection(url, accessMode, enableTimeoutException);
+        	}
         	
             Connection ret = null;
             try {
@@ -125,7 +132,6 @@ public class ConnectionManager {
         
         for (int i = 0; i < MAX_CONFIG_NUMBER; i++) {
             try {
-
 
                 if (isConnectionAllowed(i)) {
                     Log.debug("Configuration Allowed: " + (i+1));
@@ -176,52 +182,24 @@ public class ConnectionManager {
             return false;
         }
 
-        //Permission is denied
-        if (connections[configNumber].getPermission()== AbstractConfiguration.PERMISSION_DENIED){
-            Log.debug("Connection denied");
-            return false;
-        }
-
-        //Permission is granted
-        if (connections[configNumber].getPermission()== AbstractConfiguration.PERMISSION_GRANTED){
-            Log.debug("Connection granted");
-            return true;
-        } 
-        
-        if (connections[configNumber].getPermission() == AbstractConfiguration.PERMISSION_UNDEFINED){
-            boolean isConfigurationAllowed = isConnectionConfigurationAllowed(configNumber,connections[configNumber].getDescription());
-            return isConfigurationAllowed;
-        }
-        
-        return false;
-    }
-    
-   
-    /**
-     * Check if the connection configuration is allowed
-     * @param config is the configuration to be checked
-     * @return true in the user allow the conn configuration  
-     * performed on the configuration permission
-     */
-    public boolean isConnectionConfigurationAllowed(final int conType, final String config) {
-    	Preferences pref = 	Preferences.getIstance();
-    	
-    	switch (conType) {
+    	switch (configNumber) {
     	case WIFI_CONFIG: 
     		return (ConnectionUtils.isWifiActive()&& ConnectionUtils.isWifiAvailable()
-    				&& pref.isWiFiConnectionPermitted() );
+    				&& userPreferences.isWiFiConnectionPermitted() );
     	case TCP_CONFIG:
-    		return pref.isTcpConnectionPermitted();
+    		return userPreferences.isTcpConnectionPermitted();
     	case SERVICE_BOOK_CONFIG:
-    		return pref.isServiceBookConnectionPermitted();
+    		return userPreferences.isServiceBookConnectionPermitted();
     	case BES_CONFIG:
-    		return pref.isBESConnectionPermitted();
+    		return userPreferences.isBESConnectionPermitted();
     		
 		default:
 			return false;
 		}
-    }   
+    }
     
+   
+   
     public static boolean isAvailable(int configuration) {
         switch (configuration) {
             case WIFI_CONFIG:
@@ -247,15 +225,6 @@ public class ConnectionManager {
         
         return connections;
     }
-    
-    /**
-     * Refresh the configuration parameters. Useful when the servicebook changed
-     */
-    protected static void refreshServiceBookConfigurations() {
-        connections[SERVICE_BOOK_CONFIG].setUrlParameters(AbstractConfiguration.BASE_CONFIG_PARAMETERS + 
-                                                             ConnectionUtils.getServiceBookOptions());
-    }
-    
 }
 
 

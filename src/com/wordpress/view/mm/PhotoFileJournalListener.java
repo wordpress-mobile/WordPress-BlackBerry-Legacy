@@ -1,7 +1,5 @@
 package com.wordpress.view.mm;
 
-import java.io.IOException;
-
 import net.rim.device.api.io.file.FileSystemJournal;
 import net.rim.device.api.io.file.FileSystemJournalEntry;
 import net.rim.device.api.io.file.FileSystemJournalListener;
@@ -9,7 +7,6 @@ import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.EventInjector;
 
 import com.wordpress.controller.BlogObjectController;
-import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 

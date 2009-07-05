@@ -1,6 +1,5 @@
 package com.wordpress.controller;
 
-import java.io.IOException;
 import java.util.Hashtable;
 
 import net.rim.blackberry.api.invoke.CameraArguments;
@@ -27,8 +26,8 @@ import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PreviewView;
 import com.wordpress.view.component.FileSelectorPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
-import com.wordpress.view.mm.PhotoFileJournalListener;
 import com.wordpress.view.mm.MultimediaPopupScreen;
+import com.wordpress.view.mm.PhotoFileJournalListener;
 import com.wordpress.view.mm.PhotoPreview;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.HTTPGetConn;
@@ -122,6 +121,7 @@ public abstract class BlogObjectController extends BaseController {
 			removePhotoJournalListener(); //for security reason remove the listener if any (if we don't close 
 		} catch (Exception e) {
 			photoName.remove(fileName);
+			deletePhoto(fileName);
 			displayError(e, "Cannot save photo to disk!");
 		}
 	}

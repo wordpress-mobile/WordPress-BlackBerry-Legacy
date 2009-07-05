@@ -35,7 +35,8 @@ public class MultimediaUtils {
 		EncodedImage bestFit2 = bestFit2(originalImage, 640, 480);
 		originalImage = null;
 		Bitmap resizedBitmap = bestFit2.getBitmap();
-	
+		bestFit2 = null;
+		
 		if (fileName.endsWith("png") || fileName.endsWith("PNG")){
 			
 		} else {
@@ -137,6 +138,31 @@ public class MultimediaUtils {
 	    return result;
 	  }
 	 
+  
+  public static int findBestImgScale(EncodedImage image, int maxWidth, int maxHeight) {
+		// getting image properties
+		int w = image.getWidth();
+		int h = image.getHeight();
+		
+		if(w < maxWidth && h < maxHeight) return 1; //image is smaller than the desidered size...no resize!
+		
+			
+		double numeratorW = w;
+		double denominatorW = maxWidth;
+		int scaleW = (int)Tools.round((numeratorW / denominatorW));
+
+		double numeratorH = h;
+		double denominatorH = maxHeight;
+		int scaleH = (int) Tools.round(numeratorH / denominatorH);
+		
+		if(scaleH > scaleW) {
+			return scaleH;
+		} else
+		{
+			return scaleW;
+		}
+  }
+  
 	public static EncodedImage bestFit2(EncodedImage image, int maxWidth, int maxHeight)
 	{
 

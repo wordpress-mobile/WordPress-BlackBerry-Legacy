@@ -20,7 +20,7 @@ public class DataCollector {
 		Preferences appPrefs= Preferences.getIstance();
 
 		String appVersion = "";
-		if(appPrefs.isFirstStartup) {
+		if(appPrefs.isFirstStartupOrUpgrade) {
 			try {
 				appVersion = getAppVersion();
 			} catch (Exception e) {
@@ -70,6 +70,7 @@ public class DataCollector {
 			URLEncodedPostData urlEncoder = new URLEncodedPostData("UTF-8", false);
 			urlEncoder.append("app_version", appVersion);
 			urlEncoder.append("device_language", language);
+			urlEncoder.append("device_uuid", (String)appPrefs.getOpt().get("device_uuid"));
 			
 			if ( mobileCountryCode != -1 )
 				urlEncoder.append("mobile_country_code", ""+mobileCountryCode);
