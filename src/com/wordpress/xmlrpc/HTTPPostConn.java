@@ -32,10 +32,12 @@ public class HTTPPostConn extends BlogConn  {
 			conn.setRequestMethod( HttpConnection.POST ); //setupPost method for this conn
 			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 		//	conn.openOutputStream().write(postContent);
-			DataOutputStream dos = new DataOutputStream( conn.openOutputStream() );
-			dos.write(postContent);
-			dos.flush();
-			dos.close();
+			if(postContent != null) {
+				DataOutputStream dos = new DataOutputStream( conn.openOutputStream() );
+				dos.write(postContent);
+				dos.flush();
+				dos.close();
+			}
 			
 			int rc = conn.getResponseCode();
 			if( rc == HttpConnection.HTTP_OK ){

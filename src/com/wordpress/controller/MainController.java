@@ -8,15 +8,11 @@ import javax.microedition.rms.RecordStoreException;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
-import com.wordpress.io.AppDAO;
-import com.wordpress.io.BaseDAO;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.DataCollector;
-import com.wordpress.utils.log.Appender;
-import com.wordpress.utils.log.FileAppender;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.MainView;
 
@@ -30,15 +26,6 @@ public class MainController extends BaseController implements TaskProgressListen
 	}
 	
 	public void showView(){
-		//add the file log appender 
-		try {
-			Appender fileAppender = new FileAppender(AppDAO.getBaseDirPath(), BaseDAO.LOG_FILE_PREFIX);
-			fileAppender.setLogLevel(Log.DEBUG); //if we set level to TRACE the file log size grows too fast
-			fileAppender.open();
-			Log.addAppender(fileAppender);
-		} catch (RecordStoreException e1) {
-		} catch (IOException e1) {
-		}
 		
 		int numberOfBlog = 0; 
 		
@@ -62,7 +49,16 @@ public class MainController extends BaseController implements TaskProgressListen
 			Log.error(e, "Error while reading stored blog");
 		}
 		
-		DataCollector.collectData(numberOfBlog); //start the data collengtin here here!!	
+		
+		try {
+			DataCollector dtc = new DataCollector();
+			dtc.collectData(numberOfBlog); //start data gathering here
+			dtc.checkUpdate(); // check if upgrade is available
+		} catch (Exception e) {
+			
+			//don't propagate this Exception
+		}
+		
 		this.view=new MainView(this); //main view init here!.	
 		UiApplication.getUiApplication().pushScreen(this.view);
 	}

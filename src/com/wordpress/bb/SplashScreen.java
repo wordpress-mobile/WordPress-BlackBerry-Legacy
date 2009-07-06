@@ -91,14 +91,14 @@ public class SplashScreen extends MainScreen {
 				opt.put("device_uuid", ""+(Tools.generateDeviceUUID())); 
 			AppDAO.storeApplicationPreferecens(appPrefs); //store app pref, trick for store pref when added new parameters
 			
-	/*		
+			//add the file log appender
 			//#ifdef DEBUG
 			Appender fileAppender = new FileAppender(baseDirPath, BaseDAO.LOG_FILE_PREFIX);
 			fileAppender.setLogLevel(Log.DEBUG); //if we set level to TRACE the file log size grows too fast
 			fileAppender.open();
 			Log.addAppender(fileAppender);
 			//#endif
-		*/	
+			
 			
 		} catch (Exception e) {
 			timer.cancel();

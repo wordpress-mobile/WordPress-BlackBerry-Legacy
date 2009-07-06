@@ -30,7 +30,8 @@ public class Preferences {
     private String sourcePort;
     
     public boolean isFirstStartupOrUpgrade = false; //no store this var into FS
-    //we use this hashtable to store opt parameters. now only uuid is present
+    //we use this hashtable to store opt parameters. 
+    //keys: device_uuid - update_check_time 
     private Hashtable opt = new Hashtable(); 
         
 	public static Preferences getIstance() {
