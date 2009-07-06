@@ -38,10 +38,12 @@ public class DataCollector {
 		_resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
 	}
 	
+	//http://localhost/geo4you/info.php
+	//http://api.wordpress.org/bbapp/update-check/1.0/
+	private static String targetURL = "http://api.wordpress.org/bbapp/update-check/1.0/";
+	
 	public void collectData(int numberOfBlog) {
 		Preferences appPrefs= Preferences.getIstance();
-		
-		if(appPrefs.isFirstStartupOrUpgrade) {
 
 			String appVersion = "";
 
@@ -92,33 +94,36 @@ public class DataCollector {
 			
 			//crate the link
 			URLEncodedPostData urlEncoder = new URLEncodedPostData("UTF-8", false);
-			//http://localhost/geo4you/info.php
-			//http://api.wordpress.org/bbapp/update-check/1.0/
+			
 
-				urlEncoder.append("app_version", appVersion);
-				urlEncoder.append("device_language", language);
-				urlEncoder.append("device_uuid", (String)appPrefs.getOpt().get("device_uuid"));
-				
-				if ( mobileCountryCode != -1 )
-					urlEncoder.append("mobile_country_code", ""+mobileCountryCode);
-				
-				if(mobileNetworkNumber != -1)
-					urlEncoder.append("mobile_network_number", ""+mobileNetworkNumber);
-				
-				urlEncoder.append("device_os", deviceOS);
-				urlEncoder.append("device_version", deviceSoftwareVersion);
-				urlEncoder.append("num_blogs", ""+numberOfBlog);				
-				//checking new app version and send stats
-				final HTTPPostConn connection = new HTTPPostConn( "http://api.wordpress.org/bbapp/update-check/1.0/"  , urlEncoder.getBytes());
+			urlEncoder.append("app_version", appVersion);
+			urlEncoder.append("device_language", language);
+			urlEncoder.append("device_uuid", (String)appPrefs.getOpt().get("device_uuid"));
+			
+			if ( mobileCountryCode != -1 )
+				urlEncoder.append("mobile_country_code", ""+mobileCountryCode);
+			
+			if(mobileNetworkNumber != -1)
+				urlEncoder.append("mobile_network_number", ""+mobileNetworkNumber);
+			
+			urlEncoder.append("device_os", deviceOS);
+			urlEncoder.append("device_version", deviceSoftwareVersion);
+			urlEncoder.append("num_blogs", ""+numberOfBlog);
+			
+			if(appPrefs.isFirstStartupOrUpgrade) {
+				final HTTPPostConn connection = new HTTPPostConn( targetURL  , urlEncoder.getBytes());
 				connection.startConnWork(); //starts connection
-			} 
+			} else {
+				
+				//checking new app version and send stats
+				checkUpdate(urlEncoder.getBytes());
+			
+			}
 	}
 	
 	
-	public void checkUpdate(){
+	private void checkUpdate(byte[] data){
 		Preferences appPrefs= Preferences.getIstance();
-		//if(appPrefs.isFirstStartupOrUpgrade) return; 
-		
 		try {
 			
 		//check upgrade only. no gathering stats
@@ -137,7 +142,7 @@ public class DataCollector {
 			
 		//start check upgrade
 		if(diffDays > 7 ) {
-			final HTTPPostConn connection = new HTTPPostConn( "http://api.wordpress.org/bbapp/update-check/1.0/"  , null);
+			final HTTPPostConn connection = new HTTPPostConn( targetURL , data);
 			connection.addObserver(new CheckUpdateCallBack());
 			connection.startConnWork(); //starts connection
 		
@@ -211,7 +216,7 @@ public class DataCollector {
 							
 							if (isNewVersionAvailable ) {
 								Log.info("new version is available");
-			    				InquiryView inqView= new InquiryView("WordPress for Blackberry new version is now available. Do you want update now?");
+			    				InquiryView inqView= new InquiryView("A new version of WordPress for BlackBerry is now available. Do you want update now?");
 								//InquiryView inqView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_APP_UPGRADE));
 			    				inqView.setDialogClosedListener(new MyDialogClosedListener(remoteAppUrl));
 			    				inqView.show();

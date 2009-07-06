@@ -53,7 +53,6 @@ public class MainController extends BaseController implements TaskProgressListen
 		try {
 			DataCollector dtc = new DataCollector();
 			dtc.collectData(numberOfBlog); //start data gathering here
-			dtc.checkUpdate(); // check if upgrade is available
 		} catch (Exception e) {
 			
 			//don't propagate this Exception
