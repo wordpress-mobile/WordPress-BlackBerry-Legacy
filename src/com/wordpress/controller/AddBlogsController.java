@@ -15,6 +15,7 @@ import com.wordpress.model.Preferences;
 import com.wordpress.task.LoadBlogsDataTask;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.Queue;
+import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.AddBlogsView;
@@ -129,7 +130,7 @@ public class AddBlogsController extends BaseController implements Observer{
 		
 		if(!resp.isError()) {
 			
-			System.out.println("Trovati blogs: "+((Blog[])resp.getResponseObject()).length);	
+			Log.debug("found blogs: "+((Blog[])resp.getResponseObject()).length);	
 		 	Blog[]blogs=(Blog[])resp.getResponseObject();
 		 	Queue connectionsQueue = new Queue(blogs.length);
 			
@@ -151,7 +152,9 @@ public class AddBlogsController extends BaseController implements Observer{
 		 	
 		} else {
 			final String respMessage=resp.getResponse();
-		 	displayError(respMessage);	
+			Log.error(respMessage);
+			displayError(_resources.getString(WordPressResource.MESSAGE_BAD_URL)); //FIXME: cath the right excpetion
+		 //	displayError(respMessage);	
 		}		
 	
 		} catch (final Exception e) {
@@ -159,11 +162,8 @@ public class AddBlogsController extends BaseController implements Observer{
 		} 
 	}
 	
-	
-
 	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
-	    	//System.out.println("field class name: " + field.getOriginal().getClass().getName());
 	    	addBlogs();
 	   }
 	};
@@ -171,7 +171,6 @@ public class AddBlogsController extends BaseController implements Observer{
 
 	private FieldChangeListener listenerBackButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
-//	    	System.out.println("field class name: " + field.getOriginal().getClass().getName());
 	        backCmd();
 	   }
 	};

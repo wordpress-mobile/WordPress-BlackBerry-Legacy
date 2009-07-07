@@ -92,6 +92,7 @@ MENUITEM_SETTINGS#0="Settings";
 MENUITEM_SETUP#0="Setup";
 MENUITEM_SHOWBLOG#0="Show blog";
 MESSAGE_APP_RESTART#0="Application restarts automatically, wait aprox 1 minute.";
+MESSAGE_BAD_URL#0="Bad URL, username or password.";
 MESSAGE_CHOOSE_CONNECTION#0="Would you like to use that connection configuration:";
 MESSAGE_HTTP_LINK#0="Http Link?";
 MESSAGE_REMOVE_TEMPFILES#0="All application data will be lost, are you sure to continue?";
