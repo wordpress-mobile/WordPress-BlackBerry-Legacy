@@ -25,6 +25,8 @@ public class DraftPagesController extends BaseController {
 	private boolean isLoadError= false;
 	private String loadErrorMessage= "";
 	
+	private boolean prevScreenNeedUpdate = false;
+	
 	public DraftPagesController(Blog currentBlog) {
 		super();	
 		this.currentBlog=currentBlog;
@@ -96,9 +98,26 @@ public class DraftPagesController extends BaseController {
 		} catch (RecordStoreException e) {
 			displayError(e, "Error while deleting draft page");
 		}
-		refreshView();
+		updateViewDraftPageList();
 	}
 
+	public void updateViewDraftPageList() {
+	 try {
+			loadDraftPages();
+			view.refresh(pages);
+		} catch (Exception e) {
+	    	displayError(e, "Error while reading drafts phones memory");
+		}
+	}
+	
+	//return back to page list. update screen if it is necessary
+	public void toPageList() {
+		if(prevScreenNeedUpdate == false)
+			backCmd();
+		else
+			FrontController.getIstance().backAndRefreshView(true); //deep refresh
+		
+	}
 	
 	public void newPage() {
 		if (currentBlog != null) {
@@ -121,13 +140,13 @@ public class DraftPagesController extends BaseController {
 		}
 	}	
 	
-
+	//invoke from from controller...
 	public void refreshView() {
-		 try {
-			loadDraftPages();
-			view.refresh(pages);
+		//set variable that indicate if prev screen need update when dismiss this view
+		//could be a draft post submit
+		try {
+			prevScreenNeedUpdate = true;
 		} catch (Exception e) {
-	    	displayError(e, "Error while reading drafts phones memory");
 		}
-	}
+	}	
 }

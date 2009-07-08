@@ -299,7 +299,7 @@ public class PreferencesView extends BaseView {
 		    	}
 		    	
 		    	try {
-					AppDAO.setUpFolderStructure();
+					AppDAO.cleanUpFolderStructure();
 					controller.displayMessage(_resources.getString(WordPressResource.MESSAGE_APP_RESTART));
 					Log.debug("Called application restart...");
 

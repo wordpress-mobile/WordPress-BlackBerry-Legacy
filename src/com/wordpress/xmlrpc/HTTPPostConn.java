@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import javax.microedition.io.HttpConnection;
 
+import com.wordpress.utils.Tools;
 import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Log;
 
@@ -25,13 +26,14 @@ public class HTTPPostConn extends BlogConn  {
 		
 		HttpConnection conn = null;
 		String response = null;
-		
+			
 		try {
-			//conn = (HttpConnection) Connector.open(urlConnessione);
+			
 			conn = (HttpConnection) ConnectionManager.getInstance().open(urlConnessione);
 			conn.setRequestMethod( HttpConnection.POST ); //setupPost method for this conn
 			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-		//	conn.openOutputStream().write(postContent);
+			conn.setRequestProperty("User-Agent","wp-blackberry/"+ Tools.getAppVersion());
+			
 			if(postContent != null) {
 				DataOutputStream dos = new DataOutputStream( conn.openOutputStream() );
 				dos.write(postContent);

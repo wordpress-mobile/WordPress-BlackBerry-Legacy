@@ -8,6 +8,7 @@ import net.rim.device.api.ui.MenuItem;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.DraftPostsController;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.PostsListField;
 
 public class DraftPostsView extends BaseView {
@@ -37,11 +38,26 @@ public class DraftPostsView extends BaseView {
 		add(listaPost);
 	}
 	
-    public void refresh(Hashtable[] post){
+    public void refresh(Hashtable[] post) {
     	this.delete(listaPost);
     	buildList(post);
     }
+    
+      
+    protected void onExposed(){
+    	super.onExposed();    	
+    	Log.trace("Exposed DraftPostView");
+   		controller.updateViewDraftPostList();
+    }
 	
+   
+	//override onClose() to by-pass the standard dialog box when the screen is closed    
+	public boolean onClose()   {
+		controller.toPostsList();
+		return true;
+	}
+
+    
     private MenuItem _deletePostItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE, 220, 10) {
         public void run() {
             int selectedPost = listaPost.getSelectedIndex();

@@ -10,7 +10,6 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
-import com.wordpress.model.Preferences;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.PostsView;
@@ -164,10 +163,14 @@ public class PostsController extends BaseController{
 		}
 	}
 
-	//called from the front controller
+	//called from the front controller when necessary
 	public void refreshView() {
-		//no action..
-
+	   	 try {
+	   		 currentBlog=BlogDAO.getBlog(currentBlog);
+			} catch (Exception e) {
+				displayError(e, "Refreshing Blog Error");
+			}
+		view.refresh(currentBlog.getRecentPostTitles(), countNewPosts());
 	}
 	
 	public void refreshPostsList() {

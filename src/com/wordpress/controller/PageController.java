@@ -13,11 +13,9 @@ import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressResource;
-import com.wordpress.io.DraftDAO;
 import com.wordpress.io.FileUtils;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
-import com.wordpress.model.Category;
 import com.wordpress.model.Page;
 import com.wordpress.task.SendToBlogTask;
 import com.wordpress.task.TaskProgressListener;
@@ -301,8 +299,7 @@ public class PageController extends BlogObjectController {
 		
 		}	
 	}
-	
-	
+		
 	public void saveDraftPage() {
 		try {
 		 draftFolder = PageDAO.storePage(blog, page, draftFolder);
@@ -325,7 +322,7 @@ public class PageController extends BlogObjectController {
 				} catch (Exception e) {
 					displayError(e, "Cannot remove temporary files from disk!");
 				}
-	    		FrontController.getIstance().backAndRefreshView(true);
+	    		FrontController.getIstance().backAndRefreshView(false);
 	    		return true;
 	    	} else {
 	    		return false;
@@ -340,7 +337,7 @@ public class PageController extends BlogObjectController {
 			displayError(e, "Cannot remove temporary files from disk!");
 		}
 		
-		FrontController.getIstance().backAndRefreshView(true);		
+		FrontController.getIstance().backAndRefreshView(false);		
 		return true;
 	}
 	

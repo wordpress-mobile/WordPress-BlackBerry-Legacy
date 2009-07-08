@@ -55,13 +55,13 @@ public class CategoriesListField {
 	private void addChild(Category rootCat, Category[] blogCategories,
 			Vector categories, Vector categoriesLevel, int level) {
 
-		for (int i = 0; i < blogCategories.length; i++) {
+		int rootCatID = Integer.parseInt(rootCat.getId());
 
+		for (int i = 0; i < blogCategories.length; i++) {
 			// category has no parent cat
 			if (blogCategories[i].getParentCategory() < 1)
 				continue;
 
-			int rootCatID = Integer.parseInt(rootCat.getId());
 			int currentCatID = Integer.parseInt(blogCategories[i].getId());
 			if (currentCatID == rootCatID)
 				continue; // same category
@@ -73,7 +73,7 @@ public class CategoriesListField {
 				categoriesLevel.addElement(new Integer(level));
 
 				addChild(blogCategories[i], blogCategories, categories,
-						categoriesLevel, ++level);
+						categoriesLevel, level+1);
 			}
 
 		}

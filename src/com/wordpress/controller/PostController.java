@@ -358,7 +358,7 @@ public class PostController extends BlogObjectController {
 				} catch (Exception e) {
 					displayError(e, "Cannot remove temporary files from disk!");
 				}
-	    		FrontController.getIstance().backAndRefreshView(true);
+	    		FrontController.getIstance().backAndRefreshView(false);
 	    		return true;
 	    	} else {
 	    		return false;
@@ -373,7 +373,7 @@ public class PostController extends BlogObjectController {
 			displayError(e, "Cannot remove temporary files from disk!");
 		}
 		
-		FrontController.getIstance().backAndRefreshView(true);		
+		FrontController.getIstance().backAndRefreshView(false);		
 		return true;
 	}
 	

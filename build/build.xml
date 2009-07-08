@@ -102,6 +102,21 @@
 		</ant>
 	</target>
 
+		<target name="simulator" depends="init, cleanOS42">
+			<svn>
+				<!-- status path="${basedir}" revisionProperty="svn.revision" / -->
+				<info target="${basedir}" />
+			</svn>
+
+			<ant antfile="build/build_single.xml" target="rapc">
+				<property name="platform" value="os42" />
+				<!-- property name="module.name" value="WordPress_rev${svn.info.lastRev}" / -->
+				<property name="module.name" value="WordPress" />
+				<property name="rim.home" value="${rim.home.os42}" />
+			</ant>
+		</target>
+	
+	
 	<target name="all" depends="clean, build" />
 
 </project>

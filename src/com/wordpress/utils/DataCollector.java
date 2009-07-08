@@ -48,7 +48,7 @@ public class DataCollector {
 			String appVersion = "";
 
 			try {
-				appVersion = getAppVersion();
+				appVersion = Tools.getAppVersion();
 			} catch (Exception e) {
 				Log.error(e, "Could not retrive App version");
 			}
@@ -179,7 +179,7 @@ public class DataCollector {
 							String[] split = StringUtils.split(html, "\n");
 							String remoteAppVersion = split[0];
 							String remoteAppUrl = split[1];
-							String currentAppVersion = getAppVersion();
+							String currentAppVersion = Tools.getAppVersion();
 							Log.info("remote app version is: "+remoteAppVersion);
 							Log.info("remote app url is: "+remoteAppUrl);
 							Log.info("local app version is: "+currentAppVersion);
@@ -275,17 +275,6 @@ public class DataCollector {
 		return mcc;
 	}
 	
-	private String getAppVersion() {
-    	String version = PropertyUtils.getAppVersion(); //read from the alx files
-        if(version == null || version.trim().equals("")) { //read value from jad file
-        	//MIDlet-Version
-        	version = PropertyUtils.getIstance().get("MIDlet-Version");
-        	if(version == null)
-        		version = "";
-        }
-    	Log.debug("App version: "+version);
-        return version;
-	}
 	
 	//A string representing the platform version. 
 	//An empty string is returned when program is being run on a simulator.

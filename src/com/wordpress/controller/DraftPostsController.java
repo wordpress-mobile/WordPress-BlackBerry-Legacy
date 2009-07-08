@@ -26,7 +26,6 @@ public class DraftPostsController extends BaseController {
 	private boolean isLoadError= false;
 	private String loadErrorMessage= "";
 	
-	
 	public DraftPostsController(Blog currentBlog) {
 		super();	
 		this.currentBlog=currentBlog;
@@ -102,19 +101,27 @@ public class DraftPostsController extends BaseController {
 		return currentBlog.getName();
 	}
 
+	public void updateViewDraftPostList() {
+		try {
+			loadPostInfo();
+			view.refresh(loadedPostInfo);
+		} catch (Exception e) {
+	    	displayError(e, "Error while reading drafts phones memory");
+		}
+	}
+	
 	
 	public void deletePost(int selected){
 		int draftPostID = loadedPostID[selected];
 		try {
 			DraftDAO.removePost(currentBlog, draftPostID);
-			refreshView();
+			updateViewDraftPostList();
 		} catch (IOException e) {
 	    	displayError(e, "Error while deleteing draft post");
 		} catch (RecordStoreException e) {
 			displayError(e, "Error while deleteing draft post");
 		}
 	}
-	
 	
 	public void newPost() {
 		if (currentBlog != null) {
@@ -135,13 +142,12 @@ public class DraftPostsController extends BaseController {
 		}
 	}	
 	
-
 	public void refreshView() {
-		 try {
-			loadPostInfo();
-			view.refresh(loadedPostInfo);
-		} catch (Exception e) {
-	    	displayError(e, "Error while reading drafts phones memory");
-		}
 	}
+	
+	//return back to pst list. update screen
+	public void toPostsList() {
+		FrontController.getIstance().backAndRefreshView(true); //deep refresh
+	}
+	
 }

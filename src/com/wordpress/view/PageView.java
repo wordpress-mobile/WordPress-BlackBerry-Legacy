@@ -232,10 +232,12 @@ public class PageView extends BaseView {
 		
 		//page template
 		int selectedTemplateFieldID = pageTemplateField.getSelectedIndex();
-		String pageTemplate= controller.getPageTemplateKeys()[selectedTemplateFieldID];
-		if (pageTemplate != page.getWpPageTemplate()) {
-			page.setWpPageTemplate(pageTemplate);
-			controller.setPageAsChanged(true);
+		if(selectedTemplateFieldID > -1) {
+			String pageTemplate= controller.getPageTemplateKeys()[selectedTemplateFieldID];
+			if (pageTemplate != page.getWpPageTemplate()) {
+				page.setWpPageTemplate(pageTemplate);
+				controller.setPageAsChanged(true);
+			}
 		}
 	}
 

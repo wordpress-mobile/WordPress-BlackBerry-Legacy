@@ -2,6 +2,8 @@ package com.wordpress.xmlrpc.comment;
 
 import java.util.Vector;
 
+import org.kxmlrpc.XmlRpcException;
+
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 
@@ -30,7 +32,16 @@ public class GetCommentsConn extends BlogConn  {
 
 			//retrive the comments of the blog
 	        Vector comments = getComments(blogId, postID, status, offset, number);
-			connResponse.setResponseObject(comments);
+	        if(connResponse.isError()) { //2.5.1 doesn't have getComments
+	        	if ( connResponse.getResponseObject() instanceof XmlRpcException) {
+	        		connResponse.setError(false);
+	        		connResponse.setStopped(false);
+	        		connResponse.setResponse("");
+	        		connResponse.setResponseObject(null);
+	        	}
+	        }
+	        else
+	        connResponse.setResponseObject(comments);
 		
 		} catch (Exception cce) {
 			setErrorMessage(cce, "loadPosts error");	

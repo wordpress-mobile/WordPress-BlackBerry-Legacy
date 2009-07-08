@@ -79,11 +79,11 @@ public class Blog {
 	public String getXmlRpcUrl() {
 		return xmlRpcUrl;
 	}
-/*
-	public void setBlogXmlRpcUrl(String blogXmlRpcUrl) {
-		this.blogXmlRpcUrl = blogXmlRpcUrl;
+
+	public void setXmlRpcUrl(String blogXmlRpcUrl) {
+		this.xmlRpcUrl = blogXmlRpcUrl;
 	}
-*/
+
 	public String getUsername() {
 		return username;
 	}

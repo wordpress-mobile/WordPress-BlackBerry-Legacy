@@ -124,7 +124,7 @@ public class MainController extends BaseController implements TaskProgressListen
 			displayMessage("Loading blog. Try later..");
 		} else {
 			
-			Blog currentBlog=null;
+		Blog currentBlog=null;
 	   	 try {
 	   		 currentBlog=BlogDAO.getBlog(selectedBlog);
 	   		 FrontController.getIstance().showBlog(currentBlog);
@@ -147,7 +147,7 @@ public class MainController extends BaseController implements TaskProgressListen
 			return false;
 		}
 	*/	
-    	int result=this.askQuestion("Are sure to exit?");   
+    	int result=this.askQuestion("Exit WordPress?");   
     	if(Dialog.YES==result) {
     		runner.quit(); //stop the runner thread
     		System.exit(0);

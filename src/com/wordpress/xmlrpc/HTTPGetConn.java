@@ -7,6 +7,7 @@ import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
+import com.wordpress.utils.Tools;
 import com.wordpress.utils.conn.ConnectionManager;
 
 public class HTTPGetConn extends BlogConn  {
@@ -25,6 +26,7 @@ public class HTTPGetConn extends BlogConn  {
 		try {
 			//conn = (HttpConnection) Connector.open(urlConnessione);
 			conn = (HttpConnection) ConnectionManager.getInstance().open(urlConnessione);
+			conn.setRequestProperty("User-Agent","wp-blackberry/"+ Tools.getAppVersion());
 			int rc = conn.getResponseCode();
 			if( rc == HttpConnection.HTTP_OK ){
 				

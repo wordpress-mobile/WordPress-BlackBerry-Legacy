@@ -10,6 +10,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.DraftPagesController;
 import com.wordpress.model.Page;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.PostsListField;
 
 public class DraftPagesView extends BaseView {
@@ -65,6 +66,21 @@ public class DraftPagesView extends BaseView {
     	buildList(pages);
     }
 	
+    protected void onExposed(){
+    	super.onExposed();    	
+    	Log.trace("Exposed DraftPageView");
+   		controller.updateViewDraftPageList();
+    }
+    
+    
+    
+	//override onClose() to by-pass the standard dialog box when the screen is closed    
+	public boolean onClose()   {
+		controller.toPageList();
+		return true;
+	}
+
+    
     private MenuItem _deleteItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE, 220, 10) {
         public void run() {
             int selectedPost = pageListField.getSelectedIndex();

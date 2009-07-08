@@ -45,7 +45,13 @@ public class AppDAO implements BaseDAO{
 		records.closeRecordStore();
 		return basePath;
 	}
-	
+
+	//remove the entire application folder structure
+	public static void cleanUpFolderStructure() throws RecordStoreException, IOException {
+		if(JSR75FileSystem.isFileExist(getBaseDirPath())){
+			JSR75FileSystem.removeFile(getBaseDirPath());
+		}
+	}
 	
 	public static void setUpFolderStructure() throws RecordStoreException, IOException {
 		setBaseDirPath("file:///store/home/user/wordpress/");

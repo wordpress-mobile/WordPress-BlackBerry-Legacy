@@ -8,14 +8,16 @@ import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.EncodedImage;
 
-import com.wordpress.controller.BlogObjectController;
+import com.wordpress.io.BlogDAO;
 import com.wordpress.io.DraftDAO;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Page;
 import com.wordpress.model.Post;
+import com.wordpress.utils.CalendarUtils;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Queue;
+import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.xmlrpc.BlogConn;
@@ -123,6 +125,7 @@ public class SendToBlogTask extends TaskImpl {
 			} else {
 				
 				String htmlPhotosFragment = buildHtmlPhotoFragment(remoteFilesInfo);
+				String type=""; //type of action. passed to callback
 			
 				//sending object to blog
 				if( post != null ) {
@@ -134,8 +137,10 @@ public class SendToBlogTask extends TaskImpl {
 					
 					if(blogConn instanceof NewPostConn) {
 						((NewPostConn) blogConn).setPost(post);
+						type = "NewPostConn";
 					} else {
 						((EditPostConn) blogConn).setPost(post);
+						type = "EditPostConn";
 					}
 				} else {
 					
@@ -146,13 +151,15 @@ public class SendToBlogTask extends TaskImpl {
 					
 					if(blogConn instanceof NewPageConn) {
 						((NewPageConn) blogConn).setPageDescription(body);
+						type = "NewPageConn";
 					} else {
 						((EditPageConn) blogConn).setPageDescription(body);
+						type = "EditPageConn";
 					}
 					
 				}
 				
-				blogConn.addObserver(new SendCallBack());
+				blogConn.addObserver(new SendCallBack(type));
 				blogConn.startConnWork();
 			}
 			
@@ -166,8 +173,14 @@ public class SendToBlogTask extends TaskImpl {
 	
 	//callback for send post to the blog
 	private class SendCallBack implements Observer{
-		
+		String type = "";
 	
+		public SendCallBack(String type) {
+			super();
+			this.type = type;
+		}
+
+
 		public void update(Observable observable, final Object object) {
 			BlogConnResponse resp = (BlogConnResponse) object;
 
@@ -181,18 +194,49 @@ public class SendToBlogTask extends TaskImpl {
 					if (post != null) {
 						// delete post from draft after sending
 						DraftDAO.removePost(blog, draftFolder);
+						if(type.equalsIgnoreCase("NewPostConn")) {
+							//add post on disk
+							String postID=String.valueOf(resp.getResponseObject());
+							Log.info("new post was added to blog with id: "+postID);
+							post.setId(postID); //update the post ID
+							if(post.getAuthoredOn() == null) {
+								long gmtTime = CalendarUtils.adjustTimeFromDefaultTimezone(System.currentTimeMillis());
+								post.setAuthoredOn(gmtTime);
+							}
+							Vector recentPostTitles = blog.getRecentPostTitles();
+							recentPostTitles.insertElementAt(DraftDAO.post2Hashtable(post), 0);
+							blog.setRecentPostTitles(recentPostTitles);
+						} else {
+							//update previous post on disk
+							String responseValue=String.valueOf(resp.getResponseObject());
+							Vector recentPostTitles = blog.getRecentPostTitles();
+							//if response from update was true
+							if(responseValue != null && responseValue.equalsIgnoreCase("true"))
+					        for (int i = 0; i < recentPostTitles.size(); i++) {
+					        	Hashtable postData = (Hashtable) recentPostTitles.elementAt(i);
+					        	String tmpPostID =(String) postData.get("postid");
+					        	if(tmpPostID.equalsIgnoreCase(post.getId())){
+					        		recentPostTitles.setElementAt(DraftDAO.post2Hashtable(post),i);
+					        		break;
+					        	}
+							}
+							blog.setRecentPostTitles(recentPostTitles);
+						}
+						BlogDAO.updateBlog(blog);							
 					} else {
+						//remove draft page on disk
 						PageDAO.removePage(blog, draftFolder);
 					}
-					
 				} catch (IOException e) {
 					final String respMessage = e.getMessage();
 					errorMsg.append(respMessage + "\n");
 				} catch (RecordStoreException e) {
 					final String respMessage = e.getMessage();
 					errorMsg.append(respMessage + "\n");
-				}
-				
+				} catch (Exception e) {
+					final String respMessage = e.getMessage();
+					errorMsg.append(respMessage + "\n");
+				}	
 			} else {
 				final String respMessage = resp.getResponse();
 				errorMsg.append(respMessage + "\n");
@@ -226,9 +270,6 @@ public class SendToBlogTask extends TaskImpl {
 				info.setName((String)content.get("file"));
 				info.setUrl((String)content.get("url"));
 
-				//System.out.println("url del file remoto: "+content.get("url") );
-				//System.out.println("nome file remoto: "+content.get("file") );	
-				//final String url=(String)content.get("url");
 				remoteFilesInfo.addElement(info);
 			} else {
 				final String respMessage=resp.getResponse();

@@ -7,14 +7,17 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
+import org.kxmlrpc.XmlRpcException;
+import org.xmlpull.v1.XmlPullParserException;
+
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
-import com.wordpress.model.Preferences;
 import com.wordpress.task.LoadBlogsDataTask;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.Queue;
+import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -53,33 +56,12 @@ public class AddBlogsController extends BaseController implements Observer{
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 
-	/**
-	 * check the path of the file xmlrpc.php into the url string
-	 */
-	private String checkURL(String url){
-		System.out.println(">>> checkURL");
-		System.out.println("in URL: "+url);
-		if(url == null || url.trim().length() == 0 ) {
-			return null;
-		}
-			
-		if (url.endsWith("xmlrpc.php")){
-			
-		} else {
-			if (!url.endsWith("/")){
-				url+="/";
-			}
-			url+="xmlrpc.php";
-		}
-		System.out.println("out URL: "+url);	
-		return url;
-	}
 	
 	public void addBlogs(){
 		
 		String pass= view.getBlogPass().trim();
 		String url= view.getBlogUrl().trim();
-		url=checkURL(url);
+		url=Tools.checkURL(url); //check te presence of xmlrpc file
 		String user= view.getBlogUser().trim();
 		maxPostIndex=view.getMaxRecentPostIndex();
 		System.out.println("Max Show posts index: "+maxPostIndex);
@@ -99,7 +81,6 @@ public class AddBlogsController extends BaseController implements Observer{
         }
 */
         if (url != null && user != null && url.length() > 0 && user != null && user.length() > 0) {
-            Preferences prefs = Preferences.getIstance();
             BlogAuthConn connection = new BlogAuthConn (url,user,pass);
             connection.addObserver(this); 
              connectionProgressView= new ConnectionInProgressView(
@@ -138,13 +119,37 @@ public class AddBlogsController extends BaseController implements Observer{
 		 		blogs[i].setMaxPostCount(recentsPostValues[maxPostIndex]);
 		 		blogs[i].setResizePhotos(isResPhotos);	
 		 		blogs[i].setLoadingState(BlogInfo.STATE_ADDED_TO_QUEUE);
-				BlogDAO.newBlog(blogs[i], true);
-				//add this blog to the queue	
-				final BlogUpdateConn connection = new BlogUpdateConn (blogs[i]);       
-				connectionsQueue.push(connection); 
+		 		
+		    	String url = null;
+		    	if ( blogs[i].getXmlRpcUrl() != null ) {
+		    		url = blogs[i].getXmlRpcUrl();
+		    	} else {
+		    		Log.trace("blog xmlrpc url was null");
+		    		Log.trace("blog xmlrpc was set to blog url");
+		    		url = blogs[i].getUrl();
+		    	}
+		    	//check the url string
+		    	url = Tools.checkURL(url);
+		    	blogs[i].setXmlRpcUrl(url); //set the blog xmlrpc url
+		    	
+		    	if(url == null || url.equalsIgnoreCase(""))
+		    		continue; //skip this blog
+		    		 		
+				try { //if a blog with same name and xmlrpc url exist
+					BlogDAO.newBlog(blogs[i], true);
+					//add this blog to the queue	
+					final BlogUpdateConn connection = new BlogUpdateConn (blogs[i]);       
+					connectionsQueue.push(connection); 
+				} catch (Exception e) {
+					if(e != null && e.getMessage()!= null ) {
+						displayMessage("Error while adding blog: " + "\n" + e.getMessage());
+					} else {
+						displayMessage("Error while adding blog: ");			
+					}
+				}
 		    }
+		 	
 		 	FrontController.getIstance().backAndRefreshView(true); //update the main view with new blogs
-
 		 	LoadBlogsDataTask loadBlogsTask = new LoadBlogsDataTask(connectionsQueue);
 			loadBlogsTask.setProgressListener(this.listener);
 			//push into the Runner
@@ -153,8 +158,16 @@ public class AddBlogsController extends BaseController implements Observer{
 		} else {
 			final String respMessage=resp.getResponse();
 			Log.error(respMessage);
-			displayError(_resources.getString(WordPressResource.MESSAGE_BAD_URL)); //FIXME: cath the right excpetion
-		 //	displayError(respMessage);	
+			if(resp.getResponseObject() instanceof XmlRpcException) {
+				//pass/username errata
+				displayError(respMessage);
+			} else if(resp.getResponseObject() instanceof XmlPullParserException) {
+				//xmlrpc url error
+				displayError(_resources.getString(WordPressResource.MESSAGE_COMUNICATION_ERR));
+			} else {
+				//IO Exception ad others
+				displayError(respMessage);
+			}
 		}		
 	
 		} catch (final Exception e) {

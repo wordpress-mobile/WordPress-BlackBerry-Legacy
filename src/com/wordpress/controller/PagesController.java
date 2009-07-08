@@ -11,7 +11,6 @@ import com.wordpress.io.BlogDAO;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Page;
-import com.wordpress.model.Preferences;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.PagesView;
@@ -46,19 +45,19 @@ public class PagesController extends BaseController{
 	//count number of new pages
 	private int countNewPages() {
 		Vector pages = currentBlog.getPages();
-		int[] viewedPages = currentBlog.getViewedPages();
-		int[] newViewedPage = new int[pages.size()];
-		
 		if(pages == null) 
 			return 0;
 		
+		
 		int count = 0;
+		int[] viewedPages = currentBlog.getViewedPages();
+		int[] newViewedPage = new int[pages.size()];
 
 		for (int i = 0; i < pages.size(); i++) {
 			boolean presence = false; 
 			Hashtable page = (Hashtable) pages.elementAt(i);
             int pageId = Integer.parseInt( String.valueOf(page.get("page_id")));
-            //add the pages into NEW viewedpages array
+            //add the pages into NEW viewed pages array
             newViewedPage[i]= pageId;
 			
 		    for (int j = 0; j < viewedPages.length; j++) {
@@ -93,7 +92,6 @@ public class PagesController extends BaseController{
     	if(Dialog.YES==result) {
 		
     		int pageID = pages[selectedIndex].getID();
-    		Preferences preferences = Preferences.getIstance();
     		    						 
 			DeletePageConn connection = new DeletePageConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
 					 currentBlog.getPassword(), Integer.parseInt(currentBlog.getId()), pageID);
@@ -130,7 +128,7 @@ public class PagesController extends BaseController{
 
 	//called from the front controller
 	public void refreshView() {
-		//no action..
+		refreshPagesList();
 	}
 	
 	public void refreshPagesList() {

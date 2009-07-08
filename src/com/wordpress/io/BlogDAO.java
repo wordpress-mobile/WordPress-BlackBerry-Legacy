@@ -70,6 +70,16 @@ public class BlogDAO implements BaseDAO {
     	return true;
     }
     
+    //TODO refactor blog and blogInfo. with a common base class
+    //reload this blog form disk to memory
+    public static synchronized Blog getBlog(Blog blogInfo) throws Exception {
+        try {
+        	String blogName = getBlogFolderName(blogInfo);
+            return loadBlog(blogName);
+        } catch (Exception e) {
+        	throw new Exception("Failed to load blog: " + e.getMessage());            
+        }
+    }
     
     public static synchronized Blog getBlog(BlogInfo blogInfo) throws Exception {
         try {
@@ -281,7 +291,6 @@ public class BlogDAO implements BaseDAO {
     protected static synchronized String getBlogFolderName(Blog blog) throws UnsupportedEncodingException{
     	if (blog == null) return null;
     	return getBlogFolderName(blog.getId(), blog.getXmlRpcUrl());
-    
     }
     
     protected static synchronized String getBlogFolderName(String blogID, String xmlRpcUrl) throws UnsupportedEncodingException{

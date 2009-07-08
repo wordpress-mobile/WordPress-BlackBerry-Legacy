@@ -3,8 +3,45 @@ package com.wordpress.utils;
 import java.util.Random;
 import java.util.Vector;
 
+import com.wordpress.utils.log.Log;
+
 public class Tools {
 	
+	
+	public static synchronized String getAppVersion() {
+    	String version = PropertyUtils.getAppVersion(); //read from the alx files
+        if(version == null || version.trim().equals("")) { //read value from jad file
+        	//MIDlet-Version
+        	version = PropertyUtils.getIstance().get("MIDlet-Version");
+        	if(version == null)
+        		version = "";
+        }
+    	Log.debug("App version: "+version);
+        return version;
+	}
+	
+	
+	/**
+	 * check the path of the file xmlrpc.php into the url string
+	 */
+	public static String checkURL(String url){
+		Log.trace(">>> checkURL");
+		Log.trace("in URL: "+url);
+		if(url == null || url.trim().length() == 0 ) {
+			return null;
+		}
+			
+		if (url.endsWith("xmlrpc.php")){
+			
+		} else {
+			if (!url.endsWith("/")){
+				url+="/";
+			}
+			url+="xmlrpc.php";
+		}
+		Log.trace("out URL: "+url);	
+		return url;
+	}
 	
   public static double round(final double num) {
 	    final double floor = Math.floor(num);
