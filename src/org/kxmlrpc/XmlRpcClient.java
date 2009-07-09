@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.io.HttpConnection;
@@ -39,6 +40,7 @@ import org.kxml2.io.KXmlParser;
 import org.kxml2.io.KXmlSerializer;
 
 import com.wordpress.utils.StringUtils;
+import com.wordpress.utils.Tools;
 import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Log;
 
@@ -62,6 +64,10 @@ public class XmlRpcClient {
      * Turns debugging on/off
      */
     boolean debug = true;
+    
+    //contains all response header
+    private Hashtable responseHeaders = new Hashtable();
+    
     
     /**
      * Constructs an XML-RPC client with a specified string representing a URL.
@@ -143,17 +149,18 @@ public class XmlRpcClient {
             con.setRequestMethod(HttpConnection.POST);
             con.setRequestProperty("Content-Length", Integer.toString(messageLength));
             con.setRequestProperty("Content-Type", "text/xml");
+			con.setRequestProperty("User-Agent","wp-blackberry/"+ Tools.getAppVersion());
             
             // Obtain an output stream
             out = con.openOutputStream();
             // Push the request to the server
             out.write( request );
-/*
+
             
-          // List all the response headers from the server.
+            // List all the response headers from the server.
             // Note: The first call to getHeaderFieldKey() will implicit send
             // the HTTP request to the server.
-            Log.debug("Response headers from the server");
+            Log.trace("==== Response headers from the server");
             String   key;
             for( int i = 0;( key = con.getHeaderFieldKey( i ) )!= null; ++i ){
             	String headerName = con.getHeaderFieldKey(i);
@@ -165,12 +172,14 @@ public class XmlRpcClient {
             	}
             	if (headerName == null) {
             		// The header value contains the server's HTTP version
+            	} else {
+            		responseHeaders.put(headerName , headerValue);
+            		Log.trace(headerName + " " + headerValue); 
             	}
-            	Log.debug(headerName + " " + headerValue);
             }
-            Log.debug("End Response headers from the server");
+            Log.trace("=== End Response headers from the server");
             
-  */          
+            
             // Open an input stream on the server's response
             in = con.openInputStream();
             
@@ -192,6 +201,7 @@ public class XmlRpcClient {
             // Parse response from server
             KXmlParser xp = new KXmlParser();
             xp.setInput(new InputStreamReader(bais));
+            
             parser = new XmlRpcParser(xp);
             result = parser.parseResponse();
             
@@ -220,5 +230,10 @@ public class XmlRpcClient {
     void setParsedObject(Object parsedObject) {
         result = parsedObject;
     }//end objectCompleted( Object )
+
+    //get the response headers
+	public Hashtable getResponseHeaders() {
+		return responseHeaders;
+	}
     
 }//end class KXmlRpcClient

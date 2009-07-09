@@ -36,6 +36,11 @@ public class AddBlogsView extends BaseView {
 	public String getBlogUrl() {
 		return blogUrlField.getText();
 	}
+	
+	public void setBlogUrl(String newUrl) {
+		 blogUrlField.setText(newUrl);
+	}
+	
 	public String getBlogUser() {
 		return userNameField.getText();
 	}

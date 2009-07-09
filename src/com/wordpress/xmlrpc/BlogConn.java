@@ -7,9 +7,11 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.io.ConnectionNotFoundException;
+import javax.microedition.pim.RepeatRule;
 
 import org.kxmlrpc.XmlRpcClient;
 import org.kxmlrpc.XmlRpcException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
@@ -25,6 +27,7 @@ public abstract class BlogConn extends Observable implements Runnable {
     protected String mUsername;
     protected String mPassword;
     protected XmlRpcClient mConnection;	
+    protected Hashtable responseHeaders = new Hashtable();
 	protected BlogConnResponse connResponse = new BlogConnResponse();
 	protected boolean isWorking = false;
 	protected Thread t = null;
@@ -70,20 +73,24 @@ public abstract class BlogConn extends Observable implements Runnable {
 		Object response = null;
 		if(mConnection == null)
 			mConnection = new XmlRpcClient(urlConnessione);
-		
 		try {
 			response = mConnection.execute(aCommand, aArgs);
+			responseHeaders = mConnection.getResponseHeaders();
 		} catch (ConnectionNotFoundException cnfe) {
 			setErrorMessage(cnfe, "The server was not found");
 		} catch (IOException ioe) {
 			setErrorMessage(ioe, "A server communications error occured");
 		} catch (XmlRpcException xre) {
 			setErrorMessage(xre, "Blog Message (code " +xre.code+")");
+		} catch (XmlPullParserException parserEx) { //catch all parser exception and rewrite the log message for user
+			Log.error("Parser Exception : "+parserEx.getMessage());
+			XmlPullParserException rewrittenEx = new XmlPullParserException("Malformed blog response");
+			setErrorMessage(rewrittenEx,"A server communications error occurred");
 		} catch (Exception t) {
 			setErrorMessage(t, "An error occured");
 		} 
    	 
-  	   System.out.println("termine richiesta XML-RPC");
+		System.out.println("termine richiesta XML-RPC");
 		isWorking=false;
 		return response;
 	}

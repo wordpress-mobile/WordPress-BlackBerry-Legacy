@@ -36,11 +36,9 @@ public class WordPress extends UiApplication implements WordPressResource {
 		eventAppender.setLogLevel(Log.INFO); //TODO lower log level on production
 		eventAppender.open();
 		Log.addAppender(eventAppender);
-		//#ifdef DEBUG
-		 Log.addAppender(new ConsoleAppender());
-		//#endif
-		 Log.initLog(Log.TRACE);
-	 	
+		Log.addAppender(new ConsoleAppender());
+		Log.initLog(Log.TRACE);
+     	 
 		 //The following code specifies that the screen backlight, once activated,
 		 //has a timeout period of 200 seconds.
 		 if ((Display.getProperties() & Display.DISPLAY_PROPERTY_REQUIRES_BACKLIGHT) != 0) {

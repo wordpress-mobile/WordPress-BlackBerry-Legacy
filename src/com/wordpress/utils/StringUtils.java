@@ -51,7 +51,8 @@ public class StringUtils {
 	//@see http://blackberry.trac.wordpress.org/ticket/17
 	public static String  fixWordPressDoubleEncodedAmpersand(String xmlInput) {
 		String output = StringUtils.replaceAll(xmlInput, "&amp;amp;", "&amp;"); //FIX WP DOUBLE ENCODED AMPESAND;
-		output = StringUtils.replaceAll(output, "&amp;#038;", "&#038;"); 
+		output = StringUtils.replaceAll(output, "&amp;#038;", "&#038;");
+		output = StringUtils.replaceAll(output, "&amp;#039;", "&#039;"); 
 		
 		return output; 
 	}

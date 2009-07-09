@@ -23,14 +23,17 @@
 package org.kxmlrpc;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import org.kobjects.base64.Base64;
-import org.kxmlrpc.util.IsoDate;
 import org.kxml2.io.KXmlParser;
+import org.kxmlrpc.util.IsoDate;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import com.wordpress.utils.log.Log;
 
 /**
  * This abstract base class provides basic XML-RPC parsing capabilities. The 
@@ -148,6 +151,16 @@ public class XmlRpcParser {
 		parser.require( XmlPullParser.END_TAG, null, "params" );
 	}//end parseParams()
 
+	
+	private String createString(byte[] content) {
+		try {
+			return new String(content, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			Log.error(e, "error while create string with enc");
+			return new String (content);
+		}
+	}
+	
 	/** 
 	 * Core method for parsing XML-RPC values into Java data types. It is called 
 	 * recursively by the parseStruct() and parseArray() methods when handling 
@@ -161,6 +174,7 @@ public class XmlRpcParser {
 		int nextEvent = parser.next(); 
 		if( nextEvent == XmlPullParser.TEXT ) {
 			result = parser.getText();
+			result=createString( ((String)result).getBytes());		
 			nextEvent=parser.nextTag();
 			 
 			try{ 
@@ -175,8 +189,10 @@ public class XmlRpcParser {
 		if(nextEvent == XmlPullParser.START_TAG){ 
 			parser.require( XmlPullParser.START_TAG, null, null );
 			String name = parser.getName();
-			if( name.equals("string") )
+			if( name.equals("string") ){
 				result = parser.nextText();
+				result=createString( ((String)result).getBytes());
+				}
 			else if( name.equals("i4") || name.equals("int") )
 				result = new Integer 
 				( Integer.parseInt( parser.nextText().trim() ) );

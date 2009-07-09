@@ -47,7 +47,7 @@ public class HTTPGetConn extends BlogConn  {
 			}
 
 		} catch (Exception e) {
-			 setErrorMessage(e, "A server communications error occured:");
+			 setErrorMessage(e, "A server communications error occurred:");
 		}
   	   System.out.println("termine richiesta HTTP-GET");
 		isWorking=false;

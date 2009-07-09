@@ -1,2 +1,2 @@
-RIM-TouchCompatibilityMode : false
-RIM-TouchCompatibilityMode-UserChangeable : true
+RIM-TouchCompatibilityMode : 0
+RIM-TouchCompatibilityMode-UserChangeable : 1
