@@ -110,8 +110,10 @@ src\com\wordpress\utils\PNGEncoder.java
 src\com\wordpress\utils\PropertyUtils.java
 src\com\wordpress\utils\Queue.java
 src\com\wordpress\utils\SecondaryResourceFetchThread.java
+src\com\wordpress\utils\StringFactory.java
 src\com\wordpress\utils\StringUtils.java
 src\com\wordpress\utils\Tools.java
+src\com\wordpress\utils\UnicodeNormalizer.java
 src\com\wordpress\view\AboutView.java
 src\com\wordpress\view\AddBlogsView.java
 src\com\wordpress\view\BaseView.java

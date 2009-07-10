@@ -33,6 +33,9 @@ import org.kxmlrpc.util.IsoDate;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import com.wordpress.utils.StringFactory;
+import com.wordpress.utils.StringUtils;
+import com.wordpress.utils.UnicodeNormalizer;
 import com.wordpress.utils.log.Log;
 
 /**
@@ -44,7 +47,17 @@ public class XmlRpcParser {
 	KXmlParser   parser;
 	String       methodName;
 	Vector       params = new Vector();
+	private String rimEncoding = null;
 
+	
+	/**
+	 * @param parser    a kxml parser object reference
+	 */
+	public XmlRpcParser( KXmlParser parser, String rimEncoding ) {
+		this.parser = parser;
+		this.rimEncoding = rimEncoding;
+	}//end XmlRpcParser( KXmlParser )
+	
 	/**
 	 * @param parser    a kxml parser object reference
 	 */
@@ -92,6 +105,20 @@ public class XmlRpcParser {
 		Object result;
 		parser.require(XmlPullParser.START_DOCUMENT, null, null);
 		parser.nextTag();
+		
+		Log.trace("Encoding from header= " + rimEncoding);
+		
+		//check if the doc content type is declared
+		String declaredContentType = parser.getInputEncoding();		
+		Log.trace("Encoding dal parser= " +declaredContentType);
+		if(declaredContentType != null 
+				&& StringUtils.isDeviceSupportEncoding(declaredContentType)
+				&& !declaredContentType.toUpperCase().equals("ISO-8859-1")				
+		){
+			Log.trace("Encoding changed to = " +declaredContentType);
+			rimEncoding = declaredContentType;
+		}
+		
 		parser.require(XmlPullParser.START_TAG, null, "methodResponse" );
 		result = null;
 		if( parser.nextTag() == XmlPullParser.START_TAG ) {
@@ -152,9 +179,16 @@ public class XmlRpcParser {
 	}//end parseParams()
 
 	
-	private String createString(byte[] content) {
+	private String createString(String content) {
 		try {
-			return new String(content, "UTF-8");
+			//String prova =  new String(content);
+			//String provaUTF8 =  new String(content, "UTF-8");
+			//Log.trace("Trovata la parola ORIG: "+content);
+			//Log.trace("Trovata la parola UTF: "+provaUTF8);
+			String rimString = StringUtils.fixWordPressDoubleEncodedAmpersand(content);
+			rimString =  StringFactory.create(content.getBytes(), rimEncoding);
+			return UnicodeNormalizer.getInstance().normalize(rimString);
+			//return rimString;
 		} catch (UnsupportedEncodingException e) {
 			Log.error(e, "error while create string with enc");
 			return new String (content);
@@ -174,7 +208,7 @@ public class XmlRpcParser {
 		int nextEvent = parser.next(); 
 		if( nextEvent == XmlPullParser.TEXT ) {
 			result = parser.getText();
-			result=createString( ((String)result).getBytes());		
+			result=createString((String)result);	
 			nextEvent=parser.nextTag();
 			 
 			try{ 
@@ -191,7 +225,7 @@ public class XmlRpcParser {
 			String name = parser.getName();
 			if( name.equals("string") ){
 				result = parser.nextText();
-				result=createString( ((String)result).getBytes());
+				result=createString((String)result);
 				}
 			else if( name.equals("i4") || name.equals("int") )
 				result = new Integer 

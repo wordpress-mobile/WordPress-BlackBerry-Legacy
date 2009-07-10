@@ -7,7 +7,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.io.ConnectionNotFoundException;
-import javax.microedition.pim.RepeatRule;
 
 import org.kxmlrpc.XmlRpcClient;
 import org.kxmlrpc.XmlRpcException;
@@ -27,7 +26,6 @@ public abstract class BlogConn extends Observable implements Runnable {
     protected String mUsername;
     protected String mPassword;
     protected XmlRpcClient mConnection;	
-    protected Hashtable responseHeaders = new Hashtable();
 	protected BlogConnResponse connResponse = new BlogConnResponse();
 	protected boolean isWorking = false;
 	protected Thread t = null;
@@ -75,7 +73,6 @@ public abstract class BlogConn extends Observable implements Runnable {
 			mConnection = new XmlRpcClient(urlConnessione);
 		try {
 			response = mConnection.execute(aCommand, aArgs);
-			responseHeaders = mConnection.getResponseHeaders();
 		} catch (ConnectionNotFoundException cnfe) {
 			setErrorMessage(cnfe, "The server was not found");
 		} catch (IOException ioe) {

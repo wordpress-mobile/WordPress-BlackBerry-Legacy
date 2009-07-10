@@ -28,7 +28,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Hashtable;
@@ -141,7 +140,6 @@ public class XmlRpcClient {
             request = bos.toByteArray();   
             messageLength = request.length;
             
-            //con = (HttpConnection) Connector.open(url, Connector.READ_WRITE);
           	con = (HttpConnection) ConnectionManager.getInstance().open(url);
             
       	try {
@@ -179,30 +177,48 @@ public class XmlRpcClient {
             }
             Log.trace("=== End Response headers from the server");
             
+            //find the respose content type from http header
+            String contentType = (String) responseHeaders.get("Content-Type");
+            String encoding = null;
+            if(contentType != null && contentType.indexOf("charset") > -1 ) {
+            	String[] encodings = StringUtils.split(contentType, "=");
+            	encoding = encodings[1];
+            	encoding = StringUtils.replaceAll(encoding, ";", "");
+            	
+            	if(!StringUtils.isDeviceSupportEncoding(encoding)){
+            		//set encoding to UTF-8 if response encoding is not supported
+	        		encoding = "UTF-8";
+	    		}
+            } else {
+            	Log.debug("Response Content-type without charset");
+            	encoding = "UTF-8";
+            }
+            Log.trace("Selected Encoding: "+ encoding);
             
+                        
             // Open an input stream on the server's response
             in = con.openInputStream();
-            
+
             //we now have an input stream. Create a reader and read out each character in the stream.
             //TODO remove this block of code in production
-            InputStreamReader isr = new InputStreamReader(in,"UTF-8"); //@see http://java.sun.com/docs/books/tutorial/i18n/text/stream.html
+            //InputStreamReader isr = new InputStreamReader(in); //@see http://java.sun.com/docs/books/tutorial/i18n/text/stream.html
             int ch;
             StringBuffer charBuff=new StringBuffer();
-            while ((ch = isr.read()) > -1) {  
+            while ((ch = in.read()) > -1) {  
                charBuff.append((char)ch);
             }
+
             String response = charBuff.toString();
-            Log.trace("response from the wordpress server: "+response);                      
-            
-            response = StringUtils.fixWordPressDoubleEncodedAmpersand(response);
+            Log.trace("response from the wordpress server: "+response);                                  
             ByteArrayInputStream bais = new ByteArrayInputStream(response.getBytes());
             //end           
          	         	
             // Parse response from server
             KXmlParser xp = new KXmlParser();
-            xp.setInput(new InputStreamReader(bais));
+            xp.setInput(bais, "ISO-8859-1"); //never change!
             
-            parser = new XmlRpcParser(xp);
+            
+            parser = new XmlRpcParser(xp, encoding); //pass the rim encoding
             result = parser.parseResponse();
             
         } catch (Exception x) {

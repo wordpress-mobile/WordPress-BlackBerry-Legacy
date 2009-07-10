@@ -194,9 +194,8 @@ public class SecondaryResourceFetchThread extends Thread
         
         try 
         {
-        	//url=url+";deviceside=true";
-    	   //conn = (HttpConnection) Connector.open(url);           
         	conn = (HttpConnection) ConnectionManager.getInstance().open(url);
+        	conn.setRequestProperty("User-Agent","wp-blackberry/"+ Tools.getAppVersion());
         	
             if (requestHeaders != null) 
             {
@@ -241,7 +240,6 @@ public class SecondaryResourceFetchThread extends Thread
             else 
             {
                 conn.setRequestMethod(HttpConnection.POST);
-
                 conn.setRequestProperty(HttpProtocolConstants.HEADER_CONTENT_LENGTH, String.valueOf(postData.length));
 
                 out = conn.openOutputStream();

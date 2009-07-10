@@ -27,8 +27,8 @@ public class BlogAuthConn extends BlogConn  {
 	
 	
 	private void setXPingBack(){
-		if( responseHeaders.get("X-Pingback") != null ) {
-			xPingbackString = (String)responseHeaders.get("X-Pingback");
+		if( mConnection.getResponseHeaders().get("X-Pingback") != null ) {
+			xPingbackString = (String)mConnection.getResponseHeaders().get("X-Pingback");
 		} 
 	}
 	

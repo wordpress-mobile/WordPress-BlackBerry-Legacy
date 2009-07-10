@@ -144,7 +144,7 @@ public class AddBlogsView extends BaseView {
 	//add blog menu item 
 	private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 140, 10) {
 		public void run() {
-			controller.addBlogs();
+			controller.addBlogs(0);
 		}
 	};
 

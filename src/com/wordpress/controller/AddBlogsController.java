@@ -24,7 +24,6 @@ import com.wordpress.model.BlogInfo;
 import com.wordpress.task.LoadBlogsDataTask;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.Queue;
-import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -63,8 +62,11 @@ public class AddBlogsController extends BaseController{
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 
-	
-	public void addBlogs(){
+	/*
+	 *  base screen;  
+	 */
+	//1 = popup of detailed xmlrpx endpoit;
+	public void addBlogs(int source){
 		
 		String pass= view.getBlogPass().trim();
 		String url= view.getBlogUrl().trim();
@@ -89,7 +91,7 @@ public class AddBlogsController extends BaseController{
 */
         if (url != null && user != null && url.length() > 0 && user != null && user.length() > 0) {
             BlogAuthConn connection = new BlogAuthConn (url,user,pass);
-            connection.addObserver(new AddBlogCallBack()); 
+            connection.addObserver(new AddBlogCallBack(source)); 
              connectionProgressView= new ConnectionInProgressView(
             		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
            
@@ -140,6 +142,17 @@ public class AddBlogsController extends BaseController{
 
 	//callback for send post to the blog
 	private class AddBlogCallBack implements Observer{
+		private int source = 0; //0 = base screen;  1 = popup prompted for detailed xmlrpc endpoint;
+		
+		
+		
+		public AddBlogCallBack(int source) {
+			super();
+			this.source = source;
+		}
+
+
+
 		public void update(Observable observable, final Object object) {
 			try{
 				
@@ -164,8 +177,9 @@ public class AddBlogsController extends BaseController{
 						displayError(respMessage);
 					} else if(resp.getResponseObject() instanceof XmlPullParserException) {
 						//xmlrpc url error
-						//displayError(_resources.getString(WordPressResource.MESSAGE_COMUNICATION_ERR));
-						//TODO: asking endpoint here
+						if (source == 1) //popupscreen source
+							displayError(_resources.getString(WordPressResource.MESSAGE_COMUNICATION_ERR));
+							else
 						UiApplication.getUiApplication().invokeAndWait(new Runnable() {
 							public void run() {
 								XmlRpcEndpointDialog pw = new XmlRpcEndpointDialog();
@@ -192,7 +206,7 @@ public class AddBlogsController extends BaseController{
 			if (choice == Dialog.YES) {
 				XmlRpcEndpointDialog pw = (XmlRpcEndpointDialog) dialog;
 				view.setBlogUrl(pw.getUrlFromField());
-				addBlogs();
+				addBlogs(1);
 			}
 		}
 	}
@@ -308,7 +322,7 @@ public class AddBlogsController extends BaseController{
 	*/
 	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
-	    	addBlogs();
+	    	addBlogs(0);
 	   }
 	};
 
