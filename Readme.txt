@@ -35,11 +35,15 @@ License information.
 
 See the file "LICENSE.txt" for the full text of the GNU General Public License.
 
-WordPress for BlackBerry uses a modified version of kXML-RPC <http://sourceforge.net/projects/kxmlrpc/>,
+- WordPress for BlackBerry uses a modified version of kXML-RPC <http://sourceforge.net/projects/kxmlrpc/>,
 which in turn uses the kXML parser <http://sourceforge.net/projects/kxml/>. These two
 products are licensed under licensed under the GNU Library or Lesser General Public License (LGPL).
 See the respective web pages for a copy of the license. The modified source code for
 kXML-RPC is included with this source distribution, in the "thirdparty" source directory.
+- WordPress for BlackBerry uses a small number of class from LogicMail <http://logicmail.org/>. 
+Those class are used primarly for characters encoding.
+
+
 
 Contact
 -------

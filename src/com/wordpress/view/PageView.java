@@ -96,7 +96,8 @@ public class PageView extends BaseView {
   		manager.add(rowPageOrder);
   		manager.add(new SeparatorField());
   		
-		bodyTextBox= new HtmlTextField(controller, page.getDescription());
+  		String buildBodyFieldContentFromHtml = controller.buildBodyFieldContentFromHtml(page.getDescription());
+		bodyTextBox= new HtmlTextField(buildBodyFieldContentFromHtml);
 		manager.add(bodyTextBox);
 		addMenuItem(_saveDraftItem);
 		addMenuItem(_submitItem);

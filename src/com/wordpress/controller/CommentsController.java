@@ -123,7 +123,7 @@ public class CommentsController extends BaseController{
 	
 	public void updateComments(Comment[] comments, String status, String commentContent) {
 		ManageCommentsTask task = new ManageCommentsTask();
-
+		
 		boolean isModifiedComments = false; //true if there are comments that needs update
 		
 		for (int i = 0; i < comments.length; i++) {

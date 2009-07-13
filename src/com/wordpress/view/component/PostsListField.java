@@ -15,6 +15,7 @@ import net.rim.device.api.ui.component.ObjectListField;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.utils.CalendarUtils;
+import com.wordpress.utils.StringUtils;
 
 /**
  * This class is a list field that we used to

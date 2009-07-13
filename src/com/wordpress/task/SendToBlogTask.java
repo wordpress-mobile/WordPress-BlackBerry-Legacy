@@ -194,33 +194,37 @@ public class SendToBlogTask extends TaskImpl {
 					if (post != null) {
 						// delete post from draft after sending
 						DraftDAO.removePost(blog, draftFolder);
-						if(type.equalsIgnoreCase("NewPostConn")) {
-							//add post on disk
-							String postID=String.valueOf(resp.getResponseObject());
-							Log.info("new post was added to blog with id: "+postID);
-							post.setId(postID); //update the post ID
-							if(post.getAuthoredOn() == null) {
-								long gmtTime = CalendarUtils.adjustTimeFromDefaultTimezone(System.currentTimeMillis());
-								post.setAuthoredOn(gmtTime);
+						if(resp.getResponseObject() != null) { //safety check
+							
+							if(type.equalsIgnoreCase("NewPostConn")) {
+								//add post on disk
+								String postID=String.valueOf(resp.getResponseObject());
+								Log.info("new post was added to blog with id: "+postID);
+								post.setId(postID); //update the post ID
+								if(post.getAuthoredOn() == null) {
+									long gmtTime = CalendarUtils.adjustTimeFromDefaultTimezone(System.currentTimeMillis());
+									post.setAuthoredOn(gmtTime);
+								}
+								Vector recentPostTitles = blog.getRecentPostTitles();
+								recentPostTitles.insertElementAt(DraftDAO.post2Hashtable(post), 0);
+								blog.setRecentPostTitles(recentPostTitles); 
+								
+							} else {
+								//update previous post on disk
+								String responseValue=String.valueOf(resp.getResponseObject());
+								Vector recentPostTitles = blog.getRecentPostTitles();
+								if(responseValue != null)
+									for (int i = 0; i < recentPostTitles.size(); i++) {
+										Hashtable postData = (Hashtable) recentPostTitles.elementAt(i);
+										String tmpPostID =(String) postData.get("postid");
+										if(tmpPostID.equalsIgnoreCase(post.getId())){
+											recentPostTitles.setElementAt(DraftDAO.post2Hashtable(post),i);
+											break;
+										}
+									}
+								blog.setRecentPostTitles(recentPostTitles);
 							}
-							Vector recentPostTitles = blog.getRecentPostTitles();
-							recentPostTitles.insertElementAt(DraftDAO.post2Hashtable(post), 0);
-							blog.setRecentPostTitles(recentPostTitles);
-						} else {
-							//update previous post on disk
-							String responseValue=String.valueOf(resp.getResponseObject());
-							Vector recentPostTitles = blog.getRecentPostTitles();
-							//if response from update was true
-							if(responseValue != null && responseValue.equalsIgnoreCase("true"))
-					        for (int i = 0; i < recentPostTitles.size(); i++) {
-					        	Hashtable postData = (Hashtable) recentPostTitles.elementAt(i);
-					        	String tmpPostID =(String) postData.get("postid");
-					        	if(tmpPostID.equalsIgnoreCase(post.getId())){
-					        		recentPostTitles.setElementAt(DraftDAO.post2Hashtable(post),i);
-					        		break;
-					        	}
-							}
-							blog.setRecentPostTitles(recentPostTitles);
+						
 						}
 						BlogDAO.updateBlog(blog);							
 					} else {

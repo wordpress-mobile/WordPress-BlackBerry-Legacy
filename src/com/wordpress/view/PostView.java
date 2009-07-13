@@ -99,10 +99,9 @@ public class PostView extends BaseView {
   		manager.add(rowStatus);
   		manager.add(new SeparatorField()); 
   		
-  		
   		//decode the post html
   		String buildBodyFieldContentFromHtml = controller.buildBodyFieldContentFromHtml(post.getBody());
-		bodyTextBox= new HtmlTextField(controller, buildBodyFieldContentFromHtml);
+		bodyTextBox= new HtmlTextField(buildBodyFieldContentFromHtml);
 		manager.add(bodyTextBox);
 		addMenuItem(_saveDraftPostItem);
 		addMenuItem(_submitPostItem);
@@ -181,7 +180,6 @@ public class PostView extends BaseView {
     		} else {
     			controller.startRemotePreview(post.getLink(), title.getText(), bodyTextBox.getText(), tags.getText());
     		}
-        	
         }
     };
     

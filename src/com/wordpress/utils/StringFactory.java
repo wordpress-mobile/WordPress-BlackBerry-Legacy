@@ -35,6 +35,8 @@ package com.wordpress.utils;
 import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 
+import com.wordpress.utils.log.Log;
+
 /**
  * Common front-end for building strings based on input data
  * in a wide variety of character forms.  This implementation
@@ -118,6 +120,7 @@ public class StringFactory {
         try {
             result = new String(bytes, charset);
         } catch (UnsupportedEncodingException exp) {
+        	Log.error("StringFactory->create UnsupportedEncodingException");
             result = getInstance().createFromMappingTable(bytes, charset);
         }
         return result;

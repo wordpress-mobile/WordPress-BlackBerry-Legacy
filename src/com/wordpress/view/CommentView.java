@@ -7,7 +7,6 @@ import java.util.Hashtable;
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.component.AutoTextEditField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.component.NullField;
@@ -18,9 +17,11 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
+import com.wordpress.controller.BlogObjectController;
 import com.wordpress.controller.CommentsController;
 import com.wordpress.model.Comment;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
+import com.wordpress.view.component.HtmlTextField;
 
 public class CommentView extends BaseView {
 	
@@ -34,7 +35,7 @@ public class CommentView extends BaseView {
 	private LabelField title;
 	private LabelField date;
 	private LabelField status; //this information can change by user interaction
-	private AutoTextEditField commentContent;
+	private HtmlTextField commentContent;
 	private final Hashtable commentStatusList;
 	
 	 public CommentView(CommentsController _controller, Comment comment, Hashtable commentStatusList) {
@@ -89,8 +90,8 @@ public class CommentView extends BaseView {
 	  		rowStatus.add(new NullField());
 	  		dataScroller.add(rowStatus);
 	  		dataScroller.add(new SeparatorField()); 
-	        	  			  		
-	  		commentContent = new AutoTextEditField("",comment.getContent());
+	        	  			
+	  		commentContent = new HtmlTextField(" ");
 	  		dataScroller.add(commentContent);
 	  			        	  		
 			add(topManager);
@@ -107,9 +108,7 @@ public class CommentView extends BaseView {
 	 //refresh the view with the new comment content
 	 private void refresh(Comment newComment){
 		 this.comment = newComment;
-		//#ifdef DEBUG
-		 System.out.println("DEBUG trovato");
-		//#endif
+		
 		 
 		 lblPostsNumber.setText(_resources.getString(WordPressResource.LABEL_COMMENT) + " "
 				 + controller.getCommentIndex(comment)+"/"+controller.getCommentsCount());
@@ -119,10 +118,12 @@ public class CommentView extends BaseView {
 		 else 
 			 from.setText("");
 		 
-		 if(newComment.getPostTitle() != null)
-			 title.setText(newComment.getPostTitle());
+		 if(newComment.getPostTitle() != null) {
+			String commentTitleUnescaped = newComment.getPostTitle();
+			title.setText(commentTitleUnescaped);
+		 }
 		 else 
-			 title.setText("");
+			title.setText("");
 		 
 		 if(newComment.getDate_created_gmt() != null) {
 				Date dateCreated = comment.getDate_created_gmt();
@@ -165,8 +166,10 @@ public class CommentView extends BaseView {
 			 addMenuItem(_spamCommentItem);
 		 }
 		 
-		 if(newComment.getContent() != null)
-			commentContent.setText(newComment.getContent());
+		 if(newComment.getContent() != null) {
+			 String content= BlogObjectController.buildBodyFieldContentFromHtml((newComment.getContent()));			 
+			 commentContent.setText(content);
+		 }
 		else 
 			 commentContent.setText("");
 	 }

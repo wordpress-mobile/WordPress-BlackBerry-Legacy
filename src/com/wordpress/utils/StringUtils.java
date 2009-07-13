@@ -1,7 +1,6 @@
 package com.wordpress.utils;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -273,161 +272,154 @@ public class StringUtils {
 		htmlEntities.put("rsaquo", new String("8250"));
 		htmlEntities.put("euro", new String("8364"));
 	}
+
 	
+	 /**
+     * <p>Unescapes special characters in a <code>String</code>.</p>
+     *
+     * @param str The <code>String</code> to escape.
+     * @return A un-escaped <code>String</code>.
+     */
+    public static String unescape(String str) {
+
+        StringBuffer  buf          = null ;
+        String        entityName   = null ;
+
+        char          ch           = ' '  ;
+        char          charAt1      = ' '  ;
+
+        int           entityValue  = 0    ;
+
+        buf = new StringBuffer(str.length());
+
+        for (int i = 0, l = str.length(); i < l; ++i) {
+
+            ch = str.charAt(i);
+
+            if (ch == '&') {
+
+                int semi = str.indexOf(';', i + 1);
+
+                if (semi == -1) {
+                    buf.append(ch);
+                    continue;
+                }
+
+                entityName = str.substring(i + 1, semi);
+
+                if (entityName.charAt(0) == '#') {
+                    charAt1 = entityName.charAt(1);
+                    if (charAt1 == 'x' || charAt1=='X') {
+                        entityValue = Integer.valueOf(entityName.substring(2), 16).intValue();
+                    } else {
+                        entityValue = Integer.parseInt(entityName.substring(1));
+                    }
+                } else {
+                	String entFromTable = (String)htmlEntities.get(entityName);
+                	if(entFromTable != null) {
+                		 entityValue = Integer.parseInt(entFromTable);
+                	} else 
+                    entityValue = -1;
+                    
+                } if (entityValue == -1) {
+                    buf.append('&');
+                    buf.append(entityName);
+                    buf.append(';');
+                } else {
+                	//Log.trace("convertito nel char :"+(char) (entityValue));
+                    buf.append((char) (entityValue));
+                }
+
+                i = semi;
+
+            } else {
+                buf.append(ch);
+            }
+        }
+        return buf.toString();
+    }
+		
 	
 	/**
-	 * Turn any HTML escape entities in the string into
-	 * characters and return the resulting string.
+	 * 	FIX WP DOUBLE ENCODED AMPESAND
+	 * @see http://blackberry.trac.wordpress.org/ticket/17
+	 * 
+	 * @param output
+	 * @return
 	 */
-	public static String unescapeHTML(String output){
-	
-	StringBuffer tempResult = new StringBuffer(output.length());
-	
-	int ampInd = output.indexOf("&amp;");
-	int lastEnd = 0;
-	
-	while (ampInd >= 0){
-		int nextAmp = output.indexOf("&amp;", ampInd+5);
-		int nextSemi = output.indexOf(";", ampInd+5);
-		boolean ent=false;
-		if (nextSemi != -1 && (nextAmp == -1 || nextSemi < nextAmp)){ //check if html entity
-			String value = "";
-			String escape = output.substring(ampInd+5,nextSemi);
-			
-			if (escape.startsWith("#") && !htmlEntities.contains(escape.substring(1)))
-			{
-				value = escape.substring(1);
-			}
-			
-			if(escape.startsWith("#") && htmlEntities.contains(escape.substring(1)))
-			{
-				Enumeration elements = htmlEntities.keys();
-				for ( ; elements.hasMoreElements() ;) 
-				{
-				    String key = (String) elements.nextElement();
-				    
-				    if(htmlEntities.get(key).toString().toUpperCase().equals(escape.substring(1)))
-				    {
-				    	value=key;
-				    	break;
-				    }
-			    
-				}
-			
-				ent=true;
-			}
-			
-			if(!escape.startsWith("#"))
-			{
-				value=escape;
-				ent=true;
-			}
-			
-			tempResult.append(output.substring(lastEnd, ampInd));
-			
-			if (!ent){
-				tempResult.append("&").append("#").append(value).append(";");
-			} else {
-				tempResult.append("&").append(value).append(";");
-			}
-			
-			lastEnd = nextSemi + 1;
-		}
-		
-		if(nextAmp!=-1)
-		{
-			ampInd = nextAmp;
-		}
-		else 
-		{
-			ampInd=-1;
-		}
-	}
-
-	tempResult.append(output.substring(lastEnd));
-	
-	StringBuffer result = new StringBuffer(tempResult.length());
-	lastEnd=0;
-	ampInd= tempResult.toString().indexOf("&");
-	
-	while (ampInd >= 0){
-		int nextAmp = tempResult.toString().indexOf("&", ampInd+1);
-		int nextSemi = tempResult.toString().indexOf(";", ampInd+1);
-		boolean subst=false;
-		if (nextSemi != -1 && (nextAmp == -1 || nextSemi < nextAmp)){ //check if html entity
-			String value = "";
-			String escape = tempResult.toString().substring(ampInd+1,nextSemi);
-			
-			
-			if(escape.startsWith("#") && htmlEntities.contains(escape.substring(1)))
-			{
-				Enumeration elements = htmlEntities.keys();
-				for ( ; elements.hasMoreElements() ;) 
-				{
-				    String key = (String) elements.nextElement();
-				    
-				    if(htmlEntities.get(key).toString().toUpperCase().equals(escape.substring(1)))
-				    {
-				    	value=key;
-				    	break;
-				    }
-			    
-				}
-			
-				subst=true;
-			}
-			
-			result.append(tempResult.toString().substring(lastEnd, ampInd));
-			
-			if (subst){
-				result.append("&").append(value).append(";");
-			} 
-			else{
-				
-				result.append(tempResult.toString().substring(ampInd, nextSemi+1));
-				
-			}
-			
-			lastEnd = nextSemi + 1;
-		}
-		
-		if(nextAmp!=-1)
-		{
-			ampInd = nextAmp;
-		}
-		else 
-		{
-			ampInd=-1;
-		}
-	}
-	result.append(tempResult.toString().substring(lastEnd));
-	return result.toString();
-	}
-
-	
-	//	FIX WP DOUBLE ENCODED AMPESAND
-	//@see http://blackberry.trac.wordpress.org/ticket/17
-	public static String  fixWordPressDoubleEncodedAmpersand(String xmlInput) {
-		String output = StringUtils.replaceAll(xmlInput, "&amp;amp;", "&amp;"); //FIX WP DOUBLE ENCODED AMPESAND;
-		output = StringUtils.replaceAll(output, "&amp;#038;", "&#038;");
-		output = StringUtils.replaceAll(output, "&amp;#039;", "&#039;"); 
-		
-		//String result =unescapeHTML(output);
-		//return result;				
-		return output; 
+	public static String  fixWordPressDoubleEncodedAmpersand(String output) {
+	 output = StringUtils.replaceAll(output, "&amp;amp;", "&amp;"); //FIX WP DOUBLE ENCODED AMPESAND;
+	 output = StringUtils.replaceAll(output, "&amp;", "&"); 
+	 return unescape(output);
 	}
     
 	
-	/*	FIX WP DOUBLE ENCODED AMPESAND
+	/*	FIX WP DOUBLE ENCODED AMPESAND */
 	//@see http://blackberry.trac.wordpress.org/ticket/17
-	public static String  fixWordPressDoubleEncodedAmpersand(String xmlInput) {
+	public static String  fixWordPressDoubleEncodedAmpersandOld(String xmlInput) {
 		String output = StringUtils.replaceAll(xmlInput, "&amp;amp;", "&amp;"); //FIX WP DOUBLE ENCODED AMPESAND;
 		output = StringUtils.replaceAll(output, "&amp;#038;", "&#038;");
 		output = StringUtils.replaceAll(output, "&amp;#039;", "&#039;"); 
-		
-		return output; 
+		return output;
+		 /*
+		 StringBuffer tempResult = new StringBuffer(output.length());
+			
+			int ampInd = output.indexOf("&amp;");
+			int lastEnd = 0;
+			int entityValue = 0;
+			
+			while (ampInd >= 0){
+				int nextAmp = output.indexOf("&amp;", ampInd+5);
+				int nextSemi = output.indexOf(";", ampInd+5);
+				
+				if (nextSemi != -1 && (nextAmp == -1 || nextSemi < nextAmp)){ //check if html entity
+					String escape = output.substring(ampInd+5,nextSemi);
+					
+					char charAt1 = ' ';
+					
+					 if (escape.charAt(0) == '#') { //check numeric entity
+		                 charAt1 = escape.charAt(1);
+		                 if (charAt1 == 'x' || charAt1=='X') {
+		                	 try {
+		                		entityValue = Integer.valueOf(escape.substring(2), 16).intValue();
+							} catch (NumberFormatException e) {
+								entityValue = -1;
+							}
+		                 } else {
+		                	 try {
+		                		 entityValue = Integer.parseInt(escape.substring(1));
+							} catch (NumberFormatException e) {
+								entityValue = -1;
+							}
+		                 }
+		             } else  { //check mnemonic entity table
+		            	 
+		            	 String entFromTable = (String)htmlEntities.get(escape);
+		                	if(entFromTable != null) {
+		                		 entityValue = Integer.parseInt(entFromTable);
+		                	} else 
+		                		entityValue = -1;
+		             }
+					 
+					 tempResult.append(output.substring(lastEnd, ampInd)); //append all char before &amp;
+									 
+					if (entityValue == -1) { //se non hai trovato una entity definita 
+						tempResult.append("&");
+						tempResult.append(escape);
+						tempResult.append(";");
+					} else {
+						Log.trace("convertito in char: "+(char) (entityValue));
+						tempResult.append((char) (entityValue));
+					}
+					
+					lastEnd = nextSemi + 1;
+				}
+				ampInd = nextAmp;
+			}
+			tempResult.append(output.substring(lastEnd));
+			return unescape(tempResult.toString());*/
 	}
-	*/
+	
 	  // Splits string 
 	  public static String[] split(final String string, final String splitBy) {
 		    final Vector tokens = new Vector();

@@ -32,6 +32,8 @@
 package com.wordpress.view.component;
 
 
+import com.wordpress.utils.StringUtils;
+
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.system.Display;
@@ -69,7 +71,7 @@ public class HeaderField extends Field {
     
     public HeaderField(String title) {
         super(Field.NON_FOCUSABLE);
-        this.title = title;
+        this.title =title;
         this.showSignal = true;
         this.showBattery = true;
         this.showTitle = true;

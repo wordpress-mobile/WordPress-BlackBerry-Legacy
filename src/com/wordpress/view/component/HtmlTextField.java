@@ -13,7 +13,6 @@ import net.rim.device.api.ui.container.DialogFieldManager;
 import net.rim.device.api.ui.text.URLTextFilter;
 
 import com.wordpress.bb.WordPressResource;
-import com.wordpress.controller.BlogObjectController;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.InquiryView;
 
@@ -21,7 +20,6 @@ public class HtmlTextField extends AutoTextEditField {
 
 	//create a variable to store the ResourceBundle for localization support
     protected static ResourceBundle _resources;
-	private final BlogObjectController controller;
 	private boolean ignore = false;
 	    
     static {
@@ -29,10 +27,9 @@ public class HtmlTextField extends AutoTextEditField {
         _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
     }
 
-    public HtmlTextField(BlogObjectController controller, String content) {
+    public HtmlTextField(String content) {
         //super(EDITABLE | USE_ALL_HEIGHT | USE_ALL_WIDTH );
     	super("",content, EditField.DEFAULT_MAXCHARS, EDITABLE | USE_ALL_HEIGHT | USE_ALL_WIDTH | FILTER_DEFAULT);
-		this.controller = controller;
         setText(content);
         this.setChangeListener(listener);
     }

@@ -12,6 +12,7 @@ import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ListField;
 
 import com.wordpress.model.Category;
+import com.wordpress.utils.StringUtils;
 
 public class CategoriesListField {
 

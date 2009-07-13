@@ -181,16 +181,12 @@ public class XmlRpcParser {
 	
 	private String createString(String content) {
 		try {
-			//String prova =  new String(content);
-			//String provaUTF8 =  new String(content, "UTF-8");
-			//Log.trace("Trovata la parola ORIG: "+content);
-			//Log.trace("Trovata la parola UTF: "+provaUTF8);
-			String rimString = StringUtils.fixWordPressDoubleEncodedAmpersand(content);
-			rimString =  StringFactory.create(content.getBytes(), rimEncoding);
+			String rimString =  StringFactory.create(content.getBytes(), rimEncoding);
+			 rimString = StringUtils.fixWordPressDoubleEncodedAmpersand(rimString);
 			return UnicodeNormalizer.getInstance().normalize(rimString);
 			//return rimString;
 		} catch (UnsupportedEncodingException e) {
-			Log.error(e, "error while create string with enc");
+			Log.error(e, "Error while create string with enc");
 			return new String (content);
 		}
 	}
