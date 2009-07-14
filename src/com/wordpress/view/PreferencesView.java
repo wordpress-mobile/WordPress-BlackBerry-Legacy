@@ -28,6 +28,7 @@ import com.wordpress.io.AppDAO;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
+import com.wordpress.utils.conn.ConnectionUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
@@ -50,7 +51,7 @@ public class PreferencesView extends BaseView {
     private EditField _sourcePort;
 	private CheckboxField userConnectionEnabledField;
 	private CheckboxField userConnectionWapTypeField;
-	private CheckboxField _userAllowWap;
+	private CheckboxField _userAllowBIS;
 	private CheckboxField _userAllowWiFi;
 	private CheckboxField _userAllowTCP;
 	private CheckboxField _userAllowWAP2;
@@ -102,14 +103,16 @@ public class PreferencesView extends BaseView {
 		 lblDescReset.setFont(fnt);
 		 optManager.add(lblDescReset);
 
-		 _userAllowWiFi=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_WIFI), mPrefs.isWiFiConnectionPermitted());
-		 optManager.add(_userAllowWiFi);
+		 if ( ConnectionUtils.isWifiAvailable() ) {
+			 _userAllowWiFi=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_WIFI), mPrefs.isWiFiConnectionPermitted());
+			 optManager.add(_userAllowWiFi);
+		 }
 		 _userAllowTCP=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_TCP), mPrefs.isTcpConnectionPermitted());
 		 optManager.add(_userAllowTCP);
-		 _userAllowWap=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_WAP), mPrefs.isWapConnectionPermitted());
-		 optManager.add(_userAllowWap);
 		 _userAllowWAP2=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_WAP2), mPrefs.isServiceBookConnectionPermitted());
 		 optManager.add(_userAllowWAP2);
+		 _userAllowBIS=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_BIS), mPrefs.isBlackBerryInternetServicePermitted());
+		 optManager.add(_userAllowBIS);
 		 _userAllowBES=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_BES), mPrefs.isBESConnectionPermitted());
 		 optManager.add(_userAllowBES);
 		 
@@ -448,8 +451,11 @@ public class PreferencesView extends BaseView {
 			mPrefs.setTcpConnectionPermitted(_userAllowTCP.getChecked());
 			mPrefs.setBESConnectionPermitted(_userAllowBES.getChecked());
 			mPrefs.setServiceBookConnectionPermitted(_userAllowWAP2.getChecked());
-			mPrefs.setWiFiConnectionPermitted(_userAllowWiFi.getChecked());
-			mPrefs.setWapConnectionPermitted(_userAllowWap.getChecked());
+			if ( ConnectionUtils.isWifiAvailable() ) {
+				mPrefs.setWiFiConnectionPermitted(_userAllowWiFi.getChecked());
+			}
+			
+			mPrefs.setBlackBerryInternetServicePermitted(_userAllowBIS.getChecked());
 			
 			
 			setDirty(false);

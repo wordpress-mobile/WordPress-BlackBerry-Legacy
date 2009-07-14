@@ -133,7 +133,7 @@ public class AppDAO implements BaseDAO{
 			pref.setUserConnectionWap(isUserConnectionWap.booleanValue());
 			pref.setWiFiConnectionPermitted(isWiFiConnectionPermitted.booleanValue());
 			pref.setTcpConnectionPermitted(isTcpConnectionPermitted.booleanValue());
-			pref.setWapConnectionPermitted(isWapConnectionPermitted.booleanValue());
+			pref.setBlackBerryInternetServicePermitted(isWapConnectionPermitted.booleanValue());
 			pref.setBESConnectionPermitted(isBESConnectionPermitted.booleanValue());
 			pref.setServiceBookConnectionPermitted(isServiceBookConnectionPermitted.booleanValue());
 			pref.setUsername(userName);
@@ -165,7 +165,7 @@ public class AppDAO implements BaseDAO{
 		    Boolean isTcpConnectionPermitted = new Boolean(pref.isTcpConnectionPermitted());
 		    Boolean isBESConnectionPermitted = new Boolean(pref.isBESConnectionPermitted());
 		    Boolean isServiceBookConnectionPermitted = new Boolean(pref.isServiceBookConnectionPermitted());
-		    Boolean isWapConnectionPermitted = new Boolean(pref.isWapConnectionPermitted());
+		    Boolean isWapConnectionPermitted = new Boolean(pref.isBlackBerryInternetServicePermitted());
 		    String userPass = pref.getPassword();
 		    String userName = pref.getUsername();
 		    

@@ -23,7 +23,7 @@ public class ConnectionUtils {
     * smartphone. It cannot be used to determine if the BlackBerry smartphone is in Wi-Fi coverage.
     * @return
     */
-    protected static boolean isWifiAvailable() {
+    public static boolean isWifiAvailable() {
         Log.info("Checking WIFI Availability");
         boolean isWifiEnabled;
         if (RadioInfo.areWAFsSupported(RadioInfo.WAF_WLAN)) {

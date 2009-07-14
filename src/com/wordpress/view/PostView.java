@@ -172,13 +172,19 @@ public class PostView extends BaseView {
     private MenuItem _previewItem = new MenuItem( _resources, WordPressResource.MENUITEM_PREVIEW, 110, 10) {
         public void run() {
         	if(title.isDirty() || bodyTextBox.isDirty() || 
-        			tags.isDirty() || status.isDirty() || categories.isDirty() || lblPhotoNumber.isDirty())
-        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText());
-        	else       	
-    		if (controller.isPostChanged()) {
+        			tags.isDirty() || status.isDirty() || categories.isDirty() || lblPhotoNumber.isDirty()) {
+        		//post is just changed
+        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText()); 
+        	} else if (controller.isPostChanged()) {
+    			//post is changed, and the user has saved it as draft
     			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText());
     		} else {
-    			controller.startRemotePreview(post.getLink(), title.getText(), bodyTextBox.getText(), tags.getText());
+    			//post not changed, check if is published 
+    			if ("publish".equalsIgnoreCase(post.getStatus()) ) {
+    				controller.startRemotePreview(post.getLink(), title.getText(), bodyTextBox.getText(), tags.getText());
+            	} else {
+        			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText());
+            	}
     		}
         }
     };

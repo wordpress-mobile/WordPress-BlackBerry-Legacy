@@ -18,8 +18,8 @@ public class Preferences {
     private boolean isWiFiConnectionPermitted = true;
     private boolean isTcpConnectionPermitted = true;
     private boolean isBESConnectionPermitted = false;
-    private boolean isServiceBookConnectionPermitted = true;
-    private boolean isWapConnectionPermitted = true;
+    private boolean isServiceBookConnectionPermitted = true; //Wireless service provider WAP 2.0 gateway
+    private boolean isBlackBerryInternetServicePermitted = true; //BlackBerry Internet Service
 
 	private String username;
     private String password;
@@ -86,12 +86,12 @@ public class Preferences {
 		this.isServiceBookConnectionPermitted = isServiceBookConnectionPermitted;
 	}
 
-	public boolean isWapConnectionPermitted() {
-		return isWapConnectionPermitted;
+	public boolean isBlackBerryInternetServicePermitted() {
+		return isBlackBerryInternetServicePermitted;
 	}
 
-	public void setWapConnectionPermitted(boolean isWapConnectionPermitted) {
-		this.isWapConnectionPermitted = isWapConnectionPermitted;
+	public void setBlackBerryInternetServicePermitted(boolean value) {
+		this.isBlackBerryInternetServicePermitted = value;
 	}
 
 	public void setUserConnectionWap(boolean isUserConnectionWap) {

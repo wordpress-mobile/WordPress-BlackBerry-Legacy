@@ -178,7 +178,7 @@ public class AddBlogsController extends BaseController{
 					} else if(resp.getResponseObject() instanceof XmlPullParserException) {
 						//xmlrpc url error
 						if (source == 1) //popupscreen source
-							displayError(_resources.getString(WordPressResource.MESSAGE_COMUNICATION_ERR));
+							displayError(_resources.getString(WordPressResource.MESSAGE_XMLRPC_ENDPOINT_FAILED));
 							else
 						UiApplication.getUiApplication().invokeAndWait(new Runnable() {
 							public void run() {

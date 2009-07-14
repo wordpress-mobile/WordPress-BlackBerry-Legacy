@@ -161,13 +161,19 @@ public class PageView extends BaseView {
         public void run() {
         	
         	if(title.isDirty() || bodyTextBox.isDirty() || 
-        			status.isDirty() || lblPhotoNumber.isDirty())
+        			status.isDirty() || lblPhotoNumber.isDirty()) {
+        		//page is just changed
         		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "");
-        	else       	
-    		if (controller.isPageChanged()) {
+        	} else if (controller.isPageChanged()) {
+        		//page is changed, and the user has saved it as draft
     			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "");
     		} else {
-    			controller.startRemotePreview(page.getLink(), title.getText(), bodyTextBox.getText(), "");
+    			//page not changed, check if is published 
+    			if ("publish".equalsIgnoreCase(page.getPageStatus()) ) {
+    				controller.startRemotePreview(page.getLink(), title.getText(), bodyTextBox.getText(), "");
+            	} else {
+            		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "");
+            	}
     		}
         }
     };
