@@ -1,12 +1,17 @@
 package com.wordpress.xmlrpc;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Vector;
+
+import javax.microedition.io.HttpConnection;
 
 import org.kxmlrpc.XmlRpcClient;
 
 import com.wordpress.model.Blog;
 import com.wordpress.utils.Tools;
+import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Log;
 
 public class BlogAuthConn extends BlogConn  {
@@ -58,6 +63,65 @@ public class BlogAuthConn extends BlogConn  {
 	}
 	
 	
+ 
+	private String getHtml(String URL) {
+		isWorking=true;
+		HttpConnection conn = null;
+		String response = null;
+		try {
+			conn = (HttpConnection) ConnectionManager.getInstance().open(URL);
+			conn.setRequestProperty("User-Agent","wp-blackberry/"+ Tools.getAppVersion());
+			
+            // List all the response headers from the server.
+            // Note: The first call to getHeaderFieldKey() will implicit send
+            // the HTTP request to the server.
+            Log.trace("==== Response headers from the server");
+            String   key;
+            for( int i = 0;( key = conn.getHeaderFieldKey( i ) )!= null; ++i ){
+            	String headerName = conn.getHeaderFieldKey(i);
+            	String headerValue = conn.getHeaderField(i);
+            	
+            	if (headerName == null && headerValue == null) {
+            		// No more headers
+            		break;
+            	}
+            	if (headerName == null) {
+            		// The header value contains the server's HTTP version
+            	} else {
+            		//set the x-pingbackstring
+            		if(headerName.equalsIgnoreCase("X-Pingback") && headerValue != null) {
+            			xPingbackString = (String)headerValue;
+            		}
+            		Log.trace(headerName + " " + headerValue); 
+            	}
+            }
+            Log.trace("=== End Response headers from the server");
+			
+			int rc = conn.getResponseCode();
+			if( rc == HttpConnection.HTTP_OK ){
+				
+				//read the response
+				
+				InputStream in = conn.openInputStream();
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				int c;
+				while ((c = in.read()) >= 0)
+				{
+					baos.write(c);
+				}
+				response = new String (baos.toByteArray());
+				
+			} else {
+			    Log.error("Html server response error code: "+rc);
+			}
+
+		} catch (Exception e) {
+			Log.error("Html server connetion error: "+e.getMessage());
+		}
+		return response;
+	}
+	
+	
 	/**
 	 * Load blogs 
 	 * 
@@ -70,10 +134,16 @@ public class BlogAuthConn extends BlogConn  {
 		args.addElement(this.mPassword);
 		
 		/*
-		 * 1. try the user inserted url as xmlrpc endpoint
-		 * 2. try the X-ping back header as xmlrpc endpoint
-		 * 2b. try syntax guess
+		 * 0. try the user inserted url as endpoint for html doc, parse html and get the correct endpoint
+		 * 1. try the X-ping back header as xmlrpc endpoint
 		 */
+	/*	String htmlString = getHtml(urlConnessione);
+		if(htmlString != null) {
+			//parse the html and get the attribute for xmlrpc endpoint
+			
+		}
+		*/
+		
 		Object response = guessUrl();
 		if(connResponse.isError()) {
 			

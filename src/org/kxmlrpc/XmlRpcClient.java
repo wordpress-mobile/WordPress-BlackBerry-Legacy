@@ -195,23 +195,24 @@ public class XmlRpcClient {
             }
             Log.trace("Selected Encoding: "+ encoding);
             
-                        
+            //check response code from the server       
+            int rc = con.getResponseCode();
+			if( rc != HttpConnection.HTTP_OK ){
+				Log.error("Server Response Error. Server returned HTTP response code: "+ rc);
+	        	throw new Exception("Server returned HTTP response code "+rc);
+			}
+            
             // Open an input stream on the server's response
             in = con.openInputStream();
 
-            //we now have an input stream. Create a reader and read out each character in the stream.
-            //TODO remove this block of code in production
-            //InputStreamReader isr = new InputStreamReader(in); //@see http://java.sun.com/docs/books/tutorial/i18n/text/stream.html
             int ch;
             StringBuffer charBuff=new StringBuffer();
             while ((ch = in.read()) > -1) {  
                charBuff.append((char)ch);
             }
-
             String response = charBuff.toString();
             Log.trace("response from the wordpress server: "+response);                                  
             ByteArrayInputStream bais = new ByteArrayInputStream(response.getBytes());
-            //end           
          	         	
             // Parse response from server
             KXmlParser xp = new KXmlParser();

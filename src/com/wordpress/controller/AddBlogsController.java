@@ -15,7 +15,6 @@ import net.rim.device.api.ui.container.DialogFieldManager;
 import net.rim.device.api.ui.text.URLTextFilter;
 
 import org.kxmlrpc.XmlRpcException;
-import org.xmlpull.v1.XmlPullParserException;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
@@ -144,15 +143,11 @@ public class AddBlogsController extends BaseController{
 	private class AddBlogCallBack implements Observer{
 		private int source = 0; //0 = base screen;  1 = popup prompted for detailed xmlrpc endpoint;
 		
-		
-		
 		public AddBlogCallBack(int source) {
 			super();
 			this.source = source;
 		}
-
-
-
+		
 		public void update(Observable observable, final Object object) {
 			try{
 				
@@ -172,15 +167,15 @@ public class AddBlogsController extends BaseController{
 					
 					final String respMessage=resp.getResponse();
 					Log.error(respMessage);
-					if(resp.getResponseObject() instanceof XmlRpcException) {
-						//pass/username errata
+					if(resp.getResponseObject() instanceof XmlRpcException) { //response from xmlrpc server
 						displayError(respMessage);
-					} else if(resp.getResponseObject() instanceof XmlPullParserException) {
+					//} else if(resp.getResponseObject() instanceof XmlPullParserException) {
+					} else if(source == 0) {
 						//xmlrpc url error
-						if (source == 1) //popupscreen source
+						/*if (source == 1) //popupscreen source
 							displayError(_resources.getString(WordPressResource.MESSAGE_XMLRPC_ENDPOINT_FAILED));
-							else
-						UiApplication.getUiApplication().invokeAndWait(new Runnable() {
+							else*/
+						UiApplication.getUiApplication().invokeLater(new Runnable() {
 							public void run() {
 								XmlRpcEndpointDialog pw = new XmlRpcEndpointDialog();
 								pw.setDialogClosedListener(new XmlRpcEndpointDialogClosedListener());
@@ -212,7 +207,7 @@ public class AddBlogsController extends BaseController{
 	}
 	
 	
-    public final class XmlRpcEndpointDialog extends Dialog {
+    private final class XmlRpcEndpointDialog extends Dialog {
 
         private EditField urlField;
 
