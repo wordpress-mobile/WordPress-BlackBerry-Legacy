@@ -1,5 +1,6 @@
 package com.wordpress.xmlrpc;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Hashtable;
@@ -7,7 +8,9 @@ import java.util.Vector;
 
 import javax.microedition.io.HttpConnection;
 
+import org.kxml2.io.KXmlParser;
 import org.kxmlrpc.XmlRpcClient;
+import org.xmlpull.v1.XmlPullParser;
 
 import com.wordpress.model.Blog;
 import com.wordpress.utils.Tools;
@@ -17,7 +20,13 @@ import com.wordpress.utils.log.Log;
 public class BlogAuthConn extends BlogConn  {
 
 	private String xPingbackString = null;
+	private boolean discoveryApiLink = false;
 	
+	public void setDiscoveryApiLink(boolean discoveryApiLink) {
+		this.discoveryApiLink = discoveryApiLink;
+	}
+
+
 	public BlogAuthConn(String hint,String userHint, String passwordHint) {
 		super(hint, userHint, passwordHint);
 	}
@@ -31,12 +40,6 @@ public class BlogAuthConn extends BlogConn  {
 	}
 	
 	
-	private void setXPingBack(){
-		if( mConnection.getResponseHeaders().get("X-Pingback") != null ) {
-			xPingbackString = (String)mConnection.getResponseHeaders().get("X-Pingback");
-		} 
-	}
-	
 	private Object guessUrl(){
 		Vector args;
 		resetConnectionResponse();
@@ -47,28 +50,37 @@ public class BlogAuthConn extends BlogConn  {
 		// blogger_getUsersBlogs
 		Object response = execute("wp.getUsersBlogs", args);
 		if(connResponse.isStopped()) return null; //if the user has stopped the connection
-		setXPingBack(); //set the pingback url if any
 		if(connResponse.isError()) {
 			resetConnectionResponse();		
 			//try with old blogger xml-rpc call
 			args.insertElementAt("",0); //blogger api need key
 			response = execute("blogger.getUsersBlogs", args);
 			if(connResponse.isStopped()) return null; //if the user has stopped the connection
-			setXPingBack();
 			if(connResponse.isError()) {
-				response = null; //if still error there no reset response
+				response = null; //if still error there, no reset response
 			}
 		}
 		return response;
 	}
-	
-	
  
+	/**
+	 * Return the content of the url as string. Follow ONLY 1 redirection
+	 * 
+	 * @param URL
+	 * @return
+	 */
+	
 	private String getHtml(String URL) {
 		isWorking=true;
 		HttpConnection conn = null;
 		String response = null;
+		int numberOfRedirection = 0;
+		
 		try {
+			//set max num of redirect to 3
+  		 while( URL != null  && numberOfRedirection < 3 ){
+  			numberOfRedirection++;
+  			
 			conn = (HttpConnection) ConnectionManager.getInstance().open(URL);
 			conn.setRequestProperty("User-Agent","wp-blackberry/"+ Tools.getAppVersion());
 			
@@ -88,7 +100,7 @@ public class BlogAuthConn extends BlogConn  {
             	if (headerName == null) {
             		// The header value contains the server's HTTP version
             	} else {
-            		//set the x-pingbackstring
+            		//set the x-pingback url
             		if(headerName.equalsIgnoreCase("X-Pingback") && headerValue != null) {
             			xPingbackString = (String)headerValue;
             		}
@@ -98,29 +110,145 @@ public class BlogAuthConn extends BlogConn  {
             Log.trace("=== End Response headers from the server");
 			
 			int rc = conn.getResponseCode();
-			if( rc == HttpConnection.HTTP_OK ){
-				
-				//read the response
-				
-				InputStream in = conn.openInputStream();
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				int c;
-				while ((c = in.read()) >= 0)
-				{
-					baos.write(c);
-				}
-				response = new String (baos.toByteArray());
-				
-			} else {
-			    Log.error("Html server response error code: "+rc);
-			}
-
+			Log.trace("Html server response  code: "+rc);
+			switch( rc ){			  
+	            case HttpConnection.HTTP_MOVED_PERM:
+	            case HttpConnection.HTTP_MOVED_TEMP:
+	            case HttpConnection.HTTP_SEE_OTHER:
+	            case HttpConnection.HTTP_TEMP_REDIRECT:
+	              URL = conn.getHeaderField( "Location" );
+	              if( URL != null && URL.startsWith( 
+	                                            "/*" ) ){
+	                StringBuffer b = new StringBuffer();
+	                b.append( conn.getProtocol()+"//" );
+	                b.append( conn.getHost() );
+	                b.append( ':' );
+	                b.append( conn.getPort() );
+	                b.append( URL );
+	                URL = b.toString();
+	              }
+	              conn.close();
+	              break;
+	            case HttpConnection.HTTP_OK:
+	            	//read the response
+					InputStream in = conn.openInputStream();
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					int c;
+					while ((c = in.read()) >= 0)
+					{
+						baos.write(c);
+					}
+					response = new String (baos.toByteArray());
+					URL = null; //exit the while
+	            	break;
+	            default:
+	              URL = null;
+	              break;
+	        }
+  		 }//end while
 		} catch (Exception e) {
 			Log.error("Html server connetion error: "+e.getMessage());
 		}
 		return response;
 	}
+
+
+	private String getRSDMetaTagHref(String urlConnessione) {
+		//get the html code
+		String htmlString = getHtml(urlConnessione); 
+		
+		//parse the html and get the attribute for xmlrpc endpoint
+		if(htmlString != null) {
+			try {				
+				KXmlParser parser = new KXmlParser();
+				parser.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true); //relaxed parser
+				ByteArrayInputStream bais = new ByteArrayInputStream(htmlString.getBytes());
+				parser.setInput(bais, "ISO-8859-1");
+				
+				while (parser.next() != XmlPullParser.END_DOCUMENT) {
+					if (parser.getEventType() == XmlPullParser.START_TAG) {
+						String rel="";
+						String type="";
+						String href="";
+						Log.trace("start tag: " + parser.getName());
+						//link tag
+						if(parser.getName()!=null && parser.getName().trim().equalsIgnoreCase("link")){
+						  //unfold all attribute
+							for (int i = 0; i < parser.getAttributeCount(); i++) {
+							  String attrName = parser.getAttributeName(i);
+							  String attrValue = parser.getAttributeValue(i);
+					           if("rel".equals(attrName))
+					        	   rel = attrValue;
+					           else if("type".equals(attrName))
+					        	   type = attrValue;
+					           else if("href".equals(attrName))
+					        	   href = attrValue;
+					           
+							  Log.trace("attribute name: "+ parser.getAttributeName(i));
+							  Log.trace("attribute value: "+parser.getAttributeValue(i));
+					        }
+							
+						  if(rel.equals("EditURI") && type.equals("application/rsd+xml")){
+							  return href;
+						  }
+						
+						}//end link tag
+					}
+				}				
+			} catch (Exception ex) {
+				Log.error("RSD meta discovery error");
+				Log.error(ex.getMessage());
+			}
+		}
+		return null;
+	}
+
 	
+	
+	private String getWordPressApiLink(String urlConnessione) {
+		//get the html code
+		String htmlString = getHtml(urlConnessione); 
+		
+		//parse the html and get the attribute for xmlrpc endpoint
+		if(htmlString != null) {
+			try {				
+				KXmlParser parser = new KXmlParser();
+				ByteArrayInputStream bais = new ByteArrayInputStream(htmlString.getBytes());
+				parser.setInput(bais, "ISO-8859-1");
+				
+				while (parser.next() != XmlPullParser.END_DOCUMENT) {
+					if (parser.getEventType() == XmlPullParser.START_TAG) {
+						String name="";
+						String apiLink="";
+					//	Log.trace("start tag: " + parser.getName());
+						//link tag
+						if(parser.getName()!=null && parser.getName().trim().equalsIgnoreCase("api")){
+						  //unfold all attribute
+							for (int i = 0; i < parser.getAttributeCount(); i++) {
+							  String attrName = parser.getAttributeName(i);
+							  String attrValue = parser.getAttributeValue(i);
+					           if("name".equals(attrName))
+					        	   name = attrValue;
+					           else if("apiLink".equals(attrName))
+					        	   apiLink = attrValue;
+							//  Log.trace("attribute name: "+ parser.getAttributeName(i));
+							//  Log.trace("attribute value: "+parser.getAttributeValue(i));
+					        }
+							
+						  if(name.equals("WordPress") ){
+							  return apiLink;
+						  }
+						
+						}//end link tag
+					}
+				}				
+			} catch (Exception ex) {
+				Log.error("Api Link discovery error");
+				Log.error(ex.getMessage());
+			}
+		}
+		return null;
+	}
 	
 	/**
 	 * Load blogs 
@@ -133,36 +261,48 @@ public class BlogAuthConn extends BlogConn  {
 		args.addElement(this.mUsername);
 		args.addElement(this.mPassword);
 		
-		/*
-		 * 0. try the user inserted url as endpoint for html doc, parse html and get the correct endpoint
-		 * 1. try the X-ping back header as xmlrpc endpoint
-		 */
-	/*	String htmlString = getHtml(urlConnessione);
-		if(htmlString != null) {
-			//parse the html and get the attribute for xmlrpc endpoint
+		if(discoveryApiLink == true) {
+			Log.trace("Started the ApiLink discovery process");
+			/*
+			 * 0. try to locate the RSD meta tag
+			 * 1. try the X-ping back header as xmlrpc endpoint if fails
+			 * 2. try user inserted url
+			 */
+			String xmlRpcWordPressEndPoint = null;
+	
+			String rsdMeta = getRSDMetaTagHref(urlConnessione);
+			if(rsdMeta != null) {
+				Log.trace("Founded RSD meta tag: "+rsdMeta);
+				xmlRpcWordPressEndPoint = getWordPressApiLink(rsdMeta);
+			} else
+				Log.trace("NOT Founded RSD meta tag");
 			
+			//try with the X-pingback header field if xmlRpcWordPressEndPoint is null 
+			if(xmlRpcWordPressEndPoint == null) {
+				if(xPingbackString != null ){
+					Log.trace("NOT Founded ApiLink, trying to find it by x-pingback header");
+					xmlRpcWordPressEndPoint = getWordPressApiLink(xPingbackString+"?rsd");
+				}
+			}
+			
+			//we have found the xmlrpc real endpoint
+			if(xmlRpcWordPressEndPoint != null){
+				urlConnessione = xmlRpcWordPressEndPoint;
+				mConnection = new XmlRpcClient(urlConnessione);
+				Log.trace("ApiLink founded at: "+urlConnessione);
+			} else {
+				Log.trace("ApiLink NOT founded");
+			}
+			
+			Log.trace("Ended the ApiLink discovery process");
 		}
-		*/
 		
+		if(connResponse.isStopped()) return ; //if the user has stopped the connection
 		Object response = guessUrl();
 		if(connResponse.isError()) {
-			
-			if(xPingbackString != null ){
-				//2
-				urlConnessione = xPingbackString;
-			} else {
-				//2b
-				urlConnessione = Tools.checkURL(urlConnessione);
-			}			
-			mConnection = new XmlRpcClient(urlConnessione);
-			response = guessUrl();
-			
-			if(connResponse.isError()) {
-				notifyObservers(connResponse);
-				return;		
-			}
+			notifyObservers(connResponse);
+			return;		
 		}
-		 
 	
 		try {
 			Vector blogs = (Vector) response;

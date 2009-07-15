@@ -61,10 +61,8 @@ public class AddBlogsController extends BaseController{
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 
-	/*
-	 *  base screen;  
-	 */
-	//1 = popup of detailed xmlrpx endpoit;
+	//0 = user has inserted the url into the main screen
+	//1 = user has inserted the url into popup dialog   
 	public void addBlogs(int source){
 		
 		String pass= view.getBlogPass().trim();
@@ -94,10 +92,15 @@ public class AddBlogsController extends BaseController{
              connectionProgressView= new ConnectionInProgressView(
             		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
            
+             if(source == 1 )
+            	 connection.setDiscoveryApiLink(false); //we have asked the xmlrpc endpoint to user
+             else
+            	 connection.setDiscoveryApiLink(true);
+             
             connection.startConnWork(); //starts connection
             int choice = connectionProgressView.doModal();
     		if(choice==Dialog.CANCEL) {
-    			System.out.println("Chiusura della conn dialog tramite cancel");
+    			//System.out.println("Chiusura della conn dialog tramite cancel");
     			connection.stopConnWork(); //stop the connection if the user click on cancel button
     		}
         } else {
@@ -317,7 +320,7 @@ public class AddBlogsController extends BaseController{
 	*/
 	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
-	    	addBlogs(0);
+	    	addBlogs(0); 
 	   }
 	};
 

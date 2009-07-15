@@ -198,7 +198,7 @@ public class XmlRpcClient {
             //check response code from the server       
             int rc = con.getResponseCode();
 			if( rc != HttpConnection.HTTP_OK ){
-				Log.error("Server Response Error. Server returned HTTP response code: "+ rc);
+				Log.error("XmlRpcClient - Server Response Error. Server returned HTTP response code: "+ rc);
 	        	throw new Exception("Server returned HTTP response code "+rc);
 			}
             

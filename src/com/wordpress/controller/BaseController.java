@@ -56,7 +56,6 @@ public abstract class BaseController {
 				Log.error(msg);
 				ErrorView errView = new ErrorView(msg);
 				errView.doModal();
-				
 			}
 		});
 	}

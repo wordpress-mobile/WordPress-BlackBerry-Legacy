@@ -36,7 +36,7 @@ public class HtmlTextField extends AutoTextEditField {
     
     
     protected boolean keyChar(char key, int status, int time) {
-    	Log.trace("keyChar - char.key : "+key + " | status : "+status);
+    	//Log.trace("keyChar - char.key : "+key + " | status : "+status);
     	
     	if(key == Characters.BACKSPACE) {
     		ignore = true;
@@ -52,7 +52,7 @@ public class HtmlTextField extends AutoTextEditField {
     		
     		AutoTextEditField campoIntelligente = ((AutoTextEditField) field);
     		
-    		Log.trace("field change listener: "+ ((AutoTextEditField) field).getText());
+    		//Log.trace("field change listener: "+ ((AutoTextEditField) field).getText());
     		if(ignore == true) {
     			ignore = false;
     			return;
@@ -63,9 +63,9 @@ public class HtmlTextField extends AutoTextEditField {
     		//check the current pos
     		if(pos >= 3) {
     			//possibly match, compare the 3 prev chars
-    			Log.trace("prev 1 char : "+ campoIntelligente.charAt(pos-1)); //ht-t-p
-    			Log.trace("prev 2 char : "+ campoIntelligente.charAt(pos-2)); //h-t-tp
-    			Log.trace("prev 3 char : "+ campoIntelligente.charAt(pos-3));//h-ttp
+    			//Log.trace("prev 1 char : "+ campoIntelligente.charAt(pos-1)); //ht-t-p
+    			//Log.trace("prev 2 char : "+ campoIntelligente.charAt(pos-2)); //h-t-tp
+    			//Log.trace("prev 3 char : "+ campoIntelligente.charAt(pos-3));//h-ttp
     			
     			if (campoIntelligente.charAt(pos-1) == Characters.SPACE && campoIntelligente.charAt(pos-2) == 'a'
     				&& campoIntelligente.charAt(pos-3) == '<' ) {
