@@ -170,7 +170,7 @@ public class BlogAuthConn extends BlogConn  {
 						String rel="";
 						String type="";
 						String href="";
-						Log.trace("start tag: " + parser.getName());
+					//	Log.trace("start tag: " + parser.getName());
 						//link tag
 						if(parser.getName()!=null && parser.getName().trim().equalsIgnoreCase("link")){
 						  //unfold all attribute
@@ -184,8 +184,8 @@ public class BlogAuthConn extends BlogConn  {
 					           else if("href".equals(attrName))
 					        	   href = attrValue;
 					           
-							  Log.trace("attribute name: "+ parser.getAttributeName(i));
-							  Log.trace("attribute value: "+parser.getAttributeValue(i));
+						//	  Log.trace("attribute name: "+ parser.getAttributeName(i));
+						//	  Log.trace("attribute value: "+parser.getAttributeValue(i));
 					        }
 							
 						  if(rel.equals("EditURI") && type.equals("application/rsd+xml")){

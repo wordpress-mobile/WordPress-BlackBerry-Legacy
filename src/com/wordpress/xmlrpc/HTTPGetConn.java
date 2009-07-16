@@ -4,11 +4,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Vector;
 
-import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.conn.ConnectionManager;
+import com.wordpress.utils.log.Log;
 
 public class HTTPGetConn extends BlogConn  {
 
@@ -48,7 +48,7 @@ public class HTTPGetConn extends BlogConn  {
 		} catch (Exception e) {
 			 setErrorMessage(e, "A server communications error occurred:");
 		}
-  	   System.out.println("termine richiesta HTTP-GET");
+		Log.trace("termine richiesta HTTP-GET");
 		isWorking=false;
 		return response;
 	}
@@ -72,7 +72,7 @@ public class HTTPGetConn extends BlogConn  {
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("Get Template error: Notify error"); 		
+			Log.error("Get Template error: Notify error"); 		
 		}
 	}
 }

@@ -20,6 +20,8 @@ import com.wordpress.model.Preferences;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
+import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.view.dialog.InfoView;
 import com.wordpress.view.dialog.InquiryView;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.HTTPPostConn;
@@ -38,91 +40,147 @@ public class DataCollector {
 		_resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
 	}
 	
+	ConnectionInProgressView connectionProgressView=null;
+	
 	//http://localhost/geo4you/info.php
 	//http://api.wordpress.org/bbapp/update-check/1.0/
 	private static String targetURL = "http://api.wordpress.org/bbapp/update-check/1.0/";
 	
-	public void collectData(int numberOfBlog) {
+	private static int UPDATE_REMOTE_CHECK_NUMBER_DELAY_DAYS = 5; //after xx days check for upgrade
+	
+	private byte[] getAllInfo(int numberOfBlog){
 		Preferences appPrefs= Preferences.getIstance();
 
-			String appVersion = "";
+		String appVersion = "";
 
-			try {
-				appVersion = Tools.getAppVersion();
-			} catch (Exception e) {
-				Log.error(e, "Could not retrive App version");
-			}
-			
-			String language = "";
-			try {
-				language = getLanguage();
-			} catch (Exception e) {
-				Log.error(e, "Could not retrive Devices Language");			
-			}
-			
-			int mobileNetworkNumber = -1;
-			int mobileCountryCode = -1;
-			try {
-				mobileNetworkNumber = getMobileNetworkNumber();
-				mobileCountryCode = getMobileCountryCode();
-			} catch (Exception e) {
-				Log.error(e, "Could not retrive Carrier Info");
-			}
-			
-			String deviceOS = "";
-			try {
-				deviceOS = getDeviceOS();
-				if("".equals(deviceOS)) {
-					//could be simulator. do one more check
-					if(DeviceInfo.isSimulator()) {
-						deviceOS= "Simulator";
-					} else {
-						deviceOS= "Unknown";
-					}
+		try {
+			appVersion = Tools.getAppVersion();
+		} catch (Exception e) {
+			Log.error(e, "Could not retrive App version");
+		}
+		
+		String language = "";
+		try {
+			language = getLanguage();
+		} catch (Exception e) {
+			Log.error(e, "Could not retrive Devices Language");			
+		}
+		
+		int mobileNetworkNumber = -1;
+		int mobileCountryCode = -1;
+		try {
+			mobileNetworkNumber = getMobileNetworkNumber();
+			mobileCountryCode = getMobileCountryCode();
+		} catch (Exception e) {
+			Log.error(e, "Could not retrive Carrier Info");
+		}
+		
+		String deviceOS = "";
+		try {
+			deviceOS = getDeviceOS();
+			if("".equals(deviceOS)) {
+				//could be simulator. do one more check
+				if(DeviceInfo.isSimulator()) {
+					deviceOS= "Simulator";
+				} else {
+					deviceOS= "Unknown";
 				}
-			} catch (Exception e) {
-				Log.error(e, "Could not retrive Os version");
 			}
-			
-			
-			String deviceSoftwareVersion = "";
-			try {
-				deviceSoftwareVersion = getDeviceSoftwareVersion();
-			} catch (Exception e) {
-				Log.error(e, "Could not retrive Device Version");
-			}
-			
-			//crate the link
-			URLEncodedPostData urlEncoder = new URLEncodedPostData("UTF-8", false);
-			
+		} catch (Exception e) {
+			Log.error(e, "Could not retrive Os version");
+		}
+		
+		
+		String deviceSoftwareVersion = "";
+		try {
+			deviceSoftwareVersion = getDeviceSoftwareVersion();
+		} catch (Exception e) {
+			Log.error(e, "Could not retrive Device Version");
+		}
+		
+		//crate the link
+		URLEncodedPostData urlEncoder = new URLEncodedPostData("UTF-8", false);
+		
 
-			urlEncoder.append("app_version", appVersion);
-			urlEncoder.append("device_language", language);
-			urlEncoder.append("device_uuid", (String)appPrefs.getOpt().get("device_uuid"));
-			
-			if ( mobileCountryCode != -1 )
-				urlEncoder.append("mobile_country_code", ""+mobileCountryCode);
-			
-			if(mobileNetworkNumber != -1)
-				urlEncoder.append("mobile_network_number", ""+mobileNetworkNumber);
-			
-			urlEncoder.append("device_os", deviceOS);
-			urlEncoder.append("device_version", deviceSoftwareVersion);
-			urlEncoder.append("num_blogs", ""+numberOfBlog);
-			
-			if(appPrefs.isFirstStartupOrUpgrade) {
-				final HTTPPostConn connection = new HTTPPostConn( targetURL  , urlEncoder.getBytes());
-				connection.startConnWork(); //starts connection
-			} else {
-				
-				//checking new app version and send stats
-				checkUpdate(urlEncoder.getBytes());
-			
-			}
+		urlEncoder.append("app_version", appVersion);
+		urlEncoder.append("device_language", language);
+		urlEncoder.append("device_uuid", (String)appPrefs.getOpt().get("device_uuid"));
+		
+		if ( mobileCountryCode != -1 )
+			urlEncoder.append("mobile_country_code", ""+mobileCountryCode);
+		
+		if(mobileNetworkNumber != -1)
+			urlEncoder.append("mobile_network_number", ""+mobileNetworkNumber);
+		
+		urlEncoder.append("device_os", deviceOS);
+		urlEncoder.append("device_version", deviceSoftwareVersion);
+		urlEncoder.append("num_blogs", ""+numberOfBlog);
+		
+		return urlEncoder.getBytes();
+		
 	}
 	
 	
-	private void checkUpdate(byte[] data){
+	/**
+	 * Called at startup to stats gathering and check updating
+	 *  	
+	 * @param numberOfBlog
+	 */
+	public void collectData(int numberOfBlog) {
+		Log.trace("collect data");
+		Preferences appPrefs= Preferences.getIstance();
+		
+		byte[] data = getAllInfo(numberOfBlog);	
+		
+		if(appPrefs.isFirstStartupOrUpgrade) {
+			final HTTPPostConn connection = new HTTPPostConn( targetURL  , data);
+			connection.startConnWork(); //starts connection
+			appPrefs.isFirstStartupOrUpgrade = false; //consume the first startup event
+		} else {
+			//checking new app version and send stats
+			checkForUpdateSilent(data);
+		}
+	}
+	
+	
+	
+	/**
+	 * checking if a new app version is available
+	 * @param data
+	 * @throws Exception
+	 */
+	public void checkForUpdate(int numberOfBlog) throws Exception {
+		
+		Log.trace("checking for a new app version");
+		
+		Preferences appPrefs= Preferences.getIstance();
+		byte[] data = getAllInfo(numberOfBlog);	
+
+		//check upgrade only. no gathering stats
+		Hashtable opt = appPrefs.getOpt();
+		long currentTime = System.currentTimeMillis();
+		
+		//start check upgrade
+		final HTTPPostConn connection = new HTTPPostConn( targetURL , data);
+		connection.addObserver(new CheckUpdateCallBack());
+
+		connectionProgressView= new ConnectionInProgressView(
+				_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
+		connection.startConnWork(); //starts connection
+		
+		//store the date of check
+		opt.put("update_check_time", String.valueOf(currentTime)); //update last update chek time
+		AppDAO.storeApplicationPreferecens(appPrefs);
+		
+		int choice = connectionProgressView.doModal();
+		if(choice==Dialog.CANCEL) {
+			connection.stopConnWork(); //stop the connection if the user click on cancel button
+		}
+	}
+	
+	
+	
+	private void checkForUpdateSilent(byte[] data){
 		Preferences appPrefs= Preferences.getIstance();
 		try {
 			
@@ -141,24 +199,129 @@ public class DataCollector {
 		}
 			
 		//start check upgrade
-		if(diffDays > 7 ) {
+		if(diffDays > UPDATE_REMOTE_CHECK_NUMBER_DELAY_DAYS ) {
 			final HTTPPostConn connection = new HTTPPostConn( targetURL , data);
-			connection.addObserver(new CheckUpdateCallBack());
+			connection.addObserver(new CheckAutomaticUpdateCallBack());
 			connection.startConnWork(); //starts connection
-		
 			//store the date of check
 			opt.put("update_check_time", String.valueOf(currentTime)); //update last update chek time
 			AppDAO.storeApplicationPreferecens(appPrefs);
-		}	
+		}	else {
+			Log.trace("< 5 days");
+		}
+			
 		
 		} catch (Exception e) {
 			Log.error(e, "Error while checking upgrade");
 		}
-		
 	}
 	
 	
+	/**
+	 * 
+	 * @param html The response from the API server
+	 * @param showPopup true if popup should be showed when app is already updated
+	 */
+	private void parseServerResponse(String html, boolean showPopup) {
+		
+		//break the string 
+		String[] split = StringUtils.split(html, "\n");
+		String remoteAppVersion = split[0];
+		String remoteAppUrl = split[1];
+		String currentAppVersion = Tools.getAppVersion();
+		Log.info("remote app version is: "+remoteAppVersion);
+		Log.info("remote app url is: "+remoteAppUrl);
+		Log.info("local app version is: "+currentAppVersion);
+		
+		String[] remoteAppVersionArray = StringUtils.split(remoteAppVersion, ".");
+		String[] currentAppVersionArray = StringUtils.split(currentAppVersion, ".");
+		boolean isNewVersionAvailable = false;
+		
+		for (int i = 0; i < remoteAppVersionArray.length; i++) {
+			String newAppVersionNum = 	remoteAppVersionArray[i];
+			
+			if(currentAppVersionArray.length-1 >= i ) {
+				String localVersionNum = currentAppVersionArray[i];
+				
+				int nerVersNum = Integer.parseInt(newAppVersionNum);
+				int currVersNum = Integer.parseInt(localVersionNum);
+				
+				if ( nerVersNum >  currVersNum) {
+					isNewVersionAvailable = true;
+					break;
+				} else 	if (Integer.parseInt(newAppVersionNum) < 
+				Integer.parseInt(localVersionNum) ) {
+					//maybe?
+					isNewVersionAvailable = false;
+					break;
+				}
+				
+			} else {//	server Version is newer
+				isNewVersionAvailable = true;
+				break;
+			}
+		}
+		
+		
+		if (isNewVersionAvailable) {
+			Log.info("new version is available");
+			InquiryView inqView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_NEW_VERSION_AVAILABLE));
+			//InquiryView inqView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_APP_UPGRADE));
+			inqView.setDialogClosedListener(new MyDialogClosedListener(remoteAppUrl));
+			inqView.show();
+		} else if(showPopup) {
+			Log.info("version is updated");
+			InfoView inqView= new InfoView(_resources.getString(WordPressResource.MESSAGE_NO_NEW_VERSION_AVAILABLE));
+			inqView.show();
+		}
+	}
+	
+	
+	
+	/**
+	 * callback for upgrade check 
+	 * @author dercoli
+	 *
+	 */
 	private class CheckUpdateCallBack implements Observer {
+		
+		public void update(Observable observable, final Object object) {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					Log.trace("checking for a new app version callback method");
+					//dismiss the dialog
+		
+					connectionProgressView.close();
+					
+					BlogConnResponse resp= (BlogConnResponse) object;
+					
+					if(resp.isStopped()){
+						return;
+					}
+					if(!resp.isError()) {
+						try {
+							String html = (String)resp.getResponseObject();
+							parseServerResponse(html, true);
+						} catch (Exception e) {
+							Log.error(e, "updater error");
+							return;
+						}
+					} else {
+						Log.error(resp.getResponseObject(), "updater error");
+					}
+				}
+			});
+		}
+	} 
+	
+	
+	
+	/**
+	 * callback for background checking of new version 
+	 * @author dercoli
+	 *
+	 */
+	private class CheckAutomaticUpdateCallBack implements Observer {
 		
 		public void update(Observable observable, final Object object) {
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
@@ -175,53 +338,7 @@ public class DataCollector {
 					if(!resp.isError()) {
 						try {
 							html = (String)resp.getResponseObject();
-							//break the string 
-							String[] split = StringUtils.split(html, "\n");
-							String remoteAppVersion = split[0];
-							String remoteAppUrl = split[1];
-							String currentAppVersion = Tools.getAppVersion();
-							Log.info("remote app version is: "+remoteAppVersion);
-							Log.info("remote app url is: "+remoteAppUrl);
-							Log.info("local app version is: "+currentAppVersion);
-							
-							String[] remoteAppVersionArray = StringUtils.split(remoteAppVersion, ".");
-							String[] currentAppVersionArray = StringUtils.split(currentAppVersion, ".");
-							boolean isNewVersionAvailable = false;
-							
-							for (int i = 0; i < remoteAppVersionArray.length; i++) {
-								String newAppVersionNum = 	remoteAppVersionArray[i];
-								
-								if(currentAppVersionArray.length-1 >= i ) {
-									String localVersionNum = currentAppVersionArray[i];
-									
-									int nerVersNum = Integer.parseInt(newAppVersionNum);
-									int currVersNum = Integer.parseInt(localVersionNum);
-									
-									if ( nerVersNum >  currVersNum) {
-										isNewVersionAvailable = true;
-										break;
-									} else 	if (Integer.parseInt(newAppVersionNum) < 
-									Integer.parseInt(localVersionNum) ) {
-										//maybe?
-										isNewVersionAvailable = false;
-										break;
-									}
-									
-								} else {//	server Version is newer
-									isNewVersionAvailable = true;
-									break;
-								}
-							}
-							
-							
-							if (isNewVersionAvailable ) {
-								Log.info("new version is available");
-			    				InquiryView inqView= new InquiryView("A new version of WordPress for BlackBerry is now available. Do you want update now?");
-								//InquiryView inqView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_APP_UPGRADE));
-			    				inqView.setDialogClosedListener(new MyDialogClosedListener(remoteAppUrl));
-			    				inqView.show();
-								
-							}							
+							parseServerResponse(html, false);
 						} catch (Exception e) {
 							Log.error(e, "updater error");
 							return;

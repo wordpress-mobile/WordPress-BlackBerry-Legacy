@@ -1,13 +1,17 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
+import net.rim.device.api.system.Application;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
@@ -20,6 +24,7 @@ import com.wordpress.view.MainView;
 public class MainController extends BaseController implements TaskProgressListener{
 	
 	private MainView view = null;
+	private Timer timer = new Timer();
 	
 	public MainController() {
 		super();
@@ -49,17 +54,30 @@ public class MainController extends BaseController implements TaskProgressListen
 			Log.error(e, "Error while reading stored blog");
 		}
 		
-		
+		//stats and update stuff!
 		try {
 			DataCollector dtc = new DataCollector();
 			dtc.collectData(numberOfBlog); //start data gathering here
 		} catch (Exception e) {
-			
 			//don't propagate this Exception
 		}
+		timer.schedule(new CheckUpdateTask(), 24*60*60*1000, 24*60*60*1000); //24h check
 		
 		this.view=new MainView(this); //main view init here!.	
 		UiApplication.getUiApplication().pushScreen(this.view);
+	}
+	
+
+	private class CheckUpdateTask extends TimerTask {
+		public void run() {
+			try {
+				BlogInfo[] blogsList = getBlogsList();
+				DataCollector dtc = new DataCollector();
+				dtc.collectData(blogsList.length); //start data gathering here
+			} catch (Exception e) {
+				Log.error(e, "Error while checking for a new version in background");
+			} 			  
+		}
 	}
 	
 	
@@ -147,9 +165,10 @@ public class MainController extends BaseController implements TaskProgressListen
 			return false;
 		}
 	*/	
-    	int result=this.askQuestion("Exit WordPress?");   
+    	int result=this.askQuestion(_resources.getString(WordPressResource.MESSAGE_EXIT_APP));   
     	if(Dialog.YES==result) {
     		runner.quit(); //stop the runner thread
+    		timer.cancel();
     		System.exit(0);
     		return true;
     	} else {

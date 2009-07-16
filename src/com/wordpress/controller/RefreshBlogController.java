@@ -7,7 +7,6 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
-import com.wordpress.model.Preferences;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -49,7 +48,7 @@ public class RefreshBlogController extends BaseController implements Observer{
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
 				
-				System.out.println(">>>loadPostsResponse");
+				Log.trace(">>>loadPostsResponse");
 
 				dismissDialog(connectionProgressView);
 				BlogConnResponse resp= (BlogConnResponse) object;
@@ -63,14 +62,16 @@ public class RefreshBlogController extends BaseController implements Observer{
 						currentBlog.setLoadingState(BlogInfo.STATE_LOADED);
 						BlogDAO.updateBlog(currentBlog);							
 					} catch (final Exception e) {
-						currentBlog.setLoadingState(BlogInfo.STATE_LOADED_WITH_ERROR);
-						try {
-							BlogDAO.updateBlog(currentBlog);
-						} catch (Exception e2) {
-							Log.error(e, "Error while saving blogs");
-						}
-											
-					 	displayError(e,"Error while refreshing blogs");	
+						
+						if(currentBlog != null) {
+							currentBlog.setLoadingState(BlogInfo.STATE_LOADED_WITH_ERROR);
+							try {
+								BlogDAO.updateBlog(currentBlog);
+							} catch (Exception e2) {
+								Log.error(e, "Error while saving blogs");
+							}
+						}											
+					 	displayError(e,"Error while saving new blog info");	
 					}
 					
 				} else {

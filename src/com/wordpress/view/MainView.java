@@ -16,6 +16,7 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
 import com.wordpress.model.BlogInfo;
+import com.wordpress.utils.DataCollector;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.view.component.BlogsListField;
 
@@ -99,6 +100,7 @@ public class MainView extends BaseView {
 		addMenuItem(_aboutItem);
 		addMenuItem(_addBlogItem);
 		addMenuItem(_setupItem);
+		addMenuItem(_updateItem);
 	}
 	
 	
@@ -187,7 +189,20 @@ public class MainView extends BaseView {
         }
     };
 
-    private MenuItem _aboutItem = new MenuItem( _resources, WordPressResource.MENUITEM_ABOUT, 1010, 10) {
+    private MenuItem _updateItem = new MenuItem( _resources, WordPressResource.MENUITEM_CHECKUPDATE, 1010, 10) {
+        public void run() {
+        	
+        	try {
+    			DataCollector dtc = new DataCollector();
+    			dtc.checkForUpdate(listaBlog.getSize()); //start data gathering here
+    		} catch (Exception e) {
+    			mainController.displayError(e, "Error while check for a new version");
+    		}
+        	
+        }
+    };
+    
+    private MenuItem _aboutItem = new MenuItem( _resources, WordPressResource.MENUITEM_ABOUT, 1020, 10) {
         public void run() {
         	FrontController.getIstance().showAboutView();
         }

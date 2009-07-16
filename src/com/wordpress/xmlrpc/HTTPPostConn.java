@@ -63,7 +63,7 @@ public class HTTPPostConn extends BlogConn  {
 		} catch (Exception e) {
 			 setErrorMessage(e, "A server communications error occurred:");
 		}
-  	   System.out.println("termine richiesta HTTP-GET");
+		Log.trace("termine richiesta HTTP-POST");
 		isWorking=false;
 		return response;
 	}
@@ -87,8 +87,7 @@ public class HTTPPostConn extends BlogConn  {
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("Get Template error: Notify error"); 		
+			Log.error("Get Template error: Notify error"); 		
 		}
 	}
 }
-

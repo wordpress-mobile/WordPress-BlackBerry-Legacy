@@ -11,27 +11,37 @@ public class BlogUpdateConn extends BlogConn  {
 	
 	private Blog blog;
 	
+	private String wholeErrorMessage = ""; 
+	private boolean isError = false;
+	
 	public BlogUpdateConn(Blog blog) {
 		super(blog.getXmlRpcUrl(), blog.getUsername(), blog.getPassword());
 		this.blog=blog;
 	}
 
-	private void checkConnectionResponse() throws Exception {
+	private void checkConnectionResponse(String errorTitle) throws Exception {
 		if(connResponse.isError()) {
 			if ( connResponse.getResponseObject() instanceof XmlRpcException) {
-				connResponse.setError(false);
+	/*			connResponse.setError(false);
 				connResponse.setStopped(false);
 				connResponse.setResponse("");
-				connResponse.setResponseObject(null);
+				connResponse.setResponseObject(null);*/
 			} else {
-				throw (Exception) connResponse.getResponseObject();
+				Exception currentError = (Exception) connResponse.getResponseObject();
+				isError = true;
+				if(currentError != null) {
+					String errorMessage = currentError.getMessage();
+					if(errorMessage != null && !errorMessage.trim().equals(""))
+					wholeErrorMessage += errorTitle + " - " + errorMessage + "\n";
+				}
+				//throw (Exception) connResponse.getResponseObject();
 			}
-		} else {
-			connResponse.setError(false);
-			connResponse.setStopped(false);
-			connResponse.setResponse("");
-			connResponse.setResponseObject(null);
-		}
+		} 
+		
+		connResponse.setError(false);
+		connResponse.setStopped(false);
+		connResponse.setResponse("");
+		connResponse.setResponseObject(null);
 	}
 	
 	/**
@@ -45,53 +55,62 @@ public class BlogUpdateConn extends BlogConn  {
 			//These calls can modify the state of the connection to isError=true;
 			getBlogCategories(blog);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
-			checkConnectionResponse();
+			checkConnectionResponse("Load Categories");
 			
 			getPageStatusList(blog);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
-			checkConnectionResponse();
+			checkConnectionResponse("Load Page Status");
 			
 			getPageTemplates(blog);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
-			checkConnectionResponse();
+			checkConnectionResponse("Load Page Templates");
 			
 			getPostStatusList(blog);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
-			checkConnectionResponse();
+			checkConnectionResponse("Load Post Status");
 			
 			getTagList(blog);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
-			checkConnectionResponse();
+			checkConnectionResponse("Load Tags");
 
 			getCommentStatusList(blog);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
-			checkConnectionResponse();
+			checkConnectionResponse("Load Comment Status");
 						
 			Vector recentPostTitle = getRecentPostTitle(blog.getId(), blog.getMaxPostCount());
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				blog.setRecentPostTitles(recentPostTitle);
-			checkConnectionResponse();
+			checkConnectionResponse("Load Recent Post");
 			
 			
 			Vector blogPages = getPages(blog.getId());
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				blog.setPages(blogPages);
-			checkConnectionResponse();
+			checkConnectionResponse("Load Page");
 		
 			Vector comments = getComments(Integer.parseInt(blog.getId()), -1, "", 0, 100);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				CommentsDAO.storeComments(blog, comments);
-			checkConnectionResponse();
-			connResponse.setResponseObject(blog);
+			checkConnectionResponse("Load Comment");
+			
+			if(!isError) {
+				connResponse.setResponseObject(blog);
+			} else {
+				connResponse.setError(true);
+				connResponse.setStopped(false);
+				connResponse.setResponse("Refreshing Blog Error: \n"+ wholeErrorMessage);
+				connResponse.setResponseObject(new Exception(wholeErrorMessage));				
+				throw new Exception(wholeErrorMessage);
+			}
 			
 		} catch (ClassCastException cce) {
-			setErrorMessage(cce, "update Blog error");
+			setErrorMessage(cce, "Loading Blog Error");
 		}
 		catch (Exception e) {
-			setErrorMessage(e, "Invalid server response");
+			setErrorMessage(e, "Loading Blog Error");
 		}
 		try {
 			notifyObservers(connResponse);
