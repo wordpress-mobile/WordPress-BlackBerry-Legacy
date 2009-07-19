@@ -88,6 +88,42 @@ public class ConnectionUtils {
         return "";
     }
     
+    public static String getServiceBookOptionsNew() {
+    	ServiceBook sb = ServiceBook.getSB();
+    	ServiceRecord[] records = sb.findRecordsByCid("WPTCP");
+    	String uid = null;
+    	for(int i=0; i < records.length; i++)
+    	{
+    		//Search through all service records to find the
+    		//valid non-Wi-Fi and non-MMS
+    		//WAP 2.0 Gateway Service Record.
+    		if (records[i].isValid() && !records[i].isDisabled())
+    		{
+    			if (records[i].getUid() != null && records[i].getUid().length() != 0)
+    			{
+    				if ((records[i].getUid().toLowerCase().indexOf("wptcp") != -1) &&
+    						(records[i].getUid().toLowerCase().indexOf("wifi") == -1) &&
+    						(records[i].getUid().toLowerCase().indexOf("mms") == -1))
+    				{
+    					uid = records[i].getUid();
+    					break;
+    				}
+    				
+    			}
+    		}
+    	}
+    	
+    	if (uid != null)
+    	{
+    		return ";ConnectionUID=" +uid;
+    	}
+    	else
+    	{
+    		//Consider another transport or alternative action.
+    		return "";
+    	}
+    }
+    
     public static boolean isDataConnectionAvailable() {
         return ( !isDataBearerOffline() || isWifiAvailable()&&isWifiActive() );
     }

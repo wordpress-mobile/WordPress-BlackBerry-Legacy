@@ -32,15 +32,15 @@ public class GetCommentsConn extends BlogConn  {
 
 			//retrive the comments of the blog
 	        Vector comments = getComments(blogId, postID, status, offset, number);
-	        if(connResponse.isError()) { //2.5.1 doesn't have getComments
+	   /*     if(connResponse.isError()) { // WP < 2.7 doesn't have getComments
 	        	if ( connResponse.getResponseObject() instanceof XmlRpcException) {
 	        		connResponse.setError(false);
 	        		connResponse.setStopped(false);
 	        		connResponse.setResponse("");
 	        		connResponse.setResponseObject(null);
-	        	}
+	        	} 
 	        }
-	        else
+	        else */
 	        connResponse.setResponseObject(comments);
 		
 		} catch (Exception cce) {
@@ -52,5 +52,4 @@ public class GetCommentsConn extends BlogConn  {
 			System.out.println("Recent Post Notify Error");
 		}
 	}
-	
 	}

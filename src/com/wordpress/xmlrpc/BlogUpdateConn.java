@@ -1,5 +1,6 @@
 package com.wordpress.xmlrpc;
 
+import java.io.IOException;
 import java.util.Vector;
 
 import org.kxmlrpc.XmlRpcException;
@@ -22,11 +23,12 @@ public class BlogUpdateConn extends BlogConn  {
 	private void checkConnectionResponse(String errorTitle) throws Exception {
 		if(connResponse.isError()) {
 			if ( connResponse.getResponseObject() instanceof XmlRpcException) {
-	/*			connResponse.setError(false);
-				connResponse.setStopped(false);
-				connResponse.setResponse("");
-				connResponse.setResponseObject(null);*/
-			} else {
+				//do nothing. here we capturing all permission denied for blog...
+				//or xmlrpc method missing (old wp)
+			} /*else if ( connResponse.getResponseObject() instanceof IOException) {
+				//if IO exception occurred we should exit immediately 
+				throw (Exception) connResponse.getResponseObject();
+			}*/ else {
 				Exception currentError = (Exception) connResponse.getResponseObject();
 				isError = true;
 				if(currentError != null) {
@@ -34,7 +36,6 @@ public class BlogUpdateConn extends BlogConn  {
 					if(errorMessage != null && !errorMessage.trim().equals(""))
 					wholeErrorMessage += errorTitle + " - " + errorMessage + "\n";
 				}
-				//throw (Exception) connResponse.getResponseObject();
 			}
 		} 
 		
@@ -95,14 +96,11 @@ public class BlogUpdateConn extends BlogConn  {
 			if(connResponse.isError() == false )
 				CommentsDAO.storeComments(blog, comments);
 			checkConnectionResponse("Load Comment");
-			
+
+			//if there was an errors
 			if(!isError) {
 				connResponse.setResponseObject(blog);
 			} else {
-				connResponse.setError(true);
-				connResponse.setStopped(false);
-				connResponse.setResponse("Refreshing Blog Error: \n"+ wholeErrorMessage);
-				connResponse.setResponseObject(new Exception(wholeErrorMessage));				
 				throw new Exception(wholeErrorMessage);
 			}
 			

@@ -190,7 +190,6 @@ public class AddBlogsController extends BaseController{
 						displayError(respMessage);
 					}
 				}		
-				
 			} catch (final Exception e) {
 				displayError(e,"Error while adding blogs");	
 			} 

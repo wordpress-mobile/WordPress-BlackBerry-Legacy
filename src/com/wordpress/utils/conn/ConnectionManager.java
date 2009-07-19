@@ -15,12 +15,13 @@ public class ConnectionManager {
 	//singleton
 	private static ConnectionManager instance = null;
 
-	protected static final int MAX_CONFIG_NUMBER = 4;
+	protected static final int MAX_CONFIG_NUMBER = 5;
 	protected static final int CONFIG_NONE = -1;
 	protected static final int WIFI_CONFIG = 0;
 	protected static final int TCP_CONFIG = 1;
 	protected static final int SERVICE_BOOK_CONFIG = 2;
 	protected static final int BES_CONFIG = 3;
+	protected static final int BIS_CONFIG = 4;
 	private static AbstractConfiguration[] connections = null;
 	
 	private Preferences userPreferences = Preferences.getIstance();
@@ -80,7 +81,7 @@ public class ConnectionManager {
         
         Log.debug("Reload configuration from device");
         connections[SERVICE_BOOK_CONFIG].setUrlParameters(AbstractConfiguration.BASE_CONFIG_PARAMETERS + 
-                ConnectionUtils.getServiceBookOptions());
+                ConnectionUtils.getServiceBookOptionsNew());
 
         if (!ConnectionUtils.isWifiActive() || !ConnectionUtils.isWifiAvailable()) {
             Log.debug("WI-FI not available");
@@ -146,7 +147,6 @@ public class ConnectionManager {
 
                 Log.debug("Connecting to: " + requestUrl);
                 ret = Connector.open(requestUrl, accessMode, enableTimeoutException);
-                
                 return ret;
             } catch (Exception ioe) {
                 Log.debug("setupConnection error " + ioe);
@@ -176,6 +176,7 @@ public class ConnectionManager {
     	
     }
 
+    
     private boolean isConnectionAllowed(int configNumber) {
         if (!isAvailable(configNumber)) {
             Log.debug("Connection not available");
@@ -192,22 +193,25 @@ public class ConnectionManager {
     		return userPreferences.isServiceBookConnectionPermitted();
     	case BES_CONFIG:
     		return userPreferences.isBESConnectionPermitted();
-    		
+    	case BIS_CONFIG:
+    		return userPreferences.isBlackBerryInternetServicePermitted();
 		default:
 			return false;
 		}
     }
     
-   
-   
     public static boolean isAvailable(int configuration) {
         switch (configuration) {
             case WIFI_CONFIG:
-                return (ConnectionUtils.isWifiActive()&&ConnectionUtils.isWifiAvailable());
+                return (ConnectionUtils.isWifiActive() && ConnectionUtils.isWifiAvailable());
             case TCP_CONFIG:
-            case SERVICE_BOOK_CONFIG:
             case BES_CONFIG:
                 return !ConnectionUtils.isDataBearerOffline();
+            case BIS_CONFIG:
+            	return false; //TODO: change when RIM code is available
+            case SERVICE_BOOK_CONFIG:
+            	return (!ConnectionUtils.isDataBearerOffline() 
+            			&&  !connections[SERVICE_BOOK_CONFIG].getUrlParameters().trim().equals(AbstractConfiguration.BASE_CONFIG_PARAMETERS));
             default:
                 break;
         }
@@ -220,8 +224,9 @@ public class ConnectionManager {
         connections[WIFI_CONFIG] = new WiFiConfig();
         connections[TCP_CONFIG] = new TcpConfig();
         connections[SERVICE_BOOK_CONFIG] = new ServiceBookConfig();
-        connections[SERVICE_BOOK_CONFIG].setUrlParameters(AbstractConfiguration.BASE_CONFIG_PARAMETERS + ConnectionUtils.getServiceBookOptions());
+        connections[SERVICE_BOOK_CONFIG].setUrlParameters(AbstractConfiguration.BASE_CONFIG_PARAMETERS + ConnectionUtils.getServiceBookOptionsNew());
         connections[BES_CONFIG] = new BESConfig();
+        connections[BIS_CONFIG] = new BISConfig();
         
         return connections;
     }

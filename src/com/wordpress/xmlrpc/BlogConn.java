@@ -82,19 +82,19 @@ public abstract class BlogConn extends Observable implements Runnable {
 		} catch (XmlPullParserException parserEx) { //catch all parser exception and rewrite the log message for user
 			Log.error("Parser Exception : "+parserEx.getMessage());
 			XmlPullParserException rewrittenEx = new XmlPullParserException("Malformed blog response");
-			setErrorMessage(rewrittenEx,"A server communications error occurred");
+			setErrorMessage(rewrittenEx,"A server comunications error occurred");
 		} catch (Exception t) {
 			setErrorMessage(t, "An error occurred");
 		} 
    	 
-		System.out.println("termine richiesta XML-RPC");
+		Log.trace("Ended XML-RPC request");
 		isWorking=false;
 		return response;
 	}
 	
 	
 	protected void setPostCategories(int[] categories, String postID) throws Exception {
-		System.out.println(">>>Set Post categories ");
+		Log.trace(">>>Set Post categories ");
 		Vector args;
 		if (categories != null) {
 		    Vector catVector = new Vector(categories.length);
@@ -183,7 +183,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	}
 	
 	protected synchronized void getBlogCategories(Blog blog) throws Exception {
-  	   System.out.println("Reperisco le categorie del blog : "+ blog.getName());
+		Log.trace("Reperisco le categorie del blog : "+ blog.getName());
 		Vector args;
 		Object response;
 		Vector categoryStructs;
@@ -232,8 +232,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 //retrive the blog "post status list"
 	protected synchronized void getPostStatusList(Blog blog) throws Exception {
 		try {
-			System.out.println("reading post status list for the blog : "
-					+ blog.getName());
+			Log.trace("reading post status list for the blog : " + blog.getName());
 
 			Vector args = new Vector(3);
 			args.addElement(String.valueOf(blog.getId()));
@@ -258,8 +257,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 
 			blog.setPostStatusList(statusList);
 			
-			System.out.println("End reading post status list for the blog : "
-					+ blog.getName());
+			Log.trace("End reading post status list for the blog : " + blog.getName());
 		} catch (ClassCastException cce) {
 			throw new Exception("Error while reading post status list");
 		}
@@ -289,8 +287,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	//retrive the blog "page status list"
 	protected synchronized void getPageStatusList(Blog blog) throws Exception {
 		try {
-			System.out.println("reading page status list for the blog : "
-					+ blog.getName());
+			Log.trace("reading page status list for the blog : " + blog.getName());
 
 			Vector args = new Vector(3);
 			args.addElement(String.valueOf(blog.getId()));
@@ -314,8 +311,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 
 			blog.setPageStatusList(statusList);
 			
-			System.out.println("End reading page status list for the blog : : "
-					+ blog.getName());
+			Log.trace("End reading page status list for the blog : : "	+ blog.getName());
 		} catch (ClassCastException cce) {
 			throw new Exception("Error while reading post status list");
 		}
@@ -324,8 +320,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	//retrive the blog "page status list"
 	protected synchronized void getPageTemplates(Blog blog) throws Exception {
 		try {
-			System.out.println("reading pages templates for the blog : "
-					+ blog.getName());
+			Log.trace("reading pages templates for the blog : " + blog.getName());
 
 			Vector args = new Vector(3);
 			args.addElement(String.valueOf(blog.getId()));
@@ -349,8 +344,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 */
 			blog.setPageTemplates(statusList);
 			
-			System.out.println("End reading page templates for the blog : : "
-					+ blog.getName());
+			Log.trace("End reading page templates for the blog : : " + blog.getName());
 		} catch (ClassCastException cce) {
 			throw new Exception("Error while reading post status list");
 		}
@@ -360,7 +354,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	protected synchronized void getCommentStatusList(Blog blog) {
 		try {
 
-			System.out.println("reading comment status list for the blog : "
+			Log.trace("reading comment status list for the blog : "
 					+ blog.getName());
 
 			Vector args = new Vector(4);
@@ -377,7 +371,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 			Hashtable commentData = (Hashtable) response;
 			blog.setCommentStatusList(commentData);
 			
-			System.out.println("End reading comment status list for the blog : "
+			Log.trace("End reading comment status list for the blog : "
 					+ blog.getName());
 		} catch (Exception e) {
 			setErrorMessage(e,
@@ -389,7 +383,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	//retrive the blog "tag list"
 	protected synchronized void getTagList(Blog blog) throws Exception {
 		try {
-			System.out.println("reading tag list for the blog : "
+			Log.trace("reading tag list for the blog : "
 					+ blog.getName());
 
 			Vector args = new Vector(3);
@@ -424,7 +418,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 			}
 			blog.setTags(mytags);
 			
-			System.out.println("End reading tag list for the blog : "
+			Log.trace("End reading tag list for the blog : "
 					+ blog.getName());
 		} catch (ClassCastException cce) {
 			throw new Exception("Error while reading post status list");
@@ -435,7 +429,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	//retrive the blog "tag list"
 	protected synchronized void getOptions(Blog blog) throws Exception {
 		try {
-			System.out.println("reading option list for the blog : "
+			Log.trace("reading option list for the blog : "
 					+ blog.getName());
 
 			Vector args = new Vector(3);
@@ -470,15 +464,22 @@ public abstract class BlogConn extends Observable implements Runnable {
 	
 	
 	protected void setErrorMessage(Exception e, String err){
-		if (!isWorking)
-			return;
+	/*	if (!isWorking)
+			return;*/
+
+		//check if there is a prev error in the error stack
+		if(connResponse.isError()) {
+			String prevErr = connResponse.getResponse();
+			err = prevErr +" \n "+ err;  
+		}
+		
 		connResponse=new BlogConnResponse();
 		connResponse.setError(true);
 		connResponse.setResponseObject(e); //set the exception as response option
 		
 		if(e != null && e.getMessage()!= null ) {
-			connResponse.setResponse(err+" : "+e.getMessage());
-			Log.error(err+" : "+e.getMessage());
+			connResponse.setResponse(err+" \n "+e.getMessage());
+			Log.error(err+" -> "+e.getMessage());
 		} else {
 			connResponse.setResponse(err);
 			Log.error(err);			
@@ -486,8 +487,15 @@ public abstract class BlogConn extends Observable implements Runnable {
 	}
 	
 	protected void setErrorMessage(String err){
-		if (!isWorking)
-			return;
+	/*	if (!isWorking)
+			return; */
+		
+		//check if there is a prev error in the error stack
+		if(connResponse.isError()) {
+			String prevErr = connResponse.getResponse();
+			err = prevErr +" \n "+ err;  
+		}
+		
 		connResponse=new BlogConnResponse();
 		connResponse.setError(true);
 		connResponse.setResponse(err);

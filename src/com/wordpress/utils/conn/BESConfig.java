@@ -9,7 +9,7 @@ public class BESConfig extends AbstractConfiguration {
 	public BESConfig() {
 		super();
         Log.debug("Setting BES Config " + " " + CONFIG_DESCRIPTION);
-        setUrlParameters("");
+        setUrlParameters(";deviceside=false");
         setDescription(CONFIG_DESCRIPTION);
 	}
 }

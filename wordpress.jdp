@@ -87,6 +87,7 @@ src\com\wordpress\task\TaskWorker.java
 src\com\wordpress\utils\CalendarUtils.java
 src\com\wordpress\utils\conn\AbstractConfiguration.java
 src\com\wordpress\utils\conn\BESConfig.java
+src\com\wordpress\utils\conn\BISConfig.java
 src\com\wordpress\utils\conn\ConnectionManager.java
 src\com\wordpress\utils\conn\ConnectionUtils.java
 src\com\wordpress\utils\conn\Gateway.java
