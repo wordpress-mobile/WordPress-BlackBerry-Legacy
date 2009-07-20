@@ -2,8 +2,6 @@ package com.wordpress.xmlrpc.comment;
 
 import java.util.Vector;
 
-import org.kxmlrpc.XmlRpcException;
-
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 

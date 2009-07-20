@@ -18,7 +18,7 @@ public class ResizeImageTask extends TaskImpl {
 	public void execute() {
 		Hashtable content = null;
 		try {
-			content = MultimediaUtils.resizePhotoAndOutputJpeg(data, fileName);
+			content = MultimediaUtils.resizePhoto(data, fileName);
 		} catch (IOException e) {
 			isError = true;
 			appendErrorMsg("Resizing Error: " + e.getMessage());

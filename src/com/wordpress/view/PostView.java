@@ -1,7 +1,9 @@
 package com.wordpress.view;
 
 
+import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Keypad;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
@@ -16,8 +18,8 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Post;
-import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
+import com.wordpress.view.component.HtmlTextField;
 
 public class PostView extends BaseView {
 	
@@ -70,7 +72,25 @@ public class PostView extends BaseView {
         HorizontalFieldManager rowCategories = new HorizontalPaddedFieldManager(Manager.USE_ALL_WIDTH);
   		LabelField lblCategories = getLabel(_resources.getString(WordPressResource.LABEL_POST_CATEGORIES)+":");
         String availableCategories = controller.getPostCategoriesLabel();
-  		categories = new LabelField(availableCategories, LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH);
+  		categories = new LabelField(availableCategories, LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH | LabelField.FOCUSABLE)
+  		{
+  			protected boolean keyDown(int keycode, int time) {
+  				switch (Keypad.key(keycode)) {
+  				case Keypad.KEY_SPACE:
+  				case Keypad.KEY_ALT:
+  				case Keypad.KEY_ENTER:
+  					controller.showCategoriesView();
+  					return true;
+  				default:
+  					return false;
+  				}
+  			}
+
+  			//override context menu      
+	        protected void makeContextMenu(ContextMenu contextMenu) {
+	            contextMenu.addItem(_categoryContextMenuItem);      
+	        }
+  		};
   		  		
   	/*	Bitmap imgOpen = Bitmap.getBitmapResource("disclosure-indicator.png"); 
   		BitmapField bfOpenCat = new BitmapField(imgOpen, BitmapField.FOCUSABLE)

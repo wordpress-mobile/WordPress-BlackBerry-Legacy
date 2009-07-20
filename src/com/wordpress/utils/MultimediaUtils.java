@@ -1,31 +1,35 @@
 package com.wordpress.utils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Hashtable;
 
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
-import com.wordpress.utils.log.Log;
-
 import net.rim.device.api.math.Fixed32;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.EncodedImage;
 
+import com.wordpress.utils.log.Log;
+
 
 public class MultimediaUtils {
 
-		public static Hashtable resizePhotoAndOutputJpeg(byte[] data, String fileName) throws IOException {
+		public static Hashtable resizePhoto(byte[] data, String fileName) throws IOException {
 				
 		EncodedImage originalImage = EncodedImage.createEncodedImage(data, 0, -1);
 		Hashtable content = new Hashtable(2);
 
-		//no resize
+		//init the hash table with no resized img data
+		content.put("name", fileName);
+		content.put("height", String.valueOf(originalImage.getHeight()));
+		content.put("width", String.valueOf(originalImage.getWidth()));
+		content.put("bits", data);
+		//no resize is necessary
 		if(originalImage.getWidth() <= 640 && originalImage.getWidth() <= 480) {
-			content.put("name", fileName);
-			content.put("height", String.valueOf(originalImage.getHeight()));
-			content.put("width", String.valueOf(originalImage.getWidth()));
-			content.put("bits", data);
 			return content;
 		}
 		
@@ -37,27 +41,61 @@ public class MultimediaUtils {
 		Bitmap resizedBitmap = bestFit2.getBitmap();
 		bestFit2 = null;
 		
-		if (fileName.endsWith("png") || fileName.endsWith("PNG")){
-			
-		} else {
-			fileName+=".png";
-		}
-		
-		//PNGEncoder encoderPNG = new PNGEncoder(resizedBitmap,true);
-		//byte[] imageBytes = encoderPNG.encode(true);
 		byte[] imageBytes;
-		try {
-			imageBytes = toPNG(resizedBitmap);
-		} catch (Exception e) {
-			Log.error(e, "Error during PNG encoding");
-			imageBytes = data;
+		switch (type) {
+
+		case EncodedImage.IMAGE_TYPE_PNG:
+			//PNGEncoder encoderPNG = new PNGEncoder(resizedBitmap,true);
+			//byte[] imageBytes = encoderPNG.encode(true);
+			try {
+				imageBytes = toPNG(resizedBitmap);
+			} catch (Exception e) {
+				Log.error(e, "Error during PNG encoding, restore prev img");
+				imageBytes = data;
+			}
+			if (fileName.endsWith("png") || fileName.endsWith("PNG")){
+				
+			} else {
+				fileName+=".png";
+			}
+			
+			break;
+			
+		case EncodedImage.IMAGE_TYPE_JPEG:
+		default:
+
+			try {
+					ByteArrayOutputStream out = new ByteArrayOutputStream();
+					OutputStream nuoviBytes= new DataOutputStream(out);
+					JpegEncoder jpgenc= new JpegEncoder(resizedBitmap, 75 , nuoviBytes);
+					imageBytes = out.toByteArray();
+				} catch (Exception e) {
+					Log.error(e, "Error during JPEG encoding, restore prev img");
+					imageBytes = data;
+				}
+
+			//check file name ext eventually add jpg ext
+			if (fileName.endsWith("jpg") || fileName.endsWith("JPG")){				
+			} else {
+				fileName+=".jpg";
+			}
+		break;
+
+		}//end switch
+			
+
+		Log.trace("checking new img size");
+		if(imageBytes.length > data.length) {
+			Log.trace("new img bites size > orig img bites size");
+			//using original img			
+		} else {
+			Log.trace("new img bites size < orig img bites size");
+			content.put("name", fileName);
+			content.put("height", String.valueOf(resizedBitmap.getHeight()));
+			content.put("width", String.valueOf(resizedBitmap.getWidth()));
+			content.put("bits", imageBytes );
 		}
 		
-		//EncodedImage fullImage = EncodedImage.createEncodedImage(imageBytes, 0, imageBytes.length);
-		content.put("name", fileName);
-		content.put("height", String.valueOf(resizedBitmap.getHeight()));
-		content.put("width", String.valueOf(resizedBitmap.getWidth()));
-		content.put("bits", imageBytes );
 		return content;
 	}
 

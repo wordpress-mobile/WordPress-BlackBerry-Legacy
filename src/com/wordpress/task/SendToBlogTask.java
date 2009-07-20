@@ -98,7 +98,7 @@ public class SendToBlogTask extends TaskImpl {
 					}
 					
 					if(isRes){
-						Hashtable content = MultimediaUtils.resizePhotoAndOutputJpeg(photosBytes, fileName);
+						Hashtable content = MultimediaUtils.resizePhoto(photosBytes, fileName);
 						fileName = (String) content.get("name");
 						photosBytes = (byte[]) content.get("bits");
 						h = Integer.parseInt( (String) content.get("height") );
@@ -108,6 +108,9 @@ public class SendToBlogTask extends TaskImpl {
 						h = imgTmp.getHeight();
 						w = imgTmp.getWidth();
 					}
+					//resizing img is a long task. if user has stoped the operation..
+					if (stopping == true)
+						return;
 					
 					((NewMediaObjectConn) blogConn).setFileContent(photosBytes);
 					((NewMediaObjectConn) blogConn).setFileName(fileName);

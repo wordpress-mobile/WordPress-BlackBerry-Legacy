@@ -158,7 +158,9 @@ public class PostController extends BlogObjectController {
 			}
 		
 		} else {
-			categoriesLabelVector  = new Vector(0);
+			//no category found. set a uncategorized string
+			categoriesLabelVector  = new Vector();
+			categoriesLabelVector.addElement(_resources.getString(WordPressResource.LABEL_NO_CATEGORY) );
 		}
 
 		//fill the cat string buffer

@@ -173,11 +173,11 @@ public class MinimalPNGEncoder
   {
 	  //used the BB ZLib ...
 	  ByteArrayOutputStream outBytes = new ByteArrayOutputStream(1024);
-      ZLibOutputStream compBytes = new ZLibOutputStream(outBytes);
+      ZLibOutputStream compBytes = new ZLibOutputStream(outBytes, false, 10, 9);
 	  compBytes.write(raw, 0, raw.length);
 	  compBytes.close();
 	  return outBytes.toByteArray();
-	  //ZLIB.toZLIB(raw);
+	 //return ZLIB.toZLIB(raw);
   }
 }
 
