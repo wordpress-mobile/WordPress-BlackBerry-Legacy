@@ -66,12 +66,20 @@ public class DraftPagesView extends BaseView {
     	buildList(pages);
     }
 	
+    protected void onVisibilityChange(boolean visible) {
+    	super.onVisibilityChange(visible);
+    	Log.trace("onVisibilityChange DraftPageView "+ visible);
+    	if(visible) 
+    		controller.updateViewDraftPageList();
+    }
+    
+    /*
     protected void onExposed(){
     	super.onExposed();    	
     	Log.trace("Exposed DraftPageView");
    		controller.updateViewDraftPageList();
     }
-    
+    */
     
     
 	//override onClose() to by-pass the standard dialog box when the screen is closed    

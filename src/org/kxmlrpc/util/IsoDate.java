@@ -24,9 +24,9 @@
 
 package org.kxmlrpc.util;
 
-import java.util.Date;
+import java.io.IOException;
 import java.util.Calendar;
-import java.util.TimeZone;
+import java.util.Date;
 
 
 public class IsoDate {
@@ -60,18 +60,22 @@ public class IsoDate {
      
      /*
       * Convert a XML-RPC compliant string format to Date object
-      * Needs to throw some sort of exception if not correctly formed?
       */
-     public static Date stringToDate(String text) {
-         Calendar c = Calendar.getInstance();
-         c.set(Calendar.YEAR, Integer.parseInt(text.substring(0, 4)));
-         c.set(Calendar.MONTH, Integer.parseInt(text.substring(4, 6)) - 1);
-         c.set(Calendar.DAY_OF_MONTH, Integer.parseInt(text.substring(6, 8)));
-         c.set(Calendar.HOUR_OF_DAY, Integer.parseInt(text.substring(9, 11)));
-         c.set(Calendar.MINUTE, Integer.parseInt(text.substring(12, 14)));
-         c.set(Calendar.SECOND, Integer.parseInt(text.substring(15)));  
-         c.set(Calendar.MILLISECOND, 0);
-         return c.getTime();
+     public static Date stringToDate(String text) throws IOException {
+         Calendar c;
+		try {
+			c = Calendar.getInstance();
+			 c.set(Calendar.YEAR, Integer.parseInt(text.substring(0, 4)));
+			 c.set(Calendar.MONTH, Integer.parseInt(text.substring(4, 6)) - 1);
+			 c.set(Calendar.DAY_OF_MONTH, Integer.parseInt(text.substring(6, 8)));
+			 c.set(Calendar.HOUR_OF_DAY, Integer.parseInt(text.substring(9, 11)));
+			 c.set(Calendar.MINUTE, Integer.parseInt(text.substring(12, 14)));
+			 c.set(Calendar.SECOND, Integer.parseInt(text.substring(15)));  
+			 c.set(Calendar.MILLISECOND, 0);
+			 return c.getTime();
+		} catch (NumberFormatException e) {
+			throw new IOException("Data field contains invalid timestamp: "+text);
+		}
+		
      }
-    
 }

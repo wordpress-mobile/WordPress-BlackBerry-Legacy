@@ -13,13 +13,15 @@ import net.rim.device.api.math.Fixed32;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.EncodedImage;
 
+import com.wordpress.task.SendToBlogTask;
 import com.wordpress.utils.log.Log;
 
 
 public class MultimediaUtils {
-
-		public static Hashtable resizePhoto(byte[] data, String fileName) throws IOException {
-				
+	
+		//TODO: remove the task as parameter, use listener instead
+		public static Hashtable resizePhoto(byte[] data, String fileName, SendToBlogTask task) throws IOException {
+		
 		EncodedImage originalImage = EncodedImage.createEncodedImage(data, 0, -1);
 		Hashtable content = new Hashtable(2);
 
@@ -30,6 +32,7 @@ public class MultimediaUtils {
 		content.put("bits", data);
 		//no resize is necessary
 		if(originalImage.getWidth() <= 640 && originalImage.getWidth() <= 480) {
+			Log.trace("no resize required"+fileName);
 			return content;
 		}
 		
@@ -49,6 +52,7 @@ public class MultimediaUtils {
 			//byte[] imageBytes = encoderPNG.encode(true);
 			try {
 				imageBytes = toPNG(resizedBitmap);
+				if (task != null && task.isStopped()) return null; //resizing img is a long task. if user has stoped the operation..
 			} catch (Exception e) {
 				Log.error(e, "Error during PNG encoding, restore prev img");
 				imageBytes = data;
@@ -65,9 +69,11 @@ public class MultimediaUtils {
 		default:
 
 			try {
+					Log.trace("starting resizing to jpg format ");
 					ByteArrayOutputStream out = new ByteArrayOutputStream();
 					OutputStream nuoviBytes= new DataOutputStream(out);
-					JpegEncoder jpgenc= new JpegEncoder(resizedBitmap, 75 , nuoviBytes);
+					JpegEncoder jpgenc= new JpegEncoder(resizedBitmap, 75 , nuoviBytes, task);
+					if (task != null && task.isStopped()) return null; //resizing img is a long task. if user has stoped the operation..
 					imageBytes = out.toByteArray();
 				} catch (Exception e) {
 					Log.error(e, "Error during JPEG encoding, restore prev img");
@@ -85,8 +91,8 @@ public class MultimediaUtils {
 			
 
 		Log.trace("checking new img size");
-		if(imageBytes.length > data.length) {
-			Log.trace("new img bites size > orig img bites size");
+		if(imageBytes.length >= data.length) {
+			Log.trace("new img bites size > = orig img bites size");
 			//using original img			
 		} else {
 			Log.trace("new img bites size < orig img bites size");

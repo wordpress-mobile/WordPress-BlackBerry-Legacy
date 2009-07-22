@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Vector;
 
+import com.wordpress.task.SendToBlogTask;
+
 import net.rim.device.api.system.Bitmap;
 
 /*
@@ -38,56 +40,52 @@ import net.rim.device.api.system.Bitmap;
 
 public class JpegEncoder
 {
- //Thread runner;
- DataOutputStream outStream;
- //Image image;
- JpegInfo JpegObj;
- Huffman Huf;
- DCT dct;
- int imageHeight, imageWidth;
- int Quality;
- //int code;
- public static int[] jpegNaturalOrder = {
-       0,  1,  8, 16,  9,  2,  3, 10,
-      17, 24, 32, 25, 18, 11,  4,  5,
-      12, 19, 26, 33, 40, 48, 41, 34,
-      27, 20, 13,  6,  7, 14, 21, 28,
-      35, 42, 49, 56, 57, 50, 43, 36,
-      29, 22, 15, 23, 30, 37, 44, 51,
-      58, 59, 52, 45, 38, 31, 39, 46,
-      53, 60, 61, 54, 47, 55, 62, 63,
-     };
+	DataOutputStream outStream;
+	JpegInfo JpegObj;
+	Huffman Huf;
+	DCT dct;
+	int imageHeight, imageWidth;
+	int Quality;
+	//int code;
+	public static int[] jpegNaturalOrder = {
+		0,  1,  8, 16,  9,  2,  3, 10,
+		17, 24, 32, 25, 18, 11,  4,  5,
+		12, 19, 26, 33, 40, 48, 41, 34,
+		27, 20, 13,  6,  7, 14, 21, 28,
+		35, 42, 49, 56, 57, 50, 43, 36,
+		29, 22, 15, 23, 30, 37, 44, 51,
+		58, 59, 52, 45, 38, 31, 39, 46,
+		53, 60, 61, 54, 47, 55, 62, 63,
+	};
 
- public JpegEncoder(Bitmap image, int quality, OutputStream out)
- {
-            /* MediaTracker tracker = new MediaTracker(this);
-             tracker.addImage(image, 0);
-             try {
-                     tracker.waitForID(0);
-             }
-             catch (InterruptedException e) {
-//Got to do something?
-             }*/
-     /*
-     * Quality of the image.
-     * 0 to 100 and from bad image quality, high compression to good
-     * image quality low compression
-     */
-     Quality=quality;
-
-     /*
-     * Getting picture information
-     * It takes the Width, Height and RGB scans of the image.
-     */
-     JpegObj = new JpegInfo(image);
-
-     imageHeight=JpegObj.imageHeight;
-     imageWidth=JpegObj.imageWidth;
-     outStream = new DataOutputStream(out);
-     dct = new DCT(Quality);
-     Huf=new Huffman(imageWidth,imageHeight);
-     Compress();
- }
+	private SendToBlogTask task = null; //task that indicate if operation is still runnning
+	
+	public JpegEncoder(Bitmap image, int quality, OutputStream out, SendToBlogTask task){
+		this.task = task;
+		/*
+		 * Quality of the image.
+		 * 0 to 100 and from bad image quality, high compression to good
+		 * image quality low compression
+		 */
+		Quality=quality;
+		
+		/*
+		 * Getting picture information
+		 * It takes the Width, Height and RGB scans of the image.
+		 */
+		JpegObj = new JpegInfo(image);
+		
+		imageHeight=JpegObj.imageHeight;
+		imageWidth=JpegObj.imageWidth;
+		outStream = new DataOutputStream(out);
+		dct = new DCT(Quality);
+		Huf=new Huffman(imageWidth,imageHeight);
+		Compress();
+	}
+	
+	public JpegEncoder(Bitmap image, int quality, OutputStream out) {
+		this(image, quality, out, null);
+	}
 
  public void setQuality(int quality) {
      dct = new DCT(quality);
@@ -99,8 +97,12 @@ public class JpegEncoder
 
  public void Compress() {
      WriteHeaders(outStream);
+     
+     if (task != null && task.isStopped()) return;
      WriteCompressedData(outStream);
+     if (task != null && task.isStopped()) return;
      WriteEOI(outStream);
+     if (task != null && task.isStopped()) return;
      try {
              outStream.flush();
      } catch (IOException e) {
@@ -137,10 +139,13 @@ public class JpegEncoder
      }
      xpos = 0;
      for (r = 0; r < MinBlockHeight; r++) {
+    	 if (task != null && task.isStopped()) return;
         for (c = 0; c < MinBlockWidth; c++) {
+        	if (task != null && task.isStopped()) return;
             xpos = c*8;
             ypos = r*8;
             for (comp = 0; comp < JpegObj.NumberOfComponents; comp++) {
+            	if (task != null && task.isStopped()) return;
                Width = JpegObj.BlockWidth[comp];
                Height = JpegObj.BlockHeight[comp];
                inputArray = (float[][]) JpegObj.Components[comp];

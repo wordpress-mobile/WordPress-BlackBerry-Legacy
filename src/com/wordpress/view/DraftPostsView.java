@@ -43,13 +43,30 @@ public class DraftPostsView extends BaseView {
     	buildList(post);
     }
     
-      
-    protected void onExposed(){
-    	super.onExposed();    	
-    	Log.trace("Exposed DraftPostView");
-   		controller.updateViewDraftPostList();
+    protected void onDisplay() {
+    	super.onDisplay();
+    	Log.trace("onDisplay DraftPostView");
     }
-	
+    
+    /*
+    protected void onExposed(){
+    	Log.trace("Exposed DraftPostView");
+        int selectedPost = listaPost.getSelectedIndex();
+    	Log.trace("Exposed selected item "+selectedPost);
+    	super.onExposed();    	
+   		controller.updateViewDraftPostList();
+   		if(selectedPost < listaPost.getSize()) {
+   			listaPost.setSelectedIndex(selectedPost);
+   			listaPost.invalidate();
+   		}
+    }
+	*/
+    protected void onVisibilityChange(boolean visible) {
+    	super.onVisibilityChange(visible);
+    	Log.trace("onVisibilityChange DraftPostView "+ visible);
+    	if(visible) 
+    		controller.updateViewDraftPostList();
+    }
    
 	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {
@@ -68,6 +85,7 @@ public class DraftPostsView extends BaseView {
     private MenuItem _editPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDIT, 200, 10) {
         public void run() {
             int selectedPost = listaPost.getSelectedIndex();
+            Log.trace("selected draft post " + selectedPost);
             controller.editPost(selectedPost);            
         }
     };

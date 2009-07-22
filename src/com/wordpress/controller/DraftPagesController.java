@@ -140,7 +140,7 @@ public class DraftPagesController extends BaseController {
 		}
 	}	
 	
-	//invoke from from controller...
+	//invoke from controller...
 	public void refreshView() {
 		//set variable that indicate if prev screen need update when dismiss this view
 		//could be a draft post submit

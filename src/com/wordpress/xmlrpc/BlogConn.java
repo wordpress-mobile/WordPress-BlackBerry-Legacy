@@ -29,6 +29,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	protected BlogConnResponse connResponse = new BlogConnResponse();
 	protected boolean isWorking = false;
 	protected Thread t = null;
+	protected int threadPriority = Thread.NORM_PRIORITY;
 	
 	public BlogConn(String url, String user, String password) {
 	    mUsername = user;
@@ -41,8 +42,18 @@ public abstract class BlogConn extends Observable implements Runnable {
 		Log.debug("Inizio richiesta XML-RPC");
 		isWorking=true;
 		t = new Thread(this);
+		t.setPriority(threadPriority); //thread by default is set to priority normal
 		t.start();
 	}
+	
+	public void setConnPriority (int priority) throws IllegalArgumentException  {
+		Log.trace("connection background thread priority was set to: " + priority);	
+		if(priority > Thread.MAX_PRIORITY || priority < Thread.MIN_PRIORITY)
+			throw new IllegalArgumentException("Thread priority value is out of range");
+		else
+		this.threadPriority = priority;
+	}
+	
 	
 	/**
 	 * blocca il funzionamento della connessione immediatamente.
@@ -53,8 +64,19 @@ public abstract class BlogConn extends Observable implements Runnable {
 		
 		Log.debug("User requested stop the XML-RPC connection");
 		isWorking = false;
-		t = null;
-		mConnection = null;
+		try {
+			t.interrupt();
+		} catch (Exception e) {
+			Log.error(e, "Error while interrupting Conn Thread");
+		} finally {
+			t = null;
+			Log.trace("XmlRpc Thread was set to null");
+		}
+
+		if(mConnection != null) {
+			mConnection.closeXmlRpcConnection(); //closing the underlying connection streams could cause an exception on thread.
+			mConnection = null;
+		}
 
 		connResponse = new BlogConnResponse();
 		connResponse.setError(false);
@@ -473,9 +495,13 @@ public abstract class BlogConn extends Observable implements Runnable {
 			err = prevErr +" \n "+ err;  
 		}
 		
+		boolean isConnectionStoppedByUser = connResponse.isStopped();
+		
 		connResponse=new BlogConnResponse();
 		connResponse.setError(true);
 		connResponse.setResponseObject(e); //set the exception as response option
+		if(isConnectionStoppedByUser) //check if the conn was stoppped by user
+			connResponse.setStopped(true);
 		
 		if(e != null && e.getMessage()!= null ) {
 			connResponse.setResponse(err+" \n "+e.getMessage());
@@ -489,7 +515,9 @@ public abstract class BlogConn extends Observable implements Runnable {
 	protected void setErrorMessage(String err){
 	/*	if (!isWorking)
 			return; */
+		this.setErrorMessage(null, err);
 		
+/*		
 		//check if there is a prev error in the error stack
 		if(connResponse.isError()) {
 			String prevErr = connResponse.getResponse();
@@ -500,6 +528,6 @@ public abstract class BlogConn extends Observable implements Runnable {
 		connResponse.setError(true);
 		connResponse.setResponse(err);
     
-		Log.error(err);
+		Log.error(err); */
 	}
 }
