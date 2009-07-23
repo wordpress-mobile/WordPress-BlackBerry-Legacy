@@ -116,7 +116,7 @@ public class SendToBlogTask extends TaskImpl {
 					((NewMediaObjectConn) blogConn).setFileName(fileName);
 					
 					blogConn.addObserver(new SendMediaCallBack(new FileInfo(fileName, h, w)));
-					blogConn.setConnPriority(Thread.MIN_PRIORITY); //FIXME: controllare meglio
+					blogConn.setConnPriority(Thread.MIN_PRIORITY); 
 					blogConn.startConnWork();					
 
 				} catch (Exception e) {

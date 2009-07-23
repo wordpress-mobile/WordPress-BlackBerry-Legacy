@@ -29,7 +29,7 @@ public class DraftPostsView extends BaseView {
 		listaPost = new PostsListField(); 	        
 		listaPost.setEmptyString("No Draft Posts", DrawStyle.LEFT);
 		
-		if(post.length > 0 ){
+		if( (post != null) && post.length > 0 ){
 			listaPost.set(post);
 			addMenuItem(_editPostItem);
 			addMenuItem(_deletePostItem);
@@ -48,19 +48,6 @@ public class DraftPostsView extends BaseView {
     	Log.trace("onDisplay DraftPostView");
     }
     
-    /*
-    protected void onExposed(){
-    	Log.trace("Exposed DraftPostView");
-        int selectedPost = listaPost.getSelectedIndex();
-    	Log.trace("Exposed selected item "+selectedPost);
-    	super.onExposed();    	
-   		controller.updateViewDraftPostList();
-   		if(selectedPost < listaPost.getSize()) {
-   			listaPost.setSelectedIndex(selectedPost);
-   			listaPost.invalidate();
-   		}
-    }
-	*/
     protected void onVisibilityChange(boolean visible) {
     	super.onVisibilityChange(visible);
     	Log.trace("onVisibilityChange DraftPostView "+ visible);

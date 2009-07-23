@@ -11,6 +11,7 @@ import net.rim.device.api.ui.UiApplication;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Page;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.DraftPagesView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 
@@ -22,8 +23,6 @@ public class DraftPagesController extends BaseController {
 	private Blog currentBlog=null;
 	private Page[] pages;
 	private String[] pagesFileName;
-	private boolean isLoadError= false;
-	private String loadErrorMessage= "";
 	
 	private boolean prevScreenNeedUpdate = false;
 	
@@ -34,28 +33,22 @@ public class DraftPagesController extends BaseController {
 
 	public void showView() {
 	    try {
-	    	loadDraftPages();	    	
 		    this.view= new DraftPagesView(this,pages);
 			UiApplication.getUiApplication().pushScreen(view);
-			
-			if(isLoadError) {
-				displayError(loadErrorMessage);
-			}
 			
 		} catch (Exception e) {
 	    	displayError(e, "Error while reading drafts phones memory");
 		}
 	}
 
-	private void loadDraftPages()  {
+	private void loadDraftPages() throws IOException {
 		
 		//if we can't load file name index, we exit immediately		
 		try {
 			pagesFileName= PageDAO.loadPagesFileName(currentBlog);
 		} catch (Exception e) {
-			isLoadError = true;
-			loadErrorMessage = "Could not load draft pages index from disk";
-			return;
+			Log.error(e, "Could not load draft pages index from disk");
+			throw new IOException ("Could not load draft pages index from disk");
 		}
 		
 		//try to read data from storage.
@@ -72,8 +65,8 @@ public class DraftPagesController extends BaseController {
 				loadedPages.addElement(hashtable2Page);		
 				loadedPagesFileName.addElement(fileName);
 			} catch (Exception e) {
-				isLoadError = true;
-				loadErrorMessage = "Could not load some pages from disk";
+				Log.error(e, "Could not load some pages from disk");
+				throw new IOException ("Could not load some pages from disk");
 			}
 		}
 		

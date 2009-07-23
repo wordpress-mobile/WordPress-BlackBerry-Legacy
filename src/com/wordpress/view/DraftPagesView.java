@@ -25,41 +25,42 @@ public class DraftPagesView extends BaseView {
 	 }
 
 
-	private void buildList(Page[] pages) {
-		removeAllMenuItems();	
-		pageListField = new PostsListField();
-		pageListField.setEmptyString("No Draft Pages", DrawStyle.LEFT);
-		
-		Hashtable[] draftPageInfo = new Hashtable[0];
-		
-		if(pages != null) {
-			draftPageInfo = new Hashtable[pages.length];
-			
-			for (int i = 0; i < pages.length; i++) {
-				String title = pages[i].getTitle();
-				if (title == null || title.length() == 0) {
-	                 title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
-	            }
-				
-			   Hashtable smallPostData = new Hashtable();
-			   smallPostData .put("title", title);
-			   Date dateCreated =  pages[i].getDateCreatedGMT();
-			   if (dateCreated != null)
-				   smallPostData .put("date_created_gmt", dateCreated);
-			   
-			   draftPageInfo[i] = smallPostData;
-			}
-		}
-		
-		if(pages.length > 0 ){
-			pageListField.set(draftPageInfo);
-			addMenuItem(_editItem);
-			addMenuItem(_deleteItem);
-		} 
-		
-		addMenuItem(_newItem);
-		add(pageListField);
-	}
+	 private void buildList(Page[] pages) {
+		 removeAllMenuItems();	
+		 pageListField = new PostsListField();
+		 pageListField.setEmptyString("No Draft Pages", DrawStyle.LEFT);
+		 
+		 Hashtable[] draftPageInfo = new Hashtable[0];
+		 
+		 if(pages != null) {
+			 draftPageInfo = new Hashtable[pages.length];
+			 
+			 for (int i = 0; i < pages.length; i++) {
+				 String title = pages[i].getTitle();
+				 if (title == null || title.length() == 0) {
+					 title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
+				 }
+				 
+				 Hashtable smallPostData = new Hashtable();
+				 smallPostData .put("title", title);
+				 Date dateCreated =  pages[i].getDateCreatedGMT();
+				 if (dateCreated != null)
+					 smallPostData .put("date_created_gmt", dateCreated);
+				 
+				 draftPageInfo[i] = smallPostData;
+			 }
+			 
+			 if( pages.length > 0 ){
+				 pageListField.set(draftPageInfo);
+				 addMenuItem(_editItem);
+				 addMenuItem(_deleteItem);
+			 } 
+			 
+		 }
+		 
+		 addMenuItem(_newItem);
+		 add(pageListField);
+	 }
 	
     public void refresh(Page[] pages){
     	this.delete(pageListField);
@@ -72,15 +73,6 @@ public class DraftPagesView extends BaseView {
     	if(visible) 
     		controller.updateViewDraftPageList();
     }
-    
-    /*
-    protected void onExposed(){
-    	super.onExposed();    	
-    	Log.trace("Exposed DraftPageView");
-   		controller.updateViewDraftPageList();
-    }
-    */
-    
     
 	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {

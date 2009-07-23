@@ -8,10 +8,13 @@ import java.util.Vector;
 
 import javax.microedition.io.ConnectionNotFoundException;
 
+import net.rim.device.api.i18n.ResourceBundle;
+
 import org.kxmlrpc.XmlRpcClient;
 import org.kxmlrpc.XmlRpcException;
 import org.xmlpull.v1.XmlPullParserException;
 
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
 import com.wordpress.model.Tag;
@@ -31,12 +34,19 @@ public abstract class BlogConn extends Observable implements Runnable {
 	protected Thread t = null;
 	protected int threadPriority = Thread.NORM_PRIORITY;
 	
+	//create a variable to store the ResourceBundle for localization support
+	protected static ResourceBundle _resources;
+	
+	static {
+		//retrieve a reference to the ResourceBundle for localization support
+		_resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
+	}
+	
 	public BlogConn(String url, String user, String password) {
 	    mUsername = user;
 	    mPassword = password;
 	    urlConnessione=url;
 	}
-	
 		
 	public void startConnWork(){
 		Log.debug("Inizio richiesta XML-RPC");

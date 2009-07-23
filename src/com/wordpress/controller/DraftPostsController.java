@@ -12,6 +12,7 @@ import net.rim.device.api.ui.UiApplication;
 import com.wordpress.io.DraftDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.DraftPostsView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 
@@ -23,8 +24,6 @@ public class DraftPostsController extends BaseController {
 	private Blog currentBlog=null;
 	private Hashtable[] loadedPostInfo = null; //shorcut to post  title
 	private int[] loadedPostID = null; //shorcut to post ID
-	private boolean isLoadError= false;
-	private String loadErrorMessage= "";
 	
 	public DraftPostsController(Blog currentBlog) {
 		super();	
@@ -34,14 +33,8 @@ public class DraftPostsController extends BaseController {
 	public void showView() {
 	    try {
 	    	
-	    	loadPostInfo();
-	    		    	
 		    this.view= new DraftPostsView(this,loadedPostInfo);
 			UiApplication.getUiApplication().pushScreen(view);
-			
-			if(isLoadError) {
-				displayError(loadErrorMessage);
-			}
 			
 		} catch (Exception e) {
 	    	displayError(e, "Error while reading drafts phones memory");
@@ -54,9 +47,8 @@ public class DraftPostsController extends BaseController {
 		try {
 			loadedPostIndex = DraftDAO.getPostsInfo(currentBlog);
 		} catch (Exception e) {
-			isLoadError = true;
-			loadErrorMessage = "Could not load draft posts index from disk";
-			return;
+			Log.error(e, "Could not load draft posts index from disk");
+			throw new IOException ("Could not load draft posts index from disk");
 		}
 		
 		//try to read data from storage.
@@ -81,8 +73,8 @@ public class DraftPostsController extends BaseController {
 				vectorPost.addElement(smallPostData);
 				vectorPostFileName.addElement(currPostFile);
 			} catch (Exception e) {
-				isLoadError = true;
-				loadErrorMessage = "Could not load some pages from disk";
+				Log.error(e, "Could not load some post from disk");
+				throw new IOException ("Could not load some post from disk");
 			}
 		}
 	    
@@ -115,12 +107,12 @@ public class DraftPostsController extends BaseController {
 		int draftPostID = loadedPostID[selected];
 		try {
 			DraftDAO.removePost(currentBlog, draftPostID);
-			updateViewDraftPostList();
 		} catch (IOException e) {
-	    	displayError(e, "Error while deleteing draft post");
+	    	displayError(e, "Error while deleting draft post");
 		} catch (RecordStoreException e) {
-			displayError(e, "Error while deleteing draft post");
+			displayError(e, "Error while deleting draft post");
 		}
+		updateViewDraftPostList();
 	}
 	
 	public void newPost() {

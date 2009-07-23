@@ -2,6 +2,9 @@ package com.wordpress.xmlrpc.comment;
 
 import java.util.Vector;
 
+import org.kxmlrpc.XmlRpcException;
+
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 
@@ -30,15 +33,18 @@ public class GetCommentsConn extends BlogConn  {
 
 			//retrive the comments of the blog
 	        Vector comments = getComments(blogId, postID, status, offset, number);
-	   /*     if(connResponse.isError()) { // WP < 2.7 doesn't have getComments
+	        if(connResponse.isError()) {
+	        	// WP < 2.7 doesn't have getComments...
 	        	if ( connResponse.getResponseObject() instanceof XmlRpcException) {
-	        		connResponse.setError(false);
-	        		connResponse.setStopped(false);
-	        		connResponse.setResponse("");
-	        		connResponse.setResponseObject(null);
+	        		XmlRpcException exc = (XmlRpcException) connResponse.getResponseObject();
+	        		if (exc.code == -32601 ) { //code returned when getComments not found on xmlrpc endpoint
+	        			connResponse.setResponseObject(new XmlRpcException(exc.code, "You are using an old version of WordPress that cannot permitt comment management by xmlrpc"));
+	        			//delete recorded error message and set the new one
+	        			connResponse.setResponse(_resources.getString(WordPressResource.MESSAGE_CANNOT_MANAGE_COMMENTS));
+	        		}
 	        	} 
 	        }
-	        else */
+	        else
 	        connResponse.setResponseObject(comments);
 		
 		} catch (Exception cce) {

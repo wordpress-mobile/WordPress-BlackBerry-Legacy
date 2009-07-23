@@ -1,6 +1,5 @@
 package com.wordpress.xmlrpc;
 
-import java.io.IOException;
 import java.util.Vector;
 
 import org.kxmlrpc.XmlRpcException;
