@@ -32,8 +32,6 @@
 package com.wordpress.view.component;
 
 
-import com.wordpress.utils.StringUtils;
-
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.system.Display;

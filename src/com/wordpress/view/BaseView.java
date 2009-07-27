@@ -77,5 +77,20 @@ public abstract class BaseView extends MainScreen{
 		return lblField;
 	}
 	
+    //TODO: refactor of this 2 methods
+    protected LabelField getLabel(String label, long style) {
+		
+		LabelField lblField = new LabelField(label + " ", style)
+		{
+		    public void paint(Graphics graphics)
+		    {
+		        graphics.setColor(Color.GRAY);
+		        super.paint(graphics);
+		    }
+		};
+	  	Font fnt = this.getFont().derive(Font.BOLD);
+	  	lblField.setFont(fnt);
+		return lblField;
+	}
 	
 }

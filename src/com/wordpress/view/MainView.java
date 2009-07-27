@@ -56,7 +56,7 @@ public class MainView extends BaseView {
             public void paint(Graphics graphics)
             {
             	//height and width could change if the user tilt the device.
-            	//we use os4.5 in which we cannot access to tilt events
+            	//we use os4.2 in which we cannot access to tilt events
             	//and so we need to retrive height and width at every paint...
                int deviceWidth = Display.getWidth(); 
                int deviceHeight = Display.getHeight();

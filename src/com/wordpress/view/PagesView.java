@@ -3,6 +3,7 @@ package com.wordpress.view;
 import java.util.Date;
 import java.util.Hashtable;
 
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
@@ -19,7 +20,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PagesController;
 import com.wordpress.model.Page;
-import com.wordpress.view.component.HorizontalPaddedFieldManager;
+import com.wordpress.view.component.BitmapButtonField;
 import com.wordpress.view.component.PostsListField;
 
 public class PagesView extends BaseView {
@@ -32,6 +33,9 @@ public class PagesView extends BaseView {
 	private ButtonField buttonDraftPosts;
 	private ButtonField buttonRefresh;
 	private LabelField lblPostsNumber;
+	private Bitmap _writeBitmap = Bitmap.getBitmapResource("write.png");
+	private Bitmap _localDraftBitmap = Bitmap.getBitmapResource("browser.png");
+	private Bitmap _refreshBitmap = Bitmap.getBitmapResource("refresh.png");
 
 	
 	 public PagesView(PagesController _controller, Page[] pages, int numberOfNewPosts) {
@@ -43,34 +47,38 @@ public class PagesView extends BaseView {
 	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
 	        
 	        //setup top buttons
-	        buttonNewPost = new ButtonField(_resources.getString(WordPressResource.BUTTON_NEW), ButtonField.CONSUME_CLICK);
+	        //buttonNewPost = new ButtonField(_resources.getString(WordPressResource.BUTTON_NEW), ButtonField.CONSUME_CLICK);
+	        buttonNewPost = new BitmapButtonField(_writeBitmap, ButtonField.CONSUME_CLICK);
 	        buttonNewPost.setChangeListener(listenerButton);
-	        buttonDraftPosts = new ButtonField(_resources.getString(WordPressResource.BUTTON_LOCALDRAFTS), ButtonField.CONSUME_CLICK);
+	        //buttonDraftPosts = new ButtonField(_resources.getString(WordPressResource.BUTTON_LOCALDRAFTS), ButtonField.CONSUME_CLICK);
+	        buttonDraftPosts = new BitmapButtonField(_localDraftBitmap,  ButtonField.CONSUME_CLICK);
 	        buttonDraftPosts.setChangeListener(listenerButton);
-	        buttonRefresh = new ButtonField(_resources.getString(WordPressResource.BUTTON_REFRESH_BLOG), ButtonField.CONSUME_CLICK);
+	        //buttonRefresh = new ButtonField(_resources.getString(WordPressResource.BUTTON_REFRESH_BLOG), ButtonField.CONSUME_CLICK);
+	        buttonRefresh = new BitmapButtonField(_refreshBitmap,  ButtonField.CONSUME_CLICK);
 	        buttonRefresh.setChangeListener(listenerButton);
 
 	        topButtonsManager.add(buttonNewPost);
 	        topButtonsManager.add(buttonDraftPosts);
 	        topButtonsManager.add(buttonRefresh);
 	        
-	    	  //A HorizontalFieldManager to hold the page number label
+	    	  /*A HorizontalFieldManager to hold the page number label
 	        HorizontalFieldManager postNumberManager = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
 	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
-
+*/
 	        
 	        if(pages != null)
-	        	lblPostsNumber = getLabel(newPagesLabel(pages.length, numberOfNewPosts));
+	        	lblPostsNumber = getLabel(newPagesLabel(pages.length, numberOfNewPosts), LabelField.FIELD_RIGHT | LabelField.FIELD_BOTTOM);
 	        else
-	        	lblPostsNumber = getLabel("You are not allowed access to details about this blog.");
-	        postNumberManager.add(lblPostsNumber);
-	    	
+	        	lblPostsNumber = getLabel("N.A.", LabelField.FIELD_RIGHT | LabelField.FIELD_BOTTOM);
+	        //postNumberManager.add(lblPostsNumber);
+	        topButtonsManager.add(lblPostsNumber);
+	        
 	        //A HorizontalFieldManager to hold the posts list
 	        dataScroller = new VerticalFieldManager(VerticalFieldManager.VERTICAL_SCROLL
 	                 | VerticalFieldManager.VERTICAL_SCROLLBAR);
 
 			add(topButtonsManager);
-			add(postNumberManager);
+			//add(postNumberManager);
 			add(new SeparatorField());
 			add(dataScroller);
 			buildList(pages);
