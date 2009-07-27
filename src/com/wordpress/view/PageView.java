@@ -16,8 +16,9 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PageController;
 import com.wordpress.model.Page;
-import com.wordpress.view.component.HtmlTextField;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
+import com.wordpress.view.component.HtmlTextField;
 
 public class PageView extends BaseView {
 	
@@ -122,7 +123,7 @@ public class PageView extends BaseView {
     private MenuItem _saveDraftItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 10230, 10) {
         public void run() {
     		try {
-    			getUIValues();
+    			updateModel();
 	    		if (controller.isPageChanged()) {
 	    			controller.saveDraftPage();
 	    		}
@@ -136,7 +137,7 @@ public class PageView extends BaseView {
     private MenuItem _submitItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 10220, 10) {
         public void run() {
     		try {
-    			getUIValues();
+    			updateModel();
    				controller.sendPageToBlog();
     				
     		} catch (Exception e) {
@@ -186,11 +187,62 @@ public class PageView extends BaseView {
     	
        	
 	/*
-	 * update Page data model
+	 * Update Page data model and Track changes.
+	 * 
+	 * Photos changes are tracked into controller 
 	 */
-	private void getUIValues() throws Exception{	
-		//track changes 
+	private void updateModel() throws Exception{	
 		
+		if(title.isDirty()){
+			page.setTitle(title.getText());
+			controller.setPageAsChanged(true);
+			Log.trace("title dirty");
+		}
+		
+		if(bodyTextBox.isDirty()) {
+			String newContent= bodyTextBox.getText();
+			page.setDescription(newContent);
+			controller.setPageAsChanged(true);
+			Log.trace("bodyTextBox dirty");
+		}
+		
+		if(status.isDirty()) {
+			int selectedStatusID = status.getSelectedIndex();
+			String newState= controller.getStatusKeys()[selectedStatusID];
+			page.setPageStatus(newState);
+			controller.setPageAsChanged(true);
+			Log.trace("status dirty");
+		}
+		
+		if(pageOrderField.isDirty()){
+			page.setWpPageOrder(Integer.parseInt(pageOrderField.getText()));
+			pageOrderField.setDirty(false);
+			controller.setPageAsChanged(true);
+			Log.trace("pageOrderField dirty");
+		}
+		
+		if(parentPageField.isDirty()) {
+			int selectedIndex = parentPageField.getSelectedIndex();
+			controller.setParentPageID(selectedIndex);
+			pageOrderField.setDirty(false);
+			controller.setPageAsChanged(true);
+			Log.trace("parentPageField dirty");
+		}
+		
+		//page template
+		if(pageTemplateField.isDirty()) {
+			Log.trace("pageTemplateField dirty");
+			int selectedTemplateFieldID = pageTemplateField.getSelectedIndex();
+			if(selectedTemplateFieldID > -1) {
+				String pageTemplate= controller.getPageTemplateKeys()[selectedTemplateFieldID];
+				if (pageTemplate != page.getWpPageTemplate()) {
+					page.setWpPageTemplate(pageTemplate);
+					controller.setPageAsChanged(true);
+				}
+			}
+		}
+		
+		/*
 		//title
 		String oldTitle=page.getTitle();
 		if(oldTitle == null ) { //no previous title, setting the new title  
@@ -237,7 +289,7 @@ public class PageView extends BaseView {
 			controller.setPageAsChanged(true);
 		}
 		
-		//page template
+		//page template. doesn't work on new page
 		int selectedTemplateFieldID = pageTemplateField.getSelectedIndex();
 		if(selectedTemplateFieldID > -1) {
 			String pageTemplate= controller.getPageTemplateKeys()[selectedTemplateFieldID];
@@ -246,14 +298,14 @@ public class PageView extends BaseView {
 				controller.setPageAsChanged(true);
 			}
 		}
+		*/
 	}
 
 
     //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
 		try {
-		//	savePost();
-
+			updateModel();
 		} catch (Exception e) {
 			controller.displayError(e, "Error while saving post data");
 		}

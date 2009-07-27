@@ -16,6 +16,7 @@ import javax.microedition.rms.RecordStoreException;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Page;
 import com.wordpress.utils.Tools;
+import com.wordpress.utils.log.Log;
 
 public class PageDAO implements BaseDAO{
 		
@@ -119,7 +120,7 @@ public class PageDAO implements BaseDAO{
 		Serializer ser= new Serializer(out);
 		ser.serialize(page2Hashtable(page));
 		out.close();
-		System.out.println("writing draft page ok");
+		Log.trace("Page obj stored into memory");
 		return newPostID;
 	}
 	

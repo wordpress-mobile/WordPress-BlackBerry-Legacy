@@ -3,6 +3,7 @@ package com.wordpress.controller;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.DialogClosedListener;
 
+import com.wordpress.utils.log.Log;
 import com.wordpress.xmlrpc.BlogConn;
 
 /**
@@ -24,7 +25,7 @@ class ConnectionInProgressListener implements DialogClosedListener {
 		System.out.println("Chiusura della conn dialog");	
 		this.choice = choice;
 		if(choice==Dialog.CANCEL) {
-			System.out.println("Chiusura della conn dialog tramite cancel");
+			Log.trace("Chiusura della conn dialog tramite cancel");
 			if( conn != null ) 
 				conn.stopConnWork(); //stop the connection if the user click on cancel button
 		}

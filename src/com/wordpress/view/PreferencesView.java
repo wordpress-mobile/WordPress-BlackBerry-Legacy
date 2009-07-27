@@ -62,7 +62,9 @@ public class PreferencesView extends BaseView {
 	    	super(_resources.getString(WordPressResource.TITLE_PREFERENCES_VIEW));
 	    	this.controller=_preferencesController;
 	    	
-            addMultimediaOption();
+	    	//the multimedia capabilities are now not managed into app. 
+	    	//the photo settings are managed into camera app.
+        //    addMultimediaOption(); 
             addConnectionOptionsFields();
             addWapOptionsFields();           
             
@@ -469,7 +471,7 @@ public class PreferencesView extends BaseView {
 				return true;
 			} 	
 			
-			String quest="Changes Made!";
+			String quest=_resources.getString(WordPressResource.MESSAGE_INQUIRY_DIALOG_BOX);
 	    	DiscardChangeInquiryView infoView= new DiscardChangeInquiryView(quest);
 	    	int choice=infoView.doModal();    	 
 	    	

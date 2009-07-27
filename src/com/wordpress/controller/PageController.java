@@ -13,6 +13,7 @@ import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.io.DraftDAO;
 import com.wordpress.io.FileUtils;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
@@ -21,10 +22,12 @@ import com.wordpress.task.SendToBlogTask;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.StringUtils;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.PageView;
 import com.wordpress.view.PhotosView;
 import com.wordpress.view.PreviewView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.view.dialog.DiscardChangeInquiryView;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.NewMediaObjectConn;
 import com.wordpress.xmlrpc.page.EditPageConn;
@@ -245,7 +248,8 @@ public class PageController extends BlogObjectController {
 		
 		String remoteStatus = page.getPageStatus();
 		boolean publish=false;
-		if( remoteStatus.equalsIgnoreCase("private") || remoteStatus.equalsIgnoreCase("publish"))
+		//if( remoteStatus.equalsIgnoreCase("private") || remoteStatus.equalsIgnoreCase("publish"))
+		if(remoteStatus.equalsIgnoreCase("publish"))
 			publish= true;
 		
 		if( page.getID()== -1 ) { //new page
@@ -267,7 +271,7 @@ public class PageController extends BlogObjectController {
 		
 		int choice = connectionProgressView.doModal();
 		if(choice == Dialog.CANCEL) {
-			System.out.println("Chiusura della conn dialog tramite cancel");
+			Log.trace("Chiusura della conn dialog tramite cancel");
 			sendTask.stop();
 		}
 	}
@@ -313,8 +317,13 @@ public class PageController extends BlogObjectController {
 	public boolean dismissView() {
 		
 		if( isPageChanged() ) {
-	    	int result=this.askQuestion("Changes Made, are sure to close this screen?");   
-	    	if(Dialog.YES==result) {
+			
+			String quest=_resources.getString(WordPressResource.MESSAGE_INQUIRY_DIALOG_BOX);
+	    	DiscardChangeInquiryView infoView= new DiscardChangeInquiryView(quest);
+	    	int choice=infoView.doModal();  
+	    	
+	    	if(Dialog.DISCARD == choice) {
+
 	    		try {
 	    			if( !isDraft ){ //not previous draft saved post
 	    				PageDAO.removePage(blog, draftFolder);
@@ -324,7 +333,13 @@ public class PageController extends BlogObjectController {
 				}
 	    		FrontController.getIstance().backAndRefreshView(false);
 	    		return true;
+	    		
+	    	} else if(Dialog.SAVE == choice) {
+	    		saveDraftPage();
+	    		FrontController.getIstance().backAndRefreshView(false);
+	    		return true;
 	    	} else {
+	    		Log.trace("la scelta dell'utente è cancel");
 	    		return false;
 	    	}
 		}

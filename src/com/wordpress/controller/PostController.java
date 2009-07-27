@@ -22,6 +22,7 @@ import com.wordpress.task.SendToBlogTask;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.StringUtils;
+import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.NewCategoryView;
@@ -30,6 +31,7 @@ import com.wordpress.view.PostCategoriesView;
 import com.wordpress.view.PostView;
 import com.wordpress.view.PreviewView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.view.dialog.DiscardChangeInquiryView;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.NewCategoryConn;
@@ -191,7 +193,7 @@ public class PostController extends BlogObjectController {
         connection.startConnWork(); //starts connection
         int choice = connectionProgressView.doModal();
 		if(choice==Dialog.CANCEL) {
-			System.out.println("Chiusura della conn dialog tramite cancel");
+			Log.trace("Chiusura della conn dialog tramite cancel");
 			connection.stopConnWork(); //stop the connection if the user click on cancel button
 		}
 	}
@@ -280,7 +282,8 @@ public class PostController extends BlogObjectController {
 		
 		String remoteStatus = post.getStatus();
 		boolean publish=false;
-		if( remoteStatus.equalsIgnoreCase("private") || remoteStatus.equalsIgnoreCase("publish"))
+		//if( remoteStatus.equalsIgnoreCase("private") || remoteStatus.equalsIgnoreCase("publish"))
+		if(remoteStatus.equalsIgnoreCase("publish"))
 			publish= true;
 		
 		if(post.getId() == null || post.getId().equalsIgnoreCase("-1")) { //new post
@@ -290,7 +293,6 @@ public class PostController extends BlogObjectController {
 		} else { //edit post
 			 connection = new EditPostConn (post.getBlog().getXmlRpcUrl(), 
 					 post.getBlog().getUsername(),post.getBlog().getPassword(), post, publish);
-		
 		}
 		connectionsQueue.push(connection);		
 		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
@@ -302,7 +304,7 @@ public class PostController extends BlogObjectController {
 		
 		int choice = connectionProgressView.doModal();
 		if(choice == Dialog.CANCEL) {
-			System.out.println("Chiusura della conn dialog tramite cancel");
+			Log.trace("Chiusura della conn dialog tramite cancel");
 			sendTask.stop();
 		}
 	}
@@ -351,8 +353,13 @@ public class PostController extends BlogObjectController {
 	public boolean dismissView() {
 		
 		if( isPostChanged() ) {
-	    	int result=this.askQuestion("Changes Made, are sure to close this screen?");   
-	    	if(Dialog.YES==result) {
+
+			String quest=_resources.getString(WordPressResource.MESSAGE_INQUIRY_DIALOG_BOX);
+	    	DiscardChangeInquiryView infoView= new DiscardChangeInquiryView(quest);
+	    	int choice=infoView.doModal();  
+	    	
+	    	if(Dialog.DISCARD == choice) {
+
 	    		try {
 	    			if( !isDraft ){ //not remove post if it is a draft post
 	    				DraftDAO.removePost(post.getBlog(), draftFolder);
@@ -362,9 +369,16 @@ public class PostController extends BlogObjectController {
 				}
 	    		FrontController.getIstance().backAndRefreshView(false);
 	    		return true;
+	    		
+	    	} else if(Dialog.SAVE == choice) {
+	    		saveDraftPost();
+	    		FrontController.getIstance().backAndRefreshView(false);
+	    		return true;
 	    	} else {
+	    		Log.trace("la scelta dell'utente è cancel");
 	    		return false;
 	    	}
+	    			
 		}
 		
 		try {

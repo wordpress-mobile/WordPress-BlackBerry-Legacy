@@ -7,8 +7,10 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.BlogOptionsView;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
@@ -124,19 +126,19 @@ public class BlogOptionsController extends BaseController {
 			return true;
 		}
 		
-		String quest="Changes Made!";
+		String quest=_resources.getString(WordPressResource.MESSAGE_INQUIRY_DIALOG_BOX);
     	DiscardChangeInquiryView infoView= new DiscardChangeInquiryView(quest);
     	int choice=infoView.doModal();    	 
     	if(Dialog.DISCARD == choice) {
-    		System.out.println("la scelta dell'utente è discard");
+    		Log.trace("la scelta dell'utente è discard");
     		backCmd();
     		return true;
     	}else if(Dialog.SAVE == choice) {
-    		System.out.println("la scelta dell'utente è save");
+    		Log.trace("la scelta dell'utente è save");
     		saveAndBack();
     		return true;
     	} else {
-    		System.out.println("la scelta dell'utente è cancel");
+    		Log.trace("la scelta dell'utente è cancel");
     		return false;
     	}
 	}

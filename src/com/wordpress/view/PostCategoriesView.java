@@ -91,6 +91,7 @@ public class PostCategoriesView extends BaseView {
         {
             //The commentsList ListField instance has focus.
             //Add the _toggleItem MenuItem.
+        	checkBoxController.changeToggleItemLabel(_resources.getString(WordPressResource.MENUITEM_SELECT), _resources.getString(WordPressResource.MENUITEM_DESELECT));
             menu.add(checkBoxController._toggleItem);
         }
                 

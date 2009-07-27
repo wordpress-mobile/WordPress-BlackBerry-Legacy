@@ -83,9 +83,6 @@ public abstract class BaseController {
     	} 
     	
 		return ask.getResponse();
-		/*Log.debug(msg);
-		InquiryView inqView= new InquiryView(msg);
-		return inqView.doModal();*/
 	}
 	
 	

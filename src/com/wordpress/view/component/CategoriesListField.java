@@ -12,7 +12,6 @@ import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ListField;
 
 import com.wordpress.model.Category;
-import com.wordpress.utils.StringUtils;
 
 public class CategoriesListField {
 
@@ -224,6 +223,27 @@ public class CategoriesListField {
 		return _checkList;
 	}
 
+    public void changeToggleItemLabel(String select, String deselect) {
+    	 //Get the index of the selected row.
+        int index = _checkList.getSelectedIndex();
+        
+        if(index == -1) {
+        	//inserire una label di default
+        	_toggleItem.setText("Change Option");
+        	return;
+        }
+        
+        //Get the ChecklistData for this row.
+        ChecklistData data = (ChecklistData)_listData.elementAt(index);
+    	
+    	//change the label of the menuItem
+        if(data.isChecked()) {
+        	_toggleItem.setText(deselect);
+        } else {
+        	_toggleItem.setText(select);
+        }
+    }
+    
 	//The menu item added to the screen when the _checkList field has focus.
     //This menu item toggles the checked/unchecked status of the selected row.
     public MenuItem _toggleItem = new MenuItem("Change Option", 100200, 5)    {

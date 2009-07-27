@@ -19,6 +19,7 @@ import com.wordpress.model.Page;
 import com.wordpress.model.Post;
 import com.wordpress.task.SendToBlogTask;
 import com.wordpress.utils.StringUtils;
+import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.PhotosView;
@@ -66,7 +67,7 @@ public abstract class BlogObjectController extends BaseController {
 
 	//journal listener
 	PhotoFileJournalListener photoFSListener = null;
-	private Hashtable photoName = new Hashtable(); //FIXME: this field is used to hack the FS listener
+	private Hashtable photoName = new Hashtable(); //FIXME: this field is used to track the FS listener
 	
 	public void showSettingsView(){
 		boolean isPhotoResing = blog.isResizePhotos(); //first set the value as the predefined blog value
@@ -103,6 +104,7 @@ public abstract class BlogObjectController extends BaseController {
 	
 	public synchronized void storePhotoFast(String completePath, String fileName) {
 		try {
+			isModified = true; //set the post/page as modified
 			
 			if(photoName.get(fileName)!= null)
 				return;
@@ -118,7 +120,7 @@ public abstract class BlogObjectController extends BaseController {
 			EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
 									
 			photoView.addPhoto(fileName, img);
-			removePhotoJournalListener(); //for security reason remove the listener if any (if we don't close 
+			removePhotoJournalListener(); //remove the fs listener. 
 		} catch (Exception e) {
 			photoName.remove(fileName);
 			deletePhoto(fileName);
@@ -127,8 +129,7 @@ public abstract class BlogObjectController extends BaseController {
 	}
 	
 	
-	//old method for storing a photo
-	//FIXME can we remove this 
+	//old method for storing a photo, not  used.
 	public synchronized void storePhoto(byte[] data, String fileName) {
 		try {
 			
@@ -154,8 +155,9 @@ public abstract class BlogObjectController extends BaseController {
 	 * delete selected photo
 	 */
 	public synchronized boolean deletePhoto(String key){
-		System.out.println("deleting photo: "+key);
+		Log.trace("deleting photo: "+key);
 		photoName.remove(key); //only for fix 
+		isModified = true; //set the post/page as modified
 		
 		try {
 			if(post != null)
@@ -163,7 +165,7 @@ public abstract class BlogObjectController extends BaseController {
 			else
 				PageDAO.removePagePhoto(blog, draftFolder, key);
 				
-			photoView.deletePhotoBitmapField(key); //delete the thumbnail
+			photoView.deletePhotoBitmapField(key); //delete the thumb
 		} catch (Exception e) {
 			displayError(e, "Cannot remove photo from disk!");
 		}		

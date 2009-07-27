@@ -87,7 +87,6 @@ public class JSR75FileSystem  {
 	}
   
   public static synchronized void createDir(String filePath) throws IOException{
-	   System.out.println("createFile: " + filePath);
 		FileConnection filecon = (FileConnection) Connector.open(filePath);
 		if (!filecon.exists()) {
 			filecon.mkdir();
@@ -102,7 +101,7 @@ public class JSR75FileSystem  {
 			filecon.create();
 			Log.debug("File successfully created: " + filePath);
 		} else 
-			System.out.println("file already created: " + filePath);
+			Log.trace("File already created: " + filePath);
 	
 		filecon.close();
 	}

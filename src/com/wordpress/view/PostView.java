@@ -18,6 +18,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Post;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.component.HtmlTextField;
 
@@ -152,7 +153,7 @@ public class PostView extends BaseView {
     private MenuItem _saveDraftPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 10230, 10) {
         public void run() {
     		try {
-    			savePost();
+    			updateModel();
 	    		if (controller.isPostChanged()) {
 	    			controller.saveDraftPost();
 	    		}
@@ -166,7 +167,7 @@ public class PostView extends BaseView {
     private MenuItem _submitPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 10220, 10) {
         public void run() {
     		try {
-    			savePost();
+    			updateModel();
    				controller.sendPostToBlog();
     				
     		} catch (Exception e) {
@@ -223,11 +224,41 @@ public class PostView extends BaseView {
     	
     	
 	/*
-	 * update Post data model
+	 * Update Post data model and Track post changes.
+	 * 
+	 * Categories changes are tracked into controller
+	 * Photos changes are tracked into controller 
 	 */
-	private void savePost() throws Exception{	
-		//track changes 
+	private void updateModel() throws Exception{	
+
+		if(title.isDirty()) {
+			post.setTitle(title.getText());
+			controller.setPostAsChanged(true);
+			Log.trace("title dirty");
+		}
 		
+		if(bodyTextBox.isDirty()) {
+			String newContent= bodyTextBox.getText();
+			post.setBody(newContent);
+			controller.setPostAsChanged(true);
+			Log.trace("bodyTextBox dirty");
+		}
+		
+		if(tags.isDirty()) {
+			String newContent= tags.getText();
+			post.setTags(newContent);
+			controller.setPostAsChanged(true);
+			Log.trace("tags dirty");
+		}
+		
+		if(status.isDirty()) {
+			int selectedStatusID = status.getSelectedIndex();
+			String newState= controller.getStatusKeys()[selectedStatusID];
+			post.setStatus(newState);
+			controller.setPostAsChanged(true);
+			Log.trace("status dirty");
+		}
+		/*
 		//title
 		String oldTitle=post.getTitle();
 		if(oldTitle == null ) { //no previous title, setting the new title  
@@ -265,14 +296,14 @@ public class PostView extends BaseView {
 			post.setStatus(newState);
 			controller.setPostAsChanged(true);
 		}
+		*/
 	}
 
 
     //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
 		try {
-//			savePost();
-
+			updateModel();
 		} catch (Exception e) {
 			controller.displayError(e, "Error while saving post data");
 		}

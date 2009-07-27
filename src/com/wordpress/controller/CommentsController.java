@@ -13,6 +13,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Comment;
+import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.CommentView;
@@ -158,7 +159,7 @@ public class CommentsController extends BaseController{
 		
 		int choice = connectionProgressView.doModal();
 		if(choice == Dialog.CANCEL) {
-			System.out.println("Chiusura della conn dialog tramite cancel");
+			Log.trace("Chiusura della conn dialog tramite cancel");
 			task.quit();
 			
 			if (!task.isError()) {
@@ -207,7 +208,7 @@ public class CommentsController extends BaseController{
 		
 		int choice = connectionProgressView.doModal();
 		if(choice == Dialog.CANCEL) {
-			System.out.println("Chiusura della conn dialog tramite cancel");
+			Log.trace("Chiusura della conn dialog tramite cancel");
 			task.quit();
 			
 			if (!task.isError()) {

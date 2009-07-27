@@ -38,7 +38,7 @@ public class RefreshBlogController extends BaseController implements Observer{
 				
 		int choice = connectionProgressView.doModal();
 		if(choice==Dialog.CANCEL) {
-			System.out.println("Chiusura della conn dialog tramite cancel");
+			Log.trace("Chiusura della conn dialog tramite cancel");
 			connection.stopConnWork(); //stop the connection if the user click on cancel button
 		}
 	}
