@@ -27,7 +27,7 @@ public class DraftPostsView extends BaseView {
 	private void buildList(Hashtable[] post) {
 		removeAllMenuItems();	
 		listaPost = new PostsListField(); 	        
-		listaPost.setEmptyString("No Draft Posts", DrawStyle.LEFT);
+		listaPost.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_DRAFT_POSTS), DrawStyle.LEFT);
 		
 		if( (post != null) && post.length > 0 ){
 			listaPost.set(post);

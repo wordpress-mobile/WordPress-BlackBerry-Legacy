@@ -496,13 +496,13 @@ public abstract class BlogConn extends Observable implements Runnable {
 	
 	
 	protected void setErrorMessage(Exception e, String err){
-	/*	if (!isWorking)
+	/*	if (!isWorking) 
 			return;*/
 
 		//check if there is a prev error in the error stack
 		if(connResponse.isError()) {
 			String prevErr = connResponse.getResponse();
-			err = prevErr +" \n "+ err;  
+			err = prevErr +"\n"+ err;  
 		}
 		
 		boolean isConnectionStoppedByUser = connResponse.isStopped();
@@ -514,7 +514,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 			connResponse.setStopped(true);
 		
 		if(e != null && e.getMessage()!= null ) {
-			connResponse.setResponse(err+" \n "+e.getMessage());
+			connResponse.setResponse(err+"\n"+e.getMessage());
 			Log.error(err+" -> "+e.getMessage());
 		} else {
 			connResponse.setResponse(err);
@@ -523,21 +523,6 @@ public abstract class BlogConn extends Observable implements Runnable {
 	}
 	
 	protected void setErrorMessage(String err){
-	/*	if (!isWorking)
-			return; */
 		this.setErrorMessage(null, err);
-		
-/*		
-		//check if there is a prev error in the error stack
-		if(connResponse.isError()) {
-			String prevErr = connResponse.getResponse();
-			err = prevErr +" \n "+ err;  
-		}
-		
-		connResponse=new BlogConnResponse();
-		connResponse.setError(true);
-		connResponse.setResponse(err);
-    
-		Log.error(err); */
 	}
 }

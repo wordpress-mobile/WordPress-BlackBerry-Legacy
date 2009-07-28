@@ -28,7 +28,7 @@ public class DraftPagesView extends BaseView {
 	 private void buildList(Page[] pages) {
 		 removeAllMenuItems();	
 		 pageListField = new PostsListField();
-		 pageListField.setEmptyString("No Draft Pages", DrawStyle.LEFT);
+		 pageListField.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_DRAFT_PAGES), DrawStyle.LEFT);
 		 
 		 Hashtable[] draftPageInfo = new Hashtable[0];
 		 

@@ -27,6 +27,11 @@
  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * 
+ * Modified by Danilo Ercoli, ercoli@gmail.com, 
+ * on 28 july 2009
+ * 
  */
 
 package com.wordpress.view.component;
@@ -75,7 +80,7 @@ public class HeaderField extends Field {
         this.showTitle = true;
         this.fontColor = -1;
         this.headerFont = Font.getDefault().derive(Font.BOLD);
-        this.backgroundColor = 0;
+        this.backgroundColor = -1;
         this.batteryBackground = 0x999999;
         this.signalBarColor = Color.GRAY;
         this.fieldHeight = headerFont.getHeight();
@@ -248,7 +253,7 @@ public class HeaderField extends Field {
         int preferredHeight = this.getPreferredHeight();
         int midPoint = preferredHeight / 2;
         
-        if(backgroundColor != 0) {
+        if(backgroundColor != -1) {
             graphics.setColor(backgroundColor);
             graphics.fillRect(0, 0, preferredWidth, preferredHeight);
         }
@@ -272,7 +277,7 @@ public class HeaderField extends Field {
         graphics.setColor(fontColor);
         
         if(showTitle) {
-            graphics.drawText(title, 1, 0, DrawStyle.ELLIPSIS, preferredWidth - graphicsDiff);
+            graphics.drawText(title, 1, 0, DrawStyle.ELLIPSIS, preferredWidth - (graphicsDiff+5));
         }
     }
     

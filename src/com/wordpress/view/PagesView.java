@@ -7,6 +7,7 @@ import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
+import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ButtonField;
@@ -32,7 +33,8 @@ public class PagesView extends BaseView {
     private ButtonField buttonNewPost;
 	private ButtonField buttonDraftPosts;
 	private ButtonField buttonRefresh;
-	private LabelField lblPostsNumber;
+	private LabelField lblPagesNumber;
+	private LabelField lblNewPagesNumber;
 	private Bitmap _writeBitmap = Bitmap.getBitmapResource("write.png");
 	private Bitmap _localDraftBitmap = Bitmap.getBitmapResource("browser.png");
 	private Bitmap _refreshBitmap = Bitmap.getBitmapResource("refresh.png");
@@ -47,55 +49,59 @@ public class PagesView extends BaseView {
 	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
 	        
 	        //setup top buttons
-	        //buttonNewPost = new ButtonField(_resources.getString(WordPressResource.BUTTON_NEW), ButtonField.CONSUME_CLICK);
-	        buttonNewPost = new BitmapButtonField(_writeBitmap, ButtonField.CONSUME_CLICK);
+	        buttonNewPost = new BitmapButtonField(_writeBitmap, ButtonField.CONSUME_CLICK | Field.FIELD_VCENTER);
 	        buttonNewPost.setChangeListener(listenerButton);
-	        //buttonDraftPosts = new ButtonField(_resources.getString(WordPressResource.BUTTON_LOCALDRAFTS), ButtonField.CONSUME_CLICK);
-	        buttonDraftPosts = new BitmapButtonField(_localDraftBitmap,  ButtonField.CONSUME_CLICK);
+	        buttonDraftPosts = new BitmapButtonField(_localDraftBitmap,  ButtonField.CONSUME_CLICK | Field.FIELD_VCENTER);
 	        buttonDraftPosts.setChangeListener(listenerButton);
-	        //buttonRefresh = new ButtonField(_resources.getString(WordPressResource.BUTTON_REFRESH_BLOG), ButtonField.CONSUME_CLICK);
-	        buttonRefresh = new BitmapButtonField(_refreshBitmap,  ButtonField.CONSUME_CLICK);
+	        buttonRefresh = new BitmapButtonField(_refreshBitmap,  ButtonField.CONSUME_CLICK | Field.FIELD_VCENTER);
 	        buttonRefresh.setChangeListener(listenerButton);
 
 	        topButtonsManager.add(buttonNewPost);
 	        topButtonsManager.add(buttonDraftPosts);
 	        topButtonsManager.add(buttonRefresh);
 	        
-	    	  /*A HorizontalFieldManager to hold the page number label
-	        HorizontalFieldManager postNumberManager = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
-	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
-*/
+	        VerticalFieldManager pageNumbersFieldManager = new VerticalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
+	        		| HorizontalFieldManager.NO_VERTICAL_SCROLL | Field.FIELD_BOTTOM | Field.FIELD_RIGHT | Field.USE_ALL_WIDTH);
 	        
-	        if(pages != null)
-	        	lblPostsNumber = getLabel(newPagesLabel(pages.length, numberOfNewPosts), LabelField.FIELD_RIGHT | LabelField.FIELD_BOTTOM);
-	        else
-	        	lblPostsNumber = getLabel("N.A.", LabelField.FIELD_RIGHT | LabelField.FIELD_BOTTOM);
-	        //postNumberManager.add(lblPostsNumber);
-	        topButtonsManager.add(lblPostsNumber);
+	        if(pages != null) {
+	        	lblPagesNumber = getLabel(getNumberOfTotalPageLabel(pages.length), Field.FIELD_BOTTOM | Field.FIELD_RIGHT);
+	        	lblNewPagesNumber = getLabel(getNumberOfNewPageLabel(numberOfNewPosts), Field.FIELD_BOTTOM | Field.FIELD_RIGHT);
+	        }
+	        else {
+	        	lblPagesNumber = getLabel("N.A.", Field.FIELD_BOTTOM | Field.FIELD_RIGHT);
+	        	lblNewPagesNumber = getLabel("", Field.FIELD_BOTTOM | Field.FIELD_RIGHT);
+	        }
+	        lblPagesNumber.setFont(lblPagesNumber.getFont().derive(Font.PLAIN));
+	        lblNewPagesNumber.setFont(lblNewPagesNumber.getFont().derive(Font.PLAIN));
+	        pageNumbersFieldManager.add(lblPagesNumber);
+	        pageNumbersFieldManager.add(lblNewPagesNumber);
+	        topButtonsManager.add(pageNumbersFieldManager);
+	    
 	        
 	        //A HorizontalFieldManager to hold the posts list
 	        dataScroller = new VerticalFieldManager(VerticalFieldManager.VERTICAL_SCROLL
 	                 | VerticalFieldManager.VERTICAL_SCROLLBAR);
 
 			add(topButtonsManager);
-			//add(postNumberManager);
 			add(new SeparatorField());
 			add(dataScroller);
 			buildList(pages);
 	 }
+
+	 private String getNumberOfNewPageLabel(int recentPage) {
+	        String numerOfPageLabel = null;
+	        numerOfPageLabel=" (" +recentPage+" "+_resources.getString(WordPressResource.LABEL_PAGE_NUMBER_NEW)+")";
+	        return numerOfPageLabel;
+		 
+	 }
 	 
-	 
-	 private String newPagesLabel(int recentPostNum, int newPostNum) {
-		  //set the label for the post number object
+	 private String getNumberOfTotalPageLabel(int pageNum) {
 	        String numerOfPostLabel = null;
 	        
-	        if(recentPostNum > 1) 
-	        	numerOfPostLabel= recentPostNum+ " " +_resources.getString(WordPressResource.LABEL_PAGE_NUMBERS); 
+	        if(pageNum > 1) 
+	        	numerOfPostLabel= pageNum+ " " +_resources.getString(WordPressResource.LABEL_PAGE_NUMBERS); 
 	        else 
-	        	numerOfPostLabel= recentPostNum+ " " +_resources.getString(WordPressResource.LABEL_PAGE_NUMBER);
-	        
-	        
-	        numerOfPostLabel+=" (" +newPostNum+" "+_resources.getString(WordPressResource.LABEL_PAGE_NUMBER_NEW)+")";
+	        	numerOfPostLabel= pageNum+ " " +_resources.getString(WordPressResource.LABEL_PAGE_NUMBER);
 	        
 	        return numerOfPostLabel;
 		 
@@ -129,7 +135,7 @@ public class PagesView extends BaseView {
 						
 		pagesList = new PostsListField(); 	        
 		pagesList.set(elements);
-		pagesList.setEmptyString("Nothing to see here", DrawStyle.LEFT);
+		pagesList.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_POSTS), DrawStyle.LEFT);
 		dataScroller.add(pagesList);
 
 
@@ -183,12 +189,19 @@ public class PagesView extends BaseView {
 	   }
 	};
 
-    	 
-    public void refresh(Page[] pages, int count){
-    	dataScroller.delete(pagesList);
-    	lblPostsNumber.setText(newPagesLabel(pages.length, count));
-    	buildList(pages);
-    }
+	
+	public void refresh(Page[] pages, int count){
+		dataScroller.delete(pagesList);
+		
+		if(pages != null) {
+			lblPagesNumber.setText(getNumberOfTotalPageLabel(pages.length));
+			lblNewPagesNumber.setText(getNumberOfNewPageLabel(count));
+		} else {
+			lblPagesNumber.setText("N.A.");
+			lblNewPagesNumber.setText("");
+		}
+		buildList(pages);
+	}
 
 	public BaseController getController() {
 		return this.controller;

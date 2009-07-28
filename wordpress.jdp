@@ -131,6 +131,7 @@ src\com\wordpress\view\component\BorderedFieldManager.java
 src\com\wordpress\view\component\CategoriesListField.java
 src\com\wordpress\view\component\CheckBoxListField.java
 src\com\wordpress\view\component\CommentsListField.java
+src\com\wordpress\view\component\CustomButtonField.java
 src\com\wordpress\view\component\DirectorySelectorPopUpScreen.java
 src\com\wordpress\view\component\FileSelectorPopupScreen.java
 src\com\wordpress\view\component\HeaderField.java

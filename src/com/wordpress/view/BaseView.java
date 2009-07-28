@@ -51,11 +51,11 @@ public abstract class BaseView extends MainScreen{
     
     //create the title filed
 	protected Field getTitleField(String title) {
-	/*	LabelField titleField = new LabelField(title, LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH | LabelField.HCENTER);
-		Font fnt = this.getFont().derive(Font.BOLD);
-		titleField.setFont(fnt);
-		return titleField;*/
 		HeaderField headerField = new HeaderField(title);
+		//if you want change color of the title bar, make sure to set 
+		//color for background and foreground (to avoid theme colors injection...)
+		headerField.setFontColor(Color.WHITE); 
+		headerField.setBackgroundColor(Color.BLACK); 
 		return (Field)headerField;
 	}
     
@@ -76,11 +76,11 @@ public abstract class BaseView extends MainScreen{
 	  	lblField.setFont(fnt);
 		return lblField;
 	}
-	
+
     //TODO: refactor of this 2 methods
     protected LabelField getLabel(String label, long style) {
 		
-		LabelField lblField = new LabelField(label + " ", style)
+		LabelField lblField = new LabelField(label , style)
 		{
 		    public void paint(Graphics graphics)
 		    {
@@ -92,5 +92,4 @@ public abstract class BaseView extends MainScreen{
 	  	lblField.setFont(fnt);
 		return lblField;
 	}
-	
 }

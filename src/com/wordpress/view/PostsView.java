@@ -8,6 +8,7 @@ import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
+import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ButtonField;
@@ -29,10 +30,11 @@ public class PostsView extends BaseView {
     private PostsListField listaPost; 
     private HorizontalFieldManager topButtonsManager;
     private VerticalFieldManager dataScroller;
-    private ButtonField buttonNewPost;
+    private BitmapButtonField buttonNewPost;
 	private ButtonField buttonDraftPosts;
 	private ButtonField buttonRefresh;
-	private LabelField lblPostsNumber;
+	private LabelField lblTotalPostsNumber;
+	private LabelField lblNewPostsNumber;
 	private Bitmap _writeBitmap = Bitmap.getBitmapResource("write.png");
 	private Bitmap _localDraftBitmap = Bitmap.getBitmapResource("browser.png");
 	private Bitmap _refreshBitmap = Bitmap.getBitmapResource("refresh.png");
@@ -46,57 +48,61 @@ public class PostsView extends BaseView {
 	        topButtonsManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
 	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
 	        
-	        //setup top buttons
-	        //buttonNewPost = new ButtonField(_resources.getString(WordPressResource.BUTTON_NEW), ButtonField.CONSUME_CLICK);
-	        buttonNewPost = new BitmapButtonField(_writeBitmap, ButtonField.CONSUME_CLICK);
+	        //setup top buttons and posts number
+	        buttonNewPost = new BitmapButtonField(_writeBitmap, ButtonField.CONSUME_CLICK | Field.FIELD_VCENTER);
 	        buttonNewPost.setChangeListener(listenerButton);
-	        //buttonDraftPosts = new ButtonField(_resources.getString(WordPressResource.BUTTON_LOCALDRAFTS),  ButtonField.CONSUME_CLICK);
-	        buttonDraftPosts = new BitmapButtonField(_localDraftBitmap,  ButtonField.CONSUME_CLICK);
+	        buttonDraftPosts = new BitmapButtonField(_localDraftBitmap,  ButtonField.CONSUME_CLICK | Field.FIELD_VCENTER);
 	        buttonDraftPosts.setChangeListener(listenerButton);
-	        //buttonRefresh = new ButtonField(_resources.getString(WordPressResource.BUTTON_REFRESH_BLOG),  ButtonField.CONSUME_CLICK);
-	        buttonRefresh = new BitmapButtonField(_refreshBitmap,  ButtonField.CONSUME_CLICK);
+	        buttonRefresh = new BitmapButtonField(_refreshBitmap,  ButtonField.CONSUME_CLICK | Field.FIELD_VCENTER);
 	        buttonRefresh.setChangeListener(listenerButton);
 
 	        topButtonsManager.add(buttonNewPost);
 	        topButtonsManager.add(buttonDraftPosts);
 	        topButtonsManager.add(buttonRefresh);
 	        
-	    	  /*A HorizontalFieldManager to hold the posts number label
-	        HorizontalFieldManager postNumberManager = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
-	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
-*/
+		    VerticalFieldManager postNumbersFieldManager = new VerticalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
+	        		| HorizontalFieldManager.NO_VERTICAL_SCROLL | Field.FIELD_BOTTOM | Field.FIELD_RIGHT | Field.USE_ALL_WIDTH);
 	        
-	        if(recentPostInfo != null)
-	        	lblPostsNumber = getLabel(getNumberOfNewPostLabel(recentPostInfo.size(), numberOfNewPosts), LabelField.FIELD_RIGHT | LabelField.FIELD_BOTTOM);
-	        else
-	        	lblPostsNumber = getLabel("N.A." ,  LabelField.FIELD_RIGHT | LabelField.FIELD_BOTTOM );
-	        //postNumberManager.add(lblPostsNumber);
-	        topButtonsManager.add(lblPostsNumber);
-	       
+	        if(recentPostInfo != null) {
+	        	lblTotalPostsNumber = getLabel(getNumberOfTotalPostLabel(recentPostInfo.size()), Field.FIELD_BOTTOM | Field.FIELD_RIGHT);
+	        	lblNewPostsNumber = getLabel(getNumberOfNewPostLabel(numberOfNewPosts), Field.FIELD_BOTTOM | Field.FIELD_RIGHT);
+	        } else {
+	        	lblTotalPostsNumber = getLabel("N.A.", Field.FIELD_BOTTOM | Field.FIELD_RIGHT);
+	        	lblNewPostsNumber = getLabel("", Field.FIELD_BOTTOM | Field.FIELD_RIGHT);
+	        }
+	        lblTotalPostsNumber.setFont(lblTotalPostsNumber.getFont().derive(Font.PLAIN));
+	        lblNewPostsNumber.setFont(lblNewPostsNumber.getFont().derive(Font.PLAIN));
+	        postNumbersFieldManager.add(lblTotalPostsNumber);
+	        postNumbersFieldManager.add(lblNewPostsNumber);
+	        topButtonsManager.add(postNumbersFieldManager);
+	        
 	        //A HorizontalFieldManager to hold the posts list
 	        dataScroller = new VerticalFieldManager(VerticalFieldManager.VERTICAL_SCROLL
 	                 | VerticalFieldManager.VERTICAL_SCROLLBAR);
 	        	
 
 			add(topButtonsManager);
-			//add(postNumberManager);
 			add(new SeparatorField());
 			add(dataScroller);
 			buildList(recentPostInfo);
 	 }
 
 	 
-	 private String getNumberOfNewPostLabel(int recentPostNum, int newPostNum) {
+	 private String getNumberOfNewPostLabel(int newPostNum) {
 		  //set the label for the post number object
-	        String numerOfPostLabel = null;
+	        String numerOfPostLabel="(" +newPostNum+" "+_resources.getString(WordPressResource.LABEL_POST_NUMBER_NEW)+")";
 	        
+	        return numerOfPostLabel;
+		 
+	 }
+	 
+	 private String getNumberOfTotalPostLabel(int recentPostNum) {
+		  //set the label for the post number object
+	        String numerOfPostLabel = null;       
 	        if(recentPostNum > 1) 
 	        	numerOfPostLabel= recentPostNum+ " " +_resources.getString(WordPressResource.LABEL_POST_NUMBERS); 
 	        else 
 	        	numerOfPostLabel= recentPostNum+ " " +_resources.getString(WordPressResource.LABEL_POST_NUMBER);
-	        
-	        
-	        numerOfPostLabel+=" (" +newPostNum+" "+_resources.getString(WordPressResource.LABEL_POST_NUMBER_NEW)+")";
 	        
 	        return numerOfPostLabel;
 		 
@@ -131,7 +137,7 @@ public class PostsView extends BaseView {
 						
 		listaPost = new PostsListField(); 	        
 		listaPost.set(elements);
-		listaPost.setEmptyString("Nothing to see here", DrawStyle.LEFT);
+		listaPost.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_POSTS), DrawStyle.LEFT);
 		dataScroller.add(listaPost);
 
 
@@ -188,7 +194,15 @@ public class PostsView extends BaseView {
     	 
     public void refresh(Vector recentPostInfo, int count){
     	dataScroller.delete(listaPost);
-    	lblPostsNumber.setText(getNumberOfNewPostLabel(recentPostInfo.size(), count));
+    	
+        if(recentPostInfo != null) {
+        	lblTotalPostsNumber.setText(getNumberOfTotalPostLabel(recentPostInfo.size()));
+        	lblNewPostsNumber.setText(getNumberOfNewPostLabel(count));
+        } else {
+        	lblTotalPostsNumber.setText("N.A.");
+        	lblNewPostsNumber.setText("");
+        }
+    	
     	buildList(recentPostInfo);
     }
 
