@@ -11,6 +11,7 @@ import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
+import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.DraftDAO;
@@ -60,7 +61,7 @@ public class PostController extends BlogObjectController {
 		try {
 			draftFolder = DraftDAO.storePost(post, draftFolder);
 		} catch (Exception e) {
-			displayError(e, "Cannot create space on disk for your post!");
+			displayError(e, _resources.getString(WordPress.ERROR_NOT_ENOUGHT_SPACE));
 		}
 	}
 	
@@ -258,7 +259,7 @@ public class PostController extends BlogObjectController {
 	public void sendPostToBlog() {
 		
 		if(post.getStatus().equals(LOCAL_DRAFT_KEY)) {
-			displayMessage("Local Draft post cannot be submitted");
+			displayMessage(_resources.getString(WordPressResource.MESSAGE_LOCAL_DRAFT_NOT_SUBMIT));
 			return;
 		}	
 		 
@@ -378,7 +379,6 @@ public class PostController extends BlogObjectController {
 	    		Log.trace("la scelta dell'utente è cancel");
 	    		return false;
 	    	}
-	    			
 		}
 		
 		try {

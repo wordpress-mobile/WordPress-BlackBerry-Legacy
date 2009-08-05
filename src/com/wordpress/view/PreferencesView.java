@@ -6,9 +6,12 @@ import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.ApplicationManager;
+import net.rim.device.api.system.Display;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
+import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ButtonField;
@@ -19,6 +22,7 @@ import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
+import net.rim.device.api.ui.container.VerticalFieldManager;
 import net.rim.device.api.ui.text.URLTextFilter;
 
 import com.wordpress.bb.WordPressResource;
@@ -37,7 +41,7 @@ public class PreferencesView extends BaseView {
 	
     private PreferenceController controller= null;
     private Preferences mPrefs=Preferences.getIstance();
-    
+    private VerticalFieldManager _container;
 	private ObjectChoiceField audioGroup;
 	private ObjectChoiceField photoGroup;
 	private ObjectChoiceField videoGroup;
@@ -59,8 +63,39 @@ public class PreferencesView extends BaseView {
 
 	
 	 public PreferencesView(PreferenceController _preferencesController) {
-	    	super(_resources.getString(WordPressResource.TITLE_PREFERENCES_VIEW));
+	    	super(_resources.getString(WordPressResource.TITLE_PREFERENCES_VIEW), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
 	    	this.controller=_preferencesController;
+	    	
+	     	VerticalFieldManager internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR ) {
+	    		public void paintBackground( Graphics g ) {
+	    			g.clear();
+	    			int color = g.getColor();
+	    			g.setColor( Color.LIGHTGREY );
+	    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
+	    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
+	    			g.setColor( color );
+	    		}
+	    		
+	    		protected void sublayout( int maxWidth, int maxHeight ) {
+	    			
+	    			int titleFieldHeight = 0;
+	    			if ( titleField != null ) {
+	    				titleFieldHeight = titleField.getHeight();
+	    			}
+	    			
+	    			int displayWidth = Display.getWidth(); // I would probably make these global
+	    			int displayHeight = Display.getHeight();
+	    			
+	    			super.sublayout( displayWidth, displayHeight - titleFieldHeight );
+	    			setExtent( displayWidth, displayHeight - titleFieldHeight );
+	    		}
+	    		
+	    	};
+	    	
+	    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR );
+	    	internalManager.add( _container );
+	    	super.add( internalManager );
+	    	
 	    	
 	    	//the multimedia capabilities are now not managed into app. 
 	    	//the photo settings are managed into camera app.
@@ -76,18 +111,19 @@ public class PreferencesView extends BaseView {
             buttonsManager.add(buttonOK);
     		buttonsManager.add(buttonBACK);
     		
-    		this.add(new LabelField("", Field.NON_FOCUSABLE)); //space before buttons
     		add(buttonsManager); 
     		
             //reset app temp file option
             add(new SeparatorField());
-			LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.DESCRIPTION_REMOVE_TEMPFILE)); 
+			LabelField lblDescReset = new LabelField(_resources.getString(WordPressResource.DESCRIPTION_REMOVE_TEMPFILE)); 
 			Font fnt = this.getFont().derive(Font.ITALIC);
 			lblDescReset.setFont(fnt);
 			add(lblDescReset);
 			ButtonField buttonReset= new ButtonField(_resources.getString(WordPressResource.BUTTON_REMOVE), ButtonField.CONSUME_CLICK);
 			buttonReset.setChangeListener(listenerResetButton);
             add(buttonReset);
+            
+            add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
 
     		addMenuItem(_saveItem);
 	 }
@@ -127,8 +163,7 @@ public class PreferencesView extends BaseView {
 		 
 		 BorderedFieldManager optManager = new BorderedFieldManager(
 				 Manager.NO_HORIZONTAL_SCROLL
-				 | Manager.NO_VERTICAL_SCROLL
-				 | BorderedFieldManager.BOTTOM_BORDER_NONE);
+				 | Manager.NO_VERTICAL_SCROLL);
 		 
 	      //row allow description
          LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_USERDEFINEDCONN_DESC)); 
@@ -268,7 +303,10 @@ public class PreferencesView extends BaseView {
 	 }
 	 
 	 
-	 
+		public void add( Field field ) {
+			_container.add( field );
+		}
+
 	 
 	 //create a menu item for users click to save
 	    private MenuItem _saveItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVE, 1000, 10) {

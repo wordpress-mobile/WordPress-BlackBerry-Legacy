@@ -45,7 +45,7 @@ public class PostSettingsView extends BaseView {
         		| BorderedFieldManager.BOTTOM_BORDER_NONE);
         
         HorizontalFieldManager innerContainerForDateField = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
-                | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
+                | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
 
 		LabelField lblDate = getLabel(_resources.getString(WordPressResource.LABEL_POST_PUBLISHEDON));   
 	    authoredOn= new DateField("", datetime, DateField.DATE_TIME);
@@ -77,8 +77,7 @@ public class PostSettingsView extends BaseView {
 		//resize photo sections
 		BorderedFieldManager rowPhotoRes = new BorderedFieldManager(
 				Manager.NO_HORIZONTAL_SCROLL
-				| Manager.NO_VERTICAL_SCROLL
-				| BorderedFieldManager.BOTTOM_BORDER_NONE);
+				| Manager.NO_VERTICAL_SCROLL);
 		resizePhoto=new CheckboxField(_resources.getString(WordPressResource.LABEL_RESIZEPHOTOS), isResImg);
 		rowPhotoRes.add(resizePhoto);
 
@@ -88,7 +87,7 @@ public class PostSettingsView extends BaseView {
 		rowPhotoRes.add(lblDescResize);
 		add(rowPhotoRes);
 		
-		this.add(new LabelField("", Field.NON_FOCUSABLE)); //space before buttons
+		//this.add(new LabelField("", Field.NON_FOCUSABLE)); //space before buttons
     }
     
     //override onClose() to display a dialog box when the application is closed    

@@ -43,7 +43,7 @@ public class PostView extends BaseView {
         
    	  //A HorizontalFieldManager to hold the photos number label
 		HorizontalPaddedFieldManager photoNumberManager = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
-            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
+            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
         lblPhotoNumber = getLabel("");
         setNumberOfPhotosLabel(0);
         photoNumberManager.add(lblPhotoNumber);
@@ -158,7 +158,7 @@ public class PostView extends BaseView {
 	    			controller.saveDraftPost();
 	    		}
     		} catch (Exception e) {
-    			controller.displayError(e, "Error while saving post data");
+    			controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_POST));
     		}
         }
     };
@@ -171,7 +171,7 @@ public class PostView extends BaseView {
    				controller.sendPostToBlog();
     				
     		} catch (Exception e) {
-    			controller.displayError(e, "Error Sending saving post data");
+    			controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_POST));
     		}
         }
     };
@@ -305,7 +305,7 @@ public class PostView extends BaseView {
 		try {
 			updateModel();
 		} catch (Exception e) {
-			controller.displayError(e, "Error while saving post data");
+			controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_POST));
 		}
 		return controller.dismissView();	
     }

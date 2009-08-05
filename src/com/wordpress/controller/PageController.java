@@ -13,7 +13,6 @@ import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressResource;
-import com.wordpress.io.DraftDAO;
 import com.wordpress.io.FileUtils;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
@@ -52,7 +51,7 @@ public class PageController extends BlogObjectController {
 		try {
 			draftFolder = PageDAO.storePage(blog, page, draftFolder);
 		} catch (Exception e) {
-			displayError(e, "Cannot create space on disk for your page!");
+			displayError(e, _resources.getString(WordPress.ERROR_NOT_ENOUGHT_SPACE));
 		}
 		remotePages = PageDAO.buildPagesArray(blog.getPages());
 		
@@ -215,7 +214,7 @@ public class PageController extends BlogObjectController {
 	public void sendPageToBlog() {
 		
 		if(page.getPageStatus().equals(LOCAL_DRAFT_KEY)) {
-			displayMessage("Local Draft post cannot be submitted");
+			displayMessage(_resources.getString(WordPressResource.MESSAGE_LOCAL_DRAFT_NOT_SUBMIT));
 			return;
 		}	
 		 
@@ -224,7 +223,7 @@ public class PageController extends BlogObjectController {
 		try {
 			draftPagePhotoList = PageDAO.getPagePhotoList(blog, draftFolder);
 		} catch (Exception e) {
-			displayError(e, "Cannot load photos from disk, publication failed!");
+			displayError(e, _resources.getString(WordPressResource.ERROR_LOADING_PHOTO));
 			return;
 		}
 		

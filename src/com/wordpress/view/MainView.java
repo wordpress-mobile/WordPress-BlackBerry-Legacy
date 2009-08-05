@@ -1,6 +1,5 @@
 package com.wordpress.view;
 
-import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Field;
@@ -27,7 +26,6 @@ public class MainView extends BaseView {
     private BlogsListField blogListController;
     private int PADDING = 20;
     
-    protected Bitmap _backgroundBitmap = Bitmap.getBitmapResource("MainBackground.png");
     private BitmapField wpLogoBitmapField;
     private VerticalFieldManager   subManager;
     

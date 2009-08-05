@@ -53,7 +53,7 @@ public class BorderedFieldManager extends Manager {
 	/**
 	 * Do not show a border on the bottom.
 	 * Used to eliminate excessive border space on
-	 * vertically stacked instances.
+	 * vertically stacked instances. 
 	 */
 	public static long BOTTOM_BORDER_NONE = 0x0000000000020L;
 	
@@ -96,8 +96,8 @@ public class BorderedFieldManager extends Manager {
         int backgroundColor = graphics.getBackgroundColor();
 
         // Paint the fill for the field
-       // graphics.setColor(Color.LIGHTGREY);
-       // graphics.fillRect(0, 0, width, height);
+     //   graphics.setColor(Color.LIGHTGREY);
+    //    graphics.fillRect(0, 0, width, height);
 
         // Paint the rounded rectangular cutout section for the contents
         graphics.setColor(backgroundColor);

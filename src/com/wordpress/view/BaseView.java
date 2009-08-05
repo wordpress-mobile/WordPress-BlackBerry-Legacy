@@ -1,6 +1,7 @@
 package com.wordpress.view;
 
 import net.rim.device.api.i18n.ResourceBundle;
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
@@ -21,6 +22,8 @@ import com.wordpress.view.component.HeaderField;
 public abstract class BaseView extends MainScreen{
 	
 	protected Field titleField; //main title of the screen
+	
+	protected Bitmap _backgroundBitmap = Bitmap.getBitmapResource("MainBackground.png");
 	
 	//create a variable to store the ResourceBundle for localization support
 	protected static ResourceBundle _resources;

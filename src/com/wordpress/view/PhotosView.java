@@ -35,7 +35,7 @@ public class PhotosView extends BaseView {
 
   	  //A HorizontalFieldManager to hold the photos number label
         HorizontalFieldManager photoNumberManager = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
-            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH | HorizontalFieldManager.FIELD_HCENTER);
+            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
 
         lblPhotoNumber = getLabel("");
         setNumberOfPhotosLabel(counterPhotos);
