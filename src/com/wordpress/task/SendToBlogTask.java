@@ -134,11 +134,17 @@ public class SendToBlogTask extends TaskImpl {
 				//sending object to blog
 				if( post != null ) {
 				
-					//adding multimedia info to post
-					String body = post.getBody();
-					body+= htmlPhotosFragment;
-					post.setBody(body);
-					
+					//adding multimedia info to post. 
+					String extendedBody = post.getExtendedBody();
+			  		if(extendedBody != null && !extendedBody.trim().equals("")) {
+			  			String extBody = post.getExtendedBody();
+			  			extBody+= htmlPhotosFragment;
+						post.setExtendedBody(extBody);
+			  		} else {
+						String body = post.getBody();
+						body+= htmlPhotosFragment;
+						post.setBody(body);
+			  		}
 					if(blogConn instanceof NewPostConn) {
 						((NewPostConn) blogConn).setPost(post);
 						type = "NewPostConn";

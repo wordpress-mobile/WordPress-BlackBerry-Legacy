@@ -1,6 +1,7 @@
 package com.wordpress.view;
 
 
+import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Keypad;
@@ -18,6 +19,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Post;
+import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.component.HtmlTextField;
@@ -120,8 +122,16 @@ public class PostView extends BaseView {
   		manager.add(rowStatus);
   		manager.add(new SeparatorField()); 
   		
-  		//decode the post html
+  		//decode the post body content
   		String buildBodyFieldContentFromHtml = controller.buildBodyFieldContentFromHtml(post.getBody());
+  		//decode the post more content
+  		String extendedBody = post.getExtendedBody();
+  		if(extendedBody != null && !extendedBody.trim().equals("")) {
+  			String extendedBodyHTML = "<!--more-->" + Characters.ENTER + "";
+  			extendedBodyHTML += controller.buildBodyFieldContentFromHtml(extendedBody);
+  			buildBodyFieldContentFromHtml += extendedBodyHTML;
+  		}
+  		
 		bodyTextBox= new HtmlTextField(buildBodyFieldContentFromHtml);
 		manager.add(bodyTextBox);
 		addMenuItem(_saveDraftPostItem);
@@ -239,7 +249,32 @@ public class PostView extends BaseView {
 		
 		if(bodyTextBox.isDirty()) {
 			String newContent= bodyTextBox.getText();
-			post.setBody(newContent);
+			
+			String tagMore = null;
+			if(newContent.indexOf("<!--more-->") > -1) {
+				tagMore = "<!--more-->";
+			} else if(newContent.indexOf("<!--More-->") > -1) {
+				tagMore = "<!--More-->";
+			}else if(newContent.indexOf("<!--MORE-->") > -1) {
+				tagMore = "<!--MORE-->";
+			}
+			
+			//check for the more tag
+			if( tagMore != null ) {
+				Log.trace("founded Extended body");
+				String[] split = StringUtils.split(newContent, tagMore);
+				post.setBody(split[0]);
+				String extended = "";
+				//if there are > 1 tags more
+				for (int i = 1; i < split.length; i++) {
+					extended+=split[i];
+				}
+				post.setExtendedBody(extended);
+			} 
+			else //no tag more
+				post.setBody(newContent);
+			
+			
 			controller.setPostAsChanged(true);
 			Log.trace("bodyTextBox dirty");
 		}
