@@ -10,7 +10,7 @@ public class EditPageConn extends BlogConn  {
 
 	private boolean isPublished=false;
 	private final int blogId;
-	private final Page page;
+	private Page page;
 
 	public EditPageConn(String hint, String userHint, String passwordHint, int blogId, Page page, boolean isPublished) {
 		super(hint, userHint, passwordHint);
@@ -19,8 +19,8 @@ public class EditPageConn extends BlogConn  {
 		this.isPublished=isPublished;
 	}
 	
-	public void setPageDescription(String newDescription){
-		page.setDescription(newDescription);
+	public void setPage(Page page) {
+		this.page = page;
 	}
 	
 	public void run() {

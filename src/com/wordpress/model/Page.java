@@ -113,11 +113,11 @@ public class Page {
 		return mtExcerpt;
 	}
 
-	public void setMt_text_more(String mt_text_more) {
+	public void setMtTextMore(String mt_text_more) {
 		this.mtTextMore = mt_text_more;
 	}
 
-	public String getMt_text_more() {
+	public String getMtTextMore() {
 		return mtTextMore;
 	}
 

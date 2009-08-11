@@ -195,7 +195,6 @@ public class SecondaryResourceFetchThread extends Thread
         try 
         {
         	conn = (HttpConnection) ConnectionManager.getInstance().open(url);
-        	conn.setRequestProperty("User-Agent","wp-blackberry/"+ Tools.getAppVersion());
         	
             if (requestHeaders != null) 
             {

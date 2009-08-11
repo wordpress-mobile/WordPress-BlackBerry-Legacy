@@ -32,7 +32,6 @@ public class HTTPPostConn extends BlogConn  {
 			conn = (HttpConnection) ConnectionManager.getInstance().open(urlConnessione);
 			conn.setRequestMethod( HttpConnection.POST ); //setupPost method for this conn
 			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			conn.setRequestProperty("User-Agent","wp-blackberry/"+ Tools.getAppVersion());
 			
 			if(postContent != null) {
 				DataOutputStream dos = new DataOutputStream( conn.openOutputStream() );

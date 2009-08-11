@@ -25,7 +25,6 @@ public class HTTPGetConn extends BlogConn  {
 		
 		try {
 			conn = (HttpConnection) ConnectionManager.getInstance().open(urlConnessione);
-			conn.setRequestProperty("User-Agent","wp-blackberry/"+ Tools.getAppVersion());
 			int rc = conn.getResponseCode();
 			if( rc == HttpConnection.HTTP_OK ){
 				

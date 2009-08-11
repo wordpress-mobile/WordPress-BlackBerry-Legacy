@@ -127,7 +127,7 @@ public class PostView extends BaseView {
   		//decode the post more content
   		String extendedBody = post.getExtendedBody();
   		if(extendedBody != null && !extendedBody.trim().equals("")) {
-  			String extendedBodyHTML = "<!--more-->" + Characters.ENTER + "";
+  			String extendedBodyHTML = Characters.ENTER +"<!--more-->" + Characters.ENTER;
   			extendedBodyHTML += controller.buildBodyFieldContentFromHtml(extendedBody);
   			buildBodyFieldContentFromHtml += extendedBodyHTML;
   		}
@@ -166,6 +166,8 @@ public class PostView extends BaseView {
     			updateModel();
 	    		if (controller.isPostChanged()) {
 	    			controller.saveDraftPost();
+	    			//clean the state of filed into this view
+	    			cleanFieldState();
 	    		}
     		} catch (Exception e) {
     			controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_POST));
@@ -232,7 +234,17 @@ public class PostView extends BaseView {
         }
     };
     	
-    	
+    /**
+     * Change UI Fields "cleanliness" state to false.
+     * A field's cleanliness state tracks when changes happen to a field.
+     */
+    private void cleanFieldState(){
+    	title.setDirty(false);
+    	bodyTextBox.setDirty(false);
+    	tags.setDirty(false);
+    	status.setDirty(false);
+    }
+    
 	/*
 	 * Update Post data model and Track post changes.
 	 * 
@@ -293,45 +305,6 @@ public class PostView extends BaseView {
 			controller.setPostAsChanged(true);
 			Log.trace("status dirty");
 		}
-		/*
-		//title
-		String oldTitle=post.getTitle();
-		if(oldTitle == null ) { //no previous title, setting the new title  
-			if(!title.getText().trim().equals("")){
-				post.setTitle(title.getText());
-				controller.setPostAsChanged(true);
-			}
-		} else {
-			if( !oldTitle.equals(title.getText()) ) { //title has changed
-				post.setTitle(title.getText());
-				controller.setPostAsChanged(true);
-			}
-		}
-		
-		//track changes of body content
-		if(bodyTextBox != null) {
-			String newContent= bodyTextBox.getText();
-			if(!newContent.equals(post.getBody())){
-				post.setBody(newContent);
-				controller.setPostAsChanged(true);
-			}
-		}
-		
-		if(tags != null) {
-			String newContent= tags.getText();
-			if(!newContent.equals(post.getTags())){
-				post.setTags(newContent);
-				controller.setPostAsChanged(true);
-			}
-		}
-		
-		int selectedStatusID = status.getSelectedIndex();
-		String newState= controller.getStatusKeys()[selectedStatusID];
-		if (newState != post.getStatus()) {
-			post.setStatus(newState);
-			controller.setPostAsChanged(true);
-		}
-		*/
 	}
 
 

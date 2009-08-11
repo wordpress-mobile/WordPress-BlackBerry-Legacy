@@ -19,9 +19,9 @@ public class NewPageConn extends BlogConn  {
 		this.isPublished=isPublished;
 	}
 
-	public void setPageDescription(String newDescription){
-		page.setDescription(newDescription);
-	} 
+	public void setPage(Page page) {
+		this.page = page;
+	}
 	
 	public void run() {
 		try{

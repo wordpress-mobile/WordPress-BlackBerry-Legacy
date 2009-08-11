@@ -210,10 +210,17 @@ public class PageDAO implements BaseDAO{
 	 * @return
 	 */
 	private static boolean isPageFile(String path){
-		if(path.indexOf('p') == -1 ) return true;
-			return false;
+		//check that is not a photo file 
+		if(path.indexOf('p') == -1 ) { 
+			try {
+				Integer.valueOf(path);
+				return true;
+			} catch (NumberFormatException numExc){
+				return false;
+			}
 		}
-	
+		return false;
+	}
 	
 	//returns array of Page builded from vector returned by wp.getPages response
 	public static Page[] buildPagesArray(Vector respVector){
@@ -258,7 +265,7 @@ public class PageDAO implements BaseDAO{
 		page.setPermaLink((String) returnPageData.get("permaLink"));
 		page.setCategories((Vector) returnPageData.get("categories"));
 		page.setMt_excerpt((String) returnPageData.get("excerpt"));
-		page.setMt_text_more((String) returnPageData.get("text_more"));
+		page.setMtTextMore((String) returnPageData.get("text_more"));
 
 		
 		if (returnPageData.get("mt_allow_comments") != null) {
@@ -328,8 +335,8 @@ public class PageDAO implements BaseDAO{
 			content.put("permaLink", page.getPermaLink());
 		if (page.getMt_excerpt()!= null)
 			content.put("mt_excerpt", page.getMt_excerpt());
-		if (page.getMt_text_more()!= null)
-			content.put("mt_text_more", page.getMt_text_more());
+		if (page.getMtTextMore()!= null)
+			content.put("mt_text_more", page.getMtTextMore());
 		content.put("mt_allow_comments", new Integer(page.isCommentsEnabled() ? 1 : 0));
 		content.put("mt_allow_pings", new Integer(page.isPingsEnabled() ? 1 : 0));
 		

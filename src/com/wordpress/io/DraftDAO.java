@@ -15,6 +15,7 @@ import javax.microedition.rms.RecordStoreException;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
 import com.wordpress.utils.Tools;
+import com.wordpress.utils.log.Log;
 
 public class DraftDAO implements BaseDAO{
 	
@@ -159,7 +160,7 @@ public class DraftDAO implements BaseDAO{
     	draft.setCategories(postCat);
     	in.close();
  
-    	System.out.println("loading draft post ok");
+    	Log.trace("loading draft post ok");
     	return draft;		
 	}
 
@@ -193,7 +194,7 @@ public class DraftDAO implements BaseDAO{
 	        		String path=listDraftFolder[i];
 	        		if (!path.endsWith("/")) { //found file
 	        			if(isPostFile(path)) { //found draft file
-		        			listDir.addElement(Integer.valueOf(path)); //draft folder are label as  1, 2, 3, ...
+		        			listDir.addElement(Integer.valueOf(path)); //draft files are label as  1, 2, 3, ...
 	        			}
 	        		}
 	    		}
@@ -210,7 +211,15 @@ public class DraftDAO implements BaseDAO{
 	}
 	
 	private static boolean isPostFile(String path){
-		if(path.indexOf('p') == -1 ) return true;
+		//check that is not a photo file 
+		if(path.indexOf('p') == -1 ) { 
+			try {
+				Integer.valueOf(path);
+				return true;
+			} catch (NumberFormatException numExc){
+				return false;
+			}
+		}
 		return false;
 	}
 	

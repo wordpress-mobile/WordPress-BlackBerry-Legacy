@@ -345,6 +345,7 @@ public class PostController extends BlogObjectController {
 		try {
 		 draftFolder = DraftDAO.storePost(post, draftFolder);
 		 setPostAsChanged(false); //set the post as not modified because we have saved it.
+		 //the changes over the clean state for the UI Fields will be done into view-> save-draft menu item
 		 this.isDraft = true; //set as draft
 		} catch (Exception e) {
 			displayError(e,"Error while saving draft post!");
@@ -376,7 +377,7 @@ public class PostController extends BlogObjectController {
 	    		FrontController.getIstance().backAndRefreshView(false);
 	    		return true;
 	    	} else {
-	    		Log.trace("la scelta dell'utente è cancel");
+	    		Log.trace("user has selected Cancel");
 	    		return false;
 	    	}
 		}

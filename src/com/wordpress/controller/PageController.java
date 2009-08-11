@@ -307,6 +307,7 @@ public class PageController extends BlogObjectController {
 		try {
 		 draftFolder = PageDAO.storePage(blog, page, draftFolder);
 		 setPageAsChanged(false); //set the post as not modified because we have saved it.
+		 //the changes over the clean state for the UI Fields will be done into view-> save-draft menu item
 		 this.isDraft = true; //set as draft
 		} catch (Exception e) {
 			displayError(e,"Error while saving draft page!");

@@ -1,5 +1,6 @@
 package com.wordpress.view;
 
+import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
@@ -16,6 +17,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PageController;
 import com.wordpress.model.Page;
+import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.component.HtmlTextField;
@@ -98,7 +100,17 @@ public class PageView extends BaseView {
   		manager.add(new SeparatorField());
   		
   		String buildBodyFieldContentFromHtml = controller.buildBodyFieldContentFromHtml(page.getDescription());
+		//bodyTextBox= new HtmlTextField(buildBodyFieldContentFromHtml);
+		
+  		//decode the text more content
+  		String extendedBody = page.getMtTextMore();
+  		if(extendedBody != null && !extendedBody.trim().equals("")) {
+  			String extendedBodyHTML = Characters.ENTER +"<!--more-->" + Characters.ENTER;
+  			extendedBodyHTML += controller.buildBodyFieldContentFromHtml(extendedBody);
+  			buildBodyFieldContentFromHtml += extendedBodyHTML;
+  		}
 		bodyTextBox= new HtmlTextField(buildBodyFieldContentFromHtml);
+		
 		manager.add(bodyTextBox);
 		addMenuItem(_saveDraftItem);
 		addMenuItem(_submitItem);
@@ -116,9 +128,7 @@ public class PageView extends BaseView {
     public void setNumberOfPhotosLabel(int count) {
     	lblPhotoNumber.setText(count + " "+_resources.getString(WordPressResource.TITLE_PHOTOSVIEW));
     }
-    
-
-    
+        
     //save a local copy of post
     private MenuItem _saveDraftItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 10230, 10) {
         public void run() {
@@ -126,6 +136,8 @@ public class PageView extends BaseView {
     			updateModel();
 	    		if (controller.isPageChanged()) {
 	    			controller.saveDraftPage();
+	    			//clean the state of filed into this view
+	    			cleanFieldState();
 	    		}
     		} catch (Exception e) {
     			controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_PAGE));
@@ -185,6 +197,20 @@ public class PageView extends BaseView {
         }
     };
     	
+    
+    /**
+     * Change UI Fields "cleanliness" state to false.
+     * A field's cleanliness state tracks when changes happen to a field.
+     */
+    private void cleanFieldState(){
+    	title.setDirty(false);
+    	bodyTextBox.setDirty(false);
+    	status.setDirty(false);
+    	pageOrderField.setDirty(false);
+    	parentPageField.setDirty(false);
+    	pageTemplateField.setDirty(false);
+    }
+    
        	
 	/*
 	 * Update Page data model and Track changes.
@@ -200,8 +226,38 @@ public class PageView extends BaseView {
 		}
 		
 		if(bodyTextBox.isDirty()) {
-			String newContent= bodyTextBox.getText();
+		/*	String newContent= bodyTextBox.getText();
 			page.setDescription(newContent);
+			controller.setPageAsChanged(true);
+			Log.trace("bodyTextBox dirty");*/
+			
+			String newContent= bodyTextBox.getText();
+			
+			String tagMore = null;
+			if(newContent.indexOf("<!--more-->") > -1) {
+				tagMore = "<!--more-->";
+			} else if(newContent.indexOf("<!--More-->") > -1) {
+				tagMore = "<!--More-->";
+			}else if(newContent.indexOf("<!--MORE-->") > -1) {
+				tagMore = "<!--MORE-->";
+			}
+			
+			//check for the more tag
+			if( tagMore != null ) {
+				Log.trace("founded Extended page body");
+				String[] split = StringUtils.split(newContent, tagMore);
+				page.setDescription(split[0]);
+				String extended = "";
+				//if there are > 1 tags more
+				for (int i = 1; i < split.length; i++) {
+					extended+=split[i];
+				}
+				page.setMtTextMore(extended);
+			} 
+			else //no tag more
+				page.setDescription(newContent);
+			
+			
 			controller.setPageAsChanged(true);
 			Log.trace("bodyTextBox dirty");
 		}
@@ -242,63 +298,6 @@ public class PageView extends BaseView {
 			}
 		}
 		
-		/*
-		//title
-		String oldTitle=page.getTitle();
-		if(oldTitle == null ) { //no previous title, setting the new title  
-			if(!title.getText().trim().equals("")){
-				page.setTitle(title.getText());
-				controller.setPageAsChanged(true);
-			}
-		} else {
-			if( !oldTitle.equals(title.getText()) ) { //title has changed
-				page.setTitle(title.getText());
-				controller.setPageAsChanged(true);
-			}
-		}
-		
-		//track changes of body content
-		if(bodyTextBox != null) {
-			String newContent= bodyTextBox.getText();
-			if(!newContent.equals(page.getDescription())){
-				page.setDescription(newContent);
-				controller.setPageAsChanged(true);
-			}
-		}
-
-		//page status
-		int selectedStatusID = status.getSelectedIndex();
-		String newState= controller.getStatusKeys()[selectedStatusID];
-		if (newState != page.getPageStatus()) {
-			page.setPageStatus(newState);
-			controller.setPageAsChanged(true);
-		}
-
-		//page order field: : we have used the BB isDirty method instead of manual field change check
-		if(pageOrderField.isDirty()){
-			page.setWpPageOrder(Integer.parseInt(pageOrderField.getText()));
-			pageOrderField.setDirty(false);
-			controller.setPageAsChanged(true);
-		}
-		
-		//parent page field: we have used the BB isDirty method instead of manual field change check
-		if(parentPageField.isDirty()) {
-			int selectedIndex = parentPageField.getSelectedIndex();
-			controller.setParentPageID(selectedIndex);
-			pageOrderField.setDirty(false);
-			controller.setPageAsChanged(true);
-		}
-		
-		//page template. doesn't work on new page
-		int selectedTemplateFieldID = pageTemplateField.getSelectedIndex();
-		if(selectedTemplateFieldID > -1) {
-			String pageTemplate= controller.getPageTemplateKeys()[selectedTemplateFieldID];
-			if (pageTemplate != page.getWpPageTemplate()) {
-				page.setWpPageTemplate(pageTemplate);
-				controller.setPageAsChanged(true);
-			}
-		}
-		*/
 	}
 
 

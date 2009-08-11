@@ -5,8 +5,10 @@ import java.io.IOException;
 
 import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
+import javax.microedition.io.HttpConnection;
 
 import com.wordpress.model.Preferences;
+import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 
 
@@ -41,6 +43,7 @@ public class ConnectionManager {
     }
 
     public synchronized Connection open(String url) throws IOException {
+    	//TODO inserire il controllo della connessione BIS
         return open(url, Connector.READ_WRITE, true);
     }
 
@@ -74,7 +77,10 @@ public class ConnectionManager {
         	}
         	Log.debug("User Wap Apn parameters detected for this connection: " + url + 
         			AbstractConfiguration.BASE_CONFIG_PARAMETERS + gtwUrl);
-            return Connector.open(url + AbstractConfiguration.BASE_CONFIG_PARAMETERS + gtwUrl);
+
+        	Connection ret = Connector.open(url + AbstractConfiguration.BASE_CONFIG_PARAMETERS + gtwUrl);
+        	setCommonRequestProperty(ret);
+            return ret;
         } 
         
         //user hasn't personal conn settings. Load them from devices setting
@@ -116,6 +122,8 @@ public class ConnectionManager {
                 String fullUrl = url + connections[currConfigID].getUrlParameters();
                 Log.trace("Opening url: " + fullUrl);
                 ret = Connector.open(fullUrl, accessMode, enableTimeoutException);
+            	setCommonRequestProperty(ret);
+                return ret;
             } catch (Exception ioe) {
                 currConfigID=CONFIG_NONE;
                 closeConnection(ret);
@@ -147,6 +155,7 @@ public class ConnectionManager {
 
                 Log.debug("Connecting to: " + requestUrl);
                 ret = Connector.open(requestUrl, accessMode, enableTimeoutException);
+            	setCommonRequestProperty(ret);
                 return ret;
             } catch (Exception ioe) {
                 Log.debug("setupConnection error " + ioe);
@@ -163,6 +172,23 @@ public class ConnectionManager {
         }
     }
     
+    /**
+     * Setting the common http connection properties
+     * @param conn
+     * @throws IOException
+     */
+    private void setCommonRequestProperty(Connection conn) throws IOException {
+    	try {
+    		if(conn instanceof HttpConnection) {
+    			HttpConnection connCasted = (HttpConnection) conn;
+    			connCasted.setRequestProperty("User-Agent","wp-blackberry/"+ Tools.getAppVersion());
+    			Log.trace("common http request properties setted");
+    		}
+    	} catch (IOException e) {
+    		Log.error("Cannot set http request common properties!");
+    		throw e;
+    	}
+    }
     
     private void closeConnection(Connection conn) {
     	 // Close the connection in case it got opened

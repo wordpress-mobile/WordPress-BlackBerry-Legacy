@@ -137,9 +137,8 @@ public class SendToBlogTask extends TaskImpl {
 					//adding multimedia info to post. 
 					String extendedBody = post.getExtendedBody();
 			  		if(extendedBody != null && !extendedBody.trim().equals("")) {
-			  			String extBody = post.getExtendedBody();
-			  			extBody+= htmlPhotosFragment;
-						post.setExtendedBody(extBody);
+			  			extendedBody+= htmlPhotosFragment;
+						post.setExtendedBody(extendedBody);
 			  		} else {
 						String body = post.getBody();
 						body+= htmlPhotosFragment;
@@ -153,17 +152,23 @@ public class SendToBlogTask extends TaskImpl {
 						type = "EditPostConn";
 					}
 				} else {
-					
-					//adding multimedia info to post
-					String body = page.getDescription() ;
-					body+= htmlPhotosFragment;
-					page.setDescription(body);
+							
+					//adding multimedia info to page. 
+					String moreText = page.getMtTextMore();
+			  		if(moreText != null && !moreText.trim().equals("")) {
+			  			moreText+= htmlPhotosFragment;
+						page.setMtTextMore(moreText);
+			  		} else {
+			  			String body = page.getDescription();
+						body+= htmlPhotosFragment;
+						page.setDescription(body); 
+			  		}
 					
 					if(blogConn instanceof NewPageConn) {
-						((NewPageConn) blogConn).setPageDescription(body);
+						((NewPageConn) blogConn).setPage(page);
 						type = "NewPageConn";
 					} else {
-						((EditPageConn) blogConn).setPageDescription(body);
+						((EditPageConn) blogConn).setPage(page);
 						type = "EditPageConn";
 					}
 					

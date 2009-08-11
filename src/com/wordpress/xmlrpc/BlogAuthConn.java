@@ -82,7 +82,6 @@ public class BlogAuthConn extends BlogConn  {
   			numberOfRedirection++;
   			
 			conn = (HttpConnection) ConnectionManager.getInstance().open(URL);
-			conn.setRequestProperty("User-Agent","wp-blackberry/"+ Tools.getAppVersion());
 			
             // List all the response headers from the server.
             // Note: The first call to getHeaderFieldKey() will implicit send

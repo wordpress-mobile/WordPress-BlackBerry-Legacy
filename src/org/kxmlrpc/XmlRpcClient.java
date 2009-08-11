@@ -152,7 +152,6 @@ public class XmlRpcClient {
     		con.setRequestMethod(HttpConnection.POST);
     		con.setRequestProperty("Content-Length", Integer.toString(messageLength));
     		con.setRequestProperty("Content-Type", "text/xml");
-    		con.setRequestProperty("User-Agent","wp-blackberry/"+ Tools.getAppVersion());
     		
     		// Obtain an output stream
     		out = con.openOutputStream();
