@@ -232,9 +232,8 @@ public class ConnectionManager {
                 return (ConnectionUtils.isWifiActive() && ConnectionUtils.isWifiAvailable());
             case TCP_CONFIG:
             case BES_CONFIG:
-                return !ConnectionUtils.isDataBearerOffline();
             case BIS_CONFIG:
-            	return false; //TODO: change when RIM code is available
+                return !ConnectionUtils.isDataBearerOffline();
             case SERVICE_BOOK_CONFIG:
             	return (!ConnectionUtils.isDataBearerOffline() 
             			&&  !connections[SERVICE_BOOK_CONFIG].getUrlParameters().trim().equals(AbstractConfiguration.BASE_CONFIG_PARAMETERS));

@@ -213,7 +213,7 @@ public class PageController extends BlogObjectController {
 
 	public void sendPageToBlog() {
 		
-		if(page.getPageStatus().equals(LOCAL_DRAFT_KEY)) {
+		if(page.getPageStatus() == null || page.getPageStatus().equals(LOCAL_DRAFT_KEY)) {
 			displayMessage(_resources.getString(WordPressResource.MESSAGE_LOCAL_DRAFT_NOT_SUBMIT));
 			return;
 		}	

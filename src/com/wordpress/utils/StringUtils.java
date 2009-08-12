@@ -503,4 +503,19 @@ public class StringUtils {
 		    return result.toString();
 		  }
 	  
+	  public static String replaceLast(final String original, final String tokenToBeReplaced, final String value) {
+		    //TODO : optimize
+		    final StringBuffer result = new StringBuffer();
+		    final String[] originalSplit = split(original, tokenToBeReplaced);
+		    for (int i = 0; i < originalSplit.length; i++) {
+		      result.append(originalSplit[i]);
+		      if(i == originalSplit.length - 2) {
+		    	  result.append(value);
+		      } else if (i != originalSplit.length - 1 ) {
+		        result.append(tokenToBeReplaced);
+		      }
+		    }
+		    return result.toString();
+		  }
+	  
 }

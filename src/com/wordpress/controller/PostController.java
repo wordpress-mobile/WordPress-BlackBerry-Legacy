@@ -258,7 +258,7 @@ public class PostController extends BlogObjectController {
 
 	public void sendPostToBlog() {
 		
-		if(post.getStatus().equals(LOCAL_DRAFT_KEY)) {
+		if(post.getStatus() == null || post.getStatus().equals(LOCAL_DRAFT_KEY)) {
 			displayMessage(_resources.getString(WordPressResource.MESSAGE_LOCAL_DRAFT_NOT_SUBMIT));
 			return;
 		}	

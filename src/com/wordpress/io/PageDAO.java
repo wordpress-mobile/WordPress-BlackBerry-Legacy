@@ -15,6 +15,7 @@ import javax.microedition.rms.RecordStoreException;
 
 import com.wordpress.model.Blog;
 import com.wordpress.model.Page;
+import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 
@@ -102,8 +103,11 @@ public class PageDAO implements BaseDAO{
 	    		String path=listDraftFolder[i];
 	    		if (!path.endsWith("/")) { //found files
 	    			if(!isPageFile(path) && path.startsWith( String.valueOf(draftId) )) { //found draft photo
-	    				String newDirPath = path; 
-	    				newDirPath = path.substring(path.indexOf('-')+1, path.length());
+	    				
+        				if(path.endsWith(".rem")) { //check for device content protection
+        					path = StringUtils.replaceLast(path, ".rem", "");
+        				} 
+        				String newDirPath = path.substring(path.indexOf('-')+1, path.length());
 	    				listDir.addElement(newDirPath); 
 	    			}
 	    		}
@@ -148,7 +152,13 @@ public class PageDAO implements BaseDAO{
         		String path=listDraftFolder[i];
         		if (!path.endsWith("/")) { //found files
         			if(isPageFile(path)) { //found page file
-        				String newDirPath = path; 
+        				String newDirPath;
+        				
+        				if(path.endsWith(".rem")) { //check for device content protection
+        					newDirPath = StringUtils.replaceLast(path, ".rem", "");
+        				} else
+        					newDirPath = path;
+        				
         				listDir.addElement(newDirPath); //draft file are label as  1, 2, 3, ...
         			}
         		}
@@ -180,7 +190,6 @@ public class PageDAO implements BaseDAO{
 	private static int getDraftPageID(Blog blog, int draftId)  throws IOException, RecordStoreException{	
 	    	String blogDraftsPath=getPath(blog);
 	    	
-	
 	    	if (draftId == -1) {
 	    		String[] listDraftFolder = JSR75FileSystem.listFiles(blogDraftsPath);
 	    		Vector listDir= new Vector();
@@ -188,6 +197,11 @@ public class PageDAO implements BaseDAO{
 	        		String path=listDraftFolder[i];
 	        		if (!path.endsWith("/")) { //found file
 	        			if(isPageFile(path)) { //found draft file
+	        				
+	        				if(path.endsWith(".rem")) { //check for device content protection
+	        					path = StringUtils.replaceLast(path, ".rem", "");
+	        				}
+	        				
 		        			listDir.addElement(Integer.valueOf(path)); //draft folder are label as  1, 2, 3, ...
 	        			}
 	        		}
@@ -210,9 +224,13 @@ public class PageDAO implements BaseDAO{
 	 * @return
 	 */
 	private static boolean isPageFile(String path){
+		Log.trace("found file: "+path);
 		//check that is not a photo file 
 		if(path.indexOf('p') == -1 ) { 
 			try {
+				if(path.endsWith(".rem")) { //check for device content protection
+					path = StringUtils.replaceLast(path, ".rem", "");
+				}
 				Integer.valueOf(path);
 				return true;
 			} catch (NumberFormatException numExc){
