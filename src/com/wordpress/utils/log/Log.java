@@ -65,7 +65,8 @@ public class Log {
     
 
     public static void info(Object obj, String msg) {
-        writeLogMessage(INFO, "INFO", msg);
+    	String message = "[" + obj.getClass().getName() + "] " + msg;
+        writeLogMessage(INFO, "INFO", message);
     }
 
     public static void debug(String msg) {

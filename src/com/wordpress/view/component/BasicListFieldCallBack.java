@@ -1,6 +1,7 @@
 package com.wordpress.view.component;
 
 import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
@@ -132,6 +133,6 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
     	}
 	    
     	public int getPreferredWidth(ListField listField) {
-    		return Graphics.getScreenWidth();
+    		return Display.getWidth();
     	}
 }
