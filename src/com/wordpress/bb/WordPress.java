@@ -7,6 +7,7 @@ import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.controller.MainController;
+import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Appender;
 import com.wordpress.utils.log.BlackberryEventLogAppender;
 import com.wordpress.utils.log.ConsoleAppender;
@@ -44,6 +45,10 @@ public class WordPress extends UiApplication implements WordPressResource {
 		 if ((Display.getProperties() & Display.DISPLAY_PROPERTY_REQUIRES_BACKLIGHT) != 0) {
 			Backlight.enable(true, 200);
 		}
+		 
+	    // Create an instance of the ConnectionManager and register the GlobalEventListener
+		ConnectionManager  _manager = ConnectionManager.getInstance();
+	    this.addGlobalEventListener( _manager ); // Needed for ServiceBook parsing method 
 		 
 		 //start app
 		new SplashScreen(this,mainScreen);

@@ -15,7 +15,8 @@ import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 
 
-public class ConnectionManager  implements GlobalEventListener {
+public class ConnectionManager  implements GlobalEventListener
+ {
 
 	//singleton
 	private static ConnectionManager instance = null;
@@ -44,13 +45,13 @@ public class ConnectionManager  implements GlobalEventListener {
         if (instance == null) {
             instance = new ConnectionManager();
         }
+        
         return instance;
     }
 
     public synchronized Connection open(String url) throws IOException {
         return open(url, Connector.READ_WRITE, true);
     }
-
 
     public synchronized Connection open(String url, int accessMode, boolean enableTimeoutException)
     throws IOException {
@@ -238,7 +239,7 @@ public class ConnectionManager  implements GlobalEventListener {
 		}
     }
     
-    public boolean isAvailable(int configuration) {
+    private boolean isAvailable(int configuration) {
         switch (configuration) {
             case WIFI_CONFIG:
                 return (ConnectionUtils.isWifiActive() && ConnectionUtils.isWifiAvailable());
@@ -246,7 +247,7 @@ public class ConnectionManager  implements GlobalEventListener {
             case BES_CONFIG:
             	return !ConnectionUtils.isDataBearerOffline();
             case BIS_CONFIG:
-            	 return (!ConnectionUtils.isDataBearerOffline() && instance._bisSupport);
+            	 return (!ConnectionUtils.isDataBearerOffline() && _bisSupport);
             case SERVICE_BOOK_CONFIG:
             	return (!ConnectionUtils.isDataBearerOffline() 
             			&&  !connections[SERVICE_BOOK_CONFIG].getUrlParameters().trim().equals(AbstractConfiguration.BASE_CONFIG_PARAMETERS));
@@ -263,14 +264,14 @@ public class ConnectionManager  implements GlobalEventListener {
         connections[WIFI_CONFIG] = new WiFiConfig();
         connections[TCP_CONFIG] = new TcpConfig();
         connections[SERVICE_BOOK_CONFIG] = new ServiceBookConfig();
-        connections[SERVICE_BOOK_CONFIG].setUrlParameters(AbstractConfiguration.BASE_CONFIG_PARAMETERS + ConnectionUtils.getServiceBookOptionsNew());
+      //  connections[SERVICE_BOOK_CONFIG].setUrlParameters(AbstractConfiguration.BASE_CONFIG_PARAMETERS + ConnectionUtils.getServiceBookOptionsNew());
         connections[BES_CONFIG] = new BESConfig();
         connections[BIS_CONFIG] = new BISConfig();
         return connections;
     }
     
     private void reloadServiceBook() {
-        Log.info("Service Book Global Event Received" );
+        
         Log.info("Reload BIS config from device");
         _bisSupport = ConnectionUtils.isBISAvailable();
         
@@ -303,6 +304,7 @@ public class ConnectionManager  implements GlobalEventListener {
             guid == ServiceBook.GUID_SB_POLICY_CHANGED ||
             guid == ServiceBook.GUID_SB_REMOVED ) {
         	
+        	Log.info("Service Book Global Event Received" );
         	reloadServiceBook();
            
         }
