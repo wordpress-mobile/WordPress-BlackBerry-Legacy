@@ -130,15 +130,15 @@ public class BlogOptionsController extends BaseController {
     	DiscardChangeInquiryView infoView= new DiscardChangeInquiryView(quest);
     	int choice=infoView.doModal();    	 
     	if(Dialog.DISCARD == choice) {
-    		Log.trace("la scelta dell'utente è discard");
+    		Log.trace("user has selected discard");
     		backCmd();
     		return true;
     	}else if(Dialog.SAVE == choice) {
-    		Log.trace("la scelta dell'utente è save");
+    		Log.trace("user has selected save");
     		saveAndBack();
     		return true;
     	} else {
-    		Log.trace("la scelta dell'utente è cancel");
+    		Log.trace("user has selected cancel");
     		return false;
     	}
 	}

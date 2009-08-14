@@ -7,12 +7,15 @@ import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
+import net.rim.device.api.servicebook.ServiceBook;
+import net.rim.device.api.system.GlobalEventListener;
+
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 
 
-public class ConnectionManager {
+public class ConnectionManager  implements GlobalEventListener {
 
 	//singleton
 	private static ConnectionManager instance = null;
@@ -27,11 +30,13 @@ public class ConnectionManager {
 	private static AbstractConfiguration[] connections = null;
 	
 	private Preferences userPreferences = Preferences.getIstance();
-	protected static int currConfigID = CONFIG_NONE;
+	protected int currConfigID = CONFIG_NONE;
     
+    private boolean _bisSupport;   // Boolean representing whether BIS-B is supported.
     
     private ConnectionManager() {
         connections = initConnectionType(); 
+    	reloadServiceBook();
     }
 
     //	singleton
@@ -43,7 +48,6 @@ public class ConnectionManager {
     }
 
     public synchronized Connection open(String url) throws IOException {
-    	//TODO inserire il controllo della connessione BIS
         return open(url, Connector.READ_WRITE, true);
     }
 
@@ -84,11 +88,11 @@ public class ConnectionManager {
         } 
         
         //user hasn't personal conn settings. Load them from devices setting
-        
+        /*
         Log.debug("Reload configuration from device");
         connections[SERVICE_BOOK_CONFIG].setUrlParameters(AbstractConfiguration.BASE_CONFIG_PARAMETERS + 
                 ConnectionUtils.getServiceBookOptionsNew());
-
+*/
         if (!ConnectionUtils.isWifiActive() || !ConnectionUtils.isWifiAvailable()) {
             Log.debug("WI-FI not available");
             if (currConfigID == WIFI_CONFIG) {
@@ -120,6 +124,10 @@ public class ConnectionManager {
             Connection ret = null;
             try {
                 String fullUrl = url + connections[currConfigID].getUrlParameters();
+                if(currConfigID == BIS_CONFIG) {
+                	if (url.startsWith("https"))
+                			fullUrl+=";EndToEndRequired";	
+                }
                 Log.trace("Opening url: " + fullUrl);
                 ret = Connector.open(fullUrl, accessMode, enableTimeoutException);
             	setCommonRequestProperty(ret);
@@ -153,6 +161,10 @@ public class ConnectionManager {
                     continue;
                 }
 
+                if(currConfigID == BIS_CONFIG) {
+                	if (requestUrl.startsWith("https"))
+                		requestUrl+=";EndToEndRequired";	
+                }
                 Log.debug("Connecting to: " + requestUrl);
                 ret = Connector.open(requestUrl, accessMode, enableTimeoutException);
             	setCommonRequestProperty(ret);
@@ -226,14 +238,15 @@ public class ConnectionManager {
 		}
     }
     
-    public static boolean isAvailable(int configuration) {
+    public boolean isAvailable(int configuration) {
         switch (configuration) {
             case WIFI_CONFIG:
                 return (ConnectionUtils.isWifiActive() && ConnectionUtils.isWifiAvailable());
             case TCP_CONFIG:
             case BES_CONFIG:
+            	return !ConnectionUtils.isDataBearerOffline();
             case BIS_CONFIG:
-                return !ConnectionUtils.isDataBearerOffline();
+            	 return (!ConnectionUtils.isDataBearerOffline() && instance._bisSupport);
             case SERVICE_BOOK_CONFIG:
             	return (!ConnectionUtils.isDataBearerOffline() 
             			&&  !connections[SERVICE_BOOK_CONFIG].getUrlParameters().trim().equals(AbstractConfiguration.BASE_CONFIG_PARAMETERS));
@@ -243,6 +256,7 @@ public class ConnectionManager {
         return false;
     }
         
+ 
     
     static AbstractConfiguration[] initConnectionType() {
         connections = new AbstractConfiguration[MAX_CONFIG_NUMBER];
@@ -252,9 +266,45 @@ public class ConnectionManager {
         connections[SERVICE_BOOK_CONFIG].setUrlParameters(AbstractConfiguration.BASE_CONFIG_PARAMETERS + ConnectionUtils.getServiceBookOptionsNew());
         connections[BES_CONFIG] = new BESConfig();
         connections[BIS_CONFIG] = new BISConfig();
-        
         return connections;
     }
+    
+    private void reloadServiceBook() {
+        Log.info("Service Book Global Event Received" );
+        Log.info("Reload BIS config from device");
+        _bisSupport = ConnectionUtils.isBISAvailable();
+        
+        Log.info("Reload wap2.0 config from device");
+        connections[SERVICE_BOOK_CONFIG].setUrlParameters(AbstractConfiguration.BASE_CONFIG_PARAMETERS + 
+                ConnectionUtils.getServiceBookOptionsNew());
+    }
+    
+    
+    /**
+     * Invoked when the specified global event occured. 
+     * The eventOccurred method provides two object parameters and two integer parameters for supplying details about the event itself. The developer determines how the parameters will be used. 
+     * 
+     * For example, if the event corresponded to sending or receiving a mail message, the object0 parameter might specify the mail message itself, while the data0 parameter might specify the identification details of the message, such as an address value.
+     * 
+     * @param guid - The GUID of the event.
+     * @param data0 - Integer value specifying information associated with the event.
+     * @param data1 - Integer value specifying information associated with the event.
+     * @param object0 - Object specifying information associated with the event.
+     * @param object1 - Object specifying information associated with the event.
+     */
+    public void eventOccurred(long guid, int data0, int data1, Object object0, Object object1)
+    {
+        if( guid == ServiceBook.GUID_SB_ADDED ||
+            guid == ServiceBook.GUID_SB_CHANGED ||
+            guid == ServiceBook.GUID_SB_OTA_SWITCH ||
+            guid == ServiceBook.GUID_SB_OTA_UPDATE ||
+            // This item was added to the JDE in v4.1.  If compiling in that version uncomment this line
+            // and otherwise leave it out.
+            guid == ServiceBook.GUID_SB_POLICY_CHANGED ||
+            guid == ServiceBook.GUID_SB_REMOVED ) {
+        	
+        	reloadServiceBook();
+           
+        }
+    }
 }
-
-

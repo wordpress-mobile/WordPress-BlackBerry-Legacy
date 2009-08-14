@@ -339,7 +339,7 @@ public class PageController extends BlogObjectController {
 	    		FrontController.getIstance().backAndRefreshView(false);
 	    		return true;
 	    	} else {
-	    		Log.trace("la scelta dell'utente è cancel");
+	    		Log.trace("user has selected cancel");
 	    		return false;
 	    	}
 		}

@@ -514,17 +514,17 @@ public class PreferencesView extends BaseView {
 	    	int choice=infoView.doModal();    	 
 	    	
 	    	if(Dialog.DISCARD == choice) {
-	    		System.out.println("la scelta dell'utente è discard");
+	    		Log.trace("user has selected discard");
 	    		controller.backCmd();
 	    		return true;
 	    	}else if(Dialog.SAVE == choice) {
-	    		System.out.println("la scelta dell'utente è save");
+	    		Log.trace("user has selected save");
 	    		//get the changes from the UI and update the model
 	    		updateDataModel();
 	    		controller.savePrefAndBack();
 	    		return true;
 	    	} else {
-	    		System.out.println("la scelta dell'utente è cancel");
+	    		Log.trace("user has selected cancel");
 	    		return false;
 	    	}
 	    }
