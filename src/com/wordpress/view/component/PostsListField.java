@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import net.rim.device.api.i18n.Locale;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.ui.DrawStyle;
@@ -15,7 +14,6 @@ import net.rim.device.api.ui.component.ObjectListField;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.utils.CalendarUtils;
-import com.wordpress.utils.StringUtils;
 
 /**
  * This class is a list field that we used to

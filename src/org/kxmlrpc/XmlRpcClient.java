@@ -39,7 +39,6 @@ import org.kxml2.io.KXmlParser;
 import org.kxml2.io.KXmlSerializer;
 
 import com.wordpress.utils.StringUtils;
-import com.wordpress.utils.Tools;
 import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Log;
 

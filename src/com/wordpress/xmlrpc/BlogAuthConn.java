@@ -13,7 +13,6 @@ import org.kxmlrpc.XmlRpcClient;
 import org.xmlpull.v1.XmlPullParser;
 
 import com.wordpress.model.Blog;
-import com.wordpress.utils.Tools;
 import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Log;
 

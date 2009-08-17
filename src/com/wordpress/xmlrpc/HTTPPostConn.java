@@ -7,7 +7,6 @@ import java.util.Vector;
 
 import javax.microedition.io.HttpConnection;
 
-import com.wordpress.utils.Tools;
 import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Log;
 

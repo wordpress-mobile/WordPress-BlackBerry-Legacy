@@ -9,7 +9,6 @@ import net.rim.device.api.ui.component.ListField;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.model.BlogInfo;
-import com.wordpress.utils.StringUtils;
 
 /**
  * This class is a wrapper around a list field that we used to

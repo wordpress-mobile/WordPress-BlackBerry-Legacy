@@ -7,8 +7,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 
 import javax.microedition.io.Connection;
-import javax.microedition.io.Connector;
-import javax.microedition.io.file.FileConnection;
 
 public class FileUtils {
 	

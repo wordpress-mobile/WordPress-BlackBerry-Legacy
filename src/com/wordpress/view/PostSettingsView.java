@@ -4,14 +4,18 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import net.rim.device.api.i18n.SimpleDateFormat;
+import net.rim.device.api.system.Display;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
+import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.DateField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.PasswordEditField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
+import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
@@ -24,6 +28,7 @@ import com.wordpress.view.component.HorizontalPaddedFieldManager;
 public class PostSettingsView extends BaseView {
 	
     private BlogObjectController controller; //controller associato alla view
+    private VerticalFieldManager _container;
     private DateField  authoredOn;
     private PasswordEditField passwordField;
 	private CheckboxField resizePhoto;
@@ -32,6 +37,37 @@ public class PostSettingsView extends BaseView {
     public PostSettingsView(BlogObjectController _controller, Date postAuth, String password, boolean isResImg) {
     	super(_resources.getString(WordPressResource.MENUITEM_SETTINGS));
     	this.controller=_controller;
+    	
+     	VerticalFieldManager internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR ) {
+    		public void paintBackground( Graphics g ) {
+    			g.clear();
+    			int color = g.getColor();
+    			g.setColor( Color.LIGHTGREY );
+    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
+    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
+    			g.setColor( color );
+    		}
+    		
+    		protected void sublayout( int maxWidth, int maxHeight ) {
+    			
+    			int titleFieldHeight = 0;
+    			if ( titleField != null ) {
+    				titleFieldHeight = titleField.getHeight();
+    			}
+    			
+    			int displayWidth = Display.getWidth(); // I would probably make these global
+    			int displayHeight = Display.getHeight();
+    			
+    			super.sublayout( displayWidth, displayHeight - titleFieldHeight );
+    			setExtent( displayWidth, displayHeight - titleFieldHeight );
+    		}
+    		
+    	};
+    	
+    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR );
+    	internalManager.add( _container );
+    	super.add( internalManager );
+    	
     	
     	long datetime = new Date().getTime();;
     	if(postAuth != null ) {
@@ -89,6 +125,10 @@ public class PostSettingsView extends BaseView {
 		
 		//this.add(new LabelField("", Field.NON_FOCUSABLE)); //space before buttons
     }
+    
+	public void add( Field field ) {
+		_container.add( field );
+	}
     
     //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {

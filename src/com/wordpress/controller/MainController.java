@@ -7,7 +7,6 @@ import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
-import net.rim.device.api.system.Application;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 

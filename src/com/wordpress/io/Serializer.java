@@ -15,12 +15,9 @@ package com.wordpress.io;
  */
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
@@ -28,6 +25,7 @@ import java.util.Hashtable;
 import java.util.Random;
 import java.util.Stack;
 import java.util.Vector;
+
 import javax.microedition.lcdui.Image;
 
 

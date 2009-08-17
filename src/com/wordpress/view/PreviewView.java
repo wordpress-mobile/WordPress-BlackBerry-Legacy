@@ -19,7 +19,6 @@ import net.rim.device.api.io.http.HttpHeaders;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.component.Status;
@@ -28,8 +27,6 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.utils.LocalHttpConn;
 import com.wordpress.utils.SecondaryResourceFetchThread;
-import com.wordpress.view.component.BorderedFieldManager;
-import com.wordpress.view.component.VerticalPaddedFieldManager;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 
 public class PreviewView  extends BaseView implements RenderingApplication {

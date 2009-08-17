@@ -1,7 +1,5 @@
 package com.wordpress.xmlrpc.comment;
 
-import java.util.Hashtable;
-
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 

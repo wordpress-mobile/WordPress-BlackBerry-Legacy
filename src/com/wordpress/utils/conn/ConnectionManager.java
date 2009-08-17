@@ -28,7 +28,7 @@ public class ConnectionManager  implements GlobalEventListener
 	protected static final int SERVICE_BOOK_CONFIG = 2;
 	protected static final int BES_CONFIG = 3;
 	protected static final int BIS_CONFIG = 4;
-	private static AbstractConfiguration[] connections = null;
+	private AbstractConfiguration[] connections = null;
 	
 	private Preferences userPreferences = Preferences.getIstance();
 	protected int currConfigID = CONFIG_NONE;
@@ -147,6 +147,7 @@ public class ConnectionManager  implements GlobalEventListener
 
         Connection ret = null;
         String requestUrl = null;
+        String detailedErrorMsr = null;
         
         for (int i = 0; i < MAX_CONFIG_NUMBER; i++) {
             try {
@@ -172,6 +173,7 @@ public class ConnectionManager  implements GlobalEventListener
                 return ret;
             } catch (Exception ioe) {
                 Log.debug("setupConnection error " + ioe);
+                detailedErrorMsr = ioe.getMessage();
                 closeConnection(ret);
                 ret = null;
             }
@@ -181,7 +183,10 @@ public class ConnectionManager  implements GlobalEventListener
             return ret;
         } else { 
             currConfigID = CONFIG_NONE;
-            throw new IOException("No route to blog");
+            if(detailedErrorMsr != null)
+            	throw new IOException("No route to blog: "+detailedErrorMsr);
+            else
+            	throw new IOException("No route to blog");
         }
     }
     
@@ -259,7 +264,7 @@ public class ConnectionManager  implements GlobalEventListener
         
  
     
-    static AbstractConfiguration[] initConnectionType() {
+    AbstractConfiguration[] initConnectionType() {
         connections = new AbstractConfiguration[MAX_CONFIG_NUMBER];
         connections[WIFI_CONFIG] = new WiFiConfig();
         connections[TCP_CONFIG] = new TcpConfig();
@@ -275,7 +280,7 @@ public class ConnectionManager  implements GlobalEventListener
         Log.info("Reload BIS config from device");
         _bisSupport = ConnectionUtils.isBISAvailable();
         
-        Log.info("Reload wap2.0 config from device");
+        Log.info("Reload WAP 2.0 config from device");
         connections[SERVICE_BOOK_CONFIG].setUrlParameters(AbstractConfiguration.BASE_CONFIG_PARAMETERS + 
                 ConnectionUtils.getServiceBookOptionsNew());
     }
