@@ -49,7 +49,7 @@ public class MultimediaPopupScreen extends PopupScreen {
       //  if(true){
 	    	Bitmap _bitmapCamera = Bitmap.getBitmapResource("camera.png");
 	    	bitmapFieldCamera = new BitmapField(_bitmapCamera, Field.NON_FOCUSABLE | Field.FIELD_HCENTER);
-	    	buttonCamera= new ButtonField("Take Photo with Camera");
+	    	buttonCamera= new ButtonField(_resources.getString(WordPressResource.LABEL_PHOTO_TAKE_FROM_CAMERA));
 	    	buttonCamera.setChangeListener(listenerButton);
 	    	hManager.add(bitmapFieldCamera);
 	    	hManager.add(buttonCamera);
@@ -58,7 +58,7 @@ public class MultimediaPopupScreen extends PopupScreen {
         HorizontalFieldManager hManager2 = new HorizontalFieldManager(Field.FIELD_HCENTER);
     	Bitmap _bitmapBrowser = Bitmap.getBitmapResource("browser.png");
     	bitmapBrowser = new BitmapField(_bitmapBrowser, Field.NON_FOCUSABLE | Field.FIELD_HCENTER);
-    	buttonBrowser= new ButtonField("Add Photo from Library");
+    	buttonBrowser= new ButtonField(_resources.getString(WordPressResource.LABEL_PHOTO_ADD_FROM_LIB));
     	buttonBrowser.setChangeListener(listenerButton);
     	hManager2.add(bitmapBrowser);
     	hManager2.add(buttonBrowser);

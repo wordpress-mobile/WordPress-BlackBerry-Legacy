@@ -16,7 +16,7 @@ import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.DataCollector;
-import com.wordpress.utils.MultimediaUtils;
+import com.wordpress.utils.ImageUtils;
 import com.wordpress.view.component.BlogsListField;
 
 public class MainView extends BaseView {
@@ -42,7 +42,7 @@ public class MainView extends BaseView {
             _preferredWidth = Display.getWidth();
         }
         if( _preferredWidth != -1) {        	
-        	EncodedImage resImg = MultimediaUtils.bestFit2(_theImage, _preferredWidth, _theImage.getHeight());
+        	EncodedImage resImg = ImageUtils.resizeEncodedImage(_theImage, _preferredWidth, _theImage.getHeight());
         	_theImage = resImg;
         }
 		wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER| Field.FIELD_VCENTER);

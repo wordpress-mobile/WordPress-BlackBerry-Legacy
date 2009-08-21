@@ -21,6 +21,7 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.view.dialog.ErrorView;
 import com.wordpress.view.dialog.InfoView;
 import com.wordpress.view.dialog.InquiryView;
 import com.wordpress.xmlrpc.BlogConnResponse;
@@ -308,6 +309,8 @@ public class DataCollector {
 						}
 					} else {
 						Log.error(resp.getResponseObject(), "updater error");
+						ErrorView errView = new ErrorView(resp.getResponse());
+						errView.doModal();
 					}
 				}
 			});

@@ -15,7 +15,7 @@ import com.wordpress.model.Blog;
 import com.wordpress.model.Page;
 import com.wordpress.model.Post;
 import com.wordpress.utils.CalendarUtils;
-import com.wordpress.utils.MultimediaUtils;
+import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
@@ -98,7 +98,7 @@ public class SendToBlogTask extends TaskImpl {
 					}
 					
 					if(isRes){
-						Hashtable content = MultimediaUtils.resizePhoto(photosBytes, fileName, this);
+						Hashtable content = ImageUtils.resizePhoto(photosBytes, fileName, this);
 						//resizing img is a long task. if user has stoped the operation..
 						if (stopping == true)
 							return;

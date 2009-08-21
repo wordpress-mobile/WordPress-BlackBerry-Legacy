@@ -36,6 +36,8 @@ src\com\wordpress\bb\SplashScreen.java
 src\com\wordpress\bb\WordPress.java
 src\com\wordpress\bb\WordPress.rrc
 src\com\wordpress\bb\WordPress.rrh
+src\com\wordpress\bb\WordPress_fr.rrc
+src\com\wordpress\bb\WordPress_it.rrc
 src\com\wordpress\bb\WordPressApplicationPermissions.java
 src\com\wordpress\controller\AboutController.java
 src\com\wordpress\controller\AddBlogsController.java
@@ -95,6 +97,7 @@ src\com\wordpress\utils\conn\ServiceBookConfig.java
 src\com\wordpress\utils\conn\TcpConfig.java
 src\com\wordpress\utils\conn\WiFiConfig.java
 src\com\wordpress\utils\DataCollector.java
+src\com\wordpress\utils\ImageUtils.java
 src\com\wordpress\utils\JpegEncoder.java
 src\com\wordpress\utils\LocalHttpConn.java
 src\com\wordpress\utils\log\Appender.java

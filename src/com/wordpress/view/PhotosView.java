@@ -17,7 +17,7 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
-import com.wordpress.utils.MultimediaUtils;
+import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.mm.PhotoBitmapField;
@@ -123,7 +123,7 @@ public class PhotosView extends BaseView {
     		addMenuItem(_showPhotoItem);
     	}
     	//find the photo size
-    	int scale = MultimediaUtils.findBestImgScale(photo, 128, 128);
+    	int scale = ImageUtils.findBestImgScale(photo, 128, 128);
     	if(scale > 1)
     		photo.setScale(scale); //set the scale
     	

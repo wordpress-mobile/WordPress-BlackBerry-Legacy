@@ -19,7 +19,7 @@ import com.wordpress.io.AppDAO;
 import com.wordpress.io.BaseDAO;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Preferences;
-import com.wordpress.utils.MultimediaUtils;
+import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Appender;
 import com.wordpress.utils.log.FileAppender;
@@ -44,7 +44,7 @@ public class SplashScreen extends MainScreen {
             _preferredWidth = Display.getWidth();
         }
         if( _preferredWidth != -1) {        	
-        	EncodedImage resImg = MultimediaUtils.bestFit2(_theImage, _preferredWidth, _theImage.getHeight());
+        	EncodedImage resImg = ImageUtils.resizeEncodedImage(_theImage, _preferredWidth, _theImage.getHeight());
         	_theImage = resImg;
         }
         

@@ -147,7 +147,7 @@ public class ConnectionManager  implements GlobalEventListener
 
         Connection ret = null;
         String requestUrl = null;
-        String detailedErrorMsr = null;
+        String detailedErrorMsr = "";
         
         for (int i = 0; i < MAX_CONFIG_NUMBER; i++) {
             try {
@@ -172,8 +172,29 @@ public class ConnectionManager  implements GlobalEventListener
             	setCommonRequestProperty(ret);
                 return ret;
             } catch (Exception ioe) {
-                Log.debug("setupConnection error " + ioe);
-                detailedErrorMsr = ioe.getMessage();
+            	//print out detailed error message
+            	switch (i) {
+            	case WIFI_CONFIG:
+            		detailedErrorMsr += "\nWiFi conn: ";
+            		break;
+            	case TCP_CONFIG:
+            		detailedErrorMsr += "\nTCP conn: ";
+            		break;
+            	case SERVICE_BOOK_CONFIG:
+            		detailedErrorMsr += "\nWAP conn: ";
+            		break;
+            	case BES_CONFIG:
+            		detailedErrorMsr += "\nBES conn: ";
+            		break;
+            	case BIS_CONFIG:
+            		detailedErrorMsr += "\nBIS conn: ";
+            		break;
+        		default:
+        			break;
+        		}
+            	
+            	Log.debug("setupConnection error " + ioe);
+            	detailedErrorMsr += ioe.getMessage();
                 closeConnection(ret);
                 ret = null;
             }
@@ -184,7 +205,7 @@ public class ConnectionManager  implements GlobalEventListener
         } else { 
             currConfigID = CONFIG_NONE;
             if(detailedErrorMsr != null)
-            	throw new IOException("No route to blog: "+detailedErrorMsr);
+            	throw new IOException(detailedErrorMsr);
             else
             	throw new IOException("No route to blog");
         }
