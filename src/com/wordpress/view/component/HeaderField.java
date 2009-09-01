@@ -147,41 +147,43 @@ public class HeaderField extends Field {
     }
     
     protected void onDisplay() {
-        if(!listenersActive) {
-            Application.getApplication().addSystemListener(systemListener);
-            Application.getApplication().addRadioListener(radioStatusListener);
-            listenersActive = true;
-        }
+        checkAddListeners();
         super.onExposed();
     }
-    
+
     protected void onExposed() {
-        if(!listenersActive) {
-            Application.getApplication().addSystemListener(systemListener);
-            Application.getApplication().addRadioListener(radioStatusListener);
-            listenersActive = true;
-        }
+        checkAddListeners();
         super.onExposed();
     }
     
     protected void onObscured() {
-        if(listenersActive) {
-            Application.getApplication().removeSystemListener(systemListener);
-            Application.getApplication().removeRadioListener(radioStatusListener);
-            listenersActive = false;
-        }
+        checkRemoveListeners();
         super.onObscured();
     }
     
     protected void onUndisplay() {
-        if(listenersActive) {
+        checkRemoveListeners();
+        super.onUndisplay();
+    }
+
+    private void checkAddListeners() {
+		if(!listenersActive) {
+            Application.getApplication().addSystemListener(systemListener);
+            Application.getApplication().addRadioListener(radioStatusListener);
+            onBatteryStatusChanged();
+            onRadioStatusChanged();
+            listenersActive = true;
+        }
+	}
+    
+	private void checkRemoveListeners() {
+		if(listenersActive) {
             Application.getApplication().removeSystemListener(systemListener);
             Application.getApplication().removeRadioListener(radioStatusListener);
             listenersActive = false;
         }
-        super.onUndisplay();
-    }
-
+	}
+	
     /**
      * Remove any global event listeners.  Intended to be called on shutdown,
      * where the active screen may not get popped off the stack prior to
