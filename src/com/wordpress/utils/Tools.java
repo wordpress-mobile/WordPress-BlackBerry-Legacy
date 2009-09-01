@@ -3,6 +3,8 @@ package com.wordpress.utils;
 import java.util.Random;
 import java.util.Vector;
 
+import net.rim.device.api.synchronization.UIDGenerator;
+
 import com.wordpress.utils.log.Log;
 
 public class Tools {
@@ -53,7 +55,8 @@ public class Tools {
 	  }
 	
 	public static long generateDeviceUUID() {
-		return (new Random()).nextLong();
+		//return (new Random()).nextLong();
+		return UIDGenerator.makeLUID(UIDGenerator.getUniqueScopingValue(), UIDGenerator.getUID());
 	}
 	
 	 public static int decodeInt(Object input){	 
