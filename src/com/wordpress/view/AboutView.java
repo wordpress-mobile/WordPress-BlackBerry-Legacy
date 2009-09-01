@@ -44,18 +44,18 @@ public class AboutView extends BaseView {
     	BitmapField wpLogo = new BitmapField(_bitmap, Field.FIELD_HCENTER | Field.FIELD_VCENTER);
     	wpLogo.setSpace(5, 5);
 		col1.add(wpLogo);    	
-    	LabelField titleField = new LabelField("WordPress for BlackBerry");
+    	LabelField titleField = new LabelField(_resources.getString(WordPressResource.TITLE_APPLICATION));
     	Font fnt = this.getFont().derive(Font.BOLD);
     	titleField.setFont(fnt);
 		col2.add(titleField);
     	
     	col2.add(new LabelField("version "+version));
     	col2.add(new LabelField("",Field.FOCUSABLE));
-    	col2.add(new LabelField("An Open Source BlackBerry app for WordPress sites."));
+    	col2.add(new LabelField(_resources.getString(WordPressResource.ABOUTVIEW_DESC)));
     	col2.add(new LabelField());
-    	col2.add(new LabelField("Designed by Automattic & developed by Danais."));
+    	col2.add(new LabelField(_resources.getString(WordPressResource.ABOUTVIEW_DEVELOPED_BY)));
     	col2.add(new LabelField());
-    	col2.add(new LabelField("For more information or to contribute to the project, visit our web site at"));
+    	col2.add(new LabelField(_resources.getString(WordPressResource.ABOUTVIEW_MORE_INFO)));
     	LabelField urlAddr = new LabelField("blackberry.wordpress.org")
 		{
 		    public void paint(Graphics graphics)

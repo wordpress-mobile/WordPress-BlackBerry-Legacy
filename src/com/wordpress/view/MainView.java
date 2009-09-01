@@ -194,7 +194,7 @@ public class MainView extends BaseView {
     			DataCollector dtc = new DataCollector();
     			dtc.checkForUpdate(listaBlog.getSize()); //start data gathering here
     		} catch (Exception e) {
-    			mainController.displayError(e, "Error while check for a new version");
+    			mainController.displayError(e, "Error while checking for new versions.");
     		}
         	
         }

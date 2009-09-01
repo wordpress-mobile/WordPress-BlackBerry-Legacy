@@ -27,6 +27,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.utils.LocalHttpConn;
 import com.wordpress.utils.SecondaryResourceFetchThread;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 
 public class PreviewView  extends BaseView implements RenderingApplication {
@@ -130,6 +131,7 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 	                                                                                         event, this);
 	                thread.start();
 	    */
+	                Log.debug("browser event; EVENT_URL_REQUESTED");
 	                break;
 
 	            } 
@@ -158,6 +160,7 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 	            {
 	                RedirectEvent e = (RedirectEvent) event;
 	                String referrer = e.getSourceURL();
+	                Log.debug("browser event: EVENT_REDIRECT");
 	                
 	                switch (e.getType()) 
 	                {  

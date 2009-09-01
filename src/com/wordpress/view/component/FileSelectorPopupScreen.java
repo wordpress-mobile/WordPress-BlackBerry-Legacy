@@ -87,7 +87,7 @@ public class FileSelectorPopupScreen extends PopupScreen {
 	private void prepScreen(String path) {
 		DialogFieldManager dfm = (DialogFieldManager) getDelegate();
 		dfm.setIcon(new BitmapField(Bitmap.getPredefinedBitmap(Bitmap.QUESTION)));
-		dfm.setMessage(new RichTextField("Select a file"));
+		dfm.setMessage(new RichTextField(_resources.getString(WordPressResource.TITLE_FILE_SELECTION_DIALOG)));
 		
 		_olf = new ObjectListField();
 		dfm.addCustomField(_olf);
