@@ -1,4 +1,4 @@
-<?html version="1.0" enconding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <project basedir=".." default="all" name="WordPress for BlackBerry">
     <taskdef name="rapc"    classpath="build/bb-ant-tools-1.2.1.jar" classname="ca.slashdev.bb.tasks.RapcTask" />
@@ -15,17 +15,10 @@
         <property file="build/build.properties" />
         <property file="build/release.properties" />
     	
-        <condition property="debug" value="true" else="false">
-            <equals arg1="${build.type}" arg2="debug" trim="true" casesensitive="false"/>
-        </condition>
-        <condition property="nodebug" value="false" else="true">
-            <equals arg1="${build.type}" arg2="debug" trim="true" casesensitive="false"/>
-        </condition>
-        
     	<svn>
     		<!-- status path="${basedir}" revisionProperty="svn.revision" / -->
     		<info target="${basedir}"/>
-    	 </svn>
+    	</svn>
     	        	
         <property name="module.version" value="${release.major}.${release.minor}.${build.number}.${svn.info.lastRev}" />
 
@@ -48,7 +41,7 @@
         <property name="dir.output.sign"          value="${dir.output}/sign" />
         <property name="dir.output.release"       value="${dir.output}/release" />
 
-    	<property name="dir.export"      value="${dir.output.base}/export" />
+    	<property name="dir.export"      value="${dir.output}/export" />
         
     	<property name="icon"            value="application-icon.png" />
         <property name="icon_rollover"   value="application-icon.png" />
@@ -78,9 +71,12 @@
             destdir="${dir.output.rapc}"
             output="${module.name}"
             verbose="true"
-            nodebug="${nodebug}">
-        	        	
-        	<define tag="DEBUG" if="${debug}"/> <!-- define preprocessor tag -->
+            nodebug="false">
+        	
+        	<!-- define preprocessor tag -->
+        	<define tag="DEBUG" if="debug"/> 
+        	<define tag="LOG_CONSOLE" if="log_console"/> 
+        	
             <jdp
                 type="cldc"
                 vendor="${module.company}"
@@ -107,7 +103,6 @@
             	     <include name="**/*.jar"/>
  	           </fileset>
             </import>
-        	
         </rapc>
     </target>
 
@@ -119,8 +114,6 @@
             </fileset>
         </copy>
 
-    	<copy todir="${dir.output.sign}" file="${basedir}/${dir.build}/additional.jad" />
-    	        
         <echo message="Please sign the .cod file located at ${dir.output.sign}" />
     
         <java jar="${rim.home}/bin/SignatureTool.jar" failonerror="true" fork="true">
@@ -131,16 +124,21 @@
             <arg file="${dir.output.sign}/${module.name}.cod"/> 
         </java>
 
-    	<exec executable="${rim.home}/bin/UpdateJad.exe" dir="${dir.output.sign}" failonerror="true">
-            <arg value="${module.name}.jad" />
-    		<arg value="additional.jad" />
-        </exec>
     </target>
 
+	
     <target name="jad">
          <!-- propertyfile file="build/release.properties">
             <entry key="build.date" type="date" value="now" pattern="yyyyMMdd"/>
         </propertyfile -->
+    	
+    	<!-- add the additional props into jad file to activate the storm compatibility mode --> 
+    	<copy todir="${dir.output.sign}" file="${basedir}/${dir.build}/additional.jad" />
+       	<exec executable="${rim.home}/bin/UpdateJad.exe" dir="${dir.output.sign}" failonerror="true">
+                <arg value="${module.name}.jad" />
+        		<arg value="additional.jad" />
+       </exec>
+    	
     	
         <copy todir="${dir.output.release}">
             <fileset dir="${dir.output.sign}">

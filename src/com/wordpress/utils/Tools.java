@@ -1,6 +1,5 @@
 package com.wordpress.utils;
 
-import java.util.Random;
 import java.util.Vector;
 
 import net.rim.device.api.synchronization.UIDGenerator;

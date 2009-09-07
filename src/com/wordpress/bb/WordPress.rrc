@@ -1,6 +1,7 @@
 ABOUTVIEW_DESC#0="An Open Source BlackBerry app for WordPress sites";
 ABOUTVIEW_DEVELOPED_BY#0="Designed by Automattic & developed by Danais.";
 ABOUTVIEW_MORE_INFO#0="For more information or to contribute to the project, visit our web site at";
+ABOUTVIEW_VERSION#0="Version";
 BUTTON_BACK#0="Back";
 BUTTON_COMMENTS#0="Comments";
 BUTTON_LOCALDRAFTS#0="Local Drafts";

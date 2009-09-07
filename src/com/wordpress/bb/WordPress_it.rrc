@@ -1,3 +1,7 @@
+ABOUTVIEW_DESC#0="Un'applicazione BlackBerry Open Source per siti WordPress";
+ABOUTVIEW_DEVELOPED_BY#0="Progettata e realizzata da Automattic e Danais.";
+ABOUTVIEW_MORE_INFO#0="Per maggiori informazioni o per contribuire al progetto, visita il nostro sito web";
+ABOUTVIEW_VERSION#0="Versione";
 BUTTON_BACK#0="Indietro";
 BUTTON_COMMENTS#0="Commenti";
 BUTTON_LOCALDRAFTS#0="Bozze locali";

@@ -49,7 +49,7 @@ public class AboutView extends BaseView {
     	titleField.setFont(fnt);
 		col2.add(titleField);
     	
-    	col2.add(new LabelField("version "+version));
+    	col2.add(new LabelField(_resources.getString(WordPressResource.ABOUTVIEW_VERSION)+" "+version));
     	col2.add(new LabelField("",Field.FOCUSABLE));
     	col2.add(new LabelField(_resources.getString(WordPressResource.ABOUTVIEW_DESC)));
     	col2.add(new LabelField());

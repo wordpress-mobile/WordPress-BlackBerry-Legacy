@@ -34,10 +34,14 @@ public class WordPress extends UiApplication implements WordPressResource {
 		
 		//init the log system
 		Appender eventAppender = new BlackberryEventLogAppender("WordPress for BlackBerry");
-		eventAppender.setLogLevel(Log.INFO); //TODO lower log level on production
+		eventAppender.setLogLevel(Log.INFO);
 		eventAppender.open();
 		Log.addAppender(eventAppender);
+		
+		//#ifdef LOG_CONSOLE
 		Log.addAppender(new ConsoleAppender());
+		//#endif
+
 		Log.initLog(Log.TRACE);
      	 
 		 //The following code specifies that the screen backlight, once activated,
