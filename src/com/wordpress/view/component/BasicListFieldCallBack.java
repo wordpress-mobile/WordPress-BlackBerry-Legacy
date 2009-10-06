@@ -48,7 +48,6 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
     }
 
 	
-	
 	protected void drawBackground(Graphics graphics, int x, int y, int width, int height, boolean selected) {
 		Bitmap toDraw = null;
 		if (selected) {
@@ -56,6 +55,7 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 		} else {
 			toDraw = bg;
 		}
+		
 		int imgWidth = toDraw.getWidth();
 		while (width > -2) {
 			graphics.drawBitmap(x - 1, y - 1, width + 2, height + 1, toDraw, 0, 0);
@@ -92,27 +92,37 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
         return 0;
     }
 	
-	//text on the first row that fill 2/3 of the vertical space
 	 protected int drawFirstRowMainText(Graphics graphics, int x, int y, int width, int height, String title, boolean selected) {
-	        //int fontHeight = ((int) (1.7 * (height / 3))) - (PADDING * 2);
-	        int fontHeight = ((int) ((3* height) / 5)) - (PADDING * 2);
-	        graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));
+		 int myColor = Color.BLACK;
+		 
+		 if (selected) {
+			 myColor=Color.BLACK;
+		 } else {
+			 myColor= Color.GRAY;
+		 }
+		 
+		return drawFirstRowMainText(graphics, x, y, width, height, title, myColor);
+	 }
+	 
+		//text on the first row that fill 2/3 of the vertical space
+	 protected int drawFirstRowMainText(Graphics graphics, int x, int y, int width, int height, String title, int myColor) {
+		 
+		 graphics.setColor(myColor);
 
-	        if (selected) {
-	            graphics.setColor(Color.BLACK);
-	        } else {
-	            graphics.setColor(Color.GRAY);
-	        }
-
-	        if (title != null) {
-	            // Title takes top 2/3 of list item
-	        return   graphics.drawText(title, x + PADDING + 3, y + PADDING + 2, DrawStyle.LEFT
-	                    | DrawStyle.TOP | DrawStyle.ELLIPSIS, width - x - (PADDING * 2));
-	        }
-
-	        return 0;
+		 //int fontHeight = ((int) (1.7 * (height / 3))) - (PADDING * 2);
+		 int fontHeight = ((int) ((3* height) / 5)) - (PADDING * 2);
+		 graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));	 
+		 
+		 if (title != null) {
+			 // Title takes top 2/3 of list item
+			 return   graphics.drawText(title, x + PADDING + 3, y + PADDING + 2, DrawStyle.LEFT
+					 | DrawStyle.TOP | DrawStyle.ELLIPSIS, width - x - (PADDING * 2));
+		 }
+		 
+		 return 0;
 	    }
-	    
+	 
+    
 
 	    protected void drawSecondRowText(Graphics graphics, int x, int y, int width, int height, String status, boolean selected) {
 	        int fontHeight = ((2* height) / 5) - (PADDING * 2);

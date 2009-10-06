@@ -13,7 +13,7 @@ import javax.microedition.rms.RecordStoreException;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.log.Log;
 
-public class AppDAO implements BaseDAO{
+public class AppDAO implements BaseDAO {
 
 	private final static String basePathRecordStoreKey="basepath";
 	
@@ -54,13 +54,12 @@ public class AppDAO implements BaseDAO{
 	}
 	
 	public static void setUpFolderStructure() throws RecordStoreException, IOException {
-		setBaseDirPath("file:///store/home/user/wordpress/");
-		
+	
 		if(JSR75FileSystem.isFileExist(getBaseDirPath())){
 			//JSR75FileSystem.removeFile(getBaseDirPath());
+		} else {
+			JSR75FileSystem.createDir(AppDAO.getBaseDirPath());
 		}
-		
-		JSR75FileSystem.createDir(AppDAO.getBaseDirPath());
 	}
 
 	

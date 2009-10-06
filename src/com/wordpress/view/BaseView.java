@@ -7,9 +7,11 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.XYEdges;
+import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.container.MainScreen;
 
+import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.view.component.HeaderField;
@@ -23,7 +25,7 @@ public abstract class BaseView extends MainScreen{
 	
 	protected Field titleField; //main title of the screen
 	
-	protected Bitmap _backgroundBitmap = Bitmap.getBitmapResource("MainBackground.png");
+	protected static Bitmap _backgroundBitmap = null; 
 	
 	//create a variable to store the ResourceBundle for localization support
 	protected static ResourceBundle _resources;
@@ -31,6 +33,8 @@ public abstract class BaseView extends MainScreen{
 	static {
 		//retrieve a reference to the ResourceBundle for localization support
 		_resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
+		//retrive the bg image based on the screen dimensions
+		_backgroundBitmap = WordPressCore.getInstance().getBackgroundBitmap();
 	}
 	
 	public BaseView(long style) {
@@ -61,9 +65,32 @@ public abstract class BaseView extends MainScreen{
 		headerField.setBackgroundColor(Color.BLACK); 
 		return (Field)headerField;
 	}
+	
+	public void setTitleText(String title){
+		((HeaderField)titleField).setTitle(title);
+	}
     
 	//common margin
     protected XYEdges margins = new XYEdges(5,5,5,5);
+    
+
+    protected BasicEditField getDescriptionTextField(String text) {
+    	BasicEditField field = new  BasicEditField(BasicEditField.READONLY){
+    	    public void paint(Graphics graphics)
+    		    {
+    		        graphics.setColor(Color.GRAY);
+    		        super.paint(graphics);
+    		    }
+    		};
+    	  	
+    		Font fnt = this.getFont().derive(Font.ITALIC);
+    	  	field.setFont(fnt);
+    	  	
+    	  	field.setText(text);
+    	  	return field;
+    }
+    
+    //commentContent = new  BasicEditField(BasicEditField.READONLY);
     
     protected LabelField getLabel(String label) {
 		

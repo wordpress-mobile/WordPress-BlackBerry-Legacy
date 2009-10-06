@@ -27,7 +27,7 @@ public class Page {
 	private int wpAuthorID = -1;
 	private String wpAuthorDisplayName;
 	private Date dateCreatedGMT;
-	private Vector customField = new Vector();
+	private Vector customFields = new Vector();
 	private String wpPageTemplate;
     private Boolean isPhotoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
 	
@@ -145,12 +145,12 @@ public class Page {
 		return dateCreated;
 	}
 
-	public void setCustom_field(Vector custom_field) {
-		this.customField = custom_field;
+	public void setCustomFields(Vector custom_field) {
+		this.customFields = custom_field;
 	}
 
-	public Vector getCustomField() {
-		return customField;
+	public Vector getCustomFields() {
+		return customFields;
 	}
 
 	public void setPageId(int pageId) {

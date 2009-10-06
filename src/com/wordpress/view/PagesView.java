@@ -41,7 +41,7 @@ public class PagesView extends BaseView {
 
 	
 	 public PagesView(PagesController _controller, Page[] pages, int numberOfNewPosts) {
-	    	super(_resources.getString(WordPressResource.TITLE_PAGES), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
+	    	super(_resources.getString(WordPressResource.TITLE_PAGES)+ " > "+ _controller.getBlogName(), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 	    	this.controller=_controller;
 	        
 	    	  //A HorizontalFieldManager to hold the buttons headings.
@@ -137,7 +137,7 @@ public class PagesView extends BaseView {
 		pagesList.set(elements);
 		pagesList.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_POSTS), DrawStyle.LEFT);
 		dataScroller.add(pagesList);
-
+		pagesList.setFocus(); //set the focus over the list
 
 		if(pages != null && pages.length > 0 ) {
 			addMenuItem(_editPostItem);
@@ -145,7 +145,6 @@ public class PagesView extends BaseView {
 		}
 		
 		addMenuItem(_refreshPostListItem);
-		//addMenuItem(_draftPostsItem);
 	}
 	 
 

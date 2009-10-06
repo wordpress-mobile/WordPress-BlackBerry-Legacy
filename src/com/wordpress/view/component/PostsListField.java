@@ -7,8 +7,11 @@ import java.util.Vector;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.ui.DrawStyle;
+import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.FocusChangeListener;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ObjectListField;
 
@@ -43,7 +46,6 @@ public class PostsListField extends ObjectListField  {
 		setCallback(listFieldCallBack);
 		setEmptyString("Nothing to see here", DrawStyle.LEFT);
 		setRowHeight(42);
-
 	}
 	
 	//override methods of object list 
@@ -61,6 +63,36 @@ public class PostsListField extends ObjectListField  {
         } 
         
         invalidate(); //invalidate this list
+	}
+	
+	protected void onUnfocus(){
+		super.onUnfocus();
+		ListData data = null;
+		int oldSelection = getSelectedIndex();
+		if(oldSelection != -1) {
+			data = (ListData)_listData.elementAt(oldSelection);
+			data.setSelected(false);
+			invalidate(oldSelection);
+		}
+	}
+	
+	/*
+	 * direction - 
+	 * If 1, the focus came from the previous field; 
+	 * if -1, the focus came from the subsequent field; 
+	 * if 0, the focus was set directly (not as a result of trackwheel movement). 
+	 * The focus on a particular list item is set only if the selected index has not already been set.
+	 *  
+	 */
+	protected void onFocus(int direction){
+		super.onFocus(direction);
+		ListData data = null;
+		int oldSelection = getSelectedIndex();
+		if(oldSelection != -1) {
+			data = (ListData)_listData.elementAt(oldSelection);
+			data.setSelected(true);
+			invalidate(oldSelection);
+		}
 	}
 	
 	

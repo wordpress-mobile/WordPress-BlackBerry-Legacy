@@ -4,19 +4,23 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import com.wordpress.model.Comment;
+import com.wordpress.utils.log.Log;
 import com.wordpress.xmlrpc.BlogConn;
 
 public class NewCommentConn extends BlogConn  {
 
 	private Comment comment;
+	private final String blogId;
 
-	public NewCommentConn(String hint, int blogId, String userHint, String passwordHint,  Comment ncomment){
-		super(hint, userHint, passwordHint);
-		this.comment=ncomment;
+	public NewCommentConn(String url, String user, String password, String blogId, Comment comment){
+		super(url, user, password);
+		this.blogId = blogId;
+		this.comment=comment;
 	}
 
 	public void run() {
 		try {
+			
 			if (comment.getPostID() == -1) {
 				setErrorMessage("Comment doesn't have PostID");
 				notifyObservers(connResponse);
@@ -40,7 +44,7 @@ public class NewCommentConn extends BlogConn  {
 				vcomment.put("author_email", comment.getAuthorEmail());
 			}        
 			Vector args = new Vector(5);
-		//	args.addElement(String.valueOf(comment.getBlogId()));
+			args.addElement(blogId);
 			args.addElement(mUsername);
 			args.addElement(mPassword);
 			args.addElement(String.valueOf(comment.getPostID()));
@@ -51,6 +55,20 @@ public class NewCommentConn extends BlogConn  {
 				notifyObservers(connResponse);
 				return;	
 			}
+			Integer newCommentID = (Integer)response;
+			
+			//retrive entire comment from server
+            args = new Vector(4);
+            args.addElement(blogId);
+            args.addElement(mUsername);
+            args.addElement(mPassword);
+            args.addElement(newCommentID);
+            response = execute("wp.getComment", args);
+    		if(connResponse.isError()) {
+    			//se il server xml-rpc è andato in err
+    			notifyObservers(connResponse);
+    			return;		
+    		}		
 			connResponse.setResponseObject(response);
 		}
 		catch (Exception cce) {
@@ -60,7 +78,7 @@ public class NewCommentConn extends BlogConn  {
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("NewComment error: Notify error"); 		
+			Log.error("NewComment error: Notify error"); 		
 		}
 	}
 }

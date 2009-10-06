@@ -3,6 +3,7 @@ package com.wordpress.xmlrpc.comment;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import com.wordpress.utils.log.Log;
 import com.wordpress.xmlrpc.BlogConn;
 
 public class GetCommentStatusListConn extends BlogConn  {
@@ -37,7 +38,7 @@ public class GetCommentStatusListConn extends BlogConn  {
 			try {
 				notifyObservers(connResponse);
 			} catch (Exception e) {
-				System.out.println("GetCommentStatusList error: Notify error"); 
+				Log.error("GetCommentStatusList error: Notify error"); 
 			}
 			
 		}

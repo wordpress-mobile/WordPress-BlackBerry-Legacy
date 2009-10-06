@@ -12,6 +12,7 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPress;
+import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.FileUtils;
 import com.wordpress.io.PageDAO;
@@ -179,13 +180,6 @@ public class PageController extends BlogObjectController {
 		return 0; 
 	}
 
-	public void setPageAsChanged(boolean value) {
-		isModified = value;
-	}
-	
-	public boolean isPageChanged() {
-		return isModified;
-	}
 	
 	public String[] getStatusLabels() {
 		return pageStatusLabel;
@@ -266,7 +260,7 @@ public class PageController extends BlogObjectController {
 		sendTask = new SendToBlogTask(blog, page, draftFolder, connectionsQueue);
 		sendTask.setProgressListener(new SubmitPageTaskListener());
 		//push into the Runner
-		runner.enqueue(sendTask);
+		WordPressCore.getInstance().getTasksRunner().enqueue(sendTask);
 		
 		int choice = connectionProgressView.doModal();
 		if(choice == Dialog.CANCEL) {
@@ -306,7 +300,7 @@ public class PageController extends BlogObjectController {
 	public void saveDraftPage() {
 		try {
 		 draftFolder = PageDAO.storePage(blog, page, draftFolder);
-		 setPageAsChanged(false); //set the post as not modified because we have saved it.
+		 setObjectAsChanged(false); //set the post as not modified because we have saved it.
 		 //the changes over the clean state for the UI Fields will be done into view-> save-draft menu item
 		 this.isDraft = true; //set as draft
 		} catch (Exception e) {
@@ -316,7 +310,7 @@ public class PageController extends BlogObjectController {
 			
 	public boolean dismissView() {
 		
-		if( isPageChanged() ) {
+		if( isObjectChanged() ) {
 			
 			String quest=_resources.getString(WordPressResource.MESSAGE_INQUIRY_DIALOG_BOX);
 	    	DiscardChangeInquiryView infoView= new DiscardChangeInquiryView(quest);
@@ -361,11 +355,11 @@ public class PageController extends BlogObjectController {
 		if(page.getDateCreatedGMT() != null ) {
 			if ( page.getDateCreatedGMT().getTime() != authoredOn ) {
 				page.setDateCreatedGMT(new Date(authoredOn));
-				setPageAsChanged(true);
+				setObjectAsChanged(true);
 			}
 		} else {
 			page.setDateCreatedGMT(new Date(authoredOn));
-			setPageAsChanged(true);
+			setObjectAsChanged(true);
 		}
 	}
 
@@ -374,11 +368,11 @@ public class PageController extends BlogObjectController {
 		
 		if( page.getWpPassword() != null && !page.getWpPassword().equalsIgnoreCase(password) ){
 			page.setWpPassword(password);
-			setPageAsChanged(true);
+			setObjectAsChanged(true);
 		} else {
 			if(page.getWpPassword() == null ){
 				page.setWpPassword(password);
-				setPageAsChanged(true);
+				setObjectAsChanged(true);
 			}
 		}
 	}
@@ -387,11 +381,11 @@ public class PageController extends BlogObjectController {
 		
 		if( page.getIsPhotoResizing() != null && !page.getIsPhotoResizing().booleanValue()== isPhotoRes ){
 			page.setIsPhotoResizing(new Boolean(isPhotoRes));
-			setPageAsChanged(true);
+			setObjectAsChanged(true);
 		} else {
 			if(page.getIsPhotoResizing() == null ){
 				page.setIsPhotoResizing(new Boolean(isPhotoRes));
-				setPageAsChanged(true);
+				setObjectAsChanged(true);
 			}
 		}
 		

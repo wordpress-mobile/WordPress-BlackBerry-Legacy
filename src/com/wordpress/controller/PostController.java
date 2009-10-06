@@ -12,6 +12,7 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPress;
+import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.DraftDAO;
@@ -26,6 +27,7 @@ import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
+import com.wordpress.view.ExcerptView;
 import com.wordpress.view.NewCategoryView;
 import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostCategoriesView;
@@ -107,15 +109,7 @@ public class PostController extends BlogObjectController {
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 	
-	
-	public void setPostAsChanged(boolean value) {
-		isModified = value;
-	}
-	
-	public boolean isPostChanged() {
-		return isModified;
-	}
-	
+		
 	public String[] getStatusLabels() {
 		return postStatusLabel;
 	}
@@ -214,7 +208,7 @@ public class PostController extends BlogObjectController {
 					selectedIDs[i]=Integer.parseInt(catID);
 				}
 				post.setCategories(selectedIDs);
-				setPostAsChanged(true);
+				setObjectAsChanged(true);
 				
 			} else if (selectedCategories.length == 0) {
 				return;
@@ -233,7 +227,7 @@ public class PostController extends BlogObjectController {
 			
 			if(selectedCategories.length != postPrevCategories.length) {
 				post.setCategories(selectedIDs);
-				setPostAsChanged(true);
+				setObjectAsChanged(true);
 			} else {
 				//find differences			
 				for (int i = 0; i < selectedIDs.length; i++) {
@@ -247,7 +241,7 @@ public class PostController extends BlogObjectController {
 					}
 					if(!presence)  {
 						post.setCategories(selectedIDs);
-						setPostAsChanged(true);
+						setObjectAsChanged(true);
 						break; //exit second if	
 					}
 				}
@@ -301,7 +295,7 @@ public class PostController extends BlogObjectController {
 		sendTask = new SendToBlogTask(post, draftFolder, connectionsQueue);
 		sendTask.setProgressListener(new SubmitPostTaskListener());
 		//push into the Runner
-		runner.enqueue(sendTask);
+		WordPressCore.getInstance().getTasksRunner().enqueue(sendTask);
 		
 		int choice = connectionProgressView.doModal();
 		if(choice == Dialog.CANCEL) {
@@ -344,7 +338,7 @@ public class PostController extends BlogObjectController {
 	public void saveDraftPost() {
 		try {
 		 draftFolder = DraftDAO.storePost(post, draftFolder);
-		 setPostAsChanged(false); //set the post as not modified because we have saved it.
+		 setObjectAsChanged(false); //set the post as not modified because we have saved it.
 		 //the changes over the clean state for the UI Fields will be done into view-> save-draft menu item
 		 this.isDraft = true; //set as draft
 		} catch (Exception e) {
@@ -354,7 +348,7 @@ public class PostController extends BlogObjectController {
 			
 	public boolean dismissView() {
 		
-		if( isPostChanged() ) {
+		if( isObjectChanged() ) {
 
 			String quest=_resources.getString(WordPressResource.MESSAGE_INQUIRY_DIALOG_BOX);
 	    	DiscardChangeInquiryView infoView= new DiscardChangeInquiryView(quest);
@@ -399,22 +393,22 @@ public class PostController extends BlogObjectController {
 		if(post.getAuthoredOn() != null ) {
 			if ( post.getAuthoredOn().getTime() != authoredOn ) {
 				post.setAuthoredOn(authoredOn);
-				setPostAsChanged(true);
+				setObjectAsChanged(true);
 			}
 		} else {
 			post.setAuthoredOn(authoredOn);
-			setPostAsChanged(true);
+			setObjectAsChanged(true);
 		}
 	}
 	
 	public void setPassword(String password) {
 		if( post.getPassword() != null && !post.getPassword().equalsIgnoreCase(password) ){
 			post.setPassword(password);
-			setPostAsChanged(true);
+			setObjectAsChanged(true);
 		} else {
 			if(post.getPassword() == null ){
 				post.setPassword(password);
-				setPostAsChanged(true);
+				setObjectAsChanged(true);
 			}
 		}
 	}
@@ -423,16 +417,32 @@ public class PostController extends BlogObjectController {
 
 		if( post.getIsPhotoResizing() != null && !post.getIsPhotoResizing().booleanValue()== isPhotoRes ){
 			post.setIsPhotoResizing(new Boolean(isPhotoRes));
-			setPostAsChanged(true);
+			setObjectAsChanged(true);
 		} else {
 			if(post.getIsPhotoResizing() == null ){
 				post.setIsPhotoResizing(new Boolean(isPhotoRes));
-				setPostAsChanged(true);
+				setObjectAsChanged(true);
 			}
 		}
 	}
 
 	 	
+	public void showComments() {
+		if(post.getId() == null || post.getId().equals("")) {
+			displayMessage(_resources.getString(WordPressResource.MESSAGE_LOCAL_DRAFT_NO_COMMENT));
+			return;
+		}
+		else {
+			FrontController.getIstance().showCommentsByPost(post.getBlog(), Integer.parseInt(post.getId()), post.getTitle());
+		}
+	}
+	
+	public void showExcerptView(String title){			
+		ExcerptView excerptView= new ExcerptView(this, post, title);
+		UiApplication.getUiApplication().pushScreen(excerptView);
+	}
+	
+	
 	public void showCategoriesView(){			
 		catView= new PostCategoriesView(this, post.getBlog().getCategories(), post.getCategories());
 		UiApplication.getUiApplication().pushScreen(catView);

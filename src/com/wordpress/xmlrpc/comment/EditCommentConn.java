@@ -4,6 +4,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import com.wordpress.model.Comment;
+import com.wordpress.utils.log.Log;
 import com.wordpress.xmlrpc.BlogConn;
 
 public class EditCommentConn extends BlogConn  {
@@ -11,10 +12,10 @@ public class EditCommentConn extends BlogConn  {
 	private Comment comment;
 	private final String blogId;
 	
-	public EditCommentConn(String hint, String userHint, String passwordHint, String blogId, Comment ncomment){
-		super(hint, userHint, passwordHint);
+	public EditCommentConn(String url, String user, String password, String blogId, Comment comment){
+		super(url, user, password);
 		this.blogId = blogId;
-		this.comment=ncomment;
+		this.comment=comment;
 	}
 	
 	public void run() {
@@ -29,8 +30,8 @@ public class EditCommentConn extends BlogConn  {
 	        if (comment.getStatus() != null) {
 	        	vcomment.put("status", comment.getStatus());
 	        }
-	        if (comment.getDate_created_gmt() != null) {
-	        	vcomment.put("date_created_gmt", comment.getDate_created_gmt());
+	        if (comment.getDateCreatedGMT() != null) {
+	        	vcomment.put("date_created_gmt", comment.getDateCreatedGMT());
 	        }
 	        if (comment.getContent() != null) {
 	            vcomment.put("content", comment.getContent());
@@ -66,7 +67,7 @@ public class EditCommentConn extends BlogConn  {
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("EditComment error: Notify error"); 
+			Log.error("EditComment error: Notify error"); 
 		}
 		
 	}

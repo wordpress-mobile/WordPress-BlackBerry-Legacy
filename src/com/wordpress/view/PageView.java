@@ -1,13 +1,15 @@
 package com.wordpress.view;
 
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.Display;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
-import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
@@ -19,16 +21,17 @@ import com.wordpress.controller.PageController;
 import com.wordpress.model.Page;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.component.HtmlTextField;
 
 public class PageView extends BaseView {
 	
-    private PageController controller; //controller associato alla view
-    private Page page;    
+    private PageController controller;
+    private Page page;   
+    private VerticalFieldManager _container; 
 
     //content of tabs summary
-    private VerticalFieldManager manager;
 	private BasicEditField title;
 	private HtmlTextField bodyTextBox;
 	private ObjectChoiceField status;
@@ -42,32 +45,65 @@ public class PageView extends BaseView {
     	this.controller=_controller;
 		this.page = _page;
         
-   	  //A HorizontalFieldManager to hold the photos number label
-        HorizontalFieldManager photoNumberManager = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
-            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
-        lblPhotoNumber = getLabel("");
-        setNumberOfPhotosLabel(0);
-        photoNumberManager.add(lblPhotoNumber);
-        
-    	manager= new VerticalFieldManager( Field.FOCUSABLE | VerticalFieldManager.VERTICAL_SCROLL | VerticalFieldManager.VERTICAL_SCROLLBAR);          
+		VerticalFieldManager internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR ) {
+    		public void paintBackground( Graphics g ) {
+    			g.clear();
+    			int color = g.getColor();
+    			g.setColor( Color.LIGHTGREY );
+    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
+    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
+    			g.setColor( color );
+    		}
+    		
+    		protected void sublayout( int maxWidth, int maxHeight ) {
+    			
+    			int titleFieldHeight = 0;
+    			if ( titleField != null ) {
+    				titleFieldHeight = titleField.getHeight();
+    			}
+    			
+    			int displayWidth = Display.getWidth(); // I would probably make these global
+    			int displayHeight = Display.getHeight();
+    			
+    			super.sublayout( displayWidth, displayHeight - titleFieldHeight );
+    			setExtent( displayWidth, displayHeight - titleFieldHeight );
+    		}
+    		
+    	};
+    	
+    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR );
+    	internalManager.add( _container );
+    	super.add( internalManager );
 		
+        //row photo #s
+    	BorderedFieldManager outerManagerRowPhoto = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
+         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);    	 
+    	lblPhotoNumber = getLabel("");
+        setNumberOfPhotosLabel(0);
+        outerManagerRowPhoto.add(lblPhotoNumber);
+        add(outerManagerRowPhoto);
+        
         //row title
+    	BorderedFieldManager outerManagerRowTitle = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
+         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
         HorizontalFieldManager rowTitle = new HorizontalPaddedFieldManager();
 		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_POST_TITLE)+":");
 		title = new BasicEditField("", page.getTitle(), 100, Field.EDITABLE);
         rowTitle.add(lblTitle);
         rowTitle.add(title);
-        manager.add(rowTitle);
-        manager.add(new SeparatorField());
+        outerManagerRowTitle.add(rowTitle);
+        add(outerManagerRowTitle);
              		
   		//row status
+    	BorderedFieldManager outerManagerRowInfos = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
+         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
         HorizontalFieldManager rowStatus = new HorizontalPaddedFieldManager();
   		LabelField lblStatus =getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":");
   		status = new ObjectChoiceField("", controller.getStatusLabels(),controller.getPageStatusFieldIndex());
   		rowStatus.add(lblStatus);
   		rowStatus.add(status);
-  		manager.add(rowStatus);
-  		manager.add(new SeparatorField()); 
+  		outerManagerRowInfos.add(rowStatus);
+  		add(outerManagerRowInfos); 
 
   		//row parentPage
         HorizontalFieldManager rowParentPage = new HorizontalPaddedFieldManager();
@@ -75,17 +111,15 @@ public class PageView extends BaseView {
   		parentPageField = new ObjectChoiceField("", controller.getParentPagesTitle(), controller.getParentPageFieldIndex());
   		rowParentPage.add(lblParentPage);
   		rowParentPage.add(parentPageField);
-  		manager.add(rowParentPage);
-  		manager.add(new SeparatorField());
-  		
+  		outerManagerRowInfos.add(rowParentPage);
+  	  		
   		//row pageTemplate
         HorizontalFieldManager rowPageTemplate = new HorizontalPaddedFieldManager();
   		LabelField lblPageTemplate =getLabel(_resources.getString(WordPressResource.LABEL_PAGE_TEMPLATE)+":");
   		pageTemplateField = new ObjectChoiceField("", controller.getPageTemplateLabels(), controller.getPageTemplateFieldIndex());
   		rowPageTemplate.add(lblPageTemplate);
   		rowPageTemplate.add(pageTemplateField);
-  		manager.add(rowPageTemplate);
-  		manager.add(new SeparatorField());
+  		outerManagerRowInfos.add(rowPageTemplate);
   		
   		//row pageOrder
         HorizontalFieldManager rowPageOrder = new HorizontalPaddedFieldManager();
@@ -96,11 +130,13 @@ public class PageView extends BaseView {
   		pageOrderField.setFilter(TextFilter.get(TextFilter.NUMERIC));
   		rowPageOrder.add(lblPageOrder);
   		rowPageOrder.add(pageOrderField);
-  		manager.add(rowPageOrder);
-  		manager.add(new SeparatorField());
+  		outerManagerRowInfos.add(rowPageOrder);
   		
+  		
+  		//row content - decode the page body content
+    	BorderedFieldManager outerManagerRowContent = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
+         		| Manager.NO_VERTICAL_SCROLL);
   		String buildBodyFieldContentFromHtml = controller.buildBodyFieldContentFromHtml(page.getDescription());
-		//bodyTextBox= new HtmlTextField(buildBodyFieldContentFromHtml);
 		
   		//decode the text more content
   		String extendedBody = page.getMtTextMore();
@@ -111,16 +147,20 @@ public class PageView extends BaseView {
   		}
 		bodyTextBox= new HtmlTextField(buildBodyFieldContentFromHtml);
 		
-		manager.add(bodyTextBox);
+		
+		LabelField lblPageContent = getLabel(_resources.getString(WordPressResource.LABEL_POST_CONTENT));
+		outerManagerRowContent.add(lblPageContent);
+		outerManagerRowContent.add(bodyTextBox);
+		add(outerManagerRowContent);
+		
+		add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
+		
 		addMenuItem(_saveDraftItem);
 		addMenuItem(_submitItem);
 		addMenuItem(_photosItem);
 		addMenuItem(_previewItem);
 		addMenuItem(_settingsItem);
-		
-		add(photoNumberManager);
-		add(new SeparatorField());
-		add(manager);
+		addMenuItem(_customFieldsMenuItem);
     }
     
     
@@ -130,11 +170,11 @@ public class PageView extends BaseView {
     }
         
     //save a local copy of post
-    private MenuItem _saveDraftItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 10230, 10) {
+    private MenuItem _saveDraftItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 100220, 10) {
         public void run() {
     		try {
     			updateModel();
-	    		if (controller.isPageChanged()) {
+	    		if (controller.isObjectChanged()) {
 	    			controller.saveDraftPage();
 	    			//clean the state of filed into this view
 	    			cleanFieldState();
@@ -146,7 +186,7 @@ public class PageView extends BaseView {
     };
     
     //send post to blog
-    private MenuItem _submitItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 10220, 10) {
+    private MenuItem _submitItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 100230, 10) {
         public void run() {
     		try {
     			updateModel();
@@ -164,6 +204,13 @@ public class PageView extends BaseView {
         }
     };
 */
+    
+    private MenuItem _customFieldsMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_CUSTOM_FIELDS, 110, 10) {
+        public void run() {
+        	controller.showCustomFieldsView(title.getText());
+        }
+    };
+    
     private MenuItem _photosItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_PHOTOS, 110, 10) {
         public void run() {
         	controller.showPhotosView();
@@ -177,7 +224,7 @@ public class PageView extends BaseView {
         			status.isDirty() || lblPhotoNumber.isDirty()) {
         		//page is just changed
         		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "");
-        	} else if (controller.isPageChanged()) {
+        	} else if (controller.isObjectChanged()) {
         		//page is changed, and the user has saved it as draft
     			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "");
     		} else {
@@ -221,14 +268,14 @@ public class PageView extends BaseView {
 		
 		if(title.isDirty()){
 			page.setTitle(title.getText());
-			controller.setPageAsChanged(true);
+			controller.setObjectAsChanged(true);
 			Log.trace("title dirty");
 		}
 		
 		if(bodyTextBox.isDirty()) {
 		/*	String newContent= bodyTextBox.getText();
 			page.setDescription(newContent);
-			controller.setPageAsChanged(true);
+			controller.setObjectAsChanged(true);
 			Log.trace("bodyTextBox dirty");*/
 			
 			String newContent= bodyTextBox.getText();
@@ -258,7 +305,7 @@ public class PageView extends BaseView {
 				page.setDescription(newContent);
 			
 			
-			controller.setPageAsChanged(true);
+			controller.setObjectAsChanged(true);
 			Log.trace("bodyTextBox dirty");
 		}
 		
@@ -266,14 +313,14 @@ public class PageView extends BaseView {
 			int selectedStatusID = status.getSelectedIndex();
 			String newState= controller.getStatusKeys()[selectedStatusID];
 			page.setPageStatus(newState);
-			controller.setPageAsChanged(true);
+			controller.setObjectAsChanged(true);
 			Log.trace("status dirty");
 		}
 		
 		if(pageOrderField.isDirty()){
 			page.setWpPageOrder(Integer.parseInt(pageOrderField.getText()));
 			pageOrderField.setDirty(false);
-			controller.setPageAsChanged(true);
+			controller.setObjectAsChanged(true);
 			Log.trace("pageOrderField dirty");
 		}
 		
@@ -281,7 +328,7 @@ public class PageView extends BaseView {
 			int selectedIndex = parentPageField.getSelectedIndex();
 			controller.setParentPageID(selectedIndex);
 			pageOrderField.setDirty(false);
-			controller.setPageAsChanged(true);
+			controller.setObjectAsChanged(true);
 			Log.trace("parentPageField dirty");
 		}
 		
@@ -293,7 +340,7 @@ public class PageView extends BaseView {
 				String pageTemplate= controller.getPageTemplateKeys()[selectedTemplateFieldID];
 				if (pageTemplate != page.getWpPageTemplate()) {
 					page.setWpPageTemplate(pageTemplate);
-					controller.setPageAsChanged(true);
+					controller.setObjectAsChanged(true);
 				}
 			}
 		}
@@ -314,6 +361,8 @@ public class PageView extends BaseView {
 	public BaseController getController() {
 		return controller;
 	}
-
+	
+	public void add( Field field ) {
+		_container.add( field );
+	}
 }
-

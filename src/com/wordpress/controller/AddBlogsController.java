@@ -16,6 +16,7 @@ import net.rim.device.api.ui.text.URLTextFilter;
 
 import org.kxmlrpc.XmlRpcException;
 
+import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
@@ -137,7 +138,7 @@ public class AddBlogsController extends BaseController{
 		LoadBlogsDataTask loadBlogsTask = new LoadBlogsDataTask(connectionsQueue);
 		loadBlogsTask.setProgressListener(listener);
 		//push into the Runner
-		runner.enqueue(loadBlogsTask);
+		WordPressCore.getInstance().getTasksRunner().enqueue(loadBlogsTask);
 		
 	}
 

@@ -14,6 +14,7 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.Dialog;
@@ -25,14 +26,17 @@ import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 import net.rim.device.api.ui.text.URLTextFilter;
 
+import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
+import com.wordpress.controller.FrontController;
 import com.wordpress.controller.PreferenceController;
 import com.wordpress.io.AppDAO;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.conn.ConnectionUtils;
+import com.wordpress.utils.log.FileAppender;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
@@ -60,6 +64,7 @@ public class PreferencesView extends BaseView {
 	private CheckboxField _userAllowTCP;
 	private CheckboxField _userAllowWAP2;
 	private CheckboxField _userAllowBES;
+	private CheckboxField _debugMode;
 
 	
 	 public PreferencesView(PreferenceController _preferencesController) {
@@ -99,9 +104,10 @@ public class PreferencesView extends BaseView {
 	    	
 	    	//the multimedia capabilities are now not managed into app. 
 	    	//the photo settings are managed into camera app.
-        //    addMultimediaOption(); 
+      //    addMultimediaOption(); 
             addConnectionOptionsFields();
-            addWapOptionsFields();           
+            addWapOptionsFields();
+            addDebugModeOptionFields();
             
             ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
             ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
@@ -128,6 +134,22 @@ public class PreferencesView extends BaseView {
     		addMenuItem(_saveItem);
 	 }
 
+	 
+	 private void addDebugModeOptionFields(){
+
+		 BorderedFieldManager debugManager = new BorderedFieldManager(
+				 Manager.NO_HORIZONTAL_SCROLL
+				 | Manager.NO_VERTICAL_SCROLL);
+		 
+         //row allow description
+         BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_DEBUG_DESC)); 
+		 debugManager.add(lblDesc);
+		
+		 _debugMode=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_DEBUG_LABEL), mPrefs.isDebugMode());
+		 debugManager.add(_debugMode);		 
+		 add(debugManager);
+	 }
+	 
 	 private void addConnectionOptionsFields(){
 
 		 BorderedFieldManager optManager = new BorderedFieldManager(
@@ -166,10 +188,8 @@ public class PreferencesView extends BaseView {
 				 | Manager.NO_VERTICAL_SCROLL);
 		 
 	      //row allow description
-         LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_USERDEFINEDCONN_DESC)); 
-		 Font fnt = this.getFont().derive(Font.ITALIC);
-		 lblDescReset.setFont(fnt);
-		 optManager.add(lblDescReset);
+		 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_USERDEFINEDCONN_DESC)); 
+		 optManager.add(lblDesc);
 		 
 		 userConnectionEnabledField=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_ENABLED), mPrefs.isUserConnectionOptionsEnabled());
 		 optManager.add(userConnectionEnabledField);
@@ -342,21 +362,39 @@ public class PreferencesView extends BaseView {
 		    	}
 		    	
 		    	try {
-					AppDAO.cleanUpFolderStructure();
+		    		
+		    		Log.trace("closing log file");
+		    		FileAppender fileAppender = WordPressCore.getInstance().getFileAppender();
+		    		Log.removeAppender(fileAppender);
+		    		fileAppender.close();		  
+					
+		    		AppDAO.cleanUpFolderStructure();
+
+					Log.trace("erased app temp dir");
+					AppDAO.setUpFolderStructure();
+					
+					fileAppender.open(); //reopen the log file
+					Log.addAppender(fileAppender);
+					
+					updateDataModel();
+		    		controller.savePref();
+		    		FrontController.getIstance().backToMainView();
+/*					
 					controller.displayMessage(_resources.getString(WordPressResource.MESSAGE_APP_RESTART));
 					Log.debug("Called application restart...");
-
 			        //Get the current application descriptor.
 			        ApplicationDescriptor current = ApplicationDescriptor.currentApplicationDescriptor();
 			        Log.debug("Scheduling the restart immediately...");
-			        controller.stopAllThread(); //stop bg thread
+			        WordPressCore.getInstance().clean(); //stop bg thread
 			        ApplicationManager.getApplicationManager().scheduleApplication(current, System.currentTimeMillis() + 3000, true);
 			        Log.debug("Application is exiting...");
-			        System.exit(0);
+			        System.exit(0);*/
 				} catch (RecordStoreException e) {
 					Log.error(e.getMessage());
 				} catch (IOException e) {
 					Log.error(e.getMessage());
+				} catch (Exception e) {
+					Log.error(e, "Error while cleaning app cache");
 				}
 		    }
 		};
@@ -497,6 +535,14 @@ public class PreferencesView extends BaseView {
 			
 			mPrefs.setBlackBerryInternetServicePermitted(_userAllowBIS.getChecked());
 			
+			//enable/disable debug mode
+			if(_debugMode.getChecked()) {
+				WordPressCore.getInstance().getFileAppender().setLogLevel(Log.TRACE);
+				Log.debug("File Appender Log level is now on TRACE");
+			} else {
+				WordPressCore.getInstance().getFileAppender().setLogLevel(Log.DEBUG);
+				Log.debug("File Appender Log level is now on DEBUG");
+			}
 			
 			setDirty(false);
 		}

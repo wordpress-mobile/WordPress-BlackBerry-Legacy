@@ -1,8 +1,9 @@
 package com.wordpress.utils;
 
+
 public class MultimediaUtils {
-	
-		public static boolean isPhotoCaptureSupported(){
+
+	public static boolean isPhotoCaptureSupported(){
 		if( System.getProperty("video.snapshot.encodings")!= null 
 				&& System.getProperty("video.snapshot.encodings").trim().length()>0 ){
 			return true;
@@ -89,14 +90,10 @@ public class MultimediaUtils {
 		return encoding;
 	}
 
-	
-	
 	public static String[] getSupportedVideoFormat(){
 		String formatiSuportati=System.getProperty("video.encodings");
 		formatiSuportati="default "+formatiSuportati;
 		String[] lines=StringUtils.split(formatiSuportati, " ");
 		return lines;
 	}	
-	
-
 }

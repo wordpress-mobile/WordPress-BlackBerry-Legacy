@@ -18,7 +18,7 @@ public class DraftPostsView extends BaseView {
 	private PostsListField listaPost; 
 	
 	 public DraftPostsView(DraftPostsController  _controller, Hashtable[] post) {
-	    	super(_controller.getCurrentBlogName()+" > "+_resources.getString(WordPressResource.TITLE_DRAFT_POSTS));
+	    	super(_resources.getString(WordPressResource.TITLE_DRAFT_POSTS)+" > "+_controller.getCurrentBlogName());
 	    	this.controller=_controller;	        
 	        buildList(post);
 	 }

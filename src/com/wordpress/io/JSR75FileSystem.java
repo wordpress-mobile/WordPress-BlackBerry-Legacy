@@ -11,6 +11,8 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.io.file.FileSystemRegistry;
 
+import net.rim.device.api.system.DeviceInfo;
+
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 
@@ -24,7 +26,7 @@ public class JSR75FileSystem  {
 /*
  * The BlackBerry Pearl 8100 smartphone was the first BlackBerry smartphone to support microSD cards... 
  */
-  public boolean hasMicroSD(){
+  public static boolean hasMicroSD(){
 	  String root = null;
 	  Enumeration e = FileSystemRegistry.listRoots();
 	  while (e.hasMoreElements()) {
@@ -38,6 +40,22 @@ public class JSR75FileSystem  {
 	  return false;
   }
   
+/*
+ * An API did not exist to determine if the BlackBerry smartphone could support microSD regardless 
+ * of whether or not a card was inserted. However, the BlackBerry smartphone model number can be 
+ * used to determine microSD card support,  as in the following code, since the list of BlackBerry 
+ * smartphones that support this feature is finite.
+ * 
+ */
+  public static boolean supportMicroSD(){
+	  String modelNum = DeviceInfo.getDeviceName();
+	  if ((modelNum.startsWith("8") && !modelNum.startsWith("87")) || modelNum.startsWith("9")) {
+		  //microSD card supported
+		  return true;
+	  } else {
+		  return false;
+	  }
+  }
   
   /** 
    * Renames this File to the name represented by the File dest. This works

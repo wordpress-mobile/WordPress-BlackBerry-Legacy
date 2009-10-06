@@ -5,6 +5,7 @@ import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
+import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.log.Log;
@@ -61,6 +62,7 @@ public class RefreshBlogController extends BaseController implements Observer{
 						currentBlog= (Blog) resp.getResponseObject(); 	//update blogs obj	
 						currentBlog.setLoadingState(BlogInfo.STATE_LOADED);
 						BlogDAO.updateBlog(currentBlog);							
+						CommentsDAO.cleanGravatarCache(currentBlog);
 					} catch (final Exception e) {
 						
 						if(currentBlog != null) {
@@ -68,7 +70,7 @@ public class RefreshBlogController extends BaseController implements Observer{
 							try {
 								BlogDAO.updateBlog(currentBlog);
 							} catch (Exception e2) {
-								Log.error(e, "Error while saving blogs");
+								Log.error(e2, "Error while saving blogs");
 							}
 						}											
 					 	displayError(e,"Error while saving new blog info");	

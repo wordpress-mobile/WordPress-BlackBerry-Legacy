@@ -325,7 +325,7 @@ public class PageDAO implements BaseDAO{
 		
 		page.setWpAuthorDisplayName((String) returnPageData.get("wp_author_display_name"));
 		Vector cf=(Vector) returnPageData.get("custom_fields");
-		page.setCustom_field(cf);
+		page.setCustomFields(cf);
 		
 		page.setWpPageTemplate((String) returnPageData.get("wp_page_template"));
 		return page;
@@ -380,8 +380,8 @@ public class PageDAO implements BaseDAO{
 		if(page.getDateCreatedGMT() !=null)
 			content.put("date_created_gmt", page.getDateCreatedGMT());
 		
-		if(page.getCustomField() !=null)
-			content.put("custom_fields", page.getCustomField());
+		if(page.getCustomFields() !=null)
+			content.put("custom_fields", page.getCustomFields());
 		
 		if(page.getWpPageTemplate() !=null)
 			content.put("wp_page_template", page.getWpPageTemplate());

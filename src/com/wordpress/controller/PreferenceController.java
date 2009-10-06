@@ -35,7 +35,7 @@ public class PreferenceController extends BaseController {
 	
 
 	
-	private void savePref() throws Exception {
+	public void savePref() throws Exception {
 		AppDAO.storeApplicationPreferecens(Preferences.getIstance());
 	}
     

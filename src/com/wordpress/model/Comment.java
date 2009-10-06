@@ -17,10 +17,7 @@ public class Comment {
 	private String userID = "";
 	private String link = "";
 	private String authorIp = "";
-	private int offset = 0;
-	private int number = 0;
-	private String count = "";
-	
+
 	
 	public Comment() {
 	
@@ -91,11 +88,11 @@ public class Comment {
 		return commentStatus;
 	}
 
-	public void setDate_created_gmt(Date date_created_gmt) {
+	public void setDateCreatedGMT(Date date_created_gmt) {
 		this.dateCreatedGmt = date_created_gmt;
 	}
 
-	public Date getDate_created_gmt() {
+	public Date getDateCreatedGMT() {
 		return dateCreatedGmt;
 	}
 
@@ -129,29 +126,5 @@ public class Comment {
 
 	public String getAuthorIp() {
 		return authorIp;
-	}
-
-	public void setOffset(int offset) {
-		this.offset = offset;
-	}
-
-	public int getOffset() {
-		return offset;
-	}
-
-	public void setNumber(int number) {
-		this.number = number;
-	}
-
-	public int getNumber() {
-		return number;
-	}
-
-	public void setCount(String count) {
-		this.count = count;
-	}
-
-	public String getCount() {
-		return count;
 	}
 }

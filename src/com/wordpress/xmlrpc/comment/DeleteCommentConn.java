@@ -2,6 +2,7 @@ package com.wordpress.xmlrpc.comment;
 
 import java.util.Vector;
 
+import com.wordpress.utils.log.Log;
 import com.wordpress.xmlrpc.BlogConn;
 
 public class DeleteCommentConn extends BlogConn  {
@@ -49,7 +50,7 @@ public class DeleteCommentConn extends BlogConn  {
 			try {
 				notifyObservers(connResponse);
 			} catch (Exception e) {
-				System.out.println("DeleteComment error: Notify error"); 
+				Log.error("DeleteComment error: Notify error"); 
 			}
 		}
 }

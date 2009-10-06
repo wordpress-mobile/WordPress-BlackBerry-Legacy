@@ -31,7 +31,6 @@ import com.wordpress.xmlrpc.post.NewPostConn;
 public class SendToBlogTask extends TaskImpl {
 
 	private Queue executionQueue = null; // queue of BlogConn
-	private boolean stopping = false;
 
 	private final Blog blog;
 	private Page page;
@@ -366,17 +365,4 @@ public class SendToBlogTask extends TaskImpl {
 		return photoFragment.toString();
 		
 	}
-		
-	public void stop() {
-		if(this.stopping == true) return; //already stopped
-		
-		this.stopping = true;
-		if (progressListener != null)
-			progressListener.taskComplete(null);
-	}
-	
-	public boolean isStopped() {
-		return stopping;
-	}
-
 }

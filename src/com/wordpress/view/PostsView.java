@@ -41,7 +41,7 @@ public class PostsView extends BaseView {
 
 	
 	 public PostsView(PostsController _controller, Vector recentPostInfo, int numberOfNewPosts) {
-	    	super(_controller.getBlogName()+" > "+_resources.getString(WordPressResource.TITLE_RECENTPOST), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
+	    	super(_resources.getString(WordPressResource.TITLE_RECENTPOST)+ " > "+ _controller.getBlogName(), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 	    	this.controller=_controller;
 	        
 	    	  //A HorizontalFieldManager to hold the buttons headings.
@@ -143,12 +143,13 @@ public class PostsView extends BaseView {
 
 		if(recentPostInfo != null && recentPostInfo.size() > 0 ) {
 			addMenuItem(_editPostItem);
+			addMenuItem(_commentsMenuItem);
 			addMenuItem(_deletePostItem);
 		}
 		
 		addMenuItem(_refreshPostListItem);
 		dataScroller.invalidate();
-		//addMenuItem(_draftPostsItem);
+		listaPost.setFocus(); //set the focus over the list
 	}
 	 
 
@@ -159,6 +160,14 @@ public class PostsView extends BaseView {
         }
     };
 	
+    private MenuItem _commentsMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_COMMENTS, 200, 10) {
+        public void run() {
+        	int selectedPost = listaPost.getSelectedIndex();
+        	controller.showComments(selectedPost);
+        }
+    };
+    
+    
 	private MenuItem _deletePostItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE, 210, 10) {
         public void run() {
             int selectedPost = listaPost.getSelectedIndex();

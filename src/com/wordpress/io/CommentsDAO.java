@@ -11,10 +11,10 @@ import javax.microedition.rms.RecordStoreException;
 
 import com.wordpress.model.Blog;
 import com.wordpress.model.Comment;
+import com.wordpress.utils.log.Log;
 
 public class CommentsDAO implements BaseDAO{
 	
-	//retrive the draft post file
 	public static Vector loadComments(Blog blog) throws IOException, RecordStoreException {
 		
 		String blogNameMD5=BlogDAO.getBlogFolderName(blog);
@@ -46,9 +46,55 @@ public class CommentsDAO implements BaseDAO{
     	ser.serialize(comments);
 		out.close();
 		
-		System.out.println("Scrittura commenti terminata con successo");   	
+		Log.debug("Scrittura commenti terminata con successo");   	
 	}
 	
+	
+	public static Hashtable loadGravatars(Blog blog) throws IOException, RecordStoreException {
+		
+		String blogNameMD5=BlogDAO.getBlogFolderName(blog);
+    	String commentsFilePath=AppDAO.getBaseDirPath()+blogNameMD5+GRAVATARS_FILE;
+    	
+    	if (!JSR75FileSystem.isFileExist(commentsFilePath)){
+    		return null;
+    	}   	
+    	
+    	DataInputStream in = JSR75FileSystem.getDataInputStream(commentsFilePath);
+    	Serializer ser= new Serializer(in);
+    	Hashtable gvt = (Hashtable) ser.deserialize();
+    	
+    	in.close();
+    	Log.debug("Gravatars loaded from device memory");   	
+    	return gvt;
+	}
+		
+	
+	//store comments
+	public static synchronized void storeGravatars(Blog blog, Hashtable gvt) throws IOException, RecordStoreException {
+		
+		String blogNameMD5=BlogDAO.getBlogFolderName(blog);
+    	String commentsFilePath=AppDAO.getBaseDirPath()+blogNameMD5+GRAVATARS_FILE;
+    	
+    	JSR75FileSystem.createFile(commentsFilePath); //create the file
+    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(commentsFilePath);
+
+    	Serializer ser= new Serializer(out);
+    	ser.serialize(gvt);
+		out.close();
+		
+		Log.debug("Gravatars stored into device memory");   	
+	}
+	
+	public static synchronized void cleanGravatarCache(Blog currentBlog){
+		//we should clean the gravatars cached imgs
+		try {
+			CommentsDAO.storeGravatars(currentBlog, new Hashtable());
+		} catch (IOException e) {
+			Log.error("Error while cleaning gravatars cache"+e.getMessage());
+		} catch (RecordStoreException e) {
+			Log.error("Error while cleaning gravatars cache"+e.getMessage());
+		}
+	}
 	
 	
 	//retun array of comments from wp response
@@ -68,7 +114,7 @@ public class CommentsDAO implements BaseDAO{
 			int commentID=Integer.parseInt((String)returnCommentData.get("comment_id"));
 	        int commentParent=Integer.parseInt((String) returnCommentData.get("parent"));
             String status=(String) returnCommentData.get("status");
-            comment.setDate_created_gmt((Date) returnCommentData.get("date_created_gmt"));
+            comment.setDateCreatedGMT((Date) returnCommentData.get("date_created_gmt"));
             comment.setUserId( (String)returnCommentData.get("user_id") ) ;
             comment.setID(commentID);
             comment.setParent(commentParent);
@@ -98,7 +144,8 @@ public class CommentsDAO implements BaseDAO{
 	        hash.put("comment_id", String.valueOf(currentComment.getID()));
 	        hash.put("parent", String.valueOf(currentComment.getParent()));
 	        hash.put("status", currentComment.getStatus());
-	        hash.put("date_created_gmt", currentComment.getDate_created_gmt());
+	        if(currentComment.getDateCreatedGMT() != null)
+	        	hash.put("date_created_gmt", currentComment.getDateCreatedGMT());
 	        hash.put("user_id", currentComment.getUserId());
 	        hash.put("content", currentComment.getContent());
 	        hash.put("link", currentComment.getLink());

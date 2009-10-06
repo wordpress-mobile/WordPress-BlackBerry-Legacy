@@ -9,9 +9,9 @@ import javax.microedition.io.HttpConnection;
 import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Log;
 
-public class HTTPGetConn extends BlogConn  {
+public class PreviewHTTPConn extends BlogConn  {
 
-	public HTTPGetConn(String url) {
+	public PreviewHTTPConn(String url) {
 		super(url, "", "");
 	}
 

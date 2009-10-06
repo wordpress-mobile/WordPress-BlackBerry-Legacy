@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.FocusChangeListener;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
@@ -22,6 +23,7 @@ import net.rim.device.api.ui.text.URLTextFilter;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AddBlogsController;
 import com.wordpress.controller.BaseController;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BorderedFieldManager;
 
 public class AddBlogsView extends BaseView {
@@ -177,7 +179,6 @@ public class AddBlogsView extends BaseView {
 	public void add( Field field ) {
 		_container.add( field );
 	}
-
 	
 	//add blog menu item 
 	private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 140, 10) {

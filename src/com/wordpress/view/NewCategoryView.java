@@ -77,7 +77,7 @@ public class NewCategoryView extends BaseView {
         		| Manager.NO_VERTICAL_SCROLL
         		| BorderedFieldManager.BOTTOM_BORDER_NONE);
         
-		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_POST_TITLE));
+		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_CATEGORY_NAME));
 		catField = new BasicEditField("", "", 100, Field.EDITABLE);
         rowTitle.add(lblTitle);
         rowTitle.add(catField);
@@ -92,7 +92,7 @@ public class NewCategoryView extends BaseView {
         HorizontalFieldManager innerContainerForParentField = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
                 | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
 
-		LabelField lblParent = getLabel(_resources.getString(WordPressResource.LABEL_POST_PARENTCATEGORY));
+		LabelField lblParent = getLabel(_resources.getString(WordPressResource.LABEL_CATEGORY_PARENT));
 		parentCat = new ObjectChoiceField("", catTitles, 0);
 		innerContainerForParentField.add(lblParent);
 		innerContainerForParentField.add(parentCat);

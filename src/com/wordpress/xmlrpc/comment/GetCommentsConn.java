@@ -5,6 +5,7 @@ import java.util.Vector;
 import org.kxmlrpc.XmlRpcException;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.utils.log.Log;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 
@@ -53,7 +54,7 @@ public class GetCommentsConn extends BlogConn  {
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("Recent Post Notify Error");
+			Log.error("Recent Post Notify Error");
 		}
 	}
 	}

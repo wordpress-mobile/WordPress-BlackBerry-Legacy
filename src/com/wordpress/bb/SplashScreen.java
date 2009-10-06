@@ -21,7 +21,6 @@ import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.Tools;
-import com.wordpress.utils.log.Appender;
 import com.wordpress.utils.log.FileAppender;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.ErrorView;
@@ -58,8 +57,24 @@ public class SplashScreen extends MainScreen {
 						
 		try {
 			String baseDirPath = AppDAO.getBaseDirPath(); //read from rms the base dir path
-			AppDAO.setUpFolderStructure();
+
+			//if there is no app path stored into RMS put the default path
+			if(baseDirPath == null) {
+				AppDAO.setBaseDirPath(BaseDAO.STORE_PATH); 
+			} else {
+				//checking if storage is set to SDcard, then verify the presence of sd card into phone
+				if(baseDirPath.equals(BaseDAO.SD_PATH)) {
+					if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD()) {
+						//ok
+					} else {
+						//microSD not present. set the storage to memory device
+						AppDAO.setBaseDirPath(BaseDAO.STORE_PATH); 
+					}
+				}
+			}
 			
+			AppDAO.setUpFolderStructure(); //check for the folder existance, create it if not exist
+						
 			if ( baseDirPath != null ) {
 				//not first startup 	
 				AppDAO.readApplicationPreferecens(appPrefs); //load pref on startup
@@ -92,10 +107,11 @@ public class SplashScreen extends MainScreen {
 			AppDAO.storeApplicationPreferecens(appPrefs); //store app pref, trick for store pref when added new parameters
 			
 			//add the file log appender
-			Appender fileAppender = new FileAppender(baseDirPath, BaseDAO.LOG_FILE_PREFIX);
+			FileAppender fileAppender = new FileAppender(baseDirPath, BaseDAO.LOG_FILE_PREFIX);
 			fileAppender.setLogLevel(Log.DEBUG); //if we set level to TRACE the file log size grows too fast
 			fileAppender.open();
 			Log.addAppender(fileAppender);
+			WordPressCore.getInstance().setFileAppender(fileAppender); // add the file appender to the queue
 			
 			
 		} catch (Exception e) {

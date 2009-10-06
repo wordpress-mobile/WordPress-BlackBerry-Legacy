@@ -81,6 +81,26 @@ public class PostsController extends BaseController{
 		return true;
 	}
 	
+	public void showComments(int selected) {
+		if(!checkUserRights()){
+			displayMessage("You cannot Manage Post!");
+			return;
+		}
+		if(selected != -1){
+			
+			Hashtable postData = (Hashtable) currentBlog.getRecentPostTitles().elementAt(selected);
+			String postID = (String) postData.get("postid");
+			
+			if(postID == null || postID.equals("")) {
+				displayMessage(_resources.getString(WordPressResource.MESSAGE_LOCAL_DRAFT_NO_COMMENT));
+				return;
+			}
+			else {
+				FrontController.getIstance().showCommentsByPost(currentBlog, Integer.parseInt(postID), (String) postData.get("title"));
+			}
+		}
+	}
+	
 	/** starts the  post loading */
 	public void editPost(int selected){
 		if(!checkUserRights()){
@@ -198,7 +218,7 @@ public class PostsController extends BaseController{
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
 					
-					System.out.println(">>>deletePostResponse");
+					Log.debug(">>>deletePostResponse");
 
 					dismissDialog(connectionProgressView);
 					BlogConnResponse resp= (BlogConnResponse) object;

@@ -26,13 +26,13 @@ public class ConnectionUtils {
     * @return
     */
     public static boolean isWifiAvailable() {
-        Log.info("Checking WIFI Availability");
+        Log.trace("Checking WIFI Availability");
         boolean isWifiEnabled;
         if (RadioInfo.areWAFsSupported(RadioInfo.WAF_WLAN)) {
-            Log.info("WI-FI Supported");
+            Log.trace("WI-FI Supported");
             isWifiEnabled = true;
         } else {
-            Log.info("WI-FI NOT Supported");
+            Log.trace("WI-FI NOT Supported");
             isWifiEnabled = false;
         }
         return isWifiEnabled;

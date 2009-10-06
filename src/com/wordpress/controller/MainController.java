@@ -10,6 +10,7 @@ import javax.microedition.rms.RecordStoreException;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
+import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
@@ -135,7 +136,7 @@ public class MainController extends BaseController implements TaskProgressListen
 	}
 		
 	public void showBlog(BlogInfo selectedBlog){
-		
+
 		if (selectedBlog.getState() == BlogInfo.STATE_LOADING || selectedBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
 			//blog in caricamento
 			displayMessage("Loading blog. Try later..");
@@ -166,9 +167,8 @@ public class MainController extends BaseController implements TaskProgressListen
 	*/	
     	int result=this.askQuestion(_resources.getString(WordPressResource.MESSAGE_EXIT_APP));   
     	if(Dialog.YES==result) {
-    		runner.quit(); //stop the runner thread
     		timer.cancel();
-    		System.exit(0);
+    		WordPressCore.getInstance().exitWordPress();
     		return true;
     	} else {
     		return false;

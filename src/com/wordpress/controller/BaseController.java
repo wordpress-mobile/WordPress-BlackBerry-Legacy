@@ -6,8 +6,6 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressResource;
-import com.wordpress.task.TasksRunner;
-import com.wordpress.utils.Queue;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.ErrorView;
 import com.wordpress.view.dialog.InfoView;
@@ -17,47 +15,40 @@ public abstract class BaseController {
 
 	//create a variable to store the ResourceBundle for localization support
     protected static ResourceBundle _resources;
-    
-    protected static Queue codaTask = new Queue(); //create empty queue of task
-    protected static TasksRunner runner = new TasksRunner (codaTask); //task runner obj
-    	    
+        	    
     static {
         //retrieve a reference to the ResourceBundle for localization support
         _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
-        runner.startWorker(); //start the task runner thread
     }
-  	
-    
+  
   abstract 	public void showView();
   abstract 	public void refreshView();
-	
   
-  	//stop runner thread
-	public synchronized void stopAllThread() {
-		Log.debug("Runner Thread stopped");
-		runner.quit();
-	}
 
 	// Utility routine to display errors
 	public synchronized void displayError(final Exception e, String message) {
-		
 		if(e != null && e.getMessage()!= null ) {
-			displayError(message + "\n" + e.getMessage());
+			Log.error(e, e.getMessage());
+			_displayError(message + "\n" + e.getMessage());
 		} else {
-			displayError(message);			
+			_displayError(message);			
 		}
-		
 	}
-
-	// Utility routine to display errors
-	public synchronized void displayError(final String msg) {
+	
+	
+	private void _displayError(final String msg) {
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
-				Log.error(msg);
 				ErrorView errView = new ErrorView(msg);
 				errView.doModal();
 			}
 		});
+	}
+	
+	// Utility routine to display errors
+	public synchronized void displayError(final String msg) {
+		Log.error(msg);
+		_displayError(msg);
 	}
 	
 	// Utility routine to display msg

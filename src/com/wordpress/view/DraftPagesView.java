@@ -19,7 +19,7 @@ public class DraftPagesView extends BaseView {
 	private PostsListField pageListField; 
 	
 	 public DraftPagesView(DraftPagesController  _controller, Page[] pages) {
-	    	super(_controller.getCurrentBlogName()+" > "+_resources.getString(WordPressResource.TITLE_DRAFT_PAGES));
+	    	super(_resources.getString(WordPressResource.TITLE_DRAFT_PAGES)+" > "+_controller.getCurrentBlogName());
 	    	this.controller=_controller;	        
 	        buildList(pages);
 	 }

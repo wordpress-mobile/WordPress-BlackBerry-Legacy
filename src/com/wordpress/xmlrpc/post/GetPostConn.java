@@ -6,6 +6,7 @@ import java.util.Vector;
 import com.wordpress.io.DraftDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
+import com.wordpress.utils.log.Log;
 import com.wordpress.xmlrpc.BlogConn;
 
 public class GetPostConn extends BlogConn  {
@@ -53,7 +54,6 @@ public class GetPostConn extends BlogConn  {
         response = execute("mt.getPostCategories", args);
                       
         try {
-        	
             Vector categoryStructs = (Vector) response;
             int[] categories = new int[categoryStructs.size()];
             Hashtable categoryStruct = null;
@@ -75,7 +75,7 @@ public class GetPostConn extends BlogConn  {
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("Get Post Conn Notify Error");
+			Log.error("Get Post Conn Notify Error");
 		}
 	}
 }

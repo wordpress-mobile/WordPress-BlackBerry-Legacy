@@ -3,6 +3,7 @@ package com.wordpress.xmlrpc.comment;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import com.wordpress.utils.log.Log;
 import com.wordpress.xmlrpc.BlogConn;
 
 public class GetCommentCountConn extends BlogConn  {
@@ -55,7 +56,7 @@ public class GetCommentCountConn extends BlogConn  {
 			try {
 				notifyObservers(connResponse);
 			} catch (Exception e) {
-				System.out.println("GetCommentCount error: Notify error"); 
+				Log.error("GetCommentCount error: Notify error"); 
 			}
 			
 		}

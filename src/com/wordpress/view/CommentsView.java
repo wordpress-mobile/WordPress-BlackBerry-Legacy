@@ -1,6 +1,6 @@
 package com.wordpress.view;
 
-import java.util.Hashtable;
+import java.util.Vector;
 
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
@@ -17,6 +17,7 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.CommentsController;
+import com.wordpress.controller.GravatarController;
 import com.wordpress.model.Comment;
 import com.wordpress.view.component.CommentsListField;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
@@ -29,13 +30,13 @@ public class CommentsView extends BaseView {
 	private LabelField lblPostsNumber;
 	
 	private CommentsListField commentListController;
+	private GravatarController gravatarController;
 	private ListField commentsList;
-	private final Hashtable commentStatusList; 
 	
-	 public CommentsView(CommentsController _controller, Comment[] comments, Hashtable commentStatusList) {
-	    	super(_resources.getString(WordPressResource.TITLE_COMMENTS), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
+	 public CommentsView(CommentsController _controller, Comment[] comments, GravatarController gvtCtrl, String title) {
+	    	super(_resources.getString(WordPressResource.TITLE_COMMENTS)+" > "+ title, MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 	    	this.controller=_controller;
-			this.commentStatusList = commentStatusList;
+			gravatarController = gvtCtrl;
 	                
 	    	  //A HorizontalFieldManager to hold the posts number label
 	    	topManager = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
@@ -64,11 +65,11 @@ public class CommentsView extends BaseView {
 		
 		if(comments != null) {
 			elements = comments;
-			selectedCom = new boolean[comments.length];
+			selectedCom = new boolean[comments.length];	
 		}
-		commentListController= new CommentsListField(elements,selectedCom);
-		
-    	this.commentsList= commentListController.get_checkList();
+		gravatarController.deleteObservers(); //FIXME non va bene così
+		commentListController= new CommentsListField(elements, selectedCom, gravatarController);
+    	this.commentsList= commentListController.getCommentListField();
 		dataScroller.add(commentsList);
 		
 		//update comment number
@@ -76,6 +77,16 @@ public class CommentsView extends BaseView {
 		
 		switchMenu();
 		addMenuItem(_refreshCommentsListItem);
+		
+		//start the gravatar task
+		Vector emails = new Vector(); //email of the comment author
+		int elementLength = elements.length;
+		for(int count = 0; count < elementLength; ++count) {
+			String authorEmail = elements[count].getAuthorEmail();
+			if (!authorEmail.equalsIgnoreCase(""))
+				emails.addElement(authorEmail);
+		}		
+		gravatarController.startGravatarTask(emails);
 	}
 	 
 	//change the main menu. if we are in multiple edit mode add comment action item
@@ -146,6 +157,7 @@ public class CommentsView extends BaseView {
 
     private MenuItem _refreshCommentsListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 220, 100) {
     	public void run() {
+    		gravatarController.stopGravatarTask(); //stop task if already running
     		controller.refreshComments(true);
     	}
     };
@@ -207,6 +219,7 @@ public class CommentsView extends BaseView {
 	
 	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {
+		gravatarController.deleteObservers(); //remove the observers but continue to working
 		controller.backCmd();
 		return true;
 	}

@@ -65,7 +65,7 @@ public class BlogDAO implements BaseDAO {
     	
     	DataOutputStream out = JSR75FileSystem.getDataOutputStream(filePath+BLOG_FILE);
     	storeBlog(blog, out);
-    	System.out.println("blog updated succesfully");    	    	
+    	Log.debug("blog updated succesfully");    	    	
 		out.close();
     	return true;
     }

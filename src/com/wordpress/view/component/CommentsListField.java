@@ -11,15 +11,18 @@ import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ListField;
 
+import com.wordpress.controller.GravatarController;
 import com.wordpress.model.Comment;
+import com.wordpress.utils.observer.Observable;
+import com.wordpress.utils.observer.Observer;
 
 public class CommentsListField {
     
 	private Vector _listData = new Vector();
-    private ListField _checkList;
+    private ListField _innerListField;
     private boolean checkBoxVisible = false;
     private ListCallBack listFieldCallBack = null;
-    
+	private GravatarController gvtController;
        
    public boolean isCheckBoxVisible() {
 		return checkBoxVisible;
@@ -27,7 +30,7 @@ public class CommentsListField {
 
 	public void setCheckBoxVisible(boolean checkBoxVisible) {
 		this.checkBoxVisible = checkBoxVisible;
-		_checkList.invalidate(); //invalidate all list
+		_innerListField.invalidate(); //invalidate all list
 	}
 
 	public boolean[] getSelected(){
@@ -61,7 +64,7 @@ public class CommentsListField {
 	
 	//return the focused comment
 	public Comment getFocusedComment() {
-		int selectedIndex = _checkList.getSelectedIndex();
+		int selectedIndex = _innerListField.getSelectedIndex();
 		if (selectedIndex != -1) {
 			ChecklistData data = (ChecklistData) _listData.elementAt(selectedIndex);
 			return data.getComment();
@@ -78,9 +81,8 @@ public class CommentsListField {
        _checkList.insert(elementLength);
    }
    */
-   public CommentsListField(Comment[] _elements, boolean[] _elementsChecked) {
-	   
-        _checkList = new ListField()
+   public CommentsListField(Comment[] _elements, boolean[] _elementsChecked, GravatarController gvtController) {
+		_innerListField = new ListField()
         {
             //Allow the space bar to toggle the status of the selected row.
             protected boolean keyChar(char key, int status, int time)
@@ -159,28 +161,27 @@ public class CommentsListField {
         
         //Set the ListFieldCallback
         listFieldCallBack = new ListCallBack();
-        _checkList.setCallback(listFieldCallBack);
-        _checkList.setEmptyString("Nothing to see here", DrawStyle.LEFT);
-        _checkList.setRowHeight(42);
+        _innerListField.setCallback(listFieldCallBack);
+        _innerListField.setEmptyString("Nothing to see here", DrawStyle.LEFT);
+        _innerListField.setRowHeight(42);
         
         int elementLength = _elements.length;
-        
+	    
         //Populate the ListField & Vector with data.
         for(int count = 0; count < elementLength; ++count)
         {
            ChecklistData checklistData = new ChecklistData(_elements[count], _elementsChecked[count]);
            if(count == 0) checklistData.setSelected(true); //select the first element
            _listData.addElement(checklistData);
-           _checkList.insert(count);
-        }  
-    }
+           _innerListField.insert(count);
+        }
         
-    
-  
+    	this.gvtController = gvtController;
+    	gvtController.addObserver(new GravatarCallBack());
+   }   
    
-     
-    public ListField get_checkList() {
-		return _checkList;
+    public ListField getCommentListField() {
+		return _innerListField;
 	}
 
 	//The menu item added to the screen when the _checkList field has focus.
@@ -189,7 +190,7 @@ public class CommentsListField {
         public void run()
         {
             //Get the index of the selected row.
-            int index = _checkList.getSelectedIndex();
+            int index = _innerListField.getSelectedIndex();
             
             //Get the ChecklistData for this row.
             ChecklistData data = (ChecklistData)_listData.elementAt(index);
@@ -201,14 +202,15 @@ public class CommentsListField {
             _listData.setElementAt(data, index);
             
             //Invalidate the modified row of the ListField.
-            _checkList.invalidate(index);
+            _innerListField.invalidate(index);
         }
     }; 
     
-
+    public Bitmap getLatestGravatar(String authorEmail) {
+    	return  gvtController.getLatestGravatar(authorEmail);
+    }
     
     private class ListCallBack extends BasicListFieldCallBack {
-
     	  
         protected Bitmap checkedBitmap         = Bitmap.getBitmapResource("check.png");
         protected Bitmap uncheckedBitmap       = Bitmap.getBitmapResource("uncheck.png");
@@ -225,7 +227,7 @@ public class CommentsListField {
             int height = list.getRowHeight();
             
             //drawXXX(graphics, 0, y, width, listField.getRowHeight());
-            drawBackground(graphics, 0, y, w, height, currentRow.isSelected);
+           	drawBackground(graphics, 0, y, w, height, currentRow.isSelected);
             drawBorder(graphics, 0, y, w, height);
             
             int leftImageWidth = 0;
@@ -238,12 +240,22 @@ public class CommentsListField {
     				leftImageWidth = drawLeftImage(graphics, 0, y, height, uncheckedBitmap);
     			}
     		} else {
-    			
+    			String authorEmail = currentComment.getAuthorEmail();
+    			Bitmap gravatarBitmap = getLatestGravatar(authorEmail);
+    				
+    			leftImageWidth = drawLeftImage(graphics, 0, y, height, gravatarBitmap);
+    			leftImageWidth = 40;
     		}
 
+    		int authorWidth = 2;
+            if(currentComment.getStatus().equalsIgnoreCase("hold"))
+            	authorWidth = drawFirstRowMainText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getAuthor(), Color.YELLOWGREEN);
+            else if(currentComment.getStatus().equalsIgnoreCase("spam"))
+            	authorWidth = drawFirstRowMainText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getAuthor(), Color.RED);
+            else
+            	authorWidth = drawFirstRowMainText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getAuthor(), currentRow.isSelected);
             
-            int authorWidth = drawFirstRowMainText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getAuthor(), currentRow.isSelected);
-            drawEMailText(graphics, w, y, w -  leftImageWidth - authorWidth, height, currentComment.getAuthorEmail(), currentRow.isSelected);
+            drawEMailText(graphics, w, y, w -  leftImageWidth - authorWidth - 10 , height, currentComment.getAuthorEmail(), currentRow.isSelected);
             drawSecondRowText(graphics, leftImageWidth, y, w - leftImageWidth, height, currentComment.getContent(), currentRow.isSelected);
 
             graphics.setFont(originalFont);
@@ -302,15 +314,13 @@ public class CommentsListField {
         
 	*/
     }
-    
-    
     //A class to hold the comment in the CheckBox and it's checkbox state (checked or unchecked).
     private class ChecklistData  {
 
     	private Comment comment;
         private boolean _checked;
         private boolean isSelected;
-
+       
         ChecklistData(Comment comment, boolean checked)
         {
         	this.comment = comment;
@@ -340,5 +350,28 @@ public class CommentsListField {
         {
             _checked = !_checked;
         }
+    }
+    
+    private class GravatarCallBack implements Observer {
+    	
+    	public void update(Observable observable, Object object) {
+    		if(object == null)
+    			_innerListField.invalidate();
+    		else
+    		if(object instanceof String) {
+    			String email = (String) object;			
+    			int elementLength = _listData.size();
+    			
+    			for(int count = 0; count < elementLength; ++count)
+    			{
+    				//Get the ChecklistData for this row.
+    				ChecklistData data = (ChecklistData)_listData.elementAt(count);
+    				if ( data.comment.getAuthorEmail().equalsIgnoreCase(email) )
+    					_innerListField.invalidate(count); //request row repaint
+    			}
+    		}
+    		
+    	}
+    	
     }
 } 

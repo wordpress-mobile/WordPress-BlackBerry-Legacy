@@ -39,6 +39,7 @@ src\com\wordpress\bb\WordPress.rrh
 src\com\wordpress\bb\WordPress_fr.rrc
 src\com\wordpress\bb\WordPress_it.rrc
 src\com\wordpress\bb\WordPressApplicationPermissions.java
+src\com\wordpress\bb\WordPressCore.java
 src\com\wordpress\controller\AboutController.java
 src\com\wordpress\controller\AddBlogsController.java
 src\com\wordpress\controller\BaseController.java
@@ -49,7 +50,9 @@ src\com\wordpress\controller\CommentsController.java
 src\com\wordpress\controller\ConnectionInProgressListener.java
 src\com\wordpress\controller\DraftPagesController.java
 src\com\wordpress\controller\DraftPostsController.java
+src\com\wordpress\controller\FilteredCommentsController.java
 src\com\wordpress\controller\FrontController.java
+src\com\wordpress\controller\GravatarController.java
 src\com\wordpress\controller\MainController.java
 src\com\wordpress\controller\MultimediaController.java
 src\com\wordpress\controller\PageController.java
@@ -57,6 +60,7 @@ src\com\wordpress\controller\PagesController.java
 src\com\wordpress\controller\PostController.java
 src\com\wordpress\controller\PostsController.java
 src\com\wordpress\controller\PreferenceController.java
+src\com\wordpress\controller\RecentCommentsController.java
 src\com\wordpress\controller\RefreshBlogController.java
 src\com\wordpress\io\AppDAO.java
 src\com\wordpress\io\BaseDAO.java
@@ -78,6 +82,9 @@ src\com\wordpress\model\Page.java
 src\com\wordpress\model\Post.java
 src\com\wordpress\model\Preferences.java
 src\com\wordpress\model\Tag.java
+src\com\wordpress\task\AsyncRunner.java
+src\com\wordpress\task\CommentsTask.java
+src\com\wordpress\task\GetGravatarTask.java
 src\com\wordpress\task\LoadBlogsDataTask.java
 src\com\wordpress\task\ResizeImageTask.java
 src\com\wordpress\task\SendToBlogTask.java
@@ -124,6 +131,7 @@ src\com\wordpress\view\AddBlogsView.java
 src\com\wordpress\view\BaseView.java
 src\com\wordpress\view\BlogOptionsView.java
 src\com\wordpress\view\BlogView.java
+src\com\wordpress\view\CommentReplyView.java
 src\com\wordpress\view\CommentsView.java
 src\com\wordpress\view\CommentView.java
 src\com\wordpress\view\component\AnimatedGIFField.java
@@ -131,6 +139,7 @@ src\com\wordpress\view\component\BasicListFieldCallBack.java
 src\com\wordpress\view\component\BitmapButtonField.java
 src\com\wordpress\view\component\BlogsListField.java
 src\com\wordpress\view\component\BorderedFieldManager.java
+src\com\wordpress\view\component\BorderedFocusChangeListenerPatch.java
 src\com\wordpress\view\component\CategoriesListField.java
 src\com\wordpress\view\component\CheckBoxListField.java
 src\com\wordpress\view\component\CommentsListField.java
@@ -142,6 +151,7 @@ src\com\wordpress\view\component\HorizontalPaddedFieldManager.java
 src\com\wordpress\view\component\HtmlTextField.java
 src\com\wordpress\view\component\PostsListField.java
 src\com\wordpress\view\component\VerticalPaddedFieldManager.java
+src\com\wordpress\view\CustomFieldsView.java
 src\com\wordpress\view\dialog\ConnectionInProgressView.java
 src\com\wordpress\view\dialog\DiscardChangeInquiryView.java
 src\com\wordpress\view\dialog\ErrorView.java
@@ -150,6 +160,7 @@ src\com\wordpress\view\dialog\InquiryView.java
 src\com\wordpress\view\dialog\WaitScreen.java
 src\com\wordpress\view\DraftPagesView.java
 src\com\wordpress\view\DraftPostsView.java
+src\com\wordpress\view\ExcerptView.java
 src\com\wordpress\view\MainView.java
 src\com\wordpress\view\mm\MultimediaPopupScreen.java
 src\com\wordpress\view\mm\PhotoBitmapField.java
@@ -176,10 +187,8 @@ src\com\wordpress\xmlrpc\comment\EditCommentConn.java
 src\com\wordpress\xmlrpc\comment\GetCommentCountConn.java
 src\com\wordpress\xmlrpc\comment\GetCommentsConn.java
 src\com\wordpress\xmlrpc\comment\GetCommentStatusListConn.java
-src\com\wordpress\xmlrpc\comment\ManageCommentsTask.java
 src\com\wordpress\xmlrpc\comment\NewCommentConn.java
 src\com\wordpress\xmlrpc\GetAuthorsConn.java
-src\com\wordpress\xmlrpc\HTTPGetConn.java
 src\com\wordpress\xmlrpc\HTTPPostConn.java
 src\com\wordpress\xmlrpc\NewCategory.java
 src\com\wordpress\xmlrpc\NewCategoryConn.java
@@ -197,11 +206,15 @@ src\com\wordpress\xmlrpc\post\GetPostConn.java
 src\com\wordpress\xmlrpc\post\NewPostConn.java
 src\com\wordpress\xmlrpc\post\PostConn.java
 src\com\wordpress\xmlrpc\post\RecentPostConn.java
+src\com\wordpress\xmlrpc\PreviewHTTPConn.java
 src\complete.png
 src\Default.png
 src\defaultPostTemplate.html
 src\disclosure-indicator.png
 src\drafts-folder.png
+src\gravatar.png
+src\icons\edit_add.png
+src\icons\stop.png
 src\important.png
 src\License.txt
 src\MainBackground.png

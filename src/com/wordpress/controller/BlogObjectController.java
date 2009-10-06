@@ -22,6 +22,7 @@ import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
+import com.wordpress.view.CustomFieldsView;
 import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PreviewView;
@@ -31,7 +32,7 @@ import com.wordpress.view.mm.MultimediaPopupScreen;
 import com.wordpress.view.mm.PhotoFileJournalListener;
 import com.wordpress.view.mm.PhotoPreview;
 import com.wordpress.xmlrpc.BlogConnResponse;
-import com.wordpress.xmlrpc.HTTPGetConn;
+import com.wordpress.xmlrpc.PreviewHTTPConn;
 
 /**
  * This is the base class for Post and Page Obj
@@ -86,6 +87,26 @@ public abstract class BlogObjectController extends BaseController {
 		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
 	
+	
+	public void showCustomFieldsView(String title){
+		CustomFieldsView view;
+		
+		if( post != null )
+			view = new CustomFieldsView(this, post.getCustomFields(), title);
+		else
+			view = new CustomFieldsView(this, page.getCustomFields(), title);
+		
+		UiApplication.getUiApplication().pushScreen(view);
+	}
+	
+	
+	public void setObjectAsChanged(boolean value) {
+		isModified = value;
+	}
+	
+	public boolean isObjectChanged() {
+		return isModified;
+	}
 	
 	
 	protected String[] getPhotoList() {
@@ -258,7 +279,7 @@ public abstract class BlogObjectController extends BaseController {
 		String connMessage = null;
 		connMessage = _resources.getString(WordPressResource.CONN_LOADING_PREVIEW_TEMPLATE);
 		
-		final HTTPGetConn connection = new HTTPGetConn(objectLink);
+		final PreviewHTTPConn connection = new PreviewHTTPConn(objectLink);
 		
         connection.addObserver(new loadTemplateCallBack(title, content, tags));  
         connectionProgressView= new ConnectionInProgressView(connMessage);
@@ -307,14 +328,11 @@ public abstract class BlogObjectController extends BaseController {
 						} catch (Exception e) {
 							startLocalPreview(title,content,tags);
 							return;
-						}
-						
-						UiApplication.getUiApplication().pushScreen(new PreviewView(html));	
-						
+						}						
+						UiApplication.getUiApplication().pushScreen(new PreviewView(html));							
 					} else {
 						startLocalPreview(title,content,tags);
 					}
-					
 					
 				}
 			});

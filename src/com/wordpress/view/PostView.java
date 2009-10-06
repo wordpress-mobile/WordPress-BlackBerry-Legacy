@@ -2,15 +2,17 @@ package com.wordpress.view;
 
 
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.Display;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Keypad;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
-import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
@@ -21,6 +23,7 @@ import com.wordpress.controller.PostController;
 import com.wordpress.model.Post;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.component.HtmlTextField;
 
@@ -28,7 +31,9 @@ public class PostView extends BaseView {
 	
     private PostController controller; //controller associato alla view
     private Post post;    
-
+    
+    private VerticalFieldManager _container; 
+    
     //content of tabs summary
 	private BasicEditField title;
 	private HtmlTextField bodyTextBox;
@@ -36,40 +41,71 @@ public class PostView extends BaseView {
 	private ObjectChoiceField status;
 	private LabelField categories;
 	private LabelField lblPhotoNumber;
-	private VerticalFieldManager manager;
 	
     public PostView(PostController _controller, Post _post) {
     	super(_resources.getString(WordPressResource.TITLE_POSTVIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
     	this.controller=_controller;
 		this.post = _post;
         
-   	  //A HorizontalFieldManager to hold the photos number label
-		HorizontalPaddedFieldManager photoNumberManager = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
-            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
-        lblPhotoNumber = getLabel("");
-        setNumberOfPhotosLabel(0);
-        photoNumberManager.add(lblPhotoNumber);
-        
-    	manager= new VerticalFieldManager( Field.FOCUSABLE | VerticalFieldManager.VERTICAL_SCROLL | VerticalFieldManager.VERTICAL_SCROLLBAR);          
+		VerticalFieldManager internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR ) {
+    		public void paintBackground( Graphics g ) {
+    			g.clear();
+    			int color = g.getColor();
+    			g.setColor( Color.LIGHTGREY );
+    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
+    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
+    			g.setColor( color );
+    		}
+    		
+    		protected void sublayout( int maxWidth, int maxHeight ) {
+    			
+    			int titleFieldHeight = 0;
+    			if ( titleField != null ) {
+    				titleFieldHeight = titleField.getHeight();
+    			}
+    			
+    			int displayWidth = Display.getWidth(); // I would probably make these global
+    			int displayHeight = Display.getHeight();
+    			
+    			super.sublayout( displayWidth, displayHeight - titleFieldHeight );
+    			setExtent( displayWidth, displayHeight - titleFieldHeight );
+    		}
+    		
+    	};
+    	
+    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR );
+    	internalManager.add( _container );
+    	super.add( internalManager );
 		
+        //row photo #s
+    	BorderedFieldManager outerManagerRowPhoto = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
+         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);    	 
+    	lblPhotoNumber = getLabel("");
+        setNumberOfPhotosLabel(0);
+        outerManagerRowPhoto.add(lblPhotoNumber);
+        add(outerManagerRowPhoto);
+        
         //row title
-    	HorizontalPaddedFieldManager rowTitle = new HorizontalPaddedFieldManager();
+    	BorderedFieldManager outerManagerRowTitle = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
+         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
+    	HorizontalFieldManager rowTitle = new HorizontalPaddedFieldManager();
 		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_POST_TITLE)+":");
 		title = new BasicEditField("", post.getTitle(), 100, Field.EDITABLE);
         //title.setMargin(margins);
         rowTitle.add(lblTitle);
         rowTitle.add(title);
-        manager.add(rowTitle);
-        manager.add(new SeparatorField());
-        
+        outerManagerRowTitle.add(rowTitle);
+        add(outerManagerRowTitle);
+                
         //row tags
-        HorizontalPaddedFieldManager rowTags = new HorizontalPaddedFieldManager();
+    	BorderedFieldManager outerManagerRowInfos = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
+         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
+        HorizontalFieldManager rowTags = new HorizontalPaddedFieldManager();
 		LabelField lblTags = getLabel(_resources.getString(WordPressResource.LABEL_POST_TAGS)+":");
 		tags = new BasicEditField("", post.getTags(), 100, Field.EDITABLE);
         rowTags.add(lblTags);
         rowTags.add(tags);
-        manager.add(rowTags);
-        manager.add(new SeparatorField());
+        outerManagerRowInfos.add(rowTags);
         
         //row categories
         HorizontalFieldManager rowCategories = new HorizontalPaddedFieldManager(Manager.USE_ALL_WIDTH);
@@ -95,34 +131,25 @@ public class PostView extends BaseView {
 	        }
   		};
   		  		
-  	/*	Bitmap imgOpen = Bitmap.getBitmapResource("disclosure-indicator.png"); 
-  		BitmapField bfOpenCat = new BitmapField(imgOpen, BitmapField.FOCUSABLE)
-  		{			
-  		    //override context menu      
-	        protected void makeContextMenu(ContextMenu contextMenu) {
-	            contextMenu.addItem(_categoryContextMenuItem);      
-	        }
-  		};
-  		bfOpenCat.setMargin(margins);
-  		bfOpenCat.setSpace(5, 5);
-  		*/
   		rowCategories.add(lblCategories);
   		rowCategories.add(categories);
-  		//rowCategories.add(bfOpenCat);
-  		manager.add(rowCategories);
-  		manager.add(new SeparatorField());
+  		outerManagerRowInfos.add(rowCategories);
   		
   		//row status
         HorizontalFieldManager rowStatus = new HorizontalPaddedFieldManager();
   		LabelField lblStatus =getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":");
   		status = new ObjectChoiceField("", controller.getStatusLabels(),controller.getPostStatusFieldIndex());
   		rowStatus.add(lblStatus);
-  		rowStatus.add(status);
-  		 
-  		manager.add(rowStatus);
-  		manager.add(new SeparatorField()); 
+  		rowStatus.add(status); 
+  		outerManagerRowInfos.add(rowStatus);
   		
-  		//decode the post body content
+  		
+  		add(outerManagerRowInfos);
+  		
+  		//row content - decode the post body content
+    	BorderedFieldManager outerManagerRowContent = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
+         		| Manager.NO_VERTICAL_SCROLL);
+
   		String buildBodyFieldContentFromHtml = controller.buildBodyFieldContentFromHtml(post.getBody());
   		//decode the post more content
   		String extendedBody = post.getExtendedBody();
@@ -133,20 +160,28 @@ public class PostView extends BaseView {
   		}
   		
 		bodyTextBox= new HtmlTextField(buildBodyFieldContentFromHtml);
-		manager.add(bodyTextBox);
+        LabelField lblPostContent = getLabel(_resources.getString(WordPressResource.LABEL_POST_CONTENT));
+		outerManagerRowContent.add(lblPostContent);
+        outerManagerRowContent.add(bodyTextBox);
+		add(outerManagerRowContent);
+        add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
+		
 		addMenuItem(_saveDraftPostItem);
 		addMenuItem(_submitPostItem);
 		addMenuItem(_photosItem);
 		addMenuItem(_previewItem);
 		addMenuItem(_settingsItem);
 		addMenuItem(_categoryContextMenuItem);
+		addMenuItem(_customFieldsMenuItem);
+		addMenuItem(_excerptMenuItem);
+		addMenuItem(_commentsMenuItem);
 		
-		add(photoNumberManager);
-		add(new SeparatorField());
-		add(manager);
     }
     
-    
+	public void add( Field field ) {
+		_container.add( field );
+	}
+	
     //set the photos number label text
     public void setNumberOfPhotosLabel(int count) {
     	lblPhotoNumber.setText(count + " "+_resources.getString(WordPressResource.TITLE_PHOTOSVIEW));
@@ -160,11 +195,11 @@ public class PostView extends BaseView {
     }
     
     //save a local copy of post
-    private MenuItem _saveDraftPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 10230, 10) {
+    private MenuItem _saveDraftPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 100220, 10) {
         public void run() {
     		try {
     			updateModel();
-	    		if (controller.isPostChanged()) {
+	    		if (controller.isObjectChanged()) {
 	    			controller.saveDraftPost();
 	    			//clean the state of filed into this view
 	    			cleanFieldState();
@@ -176,7 +211,7 @@ public class PostView extends BaseView {
     };
     
     //send post to blog
-    private MenuItem _submitPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 10220, 10) {
+    private MenuItem _submitPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 100230, 10) {
         public void run() {
     		try {
     			updateModel();
@@ -208,7 +243,7 @@ public class PostView extends BaseView {
         			tags.isDirty() || status.isDirty() || categories.isDirty() || lblPhotoNumber.isDirty()) {
         		//post is just changed
         		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText()); 
-        	} else if (controller.isPostChanged()) {
+        	} else if (controller.isObjectChanged()) {
     			//post is changed, and the user has saved it as draft
     			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText());
     		} else {
@@ -233,6 +268,26 @@ public class PostView extends BaseView {
         	controller.showCategoriesView();
         }
     };
+    
+    private MenuItem _customFieldsMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_CUSTOM_FIELDS, 110, 10) {
+        public void run() {
+        	controller.showCustomFieldsView(title.getText());
+        }
+    };
+    
+    private MenuItem _excerptMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_EXCERPT, 110, 10) {
+        public void run() {
+        	controller.showExcerptView(title.getText());
+        }
+    };
+       
+    private MenuItem _commentsMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_COMMENTS, 110, 10) {
+        public void run() {
+        	controller.showComments();
+        }
+    };
+    
+    
     	
     /**
      * Change UI Fields "cleanliness" state to false.
@@ -255,7 +310,7 @@ public class PostView extends BaseView {
 
 		if(title.isDirty()) {
 			post.setTitle(title.getText());
-			controller.setPostAsChanged(true);
+			controller.setObjectAsChanged(true);
 			Log.trace("title dirty");
 		}
 		
@@ -287,14 +342,14 @@ public class PostView extends BaseView {
 				post.setBody(newContent);
 			
 			
-			controller.setPostAsChanged(true);
+			controller.setObjectAsChanged(true);
 			Log.trace("bodyTextBox dirty");
 		}
 		
 		if(tags.isDirty()) {
 			String newContent= tags.getText();
 			post.setTags(newContent);
-			controller.setPostAsChanged(true);
+			controller.setObjectAsChanged(true);
 			Log.trace("tags dirty");
 		}
 		
@@ -302,7 +357,7 @@ public class PostView extends BaseView {
 			int selectedStatusID = status.getSelectedIndex();
 			String newState= controller.getStatusKeys()[selectedStatusID];
 			post.setStatus(newState);
-			controller.setPostAsChanged(true);
+			controller.setObjectAsChanged(true);
 			Log.trace("status dirty");
 		}
 	}

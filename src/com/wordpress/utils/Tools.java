@@ -2,11 +2,34 @@ package com.wordpress.utils;
 
 import java.util.Vector;
 
+import net.rim.blackberry.api.browser.Browser;
+import net.rim.blackberry.api.browser.BrowserSession;
 import net.rim.device.api.synchronization.UIDGenerator;
 
 import com.wordpress.utils.log.Log;
 
 public class Tools {
+	
+	/**
+	 * Invoke the default browser on the BlackBerry smartphone
+	 * 
+	 * @param URL 
+	 * @return
+	 * 
+	 *  In addition, an app can invoke the Internet Browser, the Wireless Application Protocol (WAP) Browser, 
+	 *  the BlackBerry Browser, the Wi-Fi Browser, or the BlackBerry Unite! Browser
+	 *  see DB-00701
+	 */
+	public static synchronized BrowserSession getBrowserSession(String URL) {
+		// Get the default sessionBrowserSession
+    	BrowserSession browserSession = Browser.getDefaultSession();
+    	// now launch the URL
+    	browserSession.displayPage(URL);
+    	// The following line is a work around to the issue found in
+    	// version 4.2.0
+    	browserSession.showBrowser();
+		return browserSession;
+	}
 	
 	
 	public static synchronized String getAppVersion() {
@@ -94,22 +117,4 @@ public class Tools {
 	    v.copyInto(res);
 	    return res;
 	  }
-	  
-
-	  public static void bubbleSort(final int array[]) {
-		    final int elements = array.length;
-		    int i;
-		    int j;
-		    int t = 0;
-		    for (i = 0; i < elements; i++) {
-		      for (j = 1; j < (elements - i); j++) {
-		        if (array[j - 1] > array[j]) {
-		          t = array[j - 1];
-		          array[j - 1] = array[j];
-		          array[j] = t;
-		        }
-		      }
-		    }
-		  }
-	  
 }

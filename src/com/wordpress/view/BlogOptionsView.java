@@ -50,7 +50,7 @@ public class BlogOptionsView extends BaseView {
 	}
 	
 	 public BlogOptionsView(BlogOptionsController blogsController, Hashtable values) {
-	    	super(blogsController.getBlogName()+" > "+ _resources.getString(WordPressResource.TITLE_BLOG_OPTION_VIEW), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
+	    	super(_resources.getString(WordPressResource.TITLE_BLOG_OPTION_VIEW)+" > "+ blogsController.getBlogName(), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
 	    	this.controller=blogsController;
 	    	
 	    	

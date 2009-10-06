@@ -27,6 +27,10 @@
  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * 
+ * Modified by Danilo Ercoli, ercoli@gmail.com, 
+ * on 30 september 2009
  */
 
 package com.wordpress.view.component;
@@ -40,6 +44,9 @@ import net.rim.device.api.ui.Manager;
 /**
  * Provides a container that emulates the behavior of a vertical field
  * manager, adding a border to the enclosed fields.
+ * 
+ * note: Each time a field is added, the manager adds a FocusChangeListener to the field!
+ * This is a trick around focus-lost repaint issue, when background image was set into Main Manager.
  */
 public class BorderedFieldManager extends Manager {
 	/** The border width. */
@@ -152,4 +159,11 @@ public class BorderedFieldManager extends Manager {
         sum += 2;
         return sum;
     }
+    
+    
+	public void add( Field field ) {
+		super.add( field );
+		field.setFocusListener(new BorderedFocusChangeListenerPatch()); //add the focus change listener patch
+	}
+	
 }

@@ -1,6 +1,7 @@
 package com.wordpress.model;
 
 import java.util.Date;
+import java.util.Vector;
 
 
 /**
@@ -27,7 +28,7 @@ public class Post {
     private String excerpt = "";
     private String link = null;
     private Boolean isPhotoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
-        
+	private Vector customFields = new Vector();    
 
     public Post(Blog aBlog) {
         blog = aBlog;
@@ -172,5 +173,12 @@ public class Post {
 	public void setIsPhotoResizing(Boolean isPhotoResizing) {
 		this.isPhotoResizing = isPhotoResizing;
 	}
+	
+	public void setCustomFields(Vector custom_field) {
+		this.customFields = custom_field;
+	}
 
+	public Vector getCustomFields() {
+		return customFields;
+	}
 }

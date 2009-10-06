@@ -29,7 +29,8 @@ public class Preferences {
     private String sourceIP;
     private String sourcePort;
     
-    public boolean isFirstStartupOrUpgrade = false; //no store this var into FS
+    private boolean isDebugMode = false; //no store this var into FS
+	public boolean isFirstStartupOrUpgrade = false; //no store this var into FS
     //we use this hashtable to store opt parameters. 
     //keys: device_uuid - update_check_time 
     private Hashtable opt = new Hashtable(); 
@@ -193,5 +194,12 @@ public class Preferences {
 	public void setOpt(Hashtable opt) {
 		this.opt = opt;
 	}
-
+	
+	public boolean isDebugMode() {
+		return isDebugMode;
+	}
+	
+	public void setDebugMode(boolean isDebugMode) {
+		this.isDebugMode = isDebugMode;
+	}	
 }

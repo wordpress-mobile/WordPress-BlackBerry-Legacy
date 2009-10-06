@@ -119,7 +119,17 @@ public class FrontController {
 	 * show comments view
 	 */
 	public void showCommentsView(Blog currentBlog){
-		CommentsController ctrl=new CommentsController(currentBlog);
+		CommentsController ctrl=new RecentCommentsController(currentBlog);
+		ctrl.showView();
+	}
+	
+	/*
+	 * show comments by post view
+	 */
+	public void showCommentsByPost(Blog currentBlog, int postID, String postTitle){
+		FilteredCommentsController ctrl=new FilteredCommentsController(currentBlog);
+		ctrl.setPostID(postID);
+		ctrl.setPostTitle(postTitle);
 		ctrl.showView();
 	}
 	

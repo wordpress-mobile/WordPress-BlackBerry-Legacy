@@ -277,11 +277,12 @@ public class DraftDAO implements BaseDAO{
         if (post.getLink() != null) {
         	content.put("link", post.getLink());
         }	     
-            	
-		if(post.getIsPhotoResizing() !=null) {
+		if(post.getIsPhotoResizing() != null) {
 			content.put("IsPhotoResizing", post.getIsPhotoResizing());
 		}
-	
+		if(post.getCustomFields() != null ){
+			content.put("custom_fields", post.getCustomFields());
+		}
         
         content.put("mt_convert_breaks", post.isConvertLinebreaksEnabled() ? "1" : "0");
         content.put("mt_allow_comments", new Integer(post.isCommentsEnabled() ? 1 : 0));
@@ -290,47 +291,52 @@ public class DraftDAO implements BaseDAO{
 	}	
 	
 	public static synchronized Post hashtable2Post(Hashtable postData, Blog blog) {
-		Post aPost = new Post(blog);
+		Post post = new Post(blog);
 		
-        aPost.setId(Tools.decodeString(postData.get("postid")));
-        aPost.setTitle((String) postData.get("title"));
-        aPost.setAuthor((String) postData.get("userid"));
-        aPost.setBody((String) postData.get("description"));
-        aPost.setExtendedBody((String) postData.get("mt_text_more"));
-        aPost.setExcerpt((String) postData.get("mt_excerpt"));
+        post.setId(Tools.decodeString(postData.get("postid")));
+        post.setTitle((String) postData.get("title"));
+        post.setAuthor((String) postData.get("userid"));
+        post.setBody((String) postData.get("description"));
+        post.setExtendedBody((String) postData.get("mt_text_more"));
+        post.setExcerpt((String) postData.get("mt_excerpt"));
         Date date_created_gmt = (Date) postData.get("date_created_gmt");
         if (date_created_gmt != null )
-        	aPost.setAuthoredOn(date_created_gmt.getTime());
+        	post.setAuthoredOn(date_created_gmt.getTime());
         
-        aPost.setTags( (String) postData.get("mt_keywords"));
-        aPost.setPassword((String) postData.get("wp_password"));
-        aPost.setStatus((String) postData.get("post_status"));
+        post.setTags( (String) postData.get("mt_keywords"));
+        post.setPassword((String) postData.get("wp_password"));
+        post.setStatus((String) postData.get("post_status"));
         
         
         String link = (String) postData.get("link");
         if (link != null ) {
-            aPost.setLink(link);
+            post.setLink(link);
         }
         
         String breaks = (String) postData.get("mt_convert_breaks");
         if (breaks != null && !breaks.equals("__default__")) {
-            aPost.setConvertLinebreaksEnabled(breaks.equals("1"));
+            post.setConvertLinebreaksEnabled(breaks.equals("1"));
         }
         
         Integer comments = (Integer) postData.get("mt_allow_comments");
         if (comments != null) {
-            aPost.setCommentsEnabled(comments.intValue() != 0);
+            post.setCommentsEnabled(comments.intValue() != 0);
         }
         Integer trackback = (Integer) postData.get("mt_allow_pings");
         if (trackback != null) {
-            aPost.setTrackbackEnabled(trackback.intValue() != 0);
+            post.setTrackbackEnabled(trackback.intValue() != 0);
         }
         
 		//set the prop for photo res
 		if(postData.get("IsPhotoResizing") != null) {
-			aPost.setIsPhotoResizing((Boolean) postData.get("IsPhotoResizing"));
+			post.setIsPhotoResizing((Boolean) postData.get("IsPhotoResizing"));
 		}
-        
-        return aPost;
+		
+		if(postData.get("custom_fields") != null) {
+			Vector cf = (Vector) postData.get("custom_fields");
+			post.setCustomFields(cf);
+		}
+		
+        return post;
 	}
 }
