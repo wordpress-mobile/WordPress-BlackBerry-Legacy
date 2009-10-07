@@ -1,9 +1,13 @@
 package com.wordpress.bb;
+import java.io.IOException;
+
 import javax.microedition.io.file.FileSystemListener;
+import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.UiApplication;
 
+import com.wordpress.io.AppDAO;
 import com.wordpress.task.AsyncRunner;
 import com.wordpress.task.Task;
 import com.wordpress.task.TasksRunner;
@@ -36,11 +40,25 @@ public class WordPressCore {
 		public void rootChanged(int state, String rootName) {
 			if( state == ROOT_ADDED ) {
 				if( rootName.equalsIgnoreCase("sdcard/") ) {
-					Log.debug("microSD card inserted");
+					Log.trace("microSD card inserted");
 				}
 			} else if( state == ROOT_REMOVED ) {
-				Log.debug("microSD card removed");
-				//perform the same check as above			
+				Log.trace("microSD card removed");
+				boolean needClose = true;
+				try {
+					//if storage is not set on SD card
+					if(!AppDAO.SD_STORE_PATH.equalsIgnoreCase(AppDAO.getBaseDirPath())) {
+						needClose = false;
+					 }
+				} catch (RecordStoreException e) {
+					Log.error(e, "Error reading RMS");
+				} catch (IOException e) {
+					Log.error(e, "Error reading RMS");
+				} finally {
+					//close the app only if needed
+					if(needClose)
+						exitWordPress();
+				}
 			}
 		}
 	}

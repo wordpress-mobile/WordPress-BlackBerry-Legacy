@@ -1,6 +1,7 @@
 package com.wordpress.task;
 
 import com.wordpress.utils.Queue;
+import com.wordpress.utils.log.Log;
 
 
 public class TasksRunner {
@@ -45,6 +46,7 @@ public class TasksRunner {
   }
 
   public void quit() {
+	Log.debug("tasksRunner stopping");  
     stopping = true;
     synchronized (worker) {
       worker.quit();

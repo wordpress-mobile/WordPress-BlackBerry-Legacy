@@ -87,7 +87,12 @@ public class GravatarController extends Observable {
 		   else {
 			   byte[] img = (byte[]) commentsGravatar.get(authorEmail);
 			   if(img != null && img.length > 0) {
-				   gravatarBitmap = EncodedImage.createEncodedImage(img, 0, -1).getBitmap();
+				   try {
+					gravatarBitmap = EncodedImage.createEncodedImage(img, 0, -1).getBitmap();
+				} catch (Exception e) {
+					Log.error(e, "gravatar for "+authorEmail+" is corrupted, using default gvt");
+					gravatarBitmap = defaultGravatarBitmap;
+				}
 			   } else {
 				   gravatarBitmap = defaultGravatarBitmap;
 			   }

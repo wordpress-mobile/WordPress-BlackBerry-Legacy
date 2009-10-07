@@ -17,6 +17,17 @@ public class AppDAO implements BaseDAO {
 
 	private final static String basePathRecordStoreKey="basepath";
 	
+	public static final String SD_STORE_PATH;
+	
+	static {
+		String path = System.getProperty("fileconn.dir.memorycard");
+		if(path != null) {
+			SD_STORE_PATH = System.getProperty("fileconn.dir.memorycard")+"BlackBerry/wordpress/";
+		} else {
+			SD_STORE_PATH = "file:///SDCard/BlackBerry/wordpress/";
+		}
+	}
+	
 	public static String getInstFilePath() throws RecordStoreException, IOException {
 		return getBaseDirPath() + INST_FILE;
 	}
@@ -25,8 +36,7 @@ public class AppDAO implements BaseDAO {
 		return getBaseDirPath() + APP_PREFS_FILE;
 	}
 	
-	
-	
+		
 	// return the application base path
 	public static String getBaseDirPath() throws RecordStoreException, IOException {
 		
@@ -78,8 +88,11 @@ public class AppDAO implements BaseDAO {
 		data.writeUTF(basePath);
 		data.close();
 		record = bytes.toByteArray();
-		
-		records.addRecord(record, 0, record.length);
+		if (records.getNumRecords() > 0) {
+			records.setRecord(1, record, 0, record.length); //overwrite prev setting
+		} else {
+			records.addRecord(record, 0, record.length);			
+		}
 		records.closeRecordStore();
 
 	}

@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import javax.microedition.rms.RecordStoreException;
 
-import net.rim.device.api.system.ApplicationDescriptor;
-import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
@@ -21,7 +19,6 @@ import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.EditField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
-import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 import net.rim.device.api.ui.text.URLTextFilter;
@@ -32,6 +29,8 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.PreferenceController;
 import com.wordpress.io.AppDAO;
+import com.wordpress.io.BaseDAO;
+import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
@@ -39,6 +38,7 @@ import com.wordpress.utils.conn.ConnectionUtils;
 import com.wordpress.utils.log.FileAppender;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BorderedFieldManager;
+import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
 public class PreferencesView extends BaseView {
@@ -65,6 +65,7 @@ public class PreferencesView extends BaseView {
 	private CheckboxField _userAllowWAP2;
 	private CheckboxField _userAllowBES;
 	private CheckboxField _debugMode;
+	private ObjectChoiceField storageOpt;
 
 	
 	 public PreferencesView(PreferenceController _preferencesController) {
@@ -104,10 +105,14 @@ public class PreferencesView extends BaseView {
 	    	
 	    	//the multimedia capabilities are now not managed into app. 
 	    	//the photo settings are managed into camera app.
-      //    addMultimediaOption(); 
+	    	//addMultimediaOption(); 
             addConnectionOptionsFields();
             addWapOptionsFields();
             addDebugModeOptionFields();
+            
+            if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD()) {
+            	addStorageOptionFields();
+			}
             
             ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
             ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
@@ -118,33 +123,62 @@ public class PreferencesView extends BaseView {
     		buttonsManager.add(buttonBACK);
     		
     		add(buttonsManager); 
-    		
-            //reset app temp file option
-            add(new SeparatorField());
-			LabelField lblDescReset = new LabelField(_resources.getString(WordPressResource.DESCRIPTION_REMOVE_TEMPFILE)); 
-			Font fnt = this.getFont().derive(Font.ITALIC);
-			lblDescReset.setFont(fnt);
-			add(lblDescReset);
-			ButtonField buttonReset= new ButtonField(_resources.getString(WordPressResource.BUTTON_REMOVE), ButtonField.CONSUME_CLICK);
-			buttonReset.setChangeListener(listenerResetButton);
-            add(buttonReset);
-            
+           
             add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
 
     		addMenuItem(_saveItem);
 	 }
 
 	 
+	 
+	 private void addStorageOptionFields(){
+		 
+		 BorderedFieldManager storageManager = new BorderedFieldManager(
+				 Manager.NO_HORIZONTAL_SCROLL
+				 | Manager.NO_VERTICAL_SCROLL);
+		 
+		 //row storage opt
+		 HorizontalFieldManager rowStatus = new HorizontalPaddedFieldManager();
+		 LabelField lblStatus =getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_STORAGE_LABEL));
+		 String labelDeviceStorageLocation= _resources.getString(WordPressResource.OPTIONSSCREEN_STORAGE_DEVICE);
+		 String labelSdCardStorageLocation= _resources.getString(WordPressResource.OPTIONSSCREEN_STORAGE_SDCARD);
+		 String[] storageOptLabels = {labelDeviceStorageLocation, labelSdCardStorageLocation};
+		 int selectedStorage = 0;
+		
+		 try {
+			if(AppDAO.SD_STORE_PATH.equals(AppDAO.getBaseDirPath())) {
+				 selectedStorage = 1;
+			 }
+		} catch (RecordStoreException e) {
+			Log.error(e, "Storage Option Field error");
+			return;
+		} catch (IOException e) {
+			Log.error(e, "Storage Option Field error");
+			return;
+		} 
+		
+		 storageOpt = new ObjectChoiceField("",storageOptLabels, selectedStorage);
+		 rowStatus.add(lblStatus);
+		 rowStatus.add(storageOpt); 
+		 storageManager.add(rowStatus);
+	  		
+		 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_REMOVE_TEMPFILE)); 
+		 storageManager.add(lblDesc);
+		 ButtonField buttonReset= new ButtonField(_resources.getString(WordPressResource.BUTTON_REMOVE), ButtonField.CONSUME_CLICK);
+		 buttonReset.setChangeListener(listenerResetButton);
+		 storageManager.add(buttonReset);
+		 add(storageManager);
+	 }
+	 
 	 private void addDebugModeOptionFields(){
 
 		 BorderedFieldManager debugManager = new BorderedFieldManager(
 				 Manager.NO_HORIZONTAL_SCROLL
-				 | Manager.NO_VERTICAL_SCROLL);
+				 | Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
 		 
          //row allow description
          BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_DEBUG_DESC)); 
 		 debugManager.add(lblDesc);
-		
 		 _debugMode=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_DEBUG_LABEL), mPrefs.isDebugMode());
 		 debugManager.add(_debugMode);		 
 		 add(debugManager);
@@ -539,14 +573,59 @@ public class PreferencesView extends BaseView {
 			if(_debugMode.getChecked()) {
 				WordPressCore.getInstance().getFileAppender().setLogLevel(Log.TRACE);
 				Log.debug("File Appender Log level is now on TRACE");
+				mPrefs.setDebugMode(true);
 			} else {
 				WordPressCore.getInstance().getFileAppender().setLogLevel(Log.DEBUG);
 				Log.debug("File Appender Log level is now on DEBUG");
+				mPrefs.setDebugMode(false);
 			}
+			
+			updateStorageMode();
 			
 			setDirty(false);
 		}
-    
+
+
+		private void updateStorageMode(){
+			if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD() && storageOpt != null) {
+				int selectedStorage = storageOpt.getSelectedIndex(); //get the selected storage
+				Log.trace("storage mode selected: "+ selectedStorage);
+				int prevStorage = 0;
+				
+				try {
+					if(AppDAO.SD_STORE_PATH.equals(AppDAO.getBaseDirPath())) 
+						prevStorage = 1;
+					
+					if(prevStorage == selectedStorage) {
+						Log.trace("no storage folder was changed");
+					} else {
+						Log.trace("storage folder was changed");
+						Log.trace("closing log file");
+						
+						FileAppender fileAppender = WordPressCore.getInstance().getFileAppender();
+						Log.removeAppender(fileAppender);
+						fileAppender.close();
+						
+						if(selectedStorage == 1)
+							AppDAO.setBaseDirPath(AppDAO.SD_STORE_PATH);
+						else
+							AppDAO.setBaseDirPath(BaseDAO.DEVICE_STORE_PATH);
+						
+						AppDAO.setUpFolderStructure();
+						
+						fileAppender.open(); //reopen the log file
+						Log.addAppender(fileAppender);
+					}	
+				} catch (RecordStoreException e) {
+					Log.error(e, "Error upgrading Storage location");
+					return;
+				} catch (IOException e) {
+					Log.error(e, "Error upgrading Storage location");
+					return;
+				}
+			}
+		}
+		
 	    //override onClose() to display a dialog box when the application is closed    
 		public boolean onClose()   {
 			

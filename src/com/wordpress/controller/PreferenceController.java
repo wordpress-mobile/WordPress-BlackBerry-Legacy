@@ -25,7 +25,8 @@ public class PreferenceController extends BaseController {
 	public boolean savePrefAndBack(){
 		try {
 			savePref();
-			backCmd();
+			//backCmd();
+			FrontController.getIstance().backToMainView();
 		} catch (Exception e) {
 			displayError(e, "Error while saving preferences");
 			return false;
