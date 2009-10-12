@@ -74,10 +74,28 @@ public class JSR75FileSystem  {
 		}
   }
   
-  public static synchronized boolean isFileExist(String filePath) throws IOException {
+  public static synchronized long getFileSize(String filePath) throws IOException {
 		FileConnection filecon = null;
 		try {
 			filecon = (FileConnection) Connector.open(filePath);
+			if (!filecon.exists()) {
+				return 0;
+			} else {
+				return filecon.fileSize();
+			}
+		} finally {
+			FileUtils.closeConnection(filecon);
+		}
+	}
+  
+  public static synchronized boolean isFileExist(String filePath) throws IOException {
+		FileConnection filecon = null;
+		try {
+		     if(!filePath.startsWith("file:///")) {
+		         filecon = (FileConnection) Connector.open("file:///"+ filePath);
+		       } else {
+		    	   filecon = (FileConnection) Connector.open(filePath);
+		       }
 			if (!filecon.exists()) {
 				return false;
 			} else {

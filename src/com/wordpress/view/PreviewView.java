@@ -39,7 +39,7 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 	private BrowserContent browserContent = null;
 	
 	public PreviewView(String html) {
-		super(_resources.getString(WordPressResource.TITLE_POSTVIEW));
+		super(_resources.getString(WordPressResource.TITLE_PREVIEW));
 				
         
 		_renderingSession = RenderingSession.getNewInstance();        

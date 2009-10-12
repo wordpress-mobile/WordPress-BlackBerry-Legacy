@@ -5,11 +5,8 @@ import java.util.Date;
 import java.util.Hashtable;
 
 import net.rim.device.api.i18n.SimpleDateFormat;
-import net.rim.device.api.system.Display;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BitmapField;
@@ -31,11 +28,10 @@ import com.wordpress.view.component.BorderedFocusChangeListenerPatch;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.component.HtmlTextField;
 
-public class CommentView extends BaseView {
+public class CommentView extends StandardBaseView {
 	
     private CommentsController controller= null;
     private final GravatarController gvtCtrl;
-    private VerticalFieldManager _container;
     private VerticalFieldManager fromDataManager;
 	
 	private Comment comment; 
@@ -55,41 +51,12 @@ public class CommentView extends BaseView {
 			this.comment = comment;
 			this.commentStatusList = commentStatusList;
 			this.gvtCtrl = gvtCtrl;
-	    	
-	     	VerticalFieldManager internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR ) {
-	    		public void paintBackground( Graphics g ) {
-	    			g.clear();
-	    			int color = g.getColor();
-	    			g.setColor( Color.LIGHTGREY );
-	    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
-	    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
-	    			g.setColor( color );
-	    		}
-	    		
-	    		protected void sublayout( int maxWidth, int maxHeight ) {
-	    			
-	    			int titleFieldHeight = 0;
-	    			if ( titleField != null ) {
-	    				titleFieldHeight = titleField.getHeight();
-	    			}
-	    			
-	    			int displayWidth = Display.getWidth(); // I would probably make these global
-	    			int displayHeight = Display.getHeight();
-	    			
-	    			super.sublayout( displayWidth, displayHeight - titleFieldHeight );
-	    			setExtent( displayWidth, displayHeight - titleFieldHeight );
-	    		}
-	    	};
-	    	
-	    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR );
-	    	internalManager.add( _container );
-	    	super.add( internalManager );
-			
+	   
 	        //row from
 	        BorderedFieldManager outerManagerFrom = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
 	        
-			LabelField lblCommentAuthor = getLabel(_resources.getString(WordPressResource.LABEL_COMMENT_AUTHOR));	
+			LabelField lblCommentAuthor = getLabel(_resources.getString(WordPressResource.LABEL_AUTHOR));	
 			outerManagerFrom.add(lblCommentAuthor);
 	        HorizontalFieldManager rowFrom = new HorizontalFieldManager(Manager.NO_HORIZONTAL_SCROLL | Manager.NO_VERTICAL_SCROLL);
 	        gravatarBitmapField = new BitmapField(GravatarController.defaultGravatarBitmap, BitmapField.NON_FOCUSABLE | Manager.FIELD_VCENTER);
@@ -114,7 +81,7 @@ public class CommentView extends BaseView {
 	        //second manager
 	        BorderedFieldManager outerManagerInfo = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
-			LabelField lblCommentInfo = getLabel(_resources.getString(WordPressResource.LABEL_COMMENT_INFOS));	
+			LabelField lblCommentInfo = getLabel(_resources.getString(WordPressResource.LABEL_INFORMATIONS));	
 			outerManagerInfo.add(lblCommentInfo);
 			
 	        //post of this comment
@@ -127,7 +94,7 @@ public class CommentView extends BaseView {
 	        	        
 	        //date
 	        HorizontalFieldManager rowDate = new HorizontalPaddedFieldManager();
-			LabelField lblDate = getLabel(_resources.getString(WordPressResource.LABEL_COMMENT_DATE)+":");
+			LabelField lblDate = getLabel(_resources.getString(WordPressResource.LABEL_DATE)+":");
 			date = new LabelField("", LabelField.FOCUSABLE);
 	        rowDate.add(lblDate);
 	        rowDate.add(date);
@@ -145,7 +112,7 @@ public class CommentView extends BaseView {
 	  		//comment data
 	        BorderedFieldManager outerManagerComment = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL );
-	        outerManagerComment.add(getLabel(_resources.getString(WordPressResource.LABEL_COMMENT_CONTENT)));
+	        outerManagerComment.add(getLabel(_resources.getString(WordPressResource.LABEL_CONTENT)));
 	        commentContent = new HtmlTextField(" ");
 	  		outerManagerComment.add(commentContent);
 	  		add(outerManagerComment);	  			        	  		
@@ -157,11 +124,7 @@ public class CommentView extends BaseView {
 			
 			setViewValues(comment);
 	 }
-	 
-	 public void add( Field field ) {
-		 _container.add( field );
-	 }
-	 
+
 	 private LabelField getAuthorUrlField(String url) {
 		 
 		 return new LabelField(url, LabelField.FOCUSABLE) {

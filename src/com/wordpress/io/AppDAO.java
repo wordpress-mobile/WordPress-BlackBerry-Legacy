@@ -31,12 +31,19 @@ public class AppDAO implements BaseDAO {
 	public static String getInstFilePath() throws RecordStoreException, IOException {
 		return getBaseDirPath() + INST_FILE;
 	}
-
+	
 	public static String getAppPrefsFilePath() throws RecordStoreException, IOException {	
 		return getBaseDirPath() + APP_PREFS_FILE;
 	}
 	
-		
+	public static String getXmlRpcTempFilePath() throws RecordStoreException, IOException {	
+		return getBaseDirPath() + APP_TMP_XMLRPC_FILE;
+	}
+	
+	public static String getImageTempFilePath() throws RecordStoreException, IOException {	
+		return getBaseDirPath() + APP_TMP_IMG_FILE;
+	}
+	
 	// return the application base path
 	public static String getBaseDirPath() throws RecordStoreException, IOException {
 		

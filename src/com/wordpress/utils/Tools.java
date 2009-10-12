@@ -31,7 +31,6 @@ public class Tools {
 		return browserSession;
 	}
 	
-	
 	public static synchronized String getAppVersion() {
     	String version = PropertyUtils.getAppVersion(); //read from the alx files
         if(version == null || version.trim().equals("")) { //read value from jad file
@@ -43,7 +42,6 @@ public class Tools {
     	Log.debug("App version: "+version);
         return version;
 	}
-	
 	
 	/**
 	 * check the path of the file xmlrpc.php into the url string
@@ -103,8 +101,6 @@ public class Tools {
 			 return String.valueOf(input);			 			 
 	 }
 	
-	
-	
 	  /**
 	   * Convert a vector to a string array.
 	   * 
@@ -116,5 +112,20 @@ public class Tools {
 	    final String[] res = new String[v.size()];
 	    v.copyInto(res);
 	    return res;
+	  }
+	  
+	  public static synchronized String getMemoryStats() {
+		 Runtime rt = java.lang.Runtime.getRuntime();
+     	 long totalMem=rt.totalMemory();
+     	 long freeMem=rt.freeMemory();
+     	 
+     	 float a = (float)(totalMem);
+     	 float b = 1048576f;
+     	 String totalMemMB=Float.toString(a/b);
+     	 
+     	 a = (float)(freeMem);
+     	 String totalFreeMemMB=Float.toString(a/b);
+     	 
+          return "Total MB heap: " + totalMemMB + "\nTotal MB free: " + totalFreeMemMB;
 	  }
 }

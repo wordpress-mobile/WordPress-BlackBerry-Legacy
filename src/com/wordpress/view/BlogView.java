@@ -2,25 +2,32 @@ package com.wordpress.view;
 
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Display;
+import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Color;
-import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ObjectListField;
+import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogController;
 import com.wordpress.controller.FrontController;
+import com.wordpress.utils.ImageUtils;
+import com.wordpress.view.component.BasicListFieldCallBack;
 
 
 public class BlogView extends BaseView {
 	
     private BlogController controller=null;
-
+    private VerticalFieldManager _container;
+    VerticalFieldManager internalManager;
 	private static final int mnuPosts = 100;
 	private static final int mnuPages = 110;
 	private static final int mnuComments = 120;
@@ -28,8 +35,9 @@ public class BlogView extends BaseView {
 	private static final int mnuRefresh= 140;
 
 	private BlogListField list;
-    private static final int MIN_HEIGHT = 36;
-    private static final int MAX_HEIGHT = 42;
+    private static final int MIN_HEIGHT = 34; //based on the image
+    //the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
+    private static final int MAX_HEIGHT = 48; 
 	
 	//main menu entries
 	private int[] mainMenuItems = {mnuPosts, mnuPages, mnuComments, mnuOptions, mnuRefresh};
@@ -42,18 +50,107 @@ public class BlogView extends BaseView {
 			};
 	      	
 	public BlogView(BlogController _controller) {
-		super(_controller.getBlogName(), Field.FIELD_HCENTER);
+		super( MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 		this.controller=_controller;
+		
+		//Set the preferred width to the image size or screen width if the image is larger than the screen width.
+		EncodedImage _theImage= EncodedImage.getEncodedImageResource("wplogo_header.png");
+		int _preferredWidth = -1;
+        if (_theImage.getWidth() > Display.getWidth()) {
+            _preferredWidth = Display.getWidth();
+        }
+        if( _preferredWidth != -1) {        	
+        	EncodedImage resImg = ImageUtils.resizeEncodedImage(_theImage, _preferredWidth, _theImage.getHeight());
+        	_theImage = resImg;
+        }
+        final BitmapField wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
+        
+    	internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR) {
+    		public void paintBackground( Graphics g ) {
+    			g.clear();
+    			int color = g.getColor();
+    			g.setColor( Color.LIGHTGREY );
+    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
+    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
+    			g.setColor( color );
+    		}
+    		
+    		protected void sublayout( int maxWidth, int maxHeight ) {
+    			
+    			int titleFieldHeight = 0;
+    			if ( titleField != null ) {
+    				titleFieldHeight = titleField.getHeight();
+    			}
+    			    			
+    			int displayWidth = Display.getWidth(); 
+    			int displayHeight = Display.getHeight();
+    			
+    			super.sublayout( displayWidth, displayHeight - (titleFieldHeight +5) );
+    			setExtent( displayWidth, displayHeight - titleFieldHeight );
+    		}
+    	};
+    	
+    	final int listWidth = wpLogoBitmapField.getBitmapWidth() - 10;
+    	
+    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR ) {
+        		protected void sublayout( int maxWidth, int maxHeight ) {
+        			//super.sublayout( displayWidth, displayHeight - titleFieldHeight );
+        			
+        			for (int i = 0;  i < getFieldCount();  i++) {
+        				Field field = getField(i);
+        				if (i == 0){
+        					layoutChild( field, listWidth, maxHeight );
+        					
+        					int x = maxWidth / 2;
+        					x = x - listWidth/2;
+        					
+        					setPositionChild(field, x, 0);
+        				} else { 
+        					
+        				}                        	
+        			}
+        			setExtent( maxWidth, maxHeight );
+        		}
+ /*   		protected void sublayout( int maxWidth, int maxHeight ) {
+    			//super.sublayout( displayWidth, displayHeight - titleFieldHeight );
+    			
+    			for (int i = 0;  i < getFieldCount();  i++) {
+    				Field field = getField(i);
+    				if (i == 0){
+    					layoutChild( field, listWidth, maxHeight );
+    					
+    					int imageHeight = field.getHeight();
+    					int x = maxWidth / 2;
+    					x = x - listWidth/2;
+    					int imageTop = (maxHeight - imageHeight) / 2;
+    					if (imageTop < 0 )
+    						imageTop = 0;
+    					
+    					setPositionChild(field, x, imageTop);
+    				} else { 
+    					
+    				}                        	
+    			}
+    			 
+    			setExtent( maxWidth, maxHeight );
+    		}*/
+    		
+    	};
+    	
+    	internalManager.add( wpLogoBitmapField );
+    	internalManager.add( _container );
+    	super.add( internalManager );
+    	
 		list = new BlogListField();
 		
 		  //Populate the ListField
         for(int count = 0; count < mainMenuItems.length; ++count) {
         	list.insert(count);
         }
-        
+ /*       
 		 // Leave some space at the bottom to avoid scrolling issue
        // on some devices. This is just a workaround
-       int allowSpace = Display.getHeight() - titleField.getHeight(); 
+       int allowSpace = Display.getHeight() - ( titleField.getHeight()); 
        int screenHeight = (98 * allowSpace) / 100;
        int rowHeight = screenHeight /  mainMenuItems.length;
 
@@ -63,20 +160,23 @@ public class BlogView extends BaseView {
        if (rowHeight > MAX_HEIGHT) {
            rowHeight = MAX_HEIGHT;
        }
-		list.setRowHeight(rowHeight);
-               
-        add(list);   
-        addMenuItem(_goItem);
+       */
+    	   
+	   list.setRowHeight(48);  //the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
+	   list.setCallback(new BlogListFieldCallBack());	
+       add(list);   
+       addMenuItem(_goItem);
 	}
 	
+	public void add( Field field ) {
+		_container.add( field );
+	}
     
     private MenuItem _goItem = new MenuItem( _resources, WordPressResource.BUTTON_OK, 220, 10) {
         public void run() {
         	doSelection();
         }
     };
-
-    
 
     private void doSelection() {
 
@@ -108,22 +208,7 @@ public class BlogView extends BaseView {
 
 		}
 	}
-
-        
-  /*
-	protected boolean keyChar(char c, int status, int time) {
-		// Close this screen if escape is selected.
-		if (c == Characters.ESCAPE) {
-			return  this.onClose();
-		} else if (c == Characters.ENTER) {
-			doSelection();
-			return true;
-		}
-
-		return super.keyChar(c, status, time);
-	}
-*/
-    
+   
 	 // Handle trackball clicks.
 	protected boolean navigationClick(int status, int time) {
 		doSelection();
@@ -142,105 +227,74 @@ public class BlogView extends BaseView {
 		return controller;
 	}   
 	
-	private class BlogListField extends ObjectListField {
+	private class BlogListFieldCallBack extends BasicListFieldCallBack {
 		
-		Bitmap bg = Bitmap.getBitmapResource("bg_light.png");
-		Bitmap bgSelected = Bitmap.getBitmapResource("bg_blue.png");
-        Bitmap imgFolder = Bitmap.getBitmapResource("drafts-folder.png");
-        Bitmap imgSettings = Bitmap.getBitmapResource("settings.png");
-        Bitmap imgRefresh = Bitmap.getBitmapResource("refresh.png");  
-	    private Bitmap icon;
-	    final int PADDING     = 2;
-	    
-	    // We are going to take care of drawing the item.
-	    public void drawListRow(ListField listField, Graphics graphics, int index, int y, int width) {
-	                
-	        if ( mainMenuItems[index] == mnuPosts) {
-	            icon = imgFolder;
-	        }   
-	        if ( mainMenuItems[index] == mnuPages) {
-	            icon = imgFolder;
-	        }  
-	        if ( mainMenuItems[index] == mnuComments) {
-	            icon = imgFolder;
-	        }
-	        if ( mainMenuItems[index] == mnuOptions) {
-	            icon = imgSettings;
-	        }
-	        if ( mainMenuItems[index] == mnuRefresh) {
-	            icon = imgRefresh;
-	        }
-	        
-	        Font originalFont = graphics.getFont();
-	        int originalColor = graphics.getColor();
-	        int height = list.getRowHeight();
-	        
-	        //drawXXX(graphics, 0, y, width, listField.getRowHeight());
-	        drawBackground(graphics, 0, y, width, height, listField.getSelectedIndex() ==  index);
-	        drawBorder(graphics, 0, y, width, height);
-	        int leftImageWidth = drawLeftImage(graphics, 0, y, height, icon);
-	        drawText(graphics, leftImageWidth, y, width  - leftImageWidth, height, mainMenuItemsLabel[index], listField.getSelectedIndex() ==  index);
-	        
-	        graphics.setFont(originalFont);
-	        graphics.setColor(originalColor);
-	    }
-	    
-	    private int drawText(Graphics graphics, int x, int y, int width, int height, String title, boolean selected) {
-	        int fontHeight = ((int) ((3* height) / 5)) - (PADDING * 2);
-	        graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));
+		private Bitmap imgFolder = Bitmap.getBitmapResource("drafts-folder.png");
+		private Bitmap imgSettings = Bitmap.getBitmapResource("settings.png");
+		private Bitmap imgRefresh = Bitmap.getBitmapResource("refresh.png");  
+		private Bitmap icon;
+		
+		// We are going to take care of drawing the item.
+		public void drawListRow(ListField listField, Graphics graphics, int index, int y, int width) {
+			
+			if ( mainMenuItems[index] == mnuPosts) {
+				icon = imgFolder;
+			}   
+			if ( mainMenuItems[index] == mnuPages) {
+				icon = imgFolder;
+			}  
+			if ( mainMenuItems[index] == mnuComments) {
+				icon = imgFolder;
+			}
+			if ( mainMenuItems[index] == mnuOptions) {
+				icon = imgSettings;
+			}
+			if ( mainMenuItems[index] == mnuRefresh) {
+				icon = imgRefresh;
+			}
+			
+			Font originalFont = graphics.getFont();
+			int originalColor = graphics.getColor();
+			int height = list.getRowHeight();
+			
+			/*
+			 * 42px of row
+			 * 6px blank space
+			 */
+			height = height - 6;
+			width = width - 10;
+			//y = y+3;
+			
+			//drawXXX(graphics, 0, y, width, listField.getRowHeight());
+			drawBackground(graphics, 5, y, width, height, listField.getSelectedIndex() ==  index);
+			drawBorder(graphics, 5, y, width, height);
+			int leftImageWidth = drawLeftImage(graphics, 5, y, height, icon);
+			drawText(graphics, leftImageWidth+5, y, width  - leftImageWidth, height, mainMenuItemsLabel[index], listField.getSelectedIndex() ==  index);
+			
+			graphics.setFont(originalFont);
+			graphics.setColor(originalColor);
+		}
+		
+		protected void drawBorder(Graphics graphics, int x, int y, int width,	int height) {
+			graphics.setColor(Color.GRAY);
+			graphics.drawLine(x-1, y , x + width-1, y);
+			
+			graphics.drawLine(x-1, y, x-1 , y + height-1); //linea verticale sx
+			graphics.drawLine(x + width, y-1, x + width , y + height-1); //linea verticale dx
+			
+			graphics.drawLine(x-1, y + height - 1, x + width-1, y + height - 1);
+		}
+		
+		public Object get(ListField listField, int index) {
+			return null;
+		} 
+	}
+	
+	private class BlogListField extends ObjectListField {
+			
+	   protected void drawFocus(Graphics graphics, boolean on) { }
+	   
 
-	        if (selected) {
-	            graphics.setColor(Color.BLACK);
-	        } else {
-	            graphics.setColor(Color.GRAY);
-	        }
-
-	        if (title != null) {
-	        	// Title is vertically centered
-	        return   graphics.drawText(title, x + PADDING + 3, y + PADDING + 2 + (fontHeight / 2), DrawStyle.LEFT
-	                    | DrawStyle.TOP | DrawStyle.ELLIPSIS, width - x - (PADDING * 2));
-	        }
-
-	        return 0;
-	    }
-	    
-	    
-	    private int drawLeftImage(Graphics graphics, int x, int y, int height, Bitmap leftImage) {
-	       
-	        int imageWidth = leftImage.getWidth();
-	        int imageHeight = leftImage.getHeight();
-	        int imageTop = y + ((height - imageHeight) / 2);
-	        int imageLeft = x + ((height - imageWidth) / 2);
-
-	        // Image on left side
-	        graphics.drawBitmap(imageLeft, imageTop, imageWidth, imageHeight, leftImage, 0, 0);
-
-	        return height;
-	    }
-	    
-	    private void drawBackground(Graphics graphics, int x, int y, int width, int height, boolean selected) {
-	    	Bitmap toDraw = null;
-	    	if (selected) {
-	    		toDraw = bgSelected;
-	    	} else {
-	    		toDraw = bg;
-	    	}
-	    	int imgWidth = toDraw.getWidth();
-	    	while (width > -2) {
-	    		graphics.drawBitmap(x - 1, y - 1, width + 2, height + 1,
-	    				toDraw, 0, 0);
-	    		width -= imgWidth;
-	    		// Overlap a little bit to avoid border issues
-	    		x += imgWidth - 2;
-	    	}
-	    }
-	    
-	    private void drawBorder(Graphics graphics, int x, int y, int width,	int height) {
-	    	graphics.setColor(Color.GRAY);
-	    	graphics.drawLine(x, y - 1, x + width, y - 1);
-	    	graphics.drawLine(x, y + height - 1, x + width, y + height - 1);
-	    }
-	    
         protected int moveFocus(int amount, int status, int time) {
     		
     		int oldSelection = getSelectedIndex();

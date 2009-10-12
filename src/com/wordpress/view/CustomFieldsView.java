@@ -4,18 +4,15 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.system.Display;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
-import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
+import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
-import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
@@ -24,12 +21,12 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BitmapButtonField;
 import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
+import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
 
-public class CustomFieldsView extends BaseView {
+public class CustomFieldsView extends StandardBaseView {
 	
     private BlogObjectController controller;
-    private VerticalFieldManager _container;
     private final Vector oldCustomFields;
     private Vector changeListeners = new Vector();
     private Bitmap _deleteBitmap = Bitmap.getBitmapResource("stop.png");
@@ -38,45 +35,14 @@ public class CustomFieldsView extends BaseView {
 	private BasicEditField _fieldName;
         
     public CustomFieldsView(BlogObjectController _controller, Vector customFields, String title) {
-    	super(_resources.getString(WordPressResource.MENUITEM_CUSTOM_FIELDS)+" > "+ title);
+    	super(_resources.getString(WordPressResource.MENUITEM_CUSTOM_FIELDS)+" > "+ title, Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
     	this.controller=_controller;
 		this.oldCustomFields = customFields;
     	
-     	VerticalFieldManager internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR ) {
-    		public void paintBackground( Graphics g ) {
-    			g.clear();
-    			int color = g.getColor();
-    			g.setColor( Color.LIGHTGREY );
-    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
-    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
-    			g.setColor( color );
-    		}
-    		
-    		protected void sublayout( int maxWidth, int maxHeight ) {
-    			
-    			int titleFieldHeight = 0;
-    			if ( titleField != null ) {
-    				titleFieldHeight = titleField.getHeight();
-    			}
-    			
-    			int displayWidth = Display.getWidth(); // I would probably make these global
-    			int displayHeight = Display.getHeight();
-    			
-    			super.sublayout( displayWidth, displayHeight - titleFieldHeight );
-    			setExtent( displayWidth, displayHeight - titleFieldHeight );
-    		}
-    		
-    	};
-    	
-    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR );
-    	internalManager.add( _container );
-    	super.add( internalManager );
-    	    	
 		//this is the base row  
         BorderedFieldManager outerContainer = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
-        		| Manager.NO_VERTICAL_SCROLL
-        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
+        		| Manager.NO_VERTICAL_SCROLL );
          //Add new custom field:
         LabelField lblNewCustomField = getLabel(_resources.getString(WordPressResource.LABEL_ADD_CUSTOM_FIELD));
         outerContainer.add(lblNewCustomField);
@@ -105,17 +71,28 @@ public class CustomFieldsView extends BaseView {
 		lblDesc.setFont(fnt);
 		//add(lblDesc);
 		
+		//add the buttons
+        ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
+        ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
+		buttonBACK.setChangeListener(listenerBackButton);
+        buttonOK.setChangeListener(listenerOkButton);
+        HorizontalFieldManager buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
+        buttonsManager.add(buttonOK);
+		buttonsManager.add(buttonBACK);
+		add(buttonsManager); 
+
 		//add the custom fields
 		initUI(oldCustomFields);
 		
 		_fieldName.setFocus();
-		_container.setDirty(false);
+		setDirty(false);
     }
     
+       
     private void initUI(Vector customFields) {
     	Log.debug("start UI init");
     	int size = customFields.size();
-    	Log.debug("Founded "+size +" custom fields");
+    	Log.debug("Found "+size +" custom fields");
     	
 		for (int i = 0; i <size; i++) {
 			Log.debug("Elaborating custom field # "+ i);
@@ -124,7 +101,7 @@ public class CustomFieldsView extends BaseView {
 				
 				//check the presence for key & value 
 				if(customField.get("key") == null || customField.get("value") == null) {
-					Log.debug("Founded prev. deleted custom fields");
+					Log.debug("Found prev. deleted custom fields");
 					continue;
 				}
 				
@@ -153,8 +130,7 @@ public class CustomFieldsView extends BaseView {
     	//this is the base row  
         BorderedFieldManager outerContainer = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
-        		| Manager.NO_VERTICAL_SCROLL
-        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
+        		| Manager.NO_VERTICAL_SCROLL);
         
         HorizontalFieldManager rowName = new HorizontalPaddedFieldManager();
         LabelField lblName = getLabel(_resources.getString(WordPressResource.LABEL_NAME)+":");
@@ -176,7 +152,8 @@ public class CustomFieldsView extends BaseView {
         outerContainer.add(addButtonField);
         changeListeners.addElement(myFieldChangeListener); //added change listener into array
         
-        add(outerContainer);
+        int fieldsCount = getFieldCount();
+        insert(outerContainer, fieldsCount-1); //leave the buttons at the bottom of the screen
     }
     
 	private FieldChangeListener addCustomField = new FieldChangeListener() {
@@ -215,8 +192,8 @@ public class CustomFieldsView extends BaseView {
 			Field fieldWithFocus = _container.getFieldWithFocus();
 	    	
 	    	if(fieldWithFocus instanceof BorderedFieldManager) {
-	    		_container.delete(fieldWithFocus);
-	    		_container.setDirty(true);
+	    		delete(fieldWithFocus);
+	    		setDirty(true);
 	    		//find this change listener and remove from the list
 	    		int count = changeListeners.size();
 	    		for (int i = 0; i < count; i++) {
@@ -230,19 +207,54 @@ public class CustomFieldsView extends BaseView {
 	    	}			
 		}
 	}
+	
+	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
+	    public void fieldChanged(Field field, int context) {
+	    	saveChanges();
+	    	controller.backCmd();
+	    }
+	};
 
-	public void add( Field field ) {
-		_container.add( field );
-	}
-    
-    //override onClose() to display a dialog box when the application is closed    
-	public boolean onClose()   {
-		if(_container.isDirty()) {
+	private FieldChangeListener listenerBackButton = new FieldChangeListener() {
+	    public void fieldChanged(Field field, int context) {
+	    	onClose();
+	    }
+	};
+	
+	private void saveChanges() {
+		if(isDirty()) {
 			upgradeCustomFields();
 			controller.setObjectAsChanged(true);
 		}
-		controller.backCmd();
-		return true;
+	}
+	
+    //override onClose() to display a dialog box when the application is closed    
+	public boolean onClose()   {
+		boolean isModified=false;
+		if(isDirty()){
+			isModified = true;
+		}
+		if(!isModified) {
+			controller.backCmd();
+			return true;
+		}
+		String quest=_resources.getString(WordPressResource.MESSAGE_INQUIRY_DIALOG_BOX);
+    	DiscardChangeInquiryView infoView= new DiscardChangeInquiryView(quest);
+    	int choice=infoView.doModal();    	 
+    	if(Dialog.DISCARD == choice) {
+    		Log.trace("user has selected discard");
+			controller.backCmd();
+    		return true;
+    	}else if(Dialog.SAVE == choice) {
+    		Log.trace("user has selected save");
+    		saveChanges();
+    		controller.backCmd();    		
+    		return true;
+    	} else {
+    		Log.trace("user has selected cancel");
+    		controller.backCmd();
+    		return false;
+    	}
     }
 	
 	/*

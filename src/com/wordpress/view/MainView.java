@@ -2,12 +2,14 @@ package com.wordpress.view;
 
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ListField;
+import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
@@ -22,21 +24,19 @@ import com.wordpress.view.component.BlogsListField;
 public class MainView extends BaseView {
 	
     private MainController mainController=null;
+    private VerticalFieldManager _container;
+    VerticalFieldManager internalManager;
     private ListField listaBlog;
     private BlogsListField blogListController;
-    private int PADDING = 20;
     
-    private BitmapField wpLogoBitmapField;
-    private VerticalFieldManager   subManager;
     
 	public MainView(MainController mainController) {
-		super( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR 
-				| VerticalFieldManager.USE_ALL_WIDTH | VerticalFieldManager.USE_ALL_HEIGHT);
+		super( MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 		
 		this.mainController=mainController;
 		
 		//Set the preferred width to the image size or screen width if the image is larger than the screen width.
-		EncodedImage _theImage= EncodedImage.getEncodedImageResource("wplogo.png");
+		EncodedImage _theImage= EncodedImage.getEncodedImageResource("wplogo_header.png");
 		int _preferredWidth = -1;
         if (_theImage.getWidth() > Display.getWidth()) {
             _preferredWidth = Display.getWidth();
@@ -45,53 +45,59 @@ public class MainView extends BaseView {
         	EncodedImage resImg = ImageUtils.resizeEncodedImage(_theImage, _preferredWidth, _theImage.getHeight());
         	_theImage = resImg;
         }
-		wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER| Field.FIELD_VCENTER);
-		
-		//this manager is used for the static background image
-		VerticalFieldManager  mainManager = new VerticalFieldManager(VerticalFieldManager.USE_ALL_WIDTH | VerticalFieldManager.USE_ALL_HEIGHT 
-				| Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR )
-        {            
-            public void paint(Graphics graphics)
-            {
-            	//height and width could change if the user tilt the device.
-            	//we use os4.2 in which we cannot access to tilt events
-            	//and so we need to retrive height and width at every paint...
-               int deviceWidth = Display.getWidth(); 
-               int deviceHeight = Display.getHeight();
-               graphics.clear();
-               graphics.drawBitmap(0, 0, deviceWidth, deviceHeight, _backgroundBitmap, 0, 0);                       
-               super.paint(graphics);
-            } 
-            
-            protected void sublayout( int width, int height ) {
-                    int x = 0;
-                    int y = 0;
-
-                    for (int i = 0;  i < getFieldCount();  i++) {
-                        Field field = getField(i);
-                        if (i != 0){
-                        	layoutChild( field, width - PADDING, height-y );
-                        	setPositionChild(field, x+(PADDING/2), y);
-                        } else { 
-                        	 //the image field
-                        	x = width / 2;
-                        	layoutChild( field, width , height-y );
-                        	setPositionChild(field, x - field.getPreferredWidth()/2, y);
-                        }                        	
-                        x = 0 ;
-                        y += field.getHeight();
-                    }
-                 setExtent(width, height);
-            } 
-        };
         
-        //this manger is used for adding the componentes
-        subManager = new VerticalFieldManager(Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR  );
-
-        mainManager.add(wpLogoBitmapField);
-        mainManager.add(subManager);
-        //finally add the mainManager over the screen
-        this.add(mainManager);    
+        final BitmapField wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
+        final int listWidth = wpLogoBitmapField.getBitmapWidth() - 10;
+        
+    	internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR) {
+    		public void paintBackground( Graphics g ) {
+    			g.clear();
+    			int color = g.getColor();
+    			g.setColor( Color.LIGHTGREY );
+    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
+    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
+    			g.setColor( color );
+    		}
+    		
+    		protected void sublayout( int maxWidth, int maxHeight ) {
+    			
+    			int titleFieldHeight = 0;
+    			if ( titleField != null ) {
+    				titleFieldHeight = titleField.getHeight();
+    			}
+    			    			
+    			int displayWidth = Display.getWidth(); 
+    			int displayHeight = Display.getHeight();
+    			
+    			super.sublayout( displayWidth, displayHeight - (titleFieldHeight +5) );
+    			setExtent( displayWidth, displayHeight - titleFieldHeight );
+    		}
+    	};
+    	
+    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR ){
+    		protected void sublayout( int maxWidth, int maxHeight ) {
+    			//super.sublayout( displayWidth, displayHeight - titleFieldHeight );
+    			
+    			for (int i = 0;  i < getFieldCount();  i++) {
+    				Field field = getField(i);
+    				if (i == 0){
+    					layoutChild( field, listWidth, maxHeight );
+    					
+    					int x = maxWidth / 2;
+    					x = x - listWidth/2;
+    					
+    					setPositionChild(field, x, 0);
+    				} else { 
+    					
+    				}                        	
+    			}
+    			setExtent( maxWidth, maxHeight );
+    		}
+    	};
+    	
+    	internalManager.add( wpLogoBitmapField );
+    	internalManager.add( _container );
+    	super.add( internalManager );  
 		
         setupUpBlogsView();
 	
@@ -101,6 +107,9 @@ public class MainView extends BaseView {
 		addMenuItem(_updateItem);
 	}
 	
+	public void add( Field field ) {
+		_container.add( field );
+	}
 	
 	 public void setupUpBlogsView() {
     	
@@ -117,7 +126,7 @@ public class MainView extends BaseView {
         }
     	blogListController = new BlogsListField(blogCaricati);
 		this.listaBlog = blogListController.getList();
-		subManager.add(listaBlog);    
+		add(listaBlog);    
 	 }
 	 
 	 
@@ -174,7 +183,7 @@ public class MainView extends BaseView {
     public void refreshBlogList() {
     	synchronized (this) {
 	        if(listaBlog != null){
-				subManager.delete(listaBlog);
+				_container.delete(listaBlog);
 				setupUpBlogsView(); //repaint entire list
 			}
     	}

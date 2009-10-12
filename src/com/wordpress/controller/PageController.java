@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
@@ -17,6 +18,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.FileUtils;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.model.MediaEntry;
 import com.wordpress.model.Page;
 import com.wordpress.task.SendToBlogTask;
 import com.wordpress.task.TaskProgressListener;
@@ -55,10 +57,9 @@ public class PageController extends BlogObjectController {
 			displayError(e, _resources.getString(WordPress.ERROR_NOT_ENOUGHT_SPACE));
 		}
 		remotePages = PageDAO.buildPagesArray(blog.getPages());
-		
+		checkMediaObjectLinks();
 	}
-	
-	
+		
 	//used when loading draft page from disk
 	public PageController(Blog blog, Page page, int _draftPostFolder) {
 		super();
@@ -67,6 +68,7 @@ public class PageController extends BlogObjectController {
 		this.draftFolder=_draftPostFolder;
 		this.isDraft = true;
 		remotePages = PageDAO.buildPagesArray(blog.getPages());
+		checkMediaObjectLinks();
 	}
 	
 	public void showView() {
@@ -119,12 +121,7 @@ public class PageController extends BlogObjectController {
 		//---
 
 		
-		String[] draftPostPhotoList = new String[0];
-		try {
-			draftPostPhotoList = PageDAO.getPagePhotoList(blog, draftFolder);
-		} catch (Exception e) {
-			displayError(e, "Cannot load photos of this page!");
-		}
+		String[] draftPostPhotoList = getPhotoList();
 		this.view= new PageView(this, page);
 		view.setNumberOfPhotosLabel(draftPostPhotoList.length);
 		UiApplication.getUiApplication().pushScreen(view);
@@ -211,33 +208,6 @@ public class PageController extends BlogObjectController {
 			displayMessage(_resources.getString(WordPressResource.MESSAGE_LOCAL_DRAFT_NOT_SUBMIT));
 			return;
 		}	
-		 
-		String[] draftPagePhotoList;
-
-		try {
-			draftPagePhotoList = PageDAO.getPagePhotoList(blog, draftFolder);
-		} catch (Exception e) {
-			displayError(e, _resources.getString(WordPressResource.ERROR_LOADING_PHOTO));
-			return;
-		}
-		
-		//SendPageDataTask sender = new SendPageDataTask (blog, page, draftPageFolder);
-		Queue connectionsQueue = new Queue();
-		
-		//adding multimedia connection
-		if(draftPagePhotoList.length > 0 ) {
-			String key="";
-			for (int i =0; i < draftPagePhotoList.length; i++ ) {
-				key = draftPagePhotoList[i];
-				NewMediaObjectConn connection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
-			       		   blog.getUsername(), blog.getPassword(), blog.getId(), key);				
-				connectionsQueue.push(connection);
-			}
-		}
-
-		
-		//adding post connection
-		BlogConn connection;
 		
 		String remoteStatus = page.getPageStatus();
 		boolean publish=false;
@@ -245,6 +215,7 @@ public class PageController extends BlogObjectController {
 		if(remoteStatus.equalsIgnoreCase("publish"))
 			publish= true;
 		
+		BlogConn connection;
 		if( page.getID()== -1 ) { //new page
 	           connection = new NewPageConn (blog.getXmlRpcUrl(), blog.getUsername(), 
 	        		   blog.getPassword(), Integer.parseInt(blog.getId()), page ,publish);
@@ -254,10 +225,8 @@ public class PageController extends BlogObjectController {
 	        		   blog.getPassword(), Integer.parseInt(blog.getId()), page ,publish);
 		
 		}
-		connectionsQueue.push(connection);
-				
 		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
-		sendTask = new SendToBlogTask(blog, page, draftFolder, connectionsQueue);
+		sendTask = new SendToBlogTask(blog, page, draftFolder, connection);
 		sendTask.setProgressListener(new SubmitPageTaskListener());
 		//push into the Runner
 		WordPressCore.getInstance().getTasksRunner().enqueue(sendTask);
@@ -398,25 +367,6 @@ public class PageController extends BlogObjectController {
 		view.setNumberOfPhotosLabel(count);
 	}
 	
-	public void showPhotosView(){
-		
-		String[] draftPostPhotoList;
-		try {
-			draftPostPhotoList = PageDAO.getPagePhotoList(blog, draftFolder);
-			photoView= new PhotosView(this);
-			for (int i = 0; i < draftPostPhotoList.length; i++) {
-				String currPhotoPath = draftPostPhotoList[i];
-				byte[] data=PageDAO.loadPagePhoto(blog, draftFolder, currPhotoPath);
-				EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
-				photoView.addPhoto(currPhotoPath, img);
-			}			
-			UiApplication.getUiApplication().pushScreen(photoView);
-		} catch (Exception e) {
-			displayError(e, "Cannot load photos from disk!");
-			return;
-		}
-	}
-			
 	
 	public void startLocalPreview(String title, String content, String tags){
 		//photo are reader from the model
@@ -425,15 +375,11 @@ public class PageController extends BlogObjectController {
 		StringBuffer photoHtmlFragment = new StringBuffer();
 		
 		for (int i = 0; i < draftPostPhotoList.length; i++) {
-			try {
-				String photoRealPath = PageDAO.getPhotoRealPath(blog, draftFolder, draftPostPhotoList[i]);
+				String photoRealPath = draftPostPhotoList[i];
 				photoHtmlFragment.append("<p>"+
 						"<img class=\"alignnone size-full wp-image-364\"" +
 						" src=\""+photoRealPath+"\" alt=\"\" " +
 				"</p>");
-			} catch (IOException e) {
-			} catch (RecordStoreException e) {
-			}
 		}
 		photoHtmlFragment.append("<p>&nbsp;</p>");
 		

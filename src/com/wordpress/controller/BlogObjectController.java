@@ -1,6 +1,7 @@
 package com.wordpress.controller;
 
-import java.util.Hashtable;
+import java.io.IOException;
+import java.util.Vector;
 
 import net.rim.blackberry.api.invoke.CameraArguments;
 import net.rim.blackberry.api.invoke.Invoke;
@@ -11,10 +12,9 @@ import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressResource;
-import com.wordpress.io.DraftDAO;
 import com.wordpress.io.JSR75FileSystem;
-import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.model.MediaEntry;
 import com.wordpress.model.Page;
 import com.wordpress.model.Post;
 import com.wordpress.task.SendToBlogTask;
@@ -23,13 +23,15 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.CustomFieldsView;
+import com.wordpress.view.MediaEntryPropView;
 import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PreviewView;
 import com.wordpress.view.component.FileSelectorPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.view.mm.MediaObjFileJournalListener;
+import com.wordpress.view.mm.MediaViewMediator;
 import com.wordpress.view.mm.MultimediaPopupScreen;
-import com.wordpress.view.mm.PhotoFileJournalListener;
 import com.wordpress.view.mm.PhotoPreview;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.PreviewHTTPConn;
@@ -67,8 +69,7 @@ public abstract class BlogObjectController extends BaseController {
 	public abstract void setPhotoResizing(boolean isPhotoRes);
 
 	//journal listener
-	PhotoFileJournalListener photoFSListener = null;
-	private Hashtable photoName = new Hashtable(); //FIXME: this field is used to track the FS listener
+	MediaObjFileJournalListener photoFSListener = null;
 	
 	public void showSettingsView(){
 		boolean isPhotoResing = blog.isResizePhotos(); //first set the value as the predefined blog value
@@ -83,7 +84,6 @@ public abstract class BlogObjectController extends BaseController {
 			}
 			settingsView= new PostSettingsView(this, page.getDateCreatedGMT(), page.getWpPassword(), isPhotoResing);		
 		}
-		
 		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
 	
@@ -111,100 +111,167 @@ public abstract class BlogObjectController extends BaseController {
 	
 	protected String[] getPhotoList() {
 		String[] draftPostPhotoList = new String [0];
-		try {
-			if( post != null )
-				draftPostPhotoList = DraftDAO.getPostPhotoList(post.getBlog(), draftFolder);
-			else
-				draftPostPhotoList = PageDAO.getPagePhotoList(blog, draftFolder);
-		} catch (Exception e) {
-			displayError(e, "Cannot load photos from disk!");
+		
+		Vector mediaObjects;
+		if(post != null) {
+			mediaObjects = post.getMediaObjects();				
+		} else {
+			mediaObjects = page.getMediaObjects();
 		}
+		draftPostPhotoList = new String[mediaObjects.size()];
+		
+		for (int i = 0; i < mediaObjects.size(); i++) {
+			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
+			draftPostPhotoList[i] = tmp.getFilePath();
+		}
+		
 		return draftPostPhotoList;
 	}
 
-	
-	public synchronized void storePhotoFast(String completePath, String fileName) {
+
+	protected synchronized void checkMediaObjectLinks() {
 		try {
+			Log.trace(">>> checkMediaLink ");
+			
+			Vector mediaObjects;
+			if(post != null) {
+				mediaObjects = post.getMediaObjects();				
+			} else {
+				mediaObjects = page.getMediaObjects();
+			}
+			
+			Vector notFoundMediaObjects = new Vector();
+			//checking the existence of photo already linked with the page/post obj
+			for (int i = 0; i < mediaObjects.size(); i++) {
+				MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
+				if(!JSR75FileSystem.isFileExist(tmp.getFilePath())) {
+					notFoundMediaObjects.addElement(tmp);
+					Log.trace("media file not found on disk : "+tmp.getFilePath());
+				}
+			}
+			for (int i = 0; i < notFoundMediaObjects.size(); i++) {
+				MediaEntry tmp = (MediaEntry) notFoundMediaObjects.elementAt(i);
+				mediaObjects.removeElement(tmp);
+				Log.trace("media file removed from post : "+tmp.getFilePath());
+			}
+						
+			
+			if(post != null) {
+				post.setMediaObjects(mediaObjects);
+			} else {
+				page.setMediaObjects(mediaObjects);
+			}
+			Log.trace("<<< checkMediaLink ");
+		} catch (Exception e) {
+			Log.error(e, "checkMediaLink error");
+		}
+	}
+	
+	
+	public synchronized void addLinkToMediaObject(String completePath) {
+		try {
+			Log.trace("linking media obj photo: "+completePath);
 			isModified = true; //set the post/page as modified
 			
-			if(photoName.get(fileName)!= null)
-				return;
-			else
-				photoName.put(fileName, "fix");
+       	 	MediaEntry mediaObj = new MediaEntry(completePath);
+       	 	Vector mediaObjects;
+			if(post != null) {
+				mediaObjects = post.getMediaObjects();				
+			} else {
+				mediaObjects = page.getMediaObjects();
+			}
+			//checking the existence of photo already linked with the page/post obj
+			for (int i = 0; i < mediaObjects.size(); i++) {
+				MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
+				if(tmp.getFilePath().equalsIgnoreCase(mediaObj.getFilePath()))
+					return;	
+			}
 			
-			if(post != null)
-				DraftDAO.storePhotoFast(post.getBlog(), draftFolder, completePath, fileName);
-			else
-				PageDAO.storePhotoFast(blog, draftFolder, completePath, fileName);
-
+			mediaObjects.addElement(mediaObj);
+			
+			if(post != null) {
+				post.setMediaObjects(mediaObjects);
+			} else {
+				page.setMediaObjects(mediaObjects);
+			}
+						
 			byte[] readFile = JSR75FileSystem.readFile(completePath);
 			EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
-									
-			photoView.addPhoto(fileName, img);
-			removePhotoJournalListener(); //remove the fs listener. 
+			photoView.addPhoto(mediaObj, img);
+			removePhotoJournalListener(); //remove the fs listener.
+			
 		} catch (Exception e) {
-			photoName.remove(fileName);
-			deletePhoto(fileName);
+			deleteLinkToMediaObject(completePath);
 			displayError(e, "Cannot save photo to disk!");
 		}
 	}
 	
-	
-	//old method for storing a photo, not  used.
-	public synchronized void storePhoto(byte[] data, String fileName) {
-		try {
-			
-			if(photoName.get(fileName)!= null)
-				return;
-			else
-				photoName.put(fileName, "fix");
-			
-			EncodedImage img;
-			img = EncodedImage.createEncodedImage(data, 0, -1);
-			if(post != null)
-				DraftDAO.storePhoto(post.getBlog(), draftFolder, data, fileName);
-			else
-				PageDAO.storePhoto(blog, draftFolder, data, fileName);
-			photoView.addPhoto(fileName, img);
-		} catch (Exception e) {
-			displayError(e, "Cannot save photo to disk!");
-		}
-	}
 	
 		
 	/*
 	 * delete selected photo
 	 */
-	public synchronized boolean deletePhoto(String key){
-		Log.trace("deleting photo: "+key);
-		photoName.remove(key); //only for fix 
+	public synchronized boolean deleteLinkToMediaObject(String key) {
+		Log.trace("deleting link to photo: "+key);
 		isModified = true; //set the post/page as modified
+		Vector mediaObjects;
+		if(post != null) {
+			mediaObjects = post.getMediaObjects();				
+		} else {
+			mediaObjects = page.getMediaObjects();
+		}
+		//checking the existence of photo linked with the page/post obj
+		for (int i = 0; i < mediaObjects.size(); i++) {
+			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
+			if(tmp.getFilePath().equalsIgnoreCase(key)) {
+				mediaObjects.removeElementAt(i);
+				break;
+			}
+		}
 		
-		try {
-			if(post != null)
-				DraftDAO.removePostPhoto(post.getBlog(), draftFolder, key);
-			else
-				PageDAO.removePagePhoto(blog, draftFolder, key);
-				
-			photoView.deletePhotoBitmapField(key); //delete the thumb
-		} catch (Exception e) {
-			displayError(e, "Cannot remove photo from disk!");
-		}		
+		if(post != null) {
+			post.setMediaObjects(mediaObjects);
+		} else {
+			page.setMediaObjects(mediaObjects);
+		}
+
+		photoView.deletePhotoBitmapField(key); //delete the thumb
 		return true;
 	}
-	
+		
+	public void showPhotosView(){
+		
+		photoView= new PhotosView(this);
+
+		Vector mediaObjects;
+		if(post != null) {
+			mediaObjects = post.getMediaObjects();				
+		} else {
+			mediaObjects = page.getMediaObjects();
+		}
+						
+		for (int i = 0; i < mediaObjects.size(); i++) {
+			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
+			byte[] readFile;
+			try {
+				readFile = JSR75FileSystem.readFile(tmp.getFilePath());
+				EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
+				photoView.addPhoto(tmp, img);
+			} catch (IOException e) {
+				displayError(e, "Cannot read media: "+tmp.getFilePath());
+			}
+		}			
+		UiApplication.getUiApplication().pushScreen(photoView);
+	}
 	
 	/*
 	 * show selected photo
 	 */
 	public void showEnlargedPhoto(String key){
-		System.out.println("showed photos: "+key);
+		Log.trace("showed photos: "+key);
 		byte[] data;
 		try {
-			if(post != null)
-				data = DraftDAO.loadPostPhoto(blog, draftFolder, key);
-			else
-				data = PageDAO.loadPagePhoto(blog, draftFolder, key);
+			data = JSR75FileSystem.readFile(key);			
 			EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
 			UiApplication.getUiApplication().pushScreen(new PhotoPreview(this, key ,img)); //modal screen...
 		} catch (Exception e) {
@@ -213,6 +280,13 @@ public abstract class BlogObjectController extends BaseController {
 		}
 	}
 	
+	/*
+	 * show selected photo properties
+	 */
+	public void showMediaObjectProperties(MediaViewMediator mediaViewMediator){
+		Log.trace("showed properties for media: "+mediaViewMediator.getMediaEntry().getFilePath());
+		UiApplication.getUiApplication().pushScreen(new MediaEntryPropView(this, mediaViewMediator,"pippo"));
+	}
 	
 	/** show up multimedia type selection */
 	public void showAddPhotoPopUp() {
@@ -229,22 +303,16 @@ public abstract class BlogObjectController extends BaseController {
              fps.pickFile();
              String theFile = fps.getFile();
              if (theFile == null){
-                // Dialog.alert("Screen was dismissed. No file was selected.");
+            	 
              } else {
-            	 String[] fileNameSplitted = StringUtils.split(theFile, "/");
-            	 String ext= fileNameSplitted[fileNameSplitted.length-1];
-			//	try {
-					//byte[] readFile = JSR75FileSystem.readFile(theFile);
-				storePhotoFast(theFile,ext);	
-			//	} catch (IOException e) {
-				//	displayError(e, "Cannot load photo from disk!");
-				//}
+    		     if(!theFile.startsWith("file:///")) {
+    		    	 theFile = "file:///"+ theFile;
+    		       } 
+				addLinkToMediaObject(theFile);	
              }					
 			break;
 			
 		case PHOTO:
-			//PhotoSnapShotView snapView = new PhotoSnapShotView(this);
-			//UiApplication.getUiApplication().pushScreen(snapView); //modal screen...
 			try {
 				 	addPhotoJournalListener();
 					Invoke.invokeApplication(Invoke.APP_TYPE_CAMERA, new CameraArguments());
@@ -262,7 +330,7 @@ public abstract class BlogObjectController extends BaseController {
 	private void addPhotoJournalListener() {
 		//create a new listener only if it is null
 		if(photoFSListener == null ) {
-			photoFSListener = new PhotoFileJournalListener(this);
+			photoFSListener = new MediaObjFileJournalListener(this);
 		}
 		UiApplication.getUiApplication().addFileSystemJournalListener(photoFSListener);
 	}

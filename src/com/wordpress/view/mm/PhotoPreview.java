@@ -14,7 +14,7 @@ import com.wordpress.view.BaseView;
 	private final String key;
  		
      public PhotoPreview(BlogObjectController _controller, String key, EncodedImage Img) {
-     	super(_resources.getString(WordPressResource.TITLE_PHOTOSVIEW));
+     	super(_resources.getString(WordPressResource.TITLE_PREVIEW));
      	this.controller=_controller;
 		this.key = key;
 
@@ -26,7 +26,7 @@ import com.wordpress.view.BaseView;
 
      private MenuItem _deletePhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_PHOTOS_DELETE, 130, 10) {
          public void run() {
-        	 controller.deletePhoto(key);
+        	 controller.deleteLinkToMediaObject(key);
         	 controller.backCmd();
          }
      };     

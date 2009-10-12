@@ -23,14 +23,18 @@
 package org.kxmlrpc;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import org.kobjects.base64.Base64;
-import org.kxmlrpc.util.IsoDate;
 import org.kxml2.io.KXmlSerializer;
+import org.kxmlrpc.util.IsoDate;
+
+import com.wordpress.io.JSR75FileSystem;
+import com.wordpress.model.MediaEntry;
 
 /** 
  * This class builds XML-RPC method calls using the kxml pull parser's
@@ -132,7 +136,29 @@ public class XmlRpcWriter {
 		// byte arrays must be encoded using the Base64 encoding
 		else if( value instanceof byte[] ) {
 			writer.startTag( null, "base64" );
-			writer.text( Base64.encode( (byte[]) value ) );
+		/*	InputStream inStream = new ByteArrayInputStream((byte[])value);
+			byte[] buffer = new byte[300]; //you must use a 24bit multiple
+			int length = -1;
+			while ((length = inStream.read(buffer)) > 0) {
+				writer.text( Base64.encode(buffer, 0 , length, null).toString() );
+				//out.write(buffer, 0 , length);
+			}
+			inStream.close();*/
+			writer.text( Base64.encode( (byte[]) value ) );			
+			writer.endTag(null, "base64");
+		} 
+		//video content must be encoded parted, we cannot used byte array
+		else if( value instanceof MediaEntry ) {
+			writer.startTag( null, "base64" );
+			MediaEntry videoFile = (MediaEntry) value;
+			//read the file and encode the file 
+			InputStream inStream = JSR75FileSystem.getDataInputStream(videoFile.getFilePath());
+			byte[] buffer = new byte[1800];//you must use a 24bit multiple
+			int length = -1;
+			while ((length = inStream.read(buffer)) > 0) {
+				writer.text( Base64.encode(buffer, 0 , length, null).toString() );
+			}
+			inStream.close();
 			writer.endTag(null, "base64");
 		}
 		else throw new IOException( "Unknown data type: " + value );

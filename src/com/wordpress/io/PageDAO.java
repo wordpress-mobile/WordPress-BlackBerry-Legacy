@@ -4,16 +4,14 @@ package com.wordpress.io;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStoreException;
 
 import com.wordpress.model.Blog;
+import com.wordpress.model.MediaEntry;
 import com.wordpress.model.Page;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.Tools;
@@ -25,12 +23,13 @@ public class PageDAO implements BaseDAO{
 	public static void removePage(Blog blog, int draftId) throws IOException, RecordStoreException {
 		String draftFilePath = getPageFilePath(blog, draftId);  	
 		JSR75FileSystem.removeFile(draftFilePath);
-		String[] draftPostPhotoList = getPagePhotoList(blog, draftId);
+	/*	String[] draftPostPhotoList = getPagePhotoList(blog, draftId);
 		for (int i = 0; i < draftPostPhotoList.length; i++) {
 			removePagePhoto(blog, draftId, draftPostPhotoList[i]);
 		}
+		*/
 	}
-	    
+	/*    
     public static String getPhotoRealPath(Blog blog, int draftId, String photoName) throws IOException, RecordStoreException {
     	String draftPostPath = getPageFilePath(blog, draftId);
     	String photoFilePath = draftPostPath+"p-"+photoName;
@@ -50,7 +49,7 @@ public class PageDAO implements BaseDAO{
 		System.out.println("deleting page photo ok");   	
 	}
 	
-	
+	/*
 	public static void storePhotoFast(Blog blog, int draftId,  String completePath, String photoName) throws IOException, RecordStoreException {
 		String draftPostPath = getPageFilePath(blog, draftId);
 		JSR75FileSystem.createFile(draftPostPath);
@@ -114,7 +113,7 @@ public class PageDAO implements BaseDAO{
 			}
 	    	return Tools.toStringArray(listDir);   	
 	}
-	
+	*/
 	public static int storePage(Blog blog, Page page, int draftId) throws IOException, RecordStoreException {
 		String draftFilePath = getPageFilePath(blog, draftId);
 		int newPostID= getDraftPageID(blog, draftId);
@@ -328,6 +327,20 @@ public class PageDAO implements BaseDAO{
 		page.setCustomFields(cf);
 		
 		page.setWpPageTemplate((String) returnPageData.get("wp_page_template"));
+		
+		
+		if(returnPageData.get("mediaObjects") != null) {
+			Vector hashedMediaIbjects = (Vector) returnPageData.get("mediaObjects");
+			Vector mediaObjects = new Vector(hashedMediaIbjects.size());
+			for (int i = 0; i < hashedMediaIbjects.size(); i++) {
+				Hashtable tmp = (Hashtable) hashedMediaIbjects.elementAt(i);
+				mediaObjects.addElement(new MediaEntry(tmp));
+			}
+			page.setMediaObjects(mediaObjects);
+		}
+		
+		
+		
 		return page;
 	}
 	
@@ -389,6 +402,16 @@ public class PageDAO implements BaseDAO{
 		if(page.getIsPhotoResizing() !=null)
 			content.put("IsPhotoResizing", page.getIsPhotoResizing());
 	
+		
+		//convert media object before save them
+		Vector mediaObjects = page.getMediaObjects();
+		Vector hashedMediaIbjects = new Vector(mediaObjects.size());
+		for (int i = 0; i < mediaObjects.size(); i++) {
+			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
+			hashedMediaIbjects.addElement(tmp.getMediaObjectAsHashtable());
+			}
+		content.put("mediaObjects", hashedMediaIbjects);
+		
 		return content;
 	}
 	

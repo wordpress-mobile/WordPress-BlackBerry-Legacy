@@ -1,15 +1,16 @@
 package com.wordpress.view;
 
 
+import java.util.Vector;
+
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
-import net.rim.device.api.ui.component.SeparatorField;
-import net.rim.device.api.ui.container.FlowFieldManager;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
@@ -17,42 +18,49 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
+import com.wordpress.model.MediaEntry;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
-import com.wordpress.view.component.HorizontalPaddedFieldManager;
-import com.wordpress.view.mm.PhotoBitmapField;
+import com.wordpress.view.component.BorderedFieldManager;
+import com.wordpress.view.component.BorderedFocusChangeListenerPatch;
+import com.wordpress.view.mm.MediaViewMediator;
 
-public class PhotosView extends BaseView {
+public class PhotosView extends StandardBaseView {
 	
     private BlogObjectController controller; //controller associato alla view
-    private FlowFieldManager manager=null;
-	private LabelField lblPhotoNumber;
 	private int counterPhotos = 0;
+	private Vector uiLink = new Vector();
+	private BorderedFieldManager noPhotoBorderedManager = null;
+	
 	
     public PhotosView(BlogObjectController _controller) {
     	super(_resources.getString(WordPressResource.TITLE_PHOTOSVIEW), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
     	this.controller=_controller;
-
-  	  //A HorizontalFieldManager to hold the photos number label
-        HorizontalFieldManager photoNumberManager = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
-            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
-
-        lblPhotoNumber = getLabel("");
-        setNumberOfPhotosLabel(counterPhotos);
-        photoNumberManager.add(lblPhotoNumber);
-        
-    	manager= new FlowFieldManager( Field.FOCUSABLE| VerticalFieldManager.VERTICAL_SCROLL | VerticalFieldManager.VERTICAL_SCROLLBAR);
     	
+    	//init for the 0 photo item
+    	noPhotoBorderedManager= new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
+        		| Manager.NO_VERTICAL_SCROLL);
+    	LabelField noPhoto = getLabel(_resources.getString(WordPressResource.LABEL_NO_PHOTO));
+    	noPhotoBorderedManager.add(noPhoto);
+    	
+        updateUI(counterPhotos);
         addMenuItem(_addPhotoItem);
-        add(photoNumberManager);
-        add(new SeparatorField());
-        add(manager);
     }
-    
-    //set the photos number label text
-    private void setNumberOfPhotosLabel(int count) {
-    	lblPhotoNumber.setText(count + " "+_resources.getString(WordPressResource.TITLE_PHOTOSVIEW));
-    }
+    	
+	private void updateUI(int count) {
+		this.setTitleText(count + " "+_resources.getString(WordPressResource.TITLE_PHOTOSVIEW) );
+		if(count == 0) {
+			removeMenuItem(_deletePhotoItem);
+			removeMenuItem(_showPhotoItem);
+			removeMenuItem(_showPhotoPropertiesItem);
+			add(noPhotoBorderedManager);
+		} else if(count == 1) { //this is the first photo added
+			addMenuItem(_showPhotoItem);
+			addMenuItem(_showPhotoPropertiesItem);
+			addMenuItem(_deletePhotoItem);
+			delete(noPhotoBorderedManager); 
+		}
+	}
     
     private MenuItem _addPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_PHOTOS_ADD, 110, 10) {
         public void run() {
@@ -63,46 +71,69 @@ public class PhotosView extends BaseView {
     private MenuItem _showPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_PHOTOS_VIEW, 120, 10) {
         public void run() {        	
         	Field fieldWithFocus = getLeafFieldWithFocus();
-    		if(fieldWithFocus instanceof PhotoBitmapField) {
-    			String key= ((PhotoBitmapField)fieldWithFocus).getPath();
-    			controller.showEnlargedPhoto(key);
+    		if(fieldWithFocus instanceof BitmapField) {
+    			MediaEntry mediaEntry = getMediaEntry((BitmapField) fieldWithFocus);
+    			if(mediaEntry != null)
+    				controller.showEnlargedPhoto(mediaEntry.getFilePath());
     		}
         }
     };
       
-    
-    private MenuItem _deletePhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_PHOTOS_DELETE, 130, 10) {
+    private MenuItem _showPhotoPropertiesItem = new MenuItem( _resources, WordPressResource.MENUITEM_PROPERTIES, 130, 10) {
         public void run() {        	
         	Field fieldWithFocus = getLeafFieldWithFocus();
-    		if(fieldWithFocus instanceof PhotoBitmapField) {
-    			String key= ((PhotoBitmapField)fieldWithFocus).getPath();
-    			controller.deletePhoto(key);
+    		if(fieldWithFocus instanceof BitmapField) {
+    			MediaViewMediator mediaViewMediator = getMediator((BitmapField) fieldWithFocus);
+    			if(mediaViewMediator != null) {
+    				controller.showMediaObjectProperties(mediaViewMediator);
+    			}
     		}
         }
     };
     
+    private MediaViewMediator getMediator(BitmapField source) {
+    	for (int i = 0; i < uiLink.size(); i++) {
+    		MediaViewMediator tmpLink = (MediaViewMediator)uiLink.elementAt(i);
+    		BitmapField bitmapField = tmpLink.getBitmapField();
+    		if (source.equals(bitmapField)) {
+    			return tmpLink;
+    		}
+		}
+    	return null;
+    }
+
+    private MediaEntry getMediaEntry(BitmapField source) {
+    	MediaViewMediator mediaViewMediator = getMediator(source);
+    	if (mediaViewMediator != null) {
+    		return mediaViewMediator.getMediaEntry();
+    	}
+    	return null;
+    }
+    
+    private MenuItem _deletePhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_PHOTOS_DELETE, 130, 10) {
+        public void run() {        	
+        	Field fieldWithFocus = getLeafFieldWithFocus();
+    		if(fieldWithFocus instanceof BitmapField) {
+    			MediaEntry mediaEntry = getMediaEntry((BitmapField) fieldWithFocus);
+    			if(mediaEntry != null)
+    				controller.deleteLinkToMediaObject(mediaEntry.getFilePath());
+    		}
+        }
+    };
     
     //called from controller: delete the thumbnail
     public void deletePhotoBitmapField(String key){
-    	int fieldCount = manager.getFieldCount();
-    	for (int i = 0; i < fieldCount; i++) {
-    		Field field = manager.getField(i);
-    		if(field instanceof PhotoBitmapField) {
-    			String currKey= ((PhotoBitmapField)field).getPath();
-    			if(currKey == key ) {
-    				manager.delete(field);
-    				break; 
-    			}
+    	for (int i = 0; i < uiLink.size(); i++) {
+    		MediaViewMediator tmpLink = (MediaViewMediator)uiLink.elementAt(i);
+    		if (tmpLink.getMediaEntry().getFilePath().equalsIgnoreCase(key)) {
+    			delete(tmpLink.getManager());
+    			uiLink.removeElementAt(i);
+    			break;
     		}
-		}
-    	
-    	if (manager.getFieldCount() == 0) {
-    		removeMenuItem(_deletePhotoItem);
-    		removeMenuItem(_showPhotoItem);
     	}
     	
     	counterPhotos--;
-		setNumberOfPhotosLabel(counterPhotos);
+		updateUI(counterPhotos);
     }
     
     //override onClose() to display a dialog box when the application is closed    
@@ -117,24 +148,67 @@ public class PhotosView extends BaseView {
 		return controller;
 	}
 		
-	public void addPhoto(String key, EncodedImage photo){
-    	if (manager.getFieldCount() == 0) {
-    		addMenuItem(_deletePhotoItem);
-    		addMenuItem(_showPhotoItem);
-    	}
+	public void addPhoto(MediaEntry mediaEntry, EncodedImage photo){
+
     	//find the photo size
     	int scale = ImageUtils.findBestImgScale(photo, 128, 128);
     	if(scale > 1)
     		photo.setScale(scale); //set the scale
-    	
+   
     	Bitmap bitmapRescale= photo.getBitmap();
     	Log.trace(bitmapRescale.getHeight()+" "+ bitmapRescale.getWidth());
-    	//EncodedImage rescaled= MultimediaUtils.bestFit2(photo, 128, 128);
-    	//Bitmap bitmapRescale= rescaled.getBitmap();
-		PhotoBitmapField photoBitmapField = new PhotoBitmapField(bitmapRescale, BitmapField.FOCUSABLE | BitmapField.FIELD_HCENTER, key);
+		BitmapField photoBitmapField = new BitmapField(bitmapRescale, 
+				BitmapField.FOCUSABLE | BitmapField.FIELD_HCENTER | Manager.FIELD_VCENTER);
 		photoBitmapField.setSpace(5, 5);
-		manager.add(photoBitmapField);
+        
+		//outer Manager
+        BorderedFieldManager borderedManager = new BorderedFieldManager(
+        		Manager.NO_HORIZONTAL_SCROLL
+        		| Manager.NO_VERTICAL_SCROLL);
+        
+        HorizontalFieldManager innerManager = new HorizontalFieldManager(Manager.NO_HORIZONTAL_SCROLL | Manager.NO_VERTICAL_SCROLL);
+        VerticalFieldManager fromDataManager = new VerticalFieldManager(VerticalFieldManager.NO_VERTICAL_SCROLL | VerticalFieldManager.NO_HORIZONTAL_SCROLL 
+        		| Manager.FIELD_VCENTER)
+        {//add the focus change listener patch
+        	public void add( Field field ) {
+        		super.add( field );
+        		field.setFocusListener(new BorderedFocusChangeListenerPatch()); 
+        	}
+        };
+	  		  	
+        LabelField fileNameLbl = getLabel(_resources.getString(WordPressResource.LABEL_FILE_NAME));        
+        fromDataManager.add( fileNameLbl );
+        String fileName =  mediaEntry.getFileName() != null ? mediaEntry.getFileName() : "";
+        LabelField filenameField = new LabelField(fileName, LabelField.NON_FOCUSABLE | LabelField.ELLIPSIS);        
+		fromDataManager.add( filenameField );
+        
+	//	fromDataManager.add(new LabelField("", Field.NON_FOCUSABLE)); //space between title and filename
+
+		LabelField titleLbl = getLabel(_resources.getString(WordPressResource.LABEL_TITLE));        
+        fromDataManager.add( titleLbl );
+        String title = mediaEntry.getTitle() != null ? mediaEntry.getTitle() : "";       
+        LabelField titleField = new LabelField(title, LabelField.NON_FOCUSABLE | LabelField.ELLIPSIS);
+        if(title.equals("")) {
+        	//define the italic font
+        	Font fnt = this.getFont().derive(Font.ITALIC);
+        	titleField.setText("None");
+        	titleField.setFont(fnt);
+        }
+
+        
+		fromDataManager.add( titleField );
+        
+        innerManager.add(photoBitmapField);
+        innerManager.add(new LabelField("  ", LabelField.NON_FOCUSABLE));
+        innerManager.add(fromDataManager);
+        borderedManager.add(innerManager);
+        add(borderedManager);
+ 
+        //	add the fields to the mediator
+        MediaViewMediator uiLinker = new MediaViewMediator(mediaEntry, borderedManager, photoBitmapField, filenameField, titleField);
+        uiLink.addElement(uiLinker);
+        
 		counterPhotos++;
-		setNumberOfPhotosLabel(counterPhotos);
+		updateUI(counterPhotos);
 	}
 }

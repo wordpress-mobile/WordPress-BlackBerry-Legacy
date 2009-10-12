@@ -4,70 +4,39 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import net.rim.device.api.i18n.SimpleDateFormat;
-import net.rim.device.api.system.Display;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.Font;
-import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
+import net.rim.device.api.ui.component.BasicEditField;
+import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.DateField;
+import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.PasswordEditField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
-import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
 import com.wordpress.utils.CalendarUtils;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
+import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
 
-public class PostSettingsView extends BaseView {
+public class PostSettingsView extends StandardBaseView {
 	
     private BlogObjectController controller; //controller associato alla view
-    private VerticalFieldManager _container;
     private DateField  authoredOn;
     private PasswordEditField passwordField;
 	private CheckboxField resizePhoto;
     
     
     public PostSettingsView(BlogObjectController _controller, Date postAuth, String password, boolean isResImg) {
-    	super(_resources.getString(WordPressResource.MENUITEM_SETTINGS));
+    	super(_resources.getString(WordPressResource.MENUITEM_SETTINGS), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
     	this.controller=_controller;
-    	
-     	VerticalFieldManager internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR ) {
-    		public void paintBackground( Graphics g ) {
-    			g.clear();
-    			int color = g.getColor();
-    			g.setColor( Color.LIGHTGREY );
-    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
-    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
-    			g.setColor( color );
-    		}
-    		
-    		protected void sublayout( int maxWidth, int maxHeight ) {
-    			
-    			int titleFieldHeight = 0;
-    			if ( titleField != null ) {
-    				titleFieldHeight = titleField.getHeight();
-    			}
-    			
-    			int displayWidth = Display.getWidth(); // I would probably make these global
-    			int displayHeight = Display.getHeight();
-    			
-    			super.sublayout( displayWidth, displayHeight - titleFieldHeight );
-    			setExtent( displayWidth, displayHeight - titleFieldHeight );
-    		}
-    		
-    	};
-    	
-    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR );
-    	internalManager.add( _container );
-    	super.add( internalManager );
-    	
     	
     	long datetime = new Date().getTime();;
     	if(postAuth != null ) {
@@ -103,10 +72,7 @@ public class PostSettingsView extends BaseView {
         passwordField = new PasswordEditField("", password, 64, Field.EDITABLE);
         rowPassword.add(lblPassword);
         rowPassword.add(passwordField);
-        //LabelField that displays text in the specified color.
-		LabelField lblDesc = getLabel(_resources.getString(WordPressResource.DESCRIPTION_POST_PASSWORD)); 
-		Font fnt = this.getFont().derive(Font.ITALIC);
-		lblDesc.setFont(fnt);
+    	BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS));
 		rowPassword.add(lblDesc);
 		add(rowPassword);
 		
@@ -118,36 +84,87 @@ public class PostSettingsView extends BaseView {
 		rowPhotoRes.add(resizePhoto);
 
 		//LabelField that displays text in the specified color.
-		LabelField lblDescResize = getLabel(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS)); 
-		lblDescResize.setFont(fnt);
+		BasicEditField lblDescResize = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS)); 
 		rowPhotoRes.add(lblDescResize);
 		add(rowPhotoRes);
 		
-		//this.add(new LabelField("", Field.NON_FOCUSABLE)); //space before buttons
+		
+        ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
+        ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
+		buttonBACK.setChangeListener(listenerBackButton);
+        buttonOK.setChangeListener(listenerOkButton);
+        HorizontalFieldManager buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
+        buttonsManager.add(buttonOK);
+		buttonsManager.add(buttonBACK);
+		add(buttonsManager); 
+        
+        add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
     }
     
-	public void add( Field field ) {
-		_container.add( field );
+	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
+	    public void fieldChanged(Field field, int context) {
+	    	saveChanges();
+	    	controller.backCmd();
+	    }
+	};
+
+	private FieldChangeListener listenerBackButton = new FieldChangeListener() {
+	    public void fieldChanged(Field field, int context) {
+	    	onClose();
+	    }
+	};
+	
+	private void saveChanges() {
+		if(authoredOn.isDirty() || passwordField.isDirty() || resizePhoto.isDirty()) {
+			Log.trace("settings are changed");
+			
+			if(authoredOn.isDirty()) {
+				long gmtTime = CalendarUtils.adjustTimeFromDefaultTimezone(authoredOn.getDate());
+				controller.setAuthDate(gmtTime);
+			}
+			
+			if(passwordField.isDirty()) {
+				controller.setPassword(passwordField.getText());
+			}
+			
+			if(resizePhoto.isDirty()){
+				controller.setPhotoResizing(resizePhoto.getChecked());
+			}
+			controller.setObjectAsChanged(true);
+		} else {
+			Log.trace("settings are NOT changed");
+		}
 	}
-    
+	
+	
     //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
-
-		if(authoredOn.isDirty()) {
-			long gmtTime = CalendarUtils.adjustTimeFromDefaultTimezone(authoredOn.getDate());
-			controller.setAuthDate(gmtTime);
-		}
 		
-		if(passwordField.isDirty()) {
-			controller.setPassword(passwordField.getText());
+		boolean isModified=false;
+		if(authoredOn.isDirty() || passwordField.isDirty() || resizePhoto.isDirty()){
+			isModified = true;
 		}
-		
-		if(resizePhoto.isDirty()){
-			controller.setPhotoResizing(resizePhoto.getChecked());
+		if(!isModified) {
+			controller.backCmd();
+			return true;
 		}
-		
-		controller.backCmd();
-		return true;
+		String quest=_resources.getString(WordPressResource.MESSAGE_INQUIRY_DIALOG_BOX);
+    	DiscardChangeInquiryView infoView= new DiscardChangeInquiryView(quest);
+    	int choice=infoView.doModal();    	 
+    	if(Dialog.DISCARD == choice) {
+    		Log.trace("user has selected discard");
+			controller.backCmd();
+    		return true;
+    	}else if(Dialog.SAVE == choice) {
+    		Log.trace("user has selected save");
+    		saveChanges();
+    		controller.backCmd();    		
+    		return true;
+    	} else {
+    		Log.trace("user has selected cancel");
+    		controller.backCmd();
+    		return false;
+    	}
     }
 	
 	public BaseController getController() {

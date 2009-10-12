@@ -270,15 +270,15 @@ public class BlogAuthConn extends BlogConn  {
 	
 			String rsdMeta = getRSDMetaTagHref(urlConnessione);
 			if(rsdMeta != null) {
-				Log.trace("Founded RSD meta tag: "+rsdMeta);
+				Log.trace("Found RSD meta tag: "+rsdMeta);
 				xmlRpcWordPressEndPoint = getWordPressApiLink(rsdMeta);
 			} else
-				Log.trace("NOT Founded RSD meta tag");
+				Log.trace("NOT Found RSD meta tag");
 			
 			//try with the X-pingback header field if xmlRpcWordPressEndPoint is null 
 			if(xmlRpcWordPressEndPoint == null) {
 				if(xPingbackString != null ){
-					Log.trace("NOT Founded ApiLink, trying to find it by x-pingback header");
+					Log.trace("NOT Found ApiLink, trying to find it by x-pingback header");
 					xmlRpcWordPressEndPoint = getWordPressApiLink(xPingbackString+"?rsd");
 				}
 			}
@@ -287,9 +287,9 @@ public class BlogAuthConn extends BlogConn  {
 			if(xmlRpcWordPressEndPoint != null){
 				urlConnessione = xmlRpcWordPressEndPoint;
 				mConnection = new XmlRpcClient(urlConnessione);
-				Log.trace("ApiLink founded at: "+urlConnessione);
+				Log.trace("ApiLink found at: "+urlConnessione);
 			} else {
-				Log.trace("ApiLink NOT founded");
+				Log.trace("ApiLink NOT found");
 			}
 			
 			Log.trace("Ended the ApiLink discovery process");

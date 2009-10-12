@@ -1,9 +1,6 @@
 package com.wordpress.view;
 
-import net.rim.device.api.system.Display;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
@@ -27,9 +24,8 @@ import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.dialog.InquiryView;
 
 
-public class CommentReplyView extends BaseView {
+public class CommentReplyView extends StandardBaseView {
 	
-    private VerticalFieldManager _container; 
 	private Blog currentBlog;
 	private CommentsController controller;
 	private Comment comment;
@@ -43,42 +39,11 @@ public class CommentReplyView extends BaseView {
     	this.controller=_controller;
 		this.comment = comment;
 		
-     	VerticalFieldManager internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR ) {
-    		public void paintBackground( Graphics g ) {
-    			g.clear();
-    			int color = g.getColor();
-    			g.setColor( Color.LIGHTGREY );
-    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
-    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
-    			g.setColor( color );
-    		}
-    		
-    		protected void sublayout( int maxWidth, int maxHeight ) {
-    			
-    			int titleFieldHeight = 0;
-    			if ( titleField != null ) {
-    				titleFieldHeight = titleField.getHeight();
-    			}
-    			
-    			int displayWidth = Display.getWidth(); // I would probably make these global
-    			int displayHeight = Display.getHeight();
-    			
-    			super.sublayout( displayWidth, displayHeight - titleFieldHeight );
-    			setExtent( displayWidth, displayHeight - titleFieldHeight );
-    		}
-    		
-    	};
-    	
-    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR );
-    	internalManager.add( _container );
-    	super.add( internalManager );
-    	
-    	
         //row from
         BorderedFieldManager outerManagerRowFrom = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
         
-        LabelField lblCommentAuthor = getLabel(_resources.getString(WordPressResource.LABEL_COMMENT_AUTHOR));	
+        LabelField lblCommentAuthor = getLabel(_resources.getString(WordPressResource.LABEL_AUTHOR));	
         outerManagerRowFrom.add(lblCommentAuthor);
         
         HorizontalFieldManager innerManagerRowFrom = new HorizontalFieldManager(Manager.NO_HORIZONTAL_SCROLL | Manager.NO_VERTICAL_SCROLL);
@@ -121,7 +86,7 @@ public class CommentReplyView extends BaseView {
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL
         		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-		LabelField lblCommentContent = getLabel(_resources.getString(WordPressResource.LABEL_COMMENT_CONTENT));		
+		LabelField lblCommentContent = getLabel(_resources.getString(WordPressResource.LABEL_CONTENT));		
 		BasicEditField commentContent = new  BasicEditField(BasicEditField.READONLY);
 		commentContent.setText(comment.getContent()); 
         commentContentManager.add(lblCommentContent);
@@ -144,11 +109,6 @@ public class CommentReplyView extends BaseView {
         replyContent.setFocus(); //set the focus on the appropriate element
     }
     
-	public void add( Field field ) {
-		_container.add( field );
-	}
-    
-
 	private MenuItem _replyCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 1000, 100) {
 		 public void run() {
 			 replyContent.setDirty(false);

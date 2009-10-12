@@ -30,6 +30,8 @@ public class Page {
 	private Vector customFields = new Vector();
 	private String wpPageTemplate;
     private Boolean isPhotoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
+    private Vector mediaObjects = new Vector();
+    
 	
 	public Page(int pageID, String Title, String description, Date dateCreated) {
 		this.pageID = pageID;
@@ -240,5 +242,13 @@ public class Page {
 
 	public void setIsPhotoResizing(Boolean isPhotoResizing) {
 		this.isPhotoResizing = isPhotoResizing;
+	}
+
+	public Vector getMediaObjects() {
+		return mediaObjects;
+	}
+
+	public void setMediaObjects(Vector mediaObjects) {
+		this.mediaObjects = mediaObjects;
 	}
 }

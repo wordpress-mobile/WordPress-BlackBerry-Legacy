@@ -1,0 +1,114 @@
+package org.kxmlrpc;
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import javax.microedition.rms.RecordStoreException;
+
+import com.wordpress.io.AppDAO;
+import com.wordpress.io.JSR75FileSystem;
+import com.wordpress.utils.log.Log;
+
+public class XmlRpcDualOutputStream {
+	
+	private OutputStream os = null;
+	private byte[] memoryStorage = null; //used when no disk storage
+	private String tmpFilePath = null; //used when disk storage
+	
+	public XmlRpcDualOutputStream(){
+		os = getTmpFileOutputStream(); //first try the file output stream
+    	if(os == null) {
+    		setUpMemoryOutputStream();
+    	} else {
+    		
+    		try {
+				tmpFilePath = AppDAO.getXmlRpcTempFilePath();
+			} catch (RecordStoreException e) {
+				setUpMemoryOutputStream();
+			} catch (IOException e) {
+				setUpMemoryOutputStream();
+			}
+    	}
+	}
+	
+	public void close() {		
+		try {
+			os.close();
+			tmpFilePath = AppDAO.getXmlRpcTempFilePath();
+			if(JSR75FileSystem.isFileExist(tmpFilePath)) {
+				JSR75FileSystem.removeFile(tmpFilePath);
+			}
+		} catch (Exception e) {
+			
+		} finally {
+			memoryStorage = null;
+		}
+	}
+	
+	public void sendRequest(OutputStream out) throws Exception{
+		// Push the request to the server
+		if(os instanceof ByteArrayOutputStream) {
+			if( memoryStorage == null )
+				memoryStorage = ((ByteArrayOutputStream)os).toByteArray();
+			out.write(memoryStorage);
+		} else {
+			InputStream inStream = JSR75FileSystem.getDataInputStream(tmpFilePath);
+			byte[] buffer = new byte[1024];
+			int length = -1;
+			while ((length = inStream.read(buffer)) > 0) {
+				out.write(buffer, 0 , length);
+			}
+			inStream.close();
+		}
+	}
+	
+	public long getMessageLength() throws IOException {
+    	    	
+    	if(os instanceof ByteArrayOutputStream) {
+    		Log.trace("request sended to the wordpress server: "+os.toString());
+    		memoryStorage = ((ByteArrayOutputStream)os).toByteArray(); //set the global byte array before.
+    		return  memoryStorage.length;
+    	} else {
+    		os.flush(); //serve?
+    		return JSR75FileSystem.getFileSize(tmpFilePath);
+    	}
+	}
+	
+
+	public OutputStream getOutputStream() {
+		return os;
+	}
+
+
+	private void setUpMemoryOutputStream() {
+		Log.trace("Xmlrpc call works with byte array in memory! this could be a bottle neck when video/image");
+		os = new ByteArrayOutputStream();
+	}
+	
+
+    private DataOutputStream getTmpFileOutputStream() {
+    	String tmpFilePath;
+		try {
+			tmpFilePath = AppDAO.getXmlRpcTempFilePath();
+			if(JSR75FileSystem.isFileExist(tmpFilePath)) {
+				JSR75FileSystem.removeFile(tmpFilePath);
+			}
+			JSR75FileSystem.createFile(tmpFilePath);
+			return JSR75FileSystem.getDataOutputStream(tmpFilePath);
+		
+		} catch (RecordStoreException e) {
+	    	Log.error(e, "Error while allocating xmlrpc tmp file");
+		} catch (IOException e) {
+			Log.error(e, "Error while allocating xmlrpc file");
+		}
+		
+		return null;
+    }
+	
+    
+    
+	
+}

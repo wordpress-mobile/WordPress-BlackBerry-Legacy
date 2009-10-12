@@ -28,7 +28,8 @@ public class Post {
     private String excerpt = "";
     private String link = null;
     private Boolean isPhotoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
-	private Vector customFields = new Vector();    
+	private Vector customFields = new Vector();  
+    private Vector mediaObjects = new Vector();
 
     public Post(Blog aBlog) {
         blog = aBlog;
@@ -180,5 +181,13 @@ public class Post {
 
 	public Vector getCustomFields() {
 		return customFields;
+	}
+
+	public Vector getMediaObjects() {
+		return mediaObjects;
+	}
+
+	public void setMediaObjects(Vector mediaObjects) {
+		this.mediaObjects = mediaObjects;
 	}
 }

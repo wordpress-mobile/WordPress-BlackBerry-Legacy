@@ -2,12 +2,7 @@ package com.wordpress.view;
 
 import java.util.Hashtable;
 
-import net.rim.device.api.system.Display;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.FocusChangeListener;
-import net.rim.device.api.ui.Font;
-import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
@@ -17,19 +12,16 @@ import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.PasswordEditField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
-import net.rim.device.api.ui.container.VerticalFieldManager;
 import net.rim.device.api.ui.text.URLTextFilter;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AddBlogsController;
 import com.wordpress.controller.BaseController;
-import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BorderedFieldManager;
 
-public class AddBlogsView extends BaseView {
+public class AddBlogsView extends StandardBaseView {
 	
     private AddBlogsController controller= null;
-    private VerticalFieldManager _container;
 	private BasicEditField blogUrlField;
 	private BasicEditField userNameField;
 	private PasswordEditField passwordField;
@@ -66,36 +58,6 @@ public class AddBlogsView extends BaseView {
 	    	super(_resources.getString(WordPressResource.TITLE_ADDBLOGS), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
 	    	this.controller=addBlogsController;
 	        
-	    	VerticalFieldManager internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR ) {
-	    		public void paintBackground( Graphics g ) {
-	    			g.clear();
-	    			int color = g.getColor();
-	    			g.setColor( Color.LIGHTGREY );
-	    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
-	    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
-	    			g.setColor( color );
-	    		}
-	    		
-	    		protected void sublayout( int maxWidth, int maxHeight ) {
-	    			
-	    			int titleFieldHeight = 0;
-	    			if ( titleField != null ) {
-	    				titleFieldHeight = titleField.getHeight();
-	    			}
-	    			
-	    			int displayWidth = Display.getWidth(); // I would probably make these global
-	    			int displayHeight = Display.getHeight();
-	    			
-	    			super.sublayout( displayWidth, displayHeight - titleFieldHeight );
-	    			setExtent( displayWidth, displayHeight - titleFieldHeight );
-	    		}
-	    		
-	    	};
-	    	
-	    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR );
-	    	internalManager.add( _container );
-	    	super.add( internalManager );
-	    	
 	        //loading input data
 	        String user= (String)values.get("user");
 	        String pass= (String)values.get("pass");
@@ -156,10 +118,7 @@ public class AddBlogsView extends BaseView {
 	        		| Manager.NO_VERTICAL_SCROLL);
     		resizePhoto=new CheckboxField(_resources.getString(WordPressResource.LABEL_RESIZEPHOTOS), isResImg);
     		rowResizePhotos.add(resizePhoto);
-			//LabelField that displays text in the specified color.
-			LabelField lblDesc = getLabel(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS)); 
-			Font fnt = this.getFont().derive(Font.ITALIC);
-			lblDesc.setFont(fnt);
+    		BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS)); 
 			rowResizePhotos.add(lblDesc);
 			add(rowResizePhotos);
 			
@@ -176,10 +135,6 @@ public class AddBlogsView extends BaseView {
     		addMenuItem(_addBlogItem);
 	}
 	 
-	public void add( Field field ) {
-		_container.add( field );
-	}
-	
 	//add blog menu item 
 	private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 140, 10) {
 		public void run() {

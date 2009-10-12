@@ -7,13 +7,12 @@ import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.EventInjector;
 
 import com.wordpress.controller.BlogObjectController;
-import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 
 /**
  * Listener to determine when files have been added to the file system.
  */
-public final class PhotoFileJournalListener implements FileSystemJournalListener
+public final class MediaObjFileJournalListener implements FileSystemJournalListener
 {
     private BlogObjectController _screen;
     private long _lastUSN; // = 0;
@@ -23,7 +22,7 @@ public final class PhotoFileJournalListener implements FileSystemJournalListener
      * 
      * @param screen The screen to update when events occur.
      */
-    public PhotoFileJournalListener(BlogObjectController screen) {
+    public MediaObjFileJournalListener(BlogObjectController screen) {
         _screen = screen;
     }
 
@@ -46,8 +45,7 @@ public final class PhotoFileJournalListener implements FileSystemJournalListener
             	
             	Log.debug("FS changed: "+path);
             	//check if is an image, and exclude WP inst folder 
-            	if ( (path.endsWith("png") | path.endsWith("jpg") | path.endsWith("bmp") | path.endsWith("gif")) 
-            			&& path.indexOf("store/home/user/wordpress") == -1)
+            	if ( (path.endsWith("png") | path.endsWith("jpg") | path.endsWith("bmp") | path.endsWith("gif")) )
                 switch (entry.getEvent()) {
                 
                     case FileSystemJournalEntry.FILE_ADDED:
@@ -65,10 +63,7 @@ public final class PhotoFileJournalListener implements FileSystemJournalListener
                     				path="file:///"+path;
                     		}
                     		
-
-                			//byte[] readFile = JSR75FileSystem.readFile(path);
-                			String[] split = StringUtils.split(path, "/"); //get only the filename
-                			_screen.storePhotoFast(path, split[split.length-1]);
+                			_screen.addLinkToMediaObject(path);
 
                     	// Try to kill camera app here by injecting esc.
                        EventInjector.KeyEvent inject = new EventInjector.KeyEvent(EventInjector.KeyEvent.KEY_DOWN, Characters.ESCAPE, 0, 50);

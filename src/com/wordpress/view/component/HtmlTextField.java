@@ -178,7 +178,7 @@ public class HtmlTextField extends AutoTextEditField {
             super(Dialog.D_YES_NO, _resources.getString(WordPressResource.LABEL_ADDLINK_TITLE), Dialog.NO, Bitmap.getPredefinedBitmap(Bitmap.INFORMATION), Dialog.GLOBAL_STATUS);
             urlField = new EditField(_resources.getString(WordPressResource.LABEL_URL)+ " ", "http://", 255, EditField.EDITABLE);
             urlField.setFilter(new URLTextFilter());
-            descriptionField = new EditField(_resources.getString(WordPressResource.LABEL_ADDLINK_DESC)+ " ", "", 200, EditField.EDITABLE);
+            descriptionField = new EditField(_resources.getString(WordPressResource.LABEL_DESC)+ " ", "", 200, EditField.EDITABLE);
             
             ButtonField buttonPaste= new ButtonField(_resources.getString(WordPressResource.LABEL_ADDLINK_PASTE), ButtonField.CONSUME_CLICK);
             ButtonField buttonClear= new ButtonField(_resources.getString(WordPressResource.LABEL_ADDLINK_CLEAR), ButtonField.CONSUME_CLICK);

@@ -1,25 +1,26 @@
 package com.wordpress.view;
 
-import net.rim.device.api.system.Display;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
+import net.rim.device.api.ui.component.ButtonField;
+import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
-import net.rim.device.api.ui.container.VerticalFieldManager;
+import net.rim.device.api.ui.container.HorizontalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Post;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.component.HtmlTextField;
+import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
 
-public class ExcerptView extends BaseView {
+public class ExcerptView extends StandardBaseView {
 	
     private PostController controller; //controller associato alla view
-    private VerticalFieldManager _container;
 	private HtmlTextField excerptContent;
 	private Post post;
 	
@@ -28,36 +29,6 @@ public class ExcerptView extends BaseView {
     	this.controller=_controller;
 		this.post = post;
 
-     	VerticalFieldManager internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR ) {
-    		public void paintBackground( Graphics g ) {
-    			g.clear();
-    			int color = g.getColor();
-    			g.setColor( Color.LIGHTGREY );
-    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
-    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
-    			g.setColor( color );
-    		}
-    		
-    		protected void sublayout( int maxWidth, int maxHeight ) {
-    			
-    			int titleFieldHeight = 0;
-    			if ( titleField != null ) {
-    				titleFieldHeight = titleField.getHeight();
-    			}
-    			
-    			int displayWidth = Display.getWidth(); // I would probably make these global
-    			int displayHeight = Display.getHeight();
-    			
-    			super.sublayout( displayWidth, displayHeight - titleFieldHeight );
-    			setExtent( displayWidth, displayHeight - titleFieldHeight );
-    		}
-    		
-    	};
-    	
-    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR );
-    	internalManager.add( _container );
-    	super.add( internalManager );
-    	
         //row Parent
         BorderedFieldManager rowParent = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
@@ -69,21 +40,64 @@ public class ExcerptView extends BaseView {
     	rowParent.add(excerptContent);
         add(rowParent);
         
+        ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
+        ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
+		buttonBACK.setChangeListener(listenerBackButton);
+        buttonOK.setChangeListener(listenerOkButton);
+        HorizontalFieldManager buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
+        buttonsManager.add(buttonOK);
+		buttonsManager.add(buttonBACK);
+		add(buttonsManager); 
+        
         add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
     }
     
-	public void add( Field field ) {
-		_container.add( field );
-	}
+	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
+	    public void fieldChanged(Field field, int context) {
+	    	saveChanges();
+	    	controller.backCmd();
+	    }
+	};
+
+
+	private FieldChangeListener listenerBackButton = new FieldChangeListener() {
+	    public void fieldChanged(Field field, int context) {
+	    	onClose();
+	    }
+	};
     
-    //override onClose() to display a dialog box when the application is closed    
-	public boolean onClose()   {
+	private void saveChanges() {
 		if(excerptContent.isDirty()) {
+			Log.trace("Excerpt is changed");
 			controller.setObjectAsChanged(true);
 			post.setExcerpt(excerptContent.getText());
 		}
-		controller.backCmd();
-		return true;
+	}
+	
+    //override onClose() to display a dialog box when the application is closed    
+	public boolean onClose()   {
+		boolean isModified=excerptContent.isDirty();
+		if(!isModified) {
+			controller.backCmd();
+			return true;
+		}
+		String quest=_resources.getString(WordPressResource.MESSAGE_INQUIRY_DIALOG_BOX);
+    	DiscardChangeInquiryView infoView= new DiscardChangeInquiryView(quest);
+    	int choice=infoView.doModal();    	 
+    	if(Dialog.DISCARD == choice) {
+    		Log.trace("user has selected discard");
+			controller.backCmd();
+    		return true;
+    	}else if(Dialog.SAVE == choice) {
+    		Log.trace("user has selected save");
+    		saveChanges();
+    		controller.backCmd();    		
+    		return true;
+    	} else {
+    		Log.trace("user has selected cancel");
+    		controller.backCmd();
+    		return false;
+    	}
     }
 	
 	public BaseController getController() {

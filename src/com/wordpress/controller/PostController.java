@@ -1,13 +1,9 @@
 package com.wordpress.controller;
 
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.microedition.rms.RecordStoreException;
-
-import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
@@ -22,14 +18,12 @@ import com.wordpress.model.Category;
 import com.wordpress.model.Post;
 import com.wordpress.task.SendToBlogTask;
 import com.wordpress.task.TaskProgressListener;
-import com.wordpress.utils.Queue;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.ExcerptView;
 import com.wordpress.view.NewCategoryView;
-import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostCategoriesView;
 import com.wordpress.view.PostView;
 import com.wordpress.view.PreviewView;
@@ -38,7 +32,6 @@ import com.wordpress.view.dialog.DiscardChangeInquiryView;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.NewCategoryConn;
-import com.wordpress.xmlrpc.NewMediaObjectConn;
 import com.wordpress.xmlrpc.post.EditPostConn;
 import com.wordpress.xmlrpc.post.NewPostConn;
 
@@ -65,6 +58,7 @@ public class PostController extends BlogObjectController {
 		} catch (Exception e) {
 			displayError(e, _resources.getString(WordPress.ERROR_NOT_ENOUGHT_SPACE));
 		}
+		checkMediaObjectLinks();
 	}
 	
 	//used when loading draft post from disk
@@ -74,6 +68,7 @@ public class PostController extends BlogObjectController {
 		this.blog = post.getBlog();
 		this.draftFolder=_draftPostFolder;
 		this.isDraft = true;
+		checkMediaObjectLinks();
 	}
 	
 	public void showView() {
@@ -256,22 +251,7 @@ public class PostController extends BlogObjectController {
 			displayMessage(_resources.getString(WordPressResource.MESSAGE_LOCAL_DRAFT_NOT_SUBMIT));
 			return;
 		}	
-		 
-		String[] draftPostPhotoList = getPhotoList();
-		
-		Queue connectionsQueue = new Queue();
-		
-		//adding multimedia connection
-		if(draftPostPhotoList.length > 0 ) {
-			String key="";
-			for (int i =0; i < draftPostPhotoList.length; i++ ) {
-				key = draftPostPhotoList[i];
-				NewMediaObjectConn connection = new NewMediaObjectConn (post.getBlog().getXmlRpcUrl(), 
-			       		   post.getBlog().getUsername(),post.getBlog().getPassword(), post.getBlog().getId(), key);				
-				connectionsQueue.push(connection);
-			}
-		}
-		
+						
 		//adding post connection
 		BlogConn connection;
 		
@@ -289,10 +269,10 @@ public class PostController extends BlogObjectController {
 			 connection = new EditPostConn (post.getBlog().getXmlRpcUrl(), 
 					 post.getBlog().getUsername(),post.getBlog().getPassword(), post, publish);
 		}
-		connectionsQueue.push(connection);		
+				
 		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
 		
-		sendTask = new SendToBlogTask(post, draftFolder, connectionsQueue);
+		sendTask = new SendToBlogTask(post, draftFolder, connection);
 		sendTask.setProgressListener(new SubmitPostTaskListener());
 		//push into the Runner
 		WordPressCore.getInstance().getTasksRunner().enqueue(sendTask);
@@ -461,26 +441,7 @@ public class PostController extends BlogObjectController {
 		view.setNumberOfPhotosLabel(count);
 	}
 	
-	public void showPhotosView(){
-		
-		String[] draftPostPhotoList;
-		try {
-			draftPostPhotoList = getPhotoList();
-			photoView= new PhotosView(this);
-			for (int i = 0; i < draftPostPhotoList.length; i++) {
-				String currPhotoPath = draftPostPhotoList[i];
-				byte[] data=DraftDAO.loadPostPhoto(blog, draftFolder, currPhotoPath);
-				EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
-				photoView.addPhoto(currPhotoPath, img);
-			}			
-			UiApplication.getUiApplication().pushScreen(photoView);
-		} catch (Exception e) {
-			displayError(e, "Cannot load photos from disk!");
-			return;
-		}
-	}
-	
-	
+
 	public void startLocalPreview(String title, String content, String tags){
 		//categories and photo are reader from the model
 		if(tags !=null && tags.trim().length()>0) 
@@ -490,15 +451,10 @@ public class PostController extends BlogObjectController {
 		StringBuffer photoHtmlFragment = new StringBuffer();
 		
 		for (int i = 0; i < draftPostPhotoList.length; i++) {
-			try {
-				String photoRealPath = DraftDAO.getPhotoRealPath(blog, draftFolder, draftPostPhotoList[i]);
 				photoHtmlFragment.append("<p>"+
 						"<img class=\"alignnone size-full wp-image-364\"" +
-						" src=\""+photoRealPath+"\" alt=\"\" " +
+						" src=\""+draftPostPhotoList[i]+"\" alt=\"\" " +
 				"</p>");
-			} catch (IOException e) {
-			} catch (RecordStoreException e) {
-			}
 		}
 		photoHtmlFragment.append("<p>&nbsp;</p>");
 		String html = FileUtils.readTxtFile("defaultPostTemplate.html");

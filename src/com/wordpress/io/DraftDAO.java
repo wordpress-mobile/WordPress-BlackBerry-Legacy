@@ -3,16 +3,14 @@ package com.wordpress.io;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStoreException;
 
 import com.wordpress.model.Blog;
+import com.wordpress.model.MediaEntry;
 import com.wordpress.model.Post;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.Tools;
@@ -24,23 +22,24 @@ public class DraftDAO implements BaseDAO{
     public static void removePost(Blog blog, int draftId) throws IOException, RecordStoreException {
     	String draftFilePath = getPostFilePath(blog, draftId);  	
     	JSR75FileSystem.removeFile(draftFilePath);
-    	String[] draftPostPhotoList = getPostPhotoList(blog, draftId);
+    	/*String[] draftPostPhotoList = getPostPhotoList(blog, draftId);
     	for (int i = 0; i < draftPostPhotoList.length; i++) {
     		removePostPhoto(blog, draftId, draftPostPhotoList[i]);
-		}
+		}*/
     }
-        
-    public static String getPhotoRealPath(Blog blog, int draftId, String photoName) throws IOException, RecordStoreException {
+     
+  /*  public static String getPhotoRealPath(Blog blog, int draftId, String photoName) throws IOException, RecordStoreException {
     	String draftPostPath = getPostFilePath(blog, draftId);
     	String photoFilePath = draftPostPath+"p-"+photoName;
     	return photoFilePath;
     }
+
     //load a photos of the draft post
 	public static byte[] loadPostPhoto(Blog blog, int draftId, String photoName) throws IOException, RecordStoreException {
     	String photoFilePath = getPhotoRealPath(blog, draftId, photoName);
     	return JSR75FileSystem.readFile(photoFilePath);
 	}
-	
+
     //delete a photos of the draft post
 	public static void removePostPhoto(Blog blog, int draftId, String photoName)  throws IOException, RecordStoreException{
     	String photoFilePath = getPhotoRealPath(blog, draftId, photoName);
@@ -75,7 +74,7 @@ public class DraftDAO implements BaseDAO{
     	out.close();
 		System.out.println("writing draft photo ok");   	
 	}
-		
+	
     //store a photos of the draft post 
 	//FIXME can we remove this 
 	public static void storePhoto(Blog blog, int draftId, byte[] photoData, String photoName) throws IOException, RecordStoreException {
@@ -113,6 +112,7 @@ public class DraftDAO implements BaseDAO{
     		}
         	return Tools.toStringArray(listDir);   	
 	}
+    */
     
 	public static int storePost(Post draftPost, int draftId) throws IOException, RecordStoreException {
     	String draftFilePath = getPostFilePath(draftPost.getBlog(), draftId);
@@ -284,6 +284,15 @@ public class DraftDAO implements BaseDAO{
 			content.put("custom_fields", post.getCustomFields());
 		}
         
+		//convert media object before save them
+		Vector mediaObjects = post.getMediaObjects();
+		Vector hashedMediaIbjects = new Vector(mediaObjects.size());
+		for (int i = 0; i < mediaObjects.size(); i++) {
+			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
+			hashedMediaIbjects.addElement(tmp.getMediaObjectAsHashtable());
+			}
+		content.put("mediaObjects", hashedMediaIbjects);
+		
         content.put("mt_convert_breaks", post.isConvertLinebreaksEnabled() ? "1" : "0");
         content.put("mt_allow_comments", new Integer(post.isCommentsEnabled() ? 1 : 0));
         content.put("mt_allow_pings", new Integer(post.isTrackbackEnabled() ? 1 : 0));
@@ -335,6 +344,16 @@ public class DraftDAO implements BaseDAO{
 		if(postData.get("custom_fields") != null) {
 			Vector cf = (Vector) postData.get("custom_fields");
 			post.setCustomFields(cf);
+		}
+		
+		if(postData.get("mediaObjects") != null) {
+			Vector hashedMediaIbjects = (Vector) postData.get("mediaObjects");
+			Vector mediaObjects = new Vector(hashedMediaIbjects.size());
+			for (int i = 0; i < hashedMediaIbjects.size(); i++) {
+				Hashtable tmp = (Hashtable) hashedMediaIbjects.elementAt(i);
+				mediaObjects.addElement(new MediaEntry(tmp));
+				}
+		post.setMediaObjects(mediaObjects);
 		}
 		
         return post;

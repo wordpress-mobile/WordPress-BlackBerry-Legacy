@@ -143,6 +143,7 @@ public class ImageUtils {
 		content.put("height", String.valueOf(originalImage.getHeight()));
 		content.put("width", String.valueOf(originalImage.getWidth()));
 		content.put("bits", data);
+		content.put("type", originalImage.getMIMEType());
 		//no resize is necessary
 		if(originalImage.getWidth() <= 640 && originalImage.getWidth() <= 480) {
 			Log.trace("no resize required"+fileName);
@@ -150,7 +151,7 @@ public class ImageUtils {
 		}
 		
 		int type = originalImage.getImageType();
-		
+				
 		//starting resize
 		EncodedImage bestFit2 = resizeEncodedImage(originalImage, 640, 480);
 		originalImage = null;
@@ -212,7 +213,13 @@ public class ImageUtils {
 			content.put("name", fileName);
 			content.put("height", String.valueOf(resizedBitmap.getHeight()));
 			content.put("width", String.valueOf(resizedBitmap.getWidth()));
-			content.put("bits", imageBytes );
+			content.put("bits", imageBytes );	
+			//set the new mime type
+			if (fileName.endsWith("jpg") || fileName.endsWith("JPG")){
+				content.put("type", "image/jpeg");
+			} else {
+				content.put("type", "image/png");
+			}
 		}
 		
 		return content;

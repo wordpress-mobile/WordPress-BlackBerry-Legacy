@@ -171,7 +171,7 @@ public class PhotoSnapShotView extends BaseView {
 				}
 				
 				onClose();
-				controller.storePhoto(imageBytes, System.currentTimeMillis()+".jpg");
+				//controller.storePhoto(imageBytes, System.currentTimeMillis()+".jpg");
 				
 			} else {
 				controller.displayError("Viewfinder not visible!");

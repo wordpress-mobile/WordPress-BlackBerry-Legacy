@@ -2,11 +2,7 @@ package com.wordpress.view;
 
 import java.util.Hashtable;
 
-import net.rim.device.api.system.Display;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.Font;
-import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
@@ -15,17 +11,15 @@ import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.PasswordEditField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
-import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogOptionsController;
 import com.wordpress.view.component.BorderedFieldManager;
 
-public class BlogOptionsView extends BaseView {
+public class BlogOptionsView extends StandardBaseView {
 	
     private BlogOptionsController controller= null;
-    private VerticalFieldManager _container;
 	private BasicEditField userNameField;
 	private PasswordEditField passwordField;
 	private ObjectChoiceField  maxRecentPost;
@@ -52,39 +46,6 @@ public class BlogOptionsView extends BaseView {
 	 public BlogOptionsView(BlogOptionsController blogsController, Hashtable values) {
 	    	super(_resources.getString(WordPressResource.TITLE_BLOG_OPTION_VIEW)+" > "+ blogsController.getBlogName(), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
 	    	this.controller=blogsController;
-	    	
-	    	
-	    	VerticalFieldManager internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR ) {
-	    		public void paintBackground( Graphics g ) {
-	    			g.clear();
-	    			int color = g.getColor();
-	    			g.setColor( Color.LIGHTGREY );
-	    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
-	    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
-	    			g.setColor( color );
-	    		}
-	    		
-	    		protected void sublayout( int maxWidth, int maxHeight ) {
-	    			
-	    			int titleFieldHeight = 0;
-	    			if ( titleField != null ) {
-	    				titleFieldHeight = titleField.getHeight();
-	    			}
-	    			
-	    			int displayWidth = Display.getWidth(); // I would probably make these global
-	    			int displayHeight = Display.getHeight();
-	    			
-	    			super.sublayout( displayWidth, displayHeight - titleFieldHeight );
-	    			setExtent( displayWidth, displayHeight - titleFieldHeight );
-	    		}
-	    		
-	    	};
-	    	
-	    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR );
-	    	internalManager.add( _container );
-	    	super.add( internalManager );
-	    	
-	    	
 	    	
 	        //loading input data
 	        String user = (String)values.get("user");
@@ -131,10 +92,7 @@ public class BlogOptionsView extends BaseView {
 	        		| Manager.NO_VERTICAL_SCROLL);
     		resizePhoto=new CheckboxField(_resources.getString(WordPressResource.LABEL_RESIZEPHOTOS), isResImg);
     		rowResizePhotos.add(resizePhoto);
-			//LabelField that displays text in the specified color.
-			LabelField lblDesc = getLabel(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS)); 
-			Font fnt = this.getFont().derive(Font.ITALIC);
-			lblDesc.setFont(fnt);
+     		BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS));
 			rowResizePhotos.add(lblDesc);
 			add(rowResizePhotos);
 			
@@ -149,11 +107,6 @@ public class BlogOptionsView extends BaseView {
     		add(buttonsManager);
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
 	}
-	 
-		//override add(Field field) to add field to my personal manager
-	 public void add( Field field ) {
-		 _container.add( field );
-	 }
 
 	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {

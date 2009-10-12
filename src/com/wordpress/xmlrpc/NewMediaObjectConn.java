@@ -3,33 +3,29 @@ package com.wordpress.xmlrpc;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import com.wordpress.model.MediaEntry;
+import com.wordpress.utils.log.Log;
+
 public class NewMediaObjectConn extends BlogConn  {
 
-	private String fileName =null;	
-	private byte[] fileContent=null; //base64 Encoding.
+	private MediaEntry mediaObj =null;	
 	private String blogID;
 	
+	public MediaEntry getMediaObj() {
+		return mediaObj;
+	}
+	
+	public void setMediaObj(MediaEntry mediaObj) {
+		this.mediaObj = mediaObj;
+	}
 
 	public NewMediaObjectConn(String hint,	String userHint, String passwordHint, String blogID,
-			String fileName) {
+			MediaEntry mediaObj) {
 		super(hint, userHint, passwordHint);
-		this.fileName=fileName;
+		this.mediaObj=mediaObj;
 		this.blogID=blogID;
 	}
 
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-	}
-
-	public String getFileName() {
-		return fileName;
-	}
-
-	
-	public void setFileContent(byte[] fileContent) {
-		this.fileContent = fileContent;
-	}
-	
 	
 	/**
 	 * 
@@ -37,13 +33,11 @@ public class NewMediaObjectConn extends BlogConn  {
 	 */
 	public void run() {
 		try{
-			//#debug
-			System.out.println("grandezza del file = " + fileContent.length );
-	
-		   Hashtable content = new Hashtable(2);
 
-	       content.put("name", this.fileName);
-	       content.put("bits", fileContent);
+		   Hashtable content = new Hashtable(2);
+	       content.put("name",mediaObj.getFileName());
+	       content.put("bits", mediaObj); //not loaded the bytearray of content, this is a reference to real file on disk. Look ad XmlRpcWriter!!
+	       content.put("type", mediaObj.getMIMEType());
 
 	       Vector args = new Vector(4);
 	       args.addElement(blogID);
@@ -60,12 +54,12 @@ public class NewMediaObjectConn extends BlogConn  {
 			
 			connResponse.setResponseObject(response);
 		} catch (Exception cce) {
-			setErrorMessage(cce, "uploadMedia error");
+			setErrorMessage(cce, "New Media upload error");
 		}
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("New Media Object Notify Error");
+			Log.error("New Media Object Notify Error");
 		}
 	}
 }

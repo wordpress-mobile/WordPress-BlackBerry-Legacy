@@ -34,7 +34,7 @@ public class GetPagesConn extends BlogConn  {
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			Log.error("Recent Post Notify Error");
+			Log.error("Recent Pages Notify Error");
 		}
 /*
 		Vector args = new Vector(3);

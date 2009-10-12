@@ -21,7 +21,7 @@ import com.wordpress.view.component.HeaderField;
  * @author dercoli
  *
  */
-public abstract class BaseView extends MainScreen{
+public abstract class BaseView extends MainScreen {
 	
 	protected Field titleField; //main title of the screen
 	

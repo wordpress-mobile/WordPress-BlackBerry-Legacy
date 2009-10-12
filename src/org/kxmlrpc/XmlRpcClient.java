@@ -26,6 +26,7 @@ package org.kxmlrpc;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,10 +35,13 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.io.HttpConnection;
+import javax.microedition.rms.RecordStoreException;
 
 import org.kxml2.io.KXmlParser;
 import org.kxml2.io.KXmlSerializer;
 
+import com.wordpress.io.AppDAO;
+import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Log;
@@ -63,7 +67,7 @@ public class XmlRpcClient {
      */
     boolean debug = true;
     
-    //contains all response header
+    //contains all response headers
     private Hashtable responseHeaders = new Hashtable();
 
 	private HttpConnection con;
@@ -106,6 +110,7 @@ public class XmlRpcClient {
         url = newUrl;
     }//end setURL( String )
     
+        
     /**
      * This method is the brains of the XmlRpcClient class. It opens an
      * HttpConnection on the URL stored in the url variable, sends an XML-RPC
@@ -126,37 +131,30 @@ public class XmlRpcClient {
     	con = null;
     	in = null;
     	out = null;
-    	// Misc objects for buffering request
-    	ByteArrayOutputStream   bos = null;
-    	byte[]                  request;
-    	int                     messageLength;
     	
-    	bos = new ByteArrayOutputStream();
+    	// Misc objects for buffering request
+    	XmlRpcDualOutputStream os = new XmlRpcDualOutputStream();
+    	
     	xw = new KXmlSerializer();
-    	xw.setOutput(new OutputStreamWriter(bos));
+    	xw.setOutput(new OutputStreamWriter(os.getOutputStream()));
     	writer = new XmlRpcWriter(xw);
     	
     	writer.writeCall(method, params);
     	xw.flush();
-    	
-    	
-    	Log.trace("request sended to the wordpress server: "+bos.toString());
-    	request = bos.toByteArray();   
-    	messageLength = request.length;
     	
     	con = (HttpConnection) ConnectionManager.getInstance().open(url);
     	
     	try {
     		
     		con.setRequestMethod(HttpConnection.POST);
-    		con.setRequestProperty("Content-Length", Integer.toString(messageLength));
+    		con.setRequestProperty("Content-Length", Long.toString(os.getMessageLength()));
     		con.setRequestProperty("Content-Type", "text/xml");
     		
     		// Obtain an output stream
     		out = con.openOutputStream();
-    		// Push the request to the server
-    		out.write( request );
-    		
+
+    		os.sendRequest(out);
+    		os.close();
     		
     		// List all the response headers from the server.
     		// Note: The first call to getHeaderFieldKey() will implicit send
