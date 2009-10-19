@@ -1,5 +1,6 @@
 package com.wordpress.bb;
 import java.io.IOException;
+import java.util.Timer;
 
 import javax.microedition.io.file.FileSystemListener;
 import javax.microedition.rms.RecordStoreException;
@@ -20,6 +21,7 @@ public class WordPressCore {
 	private TasksRunner tasksRunner;
 	private FileAppender fileAppender = null;
 	private MySDListener sdCardListener = null;
+	private Timer timer = null;
 
 	private static WordPressCore instance;
 	
@@ -27,6 +29,7 @@ public class WordPressCore {
 		Log.debug("WordPressCore initializated");
 		sdCardListener = new MySDListener();
 		UiApplication.getUiApplication().addFileSystemListener(sdCardListener);
+		timer = new Timer();
 	}
 	
 	public static WordPressCore getInstance() {
@@ -67,6 +70,7 @@ public class WordPressCore {
 		Log.debug("closing app...");
 		UiApplication.getUiApplication().removeFileSystemListener(sdCardListener);
 		getTasksRunner().quit(); //stop the runner thread
+		timer.cancel(); //cancel the timer
 		System.exit(0);
 	}
 	
@@ -137,6 +141,9 @@ public class WordPressCore {
 
 		return null;*/
 	}
-	
+
+	public Timer getTimer() {
+		return timer;
+	}
 	
 }

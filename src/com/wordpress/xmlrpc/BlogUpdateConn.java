@@ -1,11 +1,15 @@
 package com.wordpress.xmlrpc;
 
+import java.io.IOException;
 import java.util.Vector;
+
+import javax.microedition.rms.RecordStoreException;
 
 import org.kxmlrpc.XmlRpcException;
 
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.utils.log.Log;
 
 public class BlogUpdateConn extends BlogConn  {
 	
@@ -92,8 +96,17 @@ public class BlogUpdateConn extends BlogConn  {
 		
 			Vector comments = getComments(Integer.parseInt(blog.getId()), -1, "", 0, 100);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
-			if(connResponse.isError() == false )
-				CommentsDAO.storeComments(blog, comments);
+			if(connResponse.isError() == false ) {
+				try{
+					CommentsDAO.storeComments(blog, comments);
+				} catch (IOException e) {
+					Log.error(e, "Error while storing comments");
+				} catch (RecordStoreException e) {
+					Log.error(e, "Error while storing comments");
+				} catch (Exception e) {
+					Log.error(e, "Error while storing comments");
+				} 
+			}
 			checkConnectionResponse("Load Comment");
 
 			//if there was an errors
@@ -112,7 +125,7 @@ public class BlogUpdateConn extends BlogConn  {
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("Blog Update Notify Error");
+			Log.trace("Blog Update Notify Error");
 		}
 		
 	}

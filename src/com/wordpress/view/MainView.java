@@ -4,10 +4,12 @@ import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BitmapField;
+import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
@@ -20,6 +22,8 @@ import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.DataCollector;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.view.component.BlogsListField;
+import com.wordpress.view.component.BorderedFieldManager;
+import com.wordpress.view.component.NoBlogsListField;
 
 public class MainView extends BaseView {
 	
@@ -28,7 +32,6 @@ public class MainView extends BaseView {
     VerticalFieldManager internalManager;
     private ListField listaBlog;
     private BlogsListField blogListController;
-    
     
 	public MainView(MainController mainController) {
 		super( MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -112,30 +115,31 @@ public class MainView extends BaseView {
 	}
 	
 	 public void setupUpBlogsView() {
+    	listaBlog = null;
+    	blogListController = null;
     	
 		removeMenuItem(_deleteBlogItem);
     	removeMenuItem(_showBlogItem);
 
     	BlogInfo[] blogCaricati = mainController.getBlogsList();
-				
-        if (blogCaricati.length == 0){
-        	blogCaricati = new BlogInfo[0];
+        if (blogCaricati.length == 0) {
+        	NoBlogsListField blogListController = new NoBlogsListField();        	
+        	this.listaBlog = blogListController.getList();
         } else {
+        	blogListController = new BlogsListField(blogCaricati);        	
+        	this.listaBlog = blogListController.getList();
         	addMenuItem(_showBlogItem);
         	addMenuItem(_deleteBlogItem);
         }
-    	blogListController = new BlogsListField(blogCaricati);
-		this.listaBlog = blogListController.getList();
-		add(listaBlog);    
+        
+        add(listaBlog);    
 	 }
-	 
 	 
 	 //update the view of blog list entry
 	 public synchronized void setBlogItemViewState(BlogInfo blogInfo) {
 		 blogListController.setBlogState(blogInfo);
 	 }
 	 
-
 /*	
 	// Handle trackball clicks.
 	protected boolean navigationClick(int status, int time) {
@@ -184,8 +188,8 @@ public class MainView extends BaseView {
     	synchronized (this) {
 	        if(listaBlog != null){
 				_container.delete(listaBlog);
-				setupUpBlogsView(); //repaint entire list
-			}
+			} 
+	        setupUpBlogsView(); //repaint entire list
     	}
     }
     

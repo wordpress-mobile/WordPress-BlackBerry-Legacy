@@ -15,6 +15,7 @@ package com.wordpress.io;
  */
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -27,6 +28,8 @@ import java.util.Stack;
 import java.util.Vector;
 
 import javax.microedition.lcdui.Image;
+
+import com.wordpress.utils.log.Log;
 
 
 
@@ -87,8 +90,7 @@ public final class Serializer {
 	public Serializer(DataInputStream in) {
 		this.in=in;
 	}
-
-
+	
 	/**
 	 * Serializes the specified object.
 	 * Any class implementing Serializable can be serialized, additionally classes like java.lang.Integer, java.util.Date, javax.util.Vector,  javax.microedition.lcdui.Image etc. can be serialized.
@@ -101,7 +103,7 @@ public final class Serializer {
 	public void serialize( Object object ) throws IOException {
 		
 		if (out == null) throw new IOException("Output Stream null!");
-
+		
 	//	out.writeByte( VERSION );
 		boolean isNull = (object == null);
 		out.writeBoolean( isNull );

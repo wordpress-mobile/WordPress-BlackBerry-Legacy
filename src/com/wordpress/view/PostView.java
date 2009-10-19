@@ -143,7 +143,7 @@ public class PostView extends StandardBaseView {
     	
     //set the photos number label text
     public void setNumberOfPhotosLabel(int count) {
-    	lblPhotoNumber.setText(count + " "+_resources.getString(WordPressResource.TITLE_PHOTOSVIEW));
+    	lblPhotoNumber.setText(count + " "+_resources.getString(WordPressResource.TITLE_MEDIA_VIEW));
     }
     
     //update the cat label field
@@ -190,7 +190,7 @@ public class PostView extends StandardBaseView {
     };
 */
     
-    private MenuItem _photosItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_PHOTOS, 110, 10) {
+    private MenuItem _photosItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA, 110, 10) {
         public void run() {
         	controller.showPhotosView();
         }
@@ -198,19 +198,20 @@ public class PostView extends StandardBaseView {
     
     private MenuItem _previewItem = new MenuItem( _resources, WordPressResource.MENUITEM_PREVIEW, 110, 10) {
         public void run() {
+        	String categoriesLabel = controller.getPostCategoriesLabel();
         	if(title.isDirty() || bodyTextBox.isDirty() || 
         			tags.isDirty() || status.isDirty() || categories.isDirty() || lblPhotoNumber.isDirty()) {
         		//post is just changed
-        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText()); 
+        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel); 
         	} else if (controller.isObjectChanged()) {
     			//post is changed, and the user has saved it as draft
-    			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText());
+    			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
     		} else {
     			//post not changed, check if is published 
     			if ("publish".equalsIgnoreCase(post.getStatus()) ) {
-    				controller.startRemotePreview(post.getLink(), title.getText(), bodyTextBox.getText(), tags.getText());
+    				controller.startRemotePreview(post.getLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
             	} else {
-        			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText());
+        			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
             	}
     		}
         }

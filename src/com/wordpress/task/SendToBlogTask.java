@@ -34,6 +34,7 @@ import com.wordpress.xmlrpc.post.NewPostConn;
 
 public class SendToBlogTask extends TaskImpl {
 
+	private BlogConn blogConn = null;
 	private Queue executionQueue = new Queue(); // queue of BlogConn
 	private final Blog blog;
 	private Page page;
@@ -83,7 +84,7 @@ public class SendToBlogTask extends TaskImpl {
 			return;
 		
 		if (!executionQueue.isEmpty()  && isError == false) {
-			BlogConn blogConn = (BlogConn) executionQueue.pop();
+			blogConn = (BlogConn) executionQueue.pop();
 			
 			if(blogConn instanceof NewMediaObjectConn) {
 				try{
@@ -153,10 +154,8 @@ public class SendToBlogTask extends TaskImpl {
 		}
 	}
 
-	private void sendMedia(BlogConn blogConn) throws IOException, RecordStoreException {
-		MediaEntry mediaEntry = ((NewMediaObjectConn) blogConn).getMediaObj();
+	private void prepareImage(MediaEntry mediaEntry) throws IOException, RecordStoreException {
 		String filePath = mediaEntry.getFilePath();
-		Log.trace("sending file: "+filePath);
 		byte[] photosBytes;
 		int h, w;
 		String MIMEtype = "";
@@ -206,6 +205,20 @@ public class SendToBlogTask extends TaskImpl {
 		mediaEntry.setMIMEType(MIMEtype);
 		mediaEntry.setWidth(w);
 		mediaEntry.setHeight(h);
+	}
+	
+	private void sendMedia(BlogConn blogConn) throws IOException, RecordStoreException {
+		MediaEntry mediaEntry = ((NewMediaObjectConn) blogConn).getMediaObj();
+		String filePath = mediaEntry.getFilePath();
+		Log.trace("sending file: "+filePath);
+		
+		//cut off the video resize
+		if (mediaEntry.getType() == MediaEntry.IMAGE_FILE) {
+			prepareImage(mediaEntry);
+		} else {
+			//mediaEntry.setMIMEType(MIMEtype);
+		}
+			
 		
 		//set the new file path 
 		//((NewMediaObjectConn) blogConn).setMediaObj(mediaEntry);
@@ -306,20 +319,26 @@ public class SendToBlogTask extends TaskImpl {
 		}
 		
 		public void update(Observable observable, final Object object) {
-			BlogConnResponse resp= (BlogConnResponse) object;
+			
+			try {
+				BlogConnResponse resp= (BlogConnResponse) object;
 
-			//if(resp.isStopped()){ 
-			if(stopping){ //stopping on task not on connection
+				//if(resp.isStopped()){ 
+				if(stopping){ //stopping on task not on connection
 
-			} else if(!resp.isError()) {				
-				Hashtable content =(Hashtable)resp.getResponseObject();
-				String file = (String)content.get("file");
-				String url = (String)content.get("url");
-				mediaObj.setFileURL(url);
-				mediaObj.setFileName(file);
-			} else {
-				final String respMessage=resp.getResponse();
-				errorMsg.append(respMessage+"\n");
+				} else if(!resp.isError()) {				
+					Hashtable content =(Hashtable)resp.getResponseObject();
+					String file = (String)content.get("file");
+					String url = (String)content.get("url");
+					mediaObj.setFileURL(url);
+					mediaObj.setFileName(file);
+				} else {
+					final String respMessage=resp.getResponse();
+					errorMsg.append(respMessage+"\n");
+					isError=true;
+				}
+			} catch (Exception e) {
+				errorMsg.append("Server Response Error on media upload");
 				isError=true;
 			}
 			
@@ -351,34 +370,16 @@ public class SendToBlogTask extends TaskImpl {
 			else
 				tmpBuff  = 	bottomMediaFragment;
 			
-			String title = remoteFileInfo.getTitle() != null ? remoteFileInfo.getTitle() : remoteFileInfo.getFileName();
-			String caption = remoteFileInfo.getCaption() != null ? remoteFileInfo.getCaption() : "";
-			
-			if(!caption.equals("")) {
-				//<div id="attachment_30" class="wp-caption alignnone" style="width: 830px">
-				tmpBuff.append("<div class=\"wp-caption alignnone\" style=\"width: "+remoteFileInfo.getWidth()+10+"px\"");
-			} else {
-				tmpBuff.append("<p>");
-			}
-			
-			tmpBuff.append("<a href=\""+remoteFileInfo.getFileURL()+"\">" +
-							"<img class=\"alignnone size-full\"" +
-							" src=\""+remoteFileInfo.getFileURL()+"\" alt=\""+caption+"\"" +
-							" title=\""+title+"\"" +
-							" width=\""+remoteFileInfo.getWidth()+"\" height=\""+remoteFileInfo.getHeight()+"\" />" +
-							"</a>");
-		
-			if(!caption.equals("")) {
-				//<p class="wp-caption-text">qusta e la didascalia</p>
-				//</div>
-				tmpBuff.append("<p class=\"wp-caption-text\">");
-				tmpBuff.append(caption);
-				tmpBuff.append("</div>");
-			} else {
-				tmpBuff.append("</p>");
-			}
+			tmpBuff.append(remoteFileInfo.getMediaObjectAsHtml());
 		}
 		return topMediaFragment.toString() + html + bottomMediaFragment.toString();
+	}
+	
+	
+	public void stop() {
+		super.stop();
+		//stop the connection underlying
+		blogConn.stopConnWork();
 	}
 	
 	/**

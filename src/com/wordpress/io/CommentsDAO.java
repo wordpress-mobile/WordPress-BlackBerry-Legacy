@@ -44,7 +44,7 @@ public class CommentsDAO implements BaseDAO{
 
     	Serializer ser= new Serializer(out);
     	ser.serialize(comments);
-		out.close();
+    	out.close();
 		
 		Log.debug("Scrittura commenti terminata con successo");   	
 	}

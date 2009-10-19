@@ -4,6 +4,7 @@ import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.Queue;
+import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.xmlrpc.BlogConnResponse;
@@ -29,6 +30,8 @@ public class LoadBlogsDataTask extends TaskImpl implements Observer {
 	private void next() {
 		if (executionQueue != null && !executionQueue.isEmpty()) {
 			blogConn = (BlogUpdateConn) executionQueue.pop();
+			blogConn.getBlog().setLoadingState(BlogInfo.STATE_LOADING);
+			progressListener.taskUpdate(blogConn.getBlog()); //notify that this blog is in loading state
 			blogConn.addObserver(this);
 			blogConn.startConnWork();
 		}
@@ -57,6 +60,7 @@ public class LoadBlogsDataTask extends TaskImpl implements Observer {
 		try {
 			BlogDAO.updateBlog(currentBlog);
 		} catch (final Exception e) {
+			Log.error(e, "Cannot store the new blog successfully: ");
 			currentBlog.setLoadingState(BlogInfo.STATE_ERROR);	
 		}
 		progressListener.taskUpdate(currentBlog); //update listener task.

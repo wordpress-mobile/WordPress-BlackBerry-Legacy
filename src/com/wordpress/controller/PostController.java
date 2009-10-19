@@ -12,13 +12,11 @@ import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.DraftDAO;
-import com.wordpress.io.FileUtils;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
 import com.wordpress.task.SendToBlogTask;
 import com.wordpress.task.TaskProgressListener;
-import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -26,7 +24,6 @@ import com.wordpress.view.ExcerptView;
 import com.wordpress.view.NewCategoryView;
 import com.wordpress.view.PostCategoriesView;
 import com.wordpress.view.PostView;
-import com.wordpress.view.PreviewView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 import com.wordpress.xmlrpc.BlogConn;
@@ -441,37 +438,9 @@ public class PostController extends BlogObjectController {
 		view.setNumberOfPhotosLabel(count);
 	}
 	
-
-	public void startLocalPreview(String title, String content, String tags){
-		//categories and photo are reader from the model
-		if(tags !=null && tags.trim().length()>0) 
-			tags= "Tags: "+tags;
-		
-		String[] draftPostPhotoList = getPhotoList();
-		StringBuffer photoHtmlFragment = new StringBuffer();
-		
-		for (int i = 0; i < draftPostPhotoList.length; i++) {
-				photoHtmlFragment.append("<p>"+
-						"<img class=\"alignnone size-full wp-image-364\"" +
-						" src=\""+draftPostPhotoList[i]+"\" alt=\"\" " +
-				"</p>");
-		}
-		photoHtmlFragment.append("<p>&nbsp;</p>");
-		String html = FileUtils.readTxtFile("defaultPostTemplate.html");
-		if(title == null || title.length() == 0) title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
-		html = StringUtils.replaceAll(html, "!$title$!", title);
-		html = StringUtils.replaceAll(html, "<p>!$text$!</p>", buildBodyHtmlFragment(content)+ photoHtmlFragment.toString());
-		html = StringUtils.replaceAll(html, "!$mt_keywords$!", tags);
-		html = StringUtils.replaceAll(html, "!$categories$!", "Categories: "+getPostCategoriesLabel());
-		
-		UiApplication.getUiApplication().pushScreen(new PreviewView(html));	
-	}
-		
-
 	public void refreshView() {
 		//resfresh the post view. not used.
 	}
-	
 	
 	//callback for send post to the blog
 	private class SendNewCatCallBack implements Observer{

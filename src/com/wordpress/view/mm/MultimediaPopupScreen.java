@@ -35,22 +35,29 @@ public class MultimediaPopupScreen extends PopupScreen {
         _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
     }
 
-    
-    public MultimediaPopupScreen()
+    public MultimediaPopupScreen(int type)
     {
         super(new VerticalFieldManager(Field.FIELD_HCENTER),Field.FOCUSABLE);
-              
+        
+        if(type == PostController.PHOTO || type == PostController.BROWSER_PHOTO) {
+        	buildPhotoUI();
+        } else {
+        	buildVideoUI();
+        }
+    }
+    
+    private void buildVideoUI()
+    {
         LabelField question = new LabelField(_resources.getString(WordPressResource.LABEL_MULTIMEDIATYPE));
         add(question);
         add(new SeparatorField());
         
         HorizontalFieldManager hManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
-        if(MultimediaUtils.isPhotoCaptureSupported()) {
-      //  if(true){
-	    	Bitmap _bitmapCamera = Bitmap.getBitmapResource("camera.png");
+        if(MultimediaUtils.isVideoRecordingSupported()) {
+	    	Bitmap _bitmapCamera = Bitmap.getBitmapResource("video_rec.png");
 	    	bitmapFieldCamera = new BitmapField(_bitmapCamera, Field.NON_FOCUSABLE | Field.FIELD_HCENTER);
-	    	buttonCamera= new ButtonField(_resources.getString(WordPressResource.LABEL_PHOTO_TAKE_FROM_CAMERA));
-	    	buttonCamera.setChangeListener(listenerButton);
+	    	buttonCamera= new ButtonField(_resources.getString(WordPressResource.LABEL_VIDEO_REC));
+	    	buttonCamera.setChangeListener(listenerButtonVideo);
 	    	hManager.add(bitmapFieldCamera);
 	    	hManager.add(buttonCamera);
         }
@@ -58,8 +65,8 @@ public class MultimediaPopupScreen extends PopupScreen {
         HorizontalFieldManager hManager2 = new HorizontalFieldManager(Field.FIELD_HCENTER);
     	Bitmap _bitmapBrowser = Bitmap.getBitmapResource("browser.png");
     	bitmapBrowser = new BitmapField(_bitmapBrowser, Field.NON_FOCUSABLE | Field.FIELD_HCENTER);
-    	buttonBrowser= new ButtonField(_resources.getString(WordPressResource.LABEL_PHOTO_ADD_FROM_LIB));
-    	buttonBrowser.setChangeListener(listenerButton);
+    	buttonBrowser= new ButtonField(_resources.getString(WordPressResource.LABEL_VIDEO_ADD_FROM_LIB));
+    	buttonBrowser.setChangeListener(listenerButtonVideo);
     	hManager2.add(bitmapBrowser);
     	hManager2.add(buttonBrowser);
     	
@@ -68,12 +75,53 @@ public class MultimediaPopupScreen extends PopupScreen {
         add(hManager2);
     }
     
-	private FieldChangeListener listenerButton = new FieldChangeListener() {
+    private void buildPhotoUI()
+    {
+              
+        LabelField question = new LabelField(_resources.getString(WordPressResource.LABEL_MULTIMEDIATYPE));
+        add(question);
+        add(new SeparatorField());
+        
+        HorizontalFieldManager hManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
+        if(MultimediaUtils.isPhotoCaptureSupported()) {
+	    	Bitmap _bitmapCamera = Bitmap.getBitmapResource("camera.png");
+	    	bitmapFieldCamera = new BitmapField(_bitmapCamera, Field.NON_FOCUSABLE | Field.FIELD_HCENTER);
+	    	buttonCamera= new ButtonField(_resources.getString(WordPressResource.LABEL_PHOTO_TAKE_FROM_CAMERA));
+	    	buttonCamera.setChangeListener(listenerButtonPhoto);
+	    	hManager.add(bitmapFieldCamera);
+	    	hManager.add(buttonCamera);
+        }
+    	
+        HorizontalFieldManager hManager2 = new HorizontalFieldManager(Field.FIELD_HCENTER);
+    	Bitmap _bitmapBrowser = Bitmap.getBitmapResource("browser.png");
+    	bitmapBrowser = new BitmapField(_bitmapBrowser, Field.NON_FOCUSABLE | Field.FIELD_HCENTER);
+    	buttonBrowser= new ButtonField(_resources.getString(WordPressResource.LABEL_PHOTO_ADD_FROM_LIB));
+    	buttonBrowser.setChangeListener(listenerButtonPhoto);
+    	hManager2.add(bitmapBrowser);
+    	hManager2.add(buttonBrowser);
+    	
+
+        add(hManager);
+        add(hManager2);
+    }
+    
+	private FieldChangeListener listenerButtonPhoto = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
 	    	if(field == buttonBrowser){
-	    		response= PostController.BROWSER;
+	    		response = PostController.BROWSER_PHOTO;
 	    	} else if(field == buttonCamera) {
-	    		response= PostController.PHOTO;
+	    		response = PostController.PHOTO;
+	    	}
+	    	close();
+	   }
+	};
+	
+	private FieldChangeListener listenerButtonVideo = new FieldChangeListener() {
+	    public void fieldChanged(Field field, int context) {
+	    	if(field == buttonBrowser){
+	    		response = PostController.BROWSER_VIDEO;
+	    	} else if(field == buttonCamera) {
+	    		response = PostController.VIDEO;
 	    	}
 	    	close();
 	   }

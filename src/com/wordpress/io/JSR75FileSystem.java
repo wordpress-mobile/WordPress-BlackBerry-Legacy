@@ -105,6 +105,25 @@ public class JSR75FileSystem  {
 			FileUtils.closeConnection(filecon);
 		}
 	}
+  
+  public static synchronized boolean isReadable(String filePath) throws IOException {
+		FileConnection filecon = null;
+		try {
+		     if(!filePath.startsWith("file:///")) {
+		         filecon = (FileConnection) Connector.open("file:///"+ filePath, Connector.READ);
+		       } else {
+		    	   filecon = (FileConnection) Connector.open(filePath, Connector.READ);
+		       }
+			if (!filecon.exists() || !filecon.canRead()) {
+				return false;
+			} else {
+				return true;
+			}
+		} finally {
+			FileUtils.closeConnection(filecon);
+		}
+	}
+
 
   public static DataOutputStream getDataOutputStream(String filePath) throws IOException{
 		FileConnection filecon = (FileConnection) Connector.open(filePath);

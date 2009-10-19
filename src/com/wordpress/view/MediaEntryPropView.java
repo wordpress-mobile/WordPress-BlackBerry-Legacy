@@ -33,8 +33,8 @@ public class MediaEntryPropView extends StandardBaseView {
     private BasicEditField descriptionField;
 	private ObjectChoiceField mediaVerticalAlignment;
     
-    public MediaEntryPropView(BlogObjectController _controller, MediaViewMediator mediaViewMediator, String title) {
-    	super(_resources.getString(WordPressResource.MENUITEM_EXCERPT)+" > "+ title, Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
+    public MediaEntryPropView(BlogObjectController _controller, MediaViewMediator mediaViewMediator) {
+    	super(_resources.getString(WordPressResource.MENUITEM_PROPERTIES), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
     	this.controller=_controller;
 		this.mediaViewMediator = mediaViewMediator;
 		

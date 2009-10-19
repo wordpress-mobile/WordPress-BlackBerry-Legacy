@@ -1,7 +1,12 @@
 package com.wordpress.view.component;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.EncodedImage;
+import net.rim.device.api.system.GIFEncodedImage;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
@@ -24,46 +29,76 @@ public class BlogsListField {
     
 	private BlogInfo[] _listData;
     private ListField _listField;
-    
     private ListCallBack listFieldCallBack = null;
-    
+	
+    //throbber variables 
+    private Timer timer;
+	private TimerTask timerTask;
+	private ThrobberRenderer throbberRenderer = null;
+	private boolean[] tbsIndex = null;
     
   //create a variable to store the ResourceBundle for localization support
     protected static ResourceBundle _resources;
-	    
     static {
         //retrieve a reference to the ResourceBundle for localization support
         _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
     }
-    
-   public BlogsListField(BlogInfo[] blogCaricati) {  
-	   listFieldCallBack = new ListCallBack();
-
-	   _listField = new ListField() {
-
-		   protected void drawFocus(Graphics graphics, boolean on) { } //remove the standard focus highlight
-		   
-		   protected int moveFocus(int amount, int status, int time) {
-			   // Forward the call
-			   int ret = super.moveFocus(amount, status, time);
-			   invalidate(); //we can invalidate only the 2 involved rows
-			   return ret;
-		   }
-	   };
-	   
-        _listField.setEmptyString(_resources.getString(WordPressResource.LABEL_ADD_YOUR_BLOG), DrawStyle.LEFT);
-        _listData= blogCaricati;
-        _listField.setRowHeight(48);//the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
-        //Set the ListFieldCallback
-        _listField.setCallback(listFieldCallBack);
-        
-        int elementLength = blogCaricati.length;
-        
-        //Populate the ListField
-        for(int count = 0; count < elementLength; ++count)
-        {       
-           _listField.insert(count);
-        }    
+       
+    public BlogsListField(BlogInfo[] blogCaricati) {  
+    	listFieldCallBack = new ListCallBack();
+    	
+    	_listField = new ListField() {
+    		protected void drawFocus(Graphics graphics, boolean on) { } //remove the standard focus highlight
+    		
+    		protected int moveFocus(int amount, int status, int time) {
+    			// Forward the call
+    			int ret = super.moveFocus(amount, status, time);
+    			invalidate(); //we can invalidate only the 2 involved rows
+    			return ret;
+    		}
+    		
+    		/* (non-Javadoc)
+    		 * @see net.rim.device.api.ui.Field#onDisplay()
+    		 */
+    		protected void onDisplay() {
+    			super.onDisplay();
+    			timerTask = new AnimationTimerTask();
+    			timer.schedule(timerTask, 200, 100);
+    		}
+    		
+    		/* (non-Javadoc)
+    		 * @see net.rim.device.api.ui.Field#onUndisplay()
+    		 */
+    		protected void onUndisplay() {
+    			timerTask.cancel();
+    			super.onUndisplay();
+    		}
+    	};
+    	
+    	_listField.setEmptyString(_resources.getString(WordPressResource.LABEL_ADD_YOUR_BLOG), DrawStyle.LEFT);
+    	_listData= blogCaricati;
+    	_listField.setRowHeight(48);//the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
+    	//Set the ListFieldCallback
+    	_listField.setCallback(listFieldCallBack);
+    	
+    	int elementLength = blogCaricati.length;
+    	tbsIndex = new boolean[elementLength];
+    	//Populate the ListField and the throbbers vectors
+    	for(int count = 0; count < elementLength; ++count)
+    	{       
+    		_listField.insert(count);
+    		
+    		int stato = blogCaricati[count].getState();
+    		if (stato == BlogInfo.STATE_LOADING || stato == BlogInfo.STATE_ADDED_TO_QUEUE) {
+    			tbsIndex[count] = true;
+    		}
+    		else
+    			tbsIndex[count] = false;
+    	}
+    	//init the timer for throbbers
+    	this.timer = new Timer();
+    	EncodedImage _theImage= EncodedImage.getEncodedImageResource("loading-gif.bin");
+    	throbberRenderer = new ThrobberRenderer((GIFEncodedImage) _theImage);
     }
         
     
@@ -83,25 +118,33 @@ public class BlogsListField {
     }
     
     public void setBlogState(BlogInfo blogInfo){
-        //Populate the ListField
-        for(int count = 0; count < _listData.length; ++count)
-        {
-        	BlogInfo blog = _listData[count];
-    
-        	if (blogInfo.equals(blog) )		
-        	 {
-        		blog.setState(blogInfo.getState());
-        		_listData[count]= blog;
-                //Invalidate the modified row of the ListField.
-                _listField.invalidate(count);
-        	}
-        }  
+    	//Populate the ListField
+    	for(int count = 0; count < _listData.length; ++count)
+    	{
+    		BlogInfo blog = _listData[count];
+    		
+    		if (blogInfo.equals(blog) )		
+    		{
+    			blog.setState(blogInfo.getState());
+    			_listData[count]= blog;
+    			//Invalidate the modified row of the ListField.
+    			_listField.invalidate(count);
+    			
+    	  		int stato = blog.getState();
+        		if (stato == BlogInfo.STATE_LOADING || stato == BlogInfo.STATE_ADDED_TO_QUEUE) {
+        			tbsIndex[count] = true;
+        		}
+        		else
+        			tbsIndex[count] = false;
+    			
+    		}
+    	}
     }
     
     private class ListCallBack extends BasicListFieldCallBack {
 		private Bitmap imgCompleted = Bitmap.getBitmapResource("complete.png");
 		private Bitmap imgImportant = Bitmap.getBitmapResource("important.png");
-		private Bitmap imgRefresh = Bitmap.getBitmapResource("refresh.png");  
+		private Bitmap imgQueue = Bitmap.getBitmapResource("enqueued.png");  
 		
         // Draws the list row.
     	public void drawListRow(ListField list, Graphics graphics, int index, int y, int w) {
@@ -109,15 +152,17 @@ public class BlogsListField {
     		BlogInfo currentRow = (BlogInfo) this.get(list, index);
     		
     		Bitmap icon;
+    		
     		Font originalFont = graphics.getFont();
     		int originalColor = graphics.getColor();
     		int height = list.getRowHeight();
     		
-    		
     		int stato = currentRow.getState();
-    		// If it is loading draw the String prefixed with a star,
-    		if (stato == BlogInfo.STATE_LOADING || stato == BlogInfo.STATE_ADDED_TO_QUEUE ) {
-    			icon = imgRefresh; 
+
+    		if (stato == BlogInfo.STATE_LOADING) { 
+    			icon = null;
+    		} else if (stato == BlogInfo.STATE_ADDED_TO_QUEUE) {
+    			icon = imgQueue; 
     		} else if (stato == BlogInfo.STATE_LOADED_WITH_ERROR ||  stato == BlogInfo.STATE_ERROR) {
     			icon = imgImportant;
     		} else 
@@ -134,9 +179,18 @@ public class BlogsListField {
     		//drawXXX(graphics, 0, y, width, listField.getRowHeight());
     		drawBackground(graphics, 5, y, w, height, _listField.getSelectedIndex() ==  index);
     		drawBorder(graphics, 5, y, w, height);
-    	    int leftImageWidth = drawLeftImage(graphics, 5, y, height, icon);
+    		int leftImageWidth = 0;
+    		if (icon != null)
+    			leftImageWidth = drawLeftImage(graphics, 5, y, height, icon);
+    		else {
+    			graphics.pushRegion(10, y+5, 32, 32, 0, 0);
+    			throbberRenderer.paint(graphics);
+    			graphics.popContext();
+    			
+    			leftImageWidth = height;
+    		}
             drawText(graphics, leftImageWidth+5, y, w  - leftImageWidth, height, currentRow.getName(), _listField.getSelectedIndex() ==  index);
-    		
+
             graphics.setFont(originalFont);
             graphics.setColor(originalColor);
     	}
@@ -157,6 +211,29 @@ public class BlogsListField {
         {
             return _listData[index];
         }
+    }
+    
+    /**
+     * Internal timer task class to support animation.
+     */
+    private class AnimationTimerTask extends TimerTask {
+    	
+    	/* (non-Javadoc)
+    	 * @see java.util.TimerTask#run()
+    	 */
+    	public void run() {
+    		throbberRenderer.nextPosition();
+    		boolean presence = false;
+    		for (int i = 0; i < tbsIndex.length; i++) {
+    			if(tbsIndex[i] == true) { 
+    				_listField.invalidate(i);
+    				presence = true;
+    			}
+    		}
+    		//if zero thread in loading state, cancel the thread
+    		if(!presence)
+    			timerTask.cancel();
+    	}
     }
 } 
 

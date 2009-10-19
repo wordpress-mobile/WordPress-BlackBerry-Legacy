@@ -25,8 +25,6 @@
 package org.kxmlrpc;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,13 +33,10 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.io.HttpConnection;
-import javax.microedition.rms.RecordStoreException;
 
 import org.kxml2.io.KXmlParser;
 import org.kxml2.io.KXmlSerializer;
 
-import com.wordpress.io.AppDAO;
-import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Log;
@@ -66,15 +61,13 @@ public class XmlRpcClient {
      * Turns debugging on/off
      */
     boolean debug = true;
-    
     //contains all response headers
     private Hashtable responseHeaders = new Hashtable();
-
 	private HttpConnection con;
-
 	private InputStream in;
-
 	private OutputStream out;
+	private XmlRpcWriter writer = null;
+	private boolean isStopped = false;
     
     
     /**
@@ -126,7 +119,7 @@ public class XmlRpcClient {
     public Object execute(String method, Vector params) throws Exception {
     	// kxmlrpc classes
     	KXmlSerializer          xw = null;
-    	XmlRpcWriter            writer = null;
+    	
     	XmlRpcParser            parser = null;
     	con = null;
     	in = null;
@@ -141,21 +134,25 @@ public class XmlRpcClient {
     	
     	writer.writeCall(method, params);
     	xw.flush();
-    	
+    	os.close(); //close the dual output stream
+
+    	if( isStopped == true ){
+    		return null; //if the user has stopped the thread
+    	}
     	con = (HttpConnection) ConnectionManager.getInstance().open(url);
+    	Log.trace("grandezza del file da inviare "+ Long.toString(os.getMessageLength()));
     	
     	try {
     		
     		con.setRequestMethod(HttpConnection.POST);
     		con.setRequestProperty("Content-Length", Long.toString(os.getMessageLength()));
     		con.setRequestProperty("Content-Type", "text/xml");
+    		//con.setRequestProperty("Transfer-encoding", "chunked");
     		
     		// Obtain an output stream
     		out = con.openOutputStream();
-
     		os.sendRequest(out);
-    		os.close();
-    		
+        		    		
     		// List all the response headers from the server.
     		// Note: The first call to getHeaderFieldKey() will implicit send
     		// the HTTP request to the server.
@@ -227,6 +224,7 @@ public class XmlRpcClient {
     		Log.error("Error in XmlRpcClient");
     		throw (Exception) x;
     	} finally {
+    		os.clean();
     		closeXmlRpcConnection();//end try/catch
     	}//end try/catch/finally
     	
@@ -237,6 +235,13 @@ public class XmlRpcClient {
     	return result;
     }//end execute( String, Vector )
 
+    
+    public void stopXmlRpcClient() {
+		this.isStopped = true;
+		if(writer != null) {
+			writer.setStopEncoding(true);
+		}
+    }
         
 	public void closeXmlRpcConnection() {
 		try {

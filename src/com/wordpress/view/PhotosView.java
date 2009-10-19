@@ -1,8 +1,11 @@
 package com.wordpress.view;
 
 
+import java.io.IOException;
 import java.util.Vector;
 
+import net.rim.blackberry.api.browser.Browser;
+import net.rim.blackberry.api.browser.BrowserSession;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Field;
@@ -18,6 +21,7 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
+import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
@@ -31,10 +35,11 @@ public class PhotosView extends StandardBaseView {
 	private int counterPhotos = 0;
 	private Vector uiLink = new Vector();
 	private BorderedFieldManager noPhotoBorderedManager = null;
+	private static final String predefinedThumb = "video_thumb.png";
 	
 	
     public PhotosView(BlogObjectController _controller) {
-    	super(_resources.getString(WordPressResource.TITLE_PHOTOSVIEW), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
+    	super(_resources.getString(WordPressResource.TITLE_MEDIA_VIEW), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
     	this.controller=_controller;
     	
     	//init for the 0 photo item
@@ -45,36 +50,54 @@ public class PhotosView extends StandardBaseView {
     	
         updateUI(counterPhotos);
         addMenuItem(_addPhotoItem);
+        addMenuItem(_addVideoItem);
     }
     	
-	private void updateUI(int count) {
-		this.setTitleText(count + " "+_resources.getString(WordPressResource.TITLE_PHOTOSVIEW) );
-		if(count == 0) {
-			removeMenuItem(_deletePhotoItem);
-			removeMenuItem(_showPhotoItem);
-			removeMenuItem(_showPhotoPropertiesItem);
-			add(noPhotoBorderedManager);
-		} else if(count == 1) { //this is the first photo added
-			addMenuItem(_showPhotoItem);
-			addMenuItem(_showPhotoPropertiesItem);
-			addMenuItem(_deletePhotoItem);
-			delete(noPhotoBorderedManager); 
-		}
-	}
+    private void updateUI(int count) {
+    	this.setTitleText(count + " "+_resources.getString(WordPressResource.TITLE_MEDIA_VIEW) );
+    	removeMenuItem(_deletePhotoItem);
+    	removeMenuItem(_showPhotoItem);
+    	removeMenuItem(_showPhotoPropertiesItem);
+    	
+    	if(count == 0) {
+    		add(noPhotoBorderedManager);
+    	} else {
+    		addMenuItem(_showPhotoItem);
+    		addMenuItem(_showPhotoPropertiesItem);
+    		addMenuItem(_deletePhotoItem);
+    		if(noPhotoBorderedManager.getManager() != null) {
+    			delete(noPhotoBorderedManager); 
+    		}
+    	}
+    }
     
     private MenuItem _addPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_PHOTOS_ADD, 110, 10) {
         public void run() {
-        	controller.showAddPhotoPopUp();
+        	controller.showAddMediaPopUp(BlogObjectController.PHOTO);
         }
     };
  	
-    private MenuItem _showPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_PHOTOS_VIEW, 120, 10) {
+    private MenuItem _addVideoItem = new MenuItem( _resources, WordPressResource.MENUITEM_VIDEO_ADD, 110, 10) {
+        public void run() {
+        	controller.showAddMediaPopUp(BlogObjectController.VIDEO);
+        }
+    };
+    
+    private MenuItem _showPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_OPEN, 120, 10) {
         public void run() {        	
         	Field fieldWithFocus = getLeafFieldWithFocus();
     		if(fieldWithFocus instanceof BitmapField) {
     			MediaEntry mediaEntry = getMediaEntry((BitmapField) fieldWithFocus);
-    			if(mediaEntry != null)
+    			if (mediaEntry == null) {
+    				Log.error("Connot find post/page media object in the screen");
+    				return;
+    			}
+    			if(mediaEntry.getType() == MediaEntry.IMAGE_FILE) {
     				controller.showEnlargedPhoto(mediaEntry.getFilePath());
+    			} else {
+    				BrowserSession videoClip = Browser.getDefaultSession();
+    				videoClip.displayPage(mediaEntry.getFilePath());
+    			}
     		}
         }
     };
@@ -110,7 +133,7 @@ public class PhotosView extends StandardBaseView {
     	return null;
     }
     
-    private MenuItem _deletePhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_PHOTOS_DELETE, 130, 10) {
+    private MenuItem _deletePhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_REMOVE, 130, 10) {
         public void run() {        	
         	Field fieldWithFocus = getLeafFieldWithFocus();
     		if(fieldWithFocus instanceof BitmapField) {
@@ -138,7 +161,7 @@ public class PhotosView extends StandardBaseView {
     
     //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose() {
-		controller.removePhotoJournalListener();
+		controller.removeMediaFileJournalListener();
 		controller.setPhotosNumber(counterPhotos);
 		controller.backCmd();
 		return true;
@@ -148,16 +171,30 @@ public class PhotosView extends StandardBaseView {
 		return controller;
 	}
 		
-	public void addPhoto(MediaEntry mediaEntry, EncodedImage photo){
+	public void addMedia(MediaEntry mediaEntry){
+		Bitmap bitmapRescale;
 
-    	//find the photo size
-    	int scale = ImageUtils.findBestImgScale(photo, 128, 128);
-    	if(scale > 1)
-    		photo.setScale(scale); //set the scale
-   
-    	Bitmap bitmapRescale= photo.getBitmap();
-    	Log.trace(bitmapRescale.getHeight()+" "+ bitmapRescale.getWidth());
-		BitmapField photoBitmapField = new BitmapField(bitmapRescale, 
+		//if media file is an image create the thumb
+		if(mediaEntry.getType() == MediaEntry.IMAGE_FILE) {
+			byte[] readFile;
+			try {
+				readFile = JSR75FileSystem.readFile(mediaEntry.getFilePath());
+				EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
+				//find the photo size
+				int scale = ImageUtils.findBestImgScale(img, 128, 128);
+				if(scale > 1)
+					img.setScale(scale); //set the scale
+				
+				bitmapRescale= img.getBitmap();
+			} catch (IOException e) {
+				Log.error("Error during img preview");
+				bitmapRescale = Bitmap.getBitmapResource(predefinedThumb);
+			}
+		} else {
+			bitmapRescale = Bitmap.getBitmapResource(predefinedThumb);
+		}
+		
+    	BitmapField photoBitmapField = new BitmapField(bitmapRescale, 
 				BitmapField.FOCUSABLE | BitmapField.FIELD_HCENTER | Manager.FIELD_VCENTER);
 		photoBitmapField.setSpace(5, 5);
         

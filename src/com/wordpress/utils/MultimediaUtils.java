@@ -1,5 +1,7 @@
 package com.wordpress.utils;
 
+import net.rim.device.api.system.CodeModuleManager;
+
 
 public class MultimediaUtils {
 
@@ -11,14 +13,20 @@ public class MultimediaUtils {
 			return false;
 	}
 	
-	public static boolean isVideoRecordingSupported(){
+	public static boolean isVideoRecordingSupported(){		
+		int moduleHandle = CodeModuleManager.getModuleHandle("net_rim_bb_videorecorder"); 
+		if(moduleHandle == 0) 
+			return false;
+		else 
+			return true;
+	/*	
 	if(System.getProperty("supports.video.capture") != null
 			&& System.getProperty("supports.video.capture").trim().equalsIgnoreCase("true")
 			&& System.getProperty("video.encodings")!=null){
 		return true;
 	} else {
 		return false;
-		}
+		}*/
 	}
 	
 	public static boolean isAudioRecordingSuported(){
@@ -90,10 +98,14 @@ public class MultimediaUtils {
 		return encoding;
 	}
 
-	public static String[] getSupportedVideoFormat(){
+	public static String[] getSupportedVideoFormat(){ 
+		String[] lines= {"avi", "mov", "3gp", "mp4", "m4v", "mpg"};
+		return lines;
+		/*
 		String formatiSuportati=System.getProperty("video.encodings");
 		formatiSuportati="default "+formatiSuportati;
+		Log.debug("Supported Video File Formats: "+formatiSuportati);
 		String[] lines=StringUtils.split(formatiSuportati, " ");
-		return lines;
+		return lines;*/
 	}	
 }

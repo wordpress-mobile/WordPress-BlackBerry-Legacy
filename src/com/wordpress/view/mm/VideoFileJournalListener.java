@@ -7,12 +7,13 @@ import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.EventInjector;
 
 import com.wordpress.controller.BlogObjectController;
+import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.log.Log;
 
 /**
  * Listener to determine when files have been added to the file system.
  */
-public final class MediaObjFileJournalListener implements FileSystemJournalListener
+public final class VideoFileJournalListener implements FileSystemJournalListener
 {
     private BlogObjectController _screen;
     private long _lastUSN; // = 0;
@@ -22,7 +23,7 @@ public final class MediaObjFileJournalListener implements FileSystemJournalListe
      * 
      * @param screen The screen to update when events occur.
      */
-    public MediaObjFileJournalListener(BlogObjectController screen) {
+    public VideoFileJournalListener(BlogObjectController screen) {
         _screen = screen;
     }
 
@@ -41,16 +42,24 @@ public final class MediaObjFileJournalListener implements FileSystemJournalListe
 
             //check if this entry was added or deleted
             String path = entry.getPath();
-            if (path != null) {
+            if (path != null && entry.getEvent() == FileSystemJournalEntry.FILE_ADDED) {
             	
             	Log.debug("FS changed: "+path);
-            	//check if is an image
-            	if ( (path.endsWith("png") | path.endsWith("jpg") | path.endsWith("bmp") | path.endsWith("gif")) )
+            	String[] supportedVideoFormat = MultimediaUtils.getSupportedVideoFormat();
+            	boolean isSupportedFileFormat = false;
+            	for (int i = 0; i < supportedVideoFormat.length; i++) {
+					if(path.toLowerCase().endsWith(supportedVideoFormat[i])) {
+						isSupportedFileFormat = true;
+						break;
+					}
+				}
+            	
+            	if ( isSupportedFileFormat)
                 switch (entry.getEvent()) {
                 
                     case FileSystemJournalEntry.FILE_ADDED:
                     		msg= "file added";
-                    		Log.debug("picture taked: "+path);
+                    		Log.debug("video taked: "+path);
                     		
                     		_lastUSN = nextUSN;
 
@@ -63,12 +72,8 @@ public final class MediaObjFileJournalListener implements FileSystemJournalListe
                     				path="file:///"+path;
                     		}
                     		
-                			_screen.addLinkToMediaObject(path, BlogObjectController.PHOTO);
+                			_screen.addLinkToMediaObject(path, BlogObjectController.VIDEO);
 
-                    	// Try to kill camera app here by injecting esc.
-                       EventInjector.KeyEvent inject = new EventInjector.KeyEvent(EventInjector.KeyEvent.KEY_DOWN, Characters.ESCAPE, 0, 50);
-                       inject.post();
-                       inject.post();
                        break;
                 }
             }// path != null 
@@ -86,3 +91,4 @@ public final class MediaObjFileJournalListener implements FileSystemJournalListe
     }
     
 }
+

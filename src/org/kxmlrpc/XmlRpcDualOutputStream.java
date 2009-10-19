@@ -36,15 +36,37 @@ public class XmlRpcDualOutputStream {
 	
 	public void close() {		
 		try {
-			os.close();
-			tmpFilePath = AppDAO.getXmlRpcTempFilePath();
-			if(JSR75FileSystem.isFileExist(tmpFilePath)) {
-				JSR75FileSystem.removeFile(tmpFilePath);
+			Log.trace("Closing the xml rpc output stream");
+			os.flush();
+			
+		 	if(os instanceof ByteArrayOutputStream) {
+	    		memoryStorage = ((ByteArrayOutputStream)os).toByteArray(); //set the global byte array before.
+	    	} else {
+	    		
+	    	}		
+			os.close();		
+		} catch (Exception e) {
+			Log.error("Error while closing the xmlrpc tmp file");
+		}
+	}
+	
+	public void clean() {		
+		try {
+			Log.trace("Clean the resources used by XmlRpc dual output stream");
+			try {
+				os.close();
+				String tmpFilePath = AppDAO.getXmlRpcTempFilePath();
+				if(JSR75FileSystem.isFileExist(tmpFilePath)) {
+					JSR75FileSystem.removeFile(tmpFilePath);
+				}
+				memoryStorage = null;
+			} catch (RecordStoreException e) {
+		    	Log.error(e, "Error while clean xmlrpc tmp file");
+			} catch (IOException e) {
+				Log.error(e, "Error while clean xmlrpc file");
 			}
 		} catch (Exception e) {
-			
-		} finally {
-			memoryStorage = null;
+			Log.error("Error while closing the xmlrpc tmp file");
 		}
 	}
 	
@@ -56,10 +78,13 @@ public class XmlRpcDualOutputStream {
 			out.write(memoryStorage);
 		} else {
 			InputStream inStream = JSR75FileSystem.getDataInputStream(tmpFilePath);
-			byte[] buffer = new byte[1024];
+			byte[] buffer = new byte[1024]; 
 			int length = -1;
-			while ((length = inStream.read(buffer)) > 0) {
+			int count = 1;
+			while ((length = inStream.read(buffer)) >0 ) {
 				out.write(buffer, 0 , length);
+				Log.trace("1024byte X: "+ (count++));
+				//Log.trace("1048576byte per: "+ (count++));
 			}
 			inStream.close();
 		}
@@ -68,11 +93,12 @@ public class XmlRpcDualOutputStream {
 	public long getMessageLength() throws IOException {
     	    	
     	if(os instanceof ByteArrayOutputStream) {
-    		Log.trace("request sended to the wordpress server: "+os.toString());
-    		memoryStorage = ((ByteArrayOutputStream)os).toByteArray(); //set the global byte array before.
-    		return  memoryStorage.length;
+    		//Log.trace("request sended to the wordpress server: "+os.toString());
+    		//memoryStorage = ((ByteArrayOutputStream)os).toByteArray(); //set the global byte array before.
+    		if(memoryStorage != null)
+    			return  memoryStorage.length;
+    		else return 0; //non è mai nullo se lo stream viene chiuso prima di chiamare le funzioni di output
     	} else {
-    		os.flush(); //serve?
     		return JSR75FileSystem.getFileSize(tmpFilePath);
     	}
 	}

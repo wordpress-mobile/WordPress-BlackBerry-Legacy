@@ -130,7 +130,7 @@ public class PageView extends StandardBaseView {
     
     //set the photos number label text
     public void setNumberOfPhotosLabel(int count) {
-    	lblPhotoNumber.setText(count + " "+_resources.getString(WordPressResource.TITLE_PHOTOSVIEW));
+    	lblPhotoNumber.setText(count + " "+_resources.getString(WordPressResource.TITLE_MEDIA_VIEW));
     }
         
     //save a local copy of post
@@ -175,7 +175,7 @@ public class PageView extends StandardBaseView {
         }
     };
     
-    private MenuItem _photosItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_PHOTOS, 110, 10) {
+    private MenuItem _photosItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA, 110, 10) {
         public void run() {
         	controller.showPhotosView();
         }
@@ -187,16 +187,16 @@ public class PageView extends StandardBaseView {
         	if(title.isDirty() || bodyTextBox.isDirty() || 
         			status.isDirty() || lblPhotoNumber.isDirty()) {
         		//page is just changed
-        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "");
+        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
         	} else if (controller.isObjectChanged()) {
         		//page is changed, and the user has saved it as draft
-    			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "");
+    			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
     		} else {
     			//page not changed, check if is published 
     			if ("publish".equalsIgnoreCase(page.getPageStatus()) ) {
-    				controller.startRemotePreview(page.getLink(), title.getText(), bodyTextBox.getText(), "");
+    				controller.startRemotePreview(page.getLink(), title.getText(), bodyTextBox.getText(), "", "");
             	} else {
-            		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "");
+            		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
             	}
     		}
         }

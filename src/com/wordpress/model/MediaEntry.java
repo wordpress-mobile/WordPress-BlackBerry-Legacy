@@ -19,6 +19,94 @@ public class MediaEntry {
 	private int width, height;
 	private String MIMEType = ""; //do not store this value
 
+	/*
+	 * Return the html rappresentation of the image
+	 * 
+	 * <div id="attachment_30" class="wp-caption alignnone" style="width: 830px">
+	 * <a href="http://localhost/wp_mopress/wp-content/uploads/2009/03/back.jpg">
+	 * <img src="http://localhost/wp_mopress/wp-content/uploads/2009/03/back.jpg" alt="Utilizzato anche come testo alternativo all’immagine" title="back" width="820" height="992" class="size-full wp-image-30" />
+	 * </a>
+	 * <p class="wp-caption-text">Utilizzato anche come testo alternativo all’immagine</p>
+	 * </div>
+	 * 
+	 * @return
+	 */
+	private String getImageAsHtml() {
+		StringBuffer tmpBuff = new StringBuffer();
+		
+		String title = this.getTitle() != null ? this.getTitle() : this.getFileName();
+		String caption = this.getCaption() != null ? this.getCaption() : "";
+		
+		if(!caption.equals("")) {
+			//<div id="attachment_30" class="wp-caption alignnone" style="width: 830px">
+			int divWidth = this.getWidth()+10; //adding 10px padding
+			tmpBuff.append("<div class=\"wp-caption alignnone\" style=\"width: "+divWidth+"px\"");
+		} else {
+			tmpBuff.append("<p>");
+		}
+		
+		tmpBuff.append("<a href=\""+this.getFileURL()+"\">" +
+						"<img class=\"alignnone size-full\"" +
+						" src=\""+this.getFileURL()+"\" alt=\""+caption+"\"" +
+						" title=\""+title+"\"" +
+						" width=\""+this.getWidth()+"\" height=\""+this.getHeight()+"\" />" +
+						"</a>");
+	
+		if(!caption.equals("")) {
+			tmpBuff.append("<p class=\"wp-caption-text\">");
+			tmpBuff.append(caption);
+			tmpBuff.append("</div>");
+		} else {
+			tmpBuff.append("</p>");
+		}
+		return tmpBuff.toString();
+	}
+
+	
+	private String getVideoAsHtml() {
+		StringBuffer tmpBuff = new StringBuffer();
+		
+		String title = this.getTitle() != null ? this.getTitle() : this.getFileName();
+		tmpBuff.append("<p>");
+		tmpBuff.append("<a href=\""+this.getFileURL()+"\" title=\""+title+"\">"+
+						this.getFileName()+
+						"</a>");
+		tmpBuff.append("</p>");
+		return tmpBuff.toString();
+	}
+
+	/**
+	 * Return the full html rappresentation of the media obj
+	 * @return
+	 */
+	public String getMediaObjectAsHtml() {
+		if (type == IMAGE_FILE)
+			return getImageAsHtml();
+		else
+			return getVideoAsHtml();
+	}
+	
+	
+	/**
+	 * Return the Small html rappresentation of the media obj, usefull on preview
+	 * @return
+	 */
+	public String getMediaObjectAsSmallHtml() {
+		StringBuffer tmpBuff = new StringBuffer();
+		if (type == IMAGE_FILE) {
+			tmpBuff.append("<p>"+
+					"<img class=\"alignnone size-full\"" +
+					" src=\""+this.getFilePath()+"\" alt=\"\" " +
+					"</p>");
+		} else {
+			tmpBuff.append("<p>");
+			tmpBuff.append("<a href=\""+this.getFileURL()+"\" title=\""+title+"\">"+
+							this.getFileName()+
+							"</a>");
+			tmpBuff.append("</p>");		
+		}
+		return tmpBuff.toString();
+	}
 	
 	public Hashtable getMediaObjectAsHashtable() {
 		Hashtable hash = new Hashtable();
@@ -186,5 +274,12 @@ public class MediaEntry {
 
 	public void setMIMEType(String type) {
 		MIMEType = type;
+	}
+	public int getType() {
+		return type;
+	}
+	
+	public void setType(int type) {
+		this.type = type;
 	}
 }

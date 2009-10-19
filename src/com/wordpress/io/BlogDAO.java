@@ -1,5 +1,6 @@
 package com.wordpress.io;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class BlogDAO implements BaseDAO {
     	storeBlog(blog, out);
     	    	
 		out.close();
-		System.out.println("Scrittura terminata con successo");   	
+		Log.trace("Scrittura blog on memory terminata con successo");   	
     	return true;
     }
     
@@ -54,7 +55,7 @@ public class BlogDAO implements BaseDAO {
      * @param aBlog
      * @return
      */
-    public static synchronized boolean updateBlog(Blog blog) throws Exception{   	
+    public static synchronized boolean updateBlog(Blog blog) throws Exception {   	
     	String name = blog.getName();
     	String nameMD5=getBlogFolderName(blog);
     	String filePath=AppDAO.getBaseDirPath()+nameMD5;
@@ -66,7 +67,7 @@ public class BlogDAO implements BaseDAO {
     	DataOutputStream out = JSR75FileSystem.getDataOutputStream(filePath+BLOG_FILE);
     	storeBlog(blog, out);
     	Log.debug("blog updated succesfully");    	    	
-		out.close();
+		out.close(); //already closed during store
     	return true;
     }
     
@@ -119,11 +120,32 @@ public class BlogDAO implements BaseDAO {
    		return blogI;
     }
     
+	private static void serializeTest (Object obj ) throws IOException {
+		Log.trace(">>> serialize test");
+		//this tmpStream is used to test writing before real writing into device
+		DataOutputStream tmpStream = new DataOutputStream(new ByteArrayOutputStream());
+		Serializer serTemp= new Serializer(tmpStream);
+		try {
+			serTemp.serialize(obj);
+		} catch (IOException e) {
+			Log.error(e, "serialize test fails");
+			throw e;
+		} finally {
+			//free mem
+			serTemp = null;
+			tmpStream.close();
+			tmpStream = null;
+			Log.trace("<<< serialize test");
+		}
+	}
     
 	private static synchronized void storeBlog(Blog blog, DataOutputStream out)
 			throws IOException {
+		
+		String wholeErrorMessage = ""; 
 		Serializer ser= new Serializer(out);
-    	
+		boolean isError = false;
+		
 		ser.serialize(new Integer(blog.getLoadingState()));
     	ser.serialize(blog.getXmlRpcUrl());
     	ser.serialize(blog.getUsername());
@@ -137,10 +159,37 @@ public class BlogDAO implements BaseDAO {
     	ser.serialize(blog.getPageStatusList());
     	ser.serialize(blog.getPageTemplates());
     	ser.serialize(blog.getPostStatusList());
-    	ser.serialize(blog.getRecentPostTitles());
+    	
+    	try {
+    		serializeTest(blog.getRecentPostTitles());
+    		//if test fails don't write into real stream
+    		ser.serialize(blog.getRecentPostTitles());
+    	} catch (Exception errPage) {
+    		isError = true;
+    		String errorMessage = errPage.getMessage();
+    		if(errorMessage != null && !errorMessage.trim().equals(""))
+    			wholeErrorMessage += "Store Recent Post Error" + " - " + errorMessage + "\n";
+    		
+    		ser.serialize(new Vector()); //serialize empty posts vector
+    	}
+
     	ser.serialize(blog.getViewedPost());
-    	ser.serialize(blog.getPages());
+
+    	try {
+    		serializeTest(blog.getPages());
+    		//if test fails don't write into real stream
+    		ser.serialize(blog.getPages());
+    	} catch (Exception errPage) {
+    		isError = true;
+    		String errorMessage = errPage.getMessage();
+    		if(errorMessage != null && !errorMessage.trim().equals(""))
+    			wholeErrorMessage += "Store Pages Error" + " - " + errorMessage + "\n";
+    		
+    		ser.serialize(new Vector()); //serialize empty pages vector
+    	}
+    	
     	ser.serialize(blog.getViewedPages());
+   	
     	
     	Category[] categories = blog.getCategories();
         if (categories != null) {
@@ -171,6 +220,13 @@ public class BlogDAO implements BaseDAO {
         } else {
         	ser.serialize(new Integer(0));
         }
+        
+        out.close();
+
+        //if there was an errors
+		if(isError) {
+			throw new IOException(wholeErrorMessage);
+		}
 	}
     
    

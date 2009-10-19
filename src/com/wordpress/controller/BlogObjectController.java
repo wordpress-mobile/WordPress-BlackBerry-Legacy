@@ -5,19 +5,25 @@ import java.util.Vector;
 
 import net.rim.blackberry.api.invoke.CameraArguments;
 import net.rim.blackberry.api.invoke.Invoke;
+import net.rim.device.api.io.file.FileSystemJournalListener;
+import net.rim.device.api.system.ApplicationDescriptor;
+import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.CodeModuleManager;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.io.FileUtils;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Blog;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.model.Page;
 import com.wordpress.model.Post;
 import com.wordpress.task.SendToBlogTask;
+import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
@@ -33,6 +39,7 @@ import com.wordpress.view.mm.MediaObjFileJournalListener;
 import com.wordpress.view.mm.MediaViewMediator;
 import com.wordpress.view.mm.MultimediaPopupScreen;
 import com.wordpress.view.mm.PhotoPreview;
+import com.wordpress.view.mm.VideoFileJournalListener;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.PreviewHTTPConn;
 
@@ -52,7 +59,9 @@ public abstract class BlogObjectController extends BaseController {
 
 	public static final int NONE=-1;
 	public static final int PHOTO=1;
-	public static final int BROWSER=4;
+	public static final int VIDEO=2;
+	public static final int BROWSER_VIDEO=3;
+	public static final int BROWSER_PHOTO=4;
 	
 	//related view
 	protected SendToBlogTask sendTask;
@@ -69,7 +78,7 @@ public abstract class BlogObjectController extends BaseController {
 	public abstract void setPhotoResizing(boolean isPhotoRes);
 
 	//journal listener
-	MediaObjFileJournalListener photoFSListener = null;
+	FileSystemJournalListener mediaFileFSListener = null;
 	
 	public void showSettingsView(){
 		boolean isPhotoResing = blog.isResizePhotos(); //first set the value as the predefined blog value
@@ -144,10 +153,17 @@ public abstract class BlogObjectController extends BaseController {
 			//checking the existence of photo already linked with the page/post obj
 			for (int i = 0; i < mediaObjects.size(); i++) {
 				MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
+				
 				if(!JSR75FileSystem.isFileExist(tmp.getFilePath())) {
 					notFoundMediaObjects.addElement(tmp);
-					Log.trace("media file not found on disk : "+tmp.getFilePath());
+					Log.trace("media file not found on disk  : "+tmp.getFilePath());
 				}
+				
+				if(!JSR75FileSystem.isReadable(tmp.getFilePath())) {
+					notFoundMediaObjects.addElement(tmp);
+					Log.trace("media file is not readeable  : "+tmp.getFilePath());
+				}
+
 			}
 			for (int i = 0; i < notFoundMediaObjects.size(); i++) {
 				MediaEntry tmp = (MediaEntry) notFoundMediaObjects.elementAt(i);
@@ -155,12 +171,12 @@ public abstract class BlogObjectController extends BaseController {
 				Log.trace("media file removed from post : "+tmp.getFilePath());
 			}
 						
-			
+		/*	
 			if(post != null) {
 				post.setMediaObjects(mediaObjects);
 			} else {
 				page.setMediaObjects(mediaObjects);
-			}
+			}*/
 			Log.trace("<<< checkMediaLink ");
 		} catch (Exception e) {
 			Log.error(e, "checkMediaLink error");
@@ -168,7 +184,7 @@ public abstract class BlogObjectController extends BaseController {
 	}
 	
 	
-	public synchronized void addLinkToMediaObject(String completePath) {
+	public synchronized void addLinkToMediaObject(String completePath, int type) {
 		try {
 			Log.trace("linking media obj photo: "+completePath);
 			isModified = true; //set the post/page as modified
@@ -187,22 +203,22 @@ public abstract class BlogObjectController extends BaseController {
 					return;	
 			}
 			
-			mediaObjects.addElement(mediaObj);
+			if(type == VIDEO)
+				mediaObj.setType(MediaEntry.VIDEO_FILE); //set file as video
+			else
+				mediaObj.setType(MediaEntry.IMAGE_FILE); //set file as image
 			
-			if(post != null) {
-				post.setMediaObjects(mediaObjects);
-			} else {
-				page.setMediaObjects(mediaObjects);
-			}
-						
-			byte[] readFile = JSR75FileSystem.readFile(completePath);
-			EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
-			photoView.addPhoto(mediaObj, img);
-			removePhotoJournalListener(); //remove the fs listener.
+			//check if the file is readable (0n some real phone you cannot access predefined imgs)
+			if (!JSR75FileSystem.isReadable(completePath))
+				throw new IOException("The file "+completePath+" isn't readable");
+			
+			photoView.addMedia(mediaObj);
+			mediaObjects.addElement(mediaObj); 	
 			
 		} catch (Exception e) {
-			deleteLinkToMediaObject(completePath);
-			displayError(e, "Cannot save photo to disk!");
+			displayError(e, "Cannot link the media file!");
+		} finally {
+			removeMediaFileJournalListener(); //remove the fs listener.
 		}
 	}
 	
@@ -228,13 +244,6 @@ public abstract class BlogObjectController extends BaseController {
 				break;
 			}
 		}
-		
-		if(post != null) {
-			post.setMediaObjects(mediaObjects);
-		} else {
-			page.setMediaObjects(mediaObjects);
-		}
-
 		photoView.deletePhotoBitmapField(key); //delete the thumb
 		return true;
 	}
@@ -252,14 +261,7 @@ public abstract class BlogObjectController extends BaseController {
 						
 		for (int i = 0; i < mediaObjects.size(); i++) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
-			byte[] readFile;
-			try {
-				readFile = JSR75FileSystem.readFile(tmp.getFilePath());
-				EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
-				photoView.addPhoto(tmp, img);
-			} catch (IOException e) {
-				displayError(e, "Cannot read media: "+tmp.getFilePath());
-			}
+			photoView.addMedia(tmp);
 		}			
 		UiApplication.getUiApplication().pushScreen(photoView);
 	}
@@ -285,19 +287,19 @@ public abstract class BlogObjectController extends BaseController {
 	 */
 	public void showMediaObjectProperties(MediaViewMediator mediaViewMediator){
 		Log.trace("showed properties for media: "+mediaViewMediator.getMediaEntry().getFilePath());
-		UiApplication.getUiApplication().pushScreen(new MediaEntryPropView(this, mediaViewMediator,"pippo"));
+		UiApplication.getUiApplication().pushScreen(new MediaEntryPropView(this, mediaViewMediator));
 	}
 	
 	/** show up multimedia type selection */
-	public void showAddPhotoPopUp() {
-		int response= BROWSER;
+	public void showAddMediaPopUp(int mediaType) {
+		int response= BROWSER_PHOTO;
 		
-    	MultimediaPopupScreen multimediaPopupScreen = new MultimediaPopupScreen();
+    	MultimediaPopupScreen multimediaPopupScreen = new MultimediaPopupScreen(mediaType);
     	UiApplication.getUiApplication().pushModalScreen(multimediaPopupScreen); //modal screen...
 		response = multimediaPopupScreen.getResponse();
 			
 		switch (response) {
-		case BROWSER:
+		case BROWSER_PHOTO:
            	 String imageExtensions[] = { "jpg", "jpeg","bmp", "png", "gif"};
              FileSelectorPopupScreen fps = new FileSelectorPopupScreen(null, imageExtensions);
              fps.pickFile();
@@ -308,48 +310,83 @@ public abstract class BlogObjectController extends BaseController {
     		     if(!theFile.startsWith("file:///")) {
     		    	 theFile = "file:///"+ theFile;
     		       } 
-				addLinkToMediaObject(theFile);	
+				addLinkToMediaObject(theFile, PHOTO);	
              }					
+			break;
+			
+		case BROWSER_VIDEO:
+          	String videoExtensions[] = MultimediaUtils.getSupportedVideoFormat();// "mp4", "m4a","3gp", "3gp2", "avi", "wmv", "asf", "avi"};
+            FileSelectorPopupScreen fpsVideo = new FileSelectorPopupScreen(null, videoExtensions);
+            fpsVideo.pickFile();
+            String theVideoFile = fpsVideo.getFile();
+            if (theVideoFile == null){
+           	 
+            } else {
+   		     if(!theVideoFile.startsWith("file:///")) {
+   		    	theVideoFile = "file:///"+ theVideoFile;
+   		       } 
+				addLinkToMediaObject(theVideoFile, VIDEO);	
+            }					
 			break;
 			
 		case PHOTO:
 			try {
-				 	addPhotoJournalListener();
+				 	addMediaFileJournalListener();
 					Invoke.invokeApplication(Invoke.APP_TYPE_CAMERA, new CameraArguments());
 				} catch (Exception e) {
-					removePhotoJournalListener();
+					removeMediaFileJournalListener();
 					displayError(e, "Cannot invoke camera!");
 				}
 			break;
-			
+		
+		case VIDEO:
+			try {
+				 	addVideoFileJournalListener();
+				 	int moduleHandle = CodeModuleManager.getModuleHandle("net_rim_bb_videorecorder"); 
+				 	ApplicationDescriptor[] apDes = CodeModuleManager.getApplicationDescriptors(moduleHandle); 
+				 	ApplicationManager.getApplicationManager().runApplication(apDes[0]);  
+				} catch (Exception e) {
+					removeMediaFileJournalListener();
+					displayError(e, "Cannot invoke camera!");
+				}
+			break;
+
 		default:
 			break;
 		}		
 	}
 	
-	private void addPhotoJournalListener() {
+	private void addVideoFileJournalListener() {
 		//create a new listener only if it is null
-		if(photoFSListener == null ) {
-			photoFSListener = new MediaObjFileJournalListener(this);
+		if(mediaFileFSListener == null ) {
+			mediaFileFSListener = new VideoFileJournalListener(this);
 		}
-		UiApplication.getUiApplication().addFileSystemJournalListener(photoFSListener);
+		UiApplication.getUiApplication().addFileSystemJournalListener(mediaFileFSListener);
+	}
+	
+	private void addMediaFileJournalListener() {
+		//create a new listener only if it is null
+		if(mediaFileFSListener == null ) {
+			mediaFileFSListener = new MediaObjFileJournalListener(this);
+		}
+		UiApplication.getUiApplication().addFileSystemJournalListener(mediaFileFSListener);
 	}
 	
 	//called when photoview is closed
-	public void removePhotoJournalListener() {
-		if(photoFSListener != null) {
-			UiApplication.getUiApplication().removeFileSystemJournalListener(photoFSListener);
-			photoFSListener = null;
+	public void removeMediaFileJournalListener() {
+		if(mediaFileFSListener != null) {
+			UiApplication.getUiApplication().removeFileSystemJournalListener(mediaFileFSListener);
+			mediaFileFSListener = null;
 		} 
 	}
 	
-	public void startRemotePreview(String objectLink, String title, String content, String tags){
+	public void startRemotePreview(String objectLink, String title, String content, String tags, String categories){
 		String connMessage = null;
 		connMessage = _resources.getString(WordPressResource.CONN_LOADING_PREVIEW_TEMPLATE);
 		
 		final PreviewHTTPConn connection = new PreviewHTTPConn(objectLink);
 		
-        connection.addObserver(new loadTemplateCallBack(title, content, tags));  
+        connection.addObserver(new loadTemplateCallBack(title, content, tags, categories));  
         connectionProgressView= new ConnectionInProgressView(connMessage);
        
         connection.startConnWork(); //starts connection
@@ -360,7 +397,55 @@ public abstract class BlogObjectController extends BaseController {
 		}		
 	}
 	
-	public abstract void startLocalPreview(String title, String content, String tags);
+	
+	public void startLocalPreview(String title, String content, String tags, String categories) {
+
+		//build the body html for preview
+		String bodyContentForPreview = buildBodyHtmlFragment(content);
+
+		//build the full html 
+		StringBuffer topMediaFragment = new StringBuffer();
+		StringBuffer bottomMediaFragment = new StringBuffer();
+		Vector mediaObjects;
+		if(post != null)
+			mediaObjects = post.getMediaObjects();
+		else 
+			mediaObjects = page.getMediaObjects();
+		
+		for (int i = 0; i < mediaObjects.size(); i++) {
+
+			MediaEntry remoteFileInfo = (MediaEntry)mediaObjects.elementAt(i);
+			StringBuffer tmpBuff = null;
+			if(remoteFileInfo.isVerticalAlignmentOnTop())
+				tmpBuff  = 	topMediaFragment;
+			else
+				tmpBuff  = 	bottomMediaFragment;
+			
+			tmpBuff.append(remoteFileInfo.getMediaObjectAsSmallHtml());
+		}
+		
+		String htmlPage = topMediaFragment.toString() + "<p>&nbsp;</p>" + bodyContentForPreview 
+			+ "<p>&nbsp;</p>"+ bottomMediaFragment.toString();
+		
+		
+		String html = FileUtils.readTxtFile("defaultPostTemplate.html");
+
+		if(tags !=null && tags.trim().length() > 0 ) 
+			tags= "Tags: "+tags;		
+
+		if(title == null || title.length() == 0) title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
+		html = StringUtils.replaceAll(html, "!$title$!", title);
+		html = StringUtils.replaceAll(html, "<p>!$text$!</p>", htmlPage);
+		if( tags !=null && tags.trim().length() > 0  ) {
+			html = StringUtils.replaceAll(html, "!$mt_keywords$!", tags);
+			html = StringUtils.replaceAll(html, "!$categories$!", "Categories: "+ categories);
+		} else {
+			html = StringUtils.replaceAll(html, "!$mt_keywords$!", "");//The pages have no tags
+			html = StringUtils.replaceAll(html, "!$categories$!", ""); //The pages have no categories
+		}
+		
+		UiApplication.getUiApplication().pushScreen(new PreviewView(html));	
+	}
 	
 		
 	//callback for post loading
@@ -369,11 +454,13 @@ public abstract class BlogObjectController extends BaseController {
 		private final String title;
 		private final String content;
 		private final String tags;
+		private final String categories;
 
-		public loadTemplateCallBack(String title, String content, String tags) {
+		public loadTemplateCallBack(String title, String content, String tags, String categories) {
 			this.title = title;
 			this.content = content;
 			this.tags = tags;
+			this.categories = categories;
 		}
 
 		public void update(Observable observable, final Object object) {
@@ -394,12 +481,12 @@ public abstract class BlogObjectController extends BaseController {
 						try {
 							html = (String)resp.getResponseObject();
 						} catch (Exception e) {
-							startLocalPreview(title,content,tags);
+							startLocalPreview(title,content,tags, categories);
 							return;
 						}						
 						UiApplication.getUiApplication().pushScreen(new PreviewView(html));							
 					} else {
-						startLocalPreview(title,content,tags);
+						startLocalPreview(title,content,tags, categories);
 					}
 					
 				}
@@ -413,7 +500,7 @@ public abstract class BlogObjectController extends BaseController {
 	 * @param body  original body text field content
 	 * @return
 	 */
-	public static synchronized String buildBodyHtmlFragment(String originalContent) {
+	protected static synchronized String buildBodyHtmlFragment(String originalContent) {
 		String[] split = StringUtils.split(originalContent, "\n\n");
 		StringBuffer newContentBuff = new StringBuffer();
 		for (int i = 0; i < split.length; i++) {

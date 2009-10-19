@@ -236,7 +236,7 @@ public class PagesController extends BaseController{
 						try{
 							BlogDAO.updateBlog(currentBlog);							
 						} catch (final Exception e) {
-						 	displayError(e,"Error while refreshing blogs");	
+						 	displayError(e,"Error while storing pages");	
 						}
 						
 						

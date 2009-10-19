@@ -1,7 +1,6 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
@@ -24,7 +23,6 @@ import com.wordpress.view.MainView;
 public class MainController extends BaseController implements TaskProgressListener{
 	
 	private MainView view = null;
-	private Timer timer = new Timer();
 	
 	public MainController() {
 		super();
@@ -61,7 +59,7 @@ public class MainController extends BaseController implements TaskProgressListen
 		} catch (Exception e) {
 			//don't propagate this Exception
 		}
-		timer.schedule(new CheckUpdateTask(), 24*60*60*1000, 24*60*60*1000); //24h check
+		WordPressCore.getInstance().getTimer().schedule(new CheckUpdateTask(), 24*60*60*1000, 24*60*60*1000); //24h check
 		
 		this.view=new MainView(this); //main view init here!.	
 		UiApplication.getUiApplication().pushScreen(this.view);
@@ -167,7 +165,6 @@ public class MainController extends BaseController implements TaskProgressListen
 	*/	
     	int result=this.askQuestion(_resources.getString(WordPressResource.MESSAGE_EXIT_APP));   
     	if(Dialog.YES==result) {
-    		timer.cancel();
     		WordPressCore.getInstance().exitWordPress();
     		return true;
     	} else {

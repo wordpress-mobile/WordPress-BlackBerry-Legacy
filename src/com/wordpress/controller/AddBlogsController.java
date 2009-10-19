@@ -134,12 +134,18 @@ public class AddBlogsController extends BaseController{
 			}
 		}
 		
-		FrontController.getIstance().backAndRefreshView(true); //update the main view with new blogs
+		//update the main view with new blogs all STATE_ADDED_TO_QUEUE
+		FrontController.getIstance().backAndRefreshView(true); 
 		LoadBlogsDataTask loadBlogsTask = new LoadBlogsDataTask(connectionsQueue);
 		loadBlogsTask.setProgressListener(listener);
+
 		//push into the Runner
+		try {
+			Thread.currentThread().sleep(2000);
+		} catch (InterruptedException e) {
+			Log.error(e, "Error while adding blogs");
+		}
 		WordPressCore.getInstance().getTasksRunner().enqueue(loadBlogsTask);
-		
 	}
 
 	//callback for send post to the blog

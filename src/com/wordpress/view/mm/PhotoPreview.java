@@ -24,7 +24,7 @@ import com.wordpress.view.BaseView;
      }
      
 
-     private MenuItem _deletePhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_PHOTOS_DELETE, 130, 10) {
+     private MenuItem _deletePhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_REMOVE, 130, 10) {
          public void run() {
         	 controller.deleteLinkToMediaObject(key);
         	 controller.backCmd();

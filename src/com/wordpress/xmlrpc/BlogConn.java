@@ -85,6 +85,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 
 		if(mConnection != null) {
 			mConnection.closeXmlRpcConnection(); //closing the underlying connection streams could cause an exception on thread.
+			mConnection.stopXmlRpcClient(); //set the stop flag to stop long thread. seems that t.interrupt doesn't work
 			mConnection = null;
 		}
 

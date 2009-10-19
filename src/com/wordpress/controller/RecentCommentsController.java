@@ -37,12 +37,11 @@ public class RecentCommentsController extends CommentsController {
 		try{
 			CommentsDAO.storeComments(currentBlog, comments);
 		} catch (IOException e) {
-			displayError(e, "Error while updating phone memory");
+			displayError(e, "Error while storing comments");
 		} catch (RecordStoreException e) {
-			displayError(e, "Error while updating phone memory");
-		}
-		catch (Exception e) {
-			displayError(e, "Error while updating phone memory");
+			displayError(e, "Error while storing comments");
+		} catch (Exception e) {
+			displayError(e, "Error while storing comments");
 		} 
 	}
 }

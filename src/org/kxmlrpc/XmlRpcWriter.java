@@ -35,6 +35,7 @@ import org.kxmlrpc.util.IsoDate;
 
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.MediaEntry;
+import com.wordpress.utils.log.Log;
 
 /** 
  * This class builds XML-RPC method calls using the kxml pull parser's
@@ -46,6 +47,11 @@ public class XmlRpcWriter {
 	 * Used to access the kxml serializer
 	 */
 	KXmlSerializer writer;
+	private boolean stopEncoding = false;
+
+	public void setStopEncoding(boolean stopEncoding) {
+		this.stopEncoding = stopEncoding;
+	}
 
 	public XmlRpcWriter( KXmlSerializer writer ) {
 		this.writer = writer;
@@ -136,14 +142,6 @@ public class XmlRpcWriter {
 		// byte arrays must be encoded using the Base64 encoding
 		else if( value instanceof byte[] ) {
 			writer.startTag( null, "base64" );
-		/*	InputStream inStream = new ByteArrayInputStream((byte[])value);
-			byte[] buffer = new byte[300]; //you must use a 24bit multiple
-			int length = -1;
-			while ((length = inStream.read(buffer)) > 0) {
-				writer.text( Base64.encode(buffer, 0 , length, null).toString() );
-				//out.write(buffer, 0 , length);
-			}
-			inStream.close();*/
 			writer.text( Base64.encode( (byte[]) value ) );			
 			writer.endTag(null, "base64");
 		} 
@@ -153,11 +151,17 @@ public class XmlRpcWriter {
 			MediaEntry videoFile = (MediaEntry) value;
 			//read the file and encode the file 
 			InputStream inStream = JSR75FileSystem.getDataInputStream(videoFile.getFilePath());
-			byte[] buffer = new byte[1800];//you must use a 24bit multiple
+			byte[] buffer = new byte[3600];//you must use a 24bit multiple
 			int length = -1;
-			while ((length = inStream.read(buffer)) > 0) {
+			Log.trace("Inizio codifica del file in base64");
+			while ((length = inStream.read(buffer)) > 0 && !stopEncoding) {
 				writer.text( Base64.encode(buffer, 0 , length, null).toString() );
 			}
+			Log.trace("termine codifica del file in base64");
+			/*Log.trace("Inizio codifica del file in base64");
+			writer.text( Base64.encode( JSR75FileSystem.readFile(videoFile.getFilePath()) ) );		
+			
+			Log.trace("termine codifica del file in base64");*/
 			inStream.close();
 			writer.endTag(null, "base64");
 		}

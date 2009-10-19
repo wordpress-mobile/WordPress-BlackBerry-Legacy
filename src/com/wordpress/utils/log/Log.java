@@ -54,6 +54,12 @@ public class Log {
     
 
     public static void error(Object obj, String msg) {
+    	
+    	if(obj != null && obj instanceof Exception) {
+    		Exception tmpExc = (Exception) obj;
+    		if (tmpExc.getMessage()!= null)
+    			msg= msg + " - " + tmpExc.getMessage();
+    	}
         String message = "["+ obj.getClass().getName() + "] " + msg;
         writeLogMessage(ERROR, "ERROR", message);
     }

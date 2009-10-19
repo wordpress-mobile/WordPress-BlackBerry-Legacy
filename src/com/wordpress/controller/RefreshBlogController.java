@@ -65,30 +65,30 @@ public class RefreshBlogController extends BaseController implements Observer{
 						CommentsDAO.cleanGravatarCache(currentBlog);
 					} catch (final Exception e) {
 						
-						if(currentBlog != null) {
+/*						if(currentBlog != null) {
 							currentBlog.setLoadingState(BlogInfo.STATE_LOADED_WITH_ERROR);
 							try {
 								BlogDAO.updateBlog(currentBlog);
 							} catch (Exception e2) {
 								Log.error(e2, "Error while saving blogs");
 							}
-						}											
-					 	displayError(e,"Error while saving new blog info");	
+						}*/											
+					 	displayError(e,"Error while storing the blog data");	
 					}
 					
 				} else {
 					
 					currentBlog.setLoadingState(BlogInfo.STATE_ERROR);
+					final String respMessage=resp.getResponse();
+					displayError(respMessage);
+					
 					try {
 						BlogDAO.updateBlog(currentBlog);
 					} catch (Exception e) {
-						Log.error(e, "Error while saving blogs");
+						displayError(e,"Error while storing the blog data");	
 					}
 					
-					final String respMessage=resp.getResponse();
-				 	displayError(respMessage);	
 				}
-				
 			}
 		});
 	}

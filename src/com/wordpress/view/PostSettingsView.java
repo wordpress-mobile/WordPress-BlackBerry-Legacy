@@ -72,7 +72,7 @@ public class PostSettingsView extends StandardBaseView {
         passwordField = new PasswordEditField("", password, 64, Field.EDITABLE);
         rowPassword.add(lblPassword);
         rowPassword.add(passwordField);
-    	BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS));
+    	BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_POST_PASSWORD));
 		rowPassword.add(lblDesc);
 		add(rowPassword);
 		
