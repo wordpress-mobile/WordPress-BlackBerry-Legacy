@@ -4,10 +4,13 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
+
+import net.rim.device.api.system.EncodedImage;
 
 import com.wordpress.model.Blog;
 import com.wordpress.model.Comment;
@@ -64,8 +67,24 @@ public class CommentsDAO implements BaseDAO{
     	Hashtable gvt = (Hashtable) ser.deserialize();
     	
     	in.close();
-    	Log.debug("Gravatars loaded from device memory");   	
-    	return gvt;
+    	Log.debug("Gravatars loaded from device memory");
+    	Log.trace(">>> start Creating imgs for Gravatars");
+       	Hashtable storeGvt = new Hashtable();
+    	Enumeration keys = gvt.keys();
+    	for(; keys.hasMoreElements(); ){
+    		String nextElement = (String)keys.nextElement();
+    		Log.trace("Creating imgs for Gravatar "+ nextElement);
+    		
+    		 byte[] imgBytes = null;
+			   imgBytes = (byte[]) gvt.get(nextElement);
+			   try {
+				   EncodedImage img = EncodedImage.createEncodedImage(imgBytes, 0, -1);
+				   storeGvt.put(nextElement, img);
+				} catch (Exception e) {
+					Log.error(e, "img gravatar for "+nextElement+" is corrupted, using default gvt");
+				}
+    	}
+    	return storeGvt;
 	}
 		
 	
@@ -78,10 +97,20 @@ public class CommentsDAO implements BaseDAO{
     	JSR75FileSystem.createFile(commentsFilePath); //create the file
     	DataOutputStream out = JSR75FileSystem.getDataOutputStream(commentsFilePath);
 
+    	Log.trace(">>> start reading bytes from imgs of Gravatars");
+    	Hashtable storeGvt = new Hashtable();
+    	Enumeration keys = gvt.keys();
+    	for(; keys.hasMoreElements(); ){
+    		String nextElement = (String)keys.nextElement();
+    		EncodedImage tmpImg = (EncodedImage)gvt.get(nextElement);
+    		byte[] data = tmpImg.getData();
+    		storeGvt.put(nextElement, data);
+    		Log.trace(">>> storing  bytes of the imgs gravatar "+ nextElement);
+    	}
+    	
     	Serializer ser= new Serializer(out);
-    	ser.serialize(gvt);
+    	ser.serialize(storeGvt);
 		out.close();
-		
 		Log.debug("Gravatars stored into device memory");   	
 	}
 	

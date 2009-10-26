@@ -518,4 +518,63 @@ public class StringUtils {
 		    return result.toString();
 		  }
 	  
+		/**
+		 * decode an escaped ASCII format string as defined by RFC 2396.
+		 * Removes %nn encodings from a string.
+		 */
+		public static String decode(final String encodedStr)
+				throws Exception
+		{
+			if (encodedStr == null)
+			{
+				return null;
+			}
+			if (encodedStr.indexOf('%') < 0)
+			{
+				return encodedStr;
+			}
+			final StringBuffer buffer = new StringBuffer(encodedStr);
+			decode(buffer, 0, buffer.length());
+			return buffer.toString();
+		}
+
+		/**
+		 * decode an escaped ASCII format string as defined by RFC 2396.
+		 * Removes %nn encodings from a string.
+		 */
+		public static void decode(final StringBuffer buffer, final int offset,
+				final int length) throws Exception
+		{
+			int index = offset;
+			int count = length;
+			for (; count > 0; count--, index++)
+			{
+				final char ch = buffer.charAt(index);
+				if (ch != '%')
+				{
+					continue;
+				}
+				if (count < 3)
+				{
+					throw new Exception("invalid encoded character found!");
+				}
+
+				// Decode
+				int dig1 = Character.digit(buffer.charAt(index + 1), 16);
+				int dig2 = Character.digit(buffer.charAt(index + 2), 16);
+				if (dig1 == -1 || dig2 == -1)
+				{
+					throw new Exception("invalid encoded character found! ");
+				}
+				char value = (char) (dig1 << 4 | dig2);
+
+				// Replace
+				buffer.setCharAt(index, value);
+				buffer.delete(index + 1, index + 3);
+				count -= 2;
+			}
+		}
+	  
+	  
+	  
 }

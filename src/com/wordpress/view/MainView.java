@@ -176,7 +176,7 @@ public class MainView extends BaseView {
     };
 
         
-    private MenuItem _deleteBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE, 200, 10) {
+    private MenuItem _deleteBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE_BLOG, 200, 10) {
         public void run() {
 	        BlogInfo blogSelected = blogListController.getBlogSelected();
 	        mainController.deleteBlog(blogSelected);

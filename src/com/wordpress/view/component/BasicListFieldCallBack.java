@@ -2,6 +2,7 @@ package com.wordpress.view.component;
 
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Display;
+import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
@@ -17,6 +18,20 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 	protected static final int PADDING = 2;
     
 	
+    protected int drawLeftImage(Graphics graphics, int x, int y, int height, EncodedImage leftImage) {
+        
+        int imageWidth = leftImage.getWidth();
+        int imageHeight = leftImage.getHeight();
+        int imageTop = y + ((height - imageHeight) / 2);
+        int imageLeft = x + ((height - imageWidth) / 2);
+
+        // Image on left side -- draw only the first frame
+        graphics.drawImage(imageLeft, imageTop, imageWidth, imageHeight, leftImage, 0, 0, 0);
+
+        return height;
+    }
+    
+    
     protected int drawLeftImage(Graphics graphics, int x, int y, int height, Bitmap leftImage) {
         
         int imageWidth = leftImage.getWidth();

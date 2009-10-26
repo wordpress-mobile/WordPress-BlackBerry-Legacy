@@ -135,7 +135,7 @@ public class PagesController extends BaseController{
 	public void refreshPagesList() {
 		System.out.println(">>>refreshPosts");
         final GetPagesConn connection = new GetPagesConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
-        		currentBlog.getPassword(),  Integer.parseInt(currentBlog.getId()));
+        		currentBlog.getPassword(),  Integer.parseInt(currentBlog.getId()), currentBlog.getMaxPostCount());
         
         connection.addObserver(new refreshPageCallBack()); 
         String connMsg=_resources.getString(WordPressResource.CONN_LOADING_PAGES);

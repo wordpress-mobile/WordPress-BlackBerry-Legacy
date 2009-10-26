@@ -298,13 +298,14 @@ public abstract class BlogConn extends Observable implements Runnable {
 	}
 	
 	//retrive all pages from blog
-	protected synchronized Vector getPages(String blogID) throws Exception{
+	protected synchronized Vector getPages(int blogID, int maxPages) throws Exception{
 		try{
 			Log.debug(">>> getPages");
 			Vector args = new Vector(3);
-			args.addElement(blogID);
+			args.addElement(String.valueOf(blogID));
 			args.addElement(mUsername);
 			args.addElement(mPassword);
+			args.addElement(String.valueOf(maxPages));
 			
 			Object response = execute("wp.getPages", args);
 			if(connResponse.isError()) {

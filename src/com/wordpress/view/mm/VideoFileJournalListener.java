@@ -3,8 +3,6 @@ package com.wordpress.view.mm;
 import net.rim.device.api.io.file.FileSystemJournal;
 import net.rim.device.api.io.file.FileSystemJournalEntry;
 import net.rim.device.api.io.file.FileSystemJournalListener;
-import net.rim.device.api.system.Characters;
-import net.rim.device.api.system.EventInjector;
 
 import com.wordpress.controller.BlogObjectController;
 import com.wordpress.utils.MultimediaUtils;
@@ -42,9 +40,9 @@ public final class VideoFileJournalListener implements FileSystemJournalListener
 
             //check if this entry was added or deleted
             String path = entry.getPath();
-            if (path != null && entry.getEvent() == FileSystemJournalEntry.FILE_ADDED) {
+            if (path != null) {
             	
-            	Log.debug("FS changed: "+path);
+            	Log.debug("FS listener : "+path);
             	String[] supportedVideoFormat = MultimediaUtils.getSupportedVideoFormat();
             	boolean isSupportedFileFormat = false;
             	for (int i = 0; i < supportedVideoFormat.length; i++) {
@@ -54,28 +52,36 @@ public final class VideoFileJournalListener implements FileSystemJournalListener
 					}
 				}
             	
-            	if ( isSupportedFileFormat)
-                switch (entry.getEvent()) {
-                
-                    case FileSystemJournalEntry.FILE_ADDED:
-                    		msg= "file added";
-                    		Log.debug("video taked: "+path);
-                    		
-                    		_lastUSN = nextUSN;
+            	path = sanitizeFilePath(path);
+            	msg= "file added";
+            	_lastUSN = nextUSN;
+            	
+            	if (!isSupportedFileFormat) break;
+            	
+            	switch (entry.getEvent()) {
 
-                    		//check path
-                    		//path start with only one / 
-                    		if(!path.startsWith("file://")) {
-                    			if(path.startsWith("/"))
-                    				path="file://"+path;
-                    			else
-                    				path="file:///"+path;
-                    		}
-                    		
-                			_screen.addLinkToMediaObject(path, BlogObjectController.VIDEO);
+            	case FileSystemJournalEntry.FILE_ADDED:
+            		Log.debug("video added: "+path);
+            		_screen.addLinkToMediaObject(path, BlogObjectController.VIDEO);
+            		
+            		break;
+            	case FileSystemJournalEntry.FILE_RENAMED:
+            		Log.debug("video renamed");
+            		String oldPath = entry.getOldPath();
+            		oldPath = sanitizeFilePath(oldPath);
+            		Log.debug("video old file name: "+oldPath);
+            		Log.debug("video new file name: "+path);
+            		_screen.deleteLinkToMediaObject(oldPath);
+            		_screen.addLinkToMediaObject(path, BlogObjectController.VIDEO);
+            		
+            		break;
+            	case FileSystemJournalEntry.FILE_DELETED:
+            		Log.debug("video deleted: "+path);
+            		_screen.deleteLinkToMediaObject(path);
+            		break;
+            		
+            	}//end switch
 
-                       break;
-                }
             }// path != null 
         }
         
@@ -87,7 +93,18 @@ public final class VideoFileJournalListener implements FileSystemJournalListener
         // the same file journal event from being processed twice, and thus prevents
         // the same dialog from being displayed twice.
         _lastUSN = nextUSN;
-        
+    }
+    
+    private String sanitizeFilePath(String path) {
+    	//check path
+		//path start with only one / 
+		if(!path.startsWith("file://")) {
+			if(path.startsWith("/"))
+				path="file://"+path;
+			else
+				path="file:///"+path;
+		}
+		 return path;
     }
     
 }

@@ -17,6 +17,7 @@ import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.model.Page;
+import com.wordpress.model.PhotoEntry;
 import com.wordpress.model.Post;
 import com.wordpress.utils.CalendarUtils;
 import com.wordpress.utils.ImageUtils;
@@ -164,15 +165,18 @@ public class SendToBlogTask extends TaskImpl {
 		
 		boolean isRes = false;
 		Boolean currentObjectPhotoResSetting = null;
-		if( post != null )
+		if( post != null ) {
 			currentObjectPhotoResSetting = post.getIsPhotoResizing();
-		else
+		} else {
 			currentObjectPhotoResSetting = page.getIsPhotoResizing();
+		}
 		
 		if( currentObjectPhotoResSetting == null ){
+			Log.trace("not found post resize opt, read the resize opt from blog setting");
 			isRes = blog.isResizePhotos(); //get the option from the blog settings
 		} else {
 			isRes = currentObjectPhotoResSetting.booleanValue();
+			Log.trace("found post/post resize opt: "+isRes);
 		}
 		
 		if(isRes){
@@ -190,6 +194,8 @@ public class SendToBlogTask extends TaskImpl {
 			JSR75FileSystem.createFile(imageTempFilePath);
 			DataOutputStream dataOutputStream = JSR75FileSystem.getDataOutputStream(imageTempFilePath);
 			dataOutputStream.write(photosBytes);
+			dataOutputStream.flush();
+			dataOutputStream.close();
 			
 			h = Integer.parseInt( (String) content.get("height") );
 			w = Integer.parseInt( (String) content.get("width") );
@@ -210,20 +216,21 @@ public class SendToBlogTask extends TaskImpl {
 	private void sendMedia(BlogConn blogConn) throws IOException, RecordStoreException {
 		MediaEntry mediaEntry = ((NewMediaObjectConn) blogConn).getMediaObj();
 		String filePath = mediaEntry.getFilePath();
-		Log.trace("sending file: "+filePath);
-		
+		Log.trace("Sending file: "+filePath);
+		SendMediaCallBack sendCallBack= null;
 		//cut off the video resize
-		if (mediaEntry.getType() == MediaEntry.IMAGE_FILE) {
+		if (mediaEntry instanceof PhotoEntry) {
+			Log.trace("Media file is an img content");
+			String oldFilePath = mediaEntry.getFilePath(); //save the old file path before resize
 			prepareImage(mediaEntry);
+			sendCallBack = new SendMediaCallBack(mediaEntry);
+			sendCallBack.setOldFilePath(oldFilePath); //set the old file path, because error during resize/sending
 		} else {
-			//mediaEntry.setMIMEType(MIMEtype);
+			Log.trace("Media file is a video content");
+			sendCallBack = new SendMediaCallBack(mediaEntry);
 		}
-			
-		
-		//set the new file path 
-		//((NewMediaObjectConn) blogConn).setMediaObj(mediaEntry);
-		
-		blogConn.addObserver(new SendMediaCallBack(mediaEntry));
+					
+		blogConn.addObserver(sendCallBack);
 		blogConn.setConnPriority(Thread.MIN_PRIORITY); 
 		blogConn.startConnWork();						
 	}	
@@ -313,6 +320,11 @@ public class SendToBlogTask extends TaskImpl {
 	private class SendMediaCallBack implements Observer{
 		
 		private MediaEntry mediaObj;
+		private String oldFilePath = null;
+
+		public void setOldFilePath(String oldFilePath) {
+			this.oldFilePath = oldFilePath;
+		}
 
 		SendMediaCallBack(MediaEntry mediaObj){
 			this.mediaObj = mediaObj;
@@ -340,6 +352,19 @@ public class SendToBlogTask extends TaskImpl {
 			} catch (Exception e) {
 				errorMsg.append("Server Response Error on media upload");
 				isError=true;
+			}
+			
+			//set the path of the media to the real path, not the tmp path used for resize
+			if(this.oldFilePath != null)
+				mediaObj.setFilePath(oldFilePath);
+
+			//remove the tmp image file
+			try {
+				String imageTempFilePath = AppDAO.getImageTempFilePath();
+				if(JSR75FileSystem.isFileExist(imageTempFilePath)) {
+					JSR75FileSystem.removeFile(imageTempFilePath);
+				}
+			} catch (Exception e) {
 			}
 			
 			next(); // call to next

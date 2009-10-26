@@ -47,7 +47,7 @@ public class CommentReplyView extends StandardBaseView {
         outerManagerRowFrom.add(lblCommentAuthor);
         
         HorizontalFieldManager innerManagerRowFrom = new HorizontalFieldManager(Manager.NO_HORIZONTAL_SCROLL | Manager.NO_VERTICAL_SCROLL);
-        BitmapField gravatarBitmap = new BitmapField(GravatarController.defaultGravatarBitmap, BitmapField.NON_FOCUSABLE | Manager.FIELD_VCENTER);
+        BitmapField gravatarBitmap = new BitmapField(GravatarController.defaultGravatarBitmap.getBitmap(), BitmapField.NON_FOCUSABLE | Manager.FIELD_VCENTER);
         VerticalFieldManager fromDataManager = new VerticalFieldManager(VerticalFieldManager.NO_VERTICAL_SCROLL | 
         		VerticalFieldManager.NO_HORIZONTAL_SCROLL | Manager.FIELD_VCENTER)
         {//add the focus change listener patch
@@ -68,7 +68,7 @@ public class CommentReplyView extends StandardBaseView {
 		 if(comment.getAuthorEmail() != null && !comment.getAuthorEmail().equals("")) {
 			 LabelField authorEmail = new LabelField(comment.getAuthorEmail(), LabelField.FOCUSABLE);
 			 fromDataManager.add(authorEmail);
-			 gravatarBitmap.setBitmap( gvtCtrl.getLatestGravatar(comment.getAuthorEmail() ) );
+			 gravatarBitmap.setImage( gvtCtrl.getLatestGravatar(comment.getAuthorEmail() ) );
 		 }
 
 		 if(comment.getAuthorUrl() != null && !comment.getAuthorUrl().equals("")) {

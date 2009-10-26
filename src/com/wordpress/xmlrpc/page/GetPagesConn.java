@@ -9,10 +9,12 @@ import com.wordpress.xmlrpc.BlogConnResponse;
 public class GetPagesConn extends BlogConn  {
 
 	private final int blogID;
+	private final int maxPages;
 
-	public GetPagesConn(String hint, String userHint, String passwordHint, int blogID) {
+	public GetPagesConn(String hint, String userHint, String passwordHint, int blogID, int maxPages) {
 		super(hint, userHint, passwordHint);
 		this.blogID = blogID;
+		this.maxPages = maxPages;
 	}
 
 	public void run() {
@@ -25,7 +27,7 @@ public class GetPagesConn extends BlogConn  {
 		
 		try{
 			connResponse = new BlogConnResponse();
-	        Vector recentPostTitle = getPages(String.valueOf(blogID));
+	        Vector recentPostTitle = getPages(blogID, this.maxPages);
 	        
 			connResponse.setResponseObject(recentPostTitle);
 		} catch (Exception cce) {
@@ -36,28 +38,6 @@ public class GetPagesConn extends BlogConn  {
 		} catch (Exception e) {
 			Log.error("Recent Pages Notify Error");
 		}
-/*
-		Vector args = new Vector(3);
-		args.addElement(String.valueOf(this.blogID));
-		args.addElement(mUsername);
-		args.addElement(mPassword);
-
-		Object response = execute("wp.getPages", args);
-		if(connResponse.isError()) {
-			notifyObservers(connResponse);
-			return;		
-		}
-		try{
-			Vector returnedPages = (Vector) response;
-			connResponse.setResponseObject(returnedPages);
-		} catch (Exception cce) {
-			setErrorMessage(cce, "GetPages error: Invalid server response");
-		}
-
-		try {
-			notifyObservers(connResponse);
-		} catch (Exception e) {
-			System.out.println("GetPages error: Notify error"); 
-		}*/
+		
 	}
 }

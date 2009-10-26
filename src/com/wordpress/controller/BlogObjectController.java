@@ -21,7 +21,9 @@ import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Blog;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.model.Page;
+import com.wordpress.model.PhotoEntry;
 import com.wordpress.model.Post;
+import com.wordpress.model.VideoEntry;
 import com.wordpress.task.SendToBlogTask;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
@@ -170,13 +172,7 @@ public abstract class BlogObjectController extends BaseController {
 				mediaObjects.removeElement(tmp);
 				Log.trace("media file removed from post : "+tmp.getFilePath());
 			}
-						
-		/*	
-			if(post != null) {
-				post.setMediaObjects(mediaObjects);
-			} else {
-				page.setMediaObjects(mediaObjects);
-			}*/
+
 			Log.trace("<<< checkMediaLink ");
 		} catch (Exception e) {
 			Log.error(e, "checkMediaLink error");
@@ -186,10 +182,18 @@ public abstract class BlogObjectController extends BaseController {
 	
 	public synchronized void addLinkToMediaObject(String completePath, int type) {
 		try {
-			Log.trace("linking media obj photo: "+completePath);
+			Log.trace("linking media obj: "+completePath);
 			isModified = true; //set the post/page as modified
 			
-       	 	MediaEntry mediaObj = new MediaEntry(completePath);
+       	 	MediaEntry mediaObj = null;
+    		if(type == VIDEO) {
+    			mediaObj = new VideoEntry();
+    		} else {
+    			mediaObj = new PhotoEntry();
+    			removeMediaFileJournalListener(); //remove the fs listener.
+    		}
+			mediaObj.setFilePath(completePath);
+       	 	
        	 	Vector mediaObjects;
 			if(post != null) {
 				mediaObjects = post.getMediaObjects();				
@@ -203,11 +207,6 @@ public abstract class BlogObjectController extends BaseController {
 					return;	
 			}
 			
-			if(type == VIDEO)
-				mediaObj.setType(MediaEntry.VIDEO_FILE); //set file as video
-			else
-				mediaObj.setType(MediaEntry.IMAGE_FILE); //set file as image
-			
 			//check if the file is readable (0n some real phone you cannot access predefined imgs)
 			if (!JSR75FileSystem.isReadable(completePath))
 				throw new IOException("The file "+completePath+" isn't readable");
@@ -218,7 +217,7 @@ public abstract class BlogObjectController extends BaseController {
 		} catch (Exception e) {
 			displayError(e, "Cannot link the media file!");
 		} finally {
-			removeMediaFileJournalListener(); //remove the fs listener.
+			
 		}
 	}
 	
@@ -375,6 +374,7 @@ public abstract class BlogObjectController extends BaseController {
 	//called when photoview is closed
 	public void removeMediaFileJournalListener() {
 		if(mediaFileFSListener != null) {
+			Log.trace("Media FS listener rimosso");
 			UiApplication.getUiApplication().removeFileSystemJournalListener(mediaFileFSListener);
 			mediaFileFSListener = null;
 		} 

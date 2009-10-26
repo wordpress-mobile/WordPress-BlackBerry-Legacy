@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
@@ -206,7 +207,7 @@ public class CommentsListField {
         }
     }; 
     
-    public Bitmap getLatestGravatar(String authorEmail) {
+    public EncodedImage getLatestGravatar(String authorEmail) {
     	return  gvtController.getLatestGravatar(authorEmail);
     }
     
@@ -241,9 +242,9 @@ public class CommentsListField {
     			}
     		} else {
     			String authorEmail = currentComment.getAuthorEmail();
-    			Bitmap gravatarBitmap = getLatestGravatar(authorEmail);
+    			EncodedImage gravatarImage = getLatestGravatar(authorEmail);
     				
-    			leftImageWidth = drawLeftImage(graphics, 0, y, height, gravatarBitmap);
+    			leftImageWidth = drawLeftImage(graphics, 0, y, height, gravatarImage);
     			leftImageWidth = 40;
     		}
 
@@ -355,9 +356,6 @@ public class CommentsListField {
     private class GravatarCallBack implements Observer {
     	
     	public void update(Observable observable, Object object) {
-    		if(object == null)
-    			_innerListField.invalidate();
-    		else
     		if(object instanceof String) {
     			String email = (String) object;			
     			int elementLength = _listData.size();

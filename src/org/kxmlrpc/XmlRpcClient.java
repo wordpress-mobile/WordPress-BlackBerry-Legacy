@@ -25,6 +25,7 @@
 package org.kxmlrpc;
 
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,11 +33,14 @@ import java.io.OutputStreamWriter;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
+import javax.microedition.io.StreamConnection;
 
 import org.kxml2.io.KXmlParser;
 import org.kxml2.io.KXmlSerializer;
 
+import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Log;
@@ -103,7 +107,122 @@ public class XmlRpcClient {
         url = newUrl;
     }//end setURL( String )
     
+    
+    private Object executeSocket(XmlRpcDualOutputStream os) throws Exception {
+    	try {
+			String socketURL = "socket://localhost:80;deviceside=true";
+   /*	String socketURL = url;
+			if(url.substring(0,7)=="http://") 
+				socketURL=url.substring(7); // removing http:// from domain 
+			*/
+			
+			Log.trace("AAAAAAAAAAAAA");
+			// establish a socket connection with remote server
+			StreamConnection  streamConnection = (StreamConnection) Connector.open(socketURL);
+			Log.trace("AAAAAAAAAAAAA");
+			
+			 // create DataOuputStream on top of the socket connection
+			OutputStream outputStreamSocket = streamConnection.openOutputStream();
+			StringBuffer buf = new StringBuffer(512);
+			buf.append("POST /wp_mopress/xmlrpc.php HTTP/1.1\n");
+			buf.append("User-Agent: MIDP2.0\n");
+			buf.append("Content-Length: "+String.valueOf(os.getMessageLength())+"\n");
+			buf.append("Content-Type: text/xml"+"\n");
+			
+			outputStreamSocket.write(buf.toString().getBytes());
+			os.sendRequest(outputStreamSocket);
+			outputStreamSocket.write("\n".getBytes());
+			Log.trace("AAAAAAAAAAAAA");
+			outputStreamSocket.flush();
+			Log.trace("AAAAAAAAAAAAA");
+			
+			// create DataInputStream on top of the socket connection
+			InputStream inputStream = streamConnection.openInputStream();
+			DataInputStream dataInputStream = new DataInputStream(inputStream);
+			// use a StrignBuffer to store the retrieved page contents
+			 StringBuffer results = new StringBuffer();
+
+			// retrieve the contents of the requested page from Web server
+			int inputChar;
+			while ( (inputChar = dataInputStream.read()) != -1) {
+			  results.append((char) inputChar);
+			}
+			Log.trace("RISPOSTA DALLA SOCKET: "+result.toString());
+			
+		} catch (Exception e) {
+			Log.trace(e, "my socket");
+		}
         
+        if(9==9)
+        	throw new IOException("viva cristo");
+		
+        return null;
+    	
+    	
+    }
+
+    
+    private Object executeChunck(XmlRpcDualOutputStream os) throws Exception {
+
+    	int chunkIndex = 0;
+    	int totalSize = 0;
+    	int rangeStart = 0;
+    	int rangeEnd = 0;
+    	int chunksize = 1024;
+    	
+    	InputStream inStream = JSR75FileSystem.getDataInputStream(os.tmpFilePath);
+    	byte[] buffer = new byte[1024]; 
+    	int length = -1;
+    	int count = 1;
+    	
+    	while ((length = inStream.read(buffer)) >0 )  {
+    		Log.trace("Opening Chunk: " + chunkIndex);
+    		con = (HttpConnection) ConnectionManager.getInstance().open(url);
+    		con.setRequestMethod(HttpConnection.POST);
+    		con.setRequestProperty("Transfer-Encoding", "Chunked");
+    		con.setRequestProperty("Content-Type", "text/xml");
+    		rangeStart = chunkIndex * chunksize;
+    		rangeEnd = rangeStart + chunksize - 1;
+    		Log.trace("Requesting Range: " + rangeStart +  "-" + rangeEnd);    		
+    		out = con.openOutputStream();
+    		
+    		String hexChunckLengt = Integer.toHexString(length) + ";";
+    		//String lunghezzaChunck = String
+    		out.write(hexChunckLengt.getBytes());
+    		out.write(buffer, 0 , length);
+    		out.write("\r\n".getBytes());
+    		out.flush();     
+    		out.close();
+    		Log.trace("1024byte X: "+ (count++));
+    		//Log.trace("1048576byte per: "+ (count++));
+    		chunkIndex++; // index (range) increase
+    		int responseCode = con.getResponseCode();
+    		Log.trace("Response Code = " + con.getResponseCode());
+    		if (responseCode != 200 && responseCode != 100)
+    		{
+    		}
+    		Log.trace("Retreived Range: " + con.getHeaderField("Content-Range"));
+    		
+    		con.close();
+    		/*
+    		 * Pause to allow connections to close and other Threads
+    		 * to run.
+    		 */
+    		Thread.sleep(1000);
+    	}
+    	
+    	//out.write("0\r\n".getBytes());
+    	//out.write("\r\n".getBytes()); //the final black line
+    	
+    	
+    	if(9==9)
+    		throw new IOException("ole'");
+    	
+    	return null;
+    	
+    	
+    }
+    
     /**
      * This method is the brains of the XmlRpcClient class. It opens an
      * HttpConnection on the URL stored in the url variable, sends an XML-RPC
@@ -139,20 +258,23 @@ public class XmlRpcClient {
     	if( isStopped == true ){
     		return null; //if the user has stopped the thread
     	}
-    	con = (HttpConnection) ConnectionManager.getInstance().open(url);
-    	Log.trace("grandezza del file da inviare "+ Long.toString(os.getMessageLength()));
     	
+  //  	if (9==9)
+    //		executeChunck(os);
+    	
+    	Log.trace("grandezza del file da inviare "+ Long.toString(os.getMessageLength()));
+    	con = (HttpConnection) ConnectionManager.getInstance().open(url);
     	try {
     		
     		con.setRequestMethod(HttpConnection.POST);
     		con.setRequestProperty("Content-Length", Long.toString(os.getMessageLength()));
-    		con.setRequestProperty("Content-Type", "text/xml");
-    		//con.setRequestProperty("Transfer-encoding", "chunked");
-    		
+     	    con.setRequestProperty("Content-Type", "text/xml");
+    		    		
+
     		// Obtain an output stream
     		out = con.openOutputStream();
     		os.sendRequest(out);
-        		    		
+   	
     		// List all the response headers from the server.
     		// Note: The first call to getHeaderFieldKey() will implicit send
     		// the HTTP request to the server.

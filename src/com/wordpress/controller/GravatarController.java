@@ -7,7 +7,6 @@ import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
-import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 
@@ -30,36 +29,46 @@ import com.wordpress.utils.observer.Observable;
  */
 public class GravatarController extends Observable {
 	
-	public static Bitmap defaultGravatarBitmap = Bitmap.getBitmapResource("gravatar.png"); //i've copied resource here for performances
-	private Hashtable commentsGravatar = new Hashtable(); //the email as key and img bytes as value
+	public static EncodedImage defaultGravatarBitmap= EncodedImage.getEncodedImageResource("gravatar.png");
+	
+	//the email as key and Encoded img as value -- used for store gvt into disk
+	private Hashtable commentsGravatar = new Hashtable(); 
+
 	private GetGravatarTask gvtTask = null;
 	private Blog currentBlog;
 
 	public GravatarController(Blog blog) {
 		this.currentBlog = blog; 
+		//load the previous gravatar from disk
+		try {
+			commentsGravatar = CommentsDAO.loadGravatars(currentBlog); //load prev stored gravat
+			if(commentsGravatar == null ) 
+				commentsGravatar = new Hashtable();
+			
+		} catch (IOException e) {
+			Log.error("Error while reading gravatars "+e.getMessage());
+			commentsGravatar = new Hashtable();
+		} catch (RecordStoreException e) {
+			Log.error("Error while reading gravatars "+e.getMessage());
+			commentsGravatar = new Hashtable();
+		}
 	}
 		
 	public void startGravatarTask(final Vector _elements) {
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
 				Hashtable missingGravatar = new Hashtable();
-				try {
-					commentsGravatar = CommentsDAO.loadGravatars(currentBlog); //load prev stored gravat
-					if(commentsGravatar == null ) 
-						commentsGravatar = new Hashtable();
-					else
-						notifyObservers(null); //all gvt are loaded from disk
-					
+						
 					int elementLength = _elements.size();
 					//Populate the missing hashtable
 					for(int count = 0; count < elementLength; ++count)
 					{
 						String authorEmail = (String)_elements.elementAt(count);
 						if (!authorEmail.equalsIgnoreCase("") && !commentsGravatar.containsKey(authorEmail)) {
-							Log.debug("email is missing:" +authorEmail);   
+							Log.trace("email is missing:" +authorEmail);   
 							missingGravatar.put(authorEmail, ""); //put the email for gravatar download
 						} else
-							Log.debug("email is already present:" +authorEmail);
+							Log.trace("email is already present:" +authorEmail);
 					}
 					
 					GravatarCallBack gravatarCallBack = new GravatarCallBack();
@@ -68,35 +77,23 @@ public class GravatarController extends Observable {
 					gvtTask.setProgressListener(gravatarCallBack);
 					//push into the Runner
 					WordPressCore.getInstance().getTasksRunner().enqueue(gvtTask);
-					
-				} catch (IOException e) {
-					Log.error("Error while reading gravatars "+e.getMessage());
-				} catch (RecordStoreException e) {
-					Log.error("Error while reading gravatars "+e.getMessage());
-				}
 				
 			}//and run 
 		});
 		
 	}	
 	
-	   public Bitmap getLatestGravatar(String authorEmail) {
-		   Bitmap gravatarBitmap = null;
-		   if (authorEmail == null || authorEmail.length() == 0 || authorEmail.equalsIgnoreCase(""))
+	   public EncodedImage getLatestGravatar(String authorEmail) {
+		   EncodedImage gravatarBitmap = null;
+		   if (authorEmail == null || authorEmail.length() == 0 || authorEmail.equalsIgnoreCase("")) {
 			   gravatarBitmap = defaultGravatarBitmap;
-		   else {
-			   byte[] img = (byte[]) commentsGravatar.get(authorEmail);
-			   if(img != null && img.length > 0) {
-				   try {
-					gravatarBitmap = EncodedImage.createEncodedImage(img, 0, -1).getBitmap();
-				} catch (Exception e) {
-					Log.error(e, "gravatar for "+authorEmail+" is corrupted, using default gvt");
-					gravatarBitmap = defaultGravatarBitmap;
-				}
-			   } else {
+		   } else {
+			   EncodedImage img = (EncodedImage) commentsGravatar.get(authorEmail);
+			   if(img != null)
+				   gravatarBitmap = img;
+			   else 
 				   gravatarBitmap = defaultGravatarBitmap;
-			   }
-		   } 	
+		   }
 		   return gravatarBitmap;
 	   }
 	   
@@ -107,6 +104,12 @@ public class GravatarController extends Observable {
 			   gvtTask.stop();
 			   gvtTask = null;
 		   }
+	   }
+	   
+	   
+	   public void cleanGravatarCache(){
+		   CommentsDAO.cleanGravatarCache(currentBlog);
+		   commentsGravatar = new Hashtable();
 	   }
 	   
 	   private class GravatarCallBack implements TaskProgressListener {
@@ -125,17 +128,23 @@ public class GravatarController extends Observable {
 			   
 			   Hashtable content = (Hashtable)obj;
 			   String email = (String) content.get("email");
-			   byte[] img = null;
+			   EncodedImage img = null;
 			   
-			   if(content.get("bits") != null)
-				   img = (byte[]) content.get("bits");
-			   else
-				   img = new byte[0]; //put an empty array.
-			   
-			   commentsGravatar.put(email, img);
+			   if(content.get("bits") != null) { 
+				   byte[] imgBytes = null;
+				   imgBytes = (byte[]) content.get("bits");
+				   try {
+					   img = EncodedImage.createEncodedImage(imgBytes, 0, -1);
+					   commentsGravatar.put(email, img);
+					} catch (Exception e) {
+						Log.error(e, "gravatar for "+email+" is corrupted, using default gvt");
+						img = defaultGravatarBitmap;
+					}
+			   } else {
+				   img = defaultGravatarBitmap;
+			   }
 			   
 			   notifyObservers(email); //One gvt is loaded, notify observers
-			   
 		   }
 	   }
 }

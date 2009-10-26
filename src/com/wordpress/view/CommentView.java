@@ -59,7 +59,7 @@ public class CommentView extends StandardBaseView {
 			LabelField lblCommentAuthor = getLabel(_resources.getString(WordPressResource.LABEL_AUTHOR));	
 			outerManagerFrom.add(lblCommentAuthor);
 	        HorizontalFieldManager rowFrom = new HorizontalFieldManager(Manager.NO_HORIZONTAL_SCROLL | Manager.NO_VERTICAL_SCROLL);
-	        gravatarBitmapField = new BitmapField(GravatarController.defaultGravatarBitmap, BitmapField.NON_FOCUSABLE | Manager.FIELD_VCENTER);
+	        gravatarBitmapField = new BitmapField(GravatarController.defaultGravatarBitmap.getBitmap(), BitmapField.NON_FOCUSABLE | Manager.FIELD_VCENTER);
 	        fromDataManager = new VerticalFieldManager(VerticalFieldManager.NO_VERTICAL_SCROLL | VerticalFieldManager.NO_HORIZONTAL_SCROLL 
 	        		| Manager.FIELD_VCENTER)
 	        {//add the focus change listener patch
@@ -148,7 +148,7 @@ public class CommentView extends StandardBaseView {
 		 this.setTitleText(_resources.getString(WordPressResource.LABEL_COMMENT) + " "
 				 + controller.getCommentIndex(comment)+"/"+controller.getCommentsCount());
 		 
-		 gravatarBitmapField.setBitmap(gvtCtrl.getLatestGravatar(newComment.getAuthorEmail()));
+		 gravatarBitmapField.setImage(gvtCtrl.getLatestGravatar(newComment.getAuthorEmail()));
 		 
 		 fromDataManager.deleteAll();
 		 if(newComment.getAuthor() != null && !newComment.getAuthor().equals("")){

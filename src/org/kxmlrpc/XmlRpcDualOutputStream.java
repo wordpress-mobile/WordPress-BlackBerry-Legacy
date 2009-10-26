@@ -16,9 +16,9 @@ public class XmlRpcDualOutputStream {
 	
 	private OutputStream os = null;
 	private byte[] memoryStorage = null; //used when no disk storage
-	private String tmpFilePath = null; //used when disk storage
+	public String tmpFilePath = null; //used when disk storage
 	
-	public XmlRpcDualOutputStream(){
+	public XmlRpcDualOutputStream() {
 		os = getTmpFileOutputStream(); //first try the file output stream
     	if(os == null) {
     		setUpMemoryOutputStream();

@@ -88,7 +88,7 @@ public class BlogUpdateConn extends BlogConn  {
 			checkConnectionResponse("Load Recent Post");
 			
 			
-			Vector blogPages = getPages(blog.getId());
+			Vector blogPages = getPages(Integer.parseInt(blog.getId()), blog.getMaxPostCount());
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				blog.setPages(blogPages);

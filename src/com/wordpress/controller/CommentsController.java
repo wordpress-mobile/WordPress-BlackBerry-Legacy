@@ -21,6 +21,7 @@ import com.wordpress.view.CommentReplyView;
 import com.wordpress.view.CommentView;
 import com.wordpress.view.CommentsView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.view.dialog.InfoView;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.comment.DeleteCommentConn;
 import com.wordpress.xmlrpc.comment.EditCommentConn;
@@ -399,9 +400,9 @@ public abstract class CommentsController extends BaseController {
 						respVector = (Vector) resp.getResponseObject(); // the response from wp server
 						
 						storeComment(respVector);
-
 						storedComments = CommentsDAO.vector2Comments(respVector);
-						CommentsDAO.cleanGravatarCache(currentBlog);
+						
+						gravatarController.cleanGravatarCache();
 						view.refresh(storedComments);
 						
 					} else {

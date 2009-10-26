@@ -22,98 +22,8 @@ public class DraftDAO implements BaseDAO{
     public static void removePost(Blog blog, int draftId) throws IOException, RecordStoreException {
     	String draftFilePath = getPostFilePath(blog, draftId);  	
     	JSR75FileSystem.removeFile(draftFilePath);
-    	/*String[] draftPostPhotoList = getPostPhotoList(blog, draftId);
-    	for (int i = 0; i < draftPostPhotoList.length; i++) {
-    		removePostPhoto(blog, draftId, draftPostPhotoList[i]);
-		}*/
     }
      
-  /*  public static String getPhotoRealPath(Blog blog, int draftId, String photoName) throws IOException, RecordStoreException {
-    	String draftPostPath = getPostFilePath(blog, draftId);
-    	String photoFilePath = draftPostPath+"p-"+photoName;
-    	return photoFilePath;
-    }
-
-    //load a photos of the draft post
-	public static byte[] loadPostPhoto(Blog blog, int draftId, String photoName) throws IOException, RecordStoreException {
-    	String photoFilePath = getPhotoRealPath(blog, draftId, photoName);
-    	return JSR75FileSystem.readFile(photoFilePath);
-	}
-
-    //delete a photos of the draft post
-	public static void removePostPhoto(Blog blog, int draftId, String photoName)  throws IOException, RecordStoreException{
-    	String photoFilePath = getPhotoRealPath(blog, draftId, photoName);
-    	JSR75FileSystem.removeFile(photoFilePath);
-		System.out.println("deleting draft photo ok");   	
-	}
-    
-    //store a photos of the draft post
-	public static void storePhotoFast(Blog blog, int draftId, String completePath, String photoName) throws IOException, RecordStoreException {
-    	String draftPostPath = getPostFilePath(blog, draftId);
-    	JSR75FileSystem.createFile(draftPostPath);
-    	String photoFilePath = draftPostPath+"p-"+photoName;
-    	JSR75FileSystem.createFile(photoFilePath);    	
-    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(photoFilePath);
-    
-    	//read from the source and store the photo
-    	FileConnection source;
-    	if(!completePath.startsWith("file:///")) {
-    		source = (FileConnection) Connector.open("file:///" + completePath, Connector.READ);
-    	} else {
-    		source = (FileConnection) Connector.open(completePath, Connector.READ);
-    	}
-    	  
-    	InputStream inStream = source.openInputStream();
-    	byte[] buffer = new byte[1024];
-    	int length = -1;
-    	while ((length = inStream.read(buffer)) > 0) {
-    		out.write(buffer, 0 , length);
-    	}
-    	
-    	inStream.close();
-    	out.close();
-		System.out.println("writing draft photo ok");   	
-	}
-	
-    //store a photos of the draft post 
-	//FIXME can we remove this 
-	public static void storePhoto(Blog blog, int draftId, byte[] photoData, String photoName) throws IOException, RecordStoreException {
-    	String draftPostPath = getPostFilePath(blog, draftId);
-    	JSR75FileSystem.createFile(draftPostPath);
-    	String photoFilePath = draftPostPath+"p-"+photoName;
-    	JSR75FileSystem.createFile(photoFilePath);    	
-    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(photoFilePath);
-    	out.write(photoData);
-    	out.close();
-		System.out.println("writing draft photo ok");   	
-	}
-	
-	
-	//retrive name of draft photos files
-	public static String[] getPostPhotoList(Blog blog, int draftId) throws IOException, RecordStoreException {
-    	String blogDraftsPath=getPath(blog);
-   // 	String postFile=getDraftFilePath(draftPost, draftId);
-    	
-   		String[] listDraftFolder = JSR75FileSystem.listFiles(blogDraftsPath);
-    		Vector listDir= new Vector();
-        	for (int i = 0; i < listDraftFolder.length; i++) {
-        		String path=listDraftFolder[i];
-        		if (!path.endsWith("/")) { //found files
-        			if(!isPostFile(path) && path.startsWith( String.valueOf(draftId) )) { //found draft photo
-        				
-        				if(path.endsWith(".rem")) { //check for device content protection
-        					path = StringUtils.replaceLast(path, ".rem", "");
-        				} 
-        				
-        				String newDirPath = path.substring(path.indexOf('-')+1, path.length());
-        				listDir.addElement(newDirPath); 
-        			}
-        		}
-    		}
-        	return Tools.toStringArray(listDir);   	
-	}
-    */
-    
 	public static int storePost(Post draftPost, int draftId) throws IOException, RecordStoreException {
     	String draftFilePath = getPostFilePath(draftPost.getBlog(), draftId);
     	int newPostID= getDraftPostID(draftPost.getBlog(), draftId);
@@ -289,7 +199,7 @@ public class DraftDAO implements BaseDAO{
 		Vector hashedMediaIbjects = new Vector(mediaObjects.size());
 		for (int i = 0; i < mediaObjects.size(); i++) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
-			hashedMediaIbjects.addElement(tmp.getMediaObjectAsHashtable());
+			hashedMediaIbjects.addElement(tmp.serialize());
 			}
 		content.put("mediaObjects", hashedMediaIbjects);
 		
@@ -351,7 +261,9 @@ public class DraftDAO implements BaseDAO{
 			Vector mediaObjects = new Vector(hashedMediaIbjects.size());
 			for (int i = 0; i < hashedMediaIbjects.size(); i++) {
 				Hashtable tmp = (Hashtable) hashedMediaIbjects.elementAt(i);
-				mediaObjects.addElement(new MediaEntry(tmp));
+				MediaEntry tmpMedia = MediaEntry.deserialize(tmp);
+				if(tmpMedia != null )
+					mediaObjects.addElement(tmpMedia);
 				}
 		post.setMediaObjects(mediaObjects);
 		}

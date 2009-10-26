@@ -2,116 +2,49 @@ package com.wordpress.model;
 
 import java.util.Hashtable;
 
+import net.rim.device.api.system.Bitmap;
+
 import com.wordpress.utils.StringUtils;
+import com.wordpress.utils.log.Log;
 
-public class MediaEntry {
-	public static final int IMAGE_FILE = 0;
-	public static final int VIDEO_FILE = 1;
+public abstract class MediaEntry {
 	
-	private int type = IMAGE_FILE; //default type is image
-	private String filePath = null; //path of the file into disk
-	private String fileName = null; //name of the file into the server
-	private String title = null;
-	private String caption = null;
-	private String description = null;
-	private String fileURL = null;
-	private boolean verticalAligment = false; //false = bottom, true = top
-	private int width, height;
-	private String MIMEType = ""; //do not store this value
-
-	/*
-	 * Return the html rappresentation of the image
-	 * 
-	 * <div id="attachment_30" class="wp-caption alignnone" style="width: 830px">
-	 * <a href="http://localhost/wp_mopress/wp-content/uploads/2009/03/back.jpg">
-	 * <img src="http://localhost/wp_mopress/wp-content/uploads/2009/03/back.jpg" alt="Utilizzato anche come testo alternativo all’immagine" title="back" width="820" height="992" class="size-full wp-image-30" />
-	 * </a>
-	 * <p class="wp-caption-text">Utilizzato anche come testo alternativo all’immagine</p>
-	 * </div>
-	 * 
-	 * @return
-	 */
-	private String getImageAsHtml() {
-		StringBuffer tmpBuff = new StringBuffer();
-		
-		String title = this.getTitle() != null ? this.getTitle() : this.getFileName();
-		String caption = this.getCaption() != null ? this.getCaption() : "";
-		
-		if(!caption.equals("")) {
-			//<div id="attachment_30" class="wp-caption alignnone" style="width: 830px">
-			int divWidth = this.getWidth()+10; //adding 10px padding
-			tmpBuff.append("<div class=\"wp-caption alignnone\" style=\"width: "+divWidth+"px\"");
-		} else {
-			tmpBuff.append("<p>");
-		}
-		
-		tmpBuff.append("<a href=\""+this.getFileURL()+"\">" +
-						"<img class=\"alignnone size-full\"" +
-						" src=\""+this.getFileURL()+"\" alt=\""+caption+"\"" +
-						" title=\""+title+"\"" +
-						" width=\""+this.getWidth()+"\" height=\""+this.getHeight()+"\" />" +
-						"</a>");
+	protected String filePath = null; //path of the file into disk
+	protected String fileName = null; //name of the file into the server
+	protected String title = null;
+	protected String caption = null;
+	protected String description = null;
+	protected String fileURL = null;
+	protected boolean verticalAligment = false; //false = bottom, true = top
+	protected int width, height;
+	protected String MIMEType = ""; //do not store this value
 	
-		if(!caption.equals("")) {
-			tmpBuff.append("<p class=\"wp-caption-text\">");
-			tmpBuff.append(caption);
-			tmpBuff.append("</div>");
-		} else {
-			tmpBuff.append("</p>");
-		}
-		return tmpBuff.toString();
-	}
+	public static final String predefinedThumb = "video_thumb.png";
 
+	public MediaEntry() {}
 	
-	private String getVideoAsHtml() {
-		StringBuffer tmpBuff = new StringBuffer();
-		
-		String title = this.getTitle() != null ? this.getTitle() : this.getFileName();
-		tmpBuff.append("<p>");
-		tmpBuff.append("<a href=\""+this.getFileURL()+"\" title=\""+title+"\">"+
-						this.getFileName()+
-						"</a>");
-		tmpBuff.append("</p>");
-		return tmpBuff.toString();
-	}
-
+	
 	/**
 	 * Return the full html rappresentation of the media obj
 	 * @return
 	 */
-	public String getMediaObjectAsHtml() {
-		if (type == IMAGE_FILE)
-			return getImageAsHtml();
-		else
-			return getVideoAsHtml();
-	}
+	public abstract String getMediaObjectAsHtml();
 	
 	
 	/**
 	 * Return the Small html rappresentation of the media obj, usefull on preview
 	 * @return
 	 */
-	public String getMediaObjectAsSmallHtml() {
-		StringBuffer tmpBuff = new StringBuffer();
-		if (type == IMAGE_FILE) {
-			tmpBuff.append("<p>"+
-					"<img class=\"alignnone size-full\"" +
-					" src=\""+this.getFilePath()+"\" alt=\"\" " +
-					"</p>");
-		} else {
-			tmpBuff.append("<p>");
-			tmpBuff.append("<a href=\""+this.getFileURL()+"\" title=\""+title+"\">"+
-							this.getFileName()+
-							"</a>");
-			tmpBuff.append("</p>");		
-		}
-		return tmpBuff.toString();
-	}
+	public abstract String getMediaObjectAsSmallHtml() ;
 	
-	public Hashtable getMediaObjectAsHashtable() {
+	
+	public abstract Bitmap getThumb();
+	
+	
+	public Hashtable serialize() {
 		Hashtable hash = new Hashtable();
-		
-		hash.put("type", String.valueOf(type));
+		String type= this.getClass().getName();
+		hash.put("type", type);
 		hash.put("filePath", filePath);
 		
 		if(fileName != null)
@@ -139,62 +72,72 @@ public class MediaEntry {
 		return hash;
 	}
 	
-	public MediaEntry(Hashtable hash) {
-		super();
+	public static MediaEntry deserialize(Hashtable hash) {
 		
-		String typeString = (String)hash.get("type");
-		this.type = Integer.parseInt(typeString);
-				
+		MediaEntry tmpMedia = null;
+		// Get a class reference for the concrete factory
+		Class factoryClass = null;
+		String type = (String)hash.get("type");
+		try {
+			factoryClass = Class.forName(type);
+		} catch (ClassNotFoundException e) {
+			Log.trace(e, "Unable to instantiate media object");
+			return null;
+		}
+		
+		try {
+			Object instance = factoryClass.newInstance();
+			tmpMedia = (MediaEntry)instance;
+		} catch (InstantiationException e) {
+			Log.trace(e, "Unable to instantiate " + factoryClass.getName());
+			return null;
+		} catch (IllegalAccessException e) {
+			Log.trace(e, "Unable to instantiate " + factoryClass.getName());
+			return null;
+		}
+		
 		String filePath = (String)hash.get("filePath");
-		if(filePath != null)
-			this.filePath = filePath;
-		
+		tmpMedia.setFilePath(filePath);
+
 		String fileName = (String)hash.get("fileName");
 		if(fileName != null)
-			this.fileName = fileName;
+			tmpMedia.fileName = fileName;
 		
 		String title = (String)hash.get("title");
 		if(title != null)
-			this.title = title;
+			tmpMedia.title = title;
 		
 		String caption = (String)hash.get("caption");
 		if(caption != null)
-			this.caption = caption;
+			tmpMedia.caption = caption;
 		
 		String description = (String)hash.get("description");
 		if(description != null)
-			this.description = description;
+			tmpMedia.description = description;
 
 		String fileURL = (String)hash.get("fileURL");
 		if(fileURL != null)
-			this.fileURL = fileURL;
+			tmpMedia.fileURL = fileURL;
 
 		
 		String verticalAligment = (String)hash.get("verticalAligment");
 		if(verticalAligment!= null && verticalAligment.equalsIgnoreCase("1"))
-			this.verticalAligment = true;
+			tmpMedia.verticalAligment = true;
 		else
-			this.verticalAligment = false;
+			tmpMedia.verticalAligment = false;
 		
 		String width = (String)hash.get("width");
 		if(width!= null)
-			this.width = Integer.parseInt(width);
+			tmpMedia.width = Integer.parseInt(width);
 		
 		String height = (String)hash.get("height");
 		if(height!= null)
-			this.height = Integer.parseInt(height);
+			tmpMedia.height = Integer.parseInt(height);
 	
+		return tmpMedia;
 	}
 	
-	public MediaEntry(String filePath) {
-		super();
-		this.filePath = filePath;
-		//retrive the file name part
-   	 	String[] fileNameSplitted = StringUtils.split(filePath, "/");
-   	 	String fileName= fileNameSplitted[fileNameSplitted.length-1];
-   	 	this.fileName = fileName;
-	}
-	
+
 
 	public String getFilePath() {
 		return filePath;
@@ -202,6 +145,19 @@ public class MediaEntry {
 
 	public void setFilePath(String filePath) {
 		this.filePath = filePath;
+
+		//set the file name part only if it is null
+		if(fileName == null) {
+	   	 	String[] fileNameSplitted = StringUtils.split(filePath, "/");
+	   	 	String fileName= fileNameSplitted[fileNameSplitted.length-1];
+	        //decode the escaped filename - ASCII format as defined by RFC 2396
+	   	 	try {
+				fileName = StringUtils.decode(fileName);
+			} catch (Exception e) {
+				Log.trace(e, "error while decoding file name");
+			}
+	   	 	this.fileName = fileName;
+		}
 	}
 
 	public String getTitle() {
@@ -274,12 +230,5 @@ public class MediaEntry {
 
 	public void setMIMEType(String type) {
 		MIMEType = type;
-	}
-	public int getType() {
-		return type;
-	}
-	
-	public void setType(int type) {
-		this.type = type;
-	}
+	}	
 }
