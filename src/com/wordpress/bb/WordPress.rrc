@@ -144,6 +144,7 @@ MESSAGE_LOCAL_DRAFT_NO_COMMENT#0="No Comments for draft post";
 MESSAGE_MEDIA_ON_BOTTOM#0="All media will be aligned to the bottom of the content";
 MESSAGE_MEDIA_ON_TOP#0="All media will be aligned to the top of the content";
 MESSAGE_NEW_VERSION_AVAILABLE#0="A new version of WordPress for BlackBerry is now available. Do you want update now?";
+MESSAGE_NOTHING_TO_SEE_HERE#0="Nothing to see here";
 MESSAGE_NO_DRAFT_PAGES#0="No draft pages found";
 MESSAGE_NO_DRAFT_POSTS#0="No draft post found";
 MESSAGE_NO_NEW_VERSION_AVAILABLE#0="WordPress for BlackBerry is updated.";
