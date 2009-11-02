@@ -63,8 +63,8 @@ public final class VideoFileJournalListener implements FileSystemJournalListener
             	case FileSystemJournalEntry.FILE_ADDED:
             		Log.debug("video added: "+path);
             		_screen.addLinkToMediaObject(path, BlogObjectController.VIDEO);
-            		
             		break;
+            		
             	case FileSystemJournalEntry.FILE_RENAMED:
             		Log.debug("video renamed");
             		String oldPath = entry.getOldPath();
@@ -73,8 +73,8 @@ public final class VideoFileJournalListener implements FileSystemJournalListener
             		Log.debug("video new file name: "+path);
             		_screen.deleteLinkToMediaObject(oldPath);
             		_screen.addLinkToMediaObject(path, BlogObjectController.VIDEO);
-            		
             		break;
+            		
             	case FileSystemJournalEntry.FILE_DELETED:
             		Log.debug("video deleted: "+path);
             		_screen.deleteLinkToMediaObject(path);

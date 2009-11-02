@@ -136,7 +136,7 @@ public class MultimediaPopupScreen extends PopupScreen {
 	protected boolean keyChar(char c, int status, int time) {
 		// Close this screen if escape is selected.
 		if (c == Characters.ESCAPE) {
-			response= PostController.NONE;
+			response = PostController.NONE;
 			this.close();
 			return true;
 		} else

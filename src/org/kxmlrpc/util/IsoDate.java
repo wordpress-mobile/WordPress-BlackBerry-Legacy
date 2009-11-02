@@ -28,6 +28,9 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.wordpress.utils.CalendarUtils;
+import com.wordpress.utils.log.Log;
+
 
 public class IsoDate {
     
@@ -64,7 +67,7 @@ public class IsoDate {
      public static Date stringToDate(String text) throws IOException {
          Calendar c;
 		try {
-			c = Calendar.getInstance();
+			 c = Calendar.getInstance();
 			 c.set(Calendar.YEAR, Integer.parseInt(text.substring(0, 4)));
 			 c.set(Calendar.MONTH, Integer.parseInt(text.substring(4, 6)) - 1);
 			 c.set(Calendar.DAY_OF_MONTH, Integer.parseInt(text.substring(6, 8)));
@@ -74,8 +77,14 @@ public class IsoDate {
 			 c.set(Calendar.MILLISECOND, 0);
 			 return c.getTime();
 		} catch (NumberFormatException e) {
-			throw new IOException("Data field contains invalid timestamp: "+text);
-		}
-		
+			Log.error("Data field from xmlrpc response contains invalid timestamp: "+text);
+			Log.debug("Setting the current date...");
+			try {
+				 long gmtTime = CalendarUtils.adjustTimeFromDefaultTimezone(System.currentTimeMillis());
+				 return new Date(gmtTime);
+			} catch (Exception e2) {
+				throw new IOException("Data field contains invalid timestamp: "+text);
+			}			
+		}//end first catch
      }
 }

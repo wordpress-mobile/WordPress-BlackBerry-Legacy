@@ -23,6 +23,5 @@ public class ConnectionInProgressView extends Dialog {
 		GIFEncodedImage _theImage= (GIFEncodedImage)EncodedImage.getEncodedImageResource("loading-gif.bin");
 		DialogFieldManager dfm = (DialogFieldManager) getDelegate();
 		dfm.setIcon(new AnimatedGIFField(_theImage));
-		
 	}
 }

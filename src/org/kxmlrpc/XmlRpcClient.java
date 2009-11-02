@@ -269,12 +269,12 @@ public class XmlRpcClient {
     		con.setRequestMethod(HttpConnection.POST);
     		con.setRequestProperty("Content-Length", Long.toString(os.getMessageLength()));
      	    con.setRequestProperty("Content-Type", "text/xml");
-    		    		
-
     		// Obtain an output stream
     		out = con.openOutputStream();
     		os.sendRequest(out);
-   	
+ /*   		byte[] readFile = JSR75FileSystem.readFile(os.tmpFilePath);
+    		out.write(readFile);
+   */	
     		// List all the response headers from the server.
     		// Note: The first call to getHeaderFieldKey() will implicit send
     		// the HTTP request to the server.
@@ -343,7 +343,7 @@ public class XmlRpcClient {
     		result = parser.parseResponse();
     		
     	} catch (Exception x) {
-    		Log.error("Error in XmlRpcClient");
+    		Log.error(x, "Error in XmlRpcClient");
     		throw (Exception) x;
     	} finally {
     		os.clean();

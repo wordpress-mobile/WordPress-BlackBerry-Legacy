@@ -36,6 +36,8 @@ import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PreviewView;
 import com.wordpress.view.component.FileSelectorPopupScreen;
+import com.wordpress.view.component.RimFileBrowser;
+import com.wordpress.view.component.RimFileBrowserListener;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.view.mm.MediaObjFileJournalListener;
 import com.wordpress.view.mm.MediaViewMediator;
@@ -240,10 +242,10 @@ public abstract class BlogObjectController extends BaseController {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			if(tmp.getFilePath().equalsIgnoreCase(key)) {
 				mediaObjects.removeElementAt(i);
+				photoView.deletePhotoBitmapField(key); //delete the thumb
 				break;
 			}
 		}
-		photoView.deletePhotoBitmapField(key); //delete the thumb
 		return true;
 	}
 		
@@ -300,7 +302,12 @@ public abstract class BlogObjectController extends BaseController {
 		switch (response) {
 		case BROWSER_PHOTO:
            	 String imageExtensions[] = { "jpg", "jpeg","bmp", "png", "gif"};
-             FileSelectorPopupScreen fps = new FileSelectorPopupScreen(null, imageExtensions);
+           	 
+           	RimFileBrowser photoFileBrowser = new RimFileBrowser(imageExtensions);
+           	photoFileBrowser.setListener(new MultimediaFileBrowserListener(PHOTO));
+           	UiApplication.getUiApplication().pushScreen(photoFileBrowser);
+           	
+           /*  FileSelectorPopupScreen fps = new FileSelectorPopupScreen(null, imageExtensions);
              fps.pickFile();
              String theFile = fps.getFile();
              if (theFile == null){
@@ -310,12 +317,15 @@ public abstract class BlogObjectController extends BaseController {
     		    	 theFile = "file:///"+ theFile;
     		       } 
 				addLinkToMediaObject(theFile, PHOTO);	
-             }					
+             }			*/		
 			break;
 			
 		case BROWSER_VIDEO:
           	String videoExtensions[] = MultimediaUtils.getSupportedVideoFormat();// "mp4", "m4a","3gp", "3gp2", "avi", "wmv", "asf", "avi"};
-            FileSelectorPopupScreen fpsVideo = new FileSelectorPopupScreen(null, videoExtensions);
+         	RimFileBrowser videoFileBrowser = new RimFileBrowser(videoExtensions);
+         	videoFileBrowser.setListener(new MultimediaFileBrowserListener(VIDEO));
+           	UiApplication.getUiApplication().pushScreen(videoFileBrowser);
+          	/*    FileSelectorPopupScreen fpsVideo = new FileSelectorPopupScreen(null, videoExtensions);
             fpsVideo.pickFile();
             String theVideoFile = fpsVideo.getFile();
             if (theVideoFile == null){
@@ -325,7 +335,7 @@ public abstract class BlogObjectController extends BaseController {
    		    	theVideoFile = "file:///"+ theVideoFile;
    		       } 
 				addLinkToMediaObject(theVideoFile, VIDEO);	
-            }					
+            }	*/				
 			break;
 			
 		case PHOTO:
@@ -353,6 +363,31 @@ public abstract class BlogObjectController extends BaseController {
 		default:
 			break;
 		}		
+	}
+	
+	private class MultimediaFileBrowserListener extends RimFileBrowserListener {
+	    
+		int type = -1;
+	    
+		public MultimediaFileBrowserListener(int multimediaFileType) {
+			super();
+			type = multimediaFileType;			
+		}
+
+		public boolean chosen(String theFile) {
+			Log.trace("[MultimediaFileBrowserListener.chosen]");
+			Log.trace("filename: " + theFile);
+             if (theFile == null){
+            	 
+             } else {
+    		     if(!theFile.startsWith("file://")) {
+    		    	 theFile = "file://"+ theFile;
+    		       } 
+				addLinkToMediaObject(theFile, type);	
+             }	
+			
+			return true;    
+	    }
 	}
 	
 	private void addVideoFileJournalListener() {
@@ -447,7 +482,6 @@ public abstract class BlogObjectController extends BaseController {
 		UiApplication.getUiApplication().pushScreen(new PreviewView(html));	
 	}
 	
-		
 	//callback for post loading
 	private class loadTemplateCallBack implements Observer {
 		

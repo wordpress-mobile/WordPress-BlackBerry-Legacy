@@ -1,7 +1,7 @@
 package com.wordpress.view.mm;
 
+import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
-import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
 
 import com.wordpress.model.MediaEntry;
@@ -11,7 +11,7 @@ import com.wordpress.view.component.BorderedFieldManager;
 public class MediaViewMediator {
 		private MediaEntry mediaEntry;
 		private BorderedFieldManager manager;
-		private BitmapField bitmapField;
+		private Field bitmapField;
 		private LabelField fileNameField;
 		private LabelField titleField;
 
@@ -30,7 +30,7 @@ public class MediaViewMediator {
 			manager.invalidate();
 		}
 		
-		public BitmapField getBitmapField() {
+		public Field getField() {
 			return bitmapField;
 		}
 
@@ -42,7 +42,7 @@ public class MediaViewMediator {
 			return manager;
 		}
 
-		public MediaViewMediator(MediaEntry mediaEntry, BorderedFieldManager manager, BitmapField bitmap, LabelField fileNameField, LabelField titleField) {
+		public MediaViewMediator(MediaEntry mediaEntry, BorderedFieldManager manager, Field bitmap, LabelField fileNameField, LabelField titleField) {
 			super();
 			this.mediaEntry = mediaEntry;
 			this.manager = manager;

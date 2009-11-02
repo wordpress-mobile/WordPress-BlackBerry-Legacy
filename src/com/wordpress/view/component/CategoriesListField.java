@@ -2,6 +2,7 @@ package com.wordpress.view.component;
 
 import java.util.Vector;
 
+import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.Color;
@@ -11,6 +12,8 @@ import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ListField;
 
+import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.model.Category;
 
 public class CategoriesListField {
@@ -200,7 +203,9 @@ public class CategoriesListField {
         //Set the ListFieldCallback
         listFieldCallBack = new ListCallBack();
         _checkList.setCallback(listFieldCallBack);
-        _checkList.setEmptyString("Nothing to see here", DrawStyle.LEFT);
+        ResourceBundle resourceBundle = WordPressCore.getInstance().getResourceBundle();
+        String emptyListString = resourceBundle.getString(WordPressResource.MESSAGE_NOTHING_TO_SEE_HERE);
+        _checkList.setEmptyString(emptyListString, DrawStyle.LEFT);
         _checkList.setRowHeight(42);
         
         int elementLength = orderedBlogCategories.length;

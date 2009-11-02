@@ -11,7 +11,6 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BitmapField;
-import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
@@ -89,38 +88,34 @@ public class PhotosView extends StandardBaseView {
     private MenuItem _showPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_OPEN, 120, 10) {
         public void run() {        	
         	Field fieldWithFocus = getLeafFieldWithFocus();
-    		if(fieldWithFocus instanceof BitmapField) {
-    			MediaEntry mediaEntry = getMediaEntry((BitmapField) fieldWithFocus);
-    			if (mediaEntry == null) {
-    				Log.error("Connot find post/page media object in the screen");
-    				return;
-    			}
-    			if(mediaEntry instanceof PhotoEntry) {
-    				controller.showEnlargedPhoto(mediaEntry.getFilePath());
-    			} else {
-    				BrowserSession videoClip = Browser.getDefaultSession();
-    				videoClip.displayPage(mediaEntry.getFilePath());
-    			}
-    		}
+        	MediaEntry mediaEntry = getMediaEntry(fieldWithFocus);
+        	if (mediaEntry == null) {
+        		Log.error("Connot find post/page media object in the screen");
+        		return;
+        	}
+        	if(mediaEntry instanceof PhotoEntry) {
+        		controller.showEnlargedPhoto(mediaEntry.getFilePath());
+        	} else {
+        		BrowserSession videoClip = Browser.getDefaultSession();
+        		videoClip.displayPage(mediaEntry.getFilePath());
+        	}
         }
     };
       
     private MenuItem _showPhotoPropertiesItem = new MenuItem( _resources, WordPressResource.MENUITEM_PROPERTIES, 130, 10) {
         public void run() {        	
         	Field fieldWithFocus = getLeafFieldWithFocus();
-    		if(fieldWithFocus instanceof BitmapField) {
-    			MediaViewMediator mediaViewMediator = getMediator((BitmapField) fieldWithFocus);
-    			if(mediaViewMediator != null) {
-    				controller.showMediaObjectProperties(mediaViewMediator);
-    			}
-    		}
+        	MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
+        	if(mediaViewMediator != null) {
+        		controller.showMediaObjectProperties(mediaViewMediator);
+        	}
         }
     };
     
-    private MediaViewMediator getMediator(BitmapField source) {
+    private MediaViewMediator getMediator(Field source) {
     	for (int i = 0; i < uiLink.size(); i++) {
     		MediaViewMediator tmpLink = (MediaViewMediator)uiLink.elementAt(i);
-    		BitmapField bitmapField = tmpLink.getBitmapField();
+    		Field bitmapField = tmpLink.getField();
     		if (source.equals(bitmapField)) {
     			return tmpLink;
     		}
@@ -128,7 +123,7 @@ public class PhotosView extends StandardBaseView {
     	return null;
     }
 
-    private MediaEntry getMediaEntry(BitmapField source) {
+    private MediaEntry getMediaEntry(Field source) {
     	MediaViewMediator mediaViewMediator = getMediator(source);
     	if (mediaViewMediator != null) {
     		return mediaViewMediator.getMediaEntry();
@@ -139,12 +134,11 @@ public class PhotosView extends StandardBaseView {
     private MenuItem _deletePhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_REMOVE, 130, 10) {
         public void run() {        	
         	Field fieldWithFocus = getLeafFieldWithFocus();
-    		if(fieldWithFocus instanceof BitmapField) {
-    			MediaEntry mediaEntry = getMediaEntry((BitmapField) fieldWithFocus);
-    			if(mediaEntry != null)
+    			MediaEntry mediaEntry = getMediaEntry(fieldWithFocus);
+    			if(mediaEntry != null) {
     				controller.deleteLinkToMediaObject(mediaEntry.getFilePath());
+    			}
     		}
-        }
     };
     
     private MenuItem _allOnTopPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_ALLTOP, 100000, 10) {
@@ -160,7 +154,7 @@ public class PhotosView extends StandardBaseView {
         }
     };
     
-    private MenuItem _allOnBottomPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_ALLBOTTOM, 100000, 10) {
+     private MenuItem _allOnBottomPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_ALLBOTTOM, 100000, 10) {
         public void run() {
         	for (int i = 0; i < uiLink.size(); i++) {
         		MediaViewMediator tmpLink = (MediaViewMediator)uiLink.elementAt(i);
@@ -179,13 +173,12 @@ public class PhotosView extends StandardBaseView {
     		MediaViewMediator tmpLink = (MediaViewMediator)uiLink.elementAt(i);
     		if (tmpLink.getMediaEntry().getFilePath().equalsIgnoreCase(key)) {
     			delete(tmpLink.getManager());
+    			counterPhotos--;
     			uiLink.removeElementAt(i);
+    			updateUI(counterPhotos);
     			break;
     		}
     	}
-    	
-    	counterPhotos--;
-		updateUI(counterPhotos);
     }
     
     protected void onDisplay() {
@@ -204,14 +197,56 @@ public class PhotosView extends StandardBaseView {
 	public BaseController getController() {
 		return controller;
 	}
-		
-	public void addMedia(MediaEntry mediaEntry){
+	
+	private Field buildThumbField(MediaEntry mediaEntry) {
+
 		Bitmap bitmapRescale = mediaEntry.getThumb();
 		
-    	BitmapField photoBitmapField = new BitmapField(bitmapRescale, 
+		BitmapField photoBitmapField = new BitmapField(bitmapRescale, 
 				BitmapField.FOCUSABLE | BitmapField.FIELD_HCENTER | Manager.FIELD_VCENTER);
 		photoBitmapField.setSpace(5, 5);
-        
+		return photoBitmapField;
+/*
+		if (mediaEntry instanceof VideoEntry){
+			Player capturePlayer = null;
+			
+			try {
+				capturePlayer = javax.microedition.media.Manager.createPlayer(mediaEntry.getFilePath());
+				capturePlayer.realize();
+				capturePlayer.prefetch();
+				Log.trace("getting video controll");
+				VideoControl videoControl = (VideoControl)capturePlayer.getControl("javax.microedition.media.control.VideoControl");
+				Field videoField = (Field)videoControl.initDisplayMode( VideoControl.USE_GUI_PRIMITIVE, "net.rim.device.api.ui.Field" );			 
+				videoControl.setDisplaySize(64 , 64);
+				videoControl.setVisible(true);
+
+				// get the volume control
+				VolumeControl volume = (VolumeControl)capturePlayer.getControl("javax.microedition.media.control.VolumeControl");
+				// initialize it to 0
+				if(volume != null)
+					volume.setLevel(0);
+
+				FramePositioningControl frameControl = (FramePositioningControl)capturePlayer.getControl("javax.microedition.media.control.FramePositioningControl");
+				if( frameControl != null )
+					frameControl.seek(100);
+										
+				capturePlayer.start();
+				return videoField;
+			}
+			catch (MediaException pe) {
+				Log.error("Error pe");
+				
+			} catch (IOException ioe) {
+				Log.error("Error ioe");				
+			}
+		}
+		
+		return photoBitmapField;*/
+	}
+	
+	public void addMedia(MediaEntry mediaEntry){
+
+		Field thumbField = this.buildThumbField(mediaEntry);
 		//outer Manager
         BorderedFieldManager borderedManager = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
@@ -249,14 +284,14 @@ public class PhotosView extends StandardBaseView {
         
 		fromDataManager.add( titleField );
         
-        innerManager.add(photoBitmapField);
+        innerManager.add(thumbField);
         innerManager.add(new LabelField("  ", LabelField.NON_FOCUSABLE));
         innerManager.add(fromDataManager);
         borderedManager.add(innerManager);
         add(borderedManager);
  
         //	add the fields to the mediator
-        MediaViewMediator uiLinker = new MediaViewMediator(mediaEntry, borderedManager, photoBitmapField, filenameField, titleField);
+        MediaViewMediator uiLinker = new MediaViewMediator(mediaEntry, borderedManager, thumbField, filenameField, titleField);
         uiLink.addElement(uiLinker);
         
 		counterPhotos++;

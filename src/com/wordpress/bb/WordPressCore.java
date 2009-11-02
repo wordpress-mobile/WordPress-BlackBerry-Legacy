@@ -5,6 +5,7 @@ import java.util.Timer;
 import javax.microedition.io.file.FileSystemListener;
 import javax.microedition.rms.RecordStoreException;
 
+import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.UiApplication;
 
@@ -22,6 +23,9 @@ public class WordPressCore {
 	private FileAppender fileAppender = null;
 	private MySDListener sdCardListener = null;
 	private Timer timer = null;
+	
+	//create a variable to store the ResourceBundle for localization support
+    private final ResourceBundle _resources;
 
 	private static WordPressCore instance;
 	
@@ -30,6 +34,7 @@ public class WordPressCore {
 		sdCardListener = new MySDListener();
 		UiApplication.getUiApplication().addFileSystemListener(sdCardListener);
 		timer = new Timer();
+		_resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
 	}
 	
 	public static WordPressCore getInstance() {
@@ -39,6 +44,10 @@ public class WordPressCore {
 		return instance;
 	}
 	
+	public ResourceBundle getResourceBundle() {
+		return _resources;
+	}
+
 	private class MySDListener implements FileSystemListener {
 		public void rootChanged(int state, String rootName) {
 			if( state == ROOT_ADDED ) {

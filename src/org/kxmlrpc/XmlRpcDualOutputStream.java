@@ -83,7 +83,7 @@ public class XmlRpcDualOutputStream {
 			int count = 1;
 			while ((length = inStream.read(buffer)) >0 ) {
 				out.write(buffer, 0 , length);
-				Log.trace("1024byte X: "+ (count++));
+				//Log.trace("1024byte X: "+ (count++));
 				//Log.trace("1048576byte per: "+ (count++));
 			}
 			inStream.close();

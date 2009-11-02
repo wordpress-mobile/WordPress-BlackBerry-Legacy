@@ -2,6 +2,7 @@ package com.wordpress.view.component;
 
 import java.util.Vector;
 
+import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.EncodedImage;
@@ -12,6 +13,8 @@ import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.ListField;
 
+import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.GravatarController;
 import com.wordpress.model.Comment;
 import com.wordpress.utils.observer.Observable;
@@ -163,7 +166,9 @@ public class CommentsListField {
         //Set the ListFieldCallback
         listFieldCallBack = new ListCallBack();
         _innerListField.setCallback(listFieldCallBack);
-        _innerListField.setEmptyString("Nothing to see here", DrawStyle.LEFT);
+        ResourceBundle resourceBundle = WordPressCore.getInstance().getResourceBundle();
+        String emptyListString = resourceBundle.getString(WordPressResource.MESSAGE_NOTHING_TO_SEE_HERE);
+        _innerListField.setEmptyString(emptyListString, DrawStyle.LEFT);
         _innerListField.setRowHeight(42);
         
         int elementLength = _elements.length;

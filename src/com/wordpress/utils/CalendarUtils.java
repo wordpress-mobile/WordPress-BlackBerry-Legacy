@@ -91,7 +91,7 @@ public class CalendarUtils {
     }
     
     /**
-     * Shift the time from the local timezone do UTC
+     * Shift the time from the local timezone to UTC
      * @param time
      * @return
      */

@@ -98,7 +98,7 @@ public class MultimediaUtils {
 		return encoding;
 	}
 
-	public static String[] getSupportedVideoFormat(){ 
+	public static String[] getSupportedVideoFormat(){
 		String[] lines= {"avi", "mov", "3gp", "mp4", "m4v", "mpg"};
 		return lines;
 		/*

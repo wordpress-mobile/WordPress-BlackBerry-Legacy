@@ -92,11 +92,11 @@ public class PhotoEntry extends MediaEntry {
 		if(!caption.equals("")) {
 			tmpBuff.append("<p class=\"wp-caption-text\">");
 			tmpBuff.append(caption);
+			tmpBuff.append("</p>");
 			tmpBuff.append("</div>");
 		} else {
 			tmpBuff.append("</p>");
 		}
 		return tmpBuff.toString();
 	}
-	
 }

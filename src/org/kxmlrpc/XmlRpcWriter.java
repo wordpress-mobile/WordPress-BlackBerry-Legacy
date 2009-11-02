@@ -29,6 +29,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import net.rim.device.api.io.Base64OutputStream;
+
 import org.kobjects.base64.Base64;
 import org.kxml2.io.KXmlSerializer;
 import org.kxmlrpc.util.IsoDate;
@@ -154,15 +156,21 @@ public class XmlRpcWriter {
 			byte[] buffer = new byte[3600];//you must use a 24bit multiple
 			int length = -1;
 			Log.trace("Inizio codifica del file in base64");
+			long start1 = System.currentTimeMillis();
+			String pippo = null;
 			while ((length = inStream.read(buffer)) > 0 && !stopEncoding) {
-				writer.text( Base64.encode(buffer, 0 , length, null).toString() );
+				//pippo = Base64.encode(buffer, 0 , length, null).toString();
+				pippo = Base64OutputStream.encodeAsString(buffer, 0, length, true, true);
+				writer.text( pippo );
 			}
+			long end1 = System.currentTimeMillis();
 			Log.trace("termine codifica del file in base64");
-			/*Log.trace("Inizio codifica del file in base64");
-			writer.text( Base64.encode( JSR75FileSystem.readFile(videoFile.getFilePath()) ) );		
-			
-			Log.trace("termine codifica del file in base64");*/
+			Log.trace("tempo impegato sec:" + ((end1-start1)/1000));
 			inStream.close();
+
+/*		
+			writer.text( Base64.encode( JSR75FileSystem.readFile(videoFile.getFilePath()) ) );		
+	*/		
 			writer.endTag(null, "base64");
 		}
 		else throw new IOException( "Unknown data type: " + value );

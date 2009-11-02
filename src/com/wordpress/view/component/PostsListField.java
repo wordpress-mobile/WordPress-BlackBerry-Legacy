@@ -7,14 +7,12 @@ import java.util.Vector;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.ui.DrawStyle;
-import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.FocusChangeListener;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
-import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ObjectListField;
 
+import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.utils.CalendarUtils;
 
@@ -27,16 +25,8 @@ import com.wordpress.utils.CalendarUtils;
  */
 public class PostsListField extends ObjectListField  {
 
-	//create a variable to store the ResourceBundle for localization support
-    protected static ResourceBundle _resources;
-    	    
-    static {
-        //retrieve a reference to the ResourceBundle for localization support
-        _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
-    }
 	
-    private SimpleDateFormat sdFormat = new SimpleDateFormat(_resources.getString(WordPressResource.DEFAULT_DATE_FORMAT));
-    
+    private final SimpleDateFormat sdFormat;
 	private Vector _listData = new Vector();
     private ListCallBack listFieldCallBack = null;
     		
@@ -44,8 +34,12 @@ public class PostsListField extends ObjectListField  {
 		listFieldCallBack = new ListCallBack();
 		// Set the ListFieldCallback
 		setCallback(listFieldCallBack);
-		setEmptyString("Nothing to see here", DrawStyle.LEFT);
+        ResourceBundle resourceBundle = WordPressCore.getInstance().getResourceBundle();
+        String emptyListString = resourceBundle.getString(WordPressResource.MESSAGE_NOTHING_TO_SEE_HERE);
+        setEmptyString(emptyListString, DrawStyle.LEFT);
 		setRowHeight(42);
+		
+		sdFormat = new SimpleDateFormat(resourceBundle.getString(WordPressResource.DEFAULT_DATE_FORMAT));
 	}
 	
 	//override methods of object list 
