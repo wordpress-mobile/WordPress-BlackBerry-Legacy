@@ -464,7 +464,7 @@ public class PostController extends BlogObjectController {
 						}
 
 						//aggiorna le categorie del blog ed aggiorna la view...
-						int intValue = ((Integer)resp.getResponseObject()).intValue();
+						String intValue = String.valueOf(resp.getResponseObject());
 						Blog blog = post.getBlog();
 						Category[] categories = blog.getCategories();
 						Category[] newCategories = new Category[categories.length+1];

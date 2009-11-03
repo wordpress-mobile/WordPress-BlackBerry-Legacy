@@ -323,7 +323,7 @@ public class RimFileBrowser extends MainScreen {
     				for(int i=0;i<extensions.length;++i) {
     					String ext = extensions[i];
     					
-    					if (entry.endsWith(ext)) {
+    					if (entry.toLowerCase().endsWith(ext)) {
     						files.addElement(entry);
     						break;
     					}

@@ -33,6 +33,14 @@ public class LoadBlogsDataTask extends TaskImpl implements Observer {
 			blogConn.getBlog().setLoadingState(BlogInfo.STATE_LOADING);
 			progressListener.taskUpdate(blogConn.getBlog()); //notify that this blog is in loading state
 			blogConn.addObserver(this);
+			
+			try {
+				BlogDAO.updateBlog(blogConn.getBlog());
+				Log.trace("Blog is in loading state.");
+			} catch (final Exception e) {
+				Log.error(e, "Cannot store the new blog state.");
+			}
+			
 			blogConn.startConnWork();
 		}
 	}

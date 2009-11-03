@@ -74,9 +74,7 @@ public class PreferencesView extends StandardBaseView {
             addWapOptionsFields();
             addDebugModeOptionFields();
             
-            if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD()) {
-            	addStorageOptionFields();
-			}
+            addStorageOptionFields();
             
             ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
             ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
@@ -100,32 +98,34 @@ public class PreferencesView extends StandardBaseView {
 		 BorderedFieldManager storageManager = new BorderedFieldManager(
 				 Manager.NO_HORIZONTAL_SCROLL
 				 | Manager.NO_VERTICAL_SCROLL);
-		 
-		 //row storage opt
-		 HorizontalFieldManager rowStatus = new HorizontalPaddedFieldManager();
-		 LabelField lblStatus =getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_STORAGE_LABEL));
-		 String labelDeviceStorageLocation= _resources.getString(WordPressResource.OPTIONSSCREEN_STORAGE_DEVICE);
-		 String labelSdCardStorageLocation= _resources.getString(WordPressResource.OPTIONSSCREEN_STORAGE_SDCARD);
-		 String[] storageOptLabels = {labelDeviceStorageLocation, labelSdCardStorageLocation};
-		 int selectedStorage = 0;
-		
-		 try {
-			if(AppDAO.SD_STORE_PATH.equals(AppDAO.getBaseDirPath())) {
-				 selectedStorage = 1;
-			 }
-		} catch (RecordStoreException e) {
-			Log.error(e, "Storage Option Field error");
-			return;
-		} catch (IOException e) {
-			Log.error(e, "Storage Option Field error");
-			return;
-		} 
-		
-		 storageOpt = new ObjectChoiceField("",storageOptLabels, selectedStorage);
-		 rowStatus.add(lblStatus);
-		 rowStatus.add(storageOpt); 
-		 storageManager.add(rowStatus);
-	  		
+
+		 if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD()) {
+			 //row storage opt
+			 HorizontalFieldManager rowStatus = new HorizontalPaddedFieldManager();
+			 LabelField lblStatus =getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_STORAGE_LABEL));
+			 String labelDeviceStorageLocation= _resources.getString(WordPressResource.OPTIONSSCREEN_STORAGE_DEVICE);
+			 String labelSdCardStorageLocation= _resources.getString(WordPressResource.OPTIONSSCREEN_STORAGE_SDCARD);
+			 String[] storageOptLabels = {labelDeviceStorageLocation, labelSdCardStorageLocation};
+			 int selectedStorage = 0;
+			 
+			 try {
+				 if(AppDAO.SD_STORE_PATH.equals(AppDAO.getBaseDirPath())) {
+					 selectedStorage = 1;
+				 }
+			 } catch (RecordStoreException e) {
+				 Log.error(e, "Storage Option Field error");
+				 return;
+			 } catch (IOException e) {
+				 Log.error(e, "Storage Option Field error");
+				 return;
+			 } 
+			 
+			 storageOpt = new ObjectChoiceField("",storageOptLabels, selectedStorage);
+			 rowStatus.add(lblStatus);
+			 rowStatus.add(storageOpt); 
+			 storageManager.add(rowStatus);
+		 }
+		  
 		 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_REMOVE_TEMPFILE)); 
 		 storageManager.add(lblDesc);
 		 ButtonField buttonReset= new ButtonField(_resources.getString(WordPressResource.BUTTON_REMOVE), ButtonField.CONSUME_CLICK);

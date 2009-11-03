@@ -258,6 +258,7 @@ public class PhotosView extends StandardBaseView {
         {//add the focus change listener patch
         	public void add( Field field ) {
         		super.add( field );
+        		field.setFocusListener(null);
         		field.setFocusListener(new BorderedFocusChangeListenerPatch()); 
         	}
         };

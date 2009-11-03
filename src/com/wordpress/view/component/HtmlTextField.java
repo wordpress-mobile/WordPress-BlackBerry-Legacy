@@ -39,13 +39,15 @@ public class HtmlTextField extends AutoTextEditField {
     
     
     protected boolean keyChar(char key, int status, int time) {
-    	//Log.trace("keyChar - char.key : "+key + " | status : "+status);
+    	Log.trace("keyChar - char.key : "+key + " | status : "+status);
     	
     	if(key == Characters.BACKSPACE) {
     		ignore = true;
+    	} else {
+    		ignore = false;
     	}
-    	boolean isInserted = super.keyChar(key, status, time); //call super for char ....calling field change listener here.
     	
+    	boolean isInserted = super.keyChar(key, status, time); //call super for char ....calling field change listener here.
     	return isInserted;
     }
     
@@ -55,41 +57,52 @@ public class HtmlTextField extends AutoTextEditField {
     		
     		AutoTextEditField campoIntelligente = ((AutoTextEditField) field);
     		
-    		//Log.trace("field change listener: "+ ((AutoTextEditField) field).getText());
-    		if(ignore == true) {
-    			ignore = false;
-    			return;
-    		}
+    		Log.trace("field change listener: "+ ((AutoTextEditField) field).getText());
     		
-    		int pos = campoIntelligente.getCursorPosition();
-    		//Log.trace("current pos : "+pos);
-    		//check the current pos
-    		if(pos >= 3) {
-    			//possibly match, compare the 3 prev chars
-    			//Log.trace("prev 1 char : "+ campoIntelligente.charAt(pos-1)); //ht-t-p
-    			//Log.trace("prev 2 char : "+ campoIntelligente.charAt(pos-2)); //h-t-tp
-    			//Log.trace("prev 3 char : "+ campoIntelligente.charAt(pos-3));//h-ttp
+    		synchronized (campoIntelligente) {
     			
-    			if (campoIntelligente.charAt(pos-1) == Characters.SPACE && campoIntelligente.charAt(pos-2) == 'a'
-    				&& campoIntelligente.charAt(pos-3) == '<' ) {
+    			if(ignore == true) {
+    				//ignore = false;
+    				return;
+    			}
+    			
+    			int pos = campoIntelligente.getCursorPosition();
+    			//Log.trace("current pos : "+pos);
+    			//check the current pos
+    			if(pos >= 3) {
+    				//possibly match, compare the 3 prev chars
+    				//Log.trace("prev 1 char : "+ campoIntelligente.charAt(pos-1)); //ht-t-p
+    				//Log.trace("prev 2 char : "+ campoIntelligente.charAt(pos-2)); //h-t-tp
+    				//Log.trace("prev 3 char : "+ campoIntelligente.charAt(pos-3));//h-ttp
     				
-    				Log.debug("match riconosciuto");
-    		    	InquiryView inqView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_HTTP_LINK));
-    		    	inqView.setDialogClosedListener(new MyDialogClosedListener(3));
-    		    	inqView.show();
-    		    	
-    			} else if (campoIntelligente.charAt(pos-1) == 'p' && campoIntelligente.charAt(pos-2) == 't' && campoIntelligente.charAt(pos-3) == 't' 
-    				&& ( campoIntelligente.charAt(pos-4) == 'h' || campoIntelligente.charAt(pos-4) == 'H')){
-    				Log.debug("match riconosciuto");
-    				InquiryView inqView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_HTTP_LINK));
-    				inqView.setDialogClosedListener(new MyDialogClosedListener(4));
-    				inqView.show();
-    			}		
+    				if (campoIntelligente.charAt(pos-1) == Characters.SPACE && campoIntelligente.charAt(pos-2) == 'a'
+    					&& campoIntelligente.charAt(pos-3) == '<' ) {
+    					
+    					Log.debug("match riconosciuto");
+    					signalMatch();
+    					InquiryView inqView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_HTTP_LINK));
+    					inqView.setDialogClosedListener(new MyDialogClosedListener(3));
+    					inqView.show();
+    					
+    				} else if (campoIntelligente.charAt(pos-1) == 'p' && campoIntelligente.charAt(pos-2) == 't' && campoIntelligente.charAt(pos-3) == 't' 
+    					&& ( campoIntelligente.charAt(pos-4) == 'h' || campoIntelligente.charAt(pos-4) == 'H')){
+    					Log.debug("match riconosciuto");
+    					signalMatch();
+    					InquiryView inqView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_HTTP_LINK));
+    					inqView.setDialogClosedListener(new MyDialogClosedListener(4));
+    					inqView.show();
+    				}		
+    			}
     		}
     	}
     };
     
-	
+
+
+    private void signalMatch() {
+    	ignore = true;
+    }
+
 	private class MyDialogClosedListener implements DialogClosedListener {
 		
 		private int charsNumber = 0;
@@ -115,6 +128,7 @@ public class HtmlTextField extends AutoTextEditField {
 	    			insert("<a href=\""+pw.getUrlFromField()+"\"  alt=\""+pw.getDescriptionFromField()+"\">"+pw.getDescriptionFromField()+"</a>",1);
 	    	      }
 			}
+			ignore = false;
 		}
 	}
     

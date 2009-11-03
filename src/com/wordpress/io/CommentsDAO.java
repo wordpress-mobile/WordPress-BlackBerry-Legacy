@@ -74,15 +74,18 @@ public class CommentsDAO implements BaseDAO{
     	for(; keys.hasMoreElements(); ){
     		String nextElement = (String)keys.nextElement();
     		Log.trace("Creating imgs for Gravatar "+ nextElement);
-    		
-    		 byte[] imgBytes = null;
-			   imgBytes = (byte[]) gvt.get(nextElement);
-			   try {
-				   EncodedImage img = EncodedImage.createEncodedImage(imgBytes, 0, -1);
-				   storeGvt.put(nextElement, img);
-				} catch (Exception e) {
-					Log.error(e, "img gravatar for "+nextElement+" is corrupted, using default gvt");
-				}
+    		if (gvt.get(nextElement) instanceof byte[]) {
+    			byte[] imgBytes = null;
+    			imgBytes = (byte[]) gvt.get(nextElement);
+    			try {
+    				EncodedImage img = EncodedImage.createEncodedImage(imgBytes, 0, -1);
+    				storeGvt.put(nextElement, img);
+    			} catch (Exception e) {
+    				Log.error(e, "img gravatar for "+nextElement+" is corrupted, using default gvt");
+    			}
+    		} else {
+    			storeGvt.put(nextElement, "");
+    		}
     	}
     	return storeGvt;
 	}
@@ -102,9 +105,14 @@ public class CommentsDAO implements BaseDAO{
     	Enumeration keys = gvt.keys();
     	for(; keys.hasMoreElements(); ){
     		String nextElement = (String)keys.nextElement();
-    		EncodedImage tmpImg = (EncodedImage)gvt.get(nextElement);
-    		byte[] data = tmpImg.getData();
-    		storeGvt.put(nextElement, data);
+    		
+    		if(gvt.get(nextElement) instanceof EncodedImage ) {
+    			EncodedImage tmpImg = (EncodedImage)gvt.get(nextElement);
+    			byte[] data = tmpImg.getData();
+    			storeGvt.put(nextElement, data);
+    		} else {
+    			storeGvt.put(nextElement, "");
+    		}
     		Log.trace(">>> storing  bytes of the imgs gravatar "+ nextElement);
     	}
     	

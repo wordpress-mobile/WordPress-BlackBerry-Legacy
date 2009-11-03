@@ -71,7 +71,7 @@ public class GravatarController extends Observable {
 							Log.trace("email is already present:" +authorEmail);
 					}
 					
-					GravatarCallBack gravatarCallBack = new GravatarCallBack();
+					GravatarTaskListener gravatarCallBack = new GravatarTaskListener();
 					Enumeration keys = missingGravatar.keys();
 					gvtTask = new GetGravatarTask(keys);
 					gvtTask.setProgressListener(gravatarCallBack);
@@ -88,11 +88,13 @@ public class GravatarController extends Observable {
 		   if (authorEmail == null || authorEmail.length() == 0 || authorEmail.equalsIgnoreCase("")) {
 			   gravatarBitmap = defaultGravatarBitmap;
 		   } else {
-			   EncodedImage img = (EncodedImage) commentsGravatar.get(authorEmail);
-			   if(img != null)
+			   Object gvtObj = commentsGravatar.get(authorEmail);
+			   if(gvtObj != null && gvtObj instanceof EncodedImage) {
+				   EncodedImage img = (EncodedImage) commentsGravatar.get(authorEmail);
 				   gravatarBitmap = img;
-			   else 
+			   } else {
 				   gravatarBitmap = defaultGravatarBitmap;
+			   }
 		   }
 		   return gravatarBitmap;
 	   }
@@ -112,7 +114,7 @@ public class GravatarController extends Observable {
 		   commentsGravatar = new Hashtable();
 	   }
 	   
-	   private class GravatarCallBack implements TaskProgressListener {
+	   private class GravatarTaskListener implements TaskProgressListener {
 		   
 		   public void taskComplete(Object obj) {
 			   try {
@@ -138,12 +140,11 @@ public class GravatarController extends Observable {
 					   commentsGravatar.put(email, img);
 					} catch (Exception e) {
 						Log.error(e, "gravatar for "+email+" is corrupted, using default gvt");
-						img = defaultGravatarBitmap;
+						commentsGravatar.put(email, ""); //put an empty string into the hashtable
 					}
 			   } else {
-				   img = defaultGravatarBitmap;
+				   commentsGravatar.put(email, ""); //put an empty string into the hashtable
 			   }
-			   
 			   notifyObservers(email); //One gvt is loaded, notify observers
 		   }
 	   }

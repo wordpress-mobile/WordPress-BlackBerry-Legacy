@@ -163,6 +163,9 @@ public class BorderedFieldManager extends Manager {
     
 	public void add( Field field ) {
 		super.add( field );
+		 //Each field can have only one focus listener object. If you want to provide a new focus listener for a field, 
+		 //you must first invoke this method with null remove the old listener.
+		field.setFocusListener(null);
 		field.setFocusListener(new BorderedFocusChangeListenerPatch()); //add the focus change listener patch
 	}
 	
