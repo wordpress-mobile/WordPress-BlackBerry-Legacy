@@ -314,5 +314,23 @@ public class BlogView extends BaseView {
             //invalidate(); //we can invalidate only the 2 involved rows
             return ret;
         }
+        
+		protected void moveFocus(int x, int y, int status, int time) {
+            int oldSelection = getSelectedIndex();
+            super.moveFocus(x, y, status, time);
+            int newSelection = getSelectedIndex();
+            
+            if(oldSelection != -1) {
+            	invalidate(oldSelection);
+            }
+            
+            if(newSelection != -1) {
+            	invalidate(newSelection);
+            } else {
+            	setSelectedIndex(oldSelection);
+            	invalidate(oldSelection);
+            }
+        }
+        
 	}
 }

@@ -10,7 +10,6 @@ import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.CodeModuleManager;
-import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
@@ -35,14 +34,12 @@ import com.wordpress.view.MediaEntryPropView;
 import com.wordpress.view.PhotosView;
 import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PreviewView;
-import com.wordpress.view.component.FileSelectorPopupScreen;
 import com.wordpress.view.component.RimFileBrowser;
 import com.wordpress.view.component.RimFileBrowserListener;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.view.mm.MediaObjFileJournalListener;
 import com.wordpress.view.mm.MediaViewMediator;
 import com.wordpress.view.mm.MultimediaPopupScreen;
-import com.wordpress.view.mm.PhotoPreview;
 import com.wordpress.view.mm.VideoFileJournalListener;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.PreviewHTTPConn;
@@ -190,6 +187,7 @@ public abstract class BlogObjectController extends BaseController {
        	 	MediaEntry mediaObj = null;
     		if(type == VIDEO) {
     			mediaObj = new VideoEntry();
+    			//dont remove the file listener, because we cannot close the recording app programmatically, and the user could change the filename
     		} else {
     			mediaObj = new PhotoEntry();
     			removeMediaFileJournalListener(); //remove the fs listener.
@@ -242,7 +240,7 @@ public abstract class BlogObjectController extends BaseController {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			if(tmp.getFilePath().equalsIgnoreCase(key)) {
 				mediaObjects.removeElementAt(i);
-				photoView.deletePhotoBitmapField(key); //delete the thumb
+				photoView.deleteMedia(key); //delete the thumb
 				break;
 			}
 		}
@@ -269,7 +267,7 @@ public abstract class BlogObjectController extends BaseController {
 	
 	/*
 	 * show selected photo
-	 */
+	 
 	public void showEnlargedPhoto(String key){
 		Log.trace("showed photos: "+key);
 		byte[] data;
@@ -282,7 +280,7 @@ public abstract class BlogObjectController extends BaseController {
 			return;
 		}
 	}
-	
+	*/
 	/*
 	 * show selected photo properties
 	 */

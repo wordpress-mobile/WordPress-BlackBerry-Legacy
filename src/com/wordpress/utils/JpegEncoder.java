@@ -29,9 +29,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Vector;
 
-import com.wordpress.task.SendToBlogTask;
+import javax.microedition.lcdui.Image;
 
 import net.rim.device.api.system.Bitmap;
+
+import com.wordpress.task.SendToBlogTask;
 
 /*
 * JpegEncoder - The JPEG main program which performs a jpeg compression of
@@ -86,6 +88,30 @@ public class JpegEncoder
 	public JpegEncoder(Bitmap image, int quality, OutputStream out) {
 		this(image, quality, out, null);
 	}
+	
+	public JpegEncoder(Image image, int quality, OutputStream out, SendToBlogTask task){
+		this.task = task;
+		/*
+		 * Quality of the image.
+		 * 0 to 100 and from bad image quality, high compression to good
+		 * image quality low compression
+		 */
+		Quality=quality;
+		
+		/*
+		 * Getting picture information
+		 * It takes the Width, Height and RGB scans of the image.
+		 */
+		JpegObj = new JpegInfo(image);
+		
+		imageHeight=JpegObj.imageHeight;
+		imageWidth=JpegObj.imageWidth;
+		outStream = new DataOutputStream(out);
+		dct = new DCT(Quality);
+		Huf=new Huffman(imageWidth,imageHeight);
+		Compress();
+	}
+	
 
  public void setQuality(int quality) {
      dct = new DCT(quality);
@@ -1200,7 +1226,8 @@ class Huffman
 class JpegInfo
 {
  String Comment;
- public Bitmap imageobj;
+ private Bitmap bitmapObj;
+ private Image imageObj;
  public int imageHeight;
  public int imageWidth;
  public int BlockWidth[];
@@ -1226,21 +1253,32 @@ class JpegInfo
  public int MaxHsampFactor;
  public int MaxVsampFactor;
 
-
+ private void init() {
+	 Components = new Object[NumberOfComponents];
+	 compWidth = new int[NumberOfComponents];
+	 compHeight = new int[NumberOfComponents];
+	 BlockWidth = new int[NumberOfComponents];
+	 BlockHeight = new int[NumberOfComponents];
+	 Comment = "JPEG Encoder Copyright 1998, James R. Weeks and BioElectroMech.  ";
+	 getYCCArray();	 
+ }
+ 
  public JpegInfo(Bitmap image)
  {
-     Components = new Object[NumberOfComponents];
-     compWidth = new int[NumberOfComponents];
-     compHeight = new int[NumberOfComponents];
-     BlockWidth = new int[NumberOfComponents];
-     BlockHeight = new int[NumberOfComponents];
-     imageobj = image;
+     bitmapObj = image;
      imageWidth = image.getWidth();
      imageHeight = image.getHeight();
-     Comment = "JPEG Encoder Copyright 1998, James R. Weeks and BioElectroMech.  ";
-     getYCCArray();
+     this.init();
  }
 
+ public JpegInfo(Image image)
+ {
+     imageObj = image;
+     imageWidth = image.getWidth();
+     imageHeight = image.getHeight();
+     this.init();
+ }
+ 
  public void setComment(String comment) {
      Comment.concat(comment);
  }
@@ -1265,7 +1303,13 @@ class JpegInfo
 //the only choice.
 
      //PixelGrabber grabber = new PixelGrabber(imageobj.getSource(), 0, 0, imageWidth, imageHeight, values, 0, imageWidth);
-     imageobj.getARGB(values, 0, imageWidth, 0, 0, imageWidth, imageHeight);
+     if(bitmapObj != null)
+    	 bitmapObj.getARGB(values, 0, imageWidth, 0, 0, imageWidth, imageHeight);
+     else {
+    	 imageObj.getRGB(values, 0, imageWidth, 0, 0, imageWidth, imageHeight);
+    	 imageObj = null; //clean memory
+     }
+     
      MaxHsampFactor = 1;
      MaxVsampFactor = 1;
      for (y = 0; y < NumberOfComponents; y++) {

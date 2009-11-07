@@ -34,7 +34,7 @@ public class CommentReplyView extends StandardBaseView {
 	private LabelField originalContent;
     
     public CommentReplyView(Blog currentBlog, CommentsController _controller, Comment comment, GravatarController gvtCtrl) {
-    	super(_resources.getString(WordPressResource.TITLE_COMMENTVIEW), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
+    	super(_resources.getString(WordPressResource.MENUITEM_COMMENTS_REPLY), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 		this.currentBlog = currentBlog;
     	this.controller=_controller;
 		this.comment = comment;
@@ -87,7 +87,7 @@ public class CommentReplyView extends StandardBaseView {
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL
         		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-		LabelField lblCommentContent = getLabel(_resources.getString(WordPressResource.LABEL_CONTENT));		
+		LabelField lblCommentContent = getLabel(_resources.getString(WordPressResource.LABEL_COMMENT));		
 		BasicEditField commentContent = new  BasicEditField(BasicEditField.READONLY);
 		commentContent.setText(comment.getContent()); 
         commentContentManager.add(lblCommentContent);
@@ -96,7 +96,7 @@ public class CommentReplyView extends StandardBaseView {
         //reply content
         BorderedFieldManager commentReplyManager = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL);
-        LabelField lblReplay = getLabel(_resources.getString(WordPressResource.LABEL_COMMENT_REPLY));
+        LabelField lblReplay = getLabel(_resources.getString(WordPressResource.LABEL_CONTENT));
         replyContent = new HtmlTextField("");
         commentReplyManager.add(lblReplay);
         commentReplyManager.add(replyContent);

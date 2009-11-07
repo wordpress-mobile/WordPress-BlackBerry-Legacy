@@ -181,7 +181,7 @@ public class PageView extends StandardBaseView {
         }
     };
     
-    private MenuItem _previewItem = new MenuItem( _resources, WordPressResource.MENUITEM_PREVIEW, 110, 10) {
+    private MenuItem _previewItem = new MenuItem( _resources, WordPressResource.MENUITEM_PREVIEW, 100210, 10) {
         public void run() {
         	
         	if(title.isDirty() || bodyTextBox.isDirty() || 

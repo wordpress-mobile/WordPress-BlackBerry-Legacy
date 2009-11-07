@@ -20,7 +20,6 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
 import com.wordpress.model.MediaEntry;
-import com.wordpress.model.PhotoEntry;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.component.BorderedFocusChangeListenerPatch;
@@ -33,8 +32,7 @@ public class PhotosView extends StandardBaseView {
 	private int counterPhotos = 0;
 	private Vector uiLink = new Vector();
 	private BorderedFieldManager noPhotoBorderedManager = null;
-
-	
+	private boolean refreshThumbOnExpose = false; //used when adding a photo, or photo is changed on the FS.
 	
     public PhotosView(BlogObjectController _controller) {
     	super(_resources.getString(WordPressResource.TITLE_MEDIA_VIEW), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -93,15 +91,18 @@ public class PhotosView extends StandardBaseView {
         		Log.error("Connot find post/page media object in the screen");
         		return;
         	}
-        	if(mediaEntry instanceof PhotoEntry) {
+        	BrowserSession videoClip = Browser.getDefaultSession();
+    		videoClip.displayPage(mediaEntry.getFilePath());
+    			
+        	/*if(mediaEntry instanceof PhotoEntry) {
         		controller.showEnlargedPhoto(mediaEntry.getFilePath());
         	} else {
         		BrowserSession videoClip = Browser.getDefaultSession();
         		videoClip.displayPage(mediaEntry.getFilePath());
-        	}
+        	}*/
         }
     };
-      
+         
     private MenuItem _showPhotoPropertiesItem = new MenuItem( _resources, WordPressResource.MENUITEM_PROPERTIES, 130, 10) {
         public void run() {        	
         	Field fieldWithFocus = getLeafFieldWithFocus();
@@ -168,7 +169,7 @@ public class PhotosView extends StandardBaseView {
     };
     
     //called from controller: delete the thumbnail
-    public void deletePhotoBitmapField(String key){
+    public void deleteMedia(String key){
     	for (int i = 0; i < uiLink.size(); i++) {
     		MediaViewMediator tmpLink = (MediaViewMediator)uiLink.elementAt(i);
     		if (tmpLink.getMediaEntry().getFilePath().equalsIgnoreCase(key)) {
@@ -181,9 +182,34 @@ public class PhotosView extends StandardBaseView {
     	}
     }
     
+    protected void onExposed() {
+    	Log.trace("MediaView - onExposed");
+    	controller.removeMediaFileJournalListener(); //remove the fs listener (used only when recording live video)
+    	//update the thumbnails
+    	if(refreshThumbOnExpose) {
+    		Log.trace("MediaView - onExposed - refresh thumbs");
+    		for (int i = 0; i < uiLink.size(); i++) {
+    			MediaViewMediator tmpLink = (MediaViewMediator)uiLink.elementAt(i);
+    			MediaEntry mediaEntry = tmpLink.getMediaEntry();
+    			Bitmap bitmapThumb = mediaEntry.getThumb();
+    			//if thumb is a photo then...
+    			if( tmpLink.getField() instanceof BitmapField) {
+    				BitmapField bitmapField = (BitmapField) tmpLink.getField();
+    				bitmapField.setBitmap(bitmapThumb);
+    			} else {
+    				//video prev is a bitmap right now!!
+    			}
+    		}
+    		refreshThumbOnExpose = false;
+    	}
+    	super.onExposed();
+    }
+    
     protected void onDisplay() {
-		super.onDisplay();
-		controller.removeMediaFileJournalListener();
+    	Log.trace("MediaView - OnDisplay");
+		controller.removeMediaFileJournalListener(); //remove the fs listener (used only when recording live video)
+		refreshThumbOnExpose = false;
+    	super.onDisplay();
     }
     
     //override onClose() to display a dialog box when the application is closed    
@@ -245,7 +271,7 @@ public class PhotosView extends StandardBaseView {
 	}
 	
 	public void addMedia(MediaEntry mediaEntry){
-
+		refreshThumbOnExpose = true;
 		Field thumbField = this.buildThumbField(mediaEntry);
 		//outer Manager
         BorderedFieldManager borderedManager = new BorderedFieldManager(

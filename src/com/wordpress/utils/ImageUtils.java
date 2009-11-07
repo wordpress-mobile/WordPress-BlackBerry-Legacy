@@ -9,20 +9,20 @@ import java.util.Hashtable;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
-import com.wordpress.task.SendToBlogTask;
-import com.wordpress.utils.log.Log;
-
 import net.rim.device.api.math.Fixed32;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
+
+import com.wordpress.task.SendToBlogTask;
+import com.wordpress.utils.log.Log;
 
 /**
  * @author schalk
  * @author daniloercoli
  */
 public class ImageUtils {
-	
+		
 	/**
 	 * Sets the image width to the optimal width for the BlackBerry device screen
 	 * 
@@ -137,7 +137,7 @@ public class ImageUtils {
 		
 		EncodedImage originalImage = EncodedImage.createEncodedImage(data, 0, -1);
 		Hashtable content = new Hashtable(2);
-	
+		
 		//init the hash table with no resized img data
 		content.put("name", fileName);
 		content.put("height", String.valueOf(originalImage.getHeight()));
@@ -257,7 +257,5 @@ public class ImageUtils {
 			}
 			
 			return MinimalPNGEncoder.toPNG(image.getWidth(), image.getHeight(), a, r, g, b);
-		}
-
-	  
+		}  
 }

@@ -109,12 +109,7 @@ public class RimFileBrowser extends MainScreen {
         }
     }
 
-    /**
-     * This method is invoked by either the system or the application. It is
-     * meant to handle the closing event. When the "back" button is pressed, the
-     * system invokes this method. If the browser is on the root directory, then
-     * the screen is terminated. Otherwise it goes "up" one level.
-     */
+ 
     public boolean onClose() {
         if (!quit && !ROOT.equals(currDirName)) {
             // Change to the previous directory
@@ -133,7 +128,7 @@ public class RimFileBrowser extends MainScreen {
 
     protected void onDisplay() {
 
-        Log.trace("OnDisplay");
+        Log.trace("RimFileBrowser - OnDisplay");
         int rowHeight = getFont().getHeight() + 4;
         if(rowHeight < folderIcon.getHeight())
         	rowHeight = folderIcon.getHeight() + 4;
@@ -503,10 +498,10 @@ public class RimFileBrowser extends MainScreen {
             int oldSelection = getSelectedIndex();
             item = ((FileBrowserListItem) listItems.elementAt(oldSelection));
             item.setSelected(false);
+            invalidate(oldSelection);
 
             // Forward the call
             int ret = super.moveFocus(amount, status, time);
-
             int newSelection = getSelectedIndex();
 
             // Select the new item
@@ -532,11 +527,54 @@ public class RimFileBrowser extends MainScreen {
             item = ((FileBrowserListItem) listItems.elementAt(newSelection));
             item.setSelected(true);
             setSelectedIndex(newSelection);
+            invalidate(newSelection);
 
-            invalidate();
+            //invalidate();
 
             return ret;
         }
+        
+        protected void moveFocus(int x, int y, int status, int time) {
+        	 FileBrowserListItem item;
+
+            int oldSelection = getSelectedIndex();
+            super.moveFocus(x, y, status, time);
+            int newSelection = getSelectedIndex();
+            
+            if(oldSelection != -1) {
+	            item = ((FileBrowserListItem) listItems.elementAt(oldSelection));
+	            item.setSelected(false);
+	            invalidate(oldSelection);
+            }
+            
+            if(newSelection != -1) {
+	            // Select the new item
+	            item = ((FileBrowserListItem) listItems.elementAt(newSelection));
+	            if (item.isSeparator()) {
+	                // We cannot move on a separator and shall skip it
+	                if (newSelection > oldSelection) {
+	                    // Moving downward
+	                    if (newSelection + 1 < listField.numRows()) {
+	                        newSelection++;
+	                    } else {
+	                        newSelection = oldSelection;
+	                    }
+	                } else {
+	                    // Moving upward
+	                    if (newSelection - 1 >= 0) {
+	                        newSelection--;
+	                    } else {
+	                        newSelection = oldSelection;
+	                    }
+	                }
+	            }
+	            item = ((FileBrowserListItem) listItems.elementAt(newSelection));
+	            item.setSelected(true);
+	            setSelectedIndex(newSelection);
+	            invalidate(newSelection);
+            }
+        }
+        
 
         public void addListeners() {
             addKeyListener(listener);

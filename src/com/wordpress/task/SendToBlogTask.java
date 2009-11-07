@@ -180,7 +180,15 @@ public class SendToBlogTask extends TaskImpl {
 		}
 		
 		if(isRes){
-			Hashtable content = ImageUtils.resizePhoto(photosBytes, filePath, this);
+			Hashtable content;
+			
+			try { //the resize function could gets the "out of memory error" from JVM
+				content = ImageUtils.resizePhoto(photosBytes, filePath, this);
+			} catch (Error  err) { //capturing the JVM error. 
+	    		Log.error(err, "Serious Error during resizing: " + err.getMessage());
+	    		throw new IOException("Error during photo resize!");
+	    	}
+			
 			//resizing img is a long task. if user has stoped the operation..
 			if (stopping == true)
 				return;

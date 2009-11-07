@@ -4,12 +4,10 @@ import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BitmapField;
-import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
@@ -22,7 +20,6 @@ import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.DataCollector;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.view.component.BlogsListField;
-import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.component.NoBlogsListField;
 
 public class MainView extends BaseView {

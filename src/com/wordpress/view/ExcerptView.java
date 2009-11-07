@@ -36,7 +36,7 @@ public class ExcerptView extends StandardBaseView {
         
     	excerptContent = new HtmlTextField(post.getExcerpt());
     	
-    	rowParent.add(getLabel(_resources.getString(WordPressResource.LABEL_EXCERPT_CONTENT)));
+    	rowParent.add(getLabel(_resources.getString(WordPressResource.LABEL_CONTENT)));
     	rowParent.add(excerptContent);
         add(rowParent);
         

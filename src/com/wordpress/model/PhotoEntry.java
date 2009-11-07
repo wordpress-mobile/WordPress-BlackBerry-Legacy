@@ -33,7 +33,7 @@ public class PhotoEntry extends MediaEntry {
 			
 			bitmapRescale= img.getBitmap();
 		} catch (IOException e) {
-			Log.error("Error during img preview");
+			Log.error("Error while creating the img thumb");
 			bitmapRescale = Bitmap.getBitmapResource(predefinedThumb);
 		}
 		
