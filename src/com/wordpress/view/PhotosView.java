@@ -71,7 +71,7 @@ public class PhotosView extends StandardBaseView {
     	}
     }
     
-    private MenuItem _addPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_PHOTOS_ADD, 110, 10) {
+    private MenuItem _addPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_PHOTO_ADD, 110, 10) {
         public void run() {
         	controller.showAddMediaPopUp(BlogObjectController.PHOTO);
         }

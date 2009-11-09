@@ -181,7 +181,7 @@ public class PostsView extends BaseView {
         }
     };
      
-    private MenuItem _draftPostsItem = new MenuItem( _resources, WordPressResource.MENUITEM_LOCALDRAFT, 120, 10) {
+    private MenuItem _draftPostsItem = new MenuItem( _resources, WordPressResource.MENUITEM_LOCALDRAFTS, 120, 10) {
         public void run() {
     	 controller.showDraftPosts(); 
         }

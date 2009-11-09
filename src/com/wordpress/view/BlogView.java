@@ -4,12 +4,14 @@ import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Color;
+import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BitmapField;
+import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ObjectListField;
 import net.rim.device.api.ui.container.MainScreen;
@@ -63,7 +65,17 @@ public class BlogView extends BaseView {
         	EncodedImage resImg = ImageUtils.resizeEncodedImage(_theImage, _preferredWidth, _theImage.getHeight());
         	_theImage = resImg;
         }
-        final BitmapField wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
+        
+        final BitmapField wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER)
+        {
+        	protected void paint(Graphics graphics) {
+        		super.paint(graphics);
+        		int fontHeight = 19;
+                graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));
+                graphics.setColor(Color.GRAY);
+        		graphics.drawText(controller.getBlogName(), 96, 59, DrawStyle.LEFT | DrawStyle.ELLIPSIS, 207);
+        	}
+        };
         
     	internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR) {
     		public void paintBackground( Graphics g ) {
@@ -110,34 +122,12 @@ public class BlogView extends BaseView {
         				}                        	
         			}
         			setExtent( maxWidth, maxHeight );
-        		}
- /*   		protected void sublayout( int maxWidth, int maxHeight ) {
-    			//super.sublayout( displayWidth, displayHeight - titleFieldHeight );
-    			
-    			for (int i = 0;  i < getFieldCount();  i++) {
-    				Field field = getField(i);
-    				if (i == 0){
-    					layoutChild( field, listWidth, maxHeight );
-    					
-    					int imageHeight = field.getHeight();
-    					int x = maxWidth / 2;
-    					x = x - listWidth/2;
-    					int imageTop = (maxHeight - imageHeight) / 2;
-    					if (imageTop < 0 )
-    						imageTop = 0;
-    					
-    					setPositionChild(field, x, imageTop);
-    				} else { 
-    					
-    				}                        	
-    			}
-    			 
-    			setExtent( maxWidth, maxHeight );
-    		}*/
-    		
+        		}    		
     	};
     	
     	internalManager.add( wpLogoBitmapField );
+    //	LabelField blogLabel = getLabel(controller.getBlogName(), Field.FIELD_HCENTER | LabelField.ELLIPSIS);
+    	//internalManager.add(blogLabel);
     	internalManager.add( _container );
     	super.add( internalManager );
     	

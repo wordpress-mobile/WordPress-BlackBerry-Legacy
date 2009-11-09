@@ -64,7 +64,7 @@ public class PreferencesView extends StandardBaseView {
 
 	
 	 public PreferencesView(PreferenceController _preferencesController) {
-	    	super(_resources.getString(WordPressResource.TITLE_PREFERENCES_VIEW), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
+	    	super(_resources.getString(WordPressResource.TITLE_SETTINGS_VIEW), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
 	    	this.controller=_preferencesController;
 	    		    	
 	    	//the multimedia capabilities are now not managed into app. 
