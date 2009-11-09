@@ -14,11 +14,12 @@ public class MultimediaUtils {
 	}
 	
 	public static boolean isVideoRecordingSupported(){		
-		int moduleHandle = CodeModuleManager.getModuleHandle("net_rim_bb_videorecorder"); 
+		return false;
+/*		int moduleHandle = CodeModuleManager.getModuleHandle("net_rim_bb_videorecorder"); 
 		if(moduleHandle == 0) 
 			return false;
 		else 
-			return true;
+			return true;*/
 	/*	
 	if(System.getProperty("supports.video.capture") != null
 			&& System.getProperty("supports.video.capture").trim().equalsIgnoreCase("true")
