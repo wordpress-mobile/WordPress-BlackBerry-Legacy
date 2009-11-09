@@ -100,8 +100,8 @@ public class MultimediaUtils {
 	}
 
 	public static String[] getSupportedVideoFormat(){
-		String[] lines= {"avi", "mov", "3gp", "mp4", "m4v", "mpg"};
-		return lines;
+		String[] lines= {"avi", "mov", "mp4", "m4v", "mpg"};
+		return lines; //TODO: add the 3gp file format
 		/*
 		String formatiSuportati=System.getProperty("video.encodings");
 		formatiSuportati="default "+formatiSuportati;
