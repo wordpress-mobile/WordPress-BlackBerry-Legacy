@@ -206,7 +206,7 @@ public class BlogsListField {
     			
     			leftImageWidth = height;
     		}
-            drawText(graphics, leftImageWidth+5, y, w  - leftImageWidth, height, currentRow.getName(), _listField.getSelectedIndex() ==  index);
+            drawText(graphics, leftImageWidth+5, y, w  - 5, height, currentRow.getName(), _listField.getSelectedIndex() ==  index);
 
             graphics.setFont(originalFont);
             graphics.setColor(originalColor);
