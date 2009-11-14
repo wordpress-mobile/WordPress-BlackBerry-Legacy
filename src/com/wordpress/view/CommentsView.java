@@ -158,7 +158,7 @@ public class CommentsView extends BaseView {
     private MenuItem _refreshCommentsListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 220, 100) {
     	public void run() {
     		gravatarController.stopGravatarTask(); //stop task if already running
-    		controller.refreshComments(true);
+    		controller.refreshComments();
     	}
     };
     

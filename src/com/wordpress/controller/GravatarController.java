@@ -57,6 +57,7 @@ public class GravatarController extends Observable {
 	public void startGravatarTask(final Vector _elements) {
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
+				 Log.debug(">>> startGravatarTask");
 				Hashtable missingGravatar = new Hashtable();
 						
 					int elementLength = _elements.size();
@@ -108,10 +109,29 @@ public class GravatarController extends Observable {
 		   }
 	   }
 	   
-	   
+	   //remove all the cache
 	   public void cleanGravatarCache(){
+		   Log.debug(">>> cleanGravatarCache");
 		   CommentsDAO.cleanGravatarCache(currentBlog);
-		   commentsGravatar = new Hashtable();
+		   //commentsGravatar = new Hashtable();
+		   commentsGravatar.clear();
+	   }
+	   
+	   //remove only the selected elements from the gravatar cache
+	   public void cleanGravatarCache(String emails[]){
+		   Log.debug(">>> cleanGravatarCache -- emails[]");
+		   CommentsDAO.cleanGravatarCache(currentBlog);
+		   for (int i = 0; i < emails.length; i++) {
+			   commentsGravatar.remove(emails[i]);	
+			   Log.debug("removed gravatar for :"+emails[i]);
+		   }
+		   try {
+			   CommentsDAO.storeGravatars(currentBlog, commentsGravatar);
+		   } catch (IOException e) {
+			   Log.error("Error while storing gravatars "+e.getMessage());	
+		   } catch (RecordStoreException e) {
+			   Log.error("Error while storing gravatars "+e.getMessage());
+		   }
 	   }
 	   
 	   private class GravatarTaskListener implements TaskProgressListener {

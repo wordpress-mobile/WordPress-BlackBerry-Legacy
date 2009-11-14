@@ -100,7 +100,7 @@ public class CommentsDAO implements BaseDAO{
     	JSR75FileSystem.createFile(commentsFilePath); //create the file
     	DataOutputStream out = JSR75FileSystem.getDataOutputStream(commentsFilePath);
 
-    	Log.trace(">>> start reading bytes from imgs of Gravatars");
+    	Log.trace(">>> storeGravatars starts storing imgs Gravatar");
     	Hashtable storeGvt = new Hashtable();
     	Enumeration keys = gvt.keys();
     	for(; keys.hasMoreElements(); ){

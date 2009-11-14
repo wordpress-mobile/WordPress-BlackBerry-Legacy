@@ -221,19 +221,15 @@ public abstract class CommentsController extends BaseController {
 	}
 	
 	
-	public void refreshComments(boolean refresh) {
+	public void refreshComments() {
 
-		String connMessage = null;
-		if( !refresh ) 
-			connMessage = _resources.getString(WordPressResource.CONN_LOADING_COMMENTS);
-		else
-			connMessage = _resources.getString(WordPressResource.CONN_REFRESH_COMMENTS);
+		String connMessage = _resources.getString(WordPressResource.CONN_REFRESH_COMMENTS);
 		
 		final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
 				Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
 				currentBlog.getPassword(), postID, postStatus, offset, number);
 		
-        connection.addObserver(new LoadCommentsCallBack());  
+        connection.addObserver(new RefreshCommentsCallBack());  
         connectionProgressView= new ConnectionInProgressView(connMessage);
        
         connection.startConnWork(); //starts connection
@@ -247,11 +243,11 @@ public abstract class CommentsController extends BaseController {
 	public void refreshView() {
 				
 	}
-	
-	
+		
 	protected abstract void storeComment(Vector comments);
 	
-
+	public abstract void cleanGravatarCache();
+	
 	private class DeleteCommentTaskListener implements TaskProgressListener {
 		private Comment[] deleteComments;
 		private boolean notified = false;
@@ -380,9 +376,13 @@ public abstract class CommentsController extends BaseController {
 		}	
 	}
 	
-	//callback for post loading
-	private class LoadCommentsCallBack implements Observer {
-				
+	protected class RefreshCommentsCallBack implements Observer {
+		
+		protected void removeGravatarCache() {
+			Log.debug(">>> removeGravatarCache ");
+			cleanGravatarCache();
+		}
+		
 		public void update(Observable observable, final Object object) {
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
@@ -401,7 +401,7 @@ public abstract class CommentsController extends BaseController {
 						storeComment(respVector);
 						storedComments = CommentsDAO.vector2Comments(respVector);
 						
-						gravatarController.cleanGravatarCache();
+						removeGravatarCache(); 
 						view.refresh(storedComments);
 						
 					} else {
@@ -413,8 +413,6 @@ public abstract class CommentsController extends BaseController {
 			});
 		}
 	}
-	
-	
 	
 	//callback for post reply
 	private class ReplyCommentCallBack implements Observer {

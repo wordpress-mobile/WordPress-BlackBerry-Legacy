@@ -44,4 +44,8 @@ public class RecentCommentsController extends CommentsController {
 			displayError(e, "Error while storing comments");
 		} 
 	}
+
+	public void cleanGravatarCache() {
+		gravatarController.cleanGravatarCache();
+	}
 }

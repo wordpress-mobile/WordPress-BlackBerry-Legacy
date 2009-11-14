@@ -14,13 +14,12 @@ public class MultimediaUtils {
 	}
 	
 	public static boolean isVideoRecordingSupported(){		
-		return false;
-/*		int moduleHandle = CodeModuleManager.getModuleHandle("net_rim_bb_videorecorder"); 
+		int moduleHandle = CodeModuleManager.getModuleHandle("net_rim_bb_videorecorder"); 
 		if(moduleHandle == 0) 
 			return false;
 		else 
-			return true;*/
-	/*	
+			return true;
+	/*
 	if(System.getProperty("supports.video.capture") != null
 			&& System.getProperty("supports.video.capture").trim().equalsIgnoreCase("true")
 			&& System.getProperty("video.encodings")!=null){
@@ -100,8 +99,8 @@ public class MultimediaUtils {
 	}
 
 	public static String[] getSupportedVideoFormat(){
-		String[] lines= {"avi", "mov", "mp4", "m4v", "mpg"};
-		return lines; //TODO: add the 3gp file format
+		String[] lines= {"avi", "mov", "mp4", "m4v", "mpg", "3gp"};
+		return lines; 
 		/*
 		String formatiSuportati=System.getProperty("video.encodings");
 		formatiSuportati="default "+formatiSuportati;
