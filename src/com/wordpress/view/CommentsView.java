@@ -19,6 +19,7 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.CommentsController;
 import com.wordpress.controller.GravatarController;
 import com.wordpress.model.Comment;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.CommentsListField;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
 
@@ -85,8 +86,12 @@ public class CommentsView extends BaseView {
 			String authorEmail = elements[count].getAuthorEmail();
 			if (!authorEmail.equalsIgnoreCase(""))
 				emails.addElement(authorEmail);
-		}		
-		gravatarController.startGravatarTask(emails);
+		}	
+		
+		//the pending mode is only a view over the full mode, isn't needed a new synchro for gravatars.
+		if(!controller.isPendingMode()) {
+			gravatarController.startGravatarTask(emails);
+		}
 	}
 	 
 	//change the main menu. if we are in multiple edit mode add comment action item
@@ -113,6 +118,15 @@ public class CommentsView extends BaseView {
 			removeMenuItem(_spamCommentItem);
 			removeMenuItem(_viewCommentsItem);
 		}
+		
+		removeMenuItem(_showAllCommentItem);
+		removeMenuItem(_showOnlyPendingCommentItem);
+		
+		if(controller.isPendingMode()) {
+			addMenuItem(_showAllCommentItem);			
+		} else {
+			addMenuItem(_showOnlyPendingCommentItem);
+		}
 	}
 	
 	private Comment[] getSelectedComment() {
@@ -121,12 +135,11 @@ public class CommentsView extends BaseView {
 		if (commentListController.isCheckBoxVisible()) {
 			selectedComments = commentListController.getSelectedComments();
 			for (int i = 0; i < selectedComments.length; i++) {
-				System.out.println("Selected comment: "+selectedComments[i].getContent());
-				
+				Log.trace("Selected comment: "+selectedComments[i].getContent());
 			}
 		} else {
 			Comment focusedComment = commentListController.getFocusedComment();
-			System.out.println("Focus on comment: "+focusedComment.getContent());
+			Log.trace("Focus on comment: "+focusedComment.getContent());
 			selectedComments[0]= focusedComment;
 		}
 		return selectedComments;
@@ -194,11 +207,39 @@ public class CommentsView extends BaseView {
     	}
     };
     
+    private MenuItem _showOnlyPendingCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_VIEW_PENDING, 1000400, 5) {
+    	public void run() {
+    		gravatarController.stopGravatarTask(); //stop task if already running
+    		controller.showPendingComments();	    		
+    	}
+    };
+
+    private MenuItem _showAllCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_VIEW_ALL, 1000400, 5) {
+    	public void run() {
+    		gravatarController.stopGravatarTask(); //stop task if already running
+    		controller.showAllComments();
+    	}
+    };
+
 
     //called when remote loading is finished
     public void refresh(Comment[] comments){
     	dataScroller.delete(commentsList);
-    	buildList(comments);
+    	if(controller.isPendingMode()) {
+    		Vector pendingComments = new Vector();
+    		for (int i = 0; i < comments.length; i++) {
+    			Comment	comment = comments[i];
+    			if ( comment.getStatus().equalsIgnoreCase("hold") )
+    				pendingComments.addElement(comment);
+    			
+    			
+    		}
+    		Comment[] onlyPending = new Comment[pendingComments.size()];
+    		pendingComments.copyInto(onlyPending);
+    		buildList(onlyPending);
+    	} else {
+    		buildList(comments);
+    	}
     }
 
 	public BaseController getController() {
@@ -239,6 +280,6 @@ public class CommentsView extends BaseView {
                 
         //Create the default menu.
         super.makeMenu(menu, instance);
-    }    
+    }
 
 }

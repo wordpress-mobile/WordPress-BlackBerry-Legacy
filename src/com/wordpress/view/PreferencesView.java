@@ -534,7 +534,7 @@ public class PreferencesView extends StandardBaseView {
 				Log.debug("File Appender Log level is now on TRACE");
 				mPrefs.setDebugMode(true);
 			} else {
-				WordPressCore.getInstance().getFileAppender().setLogLevel(Log.DEBUG);
+				WordPressCore.getInstance().getFileAppender().setLogLevel(Log.ERROR);
 				Log.debug("File Appender Log level is now on DEBUG");
 				mPrefs.setDebugMode(false);
 			}

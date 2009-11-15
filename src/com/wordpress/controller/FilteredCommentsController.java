@@ -1,19 +1,24 @@
 package com.wordpress.controller;
 
+import java.io.IOException;
 import java.util.Vector;
+
+import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.model.Comment;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.CommentsView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.comment.GetCommentsConn;
 
-public class FilteredCommentsController extends CommentsController{
+public class FilteredCommentsController extends CommentsController {
 	
 	protected String postTitle = null;
 	
@@ -27,6 +32,26 @@ public class FilteredCommentsController extends CommentsController{
 	
 	public void setPostTitle(String postTitle) {
 		this.postTitle = postTitle;
+	}
+	
+	public String getFilterOnStatus() {
+		return filterOnStatus;
+	}
+
+	public void setFilterOnStatus(String filterOnStatus) {
+		this.filterOnStatus = filterOnStatus;
+	}
+	
+	//true if we have set some filters (postID, offset, number, status)
+	public boolean isFilterActive() {
+		
+		if (!filterOnStatus.equalsIgnoreCase(""))
+			return true;
+
+		if(this.postID != -1 )
+			return true;
+	
+		return false;
 	}
 	
 	public void showView() {
@@ -45,7 +70,7 @@ public class FilteredCommentsController extends CommentsController{
 		
 		final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
 				Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
-				currentBlog.getPassword(), postID, postStatus, offset, number);
+				currentBlog.getPassword(), postID, filterOnStatus, offset, number);
 		
         connection.addObserver(new LoadCommentsCallBack());  
         connectionProgressView= new ConnectionInProgressView(connMessage);
@@ -61,8 +86,7 @@ public class FilteredCommentsController extends CommentsController{
 	
 	protected void storeComment(Vector comments) {
 	}
-
-	//called on comments refresh
+	
 	public void cleanGravatarCache() {
 		Vector emails = new Vector(); //email of the comment author
 		int elementLength = storedComments.length;
@@ -80,7 +104,101 @@ public class FilteredCommentsController extends CommentsController{
 			//no gvt cache cleaning on  Filtered comments loading
 		}
 	}
-	
+
+	protected void deleteFromMainCommentCache(Comment[] deletedComments) {
+		Log.debug(">>> Filtered comments -> deleteFromMainCommentCache");
+		Vector comments = null;
+		try {
+			comments = CommentsDAO.loadComments(currentBlog);
+		} catch (IOException e) {
+			Log.error(e, "Error while loading comments from memory");
+		} catch (RecordStoreException e) {
+			Log.error(e, "Error while loading comments from memory");
+		}
+
+		Comment[] mainCacheComments = CommentsDAO.vector2Comments(comments);
+		comments = null;
+		
+		Comment[] newComments = computeDifference(mainCacheComments, deletedComments);
+		
+		try{
+			CommentsDAO.storeComments(currentBlog, CommentsDAO.comments2Vector(newComments));
+		} catch (IOException e) {
+			Log.error(e, "Error while storing comments");
+		} catch (RecordStoreException e) {
+			Log.error(e, "Error while storing comments");
+		} catch (Exception e) {
+			Log.error(e, "Error while storing comments");
+		} 
+		Log.debug("<<< Filtered comments -> deleteFromMainCommentCache");
+	}
+
+	protected void updateMainCommentCache(Comment[] updatedComments) {
+		Log.debug(">>> Filtered comments -> updateMainCommentCache");
+		Vector comments = null;
+		try {
+			comments = CommentsDAO.loadComments(currentBlog);
+		} catch (IOException e) {
+			Log.error(e, "Error while loading comments from memory");
+		} catch (RecordStoreException e) {
+			Log.error(e, "Error while loading comments from memory");
+		}
+
+		Comment[] mainCacheComments = CommentsDAO.vector2Comments(comments);
+		comments = null;
+		
+		//update and storage the comments cache
+		for (int i = 0; i < mainCacheComments.length; i++) {
+			Comment	comment = mainCacheComments[i];
+			for (int j = 0; j < updatedComments.length; j++) {
+				Comment	modifiedComment = updatedComments[j];
+				if (comment.getID() == modifiedComment.getID()) {
+					mainCacheComments[i] = modifiedComment;
+					break;
+				}
+			} 					 
+		}
+		
+		try{
+			CommentsDAO.storeComments(currentBlog, CommentsDAO.comments2Vector(mainCacheComments));
+		} catch (IOException e) {
+			Log.error(e, "Error while storing comments");
+		} catch (RecordStoreException e) {
+			Log.error(e, "Error while storing comments");
+		} catch (Exception e) {
+			Log.error(e, "Error while storing comments");
+		} 
+		Log.debug("<<< Filtered comments -> updateMainCommentCache");
+	}
+
+	protected void addToMainCommentCache(Comment newComment) {
+		Log.debug(">>> Filtered comments -> addToMainCommentCache");
+		Vector comments = null;
+		try {
+			comments = CommentsDAO.loadComments(currentBlog);
+		} catch (IOException e) {
+			Log.error(e, "Error while loading comments from memory");
+		} catch (RecordStoreException e) {
+			Log.error(e, "Error while loading comments from memory");
+		}
+
+		Comment[] mainCacheComments = CommentsDAO.vector2Comments(comments);
+		Comment[] newComments = new Comment[mainCacheComments.length+1];
+		
+		newComments[0] = newComment; //the new comment on top of the list
+		for (int i = 0; i < mainCacheComments.length; i++) { //copy all prev comment
+			newComments[i+1] = mainCacheComments[i];
+		}
+		
+		try{
+			CommentsDAO.storeComments(currentBlog, CommentsDAO.comments2Vector(newComments));
+		} catch (IOException e) {
+			Log.error(e, "Error while storing comments");
+		} catch (RecordStoreException e) {
+			Log.error(e, "Error while storing comments");
+		} catch (Exception e) {
+			Log.error(e, "Error while storing comments");
+		} 
+		Log.debug("<<< Filtered comments -> addToMainCommentCache");
+	}
 }
-
-

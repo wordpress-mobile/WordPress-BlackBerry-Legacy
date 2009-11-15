@@ -135,8 +135,10 @@ public class GravatarController extends Observable {
 	   }
 	   
 	   private class GravatarTaskListener implements TaskProgressListener {
+		   private boolean isModified = false;
 		   
 		   public void taskComplete(Object obj) {
+			   if(isModified == false) return;
 			   try {
 				   CommentsDAO.storeGravatars(currentBlog, commentsGravatar);
 			   } catch (IOException e) {
@@ -147,7 +149,7 @@ public class GravatarController extends Observable {
 		   }
 		   
 		   public void taskUpdate(Object obj) {
-			   
+			   isModified = true;
 			   Hashtable content = (Hashtable)obj;
 			   String email = (String) content.get("email");
 			   EncodedImage img = null;

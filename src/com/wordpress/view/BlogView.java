@@ -11,7 +11,6 @@ import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BitmapField;
-import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ObjectListField;
 import net.rim.device.api.ui.container.MainScreen;
@@ -61,19 +60,43 @@ public class BlogView extends BaseView {
         if (_theImage.getWidth() > Display.getWidth()) {
             _preferredWidth = Display.getWidth();
         }
-        if( _preferredWidth != -1) {        	
+        
+        final boolean  isResizedLogo;
+        final int  resizedLogoHeight;
+        final int  resizedLogoWidth;
+        if( _preferredWidth != -1) {
+        	isResizedLogo = true;
         	EncodedImage resImg = ImageUtils.resizeEncodedImage(_theImage, _preferredWidth, _theImage.getHeight());
         	_theImage = resImg;
+        	resizedLogoHeight = _theImage.getHeight();
+        	resizedLogoWidth = _theImage.getWidth();
+        } else {
+        	isResizedLogo = false;
+        	resizedLogoHeight = 0; //not used
+        	resizedLogoWidth = 0; // not used
         }
         
         final BitmapField wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER)
         {
         	protected void paint(Graphics graphics) {
         		super.paint(graphics);
-        		int fontHeight = 19;
-                graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));
-                graphics.setColor(Color.GRAY);
-        		graphics.drawText(controller.getBlogName(), 96, 59, DrawStyle.LEFT | DrawStyle.ELLIPSIS, 207);
+        		if(!isResizedLogo) {
+        			int fontHeight = 19;
+        			graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));
+        			graphics.setColor(Color.GRAY);
+        			graphics.drawText(controller.getBlogName(), 96, 59, DrawStyle.LEFT | DrawStyle.ELLIPSIS, 207);        			
+        		} else {
+        		/*	//logo height : 83 pixel -> text height : 19 px
+        			int fontHeight = (resizedLogoHeight * 19) / 83;
+        			graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));
+        			graphics.setColor(Color.GRAY);
+        			//X point at 96px when width = 320 pixel
+        			int newX = (resizedLogoWidth * 96) / 320;
+        			//Y point at 59px when height = 83 pixel
+        			int newY = (resizedLogoHeight * 59) / 83;
+        			int newWidth = (resizedLogoWidth * 207) / 320;
+        			graphics.drawText(controller.getBlogName(), newX, newY, DrawStyle.LEFT | DrawStyle.ELLIPSIS, newWidth);*/
+        		}
         	}
         };
         

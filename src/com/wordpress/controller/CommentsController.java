@@ -35,12 +35,13 @@ public abstract class CommentsController extends BaseController {
 	protected int postID = -1; //no post id
 	protected int offset = 0;
 	protected int number = 100;
-	protected String postStatus = ""; //no post status
+	protected String filterOnStatus = ""; //no post status
 	protected GravatarController gravatarController;
 	protected CommentsTask task;
 	
 	protected ConnectionInProgressView connectionProgressView=null;
 	protected Comment[] storedComments = new Comment[0];
+	private boolean pendingMode = false;
 
 	public CommentsController(Blog currentBlog) {
 		super();
@@ -222,31 +223,74 @@ public abstract class CommentsController extends BaseController {
 	
 	
 	public void refreshComments() {
-
 		String connMessage = _resources.getString(WordPressResource.CONN_REFRESH_COMMENTS);
 		
 		final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
 				Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
-				currentBlog.getPassword(), postID, postStatus, offset, number);
+				currentBlog.getPassword(), postID, filterOnStatus, offset, number);
 		
         connection.addObserver(new RefreshCommentsCallBack());  
         connectionProgressView= new ConnectionInProgressView(connMessage);
        
         connection.startConnWork(); //starts connection
-				
 		int choice = connectionProgressView.doModal();
 		if(choice==Dialog.CANCEL) {
 			connection.stopConnWork(); //stop the connection if the user click on cancel button
 		}
 	}
 	
+		
 	public void refreshView() {
 				
 	}
-		
-	protected abstract void storeComment(Vector comments);
 	
-	public abstract void cleanGravatarCache();
+	protected abstract void storeComment(Vector comments);
+	protected abstract void cleanGravatarCache();
+	protected abstract void deleteFromMainCommentCache(Comment[] comments); //delete comment from main cache.
+	protected abstract void updateMainCommentCache(Comment[] comments); //update comments from main cache.
+	protected abstract void addToMainCommentCache(Comment newComment); //add comment to the main cache.
+	
+	public void showPendingComments() {
+		pendingMode = true;
+		view.refresh(storedComments);
+	}
+	
+	public void showAllComments() {
+		pendingMode = false;
+		view.refresh(storedComments);
+	}
+	
+	public boolean isPendingMode() {
+		return pendingMode;
+	}
+
+	protected Comment[] computeDifference(Comment[] originalComments, Comment[] deleteComments) {
+		
+		Vector newComments = new Vector();
+		
+		//update and storage the comments cache
+		for (int i = 0; i < originalComments.length; i++) {
+			Comment	comment = originalComments[i];
+			
+			boolean presence = false;
+			for (int j = 0; j < deleteComments.length; j++) {
+				Comment	modifiedComment = deleteComments[j];
+				if (comment.getID() == modifiedComment.getID()) {
+					presence = true;
+					break;
+				}
+			}
+			
+			if(!presence) {
+				newComments.addElement(comment);
+			}
+		}
+		
+		Comment[] differences = new Comment[newComments.size()];
+		newComments.copyInto(differences);
+		return differences;
+	}
+	
 	
 	private class DeleteCommentTaskListener implements TaskProgressListener {
 		private Comment[] deleteComments;
@@ -272,35 +316,13 @@ public abstract class CommentsController extends BaseController {
 				});
 			
 			if (!task.isError()) {
-				//delete comments from the list
-				//count the deleted comments 
-				int numOfdelete=deleteComments.length;
-				//create new comment array
-				Comment[] newComments = new Comment[storedComments.length - numOfdelete];
 				
-				//update and storage the comments cache
-				int k = 0;
-				for (int i = 0; i < storedComments.length; i++) {
-					Comment	comment = storedComments[i];
-					
-					boolean presence = false;
-					for (int j = 0; j < deleteComments.length; j++) {
-						Comment	modifiedComment = deleteComments[j];
-						if (comment.getID() == modifiedComment.getID()) {
-							presence = true;
-							break;
-						}
-					}
-					
-					if(!presence) {
-						newComments[k] = comment;
-						k++;
-					}
-					
-				}
+				Comment[] newComments = computeDifference(storedComments, deleteComments);
 				
 				storedComments = newComments;
+				
 				storeComment(CommentsDAO.comments2Vector(storedComments));
+				deleteFromMainCommentCache(deleteComments); //delete comments from main cache... 
 
 				if(connectionProgressView != null)
 					UiApplication.getUiApplication().invokeLater(new Runnable() {
@@ -357,9 +379,11 @@ public abstract class CommentsController extends BaseController {
 					} 					 
 				}
 				
+				updateMainCommentCache(comments);
 				storeComment(CommentsDAO.comments2Vector(storedComments));
+				
 				UiApplication.getUiApplication().invokeLater(new Runnable() {
-					public void run() {
+					public void run() {						
 						view.refresh(storedComments);
 					}
 				});
@@ -377,10 +401,8 @@ public abstract class CommentsController extends BaseController {
 	}
 	
 	protected class RefreshCommentsCallBack implements Observer {
-		
 		protected void removeGravatarCache() {
-			Log.debug(">>> removeGravatarCache ");
-			cleanGravatarCache();
+			cleanGravatarCache(); 
 		}
 		
 		public void update(Observable observable, final Object object) {
@@ -401,9 +423,8 @@ public abstract class CommentsController extends BaseController {
 						storeComment(respVector);
 						storedComments = CommentsDAO.vector2Comments(respVector);
 						
-						removeGravatarCache(); 
+						removeGravatarCache();
 						view.refresh(storedComments);
-						
 					} else {
 						final String respMessage=resp.getResponse();
 					 	displayError(respMessage);	
@@ -444,6 +465,8 @@ public abstract class CommentsController extends BaseController {
 							storedComments = newComments;
 							
 							storeComment(CommentsDAO.comments2Vector(storedComments));
+							addToMainCommentCache(vector2Comments[0]);
+							
 						}
 						catch (Exception e) {
 							displayError(e, "Error while loading server response");

@@ -133,7 +133,7 @@ public class FrontController {
 		ctrl.showView();
 	}
 	
-	
+
 	/**
 	 * pop 1 screen out of the stack and refresh the view.
 	 * 

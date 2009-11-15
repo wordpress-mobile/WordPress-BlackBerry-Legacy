@@ -123,7 +123,7 @@ public class SplashScreen extends MainScreen {
 			
 			//add the file log appender
 			FileAppender fileAppender = new FileAppender(baseDirPath, BaseDAO.LOG_FILE_PREFIX);
-			fileAppender.setLogLevel(Log.DEBUG); //if we set level to TRACE the file log size grows too fast
+			fileAppender.setLogLevel(Log.ERROR); //if we set level to TRACE the file log size grows too fast
 			fileAppender.open();
 			Log.addAppender(fileAppender);
 			WordPressCore.getInstance().setFileAppender(fileAppender); // add the file appender to the queue

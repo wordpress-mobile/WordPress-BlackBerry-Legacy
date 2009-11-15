@@ -155,28 +155,29 @@ public abstract class BlogConn extends Observable implements Runnable {
 	protected synchronized Vector getComments(int blogId, int postId, String status, int offset, int number){
 		try{
 			Log.debug(">>> getComments");
-			Hashtable StructData = new Hashtable(5);
+			Hashtable structData = new Hashtable(5);
 			
 			if (postId > 0) {
-				StructData.put("post_id", String.valueOf(postId));
+				structData.put("post_id", String.valueOf(postId));
 			} else {
 				
 			}
 			
-			StructData.put("comment_status", status);
+			if(status!= null && !status.equalsIgnoreCase(""))
+				structData.put("status", status);
 			
 			if (offset!=0 ) {
-				StructData.put("offset", String.valueOf(offset));
+				structData.put("offset", String.valueOf(offset));
 			}
 			if (number != 0) {
-				StructData.put("number", String.valueOf(number));
+				structData.put("number", String.valueOf(number));
 			}
 			
 			Vector args = new Vector(5);
 			args.addElement(String.valueOf(blogId));
 			args.addElement(mUsername);
 			args.addElement(mPassword);
-			args.addElement(StructData);
+			args.addElement(structData);
 			
 			Object response = execute("wp.getComments", args);
 			if(connResponse.isError()) {
