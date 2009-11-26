@@ -89,8 +89,14 @@ public class CommentsView extends BaseView {
 		}	
 		
 		//the pending mode is only a view over the full mode, isn't needed a new synchro for gravatars.
-		if(!controller.isPendingMode()) {
+	/*	if(!controller.isPendingMode()) {
 			gravatarController.startGravatarTask(emails);
+		}
+		*/
+		if(!gravatarController.isRunning()) {
+			gravatarController.startGravatarTask(emails);
+		} else {
+			Log.trace("...AAAAAAAAAAAAA...");
 		}
 	}
 	 
@@ -207,16 +213,16 @@ public class CommentsView extends BaseView {
     	}
     };
     
-    private MenuItem _showOnlyPendingCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_VIEW_PENDING, 1000400, 5) {
+    private MenuItem _showOnlyPendingCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_VIEW_PENDING, 1000400, 200) {
     	public void run() {
-    		gravatarController.stopGravatarTask(); //stop task if already running
+    		//gravatarController.stopGravatarTask(); //stop task if already running
     		controller.showPendingComments();	    		
     	}
     };
 
-    private MenuItem _showAllCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_VIEW_ALL, 1000400, 5) {
+    private MenuItem _showAllCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_VIEW_ALL, 1000400, 200) {
     	public void run() {
-    		gravatarController.stopGravatarTask(); //stop task if already running
+    		//gravatarController.stopGravatarTask(); //stop task if already running
     		controller.showAllComments();
     	}
     };
@@ -231,8 +237,7 @@ public class CommentsView extends BaseView {
     			Comment	comment = comments[i];
     			if ( comment.getStatus().equalsIgnoreCase("hold") )
     				pendingComments.addElement(comment);
-    			
-    			
+    			    			
     		}
     		Comment[] onlyPending = new Comment[pendingComments.size()];
     		pendingComments.copyInto(onlyPending);

@@ -36,6 +36,8 @@ public class GravatarController extends Observable {
 
 	private GetGravatarTask gvtTask = null;
 	private Blog currentBlog;
+	private boolean running = false;
+
 
 	public GravatarController(Blog blog) {
 		this.currentBlog = blog; 
@@ -54,6 +56,10 @@ public class GravatarController extends Observable {
 		}
 	}
 		
+	public boolean isRunning() {
+		return running;
+	}
+	
 	public void startGravatarTask(final Vector _elements) {
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
@@ -78,10 +84,11 @@ public class GravatarController extends Observable {
 					gvtTask.setProgressListener(gravatarCallBack);
 					//push into the Runner
 					WordPressCore.getInstance().getTasksRunner().enqueue(gvtTask);
+					
+					running = true;
 				
 			}//and run 
 		});
-		
 	}	
 	
 	   public EncodedImage getLatestGravatar(String authorEmail) {
@@ -107,6 +114,7 @@ public class GravatarController extends Observable {
 			   gvtTask.stop();
 			   gvtTask = null;
 		   }
+		   running = false;
 	   }
 	   
 	   //remove all the cache
@@ -138,7 +146,10 @@ public class GravatarController extends Observable {
 		   private boolean isModified = false;
 		   
 		   public void taskComplete(Object obj) {
+			   running = false;
+			   
 			   if(isModified == false) return;
+
 			   try {
 				   CommentsDAO.storeGravatars(currentBlog, commentsGravatar);
 			   } catch (IOException e) {

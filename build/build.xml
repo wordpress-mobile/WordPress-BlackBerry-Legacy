@@ -126,6 +126,19 @@
 		</ant>
 	</target>
 	
+	<target name="simulatorOS47" depends="init, cleanOS47">
+		<svn>
+			<info target="${basedir}" />
+		</svn>
+
+		<ant antfile="build/build_single.xml" target="rapc">
+			<property name="platform" value="os47" />
+			<property name="rim.home" value="${rim.home.os47}" />
+			<property name="debug" value="true" />
+			<property name="log_console" value="true" />
+		</ant>
+	</target>
+	
 	<target name="all" depends="clean, build" />
 
 </project>

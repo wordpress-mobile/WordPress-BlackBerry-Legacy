@@ -191,7 +191,6 @@ public class BlogsListField {
 			 */
 			height = height - 6;
 			w = w - 10;
-			//y = y+3;
     		
     		//drawXXX(graphics, 0, y, width, listField.getRowHeight());
     		drawBackground(graphics, 5, y, w, height, _listField.getSelectedIndex() ==  index);

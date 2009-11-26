@@ -142,44 +142,13 @@ public class SplashScreen extends MainScreen {
 		}		
 	}
 
-   /*
-   private class SelectDirectoryThread implements Runnable {
-	      public void run() {
-	    	  String theDir = null;
-				
-				while ( theDir == null ) {
-					DirectorySelectorPopUpScreen fps = new DirectorySelectorPopUpScreen();
-					fps.pickFile();
-			        theDir = fps.getFile();
-			        System.out.println("sto provando con il file: "+theDir);			        				
-					//first startup
-					//AppDAO.setBaseDirPath("file:///store/home/user/wordpress/");
-			        try {
-			        	if(!JSR75FileSystem.isFileExist(theDir)){
-							JSR75FileSystem.createDir(theDir);
-							AppDAO.setBaseDirPath(theDir);
-			        	}
-			        } catch (Exception e) {
-						theDir = null;
-						ErrorView errView = new ErrorView("Directory not good");
-						errView.doModal();						
-					}
-				}
-			
-			timer.schedule(new CountDown(), 2000); //show splash
-	    	  
-	      }
-	   }
-	   
-   */
-   
+  
    public void dismiss() {
       timer.cancel();
       application.popScreen(this);
       next.showView();
    }
 
-   
    private class CountDown extends TimerTask {
       public void run() {
          DismissThread dThread = new DismissThread();

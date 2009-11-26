@@ -327,6 +327,10 @@ public class BlogDAO implements BaseDAO {
     
     public static synchronized void removeBlog(BlogInfo blog)  throws IOException, RecordStoreException{
     	String blogName = getBlogFolderName(blog);
+    	 BlogDAO.removeBlog(blogName);  
+    }
+    
+    public static synchronized void removeBlog(String  blogName)  throws IOException, RecordStoreException{
     	String filePath=AppDAO.getBaseDirPath()+blogName;
     	
     	if (!JSR75FileSystem.isFileExist(filePath)){
@@ -335,6 +339,7 @@ public class BlogDAO implements BaseDAO {
 			JSR75FileSystem.removeFile(filePath);
     	}    
     }
+    
     
     
     /**

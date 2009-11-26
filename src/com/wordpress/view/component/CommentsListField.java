@@ -272,7 +272,8 @@ public class CommentsListField {
         //width is the total row width, not the space free for email text
         // x is the device width
         private void drawEMailText(Graphics graphics, int x, int y, int width, int height, String email, boolean selected) {
-            int fontHeight = ((2* height) / 5) - (PADDING * 2);
+            //int fontHeight = ((2* height) / 5) - (PADDING * 2);
+        	int fontHeight = ((3* height) / 6) - (PADDING * 2);
             graphics.setFont(Font.getDefault().derive(Font.PLAIN, fontHeight));
             
             int textX = 0;

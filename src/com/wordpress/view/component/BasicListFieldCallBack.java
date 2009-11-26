@@ -110,22 +110,20 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 	 protected int drawFirstRowMainText(Graphics graphics, int x, int y, int width, int height, String title, boolean selected) {
 		 int myColor = Color.BLACK;
 		 
-		 if (selected) {
+	/*	 if (selected) {
 			 myColor=Color.BLACK;
 		 } else {
 			 myColor= Color.GRAY;
 		 }
-		 
+		 */
 		return drawFirstRowMainText(graphics, x, y, width, height, title, myColor);
 	 }
 	 
 		//text on the first row that fill 2/3 of the vertical space
 	 protected int drawFirstRowMainText(Graphics graphics, int x, int y, int width, int height, String title, int myColor) {
-		 
 		 graphics.setColor(myColor);
-
-		 //int fontHeight = ((int) (1.7 * (height / 3))) - (PADDING * 2);
-		 int fontHeight = ((int) ((3* height) / 5)) - (PADDING * 2);
+	//	 int fontHeight = ((int) ((3* height) / 5)) - (PADDING * 2);
+		 int fontHeight = ((int) ((3* height) / 6)) - (PADDING * 2);
 		 graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));	 
 		 
 		 if (title != null) {
@@ -136,11 +134,11 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 		 
 		 return 0;
 	    }
-	 
     
 
 	    protected void drawSecondRowText(Graphics graphics, int x, int y, int width, int height, String status, boolean selected) {
-	        int fontHeight = ((2* height) / 5) - (PADDING * 2);
+	       // int fontHeight = ((2* height) / 5) - (PADDING * 2);
+	    	 int fontHeight = ((3* height) / 6) - (PADDING * 2);
 	        graphics.setFont(Font.getDefault().derive(Font.PLAIN, fontHeight));
 
 	        if (selected) {

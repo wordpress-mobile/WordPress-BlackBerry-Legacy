@@ -82,8 +82,8 @@ public class PostsController extends BaseController{
 	}
 	
 	public void showComments(int selected) {
-		if(!checkUserRights()){
-			displayMessage("You cannot Manage Post!");
+		if(!checkUserRights()){ 
+			displayMessage(_resources.getString(WordPressResource.ERROR_YOU_CANNOT_MANAGEPOST));
 			return;
 		}
 		if(selected != -1){
@@ -104,7 +104,7 @@ public class PostsController extends BaseController{
 	/** starts the  post loading */
 	public void editPost(int selected){
 		if(!checkUserRights()){
-			displayMessage("You cannot Manage Post!");
+			displayMessage(_resources.getString(WordPressResource.ERROR_YOU_CANNOT_MANAGEPOST));
 			return;
 		}
 				
@@ -164,7 +164,7 @@ public class PostsController extends BaseController{
 			
 	public void showDraftPosts(){
 		if(!checkUserRights()){
-			displayMessage("You cannot Manage Post!");
+			displayMessage(_resources.getString(WordPressResource.ERROR_YOU_CANNOT_MANAGEPOST));
 			return;
 		}
 		if(currentBlog != null) {
@@ -175,7 +175,7 @@ public class PostsController extends BaseController{
 
 	public void newPost() {
 		if(!checkUserRights()){
-			displayMessage("You cannot Manage Post!");
+			displayMessage(_resources.getString(WordPressResource.ERROR_YOU_CANNOT_MANAGEPOST));
 			return;
 		}
 		

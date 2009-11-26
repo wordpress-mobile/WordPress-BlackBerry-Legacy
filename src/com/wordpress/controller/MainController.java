@@ -87,19 +87,29 @@ public class MainController extends BaseController implements TaskProgressListen
 		try {
 			listFiles = BlogDAO.getBlogsPath();
 		} catch (Exception e1) {
-			displayError(e1, "Error while loading your blogs index");
+			Log.error(e1, "Error while loading blogs index");
+			displayError("The cache directory is missing or corrupted. You should clean the cache manually.");
 			return blogs;
 		}
 
 		Vector blogsVector = new Vector();
 		for (int i = 0; i < listFiles.length; i++) {
 			String currBlogPath = listFiles[i];
-
+			
 			try {
 				BlogInfo currBlogInfo = BlogDAO.getBlogInfo(currBlogPath);
 				blogsVector.addElement(currBlogInfo);
 			} catch (Exception e) {
-				displayError(e, "Error while loading blog: "+ currBlogPath);
+				Log.error(e, "Error while loading blog: "+ currBlogPath);
+				 
+				try {
+					BlogDAO.removeBlog(currBlogPath);
+				} catch (Exception e1) {
+					Log.error(e, "Error while deleting blog: "+ currBlogPath);
+				} 
+				
+				displayError("A blog has been removed from the app because the cache is corrupted");
+				//displayError(e, "Error while loading blog: "+ currBlogPath);
 			}
 		}
 		

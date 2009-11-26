@@ -47,7 +47,7 @@ public class MainView extends BaseView {
         }
         
         final BitmapField wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
-        final int listWidth = wpLogoBitmapField.getBitmapWidth() - 10;
+        //final int listWidth = wpLogoBitmapField.getBitmapWidth() - 10;
         
     	internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR) {
     		public void paintBackground( Graphics g ) {
@@ -77,7 +77,7 @@ public class MainView extends BaseView {
     	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR ){
     		protected void sublayout( int maxWidth, int maxHeight ) {
     			//super.sublayout( displayWidth, displayHeight - titleFieldHeight );
-    			
+    			int listWidth = Display.getWidth() -10;
     			for (int i = 0;  i < getFieldCount();  i++) {
     				Field field = getField(i);
     				if (i == 0){
@@ -206,7 +206,6 @@ public class MainView extends BaseView {
     		} catch (Exception e) {
     			mainController.displayError(e, "Error while checking for new versions.");
     		}
-        	
         }
     };
     
