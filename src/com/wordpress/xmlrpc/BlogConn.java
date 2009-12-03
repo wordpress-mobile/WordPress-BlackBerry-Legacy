@@ -286,8 +286,8 @@ public abstract class BlogConn extends Observable implements Runnable {
 			Enumeration elements = statusList.keys();
 			for (; elements.hasMoreElements();) {
 				String key = (String) elements.nextElement();
-				System.out.println("key: " + key);
-				System.out.println("value: " + statusList.get(key));
+				Log.trace("key: " + key);
+				Log.trace("value: " + statusList.get(key));
 			}
 
 			blog.setPostStatusList(statusList);

@@ -4,7 +4,7 @@ import com.wordpress.utils.StringUtils;
 
 /**
  * This abstract class encapsulates all property of media
- * component.
+ * component. (used in the media screen)
  */
 public class MediaObject {
 

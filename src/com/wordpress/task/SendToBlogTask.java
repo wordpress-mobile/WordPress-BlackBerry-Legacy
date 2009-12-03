@@ -352,6 +352,11 @@ public class SendToBlogTask extends TaskImpl {
 					String url = (String)content.get("url");
 					mediaObj.setFileURL(url);
 					mediaObj.setFileName(file);
+					//get the videopress shortcode if it is in response
+					String videoPressShortCode = (String)content.get("shortcode");
+					if(videoPressShortCode != null && !videoPressShortCode.trim().equals(""))
+						mediaObj.setVideoPressShortCode(videoPressShortCode);
+					
 				} else {
 					final String respMessage=resp.getResponse();
 					errorMsg.append(respMessage+"\n");
@@ -362,7 +367,7 @@ public class SendToBlogTask extends TaskImpl {
 				isError=true;
 			}
 			
-			//set the path of the media to the real path, not the tmp path used for resize
+			//set the path of the media to the real path, not to the tmp path used for resize
 			if(this.oldFilePath != null)
 				mediaObj.setFilePath(oldFilePath);
 

@@ -147,7 +147,7 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 	            graphics.setColor(Color.LIGHTGREY);
 	        }
 	        graphics.drawText(status, x + PADDING + 5, y - 4 + (height - fontHeight),
-	                DrawStyle.LEFT | DrawStyle.TOP, width - PADDING);
+	                DrawStyle.LEFT | DrawStyle.TOP | DrawStyle.ELLIPSIS, width - (PADDING+5));
 	    }
 
 

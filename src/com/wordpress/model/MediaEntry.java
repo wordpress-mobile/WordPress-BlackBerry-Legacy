@@ -18,6 +18,7 @@ public abstract class MediaEntry {
 	protected boolean verticalAligment = false; //false = bottom, true = top
 	protected int width, height;
 	protected String MIMEType = ""; //do not store this value
+	protected String videoPressShortCode = null; 
 	
 	public static final String predefinedThumb = "video_thumb.png";
 
@@ -57,6 +58,9 @@ public abstract class MediaEntry {
 			hash.put("description", description);
 		if(fileURL != null)
 			hash.put("fileURL", fileURL);
+		
+		if(videoPressShortCode != null)
+			hash.put("videoPressShortCode", videoPressShortCode);
 		
 		if(verticalAligment)
 			hash.put("verticalAligment", "1");
@@ -103,6 +107,10 @@ public abstract class MediaEntry {
 		if(fileName != null)
 			tmpMedia.fileName = fileName;
 		
+		String videoPressShortCode = (String)hash.get("videoPressShortCode");
+		if(videoPressShortCode != null)
+			tmpMedia.videoPressShortCode = videoPressShortCode;
+		
 		String title = (String)hash.get("title");
 		if(title != null)
 			tmpMedia.title = title;
@@ -119,7 +127,6 @@ public abstract class MediaEntry {
 		if(fileURL != null)
 			tmpMedia.fileURL = fileURL;
 
-		
 		String verticalAligment = (String)hash.get("verticalAligment");
 		if(verticalAligment!= null && verticalAligment.equalsIgnoreCase("1"))
 			tmpMedia.verticalAligment = true;
@@ -230,5 +237,13 @@ public abstract class MediaEntry {
 
 	public void setMIMEType(String type) {
 		MIMEType = type;
+	}
+
+	public String getVideoPressShortCode() {
+		return videoPressShortCode;
+	}
+
+	public void setVideoPressShortCode(String videoPressShortCode) {
+		this.videoPressShortCode = videoPressShortCode;
 	}	
 }

@@ -26,7 +26,7 @@
         <property name="module.name"           value="WordPress"/>
         <property name="module.release.prefix" value="WordPress"/>
                         
-        <property name="module.fullname"       value="WordPress for BlackBerry"/>
+        <property name="module.fullname"       value="WordPress"/>
         <property name="module.desc"           value="WordPress for BlackBerry mobile app"/>
         <property name="module.company"        value="Automattic - Danais"/>
 
