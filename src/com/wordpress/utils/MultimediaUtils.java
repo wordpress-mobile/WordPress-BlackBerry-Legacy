@@ -108,4 +108,28 @@ public class MultimediaUtils {
 		String[] lines=StringUtils.split(formatiSuportati, " ");
 		return lines;*/
 	}	
+	
+	public static String getVideoMIMEType(String ext){
+		if(ext.toLowerCase().equals("avi"))
+			return "video/x-msvideo";
+		
+		if(ext.toLowerCase().equals("mov"))
+			return "video/quicktime";
+
+		if(ext.toLowerCase().equals("mp4"))
+			return "video/mp4";
+		
+		if(ext.toLowerCase().equals("m4v"))
+			return "video/mp4";
+		
+		if(ext.toLowerCase().equals("mpg"))
+			return "video/mpeg";
+
+		if(ext.toLowerCase().equals("3gp"))
+			return "video/3gpp";
+		
+		return "";		
+	}
+
 }
+

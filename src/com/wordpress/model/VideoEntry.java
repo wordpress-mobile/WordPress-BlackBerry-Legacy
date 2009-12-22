@@ -35,13 +35,13 @@ public class VideoEntry extends MediaEntry {
 			String[] split = StringUtils.split(title, "/");
 			title = split[split.length-1];
 		}
-		
+		//[wpvideo code]
 		if(videoPressShortCode != null && !videoPressShortCode.trim().equals("")) {
 			tmpBuff.append(videoPressShortCode);
 		} else { 
 			tmpBuff.append("<p>");
 			tmpBuff.append("<a href=\""+this.getFileURL()+"\" title=\""+title+"\">"+
-					this.getFileName()+
+					title+
 			"</a>");
 			tmpBuff.append("</p>");
 		}

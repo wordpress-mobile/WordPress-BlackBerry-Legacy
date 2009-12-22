@@ -21,7 +21,9 @@ import com.wordpress.model.PhotoEntry;
 import com.wordpress.model.Post;
 import com.wordpress.utils.CalendarUtils;
 import com.wordpress.utils.ImageUtils;
+import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.Queue;
+import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -235,6 +237,11 @@ public class SendToBlogTask extends TaskImpl {
 			sendCallBack.setOldFilePath(oldFilePath); //set the old file path, because error during resize/sending
 		} else {
 			Log.trace("Media file is a video content");
+			//set the right content type based on the file extension
+			String[] split = StringUtils.split(mediaEntry.getFilePath(), ".");
+			String ext = split[split.length-1];
+			String videoMIMEType = MultimediaUtils.getVideoMIMEType(ext);
+			mediaEntry.setMIMEType(videoMIMEType);
 			sendCallBack = new SendMediaCallBack(mediaEntry);
 		}
 					
@@ -353,7 +360,7 @@ public class SendToBlogTask extends TaskImpl {
 					mediaObj.setFileURL(url);
 					mediaObj.setFileName(file);
 					//get the videopress shortcode if it is in response
-					String videoPressShortCode = (String)content.get("shortcode");
+					String videoPressShortCode = (String)content.get("videopress_shortcode");
 					if(videoPressShortCode != null && !videoPressShortCode.trim().equals(""))
 						mediaObj.setVideoPressShortCode(videoPressShortCode);
 					

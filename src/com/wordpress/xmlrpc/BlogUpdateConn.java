@@ -59,40 +59,40 @@ public class BlogUpdateConn extends BlogConn  {
 			//These calls can modify the state of the connection to isError=true;
 			getBlogCategories(blog);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
-			checkConnectionResponse("Load Categories");
+			checkConnectionResponse("Error while loading categories");
 			
 			getPageStatusList(blog);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
-			checkConnectionResponse("Load Page Status");
+			checkConnectionResponse("Error while loading Page Status");
 			
 			getPageTemplates(blog);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
-			checkConnectionResponse("Load Page Templates");
+			checkConnectionResponse("Error while loading Page Templates");
 			
 			getPostStatusList(blog);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
-			checkConnectionResponse("Load Post Status");
+			checkConnectionResponse("Error while loading Post Status");
 			
 			getTagList(blog);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
-			checkConnectionResponse("Load Tags");
+			checkConnectionResponse("Error while loading Tags");
 
 			getCommentStatusList(blog);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
-			checkConnectionResponse("Load Comment Status");
+			checkConnectionResponse("Error while loading Comment Status");
 						
 			Vector recentPostTitle = getRecentPostTitle(blog.getId(), blog.getMaxPostCount());
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				blog.setRecentPostTitles(recentPostTitle);
-			checkConnectionResponse("Load Recent Post");
+			checkConnectionResponse("Error while loading Recent Post");
 			
 			
 			Vector blogPages = getPages(Integer.parseInt(blog.getId()), blog.getMaxPostCount());
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				blog.setPages(blogPages);
-			checkConnectionResponse("Load Page");
+			checkConnectionResponse("Error while loading Page");
 		
 			Vector comments = getComments(Integer.parseInt(blog.getId()), -1, "", 0, 100);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
@@ -117,10 +117,10 @@ public class BlogUpdateConn extends BlogConn  {
 			}
 			
 		} catch (ClassCastException cce) {
-			setErrorMessage(cce, "Loading Blog Error");
+			setErrorMessage(cce, "Error while loading blog");
 		}
 		catch (Exception e) {
-			setErrorMessage(e, "Loading Blog Error");
+			setErrorMessage(e, "Error while loading blog");
 		}
 		try {
 			notifyObservers(connResponse);
