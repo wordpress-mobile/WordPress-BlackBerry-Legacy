@@ -10,9 +10,9 @@ import javax.microedition.rms.RecordStoreException;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 
-import com.wordpress.bb.WordPressCore;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.task.AsyncRunner;
 import com.wordpress.task.GetGravatarTask;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.log.Log;
@@ -37,6 +37,7 @@ public class GravatarController extends Observable {
 	private GetGravatarTask gvtTask = null;
 	private Blog currentBlog;
 	private boolean running = false;
+	private GravatarTaskListener gravatarCallBack = null;
 
 
 	public GravatarController(Blog blog) {
@@ -70,7 +71,7 @@ public class GravatarController extends Observable {
 					//Populate the missing hashtable
 					for(int count = 0; count < elementLength; ++count)
 					{
-						String authorEmail = (String)_elements.elementAt(count);
+						String authorEmail = ((String)_elements.elementAt(count)).toLowerCase();
 						if (!authorEmail.equalsIgnoreCase("") && !commentsGravatar.containsKey(authorEmail)) {
 							Log.trace("email is missing:" +authorEmail);   
 							missingGravatar.put(authorEmail, ""); //put the email for gravatar download
@@ -78,13 +79,16 @@ public class GravatarController extends Observable {
 							Log.trace("email is already present:" +authorEmail);
 					}
 					
-					GravatarTaskListener gravatarCallBack = new GravatarTaskListener();
+					gravatarCallBack = new GravatarTaskListener();
 					Enumeration keys = missingGravatar.keys();
 					gvtTask = new GetGravatarTask(keys);
 					gvtTask.setProgressListener(gravatarCallBack);
-					//push into the Runner
-					WordPressCore.getInstance().getTasksRunner().enqueue(gvtTask);
 					
+					/*push into the Runner
+					WordPressCore.getInstance().getTasksRunner().enqueue(gvtTask);
+					*/
+					AsyncRunner asyncRunner = new AsyncRunner(gvtTask);
+					asyncRunner.start();
 					running = true;
 				
 			}//and run 
@@ -93,6 +97,8 @@ public class GravatarController extends Observable {
 	
 	   public EncodedImage getLatestGravatar(String authorEmail) {
 		   EncodedImage gravatarBitmap = null;
+		   authorEmail = authorEmail.toLowerCase();
+	//	   Log.trace("getLatestGravatar on email :" +authorEmail);
 		   if (authorEmail == null || authorEmail.length() == 0 || authorEmail.equalsIgnoreCase("")) {
 			   gravatarBitmap = defaultGravatarBitmap;
 		   } else {
@@ -110,9 +116,16 @@ public class GravatarController extends Observable {
 	   
 	   public void stopGravatarTask() {
 		   if(gvtTask != null) {
+			   
 			   gvtTask.setProgressListener(null); //remove the listener so no update where done into gravatar cache
 			   gvtTask.stop();
 			   gvtTask = null;
+
+			   if(gravatarCallBack != null) {
+				   gravatarCallBack.taskComplete(null); //store the partial data into memory
+				   gravatarCallBack = null;
+			   }
+			   
 		   }
 		   running = false;
 	   }
@@ -146,9 +159,11 @@ public class GravatarController extends Observable {
 		   private boolean isModified = false;
 		   
 		   public void taskComplete(Object obj) {
-			   running = false;
-			   
-			   if(isModified == false) return;
+			   running = false;		
+			   if(isModified == false) 
+				   return;
+			   else
+				   isModified = false;
 
 			   try {
 				   CommentsDAO.storeGravatars(currentBlog, commentsGravatar);

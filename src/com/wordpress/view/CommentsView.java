@@ -266,6 +266,7 @@ public class CommentsView extends BaseView {
 	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {
 		gravatarController.deleteObservers(); //remove the observers but continue to working
+		gravatarController.stopGravatarTask(); //stop task if already running
 		controller.backCmd();
 		return true;
 	}

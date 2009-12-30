@@ -17,6 +17,7 @@ import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.GravatarController;
 import com.wordpress.model.Comment;
+import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 
@@ -248,7 +249,6 @@ public class CommentsListField {
     		} else {
     			String authorEmail = currentComment.getAuthorEmail();
     			EncodedImage gravatarImage = getLatestGravatar(authorEmail);
-    				
     			leftImageWidth = drawLeftImage(graphics, 0, y, height, gravatarImage);
     			leftImageWidth = 40;
     		}
@@ -366,7 +366,7 @@ public class CommentsListField {
     			String email = (String) object;			
     			int elementLength = _listData.size();
     			
-    			for(int count = 0; count < elementLength; ++count)
+    			for(int count = 0; count < elementLength; count++)
     			{
     				//Get the ChecklistData for this row.
     				ChecklistData data = (ChecklistData)_listData.elementAt(count);

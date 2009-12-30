@@ -39,7 +39,7 @@ public class GetGravatarTask extends TaskImpl {
 				return;
 			}
 			
-			String authorEmail = (String)emailsGravatar.nextElement();
+			String authorEmail = ((String)emailsGravatar.nextElement()).toLowerCase();
 			String hashAuthorEmail = null;
 			
 			MD5 md5 = new MD5();
