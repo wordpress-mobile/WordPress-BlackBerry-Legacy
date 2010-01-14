@@ -99,7 +99,7 @@ public class MultimediaUtils {
 	}
 
 	public static String[] getSupportedVideoFormat(){
-		String[] lines= {"avi", "mov", "mp4", "m4v", "mpg", "3gp"};
+		String[] lines= {"avi", "mov", "mp4", "m4v", "mpg", "3gp", "3g2"};
 		return lines; 
 		/*
 		String formatiSuportati=System.getProperty("video.encodings");
@@ -127,6 +127,9 @@ public class MultimediaUtils {
 
 		if(ext.toLowerCase().equals("3gp"))
 			return "video/3gpp";
+		
+		if(ext.toLowerCase().equals("3g2"))
+			return "video/3gpp2";
 		
 		return "";		
 	}
