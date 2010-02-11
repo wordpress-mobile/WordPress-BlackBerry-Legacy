@@ -46,6 +46,14 @@ public class FrontController {
 	}
 	
 	/**
+	 * show Comment Notification view
+	 */
+	public void showNotificationView(){
+		NotificationController ctrl = new NotificationController();
+		ctrl.showView();		
+	}
+	
+	/**
 	 * show blog  view
 	 */
 	public void showBlog(Blog currentBlog){

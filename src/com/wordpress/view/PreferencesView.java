@@ -61,6 +61,8 @@ public class PreferencesView extends StandardBaseView {
 	private CheckboxField _userAllowBES;
 	private CheckboxField _debugMode;
 	private ObjectChoiceField storageOpt;
+	private CheckboxField autoStartup;
+	private CheckboxField backgroundOnClose;
 
 	
 	 public PreferencesView(PreferenceController _preferencesController) {
@@ -73,8 +75,8 @@ public class PreferencesView extends StandardBaseView {
             addConnectionOptionsFields();
             addWapOptionsFields();
             addDebugModeOptionFields();
-            
             addStorageOptionFields();
+            addStartupOptionsFields();
             
             ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
             ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
@@ -91,8 +93,25 @@ public class PreferencesView extends StandardBaseView {
     		addMenuItem(_saveItem);
 	 }
 
-	 
-	 
+	 private void addStartupOptionsFields() {
+
+		 BorderedFieldManager optManager = new BorderedFieldManager(
+				 Manager.NO_HORIZONTAL_SCROLL
+				 | Manager.NO_VERTICAL_SCROLL);
+		 
+         //row allow description
+         LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_STARTUP_SHUTDOWN_DESC)); 
+		 Font fnt = this.getFont().derive(Font.ITALIC);
+		 lblDescReset.setFont(fnt);
+		 optManager.add(lblDescReset);
+		
+		 autoStartup = new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_STARTUP_LABEL), mPrefs.isAutoStartup());
+		 optManager.add(autoStartup);
+		 backgroundOnClose = new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_SHUTDOWN_LABEL), mPrefs.isBackgroundOnClose());
+		 optManager.add(backgroundOnClose);
+		 add(optManager);
+	 }
+	 	 	 
 	 private void addStorageOptionFields(){
 		 
 		 BorderedFieldManager storageManager = new BorderedFieldManager(
@@ -138,7 +157,7 @@ public class PreferencesView extends StandardBaseView {
 
 		 BorderedFieldManager debugManager = new BorderedFieldManager(
 				 Manager.NO_HORIZONTAL_SCROLL
-				 | Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
+				 | Manager.NO_VERTICAL_SCROLL);
 		 
          //row allow description
          BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_DEBUG_DESC)); 
@@ -152,8 +171,7 @@ public class PreferencesView extends StandardBaseView {
 
 		 BorderedFieldManager optManager = new BorderedFieldManager(
 				 Manager.NO_HORIZONTAL_SCROLL
-				 | Manager.NO_VERTICAL_SCROLL
-				 | BorderedFieldManager.BOTTOM_BORDER_NONE);
+				 | Manager.NO_VERTICAL_SCROLL);
 		 
          //row allow description
          LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_DESC)); 
@@ -538,6 +556,10 @@ public class PreferencesView extends StandardBaseView {
 				Log.debug("File Appender Log level is now on DEBUG");
 				mPrefs.setDebugMode(false);
 			}
+			
+			//startup features
+			mPrefs.setAutoStartup(autoStartup.getChecked());
+			mPrefs.setBackgroundOnClose(backgroundOnClose.getChecked());
 			
 			updateStorageMode();
 			

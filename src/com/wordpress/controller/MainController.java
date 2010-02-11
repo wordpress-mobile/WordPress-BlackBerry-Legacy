@@ -1,8 +1,8 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.TimerTask;
-import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
@@ -14,6 +14,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
+import com.wordpress.model.Preferences;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.DataCollector;
 import com.wordpress.utils.log.Log;
@@ -34,9 +35,13 @@ public class MainController extends BaseController implements TaskProgressListen
 		
 		//reset the state of blogs that are in loading or queue to loading error state
 		//.... maybe app crash during adding blog
+		Log.trace(">> Checking the blogs data");
 	   	 try {
-			BlogInfo[] blogsList = getBlogsList();
-			
+	   		Hashtable blogsInfo = BlogDAO.getBlogsInfo();
+			BlogInfo[] blogsList =  (BlogInfo[]) blogsInfo.get("list");
+			if(blogsInfo.get("error") != null )
+				displayError((String)blogsInfo.get("error"));
+						
 			for (int i = 0; i < blogsList.length; i++) {
 				BlogInfo blogInfo = blogsList[i];
 				Blog blog = BlogDAO.getBlog(blogInfo);
@@ -51,7 +56,8 @@ public class MainController extends BaseController implements TaskProgressListen
 		} catch (Exception e) {
 			Log.error(e, "Error while reading stored blog");
 		}
-		
+		Log.trace("<<< Checking the blogs data");
+
 		//stats and update stuff!
 		try {
 			DataCollector dtc = new DataCollector();
@@ -69,8 +75,15 @@ public class MainController extends BaseController implements TaskProgressListen
 	private class CheckUpdateTask extends TimerTask {
 		public void run() {
 			try {
-				BlogInfo[] blogsList = getBlogsList();
+				Log.trace("CheckUpdateTask");
 				DataCollector dtc = new DataCollector();
+				if (!dtc.isCollectedDataExpired()){
+					Log.trace("delay time is not over");
+					return;
+				}
+				Hashtable blogsInfo = BlogDAO.getBlogsInfo();
+				BlogInfo[] blogsList = new BlogInfo[0];
+				blogsList =  (BlogInfo[]) blogsInfo.get("list");
 				dtc.collectData(blogsList.length); //start data gathering here
 			} catch (Exception e) {
 				Log.error(e, "Error while checking for a new version in background");
@@ -78,51 +91,6 @@ public class MainController extends BaseController implements TaskProgressListen
 		}
 	}
 	
-	
-	public BlogInfo[] getBlogsList() {
-
-		String[] listFiles = new String[0];
-		BlogInfo[] blogs = new BlogInfo[0];
-
-		try {
-			listFiles = BlogDAO.getBlogsPath();
-		} catch (Exception e1) {
-			Log.error(e1, "Error while loading blogs index");
-			displayError("The cache directory is missing or corrupted. You should clean the cache manually.");
-			return blogs;
-		}
-
-		Vector blogsVector = new Vector();
-		for (int i = 0; i < listFiles.length; i++) {
-			String currBlogPath = listFiles[i];
-			
-			try {
-				BlogInfo currBlogInfo = BlogDAO.getBlogInfo(currBlogPath);
-				blogsVector.addElement(currBlogInfo);
-			} catch (Exception e) {
-				Log.error(e, "Error while loading blog: "+ currBlogPath);
-				 
-				try {
-					BlogDAO.removeBlog(currBlogPath);
-				} catch (Exception e1) {
-					Log.error(e, "Error while deleting blog: "+ currBlogPath);
-				} 
-				
-				displayError("A blog has been removed from the app because the cache is corrupted");
-				//displayError(e, "Error while loading blog: "+ currBlogPath);
-			}
-		}
-		
-		blogs = new BlogInfo[blogsVector.size()];
-		for (int i = 0; i < blogs.length; i++) {
-			blogs[i] = (BlogInfo) blogsVector.elementAt(i);
-		}
-		
-
-		return blogs;
-	}
-
-
 	
 	public void deleteBlog(BlogInfo selectedBlog) {
 		if (selectedBlog.getState() == BlogInfo.STATE_LOADING || selectedBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
@@ -173,6 +141,13 @@ public class MainController extends BaseController implements TaskProgressListen
 			return false;
 		}
 	*/	
+		//background on close is selected
+		if(Preferences.getIstance().isBackgroundOnClose()) {
+			Log.debug("background on close is selected...");
+			UiApplication.getUiApplication().requestBackground();
+			return false;
+		}
+		
     	int result=this.askQuestion(_resources.getString(WordPressResource.MESSAGE_EXIT_APP));   
     	if(Dialog.YES==result) {
     		WordPressCore.getInstance().exitWordPress();
@@ -195,7 +170,7 @@ public class MainController extends BaseController implements TaskProgressListen
 			String blogXmlRpcUrl=loadedBlog.getXmlRpcUrl();
 			String blogId= loadedBlog.getId();
 			int blogLoadingState = loadedBlog.getLoadingState();
-			BlogInfo blogI = new BlogInfo(blogId, blogName,blogXmlRpcUrl,blogLoadingState);
+			BlogInfo blogI = new BlogInfo(blogId, blogName,blogXmlRpcUrl,blogLoadingState, false);
 			view.setBlogItemViewState(blogI); 
 		}
 	}	

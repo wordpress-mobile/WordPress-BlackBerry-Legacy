@@ -3,6 +3,7 @@ package com.wordpress.io;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
@@ -71,6 +72,62 @@ public class BlogDAO implements BaseDAO {
     	return true;
     }
     
+    /**
+     * Load the blogs informations from the fs.  
+     * @return An Hashtable with the following keys: "list" type of BlogInfo[] - "error" type of String
+     * @throws IOException
+     * @throws RecordStoreException
+     */
+	public static synchronized Hashtable getBlogsInfo() throws IOException, RecordStoreException {
+		
+		Hashtable result = new Hashtable();
+				
+		String[] listFiles = new String[0];
+		BlogInfo[] blogs = new BlogInfo[0];
+
+		try {
+			listFiles = BlogDAO.getBlogsPath();
+		} catch (IOException e2) {
+			Log.error(e2, "Error while loading blogs index");
+			throw new IOException("Error while loading blogs index -> " + e2.getMessage());
+		} catch (RecordStoreException e2) {
+			Log.error(e2, "Error while loading blogs index");
+			throw new RecordStoreException("Error while loading blogs index -> " + e2.getMessage());
+		}
+
+		Vector blogsVector = new Vector();
+		for (int i = 0; i < listFiles.length; i++) {
+			String currBlogPath = listFiles[i];
+			
+			try {
+				BlogInfo currBlogInfo = BlogDAO.getBlogInfo(currBlogPath);
+				blogsVector.addElement(currBlogInfo);
+			} catch (Exception e) {
+				
+				Log.error(e, "Error while loading blog: "+ currBlogPath);
+			//	Log.error("Trying to delete the blog with fs corrupted: "+ currBlogPath);				 
+			/*	try {
+					BlogDAO.removeBlog(currBlogPath);
+					Log.error("The blog with fs corrupted was deleted : "+ currBlogPath);
+				} catch (Exception e1) {
+					Log.error(e, "Error while deleting blog: "+ currBlogPath);
+				} 
+				*/
+				result.put("error", "The folder "+ currBlogPath +" is corrupted. Please delete it");
+			}
+		}
+		
+		blogs = new BlogInfo[blogsVector.size()];
+		for (int i = 0; i < blogs.length; i++) {
+			blogs[i] = (BlogInfo) blogsVector.elementAt(i);
+		}		
+		
+		result.put("list",blogs);
+		
+		return result;
+	}
+    
+    
     //TODO refactor blog and blogInfo. with a common base class
     //reload this blog form disk to memory
     public static synchronized Blog getBlog(Blog blogInfo) throws Exception {
@@ -116,7 +173,8 @@ public class BlogDAO implements BaseDAO {
 		String blogXmlRpcUrl=loadedBlog.getXmlRpcUrl();
 		String blogId= loadedBlog.getId();
 		int blogLoadingState = loadedBlog.getLoadingState();
-		BlogInfo blogI = new BlogInfo(blogId, blogName,blogXmlRpcUrl,blogLoadingState);
+		boolean notifies= loadedBlog.isCommentNotifies();
+		BlogInfo blogI = new BlogInfo(blogId, blogName,blogXmlRpcUrl,blogLoadingState, notifies);
    		return blogI;
     }
     
@@ -221,6 +279,7 @@ public class BlogDAO implements BaseDAO {
         	ser.serialize(new Integer(0));
         }
         
+        ser.serialize(new Boolean(blog.isCommentNotifies()));
         out.close();
 
         //if there was an errors
@@ -320,7 +379,14 @@ public class BlogDAO implements BaseDAO {
             }
             blog.setTags(tags);
         } 
-        
+
+        //da questo punto in poi ci sono le aggiunte della versione 1.0.X
+        try {
+        	boolean isCommentNotifies=((Boolean)ser.deserialize()).booleanValue();
+        	blog.setCommentNotifies(isCommentNotifies);       	
+        } catch (EOFException  e) {
+        	Log.error("End of file was reached. Probably a previous blog data file is loaded" );
+		}
         in.close();
         return blog;     
      } 

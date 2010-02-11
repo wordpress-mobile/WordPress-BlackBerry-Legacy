@@ -79,16 +79,23 @@
         	
             <jdp
                 type="cldc"
+            	midletclass="com.wordpress.bb.WordPress"
                 vendor="${module.company}"
                 title="${module.fullname}"
                 description="${module.desc}"
                 ribbonposition="0"
                 systemmodule="false"
-                runonstartup="false"
-                arguments=""
+                runonstartup="true"
+                arguments="autostartup"
                 version="${module.version}"
                 startuptier="7"
-                icon="${icon}"/>
+                icon="${icon}">
+            	
+            	<!-- entry arguments="autostartup"
+            	                 systemmodule="false"
+            	                 runonstartup="true"
+            	                 startuptier="7"/ -->
+        	</jdp>
         	<src>
            		<fileset dir="${dir.src}">
             		   	<include name="**/*java"/>

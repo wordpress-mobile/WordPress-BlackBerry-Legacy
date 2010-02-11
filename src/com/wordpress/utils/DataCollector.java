@@ -50,6 +50,7 @@ public class DataCollector {
 	private static int UPDATE_REMOTE_CHECK_NUMBER_DELAY_DAYS = 5; //after xx days check for upgrade
 	
 	private byte[] getAllInfo(int numberOfBlog){
+		Log.trace(">>> Getting device infos");
 		Preferences appPrefs= Preferences.getIstance();
 
 		String appVersion = "";
@@ -117,7 +118,39 @@ public class DataCollector {
 		urlEncoder.append("device_version", deviceSoftwareVersion);
 		urlEncoder.append("num_blogs", ""+numberOfBlog);
 		
+		Log.trace("device infos -> "+ urlEncoder.toString());
+		Log.trace("<<< Getting device infos");
+		
 		return urlEncoder.getBytes();
+		
+	}
+	
+	
+	public boolean isCollectedDataExpired() {
+		Log.trace("Find out if stats was expired");
+	
+		Preferences appPrefs = Preferences.getIstance();
+		if(appPrefs.isFirstStartupOrUpgrade) return true;
+		
+		//check upgrade only. no gathering stats
+		Hashtable opt = appPrefs.getOpt();
+		String updateTime = (String)opt.get("update_check_time");
+		long currentTime = System.currentTimeMillis();
+		long diffDays = Integer.MAX_VALUE;
+		
+		if(updateTime != null) {
+			long lastUpdate = Long.parseLong(updateTime);
+			// Get difference in milliseconds
+		    long diffMillis = currentTime - lastUpdate;
+		    // Get difference in days
+		    diffDays = diffMillis/(24*60*60*1000);
+		}
+			
+		//start check upgrade
+		if(diffDays > UPDATE_REMOTE_CHECK_NUMBER_DELAY_DAYS ) {
+			return true;
+		} else 
+			return false;
 		
 	}
 	
@@ -128,21 +161,20 @@ public class DataCollector {
 	 * @param numberOfBlog
 	 */
 	public void collectData(int numberOfBlog) {
-		Log.trace("collect data");
+		Log.trace(">>> Collect data");
 		Preferences appPrefs= Preferences.getIstance();
-		
-		byte[] data = getAllInfo(numberOfBlog);	
-		
+				
 		if(appPrefs.isFirstStartupOrUpgrade) {
+			byte[] data = getAllInfo(numberOfBlog);	
 			final HTTPPostConn connection = new HTTPPostConn( targetURL  , data);
 			connection.startConnWork(); //starts connection
 			appPrefs.isFirstStartupOrUpgrade = false; //consume the first startup event
 		} else {
 			//checking new app version and send stats
-			checkForUpdateSilent(data);
+			checkForUpdateSilent(numberOfBlog);
 		}
+		Log.trace("<<< Collect data");
 	}
-	
 	
 	
 	/**
@@ -179,39 +211,23 @@ public class DataCollector {
 		}
 	}
 	
-	
-	
-	private void checkForUpdateSilent(byte[] data){
-		Preferences appPrefs= Preferences.getIstance();
+	private void checkForUpdateSilent(int numberOfBlog){
 		try {
-			
-		//check upgrade only. no gathering stats
-		Hashtable opt = appPrefs.getOpt();
-		String updateTime = (String)opt.get("update_check_time");
-		long currentTime = System.currentTimeMillis();
-		long diffDays = 100;
-		
-		if(updateTime != null) {
-			long lastUpdate = Long.parseLong(updateTime);
-			// Get difference in milliseconds
-		    long diffMillis = currentTime - lastUpdate;
-		    // Get difference in days
-		    diffDays = diffMillis/(24*60*60*1000);
-		}
-			
-		//start check upgrade
-		if(diffDays > UPDATE_REMOTE_CHECK_NUMBER_DELAY_DAYS ) {
-			final HTTPPostConn connection = new HTTPPostConn( targetURL , data);
-			connection.addObserver(new CheckAutomaticUpdateCallBack());
-			connection.startConnWork(); //starts connection
-			//store the date of check
-			opt.put("update_check_time", String.valueOf(currentTime)); //update last update chek time
-			AppDAO.storeApplicationPreferecens(appPrefs);
-		}	else {
-			Log.trace("< 5 days");
-		}
-			
-		
+			//start check upgrade
+			if(this.isCollectedDataExpired()) {
+				Preferences appPrefs= Preferences.getIstance();
+				byte[] data = getAllInfo(numberOfBlog);
+				final HTTPPostConn connection = new HTTPPostConn( targetURL , data);
+				connection.addObserver(new CheckAutomaticUpdateCallBack());
+				connection.startConnWork(); //starts connection
+				//store the date of check
+				Hashtable opt = appPrefs.getOpt();
+				long currentTime = System.currentTimeMillis();
+				opt.put("update_check_time", String.valueOf(currentTime)); //update last update chek time
+				AppDAO.storeApplicationPreferecens(appPrefs);
+			}	else {
+				Log.trace("< 5 days");
+			}
 		} catch (Exception e) {
 			Log.error(e, "Error while checking upgrade");
 		}

@@ -10,6 +10,7 @@ import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.io.AppDAO;
+import com.wordpress.model.Preferences;
 import com.wordpress.task.AsyncRunner;
 import com.wordpress.task.Task;
 import com.wordpress.task.TasksRunner;
@@ -23,7 +24,7 @@ public class WordPressCore {
 	private FileAppender fileAppender = null;
 	private MySDListener sdCardListener = null;
 	private Timer timer = null;
-	
+	 
 	//create a variable to store the ResourceBundle for localization support
     private final ResourceBundle _resources;
 
@@ -75,7 +76,7 @@ public class WordPressCore {
 		}
 	}
 	
-	public void exitWordPress() {
+	public void exitWordPress() {	
 		Log.debug("closing app...");
 		UiApplication.getUiApplication().removeFileSystemListener(sdCardListener);
 		getTasksRunner().quit(); //stop the runner thread

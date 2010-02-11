@@ -15,6 +15,8 @@ public class Blog {
 	private String password;
 	
 	private boolean isResizePhotos=false;
+	private boolean isCommentNotifies=false; //true when comment notifies is active
+	
 	private int maxPostCount=-1;
 
 	private Category[] categories = null;
@@ -186,5 +188,13 @@ public class Blog {
 
 	public void setPageTemplates(Hashtable pageTemplates) {
 		this.pageTemplates = pageTemplates;
+	}
+
+	public boolean isCommentNotifies() {
+		return isCommentNotifies;
+	}
+
+	public void setCommentNotifies(boolean isCommentNotifies) {
+		this.isCommentNotifies = isCommentNotifies;
 	}
 }

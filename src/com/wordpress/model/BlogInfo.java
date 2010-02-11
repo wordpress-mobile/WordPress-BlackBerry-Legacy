@@ -12,14 +12,16 @@ public class BlogInfo {
 	private String name;
 	private String xmlRpcUrl; //real url for publishing on this blog
 	private int state=-1;
+	private boolean isCommentNotifies = false; //true when comment notifies is active
 	
-	
-	public BlogInfo(String id, String name, String xmlRpcUrl, int state) {
+
+	public BlogInfo(String id, String name, String xmlRpcUrl, int state, boolean notifies) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.xmlRpcUrl = xmlRpcUrl;
 		this.state = state;
+		this.isCommentNotifies = notifies;
 	}
 	
 	public String getId() {
@@ -42,7 +44,11 @@ public class BlogInfo {
 		this.state = state;
 	}
 
-	//variable state not considered
+	public boolean isCommentNotifies() {
+		return isCommentNotifies;
+	}
+	
+	//variable state and isCommentNotifies not considered
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -53,7 +59,7 @@ public class BlogInfo {
 		return result;
 	}
 
-	//variable state not considered
+	//variable state and isCommentNotifies not considered
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
