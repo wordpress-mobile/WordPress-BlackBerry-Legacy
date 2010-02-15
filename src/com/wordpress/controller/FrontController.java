@@ -4,6 +4,7 @@ import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.model.Blog;
+import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Post;
 import com.wordpress.view.BaseView;
 import com.wordpress.view.MainView;
@@ -48,8 +49,8 @@ public class FrontController {
 	/**
 	 * show Comment Notification view
 	 */
-	public void showNotificationView(){
-		NotificationController ctrl = new NotificationController();
+	public void showNotificationView(BlogInfo[] blogs){
+		NotificationController ctrl = new NotificationController(blogs);
 		ctrl.showView();		
 	}
 	

@@ -8,32 +8,25 @@ import com.wordpress.xmlrpc.BlogConn;
 
 public class GetCommentCountConn extends BlogConn  {
 	
-	
-	private final int blogID;
-	private final int postID;
+	private int postID = -1;
 
-	public GetCommentCountConn(String hint, int blogId, String userHint, String passwordHint, int postID){
-		super(hint, userHint, passwordHint);
-		this.blogID = blogId;
+	public GetCommentCountConn(String url, String user, String password, int postID){
+		super(url, user, password);
 		this.postID = postID;
 	}
 	
 	public void run() {
 		try {
-			if (this.blogID < 0) {
-				 setErrorMessage("Error BlogId");
-				 notifyObservers(connResponse);
-		         return;
-			}
-			if (this.postID < 0) {
+
+/*			if (this.postID < 0) {
 				 setErrorMessage("Error PostID");
 				 notifyObservers(connResponse);
 		         return;
 			}
-			
+	*/		
 			Vector args = new Vector(5);
 			
-	        args.addElement(String.valueOf(this.blogID));
+	        args.addElement("1");
 	        args.addElement(mUsername);
 	        args.addElement(mPassword);
 	        args.addElement(String.valueOf(this.postID));
@@ -43,11 +36,13 @@ public class GetCommentCountConn extends BlogConn  {
 				notifyObservers(connResponse);
 				return;		
 			}
-			
-		
+					
             Hashtable commentData = (Hashtable) response;
             connResponse.setResponseObject(commentData);
-
+/*{
+            approved:(new String("14")), awaiting_moderation:(new String("1")), spam:(new String("4")), total_comments:(new Number(19))
+		}
+		*/	
             }
 			catch (Exception e) {
 				setErrorMessage(e, "GetCommentCount error: Invalid server response");

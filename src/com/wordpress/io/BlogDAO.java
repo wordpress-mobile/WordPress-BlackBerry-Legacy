@@ -174,7 +174,9 @@ public class BlogDAO implements BaseDAO {
 		String blogId= loadedBlog.getId();
 		int blogLoadingState = loadedBlog.getLoadingState();
 		boolean notifies= loadedBlog.isCommentNotifies();
-		BlogInfo blogI = new BlogInfo(blogId, blogName,blogXmlRpcUrl,blogLoadingState, notifies);
+		String usr = loadedBlog.getUsername();
+		String passwd = loadedBlog.getPassword();
+		BlogInfo blogI = new BlogInfo(blogId, blogName,blogXmlRpcUrl,usr, passwd, blogLoadingState, notifies);
    		return blogI;
     }
     
@@ -280,6 +282,7 @@ public class BlogDAO implements BaseDAO {
         }
         
         ser.serialize(new Boolean(blog.isCommentNotifies()));
+        ser.serialize(new Boolean(blog.isLocation()));
         out.close();
 
         //if there was an errors
@@ -385,8 +388,15 @@ public class BlogDAO implements BaseDAO {
         	boolean isCommentNotifies=((Boolean)ser.deserialize()).booleanValue();
         	blog.setCommentNotifies(isCommentNotifies);       	
         } catch (EOFException  e) {
-        	Log.error("End of file was reached. Probably a previous blog data file is loaded" );
+        	Log.error("No comment notification info found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
+        try {
+        	boolean isLocation =((Boolean)ser.deserialize()).booleanValue();
+        	blog.setLocation(isLocation);       	
+        } catch (EOFException  e) {
+        	Log.error("No location info found - End of file was reached. Probably a previous blog data file is loaded" );
+		}
+        
         in.close();
         return blog;     
      } 

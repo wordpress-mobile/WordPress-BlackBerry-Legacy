@@ -24,11 +24,21 @@ public class BlogOptionsView extends StandardBaseView {
 	private PasswordEditField passwordField;
 	private ObjectChoiceField  maxRecentPost;
 	private CheckboxField resizePhoto;
+	private CheckboxField commentNotifications;
+	private CheckboxField enableLocation;
 	
 	HorizontalFieldManager buttonsManager;
 	
 	public boolean isResizePhoto(){
 		return resizePhoto.getChecked();
+	}
+	
+	public boolean isLocation(){
+		return enableLocation.getChecked();
+	}
+	
+	public boolean isCommentNotifications(){
+		return commentNotifications.getChecked();
 	}
 	
 	public String getBlogUser() {
@@ -53,6 +63,8 @@ public class BlogOptionsView extends StandardBaseView {
 	        String[] recentPost=(String[])values.get("recentpost");
 	        int recentPostSelect = ((Integer)values.get("recentpostselected")).intValue();
 			boolean isResImg = ((Boolean)values.get("isresphotos")).booleanValue();
+			boolean isLocation = ((Boolean)values.get("islocation")).booleanValue();
+			boolean isCommentNotifications = ((Boolean)values.get("iscommentnotifications")).booleanValue();
 	        //end loading
 			
             //row username
@@ -95,6 +107,17 @@ public class BlogOptionsView extends StandardBaseView {
      		BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS));
 			rowResizePhotos.add(lblDesc);
 			add(rowResizePhotos);
+			
+            //row comment notifies and location
+            BorderedFieldManager commentNotificationManager = new BorderedFieldManager(
+	        		Manager.NO_HORIZONTAL_SCROLL
+	        		| Manager.NO_VERTICAL_SCROLL);
+    		enableLocation = new CheckboxField(_resources.getString(WordPressResource.LABEL_LOCATION), isLocation);
+    		commentNotifications = new CheckboxField(_resources.getString(WordPressResource.LABEL_COMMENT_NOTIFICATIONS), isCommentNotifications);
+    		commentNotificationManager.add(commentNotifications);
+    		commentNotificationManager.add(enableLocation);
+			add(commentNotificationManager);
+			
 			
             ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
             ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);

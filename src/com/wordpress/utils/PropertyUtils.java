@@ -68,8 +68,8 @@ public class PropertyUtils {
 
 	
 	public static synchronized String getAppName(){
-	 ApplicationDescriptor descriptor = ApplicationDescriptor.currentApplicationDescriptor();
-	 return descriptor.getName();
+		 ApplicationDescriptor descriptor = ApplicationDescriptor.currentApplicationDescriptor();
+		 return descriptor.getName();
 	}
   
 	

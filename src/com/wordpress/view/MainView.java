@@ -14,6 +14,7 @@ import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
+import com.wordpress.bb.NotificationHandler;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
@@ -110,6 +111,7 @@ public class MainView extends BaseView {
 		addMenuItem(_notificationItem);
 		addMenuItem(_setupItem);
 		addMenuItem(_updateItem);
+		addMenuItem(_triggerMenuItem);
 	}
 	
 	public void add( Field field ) {
@@ -171,7 +173,13 @@ public class MainView extends BaseView {
 	}
 	
 */
-	
+
+	private MenuItem _triggerMenuItem = new MenuItem( "Trigger", 130, 10) {
+	        public void run() {
+	        	 NotificationHandler.getInstance().notifyNewMessages();
+	        }
+	    };
+	 
     private MenuItem _showBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_SHOWBLOG, 130, 10) {
         public void run() {
         BlogInfo blogSelected = blogListController.getBlogSelected();
@@ -205,12 +213,12 @@ public class MainView extends BaseView {
 	        setupUpBlogsView(); //repaint entire list
     	}
     }
-    
-    
+        
     
     private MenuItem _notificationItem = new MenuItem( _resources, WordPressResource.MENUITEM_NOTIFICATIONS, 900, 10) {
         public void run() {
-        	FrontController.getIstance().showNotificationView();
+        	BlogInfo[] blogs = blogListController.getBlogs();
+        	FrontController.getIstance().showNotificationView(blogs);
         }
     };
    

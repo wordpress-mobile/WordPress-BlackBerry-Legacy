@@ -11,17 +11,21 @@ public class BlogInfo {
 	private String id;
 	private String name;
 	private String xmlRpcUrl; //real url for publishing on this blog
+	private String username;
+	private String password;
 	private int state=-1;
 	private boolean isCommentNotifies = false; //true when comment notifies is active
 	
 
-	public BlogInfo(String id, String name, String xmlRpcUrl, int state, boolean notifies) {
+	public BlogInfo(String id, String name, String xmlRpcUrl, String usr, String passwd, int state, boolean notifies) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.xmlRpcUrl = xmlRpcUrl;
 		this.state = state;
 		this.isCommentNotifies = notifies;
+		this.username = usr;
+		this.password = passwd;
 	}
 	
 	public String getId() {
@@ -36,6 +40,14 @@ public class BlogInfo {
 		return xmlRpcUrl;
 	}
 	
+	public String getUsername() {
+		return username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
 	public int getState() {
 		return state;
 	}
@@ -46,6 +58,10 @@ public class BlogInfo {
 
 	public boolean isCommentNotifies() {
 		return isCommentNotifies;
+	}
+	
+	public void setCommentNotifies(boolean isCommentNotifies) {
+		this.isCommentNotifies = isCommentNotifies;
 	}
 	
 	//variable state and isCommentNotifies not considered

@@ -11,6 +11,7 @@ import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.container.MainScreen;
 
+import com.wordpress.bb.NotificationHandler;
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
@@ -52,6 +53,17 @@ public abstract class BaseView extends MainScreen {
 		titleField = getTitleField(title);
 		this.setTitle(titleField);
 	}
+    
+	
+    protected void onDisplay() {
+        super.onDisplay();
+        NotificationHandler.getInstance().cancelNotification();
+    }
+
+    protected void onUndisplay() {
+        NotificationHandler.getInstance().cancelNotification();
+        super.onUndisplay();
+    }
     
     //return the controller associated with this view
     public abstract BaseController getController();

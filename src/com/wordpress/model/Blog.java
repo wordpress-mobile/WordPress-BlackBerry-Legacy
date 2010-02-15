@@ -16,6 +16,7 @@ public class Blog {
 	
 	private boolean isResizePhotos=false;
 	private boolean isCommentNotifies=false; //true when comment notifies is active
+	private boolean isLocation=false; //true when location is active
 	
 	private int maxPostCount=-1;
 
@@ -196,5 +197,13 @@ public class Blog {
 
 	public void setCommentNotifies(boolean isCommentNotifies) {
 		this.isCommentNotifies = isCommentNotifies;
+	}
+
+	public boolean isLocation() {
+		return isLocation;
+	}
+
+	public void setLocation(boolean isLocation) {
+		this.isLocation = isLocation;
 	}
 }

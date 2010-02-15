@@ -35,7 +35,7 @@ public class MainController extends BaseController implements TaskProgressListen
 		
 		//reset the state of blogs that are in loading or queue to loading error state
 		//.... maybe app crash during adding blog
-		Log.trace(">> Checking the blogs data");
+		Log.trace(">>> Checking blogs data");
 	   	 try {
 	   		Hashtable blogsInfo = BlogDAO.getBlogsInfo();
 			BlogInfo[] blogsList =  (BlogInfo[]) blogsInfo.get("list");
@@ -56,7 +56,7 @@ public class MainController extends BaseController implements TaskProgressListen
 		} catch (Exception e) {
 			Log.error(e, "Error while reading stored blog");
 		}
-		Log.trace("<<< Checking the blogs data");
+		Log.trace("<<< Checking blogs data");
 
 		//stats and update stuff!
 		try {
@@ -85,8 +85,15 @@ public class MainController extends BaseController implements TaskProgressListen
 				BlogInfo[] blogsList = new BlogInfo[0];
 				blogsList =  (BlogInfo[]) blogsInfo.get("list");
 				dtc.collectData(blogsList.length); //start data gathering here
-			} catch (Exception e) {
-				Log.error(e, "Error while checking for a new version in background");
+			} catch (Throwable  e) {
+				cancel();
+				Log.error(e, "Serious Error in CheckUpdateTask: " + e.getMessage());
+				//When CheckUpdateTask throws an exception, it calls cancel on itself 
+				//to remove itself from the Timer. 
+				//It then logs the exception.
+				//Because the exception never propagates back into the Timer thread, others Tasks continue to function even after 
+				//CheckUpdateTask fails.
+				WordPressCore.getInstance().getTimer().schedule(new CheckUpdateTask(), 24*60*60*1000, 24*60*60*1000); //24h check
 			} 			  
 		}
 	}
@@ -170,7 +177,9 @@ public class MainController extends BaseController implements TaskProgressListen
 			String blogXmlRpcUrl=loadedBlog.getXmlRpcUrl();
 			String blogId= loadedBlog.getId();
 			int blogLoadingState = loadedBlog.getLoadingState();
-			BlogInfo blogI = new BlogInfo(blogId, blogName,blogXmlRpcUrl,blogLoadingState, false);
+			String usr = loadedBlog.getUsername();
+			String passwd = loadedBlog.getPassword();
+			BlogInfo blogI = new BlogInfo(blogId, blogName,blogXmlRpcUrl, usr, passwd,blogLoadingState, false);
 			view.setBlogItemViewState(blogI); 
 		}
 	}	

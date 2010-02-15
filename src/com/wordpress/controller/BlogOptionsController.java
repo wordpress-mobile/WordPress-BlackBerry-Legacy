@@ -40,6 +40,9 @@ public class BlogOptionsController extends BaseController {
 		guiValues.put("recentpost", AddBlogsController.recentsPostValuesLabel);
 		guiValues.put("recentpostselected", new Integer(indexRecPost));
 		guiValues.put("isresphotos", new Boolean(blog.isResizePhotos()));
+		guiValues.put("islocation", new Boolean(blog.isLocation()));
+		guiValues.put("iscommentnotifications", new Boolean(blog.isCommentNotifies()));
+		
 		this.view= new BlogOptionsView(this,guiValues);
 	}
 	
@@ -81,11 +84,17 @@ public class BlogOptionsController extends BaseController {
 		int maxPostIndex=view.getMaxRecentPostIndex();
 		int valueMaxPostCount=AddBlogsController.recentsPostValues[maxPostIndex];
 		boolean isResPhotos = view.isResizePhoto();
-		 
+		boolean isCommentNotifications = view.isCommentNotifications();
+		boolean isLocation = view.isLocation();
+		//we can use isDirty on all view...
 		if(!blog.getUsername().equals(user) || !blog.getPassword().equals(pass)
-			|| blog.getMaxPostCount() != valueMaxPostCount || isResPhotos != blog.isResizePhotos() ) {
+			|| blog.getMaxPostCount() != valueMaxPostCount || isResPhotos != blog.isResizePhotos() 
+			|| isCommentNotifications != blog.isCommentNotifies()  
+			|| isLocation != blog.isLocation()
+		) {
 			isModified=true;
 		}
+		
 		return isModified;
 	}
 	
@@ -108,6 +117,8 @@ public class BlogOptionsController extends BaseController {
 		blog.setUsername(user);
 		blog.setResizePhotos(isResPhotos);
 		blog.setMaxPostCount(valueMaxPostCount);
+		blog.setCommentNotifies(view.isCommentNotifications());
+		blog.setLocation(view.isLocation());
 		
 		try {
 			BlogDAO.updateBlog(blog);

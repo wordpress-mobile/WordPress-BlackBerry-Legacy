@@ -134,6 +134,12 @@ public class BlogsListField {
         return data;
     }
     
+    
+    public BlogInfo[] getBlogs(){
+        return _listData;
+    }
+    
+    
     public void setBlogState(BlogInfo blogInfo){
     	//Populate the ListField
     	for(int count = 0; count < _listData.length; ++count)

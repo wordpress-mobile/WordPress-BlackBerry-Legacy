@@ -83,6 +83,10 @@ public class CheckBoxListField {
                     
                     //Consume this keyChar (key pressed).
                     retVal = true;
+                    
+                    //set the list state as dirty
+                    this.setDirty(true);
+
                 }
                 return retVal;
             }
@@ -192,6 +196,8 @@ public class CheckBoxListField {
             
             //Invalidate the modified row of the ListField.
             _checkList.invalidate(index);
+            //set the list state as dirty
+            _checkList.setDirty(true);
         }
     }; 
     
@@ -233,7 +239,9 @@ public class CheckBoxListField {
             
             //drawXXX(graphics, 0, y, width, listField.getRowHeight());
             drawBackground(graphics, 0, y, w, height, currentRow.isSelected);
-            drawBorder(graphics, 0, y, w, height);
+            //check if it is the last row
+            if( (index+1) < list.getSize() )
+            	drawBorder(graphics, 0, y, w, height);
             
             int leftImageWidth = 0;
             Bitmap icon = Bitmap.getBitmapResource("category_child.png");

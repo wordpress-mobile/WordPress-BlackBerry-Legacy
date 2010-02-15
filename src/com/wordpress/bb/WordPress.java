@@ -1,18 +1,16 @@
 //#preprocess
 package com.wordpress.bb;
 
-import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.microedition.rms.RecordStoreException;
-
 import net.rim.blackberry.api.homescreen.HomeScreen;
 import net.rim.device.api.i18n.ResourceBundle;
+import net.rim.device.api.notification.NotificationsConstants;
+import net.rim.device.api.notification.NotificationsManager;
 import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.Backlight;
-import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.UiApplication;
 
@@ -38,7 +36,6 @@ public class WordPress extends UiApplication implements WordPressResource {
     private Timer timer = new Timer();
     private SplashScreen loadingScreen = null;
     private MainController mainScreen = null;
-    private static Bitmap appIcon = Bitmap.getBitmapResource("application-icon.png");
     
     static {
         //retrieve a reference to the ResourceBundle for localization support
@@ -72,14 +69,35 @@ public class WordPress extends UiApplication implements WordPressResource {
                     else
                     {
                     	// The BlackBerry has finished its startup process
-
-                    	// Configure the rollover icons                    	
-                        HomeScreen.updateIcon(appIcon, 0);
-                        //HomeScreen.setRolloverIcon(AppInfo.getRolloverIcon(), 0);
-
-                    	initLog();
-                    	Log.trace("==== Checking WordPress AutoStart ====");
                     	
+                    	// Configure the rollover icons                    	
+                        HomeScreen.updateIcon(WordPressInfo.getIcon(), 0);
+                        //HomeScreen.setRolloverIcon(WordPressInfo.getRolloverIcon(), 0);
+                    	initLog();
+                    	Log.trace("==== Registering WordPress Comments Notification ====");
+
+                    	//Define a dummy object that provides the source for the event.
+                    	Object eventSource = new Object() {
+                    		public String toString() {
+                    			return "WordPress Demo";
+                    		}
+                    	};                    	
+                    	/*define an hashtable and put it in the recordstore. 
+                    	//we have defined and hashtable for future reasons...
+                    	Hashtable eventSourceMap = new Hashtable(3);
+                    	eventSourceMap.put("comment_notifications_event", eventSource);
+                    	                    	
+                    	// Save the registered event sources map in the runtime store
+                        RuntimeStore.getRuntimeStore().put(WordPressInfo.GUID, eventSourceMap);
+                    	  */
+                    	
+                        NotificationsManager.registerSource(
+                                WordPressInfo.COMMENTS_UID,
+                                eventSource,
+                                NotificationsConstants.CASUAL);
+                                            	
+                    	Log.trace("==== Checking WordPress AutoStart ====");
+                    	//check if autostart app is enabled, if so start the "full app"
                     	String baseDirPath = null;
 						try {	
 							Log.trace("Reading the prefs to find out if  autostartup is selected");
@@ -105,11 +123,8 @@ public class WordPress extends UiApplication implements WordPressResource {
 						} 
                     	
                     	keepGoing = false;
-                    }
-                }
-                //Log.trace("==== quitting doAutoStart ====");
-                //Exit the application.
-                //System.exit(0);
+                    }//end else
+                }//end while
             }
         });
     }
@@ -139,6 +154,8 @@ public class WordPress extends UiApplication implements WordPressResource {
 			}
 		}
 
+		WordPressInfo.initialize(args);
+		
 		//When device is in startup check the startup variable
 		ApplicationManager myApp = ApplicationManager.getApplicationManager();
 		if (myApp.inStartup()) {
@@ -170,7 +187,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 		Preferences appPrefs = Preferences.getIstance();
 		//check application permission as first step
 		WordPressApplicationPermissions.getIstance().checkPermissions();
-						
+		
 		try {
 			String baseDirPath = AppDAO.getBaseDirPath(); //read from rms the base dir path
 
@@ -236,6 +253,10 @@ public class WordPress extends UiApplication implements WordPressResource {
 			WordPressCore.getInstance().setFileAppender(fileAppender); // add the file appender to the queue
 			
 			timer.schedule(new CountDown(), 3000); //3sec splash
+
+			// Initialize the notification handler only if notification interval is != 0
+			if (appPrefs.getUpdateTimeIndex() != 0)
+				NotificationHandler.getInstance().setEnabled(true, appPrefs.getUpdateTimeIndex());
 			
 		} catch (Exception e) {
 			timer.cancel();

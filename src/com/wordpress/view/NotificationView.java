@@ -31,10 +31,6 @@ public class NotificationView extends StandardBaseView {
 	
 	HorizontalFieldManager buttonsManager;
 		
-	public int getMaxRecentPostIndex() {
-		return updateInterval.getSelectedIndex();
-	}
-	
 	 public NotificationView(NotificationController blogsController, String[] blogName, boolean blogSelected[]) {
 	    	super(_resources.getString(WordPressResource.TITLE_NOTIFICATION_VIEW), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
 	    	this.controller=blogsController;
@@ -54,8 +50,9 @@ public class NotificationView extends StandardBaseView {
    		 	this.chkField= checkBoxController.get_checkList();
 //   		 	add(chkField);
             
-   		 	String[] values = {"120 minutes", "90 minutes", "60 minutes", "30 minutes", "15 minutes", "10 minutes", "5 minutes"};
-            updateInterval = new ObjectChoiceField (_resources.getString(WordPressResource.NOTIFICATION_INTERVAL_LABEL), values,0);
+   		 
+            updateInterval = new ObjectChoiceField (_resources.getString(WordPressResource.NOTIFICATION_INTERVAL_LABEL), 
+            		controller.getIntervalTimeLabels(), controller.getSelectedIntervalTime());
             notifyRow.add(updateInterval);
             add(notifyRow);            
 
@@ -69,8 +66,8 @@ public class NotificationView extends StandardBaseView {
             
             ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
             ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
-    		buttonBACK.setChangeListener(listenerOkButton);
-            buttonOK.setChangeListener(listenerBackButton);
+    		buttonBACK.setChangeListener(listenerBackButton);
+            buttonOK.setChangeListener(listenerOkButton);
             
             HorizontalFieldManager buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
             buttonsManager.add(buttonOK);
@@ -82,20 +79,14 @@ public class NotificationView extends StandardBaseView {
 	 
 	 
 	 private boolean isModified() {
-			boolean isModified=false;
-			
-		/*	String pass= view.getBlogPass();
-			String user= view.getBlogUser();
-			int maxPostIndex=view.getMaxRecentPostIndex();
-			int valueMaxPostCount=AddBlogsController.recentsPostValues[maxPostIndex];
-			boolean isResPhotos = view.isResizePhoto();
-			 
-			if(!blog.getUsername().equals(user) || !blog.getPassword().equals(pass)
-				|| blog.getMaxPostCount() != valueMaxPostCount || isResPhotos != blog.isResizePhotos() ) {
-				isModified=true;
-			}*/
-			return isModified;
+		boolean isModified = false;
+		if(updateInterval.isDirty() || chkField.isDirty()){
+			isModified = true;
 		}
+		
+		Log.trace("checking changes on the UI: "+ isModified);
+		return isModified;
+	}
 	 
 	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {
@@ -139,7 +130,9 @@ public class NotificationView extends StandardBaseView {
 		}
 
 		//fai le modifiche qua
-		
+		boolean[] selected = checkBoxController.getSelected();
+		int updateIntervalIndex= ((ObjectChoiceField)updateInterval).getSelectedIndex();
+		controller.saveSettings(selected, updateIntervalIndex);
 		controller.backCmd();
 	}
 	
@@ -152,7 +145,7 @@ public class NotificationView extends StandardBaseView {
 
 	private FieldChangeListener listenerBackButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
-	    	controller.backCmd();
+	    	onClose();
 	   }
 	};
 	

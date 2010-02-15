@@ -32,9 +32,11 @@ public class Preferences {
     private boolean isDebugMode = false; //no store this var into FS
 	public boolean isFirstStartupOrUpgrade = false; //no store this var into FS
     //we use this hashtable to store opt parameters. 
-    //keys: device_uuid - update_check_time
+    //keys: 
+	//device_uuid - update_check_time
 	//autostartup - boolean
 	//backgroundonclose - boolean
+	//updatetimeindex - Integer
     private Hashtable opt = new Hashtable(); 
         
 	public static Preferences getIstance() {
@@ -206,9 +208,6 @@ public class Preferences {
 	}	
 		
 	public boolean isBackgroundOnClose() {
-		//autostartup - boolean
-		//backgroundonclose - boolean
-		
 		Boolean valore= (Boolean) opt.get("backgroundonclose");
 		if(valore == null) 
 			return false;
@@ -232,6 +231,17 @@ public class Preferences {
 	public void setAutoStartup(boolean isBackgroundOnClose) {
 		Boolean valore = new Boolean(isBackgroundOnClose);
 		opt.put("autostartup", valore);
-	}	
+	}
 	
+	public int getUpdateTimeIndex() {
+		Integer valore = (Integer) opt.get("updatetimeindex");
+		if(valore == null) 
+			return 0;
+		return valore.intValue();
+	}
+	
+	public void setUpdateTimeIndex(int value) {
+		Integer valore = new Integer(value);
+		opt.put("updatetimeindex", valore);
+	}
 }

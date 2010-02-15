@@ -32,6 +32,7 @@ src\browser.png
 src\camera.png
 src\category_child.png
 src\check.png
+src\com\wordpress\bb\NotificationHandler.java
 src\com\wordpress\bb\SplashScreen.java
 src\com\wordpress\bb\WordPress.java
 src\com\wordpress\bb\WordPress.rrc
@@ -41,6 +42,7 @@ src\com\wordpress\bb\WordPress_id.rrc
 src\com\wordpress\bb\WordPress_it.rrc
 src\com\wordpress\bb\WordPressApplicationPermissions.java
 src\com\wordpress\bb\WordPressCore.java
+src\com\wordpress\bb\WordPressInfo.java
 src\com\wordpress\controller\AboutController.java
 src\com\wordpress\controller\AddBlogsController.java
 src\com\wordpress\controller\BaseController.java
@@ -225,6 +227,7 @@ src\defaultPostTemplate.html
 src\disclosure-indicator.png
 src\drafts-folder.png
 src\gravatar.png
+src\icons\application-icon-new.png
 src\icons\edit_add.png
 src\icons\enqueued.png
 src\icons\folder_yellow_open.png
