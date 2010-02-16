@@ -1,6 +1,7 @@
 package com.wordpress.controller;
 
 import java.util.Hashtable;
+import java.util.Vector;
 
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.Field;
@@ -112,19 +113,23 @@ public class AddBlogsController extends BaseController{
 	private void parseResponse(BlogConnResponse resp) {
 		
 		Log.debug("found blogs: "+((Blog[])resp.getResponseObject()).length);	
-		Blog[]blogs=(Blog[])resp.getResponseObject();
-		Queue connectionsQueue = new Queue(blogs.length);
+		Blog[] serverBlogs = (Blog[]) resp.getResponseObject();
+		Queue connectionsQueue = new Queue(serverBlogs.length);
+		Vector addedBlog = new Vector();
 		
-		for (int i = 0; i < blogs.length; i++) {
-			blogs[i].setMaxPostCount(recentsPostValues[maxPostIndex]);
-			blogs[i].setResizePhotos(isResPhotos);	
-			blogs[i].setLoadingState(BlogInfo.STATE_ADDED_TO_QUEUE);
+		for (int i = 0; i < serverBlogs.length; i++) {
+			serverBlogs[i].setMaxPostCount(recentsPostValues[maxPostIndex]);
+			serverBlogs[i].setResizePhotos(isResPhotos);	
+			serverBlogs[i].setLoadingState(BlogInfo.STATE_ADDED_TO_QUEUE);
 			
 			try { //if a blog with same name and xmlrpc url exist
-				BlogDAO.newBlog(blogs[i], true);
+				BlogDAO.newBlog(serverBlogs[i], true);
 				//add this blog to the queue	
-				final BlogUpdateConn connection = new BlogUpdateConn (blogs[i]);       
+				final BlogUpdateConn connection = new BlogUpdateConn (serverBlogs[i]);       
 				connectionsQueue.push(connection); 
+				
+				addedBlog.addElement(serverBlogs[i]); //add this blog to the list of just added blog
+				
 			} catch (Exception e) {
 				if(e != null && e.getMessage()!= null ) {
 					displayMessage("Error while adding blog: " + "\n" + e.getMessage());
@@ -135,10 +140,11 @@ public class AddBlogsController extends BaseController{
 		}
 		
 		//update the main view with new blogs all STATE_ADDED_TO_QUEUE
-		FrontController.getIstance().backAndRefreshView(true); 
+		MainController.taskStart(addedBlog); //update the main list view...
+		FrontController.getIstance().backAndRefreshView(true);
 		LoadBlogsDataTask loadBlogsTask = new LoadBlogsDataTask(connectionsQueue);
 		loadBlogsTask.setProgressListener(listener);
-
+		
 		//push into the Runner
 		try {
 			Thread.currentThread().sleep(2000);

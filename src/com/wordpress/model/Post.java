@@ -30,6 +30,7 @@ public class Post {
     private Boolean isPhotoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
 	private Vector customFields = new Vector();  
     private Vector mediaObjects = new Vector();
+	private boolean isLocation = false; //true when per-post location setting is active
 
     public Post(Blog aBlog) {
         blog = aBlog;
@@ -189,5 +190,13 @@ public class Post {
 
 	public void setMediaObjects(Vector mediaObjects) {
 		this.mediaObjects = mediaObjects;
+	}
+
+	public boolean isLocation() {
+		return isLocation;
+	}
+
+	public void setLocation(boolean isLocation) {
+		this.isLocation = isLocation;
 	}
 }

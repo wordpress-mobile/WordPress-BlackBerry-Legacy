@@ -253,11 +253,11 @@ public class WordPress extends UiApplication implements WordPressResource {
 			WordPressCore.getInstance().setFileAppender(fileAppender); // add the file appender to the queue
 			
 			timer.schedule(new CountDown(), 3000); //3sec splash
-
+			
 			// Initialize the notification handler only if notification interval is != 0
 			if (appPrefs.getUpdateTimeIndex() != 0)
 				NotificationHandler.getInstance().setEnabled(true, appPrefs.getUpdateTimeIndex());
-			
+		
 		} catch (Exception e) {
 			timer.cancel();
 			invokeLater(new Runnable() {

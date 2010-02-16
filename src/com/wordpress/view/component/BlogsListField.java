@@ -15,6 +15,7 @@ import net.rim.device.api.ui.component.ListField;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.model.BlogInfo;
+import com.wordpress.utils.log.Log;
 
 /**
  * This class is a wrapper around a list field that we have used to
@@ -122,7 +123,6 @@ public class BlogsListField {
     public ListField getList() {
 		return _listField;
 	}
-
     
     public BlogInfo getBlogSelected(){
         //Get the index of the selected row.
@@ -139,21 +139,21 @@ public class BlogsListField {
         return _listData;
     }
     
-    
     public void setBlogState(BlogInfo blogInfo){
     	//Populate the ListField
+    	Log.trace(">>> setBlogState");
     	for(int count = 0; count < _listData.length; ++count)
     	{
     		BlogInfo blog = _listData[count];
     		
     		if (blogInfo.equals(blog) )		
     		{
-    			blog.setState(blogInfo.getState());
-    			_listData[count]= blog;
+    			//blog.setState(blogInfo.getState());
+    			_listData[count]= blogInfo;
     			//Invalidate the modified row of the ListField.
     			_listField.invalidate(count);
     			
-    	  		int stato = blog.getState();
+    	  		int stato = blogInfo.getState();
         		if (stato == BlogInfo.STATE_LOADING || stato == BlogInfo.STATE_ADDED_TO_QUEUE) {
         			tbsIndex[count] = true;
         		}
@@ -211,7 +211,12 @@ public class BlogsListField {
     			
     			leftImageWidth = height;
     		}
-            drawText(graphics, leftImageWidth+5, y, w  - 5, height, currentRow.getName(), _listField.getSelectedIndex() ==  index);
+    		
+    		String blogName = currentRow.getName();
+    		if(currentRow.isAwaitingModeration())
+    			blogName += " (*)";
+    		
+            drawText(graphics, leftImageWidth+5, y, w  - 5, height, blogName, _listField.getSelectedIndex() ==  index);
 
             graphics.setFont(originalFont);
             graphics.setColor(originalColor);

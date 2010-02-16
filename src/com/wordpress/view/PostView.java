@@ -8,6 +8,7 @@ import net.rim.device.api.ui.Keypad;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
+import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
@@ -34,6 +35,7 @@ public class PostView extends StandardBaseView {
 	private ObjectChoiceField status;
 	private LabelField categories;
 	private LabelField lblPhotoNumber;
+	private CheckboxField enableLocation;
 	
     public PostView(PostController _controller, Post _post) {
     	super(_resources.getString(WordPressResource.TITLE_POSTVIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -105,9 +107,16 @@ public class PostView extends StandardBaseView {
   		rowStatus.add(lblStatus);
   		rowStatus.add(status); 
   		outerManagerRowInfos.add(rowStatus);
-  		
-  		
+ 
   		add(outerManagerRowInfos);
+  		
+        //row comment notifies and location
+        BorderedFieldManager locationManager = new BorderedFieldManager(
+        		Manager.NO_HORIZONTAL_SCROLL
+        		| Manager.NO_VERTICAL_SCROLL);
+		enableLocation = new CheckboxField(_resources.getString(WordPressResource.LABEL_LOCATION), post.isLocation());
+		locationManager.add(enableLocation);
+		add(locationManager);
   		
   		//row content - decode the post body content
     	BorderedFieldManager outerManagerRowContent = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
@@ -174,6 +183,7 @@ public class PostView extends StandardBaseView {
         public void run() {
     		try {
     			updateModel();
+    			//TODO controllare qua il GPS
    				controller.sendPostToBlog();
     				
     		} catch (Exception e) {
@@ -319,6 +329,11 @@ public class PostView extends StandardBaseView {
 			post.setStatus(newState);
 			controller.setObjectAsChanged(true);
 			Log.trace("status dirty");
+		}
+		
+		if(enableLocation.isDirty()) {
+			post.setLocation(enableLocation.getChecked());
+			controller.setObjectAsChanged(true);
 		}
 	}
 

@@ -13,9 +13,9 @@ public class BlogInfo {
 	private String xmlRpcUrl; //real url for publishing on this blog
 	private String username;
 	private String password;
-	private int state=-1;
+	private int state = -1;
 	private boolean isCommentNotifies = false; //true when comment notifies is active
-	
+	private boolean awaitingModeration = false;
 
 	public BlogInfo(String id, String name, String xmlRpcUrl, String usr, String passwd, int state, boolean notifies) {
 		super();
@@ -64,6 +64,17 @@ public class BlogInfo {
 		this.isCommentNotifies = isCommentNotifies;
 	}
 	
+	/*
+	 * true when there are comments in the pending state
+	 */
+	public boolean isAwaitingModeration() {
+		return awaitingModeration;
+	}
+
+	public void setAwaitingModeration(boolean awaitingModeration) {
+		this.awaitingModeration = awaitingModeration;
+	}
+
 	//variable state and isCommentNotifies not considered
 	public int hashCode() {
 		final int prime = 31;

@@ -1,6 +1,6 @@
 package com.wordpress.view;
 
-import java.util.Hashtable;
+import java.util.Vector;
 
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
@@ -19,11 +19,9 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
-import com.wordpress.io.BlogDAO;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.DataCollector;
 import com.wordpress.utils.ImageUtils;
-import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BlogsListField;
 import com.wordpress.view.component.NoBlogsListField;
 
@@ -125,9 +123,9 @@ public class MainView extends BaseView {
 		removeMenuItem(_deleteBlogItem);
     	removeMenuItem(_showBlogItem);
     	
-    	BlogInfo[] blogCaricati = new BlogInfo[0];
+    	BlogInfo[] blogCaricati = mainController.getApplicationBlogs();
     	
-    	try {
+    	/*try {
     		Hashtable blogsInfo = BlogDAO.getBlogsInfo();
     		 blogCaricati =  (BlogInfo[]) blogsInfo.get("list");
     			if(blogsInfo.get("error") != null )
@@ -135,7 +133,7 @@ public class MainView extends BaseView {
 		} catch (Exception e) {
 			Log.error(e, "Error while reading stored blog");
 			mainController.displayError("Error while reading stored blogs");
-		}
+		}*/
 		
         if (blogCaricati.length == 0) {
         	NoBlogsListField blogListController = new NoBlogsListField();        	
@@ -155,6 +153,12 @@ public class MainView extends BaseView {
 		 blogListController.setBlogState(blogInfo);
 	 }
 	 
+	 public int getBlogsNumber () {
+		 
+		 if (blogListController == null) return 0;
+		 
+		 return blogListController.getBlogs().length;
+	 }
 /*	
 	// Handle trackball clicks.
 	protected boolean navigationClick(int status, int time) {
@@ -212,8 +216,7 @@ public class MainView extends BaseView {
 			} 
 	        setupUpBlogsView(); //repaint entire list
     	}
-    }
-        
+    }        
     
     private MenuItem _notificationItem = new MenuItem( _resources, WordPressResource.MENUITEM_NOTIFICATIONS, 900, 10) {
         public void run() {

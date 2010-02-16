@@ -3,12 +3,14 @@ package com.wordpress.controller;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.TimerTask;
+import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
+import com.wordpress.bb.NotificationHandler;
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
@@ -24,7 +26,8 @@ import com.wordpress.view.MainView;
 public class MainController extends BaseController implements TaskProgressListener{
 	
 	private MainView view = null;
-	
+	public static Vector applicationBlogs = new Vector();
+		
 	public MainController() {
 		super();
 	}
@@ -51,6 +54,8 @@ public class MainController extends BaseController implements TaskProgressListen
 					blog.setLoadingState(BlogInfo.STATE_LOADED_WITH_ERROR);
 					BlogDAO.updateBlog(blog);
 				}
+				
+				applicationBlogs.addElement(blogInfo);
 			}
 			numberOfBlog = blogsList.length;  //get the number of blog
 		} catch (Exception e) {
@@ -67,6 +72,9 @@ public class MainController extends BaseController implements TaskProgressListen
 		}
 		WordPressCore.getInstance().getTimer().schedule(new CheckUpdateTask(), 24*60*60*1000, 24*60*60*1000); //24h check
 		
+		//set the notification screen
+		NotificationHandler.getInstance().setGuiController(this);
+		
 		this.view=new MainView(this); //main view init here!.	
 		UiApplication.getUiApplication().pushScreen(this.view);
 	}
@@ -81,10 +89,7 @@ public class MainController extends BaseController implements TaskProgressListen
 					Log.trace("delay time is not over");
 					return;
 				}
-				Hashtable blogsInfo = BlogDAO.getBlogsInfo();
-				BlogInfo[] blogsList = new BlogInfo[0];
-				blogsList =  (BlogInfo[]) blogsInfo.get("list");
-				dtc.collectData(blogsList.length); //start data gathering here
+				dtc.collectData(applicationBlogs.size()); //start data gathering here
 			} catch (Throwable  e) {
 				cancel();
 				Log.error(e, "Serious Error in CheckUpdateTask: " + e.getMessage());
@@ -97,14 +102,25 @@ public class MainController extends BaseController implements TaskProgressListen
 			} 			  
 		}
 	}
-	
-	
+		
 	public void deleteBlog(BlogInfo selectedBlog) {
 		if (selectedBlog.getState() == BlogInfo.STATE_LOADING || selectedBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
 			displayMessage("Loading blog. Try later..");
 		} else {
 			try {
+				
 				BlogDAO.removeBlog(selectedBlog);
+				
+	    		for (int i = 0; i < applicationBlogs.size(); i++) {
+	    			
+	    			BlogInfo currentBlog = (BlogInfo) applicationBlogs.elementAt(i);
+	    							
+	    			if (selectedBlog.equals(currentBlog) ) {
+	    				applicationBlogs.removeElementAt(i);
+	    				return;
+	    			}
+	    		}
+				
 			} catch (IOException e) {
 				displayError(e, "Error while deleting the blog");
 			} catch (RecordStoreException e) {
@@ -118,7 +134,15 @@ public class MainController extends BaseController implements TaskProgressListen
 		ctrl.showView();
 	}
 		
-	public void showBlog(BlogInfo selectedBlog){
+	public BlogInfo[] getApplicationBlogs() {
+		BlogInfo[] blogCaricati = new BlogInfo[applicationBlogs.size()];
+		for (int i = 0; i < blogCaricati.length; i++) {
+			blogCaricati[i] = (BlogInfo) applicationBlogs.elementAt(i);
+		}	
+		return blogCaricati;
+	}
+
+	public void showBlog(BlogInfo selectedBlog) {
 
 		if (selectedBlog.getState() == BlogInfo.STATE_LOADING || selectedBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
 			//blog in caricamento
@@ -129,6 +153,22 @@ public class MainController extends BaseController implements TaskProgressListen
 	   	 try {
 	   		 currentBlog=BlogDAO.getBlog(selectedBlog);
 	   		 FrontController.getIstance().showBlog(currentBlog);
+	   		 
+			if(selectedBlog.isAwaitingModeration())
+			for(int count = 0; count < applicationBlogs.size(); ++count)
+	    	{
+	    		BlogInfo blog = (BlogInfo)applicationBlogs.elementAt(count);
+	    		
+	    		if (selectedBlog.equals(blog) )		
+	    		{
+	    			selectedBlog.setAwaitingModeration(false);
+	    			applicationBlogs.setElementAt(selectedBlog, count);
+	    			view.setBlogItemViewState(selectedBlog);
+	    			break;
+	    		}
+	    	}
+	   		 
+	   		 
 			} catch (Exception e) {
 				displayError(e, "Show Blog Error");
 			}
@@ -164,6 +204,28 @@ public class MainController extends BaseController implements TaskProgressListen
     	}
 	}
 
+	//listener for new comments in awaiting state
+	public void newCommentNotifies(BlogInfo[] blogs) {
+		for (int i = 0; i < blogs.length; i++) {
+			BlogInfo blogI = blogs[i];
+			view.setBlogItemViewState(blogI);	
+			
+			//update application blogs
+			for(int count = 0; count < applicationBlogs.size(); ++count)
+	    	{
+	    		BlogInfo blog = (BlogInfo)applicationBlogs.elementAt(count);
+	    		
+	    		if (blogI.equals(blog) )		
+	    		{
+	    			applicationBlogs.setElementAt(blogI, count);
+	    			break;
+	    		}
+	    	}
+			
+			
+		}
+	}
+	
 	//listener for the adding blogs task
 	public void taskComplete(Object obj) {
 		taskUpdate(obj);		
@@ -179,8 +241,37 @@ public class MainController extends BaseController implements TaskProgressListen
 			int blogLoadingState = loadedBlog.getLoadingState();
 			String usr = loadedBlog.getUsername();
 			String passwd = loadedBlog.getPassword();
-			BlogInfo blogI = new BlogInfo(blogId, blogName,blogXmlRpcUrl, usr, passwd,blogLoadingState, false);
+			BlogInfo blogI = new BlogInfo(blogId, blogName, blogXmlRpcUrl, usr, passwd,blogLoadingState, loadedBlog.isCommentNotifies());
 			view.setBlogItemViewState(blogI); 
+		
+			//update application blogs
+			for(int count = 0; count < applicationBlogs.size(); ++count)
+	    	{
+	    		BlogInfo blog = (BlogInfo)applicationBlogs.elementAt(count);
+	    		
+	    		if (blogI.equals(blog) )		
+	    		{
+	    			applicationBlogs.setElementAt(blogI, count);
+	    			break;
+	    		}
+	    	}
 		}
+	}
+
+//used in the add blog controller to add new blogs
+   public static void taskStart(Object obj) {
+		Vector loadedBlogs = (Vector)obj;
+			for (int i = 0; i < loadedBlogs.size(); i++) {
+				Blog loadedBlog = (Blog)loadedBlogs.elementAt(i);
+				String blogName = loadedBlog.getName();
+				String blogXmlRpcUrl=loadedBlog.getXmlRpcUrl();
+				String blogId= loadedBlog.getId();
+				int blogLoadingState = loadedBlog.getLoadingState();
+				String usr = loadedBlog.getUsername();
+				String passwd = loadedBlog.getPassword();
+				BlogInfo blogI = new BlogInfo(blogId, blogName, blogXmlRpcUrl, usr, passwd,blogLoadingState, loadedBlog.isCommentNotifies());
+				applicationBlogs.addElement(blogI);
+			}
+		
 	}	
 }
