@@ -243,8 +243,7 @@ public class CheckBoxListField {
             if( (index+1) < list.getSize() )
             	drawBorder(graphics, 0, y, w, height);
             
-            int leftImageWidth = 0;
-            Bitmap icon = Bitmap.getBitmapResource("category_child.png");
+            int leftImageWidth = 40; //the image width
             
             //If it is checked draw the String prefixed with a checked box,
             //prefix an unchecked box if it is not.
@@ -254,7 +253,7 @@ public class CheckBoxListField {
             	drawRightImage(graphics, y, w, height, uncheckedBitmap);
             }
 
-    	    drawText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentRow.getStringVal(), currentRow.isSelected);
+    	    drawText(graphics, 0, y, w  - leftImageWidth, height, currentRow.getStringVal(), currentRow.isSelected);
             graphics.setFont(originalFont);
             graphics.setColor(originalColor);
         }

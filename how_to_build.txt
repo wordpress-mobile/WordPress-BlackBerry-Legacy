@@ -6,7 +6,7 @@ This file contains the instructions to build the source code provided with the z
 
     - Download and install Apache Ant: http://ant.apache.org/ (version 1.7)
     - Download and install Sun Java Wireless Toolkit: http://java.sun.com/products/sjwtoolkit/ (version 2.5.2)
-    - Download and install Blackberry JDE Component Package: http://na.blackberry.com/eng/developers/ (version 4.2.1)
+    - Download and install Blackberry JDE IDE: http://na.blackberry.com/eng/developers/ (version 4.2.1)
 
 Note: Ant build task uses feature from svnant-1.2.1 library for reading informations inside svn properties files. 
 You should checkout this project from svn server using svn client compatible with the svnant library (now svn client 1.5.x). 
@@ -44,7 +44,7 @@ If you checkout the project using svn client 1.6.x you should not be able to bui
 
 4. Building the source
 4.1 Open a command prompt and go to the directory <blackberry-dir>/build
-4.2 Type "ant release" and press ENTER to build the client. The build process
+4.2 Type "ant simulator" (or "ant release") and press ENTER to build the client. The build process
     generates the required cod files. There are two sets of cod files:
 
     - <blackberry-dir>/output/xxx/release contains cod files which are suitable for

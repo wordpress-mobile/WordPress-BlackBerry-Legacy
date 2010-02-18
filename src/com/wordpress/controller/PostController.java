@@ -4,6 +4,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.location.Location;
+import javax.microedition.location.LocationException;
+
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
@@ -12,6 +15,7 @@ import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.DraftDAO;
+import com.wordpress.location.Gps;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Category;
 import com.wordpress.model.Post;
@@ -56,10 +60,194 @@ public class PostController extends BlogObjectController {
 			displayError(e, _resources.getString(WordPress.ERROR_NOT_ENOUGHT_SPACE));
 		}
 		checkMediaObjectLinks();
+		
+		checkLocationCustomFields(post.getCustomFields());
 	}
 	
+	public void startGeoTagging() {
+		Gps gps = new Gps();
+		gps.addObserver(new GPSLocationCallBack());
+		gps.findMyPosition();
+	}
+	
+	private class GPSLocationCallBack implements Observer{
+		
+		public void update(Observable observable, final Object object) {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					if(object == null) {
+						displayError("Unknown GPS Error");
+					} else if(object instanceof Location) {
+						
+						//javax.microedition.location.Location
+						Location location = (Location) object;
+						double latitude = location.getQualifiedCoordinates().getLatitude();
+						double longitude = location.getQualifiedCoordinates().getLongitude();
+						updateLocationCustomField(latitude, longitude);
+						sendPostToBlog();
+
+					} else if(object instanceof LocationException) {
+						displayError((LocationException)object, "GPS Error");
+					}
+				}//end run 
+			});
+		}
+	}
+
+	
+	//read custom field and set the post.isLocation = true  if location fields are present
+	protected void checkLocationCustomFields(Vector customFields) {
+    	Log.debug("start UI init");
+    	int size = customFields.size();
+    	Log.debug("Found "+size +" custom fields");
+    	
+		for (int i = 0; i <size; i++) {
+			Log.debug("Elaborating custom field # "+ i);
+			try {
+				Hashtable customField = (Hashtable)customFields.elementAt(i);
+				
+				String ID = (String)customField.get("id");
+				String key = (String)customField.get("key");
+				String value = (String)customField.get("value");
+				Log.debug("id - "+ID);
+				Log.debug("key - "+key);
+				Log.debug("value - "+value);	
+				
+				//find the lat/lon field
+				if(key.equalsIgnoreCase("geo_longitude")) {
+					post.setLocation(true); //set the post as geo-tagged
+					Log.debug("Custom Field added to UI");
+				} else {
+					Log.debug("Custom Field discarded from UI");
+				}
+			} catch(Exception ex) {
+				Log.error("Error while Elaborating custom field # "+ i);
+			}
+		}
+		Log.debug("End UI init");
+	 }
+
+	/**
+	 * Add or upgrade the location custom tags
+	 * 
+	 */
+	protected void updateLocationCustomField(double latitude, double longitude) {
+		
+		Log.debug(">>> updateLocationCustomField ");
+		
+		Vector customFields = this.post.getCustomFields();
+		int size = customFields.size();
+    	Log.debug("Found "+size +" custom fields");
+    	boolean presence = false;
+    	
+		for (int i = 0; i <size; i++) {
+			Log.debug("Elaborating custom field # "+ i);
+			try {
+				Hashtable customField = (Hashtable)customFields.elementAt(i);
+				
+				String ID = (String)customField.get("id");
+				String key = (String)customField.get("key");
+				String value = (String)customField.get("value");
+				Log.debug("id - "+ID);
+				Log.debug("key - "+key);
+				Log.debug("value - "+value);	
+				
+				//find the lat/lon field
+				if(key.equalsIgnoreCase("geo_address") || key.equalsIgnoreCase("geo_public")
+						|| key.equalsIgnoreCase("geo_accuracy")) {
+				
+					 customField.remove("key");
+					 customField.remove("value");
+					 Log.debug("Removed custom field : "+ key);
+				}
+				
+				if(key.equalsIgnoreCase("geo_longitude")){
+					 Log.debug("Updated custom field : "+ key);
+					 customField.put("value", String.valueOf(longitude));
+					 presence = true;
+				}
+				if( key.equalsIgnoreCase("geo_latitude")){
+					Log.debug("Updated custom field : "+ key);
+					customField.put("value", String.valueOf(latitude));
+					presence = true;
+				}
+				//geo_public
+				if( key.equalsIgnoreCase("geo_public")){
+					Log.debug("Updated custom field : "+ key);
+					customField.put("value", String.valueOf(1));
+					presence = true;
+				}
+
+				
+			} catch(Exception ex) {
+				Log.error("Error while Elaborating custom field # "+ i);
+			}
+		}
+		
+		if(presence == false)
+		{
+			Hashtable customField1 = new Hashtable();
+			customField1.put("key", "geo_longitude");
+			customField1.put("value", String.valueOf(longitude)); 
+			customFields.addElement(customField1);
+			
+			Hashtable customField2 = new Hashtable();
+			customField2.put("key", "geo_latitude"); 
+			customField2.put("value", String.valueOf(latitude)); 
+			customFields.addElement(customField2);
+			//add geo_public field
+			Hashtable customField3 = new Hashtable();
+			customField3.put("key", "geo_public"); 
+			customField3.put("value", String.valueOf(1)); 
+			customFields.addElement(customField3);
+			
+			Log.debug("Added custom fields longitude, latitude and geo_public");
+		}
+		
+		Log.debug("<<< updateLocationCustomField ");
+	}
+	
+	public void removeLocationCustomField() {
+		Log.debug(">>> removeLocationCustomField ");
+		if(post.isLocation()) {
+			Log.debug("location was not removed, bc post is already marked as geotagged");
+			return;
+		}
+		
+		Vector customFields = this.post.getCustomFields();
+		int size = customFields.size();
+    	Log.debug("Found "+size +" custom fields");
+    	
+		for (int i = 0; i <size; i++) {
+			Log.debug("Elaborating custom field # "+ i);
+			try {
+				Hashtable customField = (Hashtable)customFields.elementAt(i);
+				
+				String ID = (String)customField.get("id");
+				String key = (String)customField.get("key");
+				String value = (String)customField.get("value");
+				Log.debug("id - "+ID);
+				Log.debug("key - "+key);
+				Log.debug("value - "+value);	
+				
+				//find the lat/lon field
+				if(key.equalsIgnoreCase("geo_address") || key.equalsIgnoreCase("geo_public")
+						|| key.equalsIgnoreCase("geo_accuracy")
+						|| key.equalsIgnoreCase("geo_longitude") || key.equalsIgnoreCase("geo_latitude")) {
+				
+					 customField.remove("key");
+					 customField.remove("value");
+					 Log.debug("Removed custom field : "+ key);
+				} 
+			} catch(Exception ex) {
+				Log.error("Error while Elaborating custom field # "+ i);
+			}
+		}
+		Log.debug("<<< removeLocationCustomField ");
+	}
+		
 	//used when loading draft post from disk
-	public PostController(Post post,int _draftPostFolder) {
+	public PostController(Post post, int _draftPostFolder) {
 		super();	
 		this.post=post;
 		this.blog = post.getBlog();
@@ -242,13 +430,17 @@ public class PostController extends BlogObjectController {
 		view.updateCategoriesField(); 	//refresh the label field that contains cats..
 	}
 
+	
+	
 	public void sendPostToBlog() {
 		
 		if(post.getStatus() == null || post.getStatus().equals(LOCAL_DRAFT_KEY)) {
 			displayMessage(_resources.getString(WordPressResource.MESSAGE_LOCAL_DRAFT_NOT_SUBMIT));
 			return;
 		}	
-						
+	
+		//this.removeLocationCustomField(); //remove the location field if necessary
+		
 		//adding post connection
 		BlogConn connection;
 		

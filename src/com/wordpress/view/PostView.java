@@ -1,6 +1,9 @@
 package com.wordpress.view;
 
 
+import java.util.Hashtable;
+import java.util.Vector;
+
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
@@ -9,6 +12,7 @@ import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.CheckboxField;
+import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
@@ -23,6 +27,7 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.component.HtmlTextField;
+import com.wordpress.view.dialog.InquiryView;
 
 public class PostView extends StandardBaseView {
 	
@@ -183,8 +188,54 @@ public class PostView extends StandardBaseView {
         public void run() {
     		try {
     			updateModel();
-    			//TODO controllare qua il GPS
-   				controller.sendPostToBlog();
+    			
+    			if (post.isLocation()) {
+    				boolean isPresent = false;
+    				Vector customFields = post.getCustomFields();
+    		    	int size = customFields.size();
+    		    	Log.debug("Found "+size +" custom fields");
+    		    	
+    				for (int i = 0; i <size; i++) {
+    					Log.debug("Elaborating custom field # "+ i);
+    					try {
+    						Hashtable customField = (Hashtable)customFields.elementAt(i);
+    						
+    						String ID = (String)customField.get("id");
+    						String key = (String)customField.get("key");
+    						String value = (String)customField.get("value");
+    						Log.debug("id - "+ID);
+    						Log.debug("key - "+key);
+    						Log.debug("value - "+value);	
+    						
+    						//find the lat/lon field
+    						if(key.equalsIgnoreCase("geo_longitude")) {
+    							isPresent = true;
+    						} 
+    					} catch(Exception ex) {
+    						Log.error("Error while Elaborating custom field # "+ i);
+    					}
+    				}
+    				
+    				if(isPresent == true) {
+    					InquiryView infoView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_LOCATION_OVERWRITE));
+    			    	int choice=infoView.doModal();  
+    			    	if (choice == Dialog.YES) {
+    			    		//avvia il gps
+    			    		controller.startGeoTagging();
+    			    	} else {
+    			    		//invia al blog
+    			    		controller.sendPostToBlog();
+    			    	}
+    					
+    				} else {
+    					//start the gps controller
+    					controller.startGeoTagging();
+    				}
+    				
+    			} else {
+    				controller.removeLocationCustomField(); //remove the location field if necessary
+    				controller.sendPostToBlog();
+    			}
     				
     		} catch (Exception e) {
     			controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_POST));

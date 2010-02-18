@@ -26,13 +26,16 @@ import com.wordpress.view.MainView;
 public class MainController extends BaseController implements TaskProgressListener{
 	
 	private MainView view = null;
-	public static Vector applicationBlogs = new Vector();
-		
+	private Vector applicationBlogs = null;
+	
 	public MainController() {
 		super();
+		WordPressCore wpCore = WordPressCore.getInstance();
+		applicationBlogs = wpCore.getApplicationBlogs();
 	}
 	
 	public void showView(){
+		
 		
 		int numberOfBlog = 0; 
 		
@@ -70,8 +73,9 @@ public class MainController extends BaseController implements TaskProgressListen
 		} catch (Exception e) {
 			//don't propagate this Exception
 		}
+
+		//schedule the update check task at startup
 		WordPressCore.getInstance().getTimer().schedule(new CheckUpdateTask(), 24*60*60*1000, 24*60*60*1000); //24h check
-		
 		//set the notification screen
 		NotificationHandler.getInstance().setGuiController(this);
 		
@@ -260,6 +264,7 @@ public class MainController extends BaseController implements TaskProgressListen
 
 //used in the add blog controller to add new blogs
    public static void taskStart(Object obj) {
+	   Vector applicationBlogs = WordPressCore.getInstance().getApplicationBlogs();
 		Vector loadedBlogs = (Vector)obj;
 			for (int i = 0; i < loadedBlogs.size(); i++) {
 				Blog loadedBlog = (Blog)loadedBlogs.elementAt(i);
@@ -272,6 +277,5 @@ public class MainController extends BaseController implements TaskProgressListen
 				BlogInfo blogI = new BlogInfo(blogId, blogName, blogXmlRpcUrl, usr, passwd,blogLoadingState, loadedBlog.isCommentNotifies());
 				applicationBlogs.addElement(blogI);
 			}
-		
 	}	
 }

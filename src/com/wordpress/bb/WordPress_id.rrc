@@ -39,6 +39,8 @@ LABEL_CAPTION#0="Judul";
 LABEL_CATEGORY_NAME#0="Nama Kategori";
 LABEL_CATEGORY_PARENT#0="Kategori Induk";
 LABEL_COMMENT#0="Komentar";
+LABEL_COMMENT_NOTIFICATIONS_INTERVAL#0={
+};
 LABEL_COMMENT_ON#0="Aktif";
 LABEL_CONTENT#0="Konten";
 LABEL_CUSTOM_FIELD_DESC#0="Ruas tersuai dapat digunakan untuk menambahkan metadata tambahan ke dalam sebuah tulisan yang dapat Anda gunakan di tema Anda.";

@@ -75,6 +75,7 @@ src\com\wordpress\io\FileUtils.java
 src\com\wordpress\io\JSR75FileSystem.java
 src\com\wordpress\io\PageDAO.java
 src\com\wordpress\io\Serializer.java
+src\com\wordpress\location\Gps.java
 src\com\wordpress\model\Author.java
 src\com\wordpress\model\Blog.java
 src\com\wordpress\model\BlogInfo.java

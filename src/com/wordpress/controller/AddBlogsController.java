@@ -139,7 +139,7 @@ public class AddBlogsController extends BaseController{
 			}
 		}
 		
-		//update the main view with new blogs all STATE_ADDED_TO_QUEUE
+		//update the main view with new blogs, all blogs have state = STATE_ADDED_TO_QUEUE
 		MainController.taskStart(addedBlog); //update the main list view...
 		FrontController.getIstance().backAndRefreshView(true);
 		LoadBlogsDataTask loadBlogsTask = new LoadBlogsDataTask(connectionsQueue);

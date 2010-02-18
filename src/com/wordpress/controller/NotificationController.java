@@ -76,20 +76,38 @@ public class NotificationController extends BaseController {
 		Log.trace("<<< NotificationController.saveSettings");
 	}
 	
+	public static int decodeInterval(int index) {
+		Log.trace("decodeInterval Index : " + index);
+		int constant = 60*1000; // 1 minute
+		switch (index) {
+		case 0:
+			return 0;
+		case 1:
+			return 120 * constant;
+		case 2:
+			return 90 * constant;
+		case 3:
+			return 60 * constant;
+		case 4:
+			return 30 * constant;
+		case 5:
+			return 15 * constant;
+		case 6:
+			return 10 * constant;
+		case 7:
+			return 5 * constant;			
+		default:
+			return 0;
+		}
+	}
+	
 	public void showView(){
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 
-	
-	public String[] getIntervalTimeLabels(){
-		String[] choices = {"OFF", "120 minutes", "90 minutes", "60 minutes", "30 minutes", "15 minutes", "10 minutes", "5 minutes"};
-		return choices;
-	}
-	
 	public int getSelectedIntervalTime() {
 		return mPrefs.getUpdateTimeIndex();
-	}
-
+	}	
 	
 	public void refreshView() {
 		

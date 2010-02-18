@@ -39,6 +39,8 @@ LABEL_CAPTION#0="Légende";
 LABEL_CATEGORY_NAME#0="Nom de la catégorie";
 LABEL_CATEGORY_PARENT#0="Catégorie parent";
 LABEL_COMMENT#0="Commentaire";
+LABEL_COMMENT_NOTIFICATIONS_INTERVAL#0={
+};
 LABEL_COMMENT_ON#0="Actif";
 LABEL_CONTENT#0="Contenu";
 LABEL_CUSTOM_FIELD_DESC#0="Les champs personnalisés permettent d'ajouter des métadonnées à votre article, celles-ci seront utilisables dans votre thème.";

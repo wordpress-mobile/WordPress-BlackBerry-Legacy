@@ -19,6 +19,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
+import com.wordpress.location.Gps;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.DataCollector;
 import com.wordpress.utils.ImageUtils;
@@ -180,7 +181,8 @@ public class MainView extends BaseView {
 
 	private MenuItem _triggerMenuItem = new MenuItem( "Trigger", 130, 10) {
 	        public void run() {
-	        	 NotificationHandler.getInstance().notifyNewMessages();
+	        	 //NotificationHandler.getInstance().notifyNewMessages();
+	        	new Gps().findMyPosition();
 	        }
 	    };
 	 

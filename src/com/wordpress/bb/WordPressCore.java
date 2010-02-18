@@ -1,6 +1,7 @@
 package com.wordpress.bb;
 import java.io.IOException;
 import java.util.Timer;
+import java.util.Vector;
 
 import javax.microedition.io.file.FileSystemListener;
 import javax.microedition.rms.RecordStoreException;
@@ -23,6 +24,7 @@ public class WordPressCore {
 	private FileAppender fileAppender = null;
 	private MySDListener sdCardListener = null;
 	private Timer timer = null;
+	private Vector applicationBlogs = new Vector();
 	 
 	//create a variable to store the ResourceBundle for localization support
     private final ResourceBundle _resources;
@@ -154,6 +156,10 @@ public class WordPressCore {
 
 	public Timer getTimer() {
 		return timer;
+	}
+
+	public Vector getApplicationBlogs() {
+		return applicationBlogs;
 	}
 	
 }

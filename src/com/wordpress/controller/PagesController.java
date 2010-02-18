@@ -246,7 +246,7 @@ public class PagesController extends BaseController{
 					}
 
 					
-					}//and run 
+					}//end run 
 			});
 		}
 	}

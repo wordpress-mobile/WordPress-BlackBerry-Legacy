@@ -170,8 +170,6 @@ public class WordPress extends UiApplication implements WordPressResource {
 	private void loadApp() {
 		
 		loadingScreen = new SplashScreen();
-		mainScreen = new MainController();
-
 		pushScreen(loadingScreen);
      	 
 		 //The following code specifies that the screen backlight, once activated,
@@ -265,6 +263,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 					ErrorView errView = new ErrorView("Wordpress Startup Error!");
 					errView.doModal();
 					if (loadingScreen != null) popScreen(loadingScreen);
+					mainScreen = new MainController();
 					mainScreen.showView();
 				}
 			});
@@ -277,6 +276,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 			public void run() {
 				timer.cancel();
 			    popScreen(loadingScreen);
+				mainScreen = new MainController();
 			    mainScreen.showView();
 			}
 		});

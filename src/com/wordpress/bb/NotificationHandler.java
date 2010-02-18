@@ -9,6 +9,7 @@ import net.rim.device.api.notification.NotificationsManager;
 import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.controller.MainController;
+import com.wordpress.controller.NotificationController;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.Queue;
@@ -60,13 +61,17 @@ public class NotificationHandler {
 	 */
 	public void setEnabled(boolean isEnabled, int updateTimeIndex) {
 		
-		Log.trace("NotificationHandler enabled");
+		if(updateTimeIndex == 0) return;
+		int updateInterval = NotificationController.decodeInterval(updateTimeIndex);
+		Log.trace("updateInterval ms : " + updateInterval);
+		if(updateInterval == 0) return;
 		
+		Log.trace("NotificationHandler enabled");
 		this.notificationEnabled = isEnabled;
 		stopInnerTask(); //it is not necessary here, anyway we have put one more checks
 		currentNotificationTask = new NotificationTask();
-		//TODO decodificare l'intervallo
-		WordPressCore.getInstance().getTimer().schedule(currentNotificationTask, 1*60*1000, 1*60*1000); //1mins check
+		
+		WordPressCore.getInstance().getTimer().schedule(currentNotificationTask, updateInterval, updateInterval); //1mins check
 	}
 	
 	

@@ -41,6 +41,16 @@ LABEL_CATEGORY_NAME#0="Category name";
 LABEL_CATEGORY_PARENT#0="Parent Category";
 LABEL_COMMENT#0="Comment";
 LABEL_COMMENT_NOTIFICATIONS#0="Comment Notifications";
+LABEL_COMMENT_NOTIFICATIONS_INTERVAL#0={
+    "Off",
+    "120 minutes",
+    "90 minutes",
+    "60 minutes",
+    "30 minutes",
+    "15 minutes",
+    "10 minutes",
+    "5 minutes",
+};
 LABEL_COMMENT_ON#0="On";
 LABEL_CONTENT#0="Content";
 LABEL_CUSTOM_FIELD_DESC#0="Custom fields can be used to add extra metadata to a post that you can use in your theme.";
@@ -147,6 +157,7 @@ MESSAGE_HTTP_LINK#0="HTTP Link?";
 MESSAGE_INQUIRY_DIALOG_BOX#0="Save The Changes?";
 MESSAGE_LOCAL_DRAFT_NOT_SUBMIT#0="Local Drafts cannot be sent";
 MESSAGE_LOCAL_DRAFT_NO_COMMENT#0="No Comments for this draft post";
+MESSAGE_LOCATION_OVERWRITE#0="Overwrite Location data with the current position?";
 MESSAGE_MEDIA_ON_BOTTOM#0="All media will be aligned to the bottom of the content";
 MESSAGE_MEDIA_ON_TOP#0="All media will be aligned to the top of the content";
 MESSAGE_NEW_VERSION_AVAILABLE#0="A new version of WordPress for BlackBerry is now available. Do you want update now?";
@@ -166,6 +177,8 @@ OPTIONSSCREEN_ALLOW_DESC#0="Select one or more connections that you want to enab
 OPTIONSSCREEN_ALLOW_TCP#0="Direct TCP Stack";
 OPTIONSSCREEN_ALLOW_WAP2#0="Wap 2.0 Gateway";
 OPTIONSSCREEN_ALLOW_WIFI#0="Wi-Fi network";
+OPTIONSSCREEN_BACKGROUND_DESC#0="You can leave the app running in background instead of closing it. This option but must checked if you wish to receive notifications of new comments.";
+OPTIONSSCREEN_BACKGROUND_LABEL#0="Background on close";
 OPTIONSSCREEN_DEBUG_DESC#0="The debug option causes WordPress for BlackBerry to produce a detailed text log of activity. This log allows our developers to inspect the internal workings of the application and pinpoint the cause of problems. Enabling debugging is only usually required when requested by the WordPress Support team.";
 OPTIONSSCREEN_DEBUG_LABEL#0="Debug";
 OPTIONSSCREEN_LABEL_APN#0="APN";
@@ -175,9 +188,8 @@ OPTIONSSCREEN_LABEL_GWAYPORT#0="Gateway Port";
 OPTIONSSCREEN_LABEL_ISWAP#0="Is WAP Connection?";
 OPTIONSSCREEN_LABEL_SRCIP#0="Source IP";
 OPTIONSSCREEN_LABEL_SRCPORT#0="Source Port";
-OPTIONSSCREEN_SHUTDOWN_LABEL#0="Background on close";
-OPTIONSSCREEN_STARTUP_LABEL#0="Launch at device power on";
-OPTIONSSCREEN_STARTUP_SHUTDOWN_DESC#0="Startup / Shutdown settings";
+OPTIONSSCREEN_STARTUP_DESC#0="You can choose to start the app at device startup.  This option should be checked if you wish to receive notification since device startup.";
+OPTIONSSCREEN_STARTUP_LABEL#0="Auto Start";
 OPTIONSSCREEN_STORAGE_DEVICE#0="Device";
 OPTIONSSCREEN_STORAGE_LABEL#0="Cache Files Location";
 OPTIONSSCREEN_STORAGE_SDCARD#0="SD Card";

@@ -99,16 +99,25 @@ public class PreferencesView extends StandardBaseView {
 				 Manager.NO_HORIZONTAL_SCROLL
 				 | Manager.NO_VERTICAL_SCROLL);
 		 
-         //row allow description
-         LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_STARTUP_SHUTDOWN_DESC)); 
-		 Font fnt = this.getFont().derive(Font.ITALIC);
-		 lblDescReset.setFont(fnt);
-		 optManager.add(lblDescReset);
-		
+		 //startup checkbox		 
 		 autoStartup = new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_STARTUP_LABEL), mPrefs.isAutoStartup());
 		 optManager.add(autoStartup);
-		 backgroundOnClose = new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_SHUTDOWN_LABEL), mPrefs.isBackgroundOnClose());
+		 //row startup description
+         LabelField lblStartup = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_STARTUP_DESC)); 
+		 Font fnt = this.getFont().derive(Font.ITALIC);
+		 lblStartup.setFont(fnt);
+		 optManager.add(lblStartup);
+		 
+		 optManager.add(new LabelField("", Field.NON_FOCUSABLE));
+		 
+		 //background on close checkbox
+		 backgroundOnClose = new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_BACKGROUND_LABEL), mPrefs.isBackgroundOnClose());
 		 optManager.add(backgroundOnClose);
+		 //background on close description
+         LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_BACKGROUND_DESC)); 
+		 lblDescReset.setFont(fnt);
+		 optManager.add(lblDescReset);	
+		 
 		 add(optManager);
 	 }
 	 	 	 

@@ -50,9 +50,9 @@ public class NotificationView extends StandardBaseView {
    		 	this.chkField= checkBoxController.get_checkList();
 //   		 	add(chkField);
             
-   		 
+   		 	String choices[] = _resources.getStringArray(WordPressResource.LABEL_COMMENT_NOTIFICATIONS_INTERVAL);
             updateInterval = new ObjectChoiceField (_resources.getString(WordPressResource.NOTIFICATION_INTERVAL_LABEL), 
-            		controller.getIntervalTimeLabels(), controller.getSelectedIntervalTime());
+            		choices, controller.getSelectedIntervalTime());
             notifyRow.add(updateInterval);
             add(notifyRow);            
 

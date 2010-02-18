@@ -39,6 +39,8 @@ LABEL_CAPTION#0="Didascalia";
 LABEL_CATEGORY_NAME#0="Nome Categoria";
 LABEL_CATEGORY_PARENT#0="Categoria genitore";
 LABEL_COMMENT#0="Commento";
+LABEL_COMMENT_NOTIFICATIONS_INTERVAL#0={
+};
 LABEL_COMMENT_ON#0="A";
 LABEL_CONTENT#0="Contenuto";
 LABEL_CUSTOM_FIELD_DESC#0="I campi custom sono usati per aggiungere metadati che possono essere utilizzati dal tuo tema.";

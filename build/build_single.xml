@@ -15,12 +15,12 @@
         <property file="build/build.properties" />
         <property file="build/release.properties" />
     	
-    	<svn>
-    		<!-- status path="${basedir}" revisionProperty="svn.revision" / -->
+    	<!-- svn>
+    	
     		<info target="${basedir}"/>
-    	</svn>
+    	</svn -->
     	        	
-        <property name="module.version" value="${release.major}.${release.minor}.${build.number}.${svn.info.lastRev}" />
+        <property name="module.version" value="0.0" />
 
         <property name="platform"              value="os42" />
         <property name="module.name"           value="WordPress"/>
