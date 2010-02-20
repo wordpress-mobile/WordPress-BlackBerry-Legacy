@@ -421,7 +421,11 @@ public abstract class CommentsController extends BaseController {
 						respVector = (Vector) resp.getResponseObject(); // the response from wp server
 						
 						storeComment(respVector);
-						storedComments = CommentsDAO.vector2Comments(respVector);
+						Hashtable vector2Comments = CommentsDAO.vector2Comments(respVector);
+						storedComments =(Comment[]) vector2Comments.get("comments");
+						if(vector2Comments.get("error") != null) {
+							displayErrorAndWait("Error while loading comments: "+ (String)vector2Comments.get("error"));
+						}
 						
 						removeGravatarCache();
 						view.refresh(storedComments);
@@ -429,7 +433,6 @@ public abstract class CommentsController extends BaseController {
 						final String respMessage=resp.getResponse();
 					 	displayError(respMessage);	
 					}
-				
 				}
 			});
 		}
@@ -454,7 +457,9 @@ public abstract class CommentsController extends BaseController {
 							Hashtable newComm = (Hashtable) resp.getResponseObject(); // the response from wp server. (struct)
 							Vector tempCommVector = new Vector(1);
 							tempCommVector.addElement(newComm);
-							Comment[] vector2Comments = CommentsDAO.vector2Comments(tempCommVector);
+													
+							Comment[] vector2Comments = (Comment[])CommentsDAO.vector2Comments(tempCommVector).get("comments");
+							
 							tempCommVector = null;
 							//adding new comment at top of the comments list
 							Comment[] newComments = new Comment[storedComments.length+1];

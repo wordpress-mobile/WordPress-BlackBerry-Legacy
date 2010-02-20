@@ -79,7 +79,7 @@ public class WordPress extends UiApplication implements WordPressResource {
                     	//Define a dummy object that provides the source for the event.
                     	Object eventSource = new Object() {
                     		public String toString() {
-                    			return "WordPress Demo";
+                    			return "WordPress";
                     		}
                     	};                    	
                     	/*define an hashtable and put it in the recordstore. 

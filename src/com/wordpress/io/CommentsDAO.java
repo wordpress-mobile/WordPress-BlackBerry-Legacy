@@ -134,40 +134,57 @@ public class CommentsDAO implements BaseDAO{
 	}
 	
 	
-	//retun array of comments from wp response
-	public static synchronized Comment[] vector2Comments(Vector respVector){
+	/**
+	 *  Get comments Objs from wp response
+	 *   
+	 * @param respVector - the Vector containing the response from the server 
+	 * @return an Hashtable with the following keys: "comments", and optionally "error" - if there was an error during the 
+	 * building of the comments obj
+	 */
+	public static synchronized Hashtable vector2Comments(Vector respVector){
+		Hashtable response = new Hashtable(2);
+		String errorMsg = null;
 		
-		if( respVector == null )
-			return new Comment[0];
-		
-		Comment[] myCommentsList =new Comment[respVector.size()]; //my comment object list
-		
-		for (int i = 0; i < respVector.size(); i++) {
-			 Hashtable returnCommentData = (Hashtable)respVector.elementAt(i);
-			 
-			
-			Comment comment = new Comment();
-			 
-			int commentID=Integer.parseInt((String)returnCommentData.get("comment_id"));
-	        int commentParent=Integer.parseInt((String) returnCommentData.get("parent"));
-            String status=(String) returnCommentData.get("status");
-            comment.setDateCreatedGMT((Date) returnCommentData.get("date_created_gmt"));
-            comment.setUserId( (String)returnCommentData.get("user_id") ) ;
-            comment.setID(commentID);
-            comment.setParent(commentParent);
-            comment.setStatus(status);
-            comment.setContent( (String) returnCommentData.get("content") );
-            comment.setLink((String) returnCommentData.get("link"));
-            comment.setPostID(Integer.parseInt((String)returnCommentData.get("post_id")));
-            comment.setPostTitle((String) returnCommentData.get("post_title"));
-            comment.setAuthor((String) returnCommentData.get("author"));
-            comment.setAuthorEmail((String) returnCommentData.get("author_email"));
-            comment.setAuthorUrl((String) returnCommentData.get("author_url"));
-            comment.setAuthorIp((String) returnCommentData.get("author_ip"));
-            myCommentsList[i]=comment; //add comment to my return list
-
+		if( respVector == null ) {
+			response.put("comments", new Comment[0]);
+			return response;
 		}
-		return myCommentsList;
+		
+		Vector commentObjList = new Vector();
+
+		for (int i = 0; i < respVector.size(); i++) {
+			try {
+				Hashtable returnCommentData = (Hashtable)respVector.elementAt(i);
+				 
+				Comment comment = new Comment();
+				 
+				int commentID=Integer.parseInt((String)returnCommentData.get("comment_id"));
+		        int commentParent=Integer.parseInt((String) returnCommentData.get("parent"));
+	            String status=(String) returnCommentData.get("status");
+	            comment.setDateCreatedGMT((Date) returnCommentData.get("date_created_gmt"));
+	            comment.setUserId( (String)returnCommentData.get("user_id") ) ;
+	            comment.setID(commentID);
+	            comment.setParent(commentParent);
+	            comment.setStatus(status);
+	            comment.setContent( (String) returnCommentData.get("content") );
+	            comment.setLink((String) returnCommentData.get("link"));
+	            comment.setPostID(Integer.parseInt((String)returnCommentData.get("post_id")));
+	            comment.setPostTitle((String) returnCommentData.get("post_title"));
+	            comment.setAuthor((String) returnCommentData.get("author"));
+	            comment.setAuthorEmail((String) returnCommentData.get("author_email"));
+	            comment.setAuthorUrl((String) returnCommentData.get("author_url"));
+	            comment.setAuthorIp((String) returnCommentData.get("author_ip"));
+	            commentObjList.addElement(comment); //add comment to my return list
+			} catch(Exception e) {
+				errorMsg = e.getMessage();
+				response.put("error", errorMsg);
+			}
+		}
+		
+		Comment[] myCommentsList =new Comment[commentObjList.size()]; //my comment object list
+		commentObjList.copyInto(myCommentsList);
+		response.put("comments", myCommentsList);
+		return response;
 	}
 	
 	public static synchronized Vector comments2Vector(Comment[] comments){

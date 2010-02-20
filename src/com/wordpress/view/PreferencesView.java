@@ -1,6 +1,8 @@
 package com.wordpress.view;
 
 import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
@@ -26,7 +28,9 @@ import com.wordpress.controller.FrontController;
 import com.wordpress.controller.PreferenceController;
 import com.wordpress.io.AppDAO;
 import com.wordpress.io.BaseDAO;
+import com.wordpress.io.BlogDAO;
 import com.wordpress.io.JSR75FileSystem;
+import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
@@ -605,6 +609,25 @@ public class PreferencesView extends StandardBaseView {
 						
 						fileAppender.open(); //reopen the log file
 						Log.addAppender(fileAppender);
+						
+						//update the application blogs
+					   	 try {
+					   		 	Vector applicationBlogs = WordPressCore.getInstance().getApplicationBlogs();
+					   		 	applicationBlogs.removeAllElements();
+					   		 	
+						   		Hashtable blogsInfo = BlogDAO.getBlogsInfo();
+								BlogInfo[] blogsList =  (BlogInfo[]) blogsInfo.get("list");
+								if(blogsInfo.get("error") != null )
+									controller.displayErrorAndWait((String)blogsInfo.get("error"));
+											
+								for (int i = 0; i < blogsList.length; i++) {
+									BlogInfo blogInfo = blogsList[i];
+									applicationBlogs.addElement(blogInfo);
+								}
+								
+							} catch (Exception e) {
+								Log.error(e, "Error while reading stored blog");
+							}
 					}	
 				} catch (RecordStoreException e) {
 					Log.error(e, "Error upgrading Storage location");

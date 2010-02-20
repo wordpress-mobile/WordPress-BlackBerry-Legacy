@@ -1,21 +1,15 @@
 package com.wordpress.io;
 
 /*
- * Created on 13-Mar-2006 at 19:20:28.
- *
- * Copyright (c) 2006 Robert Virkus / Enough Software
- *
- * This file was part of J2ME Polish.
- *
+ * This serializer class reuse same part of code 
+ * of the java serializer class present in J2ME Polish.
  * http://www.j2mepolish.org for details.
  * 
  * Modified by Danilo Ercoli on 6 May 2009
- * dercoli@danas.it
+ * ercoli@gmail.com
  * 
  */
 
-
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -29,25 +23,12 @@ import java.util.Vector;
 
 import javax.microedition.lcdui.Image;
 
-import com.wordpress.utils.log.Log;
-
-
-
 /**
  * <p>The serializer class is used for serializing and de-serializing objects in a unified way.</p>
  *
- * <p>Copyright Enough Software 2006 - 2008</p>
- * <pre>
- * history
- *        Mar 31, 2006 - rob creation
- * </pre>
- * @author Robert Virkus, j2mepolish@enough.de
  */
 public final class Serializer {
 
-	private static final byte VERSION = 1; // version starts at 1 and is then increased up to 127 when incompatible changes occur
-	private static final byte TYPE_EXTERNALIZABLE = 0;
-	private static final byte TYPE_EXTERNALIZABLE_ARRAY = 1;
 	private static final byte TYPE_OBJECT_ARRAY = 2;
 	private static final byte TYPE_BYTE = 3;
 	private static final byte TYPE_SHORT = 4;
@@ -67,9 +48,6 @@ public final class Serializer {
 	private static final byte TYPE_VECTOR = 18;
 	private static final byte TYPE_IMAGE = 19;
 	private static final byte TYPE_IMAGE_RGB = 0;
-	private static final byte TYPE_IMAGE_BYTES = 1;
-	private static final byte TYPE_FONT = 20;
-	private static final byte TYPE_COMMAND = 21;
 	private static final byte TYPE_BYTE_ARRAY = 22;
 	private static final byte TYPE_SHORT_ARRAY = 23;
 	private static final byte TYPE_INT_ARRAY = 24;
@@ -93,7 +71,7 @@ public final class Serializer {
 	
 	/**
 	 * Serializes the specified object.
-	 * Any class implementing Serializable can be serialized, additionally classes like java.lang.Integer, java.util.Date, javax.util.Vector,  javax.microedition.lcdui.Image etc. can be serialized.
+	 * Any like java.lang.Integer, java.util.Date, javax.util.Vector,  javax.microedition.lcdui.Image etc. can be serialized.
 	 *
 	 * @param object the object
 	 * @param out the stream into which the object should be serialized
@@ -104,56 +82,9 @@ public final class Serializer {
 		
 		if (out == null) throw new IOException("Output Stream null!");
 		
-	//	out.writeByte( VERSION );
 		boolean isNull = (object == null);
 		out.writeBoolean( isNull );
 		if ( !isNull ) {
-		/*	if (object instanceof Externalizable) {
-				out.writeByte(TYPE_EXTERNALIZABLE);
-				String className = object.getClass().getName();
-
-				//#debug debug
-				System.out.println("serializing " + className + "=" + object);
-				out.writeUTF( className );
-				((Externalizable)object).write(out);
-			} else if (object instanceof Externalizable[]) {
-				out.writeByte(TYPE_EXTERNALIZABLE_ARRAY);
-				String cn = object.getClass().getName();
-				cn = cn.substring(cn.lastIndexOf('[') + 2, cn.length() - 1);
-
-				out.writeUTF(cn);
-				Externalizable[] externalizables = (Externalizable[]) object;
-				out.writeInt( externalizables.length );
-				Hashtable classNames = new Hashtable();
-				Class lastClass = null;
-				byte lastId = 0;
-				byte idCounter = 0;
-				for (int i = 0; i < externalizables.length; i++) {
-					Externalizable externalizable = externalizables[i];
-					Class currentClass = externalizable.getClass();
-					if (currentClass == lastClass ) {
-						out.writeByte( lastId );
-					} else {
-						Byte knownId = (Byte) classNames.get( currentClass );
-						if (knownId != null) {
-							out.writeByte( knownId.byteValue() );
-						} else {
-							// this is a class that has not yet been encountered:
-							out.writeByte( 0 );
-							idCounter++;
-							String className = currentClass.getName() ;
-
-							//#debug debug
-							System.out.println("serializing " + className + "=" + object);
-							out.writeUTF( className );
-							lastClass = currentClass;
-							lastId = idCounter;
-							classNames.put( currentClass, new Byte( lastId ) );
-						}
-					}
-					externalizable.write(out);
-				}
-			} else*/
 			if (object instanceof Object[]) {
 				out.writeByte(TYPE_OBJECT_ARRAY);
 				Object[] objects = (Object[]) object;
@@ -174,14 +105,12 @@ public final class Serializer {
 			} else if (object instanceof Long) {
 				out.writeByte(TYPE_LONG);
 				out.writeLong( ((Long)object).longValue() );
-			//#if polish.hasFloatingPoint
 			} else if (object instanceof Float) {
 				out.writeByte(TYPE_FLOAT);
 				out.writeFloat( ((Float)object).floatValue() );
 			} else if (object instanceof Double) {
 				out.writeByte(TYPE_DOUBLE);
 				out.writeDouble( ((Double)object).doubleValue() );
-			//#endif
 			} else if (object instanceof String) {
 				out.writeByte(TYPE_STRING);
 				out.writeUTF( (String)object );
@@ -267,7 +196,6 @@ public final class Serializer {
 					long number = numbers[i];
 					out.writeLong( number );
 				}
-			//#if polish.hasFloatingPoint
 			} else if (object instanceof float[]) {
 				out.writeByte(TYPE_FLOAT_ARRAY);
 				float[] numbers = (float[]) object;
@@ -284,7 +212,6 @@ public final class Serializer {
 					double number = numbers[i];
 					out.writeDouble( number );
 				}
-			//#endif
 			} else if (object instanceof char[]) {
 				out.writeByte(TYPE_CHAR_ARRAY);
 				char[] characters = (char[]) object;
@@ -322,20 +249,11 @@ public final class Serializer {
 	 *
 	 * @param in the data input stream, from which the object is deserialized
 	 * @return the serializable object
-	 * @throws IOException when serialization data could not be read or the Serializable class could not get instantiated
+	 * @throws IOException when serialization data could not be read
 	 */
 	public Object deserialize() throws IOException {
 
 		if (in == null)  throw new IOException("Input Stream null!");
-		/*byte version = in.readByte();
-		//#if polish.debug.warn
-			if (version > VERSION) {
-				//#debug warn
-				System.out.println("Warning: trying to deserialize class that has been serialized with a newer version (" + version + ">" + VERSION + ").");
-			}
-		//#endif
-		 * 
-		 */
 		boolean isNull = in.readBoolean();
 		if (isNull) {
 			return null;
@@ -343,68 +261,6 @@ public final class Serializer {
 		byte type = in.readByte();
 		int length;
 		switch (type) {
-		
-	/*	case TYPE_EXTERNALIZABLE:
-			String className = in.readUTF();
-
-			//#debug debug
-			System.out.println("deserialize " + className + "...");
-			Externalizable extern = null;
-			try {
-				extern = (Externalizable) Class.forName( className ).newInstance();
-			} catch (Exception e) {
-				//#debug error
-				System.out.println("Unable to instantiate Serializable \"" + className + "\"" + e);
-				throw new IOException( e.toString() );
-			}
-			extern.read( in );
-			return extern;
-		case TYPE_EXTERNALIZABLE_ARRAY:
-			String cn = in.readUTF();
-
-
-			int length = in.readInt();
-			Externalizable[] externalizables;
-
-			externalizables = new Externalizable[ length ];
-
-
-			Class[] classes = new Class[ Math.min( length, 7 ) ];
-			Class currentClass;
-			byte idCounter = 0;
-			for (int i = 0; i < externalizables.length; i++) {
-				int classId = in.readByte();
-				if (classId == 0) { // new class name
-					className = in.readUTF();
-					try {
-						currentClass = Class.forName( className );
-					} catch (ClassNotFoundException e) {
-						//#debug error
-						System.out.println("Unable to load Serializable class \"" + className + "\"" + e);
-						throw new IOException( e.toString() );
-					}
-					if (idCounter > classes.length ) {
-						Class[] newClasses = new Class[ classes.length + 7 ];
-						System.arraycopy(classes, 0, newClasses, 0, classes.length);
-						classes = newClasses;
-					}
-					classes[idCounter] = currentClass;
-					idCounter++;
-				} else {
-					currentClass = classes[ classId  - 1 ];
-				}
-				Externalizable externalizable;
-				try {
-					externalizable = (Externalizable) currentClass.newInstance();
-					externalizable.read(in);
-					externalizables[i] = externalizable;
-				} catch (Exception e) {
-					//#debug error
-					System.out.println("Unable to instantiate Serializable \"" + currentClass.getName() + "\"" + e);
-					throw new IOException( e.toString() );
-				}
-			}
-			return externalizables;*/
 		case TYPE_OBJECT_ARRAY:
 			length = in.readInt();
 			Object[] objects = new Object[ length ];
@@ -420,12 +276,10 @@ public final class Serializer {
 			return new Integer( in.readInt() );
 		case TYPE_LONG:
 			return new Long( in.readLong() );
-		//#if polish.hasFloatingPoint
 		case TYPE_FLOAT:
 			return new Float( in.readFloat() );
 		case TYPE_DOUBLE:
 			return new Double( in.readDouble() );
-		//#endif
 		case TYPE_STRING:
 			return in.readUTF();
 		case TYPE_STRING_BUFFER:
@@ -508,7 +362,6 @@ public final class Serializer {
 				longNumbers[i] = in.readLong();
 			}
 			return longNumbers;
-		//#if polish.hasFloatingPoint
 		case TYPE_FLOAT_ARRAY:
 			length = in.readInt();
 			float[] floatNumbers = new float[ length ];
@@ -523,7 +376,6 @@ public final class Serializer {
 				doubleNumbers[i] = in.readDouble();
 			}
 			return doubleNumbers;
-		//#endif
 		case TYPE_CHAR_ARRAY:
 			length = in.readInt();
 			char[] characters = new char[ length ];

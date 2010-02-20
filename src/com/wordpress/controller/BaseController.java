@@ -36,6 +36,7 @@ public abstract class BaseController {
 	}
 	
 	
+	
 	private void _displayError(final String msg) {
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
@@ -50,6 +51,18 @@ public abstract class BaseController {
 		Log.error(msg);
 		_displayError(msg);
 	}
+
+	// Utility routine to display errors
+	public synchronized void displayErrorAndWait(final String msg) {
+		Log.error(msg);
+		UiApplication.getUiApplication().invokeAndWait(new Runnable() {
+			public void run() {
+				ErrorView errView = new ErrorView(msg);
+				errView.doModal();
+			}
+		});
+	}
+
 	
 	// Utility routine to display msg
 	public synchronized void displayMessage(final String msg) {

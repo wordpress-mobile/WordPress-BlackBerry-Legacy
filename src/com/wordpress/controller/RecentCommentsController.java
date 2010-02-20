@@ -1,6 +1,7 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
@@ -23,13 +24,17 @@ public class RecentCommentsController extends CommentsController {
 		Vector comments = null;
 		try {
 			comments = CommentsDAO.loadComments(currentBlog);
+			Hashtable vector2Comments = CommentsDAO.vector2Comments(comments);
+			storedComments =(Comment[]) vector2Comments.get("comments");
+			if(vector2Comments.get("error") != null) {
+				displayError("Error while loading comments: "+ (String)vector2Comments.get("error"));
+			}
 		} catch (IOException e) {
 			displayError(e, "Error while loading comments from memory");
 		} catch (RecordStoreException e) {
 			displayError(e, "Error while loading comments from memory");
 		}
 
-		storedComments = CommentsDAO.vector2Comments(comments);	
 		
 		view= new CommentsView(this, storedComments, gravatarController, currentBlog.getName());
 		UiApplication.getUiApplication().pushScreen(view);

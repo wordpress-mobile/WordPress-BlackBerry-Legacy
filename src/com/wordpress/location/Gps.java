@@ -5,11 +5,14 @@ import javax.microedition.location.Location;
 import javax.microedition.location.LocationException;
 import javax.microedition.location.LocationProvider;
 
+import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.DialogClosedListener;
 
+import com.wordpress.bb.WordPress;
+import com.wordpress.bb.WordPressCore;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.view.dialog.ConnectionInProgressView;
@@ -21,11 +24,12 @@ public class Gps extends Observable implements Runnable {
 	protected static int _interval = 1;   // Seconds - this is the period of position query.
 	protected int threadPriority = Thread.NORM_PRIORITY;
 	protected boolean isWorking;
+	protected ResourceBundle _resources = WordPressCore.getInstance().getResourceBundle();
 	
 	public void run() {
 		
-		Log.debug("INIZIO");
-		final ConnectionInProgressView connectionProgressView= new ConnectionInProgressView("trovando la tua posizione");
+		Log.debug("finding your position...");
+		final ConnectionInProgressView connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPress.MESSAGE_FINDING_YOUR_LOCATION));
 		connectionProgressView.setDialogClosedListener(new GPSDialogClosedListener());
         
 		UiApplication.getUiApplication().invokeAndWait(new Runnable() {
@@ -37,9 +41,15 @@ public class Gps extends Observable implements Runnable {
 		try {
 			
 			Criteria criteria = getAssistedCriteria();
-			
+			Log.debug("trying to get the assisted GPS...");
 			locationProvider = LocationProvider.getInstance(criteria);
 			if ( locationProvider == null ) {
+				Log.debug("assisted gps is not available, trying to get the autonomous gps");
+				criteria = getAutonomousPosCriteria();
+				locationProvider = LocationProvider.getInstance(criteria);
+			}
+			if ( locationProvider == null ) {
+				Log.debug("autonomous gps is not available, trying to get cell towers signals");
 				criteria = getCellSiteCriteria();
 				locationProvider = LocationProvider.getInstance(criteria);
 			}
@@ -50,7 +60,7 @@ public class Gps extends Observable implements Runnable {
 					public void run() {
 						Screen scr=UiApplication.getUiApplication().getActiveScreen();
 		 			 	UiApplication.getUiApplication().popScreen(scr);
-						Dialog.alert("GPS is not supported on this platform, exiting...");
+						Dialog.alert(_resources.getString(WordPress.MESSAGE_GPS_DISABLED_NOT_SUPPORTED));
 						notifyObservers(null);
 					}
 				};
@@ -78,7 +88,7 @@ public class Gps extends Observable implements Runnable {
 			Log.error(e, "Error while interrupting GPS");
 			notifyObservers(e);
 		}
-        Log.debug("FINE"); 
+        Log.debug("location thread has finished"); 
 	}
 	
 	

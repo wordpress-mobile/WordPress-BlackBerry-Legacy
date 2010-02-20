@@ -76,7 +76,7 @@ public class PostController extends BlogObjectController {
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
 					if(object == null) {
-						displayError("Unknown GPS Error");
+					
 					} else if(object instanceof Location) {
 						
 						//javax.microedition.location.Location

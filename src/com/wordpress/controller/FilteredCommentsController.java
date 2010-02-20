@@ -116,7 +116,8 @@ public class FilteredCommentsController extends CommentsController {
 			Log.error(e, "Error while loading comments from memory");
 		}
 
-		Comment[] mainCacheComments = CommentsDAO.vector2Comments(comments);
+		Comment[] mainCacheComments = (Comment[])CommentsDAO.vector2Comments(comments).get("comments");
+
 		comments = null;
 		
 		Comment[] newComments = computeDifference(mainCacheComments, deletedComments);
@@ -144,7 +145,7 @@ public class FilteredCommentsController extends CommentsController {
 			Log.error(e, "Error while loading comments from memory");
 		}
 
-		Comment[] mainCacheComments = CommentsDAO.vector2Comments(comments);
+		Comment[] mainCacheComments = (Comment[])CommentsDAO.vector2Comments(comments).get("comments");
 		comments = null;
 		
 		//update and storage the comments cache
@@ -182,7 +183,7 @@ public class FilteredCommentsController extends CommentsController {
 			Log.error(e, "Error while loading comments from memory");
 		}
 
-		Comment[] mainCacheComments = CommentsDAO.vector2Comments(comments);
+		Comment[] mainCacheComments = (Comment[])CommentsDAO.vector2Comments(comments).get("comments");
 		Comment[] newComments = new Comment[mainCacheComments.length+1];
 		
 		newComments[0] = newComment; //the new comment on top of the list

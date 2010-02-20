@@ -1,7 +1,5 @@
 package com.wordpress.view;
 
-import java.util.Vector;
-
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Color;
@@ -14,12 +12,10 @@ import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
-import com.wordpress.bb.NotificationHandler;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
-import com.wordpress.location.Gps;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.DataCollector;
 import com.wordpress.utils.ImageUtils;
@@ -110,7 +106,6 @@ public class MainView extends BaseView {
 		addMenuItem(_notificationItem);
 		addMenuItem(_setupItem);
 		addMenuItem(_updateItem);
-		addMenuItem(_triggerMenuItem);
 	}
 	
 	public void add( Field field ) {
@@ -179,13 +174,7 @@ public class MainView extends BaseView {
 	
 */
 
-	private MenuItem _triggerMenuItem = new MenuItem( "Trigger", 130, 10) {
-	        public void run() {
-	        	 //NotificationHandler.getInstance().notifyNewMessages();
-	        	new Gps().findMyPosition();
-	        }
-	    };
-	 
+ 
     private MenuItem _showBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_SHOWBLOG, 130, 10) {
         public void run() {
         BlogInfo blogSelected = blogListController.getBlogSelected();

@@ -383,16 +383,29 @@ public class BlogDAO implements BaseDAO {
             blog.setTags(tags);
         } 
 
-        //da questo punto in poi ci sono le aggiunte della versione 1.0.X
+        //since version 1.0.X
         try {
-        	boolean isCommentNotifies=((Boolean)ser.deserialize()).booleanValue();
-        	blog.setCommentNotifies(isCommentNotifies);       	
+        	Object testObj = ser.deserialize();
+        	//some devices when reach the end of the input stream doesn't throws EOFException, but returns null.
+        	if( testObj != null ) {
+        		boolean isCommentNotifies=((Boolean)testObj).booleanValue();
+        		blog.setCommentNotifies(isCommentNotifies);       	        		
+        	} else {
+        		Log.error("No comment notification info found - End of file was reached. Probably a previous blog data file is loaded" );
+        	}
+        		
         } catch (EOFException  e) {
         	Log.error("No comment notification info found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
+        
         try {
-        	boolean isLocation =((Boolean)ser.deserialize()).booleanValue();
-        	blog.setLocation(isLocation);       	
+        	Object testObj = ser.deserialize();
+        	if( testObj != null ) {
+        		boolean isLocation =((Boolean)testObj).booleanValue();
+        		blog.setLocation(isLocation);       	
+        	} else {
+        		Log.error("No comment notification info found - End of file was reached. Probably a previous blog data file is loaded" );
+        	}
         } catch (EOFException  e) {
         	Log.error("No location info found - End of file was reached. Probably a previous blog data file is loaded" );
 		}

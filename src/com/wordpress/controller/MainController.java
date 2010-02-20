@@ -50,12 +50,13 @@ public class MainController extends BaseController implements TaskProgressListen
 						
 			for (int i = 0; i < blogsList.length; i++) {
 				BlogInfo blogInfo = blogsList[i];
-				Blog blog = BlogDAO.getBlog(blogInfo);
 			
-				if (blog.getLoadingState() == BlogInfo.STATE_LOADING
-						|| blog.getLoadingState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
+				if (blogInfo.getState() == BlogInfo.STATE_LOADING
+						|| blogInfo.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
+					Blog blog = BlogDAO.getBlog(blogInfo);
 					blog.setLoadingState(BlogInfo.STATE_LOADED_WITH_ERROR);
 					BlogDAO.updateBlog(blog);
+					blogInfo.setState(BlogInfo.STATE_LOADED_WITH_ERROR);
 				}
 				
 				applicationBlogs.addElement(blogInfo);
