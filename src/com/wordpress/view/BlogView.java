@@ -20,7 +20,9 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogController;
 import com.wordpress.controller.FrontController;
+import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.ImageUtils;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BasicListFieldCallBack;
 
 
@@ -34,7 +36,9 @@ public class BlogView extends BaseView {
 	private static final int mnuComments = 120;
 	private static final int mnuOptions = 130;
 	private static final int mnuRefresh= 140;
-
+	
+	
+	private int awaitingModeration = 0;
 	private BlogListField list;
     private static final int MIN_HEIGHT = 34; //based on the image
     //the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
@@ -153,31 +157,9 @@ public class BlogView extends BaseView {
     	//internalManager.add(blogLabel);
     	internalManager.add( _container );
     	super.add( internalManager );
-    	
-		list = new BlogListField();
-		
-		  //Populate the ListField
-        for(int count = 0; count < mainMenuItems.length; ++count) {
-        	list.insert(count);
-        }
- /*       
-		 // Leave some space at the bottom to avoid scrolling issue
-       // on some devices. This is just a workaround
-       int allowSpace = Display.getHeight() - ( titleField.getHeight()); 
-       int screenHeight = (98 * allowSpace) / 100;
-       int rowHeight = screenHeight /  mainMenuItems.length;
-
-       if (rowHeight < MIN_HEIGHT) {
-           rowHeight = MIN_HEIGHT;
-       }
-       if (rowHeight > MAX_HEIGHT) {
-           rowHeight = MAX_HEIGHT;
-       }
-       */
-    	   
-	   list.setRowHeight(48);  //the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
-	   list.setCallback(new BlogListFieldCallBack());	
-       add(list);   
+  
+    	//aggiungere di nuovo qui il codice della lista
+  
        addMenuItem(_goItem);
 	}
 	
@@ -191,6 +173,64 @@ public class BlogView extends BaseView {
         }
     };
 
+    protected void onExposed() {
+    	super.onExposed();
+        Log.debug(">>> onExposed BlogView");
+		BlogInfo currentBlogInfo = controller.getCurrentBlogInfo();
+		awaitingModeration = currentBlogInfo.getAwaitingModeration();
+		
+		if (list != null)
+			_container.delete(list);
+			
+		list = new BlogListField();
+		
+		  //Populate the ListField
+      for(int count = 0; count < mainMenuItems.length; ++count) {
+      	list.insert(count);
+      }
+  	   
+	   list.setRowHeight(48);  //the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
+	   list.setCallback(new BlogListFieldCallBack());	
+	   add(list); 
+    
+    }
+        
+    protected void onDisplay() {
+    	
+        super.onDisplay();
+        Log.debug(">>> onDisplay BlogView");
+		BlogInfo currentBlogInfo = controller.getCurrentBlogInfo();
+		awaitingModeration = currentBlogInfo.getAwaitingModeration();
+		
+		if (list != null)
+			_container.delete(list);
+			
+		list = new BlogListField();
+		
+		  //Populate the ListField
+      for(int count = 0; count < mainMenuItems.length; ++count) {
+      	list.insert(count);
+      }
+/*       
+		 // Leave some space at the bottom to avoid scrolling issue
+     // on some devices. This is just a workaround
+     int allowSpace = Display.getHeight() - ( titleField.getHeight()); 
+     int screenHeight = (98 * allowSpace) / 100;
+     int rowHeight = screenHeight /  mainMenuItems.length;
+
+     if (rowHeight < MIN_HEIGHT) {
+         rowHeight = MIN_HEIGHT;
+     }
+     if (rowHeight > MAX_HEIGHT) {
+         rowHeight = MAX_HEIGHT;
+     }
+     */
+  	   
+	   list.setRowHeight(48);  //the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
+	   list.setCallback(new BlogListFieldCallBack());	
+	   add(list); 
+    }
+    
     private void doSelection() {
 
 		int i = mainMenuItems[list.getSelectedIndex()];
@@ -250,6 +290,8 @@ public class BlogView extends BaseView {
 		// We are going to take care of drawing the item.
 		public void drawListRow(ListField listField, Graphics graphics, int index, int y, int width) {
 			
+			String label = mainMenuItemsLabel[index];
+			
 			if ( mainMenuItems[index] == mnuPosts) {
 				icon = imgFolder;
 			}   
@@ -258,6 +300,9 @@ public class BlogView extends BaseView {
 			}  
 			if ( mainMenuItems[index] == mnuComments) {
 				icon = imgFolder;
+				
+				if(awaitingModeration > 0)
+					label += " ("+awaitingModeration+")";
 			}
 			if ( mainMenuItems[index] == mnuOptions) {
 				icon = imgSettings;
@@ -265,7 +310,7 @@ public class BlogView extends BaseView {
 			if ( mainMenuItems[index] == mnuRefresh) {
 				icon = imgRefresh;
 			}
-			
+						
 			Font originalFont = graphics.getFont();
 			int originalColor = graphics.getColor();
 			int height = list.getRowHeight();
@@ -282,7 +327,7 @@ public class BlogView extends BaseView {
 			drawBackground(graphics, 5, y, width, height, listField.getSelectedIndex() ==  index);
 			drawBorder(graphics, 5, y, width, height);
 			int leftImageWidth = drawLeftImage(graphics, 5, y, height, icon);
-			drawText(graphics, leftImageWidth+5, y, width  - leftImageWidth, height, mainMenuItemsLabel[index], listField.getSelectedIndex() ==  index);
+			drawText(graphics, leftImageWidth+5, y, width  - leftImageWidth, height, label, listField.getSelectedIndex() ==  index);
 			
 			graphics.setFont(originalFont);
 			graphics.setColor(originalColor);

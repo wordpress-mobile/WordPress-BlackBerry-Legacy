@@ -31,6 +31,7 @@ public class Post {
 	private Vector customFields = new Vector();  
     private Vector mediaObjects = new Vector();
 	private boolean isLocation = false; //true when per-post location setting is active
+	private boolean isLocationPublic = true; //true when location setting is public
 
     public Post(Blog aBlog) {
         blog = aBlog;
@@ -198,5 +199,13 @@ public class Post {
 
 	public void setLocation(boolean isLocation) {
 		this.isLocation = isLocation;
+	}
+
+	public boolean isLocationPublic() {
+		return isLocationPublic;
+	}
+
+	public void setLocationPublic(boolean isLocationPublic) {
+		this.isLocationPublic = isLocationPublic;
 	}
 }

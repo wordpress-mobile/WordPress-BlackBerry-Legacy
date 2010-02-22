@@ -1,11 +1,15 @@
 package com.wordpress.controller;
 
+import java.util.Hashtable;
+import java.util.Vector;
+
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Post;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.BaseView;
 import com.wordpress.view.MainView;
 
@@ -57,7 +61,7 @@ public class FrontController {
 	/**
 	 * show blog  view
 	 */
-	public void showBlog(Blog currentBlog){
+	public void showBlog(BlogInfo currentBlog){
 		BlogController ctrl=new BlogController(currentBlog);
 		ctrl.showView();
 	}
@@ -102,6 +106,33 @@ public class FrontController {
 	 * show edit post view
 	 */
 	public void showPost(Post post){
+		//read custom field and set the post.isLocation = true  if location fields are present
+		Vector customFields = post.getCustomFields();
+    	int size = customFields.size();
+    	Log.debug("Found "+size +" custom fields");
+    	
+		for (int i = 0; i <size; i++) {
+			Log.debug("Elaborating custom field # "+ i);
+			try {
+				Hashtable customField = (Hashtable)customFields.elementAt(i);
+				
+				String ID = (String)customField.get("id");
+				String key = (String)customField.get("key");
+				String value = (String)customField.get("value");
+				Log.debug("id - "+ID);
+				Log.debug("key - "+key);
+				Log.debug("value - "+value);	
+				
+				//find the lat/lon field
+				if(key.equalsIgnoreCase("geo_longitude")) {
+					post.setLocation(true); //set the post as geo-tagged
+					Log.debug("Location Custom Field  found!");
+				} 
+			} catch(Exception ex) {
+				Log.error("Error while Elaborating custom field # "+ i);
+			}
+		}
+		
 		PostController ctrl=new PostController(post);
 		ctrl.showView();
 	}
@@ -117,8 +148,11 @@ public class FrontController {
 	/**
 	 * show new post view
 	 */
-	public void newPost(Blog currentBlog){
+	public void newPost(Blog currentBlog) {
 		Post post =new Post(currentBlog);
+		//check if the blog has the location enabled by default
+		boolean location = post.getBlog().isLocation();
+		post.setLocation(location);
 		PostController ctrl=new PostController(post);
 		ctrl.showView();
 	}

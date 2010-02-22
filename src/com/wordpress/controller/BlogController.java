@@ -2,7 +2,9 @@ package com.wordpress.controller;
 
 import net.rim.device.api.ui.UiApplication;
 
+import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.model.BlogInfo;
 import com.wordpress.view.BlogView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 
@@ -10,25 +12,30 @@ import com.wordpress.view.dialog.ConnectionInProgressView;
 public class BlogController extends BaseController {
 	
 	private BlogView view = null;
-	private Blog currentBlog;
-	
+	private BlogInfo currentBlogInfo;
+	private Blog currentBlog = null;
 	ConnectionInProgressView connectionProgressView=null;
 	
  
-	public BlogController(Blog currentBlog) {
+	public BlogController(BlogInfo currentBlog) {
 		super();
-		this.currentBlog=currentBlog;
+		this.currentBlogInfo=currentBlog;
 	}
 				
 	public String getBlogName() {
-		return currentBlog.getName();
+		return currentBlogInfo.getName();
 	}
 	
 	public void showView(){
+		try {
+			this.currentBlog = BlogDAO.getBlog(currentBlogInfo);
+		} catch (Exception e) {
+			displayError(e, "Loading Blog Error");
+		}
 		this.view= new BlogView(this);
 		UiApplication.getUiApplication().pushScreen(view);
 	}
-	
+		
 	public void showComments() {
 		if (currentBlog != null) {
 			FrontController.getIstance().showCommentsView(currentBlog);
@@ -64,5 +71,9 @@ public class BlogController extends BaseController {
 
 	//called from the front controller
 	public void refreshView() {
+	}
+
+	public BlogInfo getCurrentBlogInfo() {
+		return currentBlogInfo;
 	}	
 }

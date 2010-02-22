@@ -11,14 +11,17 @@ import net.rim.device.api.ui.UiApplication;
 import com.wordpress.controller.MainController;
 import com.wordpress.controller.NotificationController;
 import com.wordpress.io.BlogDAO;
+import com.wordpress.io.CommentsDAO;
+import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
+import com.wordpress.model.Comment;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
-import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.comment.GetCommentCountConn;
+import com.wordpress.xmlrpc.comment.GetCommentsConn;
 
 /**
  * Handles new message notification through the various
@@ -26,10 +29,11 @@ import com.wordpress.xmlrpc.comment.GetCommentCountConn;
  */
 public class NotificationHandler {
 	private static NotificationHandler instance = null;
-	private boolean notificationEnabled;
+	private boolean isNotificationEnabled;
 	private NotificationTask currentNotificationTask = null;
+	private NotificationDetailsTask currentDetailsTask = null;
 	private MainController guiController = null;
-	
+	private Hashtable awaitingCommentsID = new Hashtable(); //details later...
 
 	private NotificationHandler() {
 	}
@@ -67,7 +71,7 @@ public class NotificationHandler {
 		if(updateInterval == 0) return;
 		
 		Log.trace("NotificationHandler enabled");
-		this.notificationEnabled = isEnabled;
+		this.isNotificationEnabled = isEnabled;
 		stopInnerTask(); //it is not necessary here, anyway we have put one more checks
 		currentNotificationTask = new NotificationTask();
 		
@@ -81,6 +85,10 @@ public class NotificationHandler {
 			currentNotificationTask.cancel();
 			currentNotificationTask = null;
 		}
+		if(currentDetailsTask != null) {
+			currentDetailsTask.stopping = true;
+			currentDetailsTask = null;
+		}
 	}
 
 	/**
@@ -90,10 +98,16 @@ public class NotificationHandler {
 		Log.trace("NotificationHandler stopped");
 		cancelNotification();
 		stopInnerTask();
-		notificationEnabled = false;
+		isNotificationEnabled = false;
 	}
-		
-	public void notifyNewMessages() {
+	
+	//start the task that gets the awaiting comments details
+	private void getAwaitingDetails(){
+		currentDetailsTask = new NotificationDetailsTask();
+		currentDetailsTask.run();
+	}
+	
+	private void notifyNewMessages() {
 		long sourceId =  WordPressInfo.COMMENTS_UID;
 		NotificationsManager.triggerImmediateEvent(sourceId, 0, this, null);
 		setAppIcon(true);
@@ -120,22 +134,152 @@ public class NotificationHandler {
 	}
 	
 
-	private class NotificationTask extends TimerTask implements Observer {
+	private class NotificationDetailsTask implements Observer {
 		
-		private Queue executionQueue = new Queue(); // queue of BlogInfo to check
+		private Queue executionQueue = null; // queue of BlogInfo to check
 		private boolean stopping = false;
 		BlogInfo currentBlog = null;
-		Vector blogsWithPending = new Vector(); //blogs with new awaiting comments
+		private boolean isNewCommentInAwatingModeration = false;
+		
+		public void run() {
+			try {
+				Log.trace("NotificationDetailsTask - run method");
+				
+				BlogInfo[] blogsList = guiController.getApplicationBlogs();
+				executionQueue = new Queue();
+				
+				for (int i = 0; i < blogsList.length; i++) {
+					BlogInfo blogInfo = blogsList[i];
+					Log.trace("Considering the blog - "+ blogInfo.getName() + " - for the notifications details queue");
+					if (blogInfo.getState() == BlogInfo.STATE_LOADED && blogInfo.isAwaitingModeration()) {
+						Log.trace("added the blog - "+ blogInfo.getName() + " - to the notifications details queue");
+						executionQueue.push(blogInfo);
+					}
+				}
+				
+		        next();
+		        
+			} catch (Throwable  e) {
+				Log.error(e, "Serious Error in NotificationDetailsTask: " + e.getMessage());
+			} 			  
+		}
+	
+		
+		private void next() {
+			Log.trace("NotificationDetailsTask - next method");
+			if (stopping  == true)
+				return; //listerners notified into stop method
+			
+			if (!executionQueue.isEmpty()) {
+				
+				BlogInfo blogInfo = (BlogInfo) executionQueue.pop();
+				this.currentBlog = blogInfo;
+				int maxPost = 10; 
+				try {
+					Blog tmpBlog = BlogDAO.getBlog(currentBlog);
+					maxPost = tmpBlog.getMaxPostCount();
+				} catch (Exception e) {
+					Log.error(e, "comment notification error");
+				}				
+				//blog is correctly loaded within the app
+				final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
+						Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
+						currentBlog.getPassword(), -1, "", 0, maxPost);
+
+				connection.addObserver(this);
+				connection.startConnWork();
+				
+			} else {
+				if(isNewCommentInAwatingModeration) {
+
+					UiApplication.getUiApplication().invokeLater(new Runnable() {
+						public void run() {
+							notifyNewMessages();
+							guiController.refreshView(); //update the main view
+						}
+					});
+				}
+				//notifica se ci sono nuovi commenti
+				Log.trace("NotificationDetailsTask - next method end");
+			}
+		}
+
+		public void update(Observable observable, final Object object) {
+			
+				try{ 
+				BlogConnResponse resp= (BlogConnResponse) object;
+				Hashtable respObj= null;
+				
+				Log.trace("risposta è del tipo "+ resp.getResponseObject().getClass().getName());
+
+				if(!resp.isError()) {
+					Vector respVector = (Vector) resp.getResponseObject(); // the response from wp server
+					Hashtable vector2Comments = CommentsDAO.vector2Comments(respVector);
+					Comment[] serverComments =(Comment[]) vector2Comments.get("comments");
+					if(vector2Comments.get("error") != null) {
+						Log.error("Error while loading comments: "+ (String)vector2Comments.get("error"));
+					}
+					
+					int[] originalComments = (int[])awaitingCommentsID.get(currentBlog.getXmlRpcUrl());
+					
+					int[] newCommentsIDList = new int[serverComments.length];
+					for (int i = 0; i < newCommentsIDList.length; i++) {
+						Comment	comment = serverComments[i];
+						newCommentsIDList[i] = comment.getID();
+					}
+					
+					if(originalComments == null) {
+						awaitingCommentsID.put(currentBlog.getXmlRpcUrl(), newCommentsIDList);
+						isNewCommentInAwatingModeration = true;
+					} else {
+						
+						//check if are available new comments for moderation
+						for (int i = 0; i < serverComments.length; i++) {
+							Comment	comment = serverComments[i];
+							
+							boolean presence = false;
+							for (int j = 0; j < originalComments.length; j++) {
+								if (comment.getID() == originalComments[j]) {
+									presence = true;
+								}
+							}
+							
+							if(!presence) {
+								isNewCommentInAwatingModeration = true;
+								break;
+							}
+						}
+						
+						awaitingCommentsID.put(currentBlog.getXmlRpcUrl(), newCommentsIDList);
+					}
+					
+				} else {
+					final String respMessage=resp.getResponse();
+					Log.error("errore nel GetComments "+ respMessage);
+				}		
+				
+				next();
+				
+			} catch (Throwable  e) {
+				Log.error(e, "Serious Error in NotificationTask: " + e.getMessage());
+			} 
+		}//end callback
+	}	
+	
+	private class NotificationTask extends TimerTask implements Observer {
+		
+		private Queue executionQueue = null; // queue of BlogInfo to check
+		private boolean stopping = false;
+		BlogInfo currentBlog = null;
+		private boolean isAwatingModeration = false;
 		
 		public void run() {
 			try {
 				Log.trace("NotificationTask - run method");
 				
-				//read all the blogs from the filesystem and prepare the relative connections
-			//	Hashtable blogsInfo = BlogDAO.getBlogsInfo();
-				//BlogInfo[] blogsList =  (BlogInfo[]) blogsInfo.get("list");
-					
+				//read all the blogs from the filesystem and prepare the relative connections					
 				BlogInfo[] blogsList = guiController.getApplicationBlogs();
+				executionQueue = new Queue();
 				
 				for (int i = 0; i < blogsList.length; i++) {
 					BlogInfo blogInfo = blogsList[i];
@@ -180,20 +324,16 @@ public class NotificationHandler {
 				connection.startConnWork();
 				
 			} else {
-				//blogWithPending
-				BlogInfo[] blogs = new BlogInfo[blogsWithPending.size()];
-				for (int i = 0; i < blogs.length; i++) {
-					blogs[i] = (BlogInfo) blogsWithPending.elementAt(i);
-				}	
-				guiController.newCommentNotifies(blogs);
-				notifyNewMessages();
-				//notifica se ci sono nuovi commenti
+				
+				if (isAwatingModeration) {
+					getAwaitingDetails();  //retrive awaiting comments details
+				}
+				
 				Log.trace("NotificationTask - next method end");
 			}
 		}
 
 		public void update(Observable observable, final Object object) {
-			
 				/*{
 	            approved:(new String("14")), awaiting_moderation:(new String("1")), spam:(new String("4")), total_comments:(new Number(19))
 			}
@@ -209,11 +349,10 @@ public class NotificationHandler {
 					String pendingCommentsValue= String.valueOf(respObj.get("awaiting_moderation"));
 					int pendingComments = Integer.parseInt(pendingCommentsValue);
 					Log.trace("ci sono commenti pendenti # " + pendingComments);
+					currentBlog.setAwaitingModeration(pendingComments);
 					if(pendingComments > 0) {
-						currentBlog.setAwaitingModeration(true);
-						blogsWithPending.addElement(currentBlog);
-					}
-						
+						isAwatingModeration = true;
+					}	
 				} else {
 					final String respMessage=resp.getResponse();
 					Log.error("errore nel GetCommentsCount "+ respMessage);

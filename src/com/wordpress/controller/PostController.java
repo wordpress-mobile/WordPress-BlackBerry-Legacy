@@ -60,8 +60,6 @@ public class PostController extends BlogObjectController {
 			displayError(e, _resources.getString(WordPress.ERROR_NOT_ENOUGHT_SPACE));
 		}
 		checkMediaObjectLinks();
-		
-		checkLocationCustomFields(post.getCustomFields());
 	}
 	
 	public void startGeoTagging() {
@@ -95,38 +93,6 @@ public class PostController extends BlogObjectController {
 	}
 
 	
-	//read custom field and set the post.isLocation = true  if location fields are present
-	protected void checkLocationCustomFields(Vector customFields) {
-    	Log.debug("start UI init");
-    	int size = customFields.size();
-    	Log.debug("Found "+size +" custom fields");
-    	
-		for (int i = 0; i <size; i++) {
-			Log.debug("Elaborating custom field # "+ i);
-			try {
-				Hashtable customField = (Hashtable)customFields.elementAt(i);
-				
-				String ID = (String)customField.get("id");
-				String key = (String)customField.get("key");
-				String value = (String)customField.get("value");
-				Log.debug("id - "+ID);
-				Log.debug("key - "+key);
-				Log.debug("value - "+value);	
-				
-				//find the lat/lon field
-				if(key.equalsIgnoreCase("geo_longitude")) {
-					post.setLocation(true); //set the post as geo-tagged
-					Log.debug("Custom Field added to UI");
-				} else {
-					Log.debug("Custom Field discarded from UI");
-				}
-			} catch(Exception ex) {
-				Log.error("Error while Elaborating custom field # "+ i);
-			}
-		}
-		Log.debug("End UI init");
-	 }
-
 	/**
 	 * Add or upgrade the location custom tags
 	 * 
@@ -153,8 +119,7 @@ public class PostController extends BlogObjectController {
 				Log.debug("value - "+value);	
 				
 				//find the lat/lon field
-				if(key.equalsIgnoreCase("geo_address") || key.equalsIgnoreCase("geo_public")
-						|| key.equalsIgnoreCase("geo_accuracy")) {
+				if(key.equalsIgnoreCase("geo_address") || key.equalsIgnoreCase("geo_accuracy")) {
 				
 					 customField.remove("key");
 					 customField.remove("value");
@@ -174,7 +139,10 @@ public class PostController extends BlogObjectController {
 				//geo_public
 				if( key.equalsIgnoreCase("geo_public")){
 					Log.debug("Updated custom field : "+ key);
-					customField.put("value", String.valueOf(1));
+					if(post.isLocationPublic())
+						customField.put("value", String.valueOf(1));
+					else
+						customField.put("value", String.valueOf(0));
 					presence = true;
 				}
 
@@ -198,7 +166,10 @@ public class PostController extends BlogObjectController {
 			//add geo_public field
 			Hashtable customField3 = new Hashtable();
 			customField3.put("key", "geo_public"); 
-			customField3.put("value", String.valueOf(1)); 
+			if(post.isLocationPublic())
+				customField3.put("value", String.valueOf(1));
+			else
+				customField3.put("value", String.valueOf(0));
 			customFields.addElement(customField3);
 			
 			Log.debug("Added custom fields longitude, latitude and geo_public");

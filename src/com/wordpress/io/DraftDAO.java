@@ -207,7 +207,7 @@ public class DraftDAO implements BaseDAO{
         content.put("mt_allow_comments", new Integer(post.isCommentsEnabled() ? 1 : 0));
         content.put("mt_allow_pings", new Integer(post.isTrackbackEnabled() ? 1 : 0));
         content.put("isLocation", new Boolean(post.isLocation()));
-        
+        content.put("isLocationPublic", new Boolean(post.isLocationPublic()));
 		return content;
 	}	
 	
@@ -273,6 +273,11 @@ public class DraftDAO implements BaseDAO{
 		if(postData.get("isLocation") != null) {
 			boolean isLocation =((Boolean)postData.get("isLocation")).booleanValue();
 			post.setLocation(isLocation);    
+		}
+		
+		if(postData.get("isLocationPublic") != null) {
+			boolean isLocationPublic =((Boolean)postData.get("isLocationPublic")).booleanValue();
+			post.setLocationPublic(isLocationPublic);    
 		}
 		
         return post;

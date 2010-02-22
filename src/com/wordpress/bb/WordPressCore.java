@@ -11,6 +11,7 @@ import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.io.AppDAO;
+import com.wordpress.model.BlogInfo;
 import com.wordpress.task.AsyncRunner;
 import com.wordpress.task.Task;
 import com.wordpress.task.TasksRunner;
@@ -160,6 +161,6 @@ public class WordPressCore {
 
 	public Vector getApplicationBlogs() {
 		return applicationBlogs;
-	}
+	}	
 	
 }

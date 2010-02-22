@@ -41,6 +41,7 @@ public class PostView extends StandardBaseView {
 	private LabelField categories;
 	private LabelField lblPhotoNumber;
 	private CheckboxField enableLocation;
+	private CheckboxField isLocationPublic;
 	
     public PostView(PostController _controller, Post _post) {
     	super(_resources.getString(WordPressResource.TITLE_POSTVIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -115,12 +116,14 @@ public class PostView extends StandardBaseView {
  
   		add(outerManagerRowInfos);
   		
-        //row comment notifies and location
+        //row location
         BorderedFieldManager locationManager = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL);
-		enableLocation = new CheckboxField(_resources.getString(WordPressResource.LABEL_LOCATION), post.isLocation());
+		enableLocation = new CheckboxField(_resources.getString(WordPressResource.LABEL_LOCATION_ADD), post.isLocation());
 		locationManager.add(enableLocation);
+		isLocationPublic = new CheckboxField(_resources.getString(WordPressResource.LABEL_LOCATION_PUBLIC), post.isLocationPublic());
+		locationManager.add(isLocationPublic);
 		add(locationManager);
   		
   		//row content - decode the post body content
@@ -384,6 +387,10 @@ public class PostView extends StandardBaseView {
 		
 		if(enableLocation.isDirty()) {
 			post.setLocation(enableLocation.getChecked());
+			controller.setObjectAsChanged(true);
+		}
+		if(isLocationPublic.isDirty()) {
+			post.setLocationPublic(isLocationPublic.getChecked());
 			controller.setObjectAsChanged(true);
 		}
 	}

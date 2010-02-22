@@ -21,6 +21,11 @@ import com.wordpress.utils.log.Log;
 
 public class BlogDAO implements BaseDAO {
 	
+	//You might wonder what happens when a static synchronized method is invoked, since a static method is 
+	//associated with a class, not an object. 
+	//In this case, the thread acquires the intrinsic lock for the Class object associated with the class. 
+		
+	
 	/**
      * add One  blog to the storage!
      * @param aBlog

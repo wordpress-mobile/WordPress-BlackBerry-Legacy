@@ -153,34 +153,12 @@ public class MainController extends BaseController implements TaskProgressListen
 			//blog in caricamento
 			displayMessage("Loading blog. Try later..");
 		} else {
-			
-		Blog currentBlog=null;
-	   	 try {
-	   		 currentBlog=BlogDAO.getBlog(selectedBlog);
-	   		 FrontController.getIstance().showBlog(currentBlog);
-	   		 
-			if(selectedBlog.isAwaitingModeration())
-			for(int count = 0; count < applicationBlogs.size(); ++count)
-	    	{
-	    		BlogInfo blog = (BlogInfo)applicationBlogs.elementAt(count);
-	    		
-	    		if (selectedBlog.equals(blog) )		
-	    		{
-	    			selectedBlog.setAwaitingModeration(false);
-	    			applicationBlogs.setElementAt(selectedBlog, count);
-	    			view.setBlogItemViewState(selectedBlog);
-	    			break;
-	    		}
-	    	}
-	   		 
-	   		 
-			} catch (Exception e) {
-				displayError(e, "Show Blog Error");
-			}
+			FrontController.getIstance().showBlog(selectedBlog);
 		}
 	}
 			
 	public void refreshView() {
+		Log.debug("Refreshing main view...");
 		view.refreshBlogList();
 	}	
 	
@@ -211,12 +189,13 @@ public class MainController extends BaseController implements TaskProgressListen
 
 	//listener for new comments in awaiting state
 	public void newCommentNotifies(BlogInfo[] blogs) {
+		
 		for (int i = 0; i < blogs.length; i++) {
 			BlogInfo blogI = blogs[i];
 			view.setBlogItemViewState(blogI);	
 			
 			//update application blogs
-			for(int count = 0; count < applicationBlogs.size(); ++count)
+		/*	for(int count = 0; count < applicationBlogs.size(); ++count)
 	    	{
 	    		BlogInfo blog = (BlogInfo)applicationBlogs.elementAt(count);
 	    		
@@ -225,9 +204,7 @@ public class MainController extends BaseController implements TaskProgressListen
 	    			applicationBlogs.setElementAt(blogI, count);
 	    			break;
 	    		}
-	    	}
-			
-			
+	    	}*/			
 		}
 	}
 	

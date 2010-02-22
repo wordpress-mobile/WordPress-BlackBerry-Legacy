@@ -15,7 +15,7 @@ public class BlogInfo {
 	private String password;
 	private int state = -1;
 	private boolean isCommentNotifies = false; //true when comment notifies is active
-	private boolean awaitingModeration = false;
+	private int commentsAwaitingModeration = 0;
 
 	public BlogInfo(String id, String name, String xmlRpcUrl, String usr, String passwd, int state, boolean notifies) {
 		super();
@@ -68,11 +68,17 @@ public class BlogInfo {
 	 * true when there are comments in the pending state
 	 */
 	public boolean isAwaitingModeration() {
-		return awaitingModeration;
+		if(commentsAwaitingModeration > 0)
+			return true;
+		else return false;
 	}
 
-	public void setAwaitingModeration(boolean awaitingModeration) {
-		this.awaitingModeration = awaitingModeration;
+	public void setAwaitingModeration(int commNum) {
+		this.commentsAwaitingModeration = commNum;
+	}
+
+	public int getAwaitingModeration() {
+		return this.commentsAwaitingModeration;
 	}
 
 	//variable state and isCommentNotifies not considered
