@@ -11,14 +11,18 @@ import java.util.Vector;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.EncodedImage;
+import net.rim.device.api.ui.text.UppercaseTextFilter;
 
+import com.wordpress.bb.WordPressCore;
 import com.wordpress.model.Blog;
+import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Comment;
+import com.wordpress.utils.Queue;
 import com.wordpress.utils.log.Log;
 
 public class CommentsDAO implements BaseDAO{
 	
-	public static Vector loadComments(Blog blog) throws IOException, RecordStoreException {
+	public static synchronized Vector loadComments(Blog blog) throws IOException, RecordStoreException {
 		
 		String blogNameMD5=BlogDAO.getBlogFolderName(blog);
     	String commentsFilePath=AppDAO.getBaseDirPath()+blogNameMD5+COMMENTS_FILE;
@@ -36,11 +40,66 @@ public class CommentsDAO implements BaseDAO{
 	}
 		
 	
-	//store comments
-	public static void storeComments(Blog blog, Vector comments) throws IOException, RecordStoreException {
-		
+	//store comments, no update in the app blog list needs here
+	public static synchronized void storeComments(BlogInfo blog, Vector comments) throws IOException, RecordStoreException {
 		String blogNameMD5=BlogDAO.getBlogFolderName(blog);
-    	String commentsFilePath=AppDAO.getBaseDirPath()+blogNameMD5+COMMENTS_FILE;
+    	storeCommentsToDisk(blogNameMD5, comments);  	
+	}
+	
+	//store comments and updates comment waiting notification info
+	public static synchronized void storeComments(Blog blog, Vector comments) throws IOException, RecordStoreException {
+		Log.trace(">>> storeComments(Blog blog, Vector comments)");
+		Hashtable vector2Comments = CommentsDAO.vector2Comments(comments);
+		Comment[] tmp = (Comment[]) vector2Comments.get("comments");
+		if(vector2Comments.get("error") == null) {
+			upgradeMainAppCommentsNumber(blog, tmp);	
+		}
+		tmp = null;
+		String blogNameMD5=BlogDAO.getBlogFolderName(blog);
+		storeCommentsToDisk(blogNameMD5, comments);
+		Log.trace("<<< storeComments(Blog blog, Vector comments)");
+	}
+	
+	//store comments and updates comment waiting notification info
+	public static synchronized void storeComments(Blog blog, Comment[] comments) throws IOException, RecordStoreException {
+		Log.trace(">>> storeComments(Blog blog, Comment[] comments)");
+		upgradeMainAppCommentsNumber(blog, comments);
+		String blogNameMD5=BlogDAO.getBlogFolderName(blog);
+		storeCommentsToDisk(blogNameMD5, CommentsDAO.comments2Vector(comments));
+		Log.trace("<<< storeComments(Blog blog, Comment[] comments)");
+	}
+	
+	
+	private static void upgradeMainAppCommentsNumber(Blog blog, Comment[] comments){
+		Log.trace(">>> upgradeMainAppCommentsNumber");
+		
+		int count = 0;
+		for (int i = 0; i < comments.length; i++) {
+			Comment tmp = comments[i];
+			if(	tmp.getStatus().equalsIgnoreCase("hold") )
+			count++;
+		}
+		Log.trace("awaiting comments # :"+count);
+		
+		//upgrade awaiting notification #				
+		Vector applicationBlogs = WordPressCore.getInstance().getApplicationBlogs();
+		for (int i = 0; i < applicationBlogs.size(); i++) {
+			BlogInfo blogInfo = (BlogInfo) applicationBlogs.elementAt(i);
+			if( blogInfo.getXmlRpcUrl().equalsIgnoreCase(blog.getXmlRpcUrl())
+					&& blogInfo.getId().equalsIgnoreCase(blog.getId()) 
+					) {
+				Log.trace("updated blog with xmlrpc url :"+blogInfo.getXmlRpcUrl());		
+				blogInfo.setAwaitingModeration(count);
+			}
+		}
+		
+		Log.trace("<<< upgradeMainAppCommentsNumber");
+	}
+	
+
+	private static void storeCommentsToDisk(String blogNameMD5, Vector comments) throws IOException, RecordStoreException{
+		
+		String commentsFilePath=AppDAO.getBaseDirPath()+blogNameMD5+COMMENTS_FILE;
     	
     	JSR75FileSystem.createFile(commentsFilePath); //create the file
     	DataOutputStream out = JSR75FileSystem.getDataOutputStream(commentsFilePath);
@@ -49,7 +108,7 @@ public class CommentsDAO implements BaseDAO{
     	ser.serialize(comments);
     	out.close();
 		
-		Log.debug("Scrittura commenti terminata con successo");   	
+		Log.debug("Scrittura commenti terminata con successo"); 
 	}
 	
 	

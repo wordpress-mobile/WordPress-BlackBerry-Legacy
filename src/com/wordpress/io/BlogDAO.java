@@ -28,9 +28,10 @@ public class BlogDAO implements BaseDAO {
 	
 	/**
      * add One  blog to the storage!
-     * @param aBlog
+     * @param blog
+     * @param overwrite 
      * @return
-	 * @throws Exception 
+	 * @throws Exception If a blog with the same xmlrpc url and ID already exist in the app
      */
     public static synchronized boolean newBlog(Blog blog, boolean overwrite) throws Exception{
     	String name = blog.getName();

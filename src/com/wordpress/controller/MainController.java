@@ -14,8 +14,10 @@ import com.wordpress.bb.NotificationHandler;
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
+import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
+import com.wordpress.model.Comment;
 import com.wordpress.model.Preferences;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.DataCollector;
@@ -39,8 +41,7 @@ public class MainController extends BaseController implements TaskProgressListen
 		
 		int numberOfBlog = 0; 
 		
-		//reset the state of blogs that are in loading or queue to loading error state
-		//.... maybe app crash during adding blog
+		
 		Log.trace(">>> Checking blogs data");
 	   	 try {
 	   		Hashtable blogsInfo = BlogDAO.getBlogsInfo();
@@ -50,18 +51,37 @@ public class MainController extends BaseController implements TaskProgressListen
 						
 			for (int i = 0; i < blogsList.length; i++) {
 				BlogInfo blogInfo = blogsList[i];
-			
+				Blog blog = BlogDAO.getBlog(blogInfo);
+				
+				//reset the state of blogs that are in loading or queue to loading error state
+				//.... maybe app there was a crash during adding blog
 				if (blogInfo.getState() == BlogInfo.STATE_LOADING
 						|| blogInfo.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
-					Blog blog = BlogDAO.getBlog(blogInfo);
 					blog.setLoadingState(BlogInfo.STATE_LOADED_WITH_ERROR);
 					BlogDAO.updateBlog(blog);
 					blogInfo.setState(BlogInfo.STATE_LOADED_WITH_ERROR);
 				}
 				
+				//loading blog comments and check if there are comments in awaiting state
+				int awaitingCommentsCount = 0;
+				Vector loadComments = CommentsDAO.loadComments(blog);
+				Hashtable vector2Comments = CommentsDAO.vector2Comments(loadComments);
+				Comment[] tmpComments = (Comment[]) vector2Comments.get("comments");
+				if(vector2Comments.get("error") == null) {
+					for (int j = 0; j < tmpComments.length; j++) {
+						Comment tmp = tmpComments[j];
+						if(	tmp.getStatus().equalsIgnoreCase("hold") )
+							awaitingCommentsCount++;
+					}
+					Log.trace("awaiting comments # :"+awaitingCommentsCount);
+					
+					blogInfo.setAwaitingModeration(awaitingCommentsCount);
+				}
+				
 				applicationBlogs.addElement(blogInfo);
 			}
 			numberOfBlog = blogsList.length;  //get the number of blog
+			
 		} catch (Exception e) {
 			Log.error(e, "Error while reading stored blog");
 		}
@@ -192,19 +212,7 @@ public class MainController extends BaseController implements TaskProgressListen
 		
 		for (int i = 0; i < blogs.length; i++) {
 			BlogInfo blogI = blogs[i];
-			view.setBlogItemViewState(blogI);	
-			
-			//update application blogs
-		/*	for(int count = 0; count < applicationBlogs.size(); ++count)
-	    	{
-	    		BlogInfo blog = (BlogInfo)applicationBlogs.elementAt(count);
-	    		
-	    		if (blogI.equals(blog) )		
-	    		{
-	    			applicationBlogs.setElementAt(blogI, count);
-	    			break;
-	    		}
-	    	}*/			
+			view.setBlogItemViewState(blogI);			
 		}
 	}
 	
@@ -233,6 +241,7 @@ public class MainController extends BaseController implements TaskProgressListen
 	    		
 	    		if (blogI.equals(blog) )		
 	    		{
+	    			blogI.setAwaitingModeration(blog.getAwaitingModeration());
 	    			applicationBlogs.setElementAt(blogI, count);
 	    			break;
 	    		}
@@ -240,20 +249,4 @@ public class MainController extends BaseController implements TaskProgressListen
 		}
 	}
 
-//used in the add blog controller to add new blogs
-   public static void taskStart(Object obj) {
-	   Vector applicationBlogs = WordPressCore.getInstance().getApplicationBlogs();
-		Vector loadedBlogs = (Vector)obj;
-			for (int i = 0; i < loadedBlogs.size(); i++) {
-				Blog loadedBlog = (Blog)loadedBlogs.elementAt(i);
-				String blogName = loadedBlog.getName();
-				String blogXmlRpcUrl=loadedBlog.getXmlRpcUrl();
-				String blogId= loadedBlog.getId();
-				int blogLoadingState = loadedBlog.getLoadingState();
-				String usr = loadedBlog.getUsername();
-				String passwd = loadedBlog.getPassword();
-				BlogInfo blogI = new BlogInfo(blogId, blogName, blogXmlRpcUrl, usr, passwd,blogLoadingState, loadedBlog.isCommentNotifies());
-				applicationBlogs.addElement(blogI);
-			}
-	}	
 }

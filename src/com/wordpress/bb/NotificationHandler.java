@@ -1,24 +1,29 @@
 package com.wordpress.bb;
 
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.TimerTask;
 import java.util.Vector;
 
+import javax.microedition.rms.RecordStoreException;
+
 import net.rim.blackberry.api.homescreen.HomeScreen;
 import net.rim.device.api.notification.NotificationsManager;
+import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.controller.MainController;
 import com.wordpress.controller.NotificationController;
-import com.wordpress.io.BlogDAO;
 import com.wordpress.io.CommentsDAO;
-import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Comment;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
+import com.wordpress.view.CommentReplyView;
+import com.wordpress.view.CommentView;
+import com.wordpress.view.CommentsView;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.comment.GetCommentCountConn;
 import com.wordpress.xmlrpc.comment.GetCommentsConn;
@@ -174,17 +179,11 @@ public class NotificationHandler {
 				
 				BlogInfo blogInfo = (BlogInfo) executionQueue.pop();
 				this.currentBlog = blogInfo;
-				int maxPost = 10; 
-				try {
-					Blog tmpBlog = BlogDAO.getBlog(currentBlog);
-					maxPost = tmpBlog.getMaxPostCount();
-				} catch (Exception e) {
-					Log.error(e, "comment notification error");
-				}				
+			
 				//blog is correctly loaded within the app
 				final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
 						Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
-						currentBlog.getPassword(), -1, "", 0, maxPost);
+						currentBlog.getPassword(), -1, "", 0, 100);
 
 				connection.addObserver(this);
 				connection.startConnWork();
@@ -204,6 +203,34 @@ public class NotificationHandler {
 			}
 		}
 
+		private void storeComment(final BlogInfo blog, final Vector comments) {
+			
+				UiApplication.getUiApplication().invokeLater(new Runnable() {
+					public void run() {
+						
+						Screen scr = UiApplication.getUiApplication().getActiveScreen();
+						
+						if (scr instanceof CommentsView || scr instanceof CommentReplyView
+								|| scr instanceof CommentView) {
+							Log.trace("comment view is opened, do not store new comment");
+							
+						} else {
+							
+							try{
+								CommentsDAO.storeComments(blog, comments);
+							} catch (IOException e) {
+								Log.error(e, "Error while storing comments");
+							} catch (RecordStoreException e) {
+								Log.error(e, "Error while storing comments");
+							} catch (Exception e) {
+								Log.error(e, "Error while storing comments");
+							} 
+							
+						}
+					}
+				});
+		}
+		
 		public void update(Observable observable, final Object object) {
 			
 				try{ 
@@ -214,6 +241,7 @@ public class NotificationHandler {
 
 				if(!resp.isError()) {
 					Vector respVector = (Vector) resp.getResponseObject(); // the response from wp server
+					storeComment(currentBlog, respVector);
 					Hashtable vector2Comments = CommentsDAO.vector2Comments(respVector);
 					Comment[] serverComments =(Comment[]) vector2Comments.get("comments");
 					if(vector2Comments.get("error") != null) {

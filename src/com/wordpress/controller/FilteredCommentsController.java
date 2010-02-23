@@ -86,6 +86,8 @@ public class FilteredCommentsController extends CommentsController {
 	
 	protected void storeComment(Vector comments) {
 	}
+	protected void storeComment(Comment[] comments) {
+	}
 	
 	public void cleanGravatarCache() {
 		Vector emails = new Vector(); //email of the comment author
@@ -123,7 +125,7 @@ public class FilteredCommentsController extends CommentsController {
 		Comment[] newComments = computeDifference(mainCacheComments, deletedComments);
 		
 		try{
-			CommentsDAO.storeComments(currentBlog, CommentsDAO.comments2Vector(newComments));
+			CommentsDAO.storeComments(currentBlog, newComments);
 		} catch (IOException e) {
 			Log.error(e, "Error while storing comments");
 		} catch (RecordStoreException e) {
@@ -161,7 +163,7 @@ public class FilteredCommentsController extends CommentsController {
 		}
 		
 		try{
-			CommentsDAO.storeComments(currentBlog, CommentsDAO.comments2Vector(mainCacheComments));
+			CommentsDAO.storeComments(currentBlog, mainCacheComments);
 		} catch (IOException e) {
 			Log.error(e, "Error while storing comments");
 		} catch (RecordStoreException e) {
@@ -192,7 +194,7 @@ public class FilteredCommentsController extends CommentsController {
 		}
 		
 		try{
-			CommentsDAO.storeComments(currentBlog, CommentsDAO.comments2Vector(newComments));
+			CommentsDAO.storeComments(currentBlog, newComments);
 		} catch (IOException e) {
 			Log.error(e, "Error while storing comments");
 		} catch (RecordStoreException e) {

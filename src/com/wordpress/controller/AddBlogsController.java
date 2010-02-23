@@ -139,8 +139,20 @@ public class AddBlogsController extends BaseController{
 			}
 		}
 		
-		//update the main view with new blogs, all blogs have state = STATE_ADDED_TO_QUEUE
-		MainController.taskStart(addedBlog); //update the main list view...
+		Vector applicationBlogs = WordPressCore.getInstance().getApplicationBlogs();
+
+		for (int i = 0; i < addedBlog.size(); i++) {
+			Blog loadedBlog = (Blog)addedBlog.elementAt(i);
+			String blogName = loadedBlog.getName();
+			String blogXmlRpcUrl=loadedBlog.getXmlRpcUrl();
+			String blogId= loadedBlog.getId();
+			int blogLoadingState = loadedBlog.getLoadingState();
+			String usr = loadedBlog.getUsername();
+			String passwd = loadedBlog.getPassword();
+			BlogInfo blogI = new BlogInfo(blogId, blogName, blogXmlRpcUrl, usr, passwd,blogLoadingState, loadedBlog.isCommentNotifies());
+			applicationBlogs.addElement(blogI);
+		}
+		
 		FrontController.getIstance().backAndRefreshView(true);
 		LoadBlogsDataTask loadBlogsTask = new LoadBlogsDataTask(connectionsQueue);
 		loadBlogsTask.setProgressListener(listener);

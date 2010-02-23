@@ -245,6 +245,7 @@ public abstract class CommentsController extends BaseController {
 	}
 	
 	protected abstract void storeComment(Vector comments);
+	protected abstract void storeComment(Comment[] comments);
 	protected abstract void cleanGravatarCache();
 	protected abstract void deleteFromMainCommentCache(Comment[] comments); //delete comment from main cache.
 	protected abstract void updateMainCommentCache(Comment[] comments); //update comments from main cache.
@@ -321,7 +322,7 @@ public abstract class CommentsController extends BaseController {
 				
 				storedComments = newComments;
 				
-				storeComment(CommentsDAO.comments2Vector(storedComments));
+				storeComment(storedComments);
 				deleteFromMainCommentCache(deleteComments); //delete comments from main cache... 
 
 				if(connectionProgressView != null)
@@ -336,7 +337,6 @@ public abstract class CommentsController extends BaseController {
 			}
 		}
 		
-		//listener for the adding blogs task
 		public void taskUpdate(Object obj) {
 		
 		}	
@@ -380,7 +380,7 @@ public abstract class CommentsController extends BaseController {
 				}
 				
 				updateMainCommentCache(comments);
-				storeComment(CommentsDAO.comments2Vector(storedComments));
+				storeComment(storedComments);
 				
 				UiApplication.getUiApplication().invokeLater(new Runnable() {
 					public void run() {						
@@ -469,7 +469,7 @@ public abstract class CommentsController extends BaseController {
 							}
 							storedComments = newComments;
 							
-							storeComment(CommentsDAO.comments2Vector(storedComments));
+							storeComment(storedComments);
 							addToMainCommentCache(vector2Comments[0]);
 							
 						}

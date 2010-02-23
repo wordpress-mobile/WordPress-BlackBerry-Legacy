@@ -36,7 +36,7 @@ public class RecentCommentsController extends CommentsController {
 		}
 
 		
-		view= new CommentsView(this, storedComments, gravatarController, currentBlog.getName());
+		view = new CommentsView(this, storedComments, gravatarController, currentBlog.getName());
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 	
@@ -51,6 +51,19 @@ public class RecentCommentsController extends CommentsController {
 			displayError(e, "Error while storing comments");
 		} 
 	}
+	
+	protected void storeComment(Comment[] comments) {	
+		try{
+			CommentsDAO.storeComments(currentBlog, comments);
+		} catch (IOException e) {
+			displayError(e, "Error while storing comments");
+		} catch (RecordStoreException e) {
+			displayError(e, "Error while storing comments");
+		} catch (Exception e) {
+			displayError(e, "Error while storing comments");
+		} 
+	}
+	
 	
 	//called on comments refresh
 	public void cleanGravatarCache() {
