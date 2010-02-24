@@ -7,6 +7,8 @@ This file contains the instructions to build the source code provided with the z
     - Download and install Apache Ant: http://ant.apache.org/ (version 1.7)
     - Download and install Sun Java Wireless Toolkit: http://java.sun.com/products/sjwtoolkit/ (version 2.5.2)
     - Download and install Blackberry JDE IDE: http://na.blackberry.com/eng/developers/ (version 4.2.1)
+    or Download Eclipse for Java Developer and Blackberry JDE Plug-in for Eclipse 1.0. You should also download the Component Package 4.2.1 with 
+    Eclipse update manager.
 
 Note: Ant build task uses feature from svnant-1.2.1 library for reading informations inside svn properties files. 
 You should checkout this project from svn server using svn client compatible with the svnant library (now svn client 1.5.x). 
@@ -29,6 +31,9 @@ If you checkout the project using svn client 1.6.x you should not be able to bui
     Your blackberry JDE home:
     - rim.home.os42=<JDE-home>
       Example: rim.home=C:/Program Files/Research In Motion/BlackBerry JDE 4.2.1
+      or if you are using eclipse JDE Plug-in
+      C:\opt\eclipseRIM4.2.1\plugins\net.rim.eide.componentpack4.2.1_4.2.1.17\components\bin
+  
 
     - rim.home.os47=<JDE-home>
       Example: rim.home=C:/Program Files/Research In Motion/BlackBerry JDE 4.7.0

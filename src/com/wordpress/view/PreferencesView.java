@@ -38,7 +38,6 @@ import com.wordpress.utils.conn.ConnectionUtils;
 import com.wordpress.utils.log.FileAppender;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BorderedFieldManager;
-import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
 public class PreferencesView extends StandardBaseView {
@@ -77,7 +76,7 @@ public class PreferencesView extends StandardBaseView {
 	    	//the photo settings are managed into camera app.
 	    	//addMultimediaOption(); 
             addConnectionOptionsFields();
-            addWapOptionsFields();
+            addAdvancedConnectionOptionsFields();
             addDebugModeOptionFields();
             addStorageOptionFields();
             addStartupOptionsFields();
@@ -102,6 +101,10 @@ public class PreferencesView extends StandardBaseView {
 		 BorderedFieldManager optManager = new BorderedFieldManager(
 				 Manager.NO_HORIZONTAL_SCROLL
 				 | Manager.NO_VERTICAL_SCROLL);
+		 
+
+		 LabelField lblStatus = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_STARTUP));
+		 optManager.add(lblStatus);
 		 
 		 //startup checkbox		 
 		 autoStartup = new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_STARTUP_LABEL), mPrefs.isAutoStartup());
@@ -131,10 +134,12 @@ public class PreferencesView extends StandardBaseView {
 				 Manager.NO_HORIZONTAL_SCROLL
 				 | Manager.NO_VERTICAL_SCROLL);
 
+		 LabelField lblStatus = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_STORAGE));
+		 storageManager.add(lblStatus);
+
 		 if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD()) {
 			 //row storage opt
-			 HorizontalFieldManager rowStatus = new HorizontalPaddedFieldManager();
-			 LabelField lblStatus =getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_STORAGE_LABEL));
+			 
 			 String labelDeviceStorageLocation= _resources.getString(WordPressResource.OPTIONSSCREEN_STORAGE_DEVICE);
 			 String labelSdCardStorageLocation= _resources.getString(WordPressResource.OPTIONSSCREEN_STORAGE_SDCARD);
 			 String[] storageOptLabels = {labelDeviceStorageLocation, labelSdCardStorageLocation};
@@ -152,10 +157,8 @@ public class PreferencesView extends StandardBaseView {
 				 return;
 			 } 
 			 
-			 storageOpt = new ObjectChoiceField("",storageOptLabels, selectedStorage);
-			 rowStatus.add(lblStatus);
-			 rowStatus.add(storageOpt); 
-			 storageManager.add(rowStatus);
+			 storageOpt = new ObjectChoiceField(_resources.getString(WordPressResource.OPTIONSSCREEN_STORAGE_LABEL),storageOptLabels, selectedStorage);
+			 storageManager.add(storageOpt); 
 		 }
 		  
 		 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_REMOVE_TEMPFILE)); 
@@ -172,7 +175,9 @@ public class PreferencesView extends StandardBaseView {
 				 Manager.NO_HORIZONTAL_SCROLL
 				 | Manager.NO_VERTICAL_SCROLL);
 		 
-         //row allow description
+		 LabelField lblTitle = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_LOG_OPTIONS));
+		 debugManager.add(lblTitle);
+		 
          BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_DEBUG_DESC)); 
 		 debugManager.add(lblDesc);
 		 _debugMode=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_DEBUG_LABEL), mPrefs.isDebugMode());
@@ -186,7 +191,11 @@ public class PreferencesView extends StandardBaseView {
 				 Manager.NO_HORIZONTAL_SCROLL
 				 | Manager.NO_VERTICAL_SCROLL);
 		 
-         //row allow description
+		 
+		 LabelField lblTitle = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_CONNECTION_OPTIONS));
+		 optManager.add(lblTitle);
+		 
+         //description text
          LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_DESC)); 
 		 Font fnt = this.getFont().derive(Font.ITALIC);
 		 lblDescReset.setFont(fnt);
@@ -210,17 +219,20 @@ public class PreferencesView extends StandardBaseView {
 
 	 
 	 
-	 private void addWapOptionsFields(){
+	 private void addAdvancedConnectionOptionsFields(){
 		 
 		 BorderedFieldManager optManager = new BorderedFieldManager(
 				 Manager.NO_HORIZONTAL_SCROLL
 				 | Manager.NO_VERTICAL_SCROLL);
 		 
-	      //row allow description
+		 LabelField lblTitle = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_ADVANCED_CONNECTION_OPTIONS));
+		 optManager.add(lblTitle);
+		 
+	      //description
 		 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_USERDEFINEDCONN_DESC)); 
 		 optManager.add(lblDesc);
 		 
-		 userConnectionEnabledField=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_ENABLED), mPrefs.isUserConnectionOptionsEnabled());
+		 userConnectionEnabledField=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_ENABLE_ADVANCED_CONNECTION_SETTINGS), mPrefs.isUserConnectionOptionsEnabled());
 		 optManager.add(userConnectionEnabledField);
 		 
          //row _apn
