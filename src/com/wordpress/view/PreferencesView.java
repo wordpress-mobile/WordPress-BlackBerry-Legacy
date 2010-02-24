@@ -157,10 +157,12 @@ public class PreferencesView extends StandardBaseView {
 				 return;
 			 } 
 			 
-			 storageOpt = new ObjectChoiceField(_resources.getString(WordPressResource.OPTIONSSCREEN_STORAGE_LABEL),storageOptLabels, selectedStorage);
+			 storageOpt = new ObjectChoiceField(_resources.getString(WordPressResource.OPTIONSSCREEN_STORAGE_LOCATION_LABEL),storageOptLabels, selectedStorage);
 			 storageManager.add(storageOpt); 
+
+			 storageManager.add(new LabelField("", Field.NON_FOCUSABLE));
 		 }
-		  
+		 
 		 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_REMOVE_TEMPFILE)); 
 		 storageManager.add(lblDesc);
 		 ButtonField buttonReset= new ButtonField(_resources.getString(WordPressResource.BUTTON_REMOVE), ButtonField.CONSUME_CLICK);

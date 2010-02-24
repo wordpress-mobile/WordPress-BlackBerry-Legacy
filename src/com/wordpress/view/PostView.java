@@ -177,7 +177,7 @@ public class PostView extends StandardBaseView {
     			updateModel();
 	    		if (controller.isObjectChanged()) {
 	    			controller.saveDraftPost();
-	    			//clean the state of filed into this view
+	    			//clean the state of all fields into this view
 	    			cleanFieldState();
 	    		}
     		} catch (Exception e) {
@@ -193,6 +193,7 @@ public class PostView extends StandardBaseView {
     			updateModel();
     			
     			if (post.isLocation()) {
+    				
     				boolean isPresent = false;
     				Vector customFields = post.getCustomFields();
     		    	int size = customFields.size();
@@ -214,6 +215,16 @@ public class PostView extends StandardBaseView {
     						if(key.equalsIgnoreCase("geo_longitude")) {
     							isPresent = true;
     						} 
+    						
+    						//update the geo_public custom field
+    						if( key.equalsIgnoreCase("geo_public")){
+    							Log.debug("Updated custom field : "+ key);
+    							if(post.isLocationPublic())
+    								customField.put("value", String.valueOf(1));
+    							else
+    								customField.put("value", String.valueOf(0));
+    						}
+    						
     					} catch(Exception ex) {
     						Log.error("Error while Elaborating custom field # "+ i);
     					}
@@ -322,6 +333,8 @@ public class PostView extends StandardBaseView {
     	bodyTextBox.setDirty(false);
     	tags.setDirty(false);
     	status.setDirty(false);
+    	isLocationPublic.setDirty(false);
+    	enableLocation.setDirty(false);
     }
     
 	/*

@@ -158,9 +158,35 @@ public class BlogView extends BaseView {
     	internalManager.add( _container );
     	super.add( internalManager );
   
-    	//aggiungere di nuovo qui il codice della lista
-  
-       addMenuItem(_goItem);
+    	
+    	BlogInfo currentBlogInfo = controller.getCurrentBlogInfo();
+		awaitingModeration = currentBlogInfo.getAwaitingModeration();
+		list = new BlogListField();
+		
+		  //Populate the ListField
+      for(int count = 0; count < mainMenuItems.length; ++count) {
+      	list.insert(count);
+      }
+	/*       
+			 // Leave some space at the bottom to avoid scrolling issue
+	     // on some devices. This is just a workaround
+	     int allowSpace = Display.getHeight() - ( titleField.getHeight()); 
+	     int screenHeight = (98 * allowSpace) / 100;
+	     int rowHeight = screenHeight /  mainMenuItems.length;
+	
+	     if (rowHeight < MIN_HEIGHT) {
+	         rowHeight = MIN_HEIGHT;
+	     }
+	     if (rowHeight > MAX_HEIGHT) {
+	         rowHeight = MAX_HEIGHT;
+	     }
+	     */
+  	   
+	   list.setRowHeight(48);  //the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
+	   list.setCallback(new BlogListFieldCallBack());	
+	   add(list); 
+    
+	   addMenuItem(_goItem);
 	}
 	
 	public void add( Field field ) {
@@ -173,62 +199,24 @@ public class BlogView extends BaseView {
         }
     };
 
+
+    
     protected void onExposed() {
     	super.onExposed();
         Log.debug(">>> onExposed BlogView");
-		BlogInfo currentBlogInfo = controller.getCurrentBlogInfo();
-		awaitingModeration = currentBlogInfo.getAwaitingModeration();
-		
-		if (list != null)
-			_container.delete(list);
-			
-		list = new BlogListField();
-		
-		  //Populate the ListField
-      for(int count = 0; count < mainMenuItems.length; ++count) {
-      	list.insert(count);
-      }
-  	   
-	   list.setRowHeight(48);  //the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
-	   list.setCallback(new BlogListFieldCallBack());	
-	   add(list); 
-    
+        awaitingModeration = controller.getCurrentBlogInfo().getAwaitingModeration();
+        if(list != null)
+        	list.invalidate();
     }
         
+    
     protected void onDisplay() {
     	
         super.onDisplay();
         Log.debug(">>> onDisplay BlogView");
-		BlogInfo currentBlogInfo = controller.getCurrentBlogInfo();
-		awaitingModeration = currentBlogInfo.getAwaitingModeration();
-		
-		if (list != null)
-			_container.delete(list);
-			
-		list = new BlogListField();
-		
-		  //Populate the ListField
-      for(int count = 0; count < mainMenuItems.length; ++count) {
-      	list.insert(count);
-      }
-/*       
-		 // Leave some space at the bottom to avoid scrolling issue
-     // on some devices. This is just a workaround
-     int allowSpace = Display.getHeight() - ( titleField.getHeight()); 
-     int screenHeight = (98 * allowSpace) / 100;
-     int rowHeight = screenHeight /  mainMenuItems.length;
-
-     if (rowHeight < MIN_HEIGHT) {
-         rowHeight = MIN_HEIGHT;
-     }
-     if (rowHeight > MAX_HEIGHT) {
-         rowHeight = MAX_HEIGHT;
-     }
-     */
-  	   
-	   list.setRowHeight(48);  //the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
-	   list.setCallback(new BlogListFieldCallBack());	
-	   add(list); 
+        awaitingModeration = controller.getCurrentBlogInfo().getAwaitingModeration();
+        if(list != null)
+        	list.invalidate();
     }
     
     private void doSelection() {

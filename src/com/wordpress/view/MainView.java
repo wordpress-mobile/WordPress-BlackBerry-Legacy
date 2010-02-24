@@ -1,5 +1,6 @@
 package com.wordpress.view;
 
+import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Color;
@@ -160,19 +161,19 @@ public class MainView extends BaseView {
 	protected boolean navigationClick(int status, int time) {
 		return true;
 	}
-
-	protected boolean keyChar(char c, int status, int time) {
+*/
+	/*protected boolean keyChar(char c, int status, int time) {
 		// Close this screen if escape is selected.
-		if (c == Characters.ESCAPE) {
-			return true;
-		} else if (c == Characters.ENTER) {
+		if (c == Characters.ENTER) {
+			
+			
 			return true;
 		}
 
 		return super.keyChar(c, status, time);
 	}
-	
-*/
+	*/
+
 
  
     private MenuItem _showBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_SHOWBLOG, 130, 10) {

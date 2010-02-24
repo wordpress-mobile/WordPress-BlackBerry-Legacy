@@ -104,7 +104,9 @@ public class PostController extends BlogObjectController {
 		Vector customFields = this.post.getCustomFields();
 		int size = customFields.size();
     	Log.debug("Found "+size +" custom fields");
-    	boolean presence = false;
+    	boolean latitudeFound = false;
+    	boolean longitudeFound = false;
+    	boolean locationPublicFound = false;
     	
 		for (int i = 0; i <size; i++) {
 			Log.debug("Elaborating custom field # "+ i);
@@ -129,12 +131,12 @@ public class PostController extends BlogObjectController {
 				if(key.equalsIgnoreCase("geo_longitude")){
 					 Log.debug("Updated custom field : "+ key);
 					 customField.put("value", String.valueOf(longitude));
-					 presence = true;
+					 longitudeFound = true;
 				}
 				if( key.equalsIgnoreCase("geo_latitude")){
 					Log.debug("Updated custom field : "+ key);
 					customField.put("value", String.valueOf(latitude));
-					presence = true;
+					latitudeFound = true;
 				}
 				//geo_public
 				if( key.equalsIgnoreCase("geo_public")){
@@ -143,27 +145,35 @@ public class PostController extends BlogObjectController {
 						customField.put("value", String.valueOf(1));
 					else
 						customField.put("value", String.valueOf(0));
-					presence = true;
+					locationPublicFound = true;
 				}
-
 				
 			} catch(Exception ex) {
 				Log.error("Error while Elaborating custom field # "+ i);
 			}
 		}
 		
-		if(presence == false)
+		if(longitudeFound == false)
 		{
 			Hashtable customField1 = new Hashtable();
 			customField1.put("key", "geo_longitude");
 			customField1.put("value", String.valueOf(longitude)); 
 			customFields.addElement(customField1);
-			
+			Log.debug("Added custom field longitude");
+		}
+		
+		if(latitudeFound == false)
+		{
 			Hashtable customField2 = new Hashtable();
 			customField2.put("key", "geo_latitude"); 
 			customField2.put("value", String.valueOf(latitude)); 
 			customFields.addElement(customField2);
-			//add geo_public field
+			Log.debug("Added custom field latitude");
+		}
+		
+		//add geo_public field
+		if(locationPublicFound == false)
+		{
 			Hashtable customField3 = new Hashtable();
 			customField3.put("key", "geo_public"); 
 			if(post.isLocationPublic())
@@ -172,7 +182,7 @@ public class PostController extends BlogObjectController {
 				customField3.put("value", String.valueOf(0));
 			customFields.addElement(customField3);
 			
-			Log.debug("Added custom fields longitude, latitude and geo_public");
+			Log.debug("Added custom field geo_public");
 		}
 		
 		Log.debug("<<< updateLocationCustomField ");
@@ -409,8 +419,6 @@ public class PostController extends BlogObjectController {
 			displayMessage(_resources.getString(WordPressResource.MESSAGE_LOCAL_DRAFT_NOT_SUBMIT));
 			return;
 		}	
-	
-		//this.removeLocationCustomField(); //remove the location field if necessary
 		
 		//adding post connection
 		BlogConn connection;

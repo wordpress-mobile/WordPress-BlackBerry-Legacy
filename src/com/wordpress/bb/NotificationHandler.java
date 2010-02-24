@@ -38,7 +38,7 @@ public class NotificationHandler {
 	private NotificationTask currentNotificationTask = null;
 	private NotificationDetailsTask currentDetailsTask = null;
 	private MainController guiController = null;
-	private Hashtable awaitingCommentsID = new Hashtable(); //details later...
+	private Hashtable awaitingCommentsID = new Hashtable(); //key: blog.xmlrpcurl, value: int[] commentsID
 
 	private NotificationHandler() {
 	}
@@ -85,6 +85,7 @@ public class NotificationHandler {
 	
 	
 	private void stopInnerTask() {
+		awaitingCommentsID.clear(); //clean the hashtable that contains comments id
 		if(currentNotificationTask != null) {
 			currentNotificationTask.stopping = true;
 			currentNotificationTask.cancel();
@@ -207,15 +208,25 @@ public class NotificationHandler {
 			
 				UiApplication.getUiApplication().invokeLater(new Runnable() {
 					public void run() {
+						boolean store = false;
+						UiApplication uiApplication = UiApplication.getUiApplication();
+						boolean foreground = uiApplication.isForeground();
+						Screen scr = uiApplication.getActiveScreen();
 						
-						Screen scr = UiApplication.getUiApplication().getActiveScreen();
-						
-						if (scr instanceof CommentsView || scr instanceof CommentReplyView
-								|| scr instanceof CommentView) {
-							Log.trace("comment view is opened, do not store new comment");
-							
+						if(foreground) {
+							//the app is in foreground, this not ensure that we aren't in comments loading phase
+							//but this condition is good enought
+							store = true;
 						} else {
-							
+							if (scr instanceof CommentsView || scr instanceof CommentReplyView
+									|| scr instanceof CommentView) {
+								Log.trace("comment view is opened, do not store new comment");
+								store = false;
+							} 
+						}
+						
+						if(store){
+							//TODO you could update the comments view here
 							try{
 								CommentsDAO.storeComments(blog, comments);
 							} catch (IOException e) {
@@ -227,7 +238,8 @@ public class NotificationHandler {
 							} 
 							
 						}
-					}
+						
+					}//end run
 				});
 		}
 		
@@ -235,13 +247,11 @@ public class NotificationHandler {
 			
 				try{ 
 				BlogConnResponse resp= (BlogConnResponse) object;
-				Hashtable respObj= null;
-				
+							
 				Log.trace("risposta è del tipo "+ resp.getResponseObject().getClass().getName());
 
 				if(!resp.isError()) {
 					Vector respVector = (Vector) resp.getResponseObject(); // the response from wp server
-					storeComment(currentBlog, respVector);
 					Hashtable vector2Comments = CommentsDAO.vector2Comments(respVector);
 					Comment[] serverComments =(Comment[]) vector2Comments.get("comments");
 					if(vector2Comments.get("error") != null) {
@@ -274,13 +284,13 @@ public class NotificationHandler {
 							
 							if(!presence) {
 								isNewCommentInAwatingModeration = true;
+								storeComment(currentBlog, respVector);
 								break;
 							}
 						}
 						
 						awaitingCommentsID.put(currentBlog.getXmlRpcUrl(), newCommentsIDList);
 					}
-					
 				} else {
 					final String respMessage=resp.getResponse();
 					Log.error("errore nel GetComments "+ respMessage);
