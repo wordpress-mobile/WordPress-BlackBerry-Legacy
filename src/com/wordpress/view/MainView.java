@@ -3,6 +3,7 @@ package com.wordpress.view;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
+import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Graphics;
@@ -20,6 +21,7 @@ import com.wordpress.controller.MainController;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.DataCollector;
 import com.wordpress.utils.ImageUtils;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BlogsListField;
 import com.wordpress.view.component.NoBlogsListField;
 
@@ -156,26 +158,48 @@ public class MainView extends BaseView {
 		 
 		 return blogListController.getBlogs().length;
 	 }
-/*	
-	// Handle trackball clicks.
+	
+	 /*
+	 protected boolean trackwheelClick(int status, int time) {
+		   Log.trace(">>> trackwheelClick");
+		   returnh
+	 }
+	 */
+	 
+	
 	protected boolean navigationClick(int status, int time) {
-		return true;
+		Log.trace(">>> navigationClick");
+		
+		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
+			Log.trace("Input came from the trackwheel");
+			// Input came from the trackwheel
+			return super.navigationClick(status, time);
+			
+		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
+			Log.trace("Input came from a four way navigation input device");
+			if(blogListController instanceof BlogsListField) {
+				BlogInfo blogSelected = blogListController.getBlogSelected();
+		        mainController.showBlog(blogSelected);
+		        return true;
+			}
+		}
+		return super.navigationClick(status, time);
 	}
-*/
-	/*protected boolean keyChar(char c, int status, int time) {
+
+	protected boolean keyChar(char c, int status, int time) {
+		Log.trace(">>> keyChar");
 		// Close this screen if escape is selected.
 		if (c == Characters.ENTER) {
-			
-			
+			if(blogListController instanceof BlogsListField) {
+				BlogInfo blogSelected = blogListController.getBlogSelected();
+		        mainController.showBlog(blogSelected);
+			}
 			return true;
 		}
 
 		return super.keyChar(c, status, time);
 	}
-	*/
-
-
- 
+	 
     private MenuItem _showBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_SHOWBLOG, 130, 10) {
         public void run() {
         BlogInfo blogSelected = blogListController.getBlogSelected();
