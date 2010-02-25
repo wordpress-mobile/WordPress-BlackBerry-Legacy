@@ -6,6 +6,7 @@ import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.EncodedImage;
+import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
@@ -89,30 +90,62 @@ public class CommentsListField {
    public CommentsListField(Comment[] _elements, boolean[] _elementsChecked, GravatarController gvtController) {
 		_innerListField = new ListField()
         {
+			
+			protected void drawFocus(Graphics graphics, boolean on) { } //remove the standard focus highlight
+			
+			private void defaultItemAction() {
+				  //Get the index of the selected row.
+                int index = getSelectedIndex();
+                
+                //Get the ChecklistData for this row.
+                ChecklistData data = (ChecklistData)_listData.elementAt(index);
+                
+                //Toggle its status.
+                data.toggleChecked();
+                
+                //Update the Vector with the new ChecklistData.
+                _listData.setElementAt(data, index);
+                
+                //Invalidate the modified row of the ListField.
+                invalidate(index);
+            
+			}
+			
+            /**
+             * Overrides default implementation.  Performs default action if the 
+             * 4ways trackpad was clicked; otherwise, the default action occurs.
+             * 
+             * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
+             */
+        	protected boolean navigationClick(int status, int time) {
+        		Log.trace(">>> navigationClick");
+        		
+        		if (!isCheckBoxVisible())
+        			return super.navigationClick(status, time);
+        		
+        		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
+        			Log.trace("Input came from the trackwheel");
+        			// Input came from the trackwheel
+        			return super.navigationClick(status, time);
+        			
+        		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
+        			Log.trace("Input came from a four way navigation input device");
+        			defaultItemAction();
+        			return true;
+        		}
+        		return super.navigationClick(status, time);
+        	}
+			
             //Allow the space bar to toggle the status of the selected row.
             protected boolean keyChar(char key, int status, int time)
             {
                 boolean retVal = false;
                 
-                //If the spacebar was pressed...
-                if (key == Characters.SPACE && isCheckBoxVisible()) {
-                    //Get the index of the selected row.
-                    int index = getSelectedIndex();
-                    
-                    //Get the ChecklistData for this row.
-                    ChecklistData data = (ChecklistData)_listData.elementAt(index);
-                    
-                    //Toggle its status.
-                    data.toggleChecked();
-                    
-                    //Update the Vector with the new ChecklistData.
-                    _listData.setElementAt(data, index);
-                    
-                    //Invalidate the modified row of the ListField.
-                    invalidate(index);
-                    
+                //If the spacebar or enter was pressed...
+                if (isCheckBoxVisible() && (key == Characters.SPACE || key == Characters.ENTER )) {
+                	defaultItemAction();
                     //Consume this keyChar (key pressed).
-                    retVal = true;
+                	retVal = true;
                 }
                 return retVal;
             }

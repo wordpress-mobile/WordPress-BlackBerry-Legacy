@@ -166,7 +166,12 @@ public class MainView extends BaseView {
 	 }
 	 */
 	 
-	
+    /**
+     * Overrides default implementation.  Performs the show blog action if the 
+     * 4ways trackpad was clicked; otherwise, the default action occurs.
+     * 
+     * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
+     */
 	protected boolean navigationClick(int status, int time) {
 		Log.trace(">>> navigationClick");
 		
@@ -185,7 +190,13 @@ public class MainView extends BaseView {
 		}
 		return super.navigationClick(status, time);
 	}
-
+	
+    /**
+     * Overrides default.  Enter key will take show blog action on selected blog.
+     *  
+     * @see net.rim.device.api.ui.Screen#keyChar(char,int,int)
+     * 
+     */
 	protected boolean keyChar(char c, int status, int time) {
 		Log.trace(">>> keyChar");
 		// Close this screen if escape is selected.

@@ -11,7 +11,9 @@ import javax.microedition.io.file.FileSystemRegistry;
 
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.KeyListener;
+import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.system.TrackwheelListener;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
@@ -109,6 +111,65 @@ public class RimFileBrowser extends MainScreen {
         }
     }
 
+    
+    
+    
+    
+    private void performDefaultActionOnItem() {
+        String entry = null;
+        Log.trace("performDefaultActionOnItem");
+        if (listField != null) {
+            entry = listField.getSelectedEntry();
+        }        
+       if (entry != null ) {
+	    		    	
+	        if (isDirectory(entry)) {
+	        	chooseDirectory();
+	        } else {
+	        	//open the file into the browser
+	        	Tools.getBrowserSession("file://"+currDirName + entry);
+	        }
+        }
+    }
+    
+    /**
+     * Overrides default implementation.  Performs default action if the 
+     * 4ways trackpad was clicked; otherwise, the default action occurs.
+     * 
+     * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
+     */
+	protected boolean navigationClick(int status, int time) {
+		Log.trace(">>> navigationClick");
+		
+		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
+			Log.trace("Input came from the trackwheel");
+			// Input came from the trackwheel
+			return super.navigationClick(status, time);
+			
+		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
+			Log.trace("Input came from a four way navigation input device");
+			performDefaultActionOnItem();
+			 return true;
+		}
+		return super.navigationClick(status, time);
+	}
+	
+    /**
+     * Overrides default.  Enter key will take default action on selected item.
+     *  
+     * @see net.rim.device.api.ui.Screen#keyChar(char,int,int)
+     * 
+     */
+	protected boolean keyChar(char c, int status, int time) {
+		Log.trace(">>> keyChar");
+		// Close this screen if escape is selected.
+		if (c == Characters.ENTER) {
+			performDefaultActionOnItem();
+			return true;
+		}
+		return super.keyChar(c, status, time);
+	}
+    
  
     public boolean onClose() {
         if (!quit && !ROOT.equals(currDirName)) {
