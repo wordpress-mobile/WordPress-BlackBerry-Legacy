@@ -143,6 +143,11 @@ public class WordPress extends UiApplication implements WordPressResource {
 		Log.initLog(Log.TRACE);
 		
 		Log.trace("==== WordPress for BlackBerry Startup ====");
+		
+		//#ifdef TOUCH
+		Log.trace("==== TouchScreen Edition ====");
+		//#endif
+
 	}
     
 	public WordPress(String[] args){

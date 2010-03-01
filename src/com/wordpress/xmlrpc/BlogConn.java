@@ -33,6 +33,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	protected boolean isWorking = false;
 	protected Thread t = null;
 	protected int threadPriority = Thread.NORM_PRIORITY;
+	protected int minThreadPriority = Thread.MIN_PRIORITY;
 	
 	//create a variable to store the ResourceBundle for localization support
 	protected static ResourceBundle _resources;
@@ -53,6 +54,14 @@ public abstract class BlogConn extends Observable implements Runnable {
 		isWorking=true;
 		t = new Thread(this);
 		t.setPriority(threadPriority); //thread by default is set to priority normal
+		t.start();
+	}
+	
+	public void startConnWorkBackground(){
+		Log.debug("Inizio richiesta XML-RPC in background");
+		isWorking=true;
+		t = new Thread(this);
+		t.setPriority(minThreadPriority); //thread by default is set to priority normal
 		t.start();
 	}
 	

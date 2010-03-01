@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.view;
 
 import net.rim.device.api.system.Characters;
@@ -9,6 +10,9 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+//#ifdef TOUCH
+import net.rim.device.api.ui.TouchEvent;
+//#endif
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.container.MainScreen;
@@ -211,6 +215,27 @@ public class MainView extends BaseView {
 		return super.keyChar(c, status, time);
 	}
 	 
+	
+	
+	//#ifdef TOUCH
+	protected boolean touchEvent(TouchEvent message) {
+		Log.trace(">>> touchEvent");
+		int eventCode = message.getEvent();
+		// Get the screen coordinates of the touch event
+		int touchX = message.getX(1);
+		int touchY = message.getY(1);
+		if(eventCode == TouchEvent.CLICK) {
+			Log.trace("You clicked at (" + touchX + "," + touchY +")");
+			if(blogListController instanceof BlogsListField) {
+				BlogInfo blogSelected = blogListController.getBlogSelected();
+		        mainController.showBlog(blogSelected);
+			}
+			return true;
+		}
+	return super.touchEvent(message);	
+	}
+	//#endif
+	
     private MenuItem _showBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_SHOWBLOG, 130, 10) {
         public void run() {
         BlogInfo blogSelected = blogListController.getBlogSelected();

@@ -187,7 +187,7 @@ public class NotificationHandler {
 						currentBlog.getPassword(), -1, "", 0, 100);
 
 				connection.addObserver(this);
-				connection.startConnWork();
+				connection.startConnWorkBackground();
 				
 			} else {
 				if(isNewCommentInAwatingModeration) {
@@ -258,38 +258,43 @@ public class NotificationHandler {
 						Log.error("Error while loading comments: "+ (String)vector2Comments.get("error"));
 					}
 					
+					//retrive the previous comments ID for the current blog
 					int[] originalComments = (int[])awaitingCommentsID.get(currentBlog.getXmlRpcUrl());
 					
+					//extract the new comments ID and put in the hashtable of Ids for the current blog
 					int[] newCommentsIDList = new int[serverComments.length];
 					for (int i = 0; i < newCommentsIDList.length; i++) {
 						Comment	comment = serverComments[i];
 						newCommentsIDList[i] = comment.getID();
 					}
+					awaitingCommentsID.put(currentBlog.getXmlRpcUrl(), newCommentsIDList);
 					
 					if(originalComments == null) {
-						awaitingCommentsID.put(currentBlog.getXmlRpcUrl(), newCommentsIDList);
 						isNewCommentInAwatingModeration = true;
 					} else {
 						
-						//check if are available new comments for moderation
+						//check if there are available new comments for moderation
 						for (int i = 0; i < serverComments.length; i++) {
 							Comment	comment = serverComments[i];
+							//check the presence of this comment only if it is in awaiting of moderation 
+							if  (!comment.getStatus().equalsIgnoreCase("hold"))
+								continue;
 							
 							boolean presence = false;
 							for (int j = 0; j < originalComments.length; j++) {
-								if (comment.getID() == originalComments[j]) {
+								if (originalComments[j] == comment.getID()) {
 									presence = true;
 								}
 							}
 							
 							if(!presence) {
 								isNewCommentInAwatingModeration = true;
-								storeComment(currentBlog, respVector);
 								break;
 							}
 						}
 						
-						awaitingCommentsID.put(currentBlog.getXmlRpcUrl(), newCommentsIDList);
+						if(isNewCommentInAwatingModeration)
+							storeComment(currentBlog, respVector);
 					}
 				} else {
 					final String respMessage=resp.getResponse();
@@ -328,7 +333,7 @@ public class NotificationHandler {
 					}
 				}
 				
-		        Log.trace("hahahaha NotificationTask extends TimerTask implements Observer");
+		        Log.trace("Attempting to retrive new comments");
 		        next();
 		        
 			} catch (Throwable  e) {
@@ -359,7 +364,7 @@ public class NotificationHandler {
 						blogInfo.getUsername(), blogInfo.getPassword(), -1);
 				
 				connection.addObserver(this);
-				connection.startConnWork();
+				connection.startConnWorkBackground();
 				
 			} else {
 				

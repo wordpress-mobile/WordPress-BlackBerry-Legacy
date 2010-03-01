@@ -74,8 +74,9 @@
             nodebug="false">
         	
         	<!-- define preprocessor tag -->
-        	<define tag="DEBUG" if="debug"/> 
-        	<define tag="LOG_CONSOLE" if="log_console"/> 
+        	<!-- define tag="DEBUG" if="debug"/ --> 
+        	<define tag="LOG_CONSOLE" if="log_console" />
+        	<define tag="TOUCH" if="is_touch" />
         	
             <jdp
                 type="cldc"

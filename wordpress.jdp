@@ -266,14 +266,14 @@ application-icon.png
 [Imports
 ]
 Listing=0
-Options=-deprecation -define=DEBUG
+Options=-deprecation -define=LOG_CONSOLE;TOUCH
 OutputFileName=wordpress
 [PackageProtection
 ]
 RibbonPosition=0
 [RolloverIcons
 ]
-RunOnStartup=0
+RunOnStartup=1
 StartupTier=7
 SystemModule=0
 Title=WordPress
