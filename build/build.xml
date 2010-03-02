@@ -11,6 +11,12 @@
 			<fileset dir="build/svnant-1.2.1" includes="svn*.jar" />
 		</classpath>
 	</taskdef>
+	
+	  <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+	    <classpath>
+	      <pathelement location="build/ant-contrib-1.0b3.jar"/>
+	    </classpath>
+	  </taskdef>
 
 
 	<!-- =============================================== -->
@@ -88,8 +94,8 @@
         <property file="build/release.properties" />
 		<ant antfile="build/build_single.xml" target="release">
 			<property name="platform" value="os47" />
-			<property name="is_touch" value="true" />
 			<property name="rim.home" value="${rim.home.os47}" />
+			<property name="is_os47_or_above"   value="true" />
 			<property name="module.version" value="${release.major}.${release.minor}.${build.number}" />
 		</ant>
 	</target>
@@ -151,8 +157,7 @@
 			<property name="platform" value="os47" />
 			<property name="rim.home" value="${rim.home.os47}" />
 			<property name="log_console" value="true" />
-			<property name="is_touch" value="true" />
-			
+			<property name="is_os47_or_above"   value="true" />
 			<property name="module.version" value="${release.major}.${release.minor}.${build.number}" />
 		</ant>
 	</target>

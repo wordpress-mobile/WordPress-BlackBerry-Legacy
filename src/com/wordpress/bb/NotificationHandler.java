@@ -157,7 +157,7 @@ public class NotificationHandler {
 				for (int i = 0; i < blogsList.length; i++) {
 					BlogInfo blogInfo = blogsList[i];
 					Log.trace("Considering the blog - "+ blogInfo.getName() + " - for the notifications details queue");
-					if (blogInfo.getState() == BlogInfo.STATE_LOADED && blogInfo.isAwaitingModeration()) {
+					if (blogInfo.getState() == BlogInfo.STATE_LOADED && blogInfo.isAwaitingModeration() && blogInfo.isCommentNotifies()) {
 						Log.trace("added the blog - "+ blogInfo.getName() + " - to the notifications details queue");
 						executionQueue.push(blogInfo);
 					}
@@ -205,9 +205,10 @@ public class NotificationHandler {
 		}
 
 		private void storeComment(final BlogInfo blog, final Vector comments) {
-			
+				Log.trace("store new comment");
 				UiApplication.getUiApplication().invokeLater(new Runnable() {
 					public void run() {
+						
 						boolean store = false;
 						UiApplication uiApplication = UiApplication.getUiApplication();
 						boolean foreground = uiApplication.isForeground();
@@ -245,11 +246,8 @@ public class NotificationHandler {
 		
 		public void update(Observable observable, final Object object) {
 			
-				try{ 
+			try{ 
 				BlogConnResponse resp= (BlogConnResponse) object;
-							
-				Log.trace("risposta è del tipo "+ resp.getResponseObject().getClass().getName());
-
 				if(!resp.isError()) {
 					Vector respVector = (Vector) resp.getResponseObject(); // the response from wp server
 					Hashtable vector2Comments = CommentsDAO.vector2Comments(respVector);
@@ -271,14 +269,17 @@ public class NotificationHandler {
 					
 					if(originalComments == null) {
 						isNewCommentInAwatingModeration = true;
+						storeComment(currentBlog, respVector);
 					} else {
 						
 						//check if there are available new comments for moderation
 						for (int i = 0; i < serverComments.length; i++) {
 							Comment	comment = serverComments[i];
 							//check the presence of this comment only if it is in awaiting of moderation 
-							if  (!comment.getStatus().equalsIgnoreCase("hold"))
+							Log.trace("stato del commento "+ comment.getStatus());
+							if  (!comment.getStatus().equalsIgnoreCase("hold")){
 								continue;
+							}
 							
 							boolean presence = false;
 							for (int j = 0; j < originalComments.length; j++) {

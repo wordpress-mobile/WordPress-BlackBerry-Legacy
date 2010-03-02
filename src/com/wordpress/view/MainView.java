@@ -10,7 +10,7 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
-//#ifdef TOUCH
+//#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.TouchEvent;
 //#endif
 import net.rim.device.api.ui.component.BitmapField;
@@ -186,11 +186,7 @@ public class MainView extends BaseView {
 			
 		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
 			Log.trace("Input came from a four way navigation input device");
-			if(blogListController instanceof BlogsListField) {
-				BlogInfo blogSelected = blogListController.getBlogSelected();
-		        mainController.showBlog(blogSelected);
-		        return true;
-			}
+			return defaultAction();
 		}
 		return super.navigationClick(status, time);
 	}
@@ -205,32 +201,32 @@ public class MainView extends BaseView {
 		Log.trace(">>> keyChar");
 		// Close this screen if escape is selected.
 		if (c == Characters.ENTER) {
-			if(blogListController instanceof BlogsListField) {
-				BlogInfo blogSelected = blogListController.getBlogSelected();
-		        mainController.showBlog(blogSelected);
-			}
-			return true;
+			return defaultAction();
 		}
-
+		
 		return super.keyChar(c, status, time);
 	}
 	 
+	private boolean defaultAction() {
+		if( blogListController  != null ) {
+			BlogInfo blogSelected = blogListController.getBlogSelected();
+	        mainController.showBlog(blogSelected);
+		} else {
+			mainController.addBlogs();
+		}
+		return true;
+	}
 	
-	
-	//#ifdef TOUCH
+	//#ifdef IS_OS47_OR_ABOVE
 	protected boolean touchEvent(TouchEvent message) {
 		Log.trace(">>> touchEvent");
 		int eventCode = message.getEvent();
 		// Get the screen coordinates of the touch event
 		int touchX = message.getX(1);
 		int touchY = message.getY(1);
+		
 		if(eventCode == TouchEvent.CLICK) {
-			Log.trace("You clicked at (" + touchX + "," + touchY +")");
-			if(blogListController instanceof BlogsListField) {
-				BlogInfo blogSelected = blogListController.getBlogSelected();
-		        mainController.showBlog(blogSelected);
-			}
-			return true;
+			return defaultAction();
 		}
 	return super.touchEvent(message);	
 	}

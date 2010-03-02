@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.view.component;
 
 import java.util.Vector;
@@ -11,10 +12,14 @@ import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
+import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.MenuItem;
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.TouchEvent;
+//#endif
 import net.rim.device.api.ui.component.ListField;
 
 public class CheckBoxListField {
@@ -59,10 +64,12 @@ public class CheckBoxListField {
         {
         	
         	protected void drawFocus(Graphics graphics, boolean on) { } //remove the standard focus highlight
-        	
+        	        	
         	private void defaultItemAction() {
                 //Get the index of the selected row.
                 int index = getSelectedIndex();
+                
+                if(index == -1) return;
                 
                 //Get the ChecklistData for this row.
                 ChecklistData data = (ChecklistData)_listData.elementAt(index);
@@ -105,7 +112,6 @@ public class CheckBoxListField {
             //Allow the space bar to toggle the status of the selected row.
             protected boolean keyChar(char key, int status, int time)
             {
-                
                 //If the spacebar was pressed...
                 if (key == Characters.SPACE || key == Characters.ENTER)
                 {
@@ -115,6 +121,37 @@ public class CheckBoxListField {
                 return false;
             }
             
+        	//#ifdef IS_OS47_OR_ABOVE
+        	protected boolean touchEvent(TouchEvent message) {
+        		Log.trace(">>> touchEvent");
+        		
+        		if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
+        		{       			
+        			return false;
+        		} 
+        		        		
+        		//DOWN, UP, CLICK, UNCLICK, MOVE, and CANCEL. An additional event, GESTURE
+        		int eventCode = message.getEvent();
+        		if(eventCode == TouchEvent.CLICK) {
+        			Log.trace("TouchEvent.CLICK");
+        			defaultItemAction();
+        			return true;
+        		}else if(eventCode == TouchEvent.DOWN) {
+        			Log.trace("TouchEvent.CLICK");
+        		} else if(eventCode == TouchEvent.UP) {
+        			Log.trace("TouchEvent.UP");
+        		} else if(eventCode == TouchEvent.UNCLICK) {
+        			Log.trace("TouchEvent.UNCLICK");
+        			//return true; //consume the event: avoid context menu!!
+        		} else if(eventCode == TouchEvent.CANCEL) {
+        			Log.trace("TouchEvent.CANCEL");
+        		}
+        		
+        		return false; 
+        		//return super.touchEvent(message);
+        	}
+        	//#endif
+        	
             protected int moveFocus(int amount, int status, int time) {
             	ChecklistData data = null;
                 int oldSelection = getSelectedIndex();
@@ -139,7 +176,7 @@ public class CheckBoxListField {
             
             
             protected void moveFocus(int x, int y, int status, int time) {
-                int oldSelection = getSelectedIndex();
+            	int oldSelection = getSelectedIndex();
                 super.moveFocus(x, y, status, time);
                 int newSelection = getSelectedIndex();
                 ChecklistData data = (ChecklistData)_listData.elementAt(oldSelection);
@@ -149,9 +186,6 @@ public class CheckBoxListField {
                 data.setSelected(true);
                 invalidate();
             }
-           
-        
-            
         };
         
         //Set the ListFieldCallback
@@ -178,7 +212,7 @@ public class CheckBoxListField {
     public ListField get_checkList() {
 		return _checkList;
 	}
-    
+  
     //change the text of the menuitem associated with this list
     public void changeToggleItemLabel(String select, String deselect) {
    	 //Get the index of the selected row.

@@ -144,8 +144,8 @@ public class WordPress extends UiApplication implements WordPressResource {
 		
 		Log.trace("==== WordPress for BlackBerry Startup ====");
 		
-		//#ifdef TOUCH
-		Log.trace("==== TouchScreen Edition ====");
+		//#ifdef IS_OS47_OR_ABOVE
+		Log.trace("==== IS_OS47_OR_ABOVE Edition ====");
 		//#endif
 
 	}

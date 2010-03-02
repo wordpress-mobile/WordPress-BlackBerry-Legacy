@@ -76,7 +76,7 @@
         	<!-- define preprocessor tag -->
         	<!-- define tag="DEBUG" if="debug"/ --> 
         	<define tag="LOG_CONSOLE" if="log_console" />
-        	<define tag="TOUCH" if="is_touch" />
+        	<define tag="IS_OS47_OR_ABOVE" if="is_os47_or_above" />
         	
             <jdp
                 type="cldc"

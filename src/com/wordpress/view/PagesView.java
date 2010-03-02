@@ -22,9 +22,10 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PagesController;
 import com.wordpress.model.Page;
 import com.wordpress.view.component.BitmapButtonField;
+import com.wordpress.view.component.ListActionListener;
 import com.wordpress.view.component.PostsListField;
 
-public class PagesView extends BaseView {
+public class PagesView extends BaseView implements ListActionListener {
 	
     private PagesController controller= null;
     private PostsListField  pagesList; 
@@ -136,6 +137,8 @@ public class PagesView extends BaseView {
 		pagesList = new PostsListField(); 	        
 		pagesList.set(elements);
 		pagesList.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_POSTS), DrawStyle.LEFT);
+		pagesList.setDefautActionListener(this);
+		
 		dataScroller.add(pagesList);
 		pagesList.setFocus(); //set the focus over the list
 
@@ -150,15 +153,15 @@ public class PagesView extends BaseView {
 
     private MenuItem _editPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDIT, 200, 10) {
         public void run() {
-            int selectedPost = pagesList.getSelectedIndex();
-            controller.editPage(selectedPost);
+            int selectedPage = pagesList.getSelectedIndex();
+            controller.editPage(selectedPage);
         }
     };
 	
 	private MenuItem _deletePostItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE, 210, 10) {
         public void run() {
-            int selectedPost = pagesList.getSelectedIndex();
-            controller.deletePage(selectedPost);
+            int selectedPage = pagesList.getSelectedIndex();
+            controller.deletePage(selectedPage);
         }
     };
     
@@ -206,21 +209,14 @@ public class PagesView extends BaseView {
 		return this.controller;
 	}
 	
-	/*
-	 // Handle trackball clicks.
-	protected boolean navigationClick(int status, int time) {
-		Field fieldWithFocus = this.getFieldWithFocus();
-		if(fieldWithFocus == topButtonsManager) { //focus on the top buttons, do not open menu on whell click
-			return true;
-		}
-		else 
-		 return super.navigationClick(status,time);
-	}
-*/
-	
 	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {
 		controller.backCmd();
 		return true;
+	}
+	
+	public void actionPerformed() {
+        int selectedPage = pagesList.getSelectedIndex();
+        controller.editPage(selectedPage);    
 	}
 }

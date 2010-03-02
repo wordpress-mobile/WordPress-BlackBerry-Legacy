@@ -55,6 +55,7 @@ public class NotificationController extends BaseController {
 		for (int i = 0; i < blogsList.length; i++) {
 			BlogInfo blogInfo = blogsList[i];
 			boolean newValue = selected[i];
+			Log.trace(blogInfo.getName()+" selected =>"+newValue);
 			if (newValue != blogInfo.isCommentNotifies()) {
 				try {
 					//update also the blogInfo element. it is a reference to the blogInfo obj used also in the  main view.

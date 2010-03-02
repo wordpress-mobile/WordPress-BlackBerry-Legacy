@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.view.component;
 
 import java.util.Date;
@@ -6,15 +7,21 @@ import java.util.Vector;
 
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.i18n.SimpleDateFormat;
+import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.TouchEvent;
+//#endif
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ObjectListField;
 
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.utils.CalendarUtils;
+import com.wordpress.utils.log.Log;
 
 /**
  * This class is a list field that we used to
@@ -29,7 +36,12 @@ public class PostsListField extends ObjectListField  {
     private final SimpleDateFormat sdFormat;
 	private Vector _listData = new Vector();
     private ListCallBack listFieldCallBack = null;
+    private ListActionListener defautActionListener = null;
     		
+	public void setDefautActionListener(ListActionListener defautActionListener) {
+		this.defautActionListener = defautActionListener;
+	}
+
 	public PostsListField() {
 		listFieldCallBack = new ListCallBack();
 		// Set the ListFieldCallback
@@ -38,7 +50,6 @@ public class PostsListField extends ObjectListField  {
         String emptyListString = resourceBundle.getString(WordPressResource.MESSAGE_NOTHING_TO_SEE_HERE);
         setEmptyString(emptyListString, DrawStyle.LEFT);
 		setRowHeight(42);
-		
 		sdFormat = new SimpleDateFormat(resourceBundle.getString(WordPressResource.DEFAULT_DATE_FORMAT));
 	}
 	
@@ -167,6 +178,7 @@ public class PostsListField extends ObjectListField  {
         }
     }
 	
+    
     //A class to hold the post and page Info 
     private class ListData  {
 
@@ -199,4 +211,65 @@ public class PostsListField extends ObjectListField  {
         }
         
     }
+	 /**
+     * Overrides default implementation.  Performs default action if the 
+     * 4ways trackpad was clicked; otherwise, the default action occurs.
+     * 
+     * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
+     */
+	protected boolean navigationClick(int status, int time) {
+		Log.trace(">>> navigationClick");
+		
+		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
+			Log.trace("Input came from the trackwheel");
+			// Input came from the trackwheel
+			return super.navigationClick(status, time);
+			
+		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
+			Log.trace("Input came from a four way navigation input device");
+			 if(this.defautActionListener != null)
+	            {
+	            defautActionListener.actionPerformed();
+	            return true;
+	            }
+		}
+		return super.navigationClick(status, time);
+	}
+	
+    //Allow the space bar to toggle the status of the selected row.
+    protected boolean keyChar(char key, int status, int time)
+    {
+        boolean retVal = false;
+        
+        //If the spacebar was pressed...
+        if (key == Characters.SPACE || key == Characters.ENTER) {
+            if(this.defautActionListener != null)
+            {
+            defautActionListener.actionPerformed();
+            //Consume this keyChar (key pressed).
+            retVal = true;
+            }
+        }
+        return retVal;
+    }
+    
+	//#ifdef IS_OS47_OR_ABOVE
+	protected boolean touchEvent(TouchEvent message) {
+		Log.trace(">>> touchEvent");
+		int eventCode = message.getEvent();
+		if (eventCode == TouchEvent.CLICK) {
+			
+			if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
+    		{       			
+    			return false;
+    		} 
+			
+			if (this.defautActionListener != null) {
+				defautActionListener.actionPerformed();
+				return true;
+			}
+		}
+		return super.touchEvent(message);
+	}
+	//#endif
 }

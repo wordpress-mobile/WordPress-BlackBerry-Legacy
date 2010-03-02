@@ -22,8 +22,9 @@ import com.wordpress.model.Comment;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.CommentsListField;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
+import com.wordpress.view.component.ListActionListener;
 
-public class CommentsView extends BaseView {
+public class CommentsView extends BaseView implements ListActionListener {
 	
     private CommentsController controller= null;
     private HorizontalFieldManager topManager;
@@ -71,6 +72,7 @@ public class CommentsView extends BaseView {
 		gravatarController.deleteObservers(); //FIXME non va bene così
 		commentListController= new CommentsListField(elements, selectedCom, gravatarController);
     	this.commentsList= commentListController.getCommentListField();
+    	commentListController.setDefautActionListener(this);
 		dataScroller.add(commentsList);
 		
 		//update comment number
@@ -271,6 +273,20 @@ public class CommentsView extends BaseView {
 		return true;
 	}
 	
+	
+	public boolean onMenu(int instance) {
+		boolean result;
+		// Prevent the context menu from being shown if focus
+		// is on the list
+		if (getLeafFieldWithFocus() == commentsList
+				&& instance == Menu.INSTANCE_CONTEXT) {
+			result = false;
+		} else {
+			result = super.onMenu(instance);
+		}
+		return result;
+	}
+	
     //Override the makeMenu method so we can add a custom menu item
     //if the checkbox ListField has focus.
     protected void makeMenu(Menu menu, int instance)
@@ -288,4 +304,10 @@ public class CommentsView extends BaseView {
         super.makeMenu(menu, instance);
     }
 
+	public void actionPerformed() {
+		if(commentsList != null && commentsList.getSize() > 0) {
+			Comment selectedComment = getSelectedComment()[0]; //in this case return array with only one comment
+			controller.openComment(selectedComment);
+		}
+	}
 }

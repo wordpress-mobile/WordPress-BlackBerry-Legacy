@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.view.component;
 
 import java.util.Vector;
@@ -11,6 +12,9 @@ import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.MenuItem;
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.TouchEvent;
+//#endif
 import net.rim.device.api.ui.component.ListField;
 
 import com.wordpress.bb.WordPressCore;
@@ -189,6 +193,24 @@ public class CategoriesListField {
                 }
                 return retVal;
             }
+            
+        	//#ifdef IS_OS47_OR_ABOVE
+			protected boolean touchEvent(TouchEvent message) {
+				Log.trace(">>> touchEvent");
+
+				if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
+        		{       			
+        			return false;
+        		}
+				
+				int eventCode = message.getEvent();
+				if (eventCode == TouchEvent.CLICK) {
+					defaultItemAction();
+					return true;
+				} 
+				return false;
+			}
+        	//#endif
             
             protected int moveFocus(int amount, int status, int time) {
             	ChecklistData data = null;

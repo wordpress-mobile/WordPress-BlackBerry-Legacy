@@ -9,9 +9,10 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.DraftPostsController;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.ListActionListener;
 import com.wordpress.view.component.PostsListField;
 
-public class DraftPostsView extends BaseView {
+public class DraftPostsView extends BaseView implements ListActionListener {
 	
     private DraftPostsController controller= null;
 
@@ -28,6 +29,7 @@ public class DraftPostsView extends BaseView {
 		removeAllMenuItems();	
 		listaPost = new PostsListField(); 	        
 		listaPost.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_DRAFT_POSTS), DrawStyle.LEFT);
+		listaPost.setDefautActionListener(this);
 		
 		if( (post != null) && post.length > 0 ){
 			listaPost.set(post);
@@ -86,4 +88,12 @@ public class DraftPostsView extends BaseView {
 	public BaseController getController() {
 		return controller;
 	}
+
+
+	public void actionPerformed() {
+		 int selectedPost = listaPost.getSelectedIndex();
+         Log.trace("selected draft post " + selectedPost);
+         controller.editPost(selectedPost); 
+	}
+	
 }

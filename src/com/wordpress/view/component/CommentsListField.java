@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.view.component;
 
 import java.util.Vector;
@@ -12,6 +13,9 @@ import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.MenuItem;
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.TouchEvent;
+//#endif
 import net.rim.device.api.ui.component.ListField;
 
 import com.wordpress.bb.WordPressCore;
@@ -29,6 +33,11 @@ public class CommentsListField {
     private boolean checkBoxVisible = false;
     private ListCallBack listFieldCallBack = null;
 	private GravatarController gvtController;
+    private ListActionListener defautActionListener = null;
+	
+	public void setDefautActionListener(ListActionListener defautActionListener) {
+		this.defautActionListener = defautActionListener;
+	}
        
    public boolean isCheckBoxVisible() {
 		return checkBoxVisible;
@@ -93,7 +102,7 @@ public class CommentsListField {
 			
 			protected void drawFocus(Graphics graphics, boolean on) { } //remove the standard focus highlight
 			
-			private void defaultItemAction() {
+			private void checkItemAction() {
 				  //Get the index of the selected row.
                 int index = getSelectedIndex();
                 
@@ -111,6 +120,19 @@ public class CommentsListField {
             
 			}
 			
+			private boolean defaultAction() {
+    	   		if (!isCheckBoxVisible()) {
+        			if (defautActionListener != null) {
+        				defautActionListener.actionPerformed();
+        				return true;
+        			} else        			
+        			return false;
+        		} else {
+        			checkItemAction();
+        			return true;
+        		}
+			}
+			
             /**
              * Overrides default implementation.  Performs default action if the 
              * 4ways trackpad was clicked; otherwise, the default action occurs.
@@ -120,9 +142,6 @@ public class CommentsListField {
         	protected boolean navigationClick(int status, int time) {
         		Log.trace(">>> navigationClick");
         		
-        		if (!isCheckBoxVisible())
-        			return super.navigationClick(status, time);
-        		
         		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
         			Log.trace("Input came from the trackwheel");
         			// Input came from the trackwheel
@@ -130,26 +149,40 @@ public class CommentsListField {
         			
         		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
         			Log.trace("Input came from a four way navigation input device");
-        			defaultItemAction();
-        			return true;
+        			return defaultAction();
         		}
-        		return super.navigationClick(status, time);
+        		
+        		return false;
         	}
 			
-            //Allow the space bar to toggle the status of the selected row.
-            protected boolean keyChar(char key, int status, int time)
-            {
-                boolean retVal = false;
-                
-                //If the spacebar or enter was pressed...
-                if (isCheckBoxVisible() && (key == Characters.SPACE || key == Characters.ENTER )) {
-                	defaultItemAction();
-                    //Consume this keyChar (key pressed).
-                	retVal = true;
-                }
-                return retVal;
-            }
+            // Allow the space bar to toggle the status of the selected row.
+			protected boolean keyChar(char key, int status, int time) {
+				boolean retVal = false;
+				// If the spacebar or enter was pressed...
+				if ((key == Characters.SPACE || key == Characters.ENTER)) {
+					retVal = defaultAction();
+				}// end if keychar
+				return retVal;
+			}
             
+            
+        	//#ifdef IS_OS47_OR_ABOVE
+        	protected boolean touchEvent(TouchEvent message) {
+        		Log.trace(">>> touchEvent");
+    			
+        		if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
+        		{       			
+        			return false;
+        		} 
+    			
+        		int eventCode = message.getEvent();
+        		if(eventCode == TouchEvent.CLICK) {
+        			return defaultAction();
+        		}
+        		return false;	
+        	}
+        	//#endif
+        	
             protected int moveFocus(int amount, int status, int time) {
             	ChecklistData data = null;
                 int oldSelection = getSelectedIndex();

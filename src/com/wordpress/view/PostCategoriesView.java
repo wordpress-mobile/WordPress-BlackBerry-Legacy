@@ -82,6 +82,20 @@ public class PostCategoriesView extends BaseView {
 		return controller;
 	}
 	
+	
+	public boolean onMenu(int instance) {
+		boolean result;
+		// Prevent the context menu from being shown if focus
+		// is on the list
+		if (getLeafFieldWithFocus() == chkField
+				&& instance == Menu.INSTANCE_CONTEXT) {
+			result = false;
+		} else {
+			result = super.onMenu(instance);
+		}
+		return result;
+	}
+	
     //Override the makeMenu method so we can add a custom menu item
     //if the checkbox ListField has focus.
     protected void makeMenu(Menu menu, int instance)

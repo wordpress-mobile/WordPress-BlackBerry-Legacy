@@ -11,9 +11,10 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.DraftPagesController;
 import com.wordpress.model.Page;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.ListActionListener;
 import com.wordpress.view.component.PostsListField;
 
-public class DraftPagesView extends BaseView {
+public class DraftPagesView extends BaseView implements ListActionListener {
 	
     private DraftPagesController controller= null;
 	private PostsListField pageListField; 
@@ -29,6 +30,7 @@ public class DraftPagesView extends BaseView {
 		 removeAllMenuItems();	
 		 pageListField = new PostsListField();
 		 pageListField.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_DRAFT_PAGES), DrawStyle.LEFT);
+		 pageListField.setDefautActionListener(this);
 		 
 		 Hashtable[] draftPageInfo = new Hashtable[0];
 		 
@@ -83,15 +85,15 @@ public class DraftPagesView extends BaseView {
     
     private MenuItem _deleteItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE, 220, 10) {
         public void run() {
-            int selectedPost = pageListField.getSelectedIndex();
-            controller.deletePage(selectedPost);    
+            int selectedPage = pageListField.getSelectedIndex();
+            controller.deletePage(selectedPage);    
         }
     };
     
     private MenuItem _editItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDIT, 200, 10) {
         public void run() {
-            int selectedPost = pageListField.getSelectedIndex();
-            controller.editPage(selectedPost);            
+            int selectedPage = pageListField.getSelectedIndex();
+            controller.editPage(selectedPage);            
         }
     };
     
@@ -104,5 +106,11 @@ public class DraftPagesView extends BaseView {
 	public BaseController getController() {
 		return controller;
 	}
+	
+	public void actionPerformed() {
+        int selectedPost = pageListField.getSelectedIndex();
+        controller.editPage(selectedPost);    
+	}
+	
 }
 

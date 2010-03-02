@@ -157,6 +157,7 @@ src\com\wordpress\view\component\FileSelectorPopupScreen.java
 src\com\wordpress\view\component\HeaderField.java
 src\com\wordpress\view\component\HorizontalPaddedFieldManager.java
 src\com\wordpress\view\component\HtmlTextField.java
+src\com\wordpress\view\component\ListActionListener.java
 src\com\wordpress\view\component\NoBlogsListField.java
 src\com\wordpress\view\component\PostsListField.java
 src\com\wordpress\view\component\RimFileBrowser.java
@@ -237,6 +238,10 @@ src\icons\loading-gif.bin
 src\icons\stop.png
 src\icons\video_rec.png
 src\icons\video_thumb.png
+src\icons\wordpress_home_220.png
+src\icons\wordpress_home_300.png
+src\icons\wordpress_home_340.png
+src\icons\wordpress_home_460.png
 src\icons\wplogo_header.png
 src\important.png
 src\MainBackground.png
@@ -266,7 +271,7 @@ application-icon.png
 [Imports
 ]
 Listing=0
-Options=-deprecation -define=LOG_CONSOLE;TOUCH
+Options=-deprecation -define=IS_OS47_OR_ABOVE;LOG_CONSOLE
 OutputFileName=wordpress
 [PackageProtection
 ]

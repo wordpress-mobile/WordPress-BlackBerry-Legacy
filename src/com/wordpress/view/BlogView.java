@@ -1,6 +1,7 @@
 package com.wordpress.view;
 
 import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Color;
@@ -255,6 +256,19 @@ public class BlogView extends BaseView {
 		doSelection();
 		return true;
 	}
+	
+    protected boolean keyChar(char key, int status, int time)
+    {
+        
+        //If the spacebar was pressed...
+        if (key == Characters.SPACE || key == Characters.ENTER)
+        {
+        	doSelection();
+        	return true;
+        }
+        return false;
+    }
+    
 
 	
 	//override onClose() to by-pass the standard dialog box when the screen is closed    

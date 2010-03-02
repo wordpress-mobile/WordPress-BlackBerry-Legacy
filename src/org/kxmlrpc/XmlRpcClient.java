@@ -180,19 +180,24 @@ public class XmlRpcClient {
     		
     		// Open an input stream on the server's response
     		in = con.openInputStream();
-    		
-    		int ch;
-    		StringBuffer charBuff=new StringBuffer();
-    		while ((ch = in.read()) > -1) {  
-    			charBuff.append((char)ch);
-    		}
-    		String response = charBuff.toString();
-    		Log.trace("response from the wordpress server: "+response);                                  
-    		ByteArrayInputStream bais = new ByteArrayInputStream(response.getBytes());
-    		
-    		// Parse response from server
     		KXmlParser xp = new KXmlParser();
-    		xp.setInput(bais, "ISO-8859-1"); //never change!
+    		
+    		if(Log.getDefaultLogLevel() >= Log.TRACE) {
+    			int ch;
+    			StringBuffer charBuff=new StringBuffer();
+    			while ((ch = in.read()) > -1) {  
+    				charBuff.append((char)ch);
+    			}
+    			String response = charBuff.toString();
+    			Log.trace("response from the wordpress server: "+response);                                  
+    			ByteArrayInputStream bais = new ByteArrayInputStream(response.getBytes());
+    			
+    			// Parse response from server
+    			xp.setInput(bais, "ISO-8859-1"); //never change!
+    		} else {
+    			xp.setInput(in, "ISO-8859-1"); //never change!
+    		}
+    		
     		
     		
     		parser = new XmlRpcParser(xp, encoding); //pass the rim encoding

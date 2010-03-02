@@ -1,5 +1,5 @@
+//#preprocess
 package com.wordpress.view.component;
-
 
 import java.util.Enumeration;
 import java.util.Stack;
@@ -14,13 +14,15 @@ import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.KeyListener;
 import net.rim.device.api.system.KeypadListener;
-import net.rim.device.api.system.TrackwheelListener;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Keypad;
 import net.rim.device.api.ui.MenuItem;
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.TouchEvent;
+//#endif
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ListFieldCallback;
 import net.rim.device.api.ui.component.Menu;
@@ -61,6 +63,18 @@ public class RimFileBrowser extends MainScreen {
         initialize();
     }
 
+    
+	public boolean onMenu(int instance) {
+		boolean result;
+		// Prevent the context menu from being shown if focus
+		// is on the list
+		if (instance == Menu.INSTANCE_CONTEXT) {
+			result = false;
+		} else {
+			result = super.onMenu(instance);
+		}
+		return result;
+	}
 
     protected void makeMenu(Menu theMenu, int instance) {
         String entry = null;
@@ -112,9 +126,6 @@ public class RimFileBrowser extends MainScreen {
     }
 
     
-    
-    
-    
     private void performDefaultActionOnItem() {
         String entry = null;
         Log.trace("performDefaultActionOnItem");
@@ -131,44 +142,6 @@ public class RimFileBrowser extends MainScreen {
 	        }
         }
     }
-    
-    /**
-     * Overrides default implementation.  Performs default action if the 
-     * 4ways trackpad was clicked; otherwise, the default action occurs.
-     * 
-     * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
-     */
-	protected boolean navigationClick(int status, int time) {
-		Log.trace(">>> navigationClick");
-		
-		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
-			Log.trace("Input came from the trackwheel");
-			// Input came from the trackwheel
-			return super.navigationClick(status, time);
-			
-		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
-			Log.trace("Input came from a four way navigation input device");
-			performDefaultActionOnItem();
-			 return true;
-		}
-		return super.navigationClick(status, time);
-	}
-	
-    /**
-     * Overrides default.  Enter key will take default action on selected item.
-     *  
-     * @see net.rim.device.api.ui.Screen#keyChar(char,int,int)
-     * 
-     */
-	protected boolean keyChar(char c, int status, int time) {
-		Log.trace(">>> keyChar");
-		// Close this screen if escape is selected.
-		if (c == Characters.ENTER) {
-			performDefaultActionOnItem();
-			return true;
-		}
-		return super.keyChar(c, status, time);
-	}
     
  
     public boolean onClose() {
@@ -296,7 +269,7 @@ public class RimFileBrowser extends MainScreen {
     }
 
     
-    private class FileBrowserListener implements KeyListener, TrackwheelListener {
+  /*  private class FileBrowserListener implements KeyListener {
 
         private final static int KEYCODE_ENTER = Keypad.KEY_ENTER;
 
@@ -335,20 +308,8 @@ public class RimFileBrowser extends MainScreen {
         public boolean keyUp(int keycode, int time) {
             return false;
         }
-
-        public boolean trackwheelClick(int status, int time) {
-        	return false;
-        }
-
-        public boolean trackwheelRoll(int amount, int status, int time) {
-            return false;
-        }
-
-        public boolean trackwheelUnclick(int status, int time) {
-            return false;
-        }
     }
-
+*/
     private boolean isDirectory(String entry) {
         return entry.endsWith("/");
     }
@@ -425,7 +386,7 @@ public class RimFileBrowser extends MainScreen {
 
     private class FileBrowserList extends ListField implements ListFieldCallback {
 
-        private final FileBrowserListener listener;
+      //  private final FileBrowserListener listener;
 
         private Vector  listItems = new Vector();
 
@@ -441,10 +402,70 @@ public class RimFileBrowser extends MainScreen {
             setEmptyString("", DrawStyle.LEFT);
 
             setCallback(this);
-            listener = new FileBrowserListener();
-            addListeners();
+           // listener = new FileBrowserListener();
+         //   addListeners();
         }
 
+        /**
+         * Overrides default implementation.  Performs default action if the 
+         * 4ways trackpad was clicked; otherwise, the default action occurs.
+         * 
+         * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
+         */
+    	protected boolean navigationClick(int status, int time) {
+    		Log.trace(">>> navigationClick");
+    		
+    		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
+    			Log.trace("Input came from the trackwheel");
+    			// Input came from the trackwheel
+    			return super.navigationClick(status, time);
+    			
+    		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
+    			Log.trace("Input came from a four way navigation input device");
+    			performDefaultActionOnItem();
+    			 return true;
+    		}
+    		return super.navigationClick(status, time);
+    	}
+    	
+        /**
+         * Overrides default.  Enter key will take default action on selected item.
+         *  
+         * @see net.rim.device.api.ui.Screen#keyChar(char,int,int)
+         * 
+         */
+    	protected boolean keyChar(char c, int status, int time) {
+    		Log.trace(">>> keyChar");
+    		// Close this screen if escape is selected.
+    		if (c == Characters.ENTER) {
+    			performDefaultActionOnItem();
+    			return true;
+    		}
+    		return super.keyChar(c, status, time);
+    	}
+        
+    	
+        
+    	//#ifdef IS_OS47_OR_ABOVE
+    	protected boolean touchEvent(TouchEvent message) {
+    		Log.trace(">>> touchEvent");
+    		int eventCode = message.getEvent();
+    		
+    		if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
+    		{       			
+    			return false;
+    		} 
+    		// Get the screen coordinates of the touch event
+    		if(eventCode == TouchEvent.CLICK) {
+    			Log.trace("TouchEvent.CLICK");
+    			performDefaultActionOnItem();
+    			return true;
+			} 
+			return false; // consume the event!
+    	}
+    	//#endif
+    	
+        
         public void changeDirectory(int index) {
             int count = 0;
             // Show directories first
@@ -637,16 +658,14 @@ public class RimFileBrowser extends MainScreen {
         }
         
 
-        public void addListeners() {
+     /*   public void addListeners() {
             addKeyListener(listener);
-            addTrackwheelListener(listener);
         }
 
         public void removeListeners() {
             removeKeyListener(listener);
-            removeTrackwheelListener(listener);
         }
-
+*/
         public void setSelectedIndex(int index) {
             int current = getSelectedIndex();
             super.setSelectedIndex(index);

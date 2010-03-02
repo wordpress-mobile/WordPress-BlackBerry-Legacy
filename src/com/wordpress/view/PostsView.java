@@ -22,9 +22,10 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostsController;
 import com.wordpress.view.component.BitmapButtonField;
+import com.wordpress.view.component.ListActionListener;
 import com.wordpress.view.component.PostsListField;
 
-public class PostsView extends BaseView {
+public class PostsView extends BaseView implements ListActionListener {
 	
     private PostsController controller= null;
     private PostsListField listaPost; 
@@ -138,8 +139,8 @@ public class PostsView extends BaseView {
 		listaPost = new PostsListField(); 	        
 		listaPost.set(elements);
 		listaPost.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_POSTS), DrawStyle.LEFT);
+		listaPost.setDefautActionListener(this);
 		dataScroller.add(listaPost);
-
 
 		if(recentPostInfo != null && recentPostInfo.size() > 0 ) {
 			addMenuItem(_editPostItem);
@@ -236,5 +237,10 @@ public class PostsView extends BaseView {
 		controller.backCmd();
 		return true;
 	}
-
+	
+	public void actionPerformed() {
+        int selectedPost = listaPost.getSelectedIndex();
+        controller.editPost(selectedPost); 
+	}
+	
 }
