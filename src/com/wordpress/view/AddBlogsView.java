@@ -2,7 +2,9 @@ package com.wordpress.view;
 
 import java.util.Hashtable;
 
+import net.rim.device.api.io.http.HttpHeaders;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
@@ -17,6 +19,7 @@ import net.rim.device.api.ui.text.URLTextFilter;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AddBlogsController;
 import com.wordpress.controller.BaseController;
+import com.wordpress.utils.Tools;
 import com.wordpress.view.component.BorderedFieldManager;
 
 public class AddBlogsView extends StandardBaseView {
@@ -132,13 +135,42 @@ public class AddBlogsView extends StandardBaseView {
             buttonsManager.add(buttonBACK);
     		add(buttonsManager); 
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
+    		
+            HorizontalFieldManager buttonsManagerGetFreeBlog = new HorizontalFieldManager(Field.FIELD_HCENTER);
+            ButtonField buttonGetFreeBlog= new ButtonField(_resources.getString(WordPressResource.GET_FREE_BLOG), ButtonField.CONSUME_CLICK);
+            buttonGetFreeBlog.setChangeListener(listenerGetBlogButton);
+            buttonsManagerGetFreeBlog.add(buttonGetFreeBlog);
+    		add(buttonsManagerGetFreeBlog); 
+    		add(new LabelField("", Field.NON_FOCUSABLE)); //space after button
+    		
     		addMenuItem(_addBlogItem);
+    		addMenuItem(_getFreeBlogItem);
 	}
 	 
+	
+	private FieldChangeListener listenerGetBlogButton = new FieldChangeListener() {
+	    public void fieldChanged(Field field, int context) {
+	    	openWordPressSignUpURL();
+	   }
+	};
+	
 	//add blog menu item 
 	private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 140, 10) {
 		public void run() {
 			controller.addBlogs(0);
+		}
+	};
+	
+	private void openWordPressSignUpURL(){
+		HttpHeaders headers = new HttpHeaders();
+    	headers.addProperty("User-Agent", "wp-blackberry/"+ Tools.getAppVersion());
+    	Tools.getBrowserSession("http://wordpress.com/signup/?ref=wp-blackberry","/wp-blackberry/AddBlogScreen", headers, null);
+	}
+	
+	//add blog menu item 
+	private MenuItem _getFreeBlogItem = new MenuItem( _resources, WordPressResource.GET_FREE_BLOG_MENU_ITEM, 150, 20) {
+		public void run() {
+			openWordPressSignUpURL();
 		}
 	};
 

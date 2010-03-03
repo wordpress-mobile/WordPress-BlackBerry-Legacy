@@ -9,6 +9,7 @@ import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.container.MainScreen;
@@ -23,6 +24,7 @@ public class SplashScreen extends MainScreen {
    //create a variable to store the ResourceBundle for localization support
 	protected static ResourceBundle _resources;
 	private EncodedImage image;
+	private LabelField versionLabel;
 	static {
 		//retrieve a reference to the ResourceBundle for localization support
 		_resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
@@ -63,14 +65,14 @@ public class SplashScreen extends MainScreen {
         		version = "";
         }
         
-        LabelField versionLabel = new LabelField(version, Field.FIELD_HCENTER| Field.FIELD_VCENTER){
+        versionLabel = new LabelField(version, Field.FIELD_HCENTER| Field.FIELD_VCENTER){
 		    public void paint(Graphics graphics)
 		    {
 		        graphics.setColor(Color.GRAY);
 		        super.paint(graphics);
 		    }
 		};
-	  	Font fnt = this.getFont().derive(Font.BOLD);
+	  	Font fnt = this.getFont().derive(Font.BOLD,9, Ui.UNITS_pt);
 	  	versionLabel.setFont(fnt);
         this.add(versionLabel);
         
@@ -92,14 +94,19 @@ public class SplashScreen extends MainScreen {
    
 
    protected void sublayout(int width, int height) {
-	   int imgHeight = image.getHeight() + 10 ;
-	   layoutDelegate(width, imgHeight+10);
-	   setPositionDelegate(0, (height - imgHeight - 50 )/2);
+	   Log.trace("labelFieldSize : " +Ui.convertSize(9, Ui.UNITS_pt, Ui.UNITS_px));
+	   
+	   int fieldsHeight = image.getHeight()+ Ui.convertSize(9, Ui.UNITS_pt, Ui.UNITS_px);
+	   Log.trace("fieldsHeight Height " + fieldsHeight);
+	   
+	   layoutDelegate(width, Math.min(height,fieldsHeight));
+	   setPositionDelegate(0, (height - fieldsHeight )/2);
+	   
 	  // super.sublayout(width, height);
 	   Log.trace("getDelegate().getHeight() " +getDelegate().getHeight());
-	   Log.trace("getHeight() " +getHeight());
 	   setExtent(width,  height);
 	   setPosition(0,0);
+	   Log.trace("getHeight() " +getHeight());
 	  }
    
    protected boolean navigationClick(int status, int time) {

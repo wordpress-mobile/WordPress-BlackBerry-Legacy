@@ -12,13 +12,11 @@ import javax.microedition.io.file.FileSystemRegistry;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
-import net.rim.device.api.system.KeyListener;
 import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Graphics;
-import net.rim.device.api.ui.Keypad;
 import net.rim.device.api.ui.MenuItem;
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.TouchEvent;
@@ -461,7 +459,7 @@ public class RimFileBrowser extends MainScreen {
     			performDefaultActionOnItem();
     			return true;
 			} 
-			return false; // consume the event!
+			return false; 
     	}
     	//#endif
     	

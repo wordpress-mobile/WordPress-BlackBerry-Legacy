@@ -4,6 +4,8 @@ import java.util.Vector;
 
 import net.rim.blackberry.api.browser.Browser;
 import net.rim.blackberry.api.browser.BrowserSession;
+import net.rim.blackberry.api.browser.PostData;
+import net.rim.device.api.io.http.HttpHeaders;
 import net.rim.device.api.synchronization.UIDGenerator;
 
 import com.wordpress.utils.log.Log;
@@ -30,6 +32,18 @@ public class Tools {
     	browserSession.showBrowser();
 		return browserSession;
 	}
+	
+	public static synchronized BrowserSession getBrowserSession(String URL, String referrer, HttpHeaders headers, PostData postData) {
+		// Get the default sessionBrowserSession
+    	BrowserSession browserSession = Browser.getDefaultSession();
+    	// now launch the URL
+    	browserSession.displayPage(URL, referrer, headers, postData);
+    	// The following line is a work around to the issue found in
+    	// version 4.2.0
+    	browserSession.showBrowser();
+		return browserSession;
+	}
+
 	
 	public static synchronized String getAppVersion() {
     	String version = PropertyUtils.getAppVersion(); //read from the alx files

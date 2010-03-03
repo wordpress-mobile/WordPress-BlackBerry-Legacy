@@ -5,10 +5,17 @@ import java.util.Date;
 import java.util.Hashtable;
 
 import net.rim.device.api.i18n.SimpleDateFormat;
+import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.KeypadListener;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.TouchEvent;
+//#endif
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.Menu;
@@ -23,6 +30,7 @@ import com.wordpress.controller.CommentsController;
 import com.wordpress.controller.GravatarController;
 import com.wordpress.model.Comment;
 import com.wordpress.utils.Tools;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.component.BorderedFocusChangeListenerPatch;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
@@ -129,10 +137,79 @@ public class CommentView extends StandardBaseView {
 	 private LabelField getAuthorUrlField(String url) {
 		 
 		 return new LabelField(url, LabelField.FOCUSABLE) {
+			 
+			 public void paint(Graphics graphics) {
+				 if(this.isFocus())
+					 graphics.setColor(Color.WHITE);
+				 else
+					 graphics.setColor(Color.BLUE);	
+				 super.paint(graphics);
+			 }
+
+			 private void performDefaultActionOnItem() {
+				 Tools.getBrowserSession(getText());
+			 }
+			 
+		        /**
+		         * Overrides default implementation.  Performs default action if the 
+		         * 4ways trackpad was clicked; otherwise, the default action occurs.
+		         * 
+		         * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
+		         */
+		    	protected boolean navigationClick(int status, int time) {
+		    		Log.trace(">>> navigationClick");
+		    		
+		    		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
+		    			Log.trace("Input came from the trackwheel");
+		    			// Input came from the trackwheel
+		    			return super.navigationClick(status, time);
+		    			
+		    		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
+		    			Log.trace("Input came from a four way navigation input device");
+		    			performDefaultActionOnItem();
+		    			 return true;
+		    		}
+		    		return super.navigationClick(status, time);
+		    	}
+		    	
+		        /**
+		         * Overrides default.  Enter key will take default action on selected item.
+		         *  
+		         * @see net.rim.device.api.ui.Screen#keyChar(char,int,int)
+		         * 
+		         */
+		    	protected boolean keyChar(char c, int status, int time) {
+		    		Log.trace(">>> keyChar");
+		    		// Close this screen if escape is selected.
+		    		if (c == Characters.ENTER) {
+		    			performDefaultActionOnItem();
+		    			return true;
+		    		}
+		    		return super.keyChar(c, status, time);
+		    	}
 		        
+		    	
+		        
+		    	//#ifdef IS_OS47_OR_ABOVE
+		    	protected boolean touchEvent(TouchEvent message) {
+		    		Log.trace(">>> touchEvent");
+		    		int eventCode = message.getEvent();
+		    		
+		    		// Get the screen coordinates of the touch event
+		    		if(eventCode == TouchEvent.CLICK) {
+		    			Log.trace("TouchEvent.CLICK");
+		    			performDefaultActionOnItem();
+		    			return true;
+					} 
+					return false; 
+		    	}
+		    	//#endif
+			 
+		        
+			 
 			 private MenuItem myContextMenuItemA = new MenuItem(_resources.getString(WordPressResource.MENUITEM_OPEN_URL), 10, 2) {
 		            public void run() {
-		            	Tools.getBrowserSession(getText());
+		            	performDefaultActionOnItem();
 		            }
 		        };
 		     
@@ -140,6 +217,7 @@ public class CommentView extends StandardBaseView {
 		            contextMenu.addItem(myContextMenuItemA);
 		        }
 		 };
+		 
 	 }
 	 
 	 //refresh the view with the new comment content
@@ -325,6 +403,19 @@ public class CommentView extends StandardBaseView {
 		controller.backCmd();
 		return true;
 	}
+	
+	public boolean onMenu(int instance) {
+		boolean result;
+		// Prevent the context menu from being shown if focus
+		// is on the author url field
+		if (getLeafFieldWithFocus() == authorUrl && instance == Menu.INSTANCE_CONTEXT) {
+			result = false;
+		} else {
+			result = super.onMenu(instance);
+		}
+		return result;
+	}
+
 	
     //Override the makeMenu method so we can add a custom menu item on fly
     protected void makeMenu(Menu menu, int instance)

@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.TimerTask;
 import java.util.Vector;
 
+import javax.microedition.media.control.VolumeControl;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.blackberry.api.homescreen.HomeScreen;
@@ -191,6 +192,7 @@ public class NotificationHandler {
 				
 			} else {
 				if(isNewCommentInAwatingModeration) {
+					Log.trace("NotificationDetailsTask - ci sono nuovi commenti da notificare");
 
 					UiApplication.getUiApplication().invokeLater(new Runnable() {
 						public void run() {
@@ -200,48 +202,49 @@ public class NotificationHandler {
 					});
 				}
 				//notifica se ci sono nuovi commenti
-				Log.trace("NotificationDetailsTask - next method end");
+				Log.trace("NotificationDetailsTask - END");
 			}
 		}
 
 		private void storeComment(final BlogInfo blog, final Vector comments) {
-				Log.trace("store new comment");
-				UiApplication.getUiApplication().invokeLater(new Runnable() {
-					public void run() {
-						
-						boolean store = false;
-						UiApplication uiApplication = UiApplication.getUiApplication();
-						boolean foreground = uiApplication.isForeground();
-						Screen scr = uiApplication.getActiveScreen();
-						
-						if(foreground) {
-							//the app is in foreground, this not ensure that we aren't in comments loading phase
-							//but this condition is good enought
-							store = true;
-						} else {
-							if (scr instanceof CommentsView || scr instanceof CommentReplyView
-									|| scr instanceof CommentView) {
-								Log.trace("comment view is opened, do not store new comment");
-								store = false;
-							} 
-						}
-						
-						if(store){
-							//TODO you could update the comments view here
-							try{
-								CommentsDAO.storeComments(blog, comments);
-							} catch (IOException e) {
-								Log.error(e, "Error while storing comments");
-							} catch (RecordStoreException e) {
-								Log.error(e, "Error while storing comments");
-							} catch (Exception e) {
-								Log.error(e, "Error while storing comments");
-							} 
-							
-						}
-						
-					}//end run
-				});
+			Log.trace(">>> storeComment");
+			boolean foreground = false;
+			boolean store = false;
+			final Screen scr;
+			
+			synchronized(UiApplication.getEventLock()) {
+				UiApplication uiApplication = UiApplication.getUiApplication();
+				foreground = uiApplication.isForeground();
+				scr = uiApplication.getActiveScreen();
+			}
+
+			if(foreground) {
+				//the app is in foreground, this not ensure that we aren't in comments loading phase
+				//but this condition is good enought
+				store = true;
+				Log.trace("application is in FG, store comments...");
+			} else {
+				if (scr instanceof CommentsView || scr instanceof CommentReplyView
+						|| scr instanceof CommentView) {
+					Log.trace("comment view is opened, do not store new comment");
+					store = false;
+				} 
+			}
+
+			if(store){
+				//TODO you could update the comments view here
+				try{
+					CommentsDAO.storeComments(blog, comments);
+				} catch (IOException e) {
+					Log.error(e, "Error while storing comments");
+				} catch (RecordStoreException e) {
+					Log.error(e, "Error while storing comments");
+				} catch (Exception e) {
+					Log.error(e, "Error while storing comments");
+				} 
+
+			}
+
 		}
 		
 		public void update(Observable observable, final Object object) {
@@ -251,50 +254,54 @@ public class NotificationHandler {
 				if(!resp.isError()) {
 					Vector respVector = (Vector) resp.getResponseObject(); // the response from wp server
 					Hashtable vector2Comments = CommentsDAO.vector2Comments(respVector);
-					Comment[] serverComments =(Comment[]) vector2Comments.get("comments");
+					Comment[] commentsFromServer =(Comment[]) vector2Comments.get("comments");
 					if(vector2Comments.get("error") != null) {
 						Log.error("Error while loading comments: "+ (String)vector2Comments.get("error"));
 					}
 					
 					//retrive the previous comments ID for the current blog
-					int[] originalComments = (int[])awaitingCommentsID.get(currentBlog.getXmlRpcUrl());
+					int[] previousComments = (int[])awaitingCommentsID.get(currentBlog.getXmlRpcUrl());
 					
 					//extract the new comments ID and put in the hashtable of Ids for the current blog
-					int[] newCommentsIDList = new int[serverComments.length];
+					int[] newCommentsIDList = new int[commentsFromServer.length];
+					Log.trace("retrived comments from server # "+ commentsFromServer.length);
 					for (int i = 0; i < newCommentsIDList.length; i++) {
-						Comment	comment = serverComments[i];
+						Comment	comment = commentsFromServer[i];
 						newCommentsIDList[i] = comment.getID();
 					}
 					awaitingCommentsID.put(currentBlog.getXmlRpcUrl(), newCommentsIDList);
 					
-					if(originalComments == null) {
+					if(previousComments == null) {
+						Log.trace("this is the first time, store the comments");
 						isNewCommentInAwatingModeration = true;
 						storeComment(currentBlog, respVector);
 					} else {
-						
 						//check if there are available new comments for moderation
-						for (int i = 0; i < serverComments.length; i++) {
-							Comment	comment = serverComments[i];
+						Log.trace("this is NOT the first time, checing for comments");
+						boolean presence = false;
+						for (int i = 0; i < commentsFromServer.length; i++) {
+							Comment	commentFromServer = commentsFromServer[i];
 							//check the presence of this comment only if it is in awaiting of moderation 
-							Log.trace("stato del commento "+ comment.getStatus());
-							if  (!comment.getStatus().equalsIgnoreCase("hold")){
+							Log.trace("stato del commento "+ commentFromServer.getStatus());
+							if  (!commentFromServer.getStatus().equalsIgnoreCase("hold")){
 								continue;
 							}
 							
-							boolean presence = false;
-							for (int j = 0; j < originalComments.length; j++) {
-								if (originalComments[j] == comment.getID()) {
+							for (int j = 0; j < previousComments.length; j++) {
+								if (previousComments[j] == commentFromServer.getID()) {
 									presence = true;
+									break;
 								}
 							}
 							
 							if(!presence) {
+								Log.trace("commento non trovato nella cache locale");
 								isNewCommentInAwatingModeration = true;
 								break;
 							}
 						}
 						
-						if(isNewCommentInAwatingModeration)
+						if(!presence)
 							storeComment(currentBlog, respVector);
 					}
 				} else {
