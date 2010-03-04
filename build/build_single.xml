@@ -4,22 +4,11 @@
     <taskdef name="rapc"    classpath="build/bb-ant-tools-1.2.1.jar" classname="ca.slashdev.bb.tasks.RapcTask" />
     <taskdef name="jadtool" classpath="build/bb-ant-tools-1.2.1.jar" classname="ca.slashdev.bb.tasks.JadtoolTask" />
     <taskdef name="alx"     classpath="build/bb-ant-tools-1.2.1.jar" classname="ca.slashdev.bb.tasks.AlxTask" />
-
-	<taskdef resource="org/tigris/subversion/svnant/svnantlib.xml">
-	    <classpath>
-	      <fileset dir="build/svnant-1.2.1" includes="svn*.jar" />
-	    </classpath>
-	</taskdef>
 	
     <target name="init">
         <property file="build/build.properties" />
         <property file="build/release.properties" />
     	
-    	<!-- svn>
-    	
-    		<info target="${basedir}"/>
-    	</svn -->
-    	        	
         <property name="module.version" value="0.0" />
 
         <property name="platform"              value="os42" />
