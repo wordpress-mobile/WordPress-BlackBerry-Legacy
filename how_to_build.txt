@@ -10,9 +10,9 @@ This file contains the instructions to build the source code provided with the z
     or Download Eclipse for Java Developer and Blackberry JDE Plug-in for Eclipse 1.0. You should also download the Component Package 4.2.1 with 
     Eclipse update manager.
 
-Note: Ant build task uses feature from svnant-1.2.1 library for reading informations inside svn properties files. 
-You should checkout this project from svn server using svn client compatible with the svnant library (now svn client 1.5.x). 
-If you checkout the project using svn client 1.6.x you should not be able to build the project.
+Note: Some Ant build tasks are using feature from svnant-1.3.0 library. (to read informations inside svn properties files). 
+You should checkout this project from svn server using Subversion 1.6.x client features and working copy format.
+If you checkout the project using a previous svn client, such as 1.5.x, you should not be able to build the project.
 
 2. Required certificates
 

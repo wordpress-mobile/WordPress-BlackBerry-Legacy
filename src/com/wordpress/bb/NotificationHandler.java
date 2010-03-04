@@ -207,7 +207,7 @@ public class NotificationHandler {
 		}
 
 		private void storeComment(final BlogInfo blog, final Vector comments) {
-			Log.trace(">>> storeComment");
+			Log.trace(">>> storeNotificationComments");
 			boolean foreground = false;
 			boolean store = false;
 			final Screen scr;
@@ -218,17 +218,21 @@ public class NotificationHandler {
 				scr = uiApplication.getActiveScreen();
 			}
 
-			if(foreground) {
-				//the app is in foreground, this not ensure that we aren't in comments loading phase
+			if(!foreground) {
+				Log.trace("application is in BG, store comments...");
+				//the app is in background, this not ensure that we aren't in comments loading phase
 				//but this condition is good enought
 				store = true;
-				Log.trace("application is in FG, store comments...");
 			} else {
+				Log.trace("application is in ForeGround");
 				if (scr instanceof CommentsView || scr instanceof CommentReplyView
 						|| scr instanceof CommentView) {
 					Log.trace("comment view is opened, do not store new comment");
 					store = false;
-				} 
+				} else { 
+					store = true;
+					Log.trace("store comments...");
+				}
 			}
 
 			if(store){
@@ -242,9 +246,8 @@ public class NotificationHandler {
 				} catch (Exception e) {
 					Log.error(e, "Error while storing comments");
 				} 
-
 			}
-
+			Log.trace("<<< storeNotificationComments");
 		}
 		
 		public void update(Observable observable, final Object object) {

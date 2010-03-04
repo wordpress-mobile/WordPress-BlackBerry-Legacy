@@ -189,7 +189,7 @@ public class XmlRpcClient {
     				charBuff.append((char)ch);
     			}
     			String response = charBuff.toString();
-    			Log.trace("response from the wordpress server: "+response);                                  
+    			//Log.trace("response from the wordpress server: "+response);                                  
     			ByteArrayInputStream bais = new ByteArrayInputStream(response.getBytes());
     			
     			// Parse response from server

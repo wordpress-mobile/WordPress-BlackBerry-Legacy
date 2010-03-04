@@ -8,7 +8,7 @@
 
 	<taskdef resource="org/tigris/subversion/svnant/svnantlib.xml">
 		<classpath>
-			<fileset dir="build/svnant-1.2.1" includes="svn*.jar" />
+			<fileset dir="build/svnant-1.3.0" includes="svn*.jar" />
 		</classpath>
 	</taskdef>
 	
@@ -110,7 +110,7 @@
 			<ant antfile="build/build_single.xml" target="release">
 				<property name="platform" value="os42" />
 				<property name="rim.home" value="${rim.home.os42}" />
-		        <property name="module.version" value="1.0.${svn.info.lastRev}" />
+		        <property name="module.version" value="${release.major}.${release.minor}.${svn.info.lastRev}" />
 			</ant>
 	</target>
 
@@ -125,7 +125,7 @@
 			<property name="platform" value="os47" />
 			<property name="rim.home" value="${rim.home.os47}" />
 			<property name="is_os47_or_above"   value="true" />
-	        <property name="module.version" value="1.0.${svn.info.lastRev}" />
+	        <property name="module.version" value="${release.major}.${release.minor}.${svn.info.lastRev}" />
 		</ant>		
 	</target>
 
