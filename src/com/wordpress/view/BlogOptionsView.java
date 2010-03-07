@@ -24,6 +24,8 @@ public class BlogOptionsView extends StandardBaseView {
 	private PasswordEditField passwordField;
 	private ObjectChoiceField  maxRecentPost;
 	private CheckboxField resizePhoto;
+	private BasicEditField imageResizeWidthField;
+	private BasicEditField imageResizeHeightField;
 	private CheckboxField commentNotifications;
 	private CheckboxField enableLocation;
 	
@@ -33,6 +35,14 @@ public class BlogOptionsView extends StandardBaseView {
 		return resizePhoto.getChecked();
 	}
 	
+	public Integer getImageResizeWidth() {
+		return Integer.valueOf(imageResizeWidthField.getText());
+	}
+	
+	public Integer getImageResizeHeight() {
+		return Integer.valueOf(imageResizeHeightField.getText());
+	}
+
 	public boolean isLocation(){
 		return enableLocation.getChecked();
 	}
@@ -63,6 +73,8 @@ public class BlogOptionsView extends StandardBaseView {
 	        String[] recentPost=(String[])values.get("recentpost");
 	        int recentPostSelect = ((Integer)values.get("recentpostselected")).intValue();
 			boolean isResImg = ((Boolean)values.get("isresphotos")).booleanValue();
+			Integer imageResizeWidth = (Integer)values.get("imageResizeWidth");
+			Integer imageResizeHeight = (Integer)values.get("imageResizeHeight");
 			boolean isLocation = ((Boolean)values.get("islocation")).booleanValue();
 			boolean isCommentNotifications = ((Boolean)values.get("iscommentnotifications")).booleanValue();
 	        //end loading
@@ -106,8 +118,29 @@ public class BlogOptionsView extends StandardBaseView {
     		rowResizePhotos.add(resizePhoto);
      		BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS));
 			rowResizePhotos.add(lblDesc);
-			add(rowResizePhotos);
 			
+            HorizontalFieldManager rowImageResizeWidth = new HorizontalFieldManager();
+            rowImageResizeWidth.add( getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)));
+            imageResizeWidthField = new BasicEditField(
+            		"", 
+            		(imageResizeWidth == null ? "" : imageResizeWidth.toString()), 
+            		4, 
+            		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
+            rowImageResizeWidth.add(imageResizeWidthField);
+            rowResizePhotos.add(rowImageResizeWidth);
+            
+            HorizontalFieldManager rowImageResizeHeight = new HorizontalFieldManager();
+            rowImageResizeHeight.add( getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)));
+            imageResizeHeightField = new BasicEditField(
+            		"", 
+            		(imageResizeHeight == null ? "" : imageResizeHeight.toString()), 
+            		4, 
+            		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
+            rowImageResizeHeight.add(imageResizeHeightField);
+            rowResizePhotos.add(rowImageResizeHeight);
+
+			add(rowResizePhotos);
+
             //row comment notifies and location
             BorderedFieldManager commentNotificationManager = new BorderedFieldManager(
 	        		Manager.NO_HORIZONTAL_SCROLL

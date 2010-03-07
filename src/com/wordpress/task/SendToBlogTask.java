@@ -94,7 +94,7 @@ public class SendToBlogTask extends TaskImpl {
 					sendMedia(blogConn);
 				} catch (Exception e) {
 					final String respMessage=e.getMessage();
-					errorMsg.append(respMessage+"\n");
+					appendErrorMsg("Error While Sending Media: \n"+respMessage);
 					isError=true;
 					next(); //called next to exit
 					return;
@@ -167,25 +167,40 @@ public class SendToBlogTask extends TaskImpl {
 		
 		boolean isRes = false;
 		Boolean currentObjectPhotoResSetting = null;
+		Integer imageResizeWidth = null;
+		Integer imageResizeHeight = null;
 		if( post != null ) {
 			currentObjectPhotoResSetting = post.getIsPhotoResizing();
+			imageResizeWidth = post.getImageResizeWidth();
+			imageResizeHeight = post.getImageResizeHeight();
 		} else {
 			currentObjectPhotoResSetting = page.getIsPhotoResizing();
+			imageResizeWidth = page.getImageResizeWidth();
+			imageResizeHeight = page.getImageResizeHeight();
 		}
 		
 		if( currentObjectPhotoResSetting == null ){
-			Log.trace("not found post resize opt, read the resize opt from blog setting");
+			Log.trace("not found post/page resize opt, read the resize opt from blog setting");
 			isRes = blog.isResizePhotos(); //get the option from the blog settings
+			imageResizeWidth = blog.getImageResizeWidth();
+			imageResizeHeight = blog.getImageResizeHeight();
 		} else {
 			isRes = currentObjectPhotoResSetting.booleanValue();
-			Log.trace("found post/post resize opt: "+isRes);
+			Log.trace("found post/page resize opt: "+isRes);
 		}
 		
 		if(isRes){
 			Hashtable content;
 			
 			try { //the resize function could gets the "out of memory error" from JVM
-				content = ImageUtils.resizePhoto(photosBytes, filePath, this);
+							 
+				if(imageResizeWidth.intValue() <= 0 || imageResizeHeight.intValue() <= 0)
+				{
+					content = ImageUtils.resizePhoto(photosBytes, filePath, this, 640, 480);
+					Log.trace("img resize settings are NOT valid, using the default");
+				} else {
+					content = ImageUtils.resizePhoto(photosBytes, filePath, this, imageResizeWidth.intValue(), imageResizeHeight.intValue());
+				}
 			} catch (Error  err) { //capturing the JVM error. 
 	    		Log.error(err, "Serious Error during resizing: " + err.getMessage());
 	    		throw new IOException("Error during photo resize!");

@@ -15,6 +15,9 @@ public class Blog {
 	private String password;
 	
 	private boolean isResizePhotos=false;
+    private Integer imageResizeWidth = null;
+    private Integer imageResizeHeight = null;
+	
 	private boolean isCommentNotifies=false; //true when comment notifies is active
 	private boolean isLocation=false; //true when location is active
 	
@@ -111,6 +114,22 @@ public class Blog {
 		this.isResizePhotos = isResizePhotos;
 	}
 
+	public void setImageResizeWidth(Integer imageResizeWidth) {
+		this.imageResizeWidth = imageResizeWidth;
+	}
+	
+	public Integer getImageResizeWidth() {
+		return imageResizeWidth;
+	}
+	
+	public void setImageResizeHeight(Integer imageResizeHeight) {
+		this.imageResizeHeight = imageResizeHeight;
+	}
+	
+	public Integer getImageResizeHeight() {
+		return imageResizeHeight;
+	}
+		
 	public int getMaxPostCount() {
 		return maxPostCount;
 	}

@@ -28,6 +28,8 @@ public class Post {
     private String excerpt = "";
     private String link = null;
     private Boolean isPhotoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
+    private Integer imageResizeWidth = null;
+    private Integer imageResizeHeight = null;
 	private Vector customFields = new Vector();  
     private Vector mediaObjects = new Vector();
 	private boolean isLocation = false; //true when per-post location setting is active
@@ -175,6 +177,22 @@ public class Post {
 
 	public void setIsPhotoResizing(Boolean isPhotoResizing) {
 		this.isPhotoResizing = isPhotoResizing;
+	}
+	
+	public void setImageResizeWidth(Integer imageResizeWidth) {
+		this.imageResizeWidth = imageResizeWidth;
+	}
+	
+	public Integer getImageResizeWidth() {
+		return imageResizeWidth;
+	}
+	
+	public void setImageResizeHeight(Integer imageResizeHeight) {
+		this.imageResizeHeight = imageResizeHeight;
+	}
+	
+	public Integer getImageResizeHeight() {
+		return imageResizeHeight;
 	}
 	
 	public void setCustomFields(Vector custom_field) {

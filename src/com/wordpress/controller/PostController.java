@@ -561,8 +561,10 @@ public class PostController extends BlogObjectController {
 		}
 	}
 	
-	public void setPhotoResizing(boolean isPhotoRes) {
+	public void setPhotoResizing(boolean isPhotoRes, Integer imageResizeWidth, Integer imageResizeHeight) {
 
+		Log.trace("Entering setPhotoResizing. imageResizeWidth is " + imageResizeWidth.toString());
+		
 		if( post.getIsPhotoResizing() != null && !post.getIsPhotoResizing().booleanValue()== isPhotoRes ){
 			post.setIsPhotoResizing(new Boolean(isPhotoRes));
 			setObjectAsChanged(true);
@@ -572,6 +574,26 @@ public class PostController extends BlogObjectController {
 				setObjectAsChanged(true);
 			}
 		}
+
+		if(post.getImageResizeWidth() != null && !post.getImageResizeWidth().equals(imageResizeWidth)) {
+			post.setImageResizeWidth(imageResizeWidth);
+			setObjectAsChanged(true);
+		} else {
+			if(post.getImageResizeWidth() == null) {
+				post.setImageResizeWidth(imageResizeWidth);
+				setObjectAsChanged(true);
+			}
+		}
+		
+		if(post.getImageResizeHeight() != null && !post.getImageResizeHeight().equals(imageResizeHeight)) {
+			post.setImageResizeHeight(imageResizeHeight);
+			setObjectAsChanged(true);
+		} else {
+			if(post.getImageResizeHeight() == null) {
+				post.setImageResizeHeight(imageResizeHeight);
+				setObjectAsChanged(true);
+			}
+		}	
 	}
 
 	 	

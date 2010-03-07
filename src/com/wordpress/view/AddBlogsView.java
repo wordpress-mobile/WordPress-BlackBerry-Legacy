@@ -30,9 +30,19 @@ public class AddBlogsView extends StandardBaseView {
 	private PasswordEditField passwordField;
 	private ObjectChoiceField  maxRecentPost;
 	private CheckboxField resizePhoto;
+	private BasicEditField imageResizeWidthField;
+	private BasicEditField imageResizeHeightField;
 	
 	public boolean isResizePhoto(){
 		return resizePhoto.getChecked();
+	}
+	
+	public Integer getImageResizeWidth() {
+		return Integer.valueOf(imageResizeWidthField.getText());
+	}
+	
+	public Integer getImageResizeHeight() {
+		return Integer.valueOf(imageResizeHeightField.getText());
 	}
 	
 	public String getBlogUrl() {
@@ -68,6 +78,9 @@ public class AddBlogsView extends StandardBaseView {
 	        String[] recentPost=(String[])values.get("recentpost");
 	        int recentPostSelect= ((Integer)values.get("recentpostselected")).intValue();
 			boolean isResImg= ((Boolean)values.get("isresphotos")).booleanValue();
+			Integer imageResizeWidth = (Integer)values.get("imageResizeWidth");
+			Integer imageResizeHeight = (Integer)values.get("imageResizeHeight");
+
 	        //end loading
             //row url
 			BorderedFieldManager rowURL = new BorderedFieldManager(
@@ -123,8 +136,29 @@ public class AddBlogsView extends StandardBaseView {
     		rowResizePhotos.add(resizePhoto);
     		BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS)); 
 			rowResizePhotos.add(lblDesc);
-			add(rowResizePhotos);
 			
+            HorizontalFieldManager rowImageResizeWidth = new HorizontalFieldManager();
+            rowImageResizeWidth.add( getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)));
+            imageResizeWidthField = new BasicEditField(
+            		"", 
+            		(imageResizeWidth == null ? "" : imageResizeWidth.toString()), 
+            		4, 
+            		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
+            rowImageResizeWidth.add(imageResizeWidthField);
+            rowResizePhotos.add(rowImageResizeWidth);
+            
+            HorizontalFieldManager rowImageResizeHeight = new HorizontalFieldManager();
+            rowImageResizeHeight.add( getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)));
+            imageResizeHeightField = new BasicEditField(
+            		"", 
+            		(imageResizeHeight == null ? "" : imageResizeHeight.toString()), 
+            		4, 
+            		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
+            rowImageResizeHeight.add(imageResizeHeightField);
+            rowResizePhotos.add(rowImageResizeHeight);
+
+            add(rowResizePhotos);
+            
             ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
             ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
     		buttonBACK.setChangeListener(addBlogsController.getBackButtonListener());

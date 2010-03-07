@@ -30,6 +30,8 @@ public class Page {
 	private Vector customFields = new Vector();
 	private String wpPageTemplate;
     private Boolean isPhotoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
+    private Integer imageResizeWidth = null;
+    private Integer imageResizeHeight = null;
     private Vector mediaObjects = new Vector();
     
 	
@@ -244,6 +246,22 @@ public class Page {
 		this.isPhotoResizing = isPhotoResizing;
 	}
 
+	public void setImageResizeWidth(Integer imageResizeWidth) {
+		this.imageResizeWidth = imageResizeWidth;
+	}
+	
+	public Integer getImageResizeWidth() {
+		return imageResizeWidth;
+	}
+	
+	public void setImageResizeHeight(Integer imageResizeHeight) {
+		this.imageResizeHeight = imageResizeHeight;
+	}
+	
+	public Integer getImageResizeHeight() {
+		return imageResizeHeight;
+	}
+	
 	public Vector getMediaObjects() {
 		return mediaObjects;
 	}

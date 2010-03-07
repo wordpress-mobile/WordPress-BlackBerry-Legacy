@@ -43,6 +43,8 @@ public class AddBlogsController extends BaseController{
 	
 	private int maxPostIndex= -1;
 	private boolean isResPhotos= false;
+	private Integer imageResizeWidth = null;
+	private Integer imageResizeHeight = null;
 	public static final int[] recentsPostValues={10,20,30,40,50};
 	public static final String[] recentsPostValuesLabel={"10","20","30","40","50"};
 	private Hashtable guiValues= new Hashtable();
@@ -56,6 +58,8 @@ public class AddBlogsController extends BaseController{
 		guiValues.put("recentpost", recentsPostValuesLabel);
 		guiValues.put("recentpostselected", new Integer(0));
 		guiValues.put("isresphotos", new Boolean(false));
+		guiValues.put("imageResizeWidth", new Integer(640));
+		guiValues.put("imageResizeHeight", new Integer(480));
 		this.view= new AddBlogsView(this,guiValues);
 	}
 	
@@ -80,7 +84,9 @@ public class AddBlogsController extends BaseController{
 		}
 		
 		isResPhotos= view.isResizePhoto();
-		System.out.println("Resize photos : "+isResPhotos);
+		imageResizeWidth = view.getImageResizeWidth();
+		imageResizeHeight = view.getImageResizeHeight();
+		System.out.println("Resize photos : "+isResPhotos+" Width : "+imageResizeWidth+" Height : "+imageResizeHeight);
 		
 /*		if (pass != null && pass.length() == 0) {
         	pass = null;
@@ -120,6 +126,8 @@ public class AddBlogsController extends BaseController{
 		for (int i = 0; i < serverBlogs.length; i++) {
 			serverBlogs[i].setMaxPostCount(recentsPostValues[maxPostIndex]);
 			serverBlogs[i].setResizePhotos(isResPhotos);	
+			serverBlogs[i].setImageResizeWidth(imageResizeWidth);
+			serverBlogs[i].setImageResizeHeight(imageResizeHeight);
 			serverBlogs[i].setLoadingState(BlogInfo.STATE_ADDED_TO_QUEUE);
 			
 			try { //if a blog with same name and xmlrpc url exist

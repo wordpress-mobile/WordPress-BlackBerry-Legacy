@@ -40,6 +40,8 @@ public class BlogOptionsController extends BaseController {
 		guiValues.put("recentpost", AddBlogsController.recentsPostValuesLabel);
 		guiValues.put("recentpostselected", new Integer(indexRecPost));
 		guiValues.put("isresphotos", new Boolean(blog.isResizePhotos()));
+		guiValues.put("imageResizeWidth", blog.getImageResizeWidth());
+		guiValues.put("imageResizeHeight", blog.getImageResizeHeight());
 		guiValues.put("islocation", new Boolean(blog.isLocation()));
 		guiValues.put("iscommentnotifications", new Boolean(blog.isCommentNotifies()));
 		
@@ -84,11 +86,14 @@ public class BlogOptionsController extends BaseController {
 		int maxPostIndex=view.getMaxRecentPostIndex();
 		int valueMaxPostCount=AddBlogsController.recentsPostValues[maxPostIndex];
 		boolean isResPhotos = view.isResizePhoto();
+		Integer imageResizeWidth = view.getImageResizeWidth();
+		Integer imageResizeHeight = view.getImageResizeHeight();
 		boolean isCommentNotifications = view.isCommentNotifications();
 		boolean isLocation = view.isLocation();
 		//we can use isDirty on all view...
 		if(!blog.getUsername().equals(user) || !blog.getPassword().equals(pass)
-			|| blog.getMaxPostCount() != valueMaxPostCount || isResPhotos != blog.isResizePhotos() 
+			|| blog.getMaxPostCount() != valueMaxPostCount || isResPhotos != blog.isResizePhotos()
+			|| !imageResizeWidth.equals(blog.getImageResizeWidth()) || !imageResizeHeight.equals(blog.getImageResizeHeight())
 			|| isCommentNotifications != blog.isCommentNotifies()  
 			|| isLocation != blog.isLocation()
 		) {
@@ -112,10 +117,14 @@ public class BlogOptionsController extends BaseController {
 		int maxPostIndex=view.getMaxRecentPostIndex();
 		int valueMaxPostCount=AddBlogsController.recentsPostValues[maxPostIndex];
 		boolean isResPhotos = view.isResizePhoto();
+		Integer imageResizeWidth = view.getImageResizeWidth();
+		Integer imageResizeHeight = view.getImageResizeHeight();
 		
 		blog.setPassword(pass);
 		blog.setUsername(user);
 		blog.setResizePhotos(isResPhotos);
+		blog.setImageResizeWidth(imageResizeWidth);
+		blog.setImageResizeHeight(imageResizeHeight);
 		blog.setMaxPostCount(valueMaxPostCount);
 		blog.setCommentNotifies(view.isCommentNotifications());
 		blog.setLocation(view.isLocation());

@@ -76,23 +76,37 @@ public abstract class BlogObjectController extends BaseController {
 	public abstract void setPhotosNumber(int count);
 	public abstract void setAuthDate(long authoredOn);
 	public abstract void setPassword(String password);
-	public abstract void setPhotoResizing(boolean isPhotoRes);
+	public abstract void setPhotoResizing(boolean isPhotoRes, Integer imageResizeWidth, Integer imageResizeHeight);
 
 	//journal listener
 	FileSystemJournalListener mediaFileFSListener = null;
 	
 	public void showSettingsView(){
 		boolean isPhotoResing = blog.isResizePhotos(); //first set the value as the predefined blog value
+		Integer imageResizeWidth = blog.getImageResizeWidth();
+		Integer imageResizeHeight = blog.getImageResizeHeight();
 		if(post != null) {
 			if (post.getIsPhotoResizing() != null ) {
 				isPhotoResing = post.getIsPhotoResizing().booleanValue();			
 			}
-			settingsView= new PostSettingsView(this, post.getAuthoredOn(), post.getPassword(), isPhotoResing);		
+			if (post.getImageResizeWidth() != null ) {
+				imageResizeWidth = post.getImageResizeWidth();
+			}
+			if (post.getImageResizeHeight() != null ) {
+				imageResizeHeight = post.getImageResizeHeight();
+			}
+			settingsView= new PostSettingsView(this, post.getAuthoredOn(), post.getPassword(), isPhotoResing, imageResizeWidth, imageResizeHeight);		
 		} else {
 			if (page.getIsPhotoResizing() != null ) {
 				isPhotoResing = page.getIsPhotoResizing().booleanValue();			
 			}
-			settingsView= new PostSettingsView(this, page.getDateCreatedGMT(), page.getWpPassword(), isPhotoResing);		
+			if (page.getImageResizeWidth() != null ) {
+				imageResizeWidth = page.getImageResizeWidth();
+			}
+			if( page.getImageResizeHeight() != null ) {
+				imageResizeHeight = page.getImageResizeHeight();
+			}
+			settingsView= new PostSettingsView(this, page.getDateCreatedGMT(), page.getWpPassword(), isPhotoResing, imageResizeWidth, imageResizeHeight);		
 		}
 		UiApplication.getUiApplication().pushScreen(settingsView);
 	}

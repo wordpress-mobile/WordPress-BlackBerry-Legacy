@@ -190,6 +190,12 @@ public class DraftDAO implements BaseDAO{
 		if(post.getIsPhotoResizing() != null) {
 			content.put("IsPhotoResizing", post.getIsPhotoResizing());
 		}
+		if(post.getImageResizeWidth() != null) {
+			content.put("imageResizeWidth", post.getImageResizeWidth());
+		}
+		if(post.getImageResizeHeight() != null) {
+			content.put("imageResizeHeight", post.getImageResizeHeight());
+		}
 		if(post.getCustomFields() != null ){
 			content.put("custom_fields", post.getCustomFields());
 		}
@@ -253,6 +259,14 @@ public class DraftDAO implements BaseDAO{
 			post.setIsPhotoResizing((Boolean) postData.get("IsPhotoResizing"));
 		}
 		
+		if(postData.get("imageResizeWidth") != null) {
+			post.setImageResizeWidth((Integer) postData.get("imageResizeWidth"));
+		}
+		
+		if(postData.get("imageResizeHeight") != null) {
+			post.setImageResizeHeight((Integer) postData.get("imageResizeHeight"));
+		}
+
 		if(postData.get("custom_fields") != null) {
 			Vector cf = (Vector) postData.get("custom_fields");
 			post.setCustomFields(cf);

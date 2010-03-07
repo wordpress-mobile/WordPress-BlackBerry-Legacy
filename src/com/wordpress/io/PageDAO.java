@@ -231,6 +231,15 @@ public class PageDAO implements BaseDAO{
 			page.setIsPhotoResizing((Boolean) returnPageData.get("IsPhotoResizing"));
 		}
 		
+		// Set the image resize dimension properties
+		if(returnPageData.get("imageResizeWidth") != null) {
+			page.setImageResizeWidth((Integer) returnPageData.get("imageResizeWidth"));
+		}
+		
+		if(returnPageData.get("imageResizeHeight") != null) {
+			page.setImageResizeHeight((Integer) returnPageData.get("imageResizeHeight"));
+		}
+		
 		page.setWpAuthorDisplayName((String) returnPageData.get("wp_author_display_name"));
 		Vector cf=(Vector) returnPageData.get("custom_fields");
 		page.setCustomFields(cf);
@@ -313,8 +322,13 @@ public class PageDAO implements BaseDAO{
 		
 		if(page.getIsPhotoResizing() !=null)
 			content.put("IsPhotoResizing", page.getIsPhotoResizing());
-	
 		
+		if(page.getImageResizeWidth() != null)
+			content.put("imageResizeWidth", page.getImageResizeWidth());
+		
+		if(page.getImageResizeHeight() != null)
+			content.put("imageResizeHeight", page.getImageResizeHeight());
+	
 		//convert media object before save them
 		Vector mediaObjects = page.getMediaObjects();
 		Vector hashedMediaIbjects = new Vector(mediaObjects.size());

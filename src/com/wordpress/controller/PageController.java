@@ -334,7 +334,7 @@ public class PageController extends BlogObjectController {
 		}
 	}
 	
-	public void setPhotoResizing(boolean isPhotoRes) {
+	public void setPhotoResizing(boolean isPhotoRes, Integer imageResizeWidth, Integer imageResizeHeight) {
 		
 		if( page.getIsPhotoResizing() != null && !page.getIsPhotoResizing().booleanValue()== isPhotoRes ){
 			page.setIsPhotoResizing(new Boolean(isPhotoRes));
@@ -346,6 +346,25 @@ public class PageController extends BlogObjectController {
 			}
 		}
 		
+		if(page.getImageResizeWidth() != null && !page.getImageResizeWidth().equals(imageResizeWidth)) {
+			page.setImageResizeWidth(imageResizeWidth);
+			setObjectAsChanged(true);
+		} else {
+			if(page.getImageResizeWidth() == null) {
+				page.setImageResizeWidth(imageResizeWidth);
+				setObjectAsChanged(true);
+			}
+		}
+		
+		if(page.getImageResizeHeight() != null && !page.getImageResizeHeight().equals(imageResizeHeight)) {
+			page.setImageResizeHeight(imageResizeHeight);
+			setObjectAsChanged(true);
+		} else {
+			if(page.getImageResizeHeight() == null) {
+				page.setImageResizeHeight(imageResizeHeight);
+				setObjectAsChanged(true);
+			}
+		}	
 	}
 	
 	/*

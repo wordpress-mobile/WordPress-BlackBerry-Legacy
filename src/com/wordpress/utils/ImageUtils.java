@@ -132,98 +132,102 @@ public class ImageUtils {
 			}
 	  }
 
-	//TODO: remove the task as parameter, use listener instead
 		public static Hashtable resizePhoto(byte[] data, String fileName, SendToBlogTask task) throws IOException {
-		
-		EncodedImage originalImage = EncodedImage.createEncodedImage(data, 0, -1);
-		Hashtable content = new Hashtable(2);
-		
-		//init the hash table with no resized img data
-		content.put("name", fileName);
-		content.put("height", String.valueOf(originalImage.getHeight()));
-		content.put("width", String.valueOf(originalImage.getWidth()));
-		content.put("bits", data);
-		content.put("type", originalImage.getMIMEType());
-		//no resize is necessary
-		if(originalImage.getWidth() <= 640 && originalImage.getWidth() <= 480) {
-			Log.trace("no resize required"+fileName);
-			return content;
+			return resizePhoto(data, fileName, task, 640, 480);
 		}
+
+		//TODO: remove the task as parameter, use listener instead
+		public static Hashtable resizePhoto(byte[] data, String fileName, SendToBlogTask task, int width, int height) throws IOException {
 		
-		int type = originalImage.getImageType();
-				
-		//starting resize
-		EncodedImage bestFit2 = resizeEncodedImage(originalImage, 640, 480);
-		originalImage = null;
-		Bitmap resizedBitmap = bestFit2.getBitmap();
-		bestFit2 = null;
-		
-		byte[] imageBytes;
-		switch (type) {
-	
-		case EncodedImage.IMAGE_TYPE_PNG:
-			//PNGEncoder encoderPNG = new PNGEncoder(resizedBitmap,true);
-			//byte[] imageBytes = encoderPNG.encode(true);
-			try {
-				imageBytes = ImageUtils.toPNG(resizedBitmap);
-				if (task != null && task.isStopped()) return null; //resizing img is a long task. if user has stoped the operation..
-			} catch (Exception e) {
-				Log.error(e, "Error during PNG encoding, restore prev img");
-				imageBytes = data;
-			}
-			if (fileName.endsWith("png") || fileName.endsWith("PNG")){
-				
-			} else {
-				fileName+=".png";
+			EncodedImage originalImage = EncodedImage.createEncodedImage(data, 0, -1);
+			Hashtable content = new Hashtable(2);
+			
+			//init the hash table with no resized img data
+			content.put("name", fileName);
+			content.put("height", String.valueOf(originalImage.getHeight()));
+			content.put("width", String.valueOf(originalImage.getWidth()));
+			content.put("bits", data);
+			content.put("type", originalImage.getMIMEType());
+			//no resize is necessary
+			if(originalImage.getWidth() <= width && originalImage.getWidth() <= height) {
+				Log.trace("no resize required"+fileName);
+				return content;
 			}
 			
-			break;
+			int type = originalImage.getImageType();
+					
+			//starting resize
+			EncodedImage bestFit2 = resizeEncodedImage(originalImage, width, height);
+			originalImage = null;
+			Bitmap resizedBitmap = bestFit2.getBitmap();
+			bestFit2 = null;
 			
-		case EncodedImage.IMAGE_TYPE_JPEG:
-		default:
-	
-			try {
-					Log.trace("starting resizing to jpg format ");
-					ByteArrayOutputStream out = new ByteArrayOutputStream();
-					OutputStream nuoviBytes= new DataOutputStream(out);
-					JpegEncoder jpgenc= new JpegEncoder(resizedBitmap, 75 , nuoviBytes, task);
+			byte[] imageBytes;
+			switch (type) {
+		
+			case EncodedImage.IMAGE_TYPE_PNG:
+				//PNGEncoder encoderPNG = new PNGEncoder(resizedBitmap,true);
+				//byte[] imageBytes = encoderPNG.encode(true);
+				try {
+					imageBytes = ImageUtils.toPNG(resizedBitmap);
 					if (task != null && task.isStopped()) return null; //resizing img is a long task. if user has stoped the operation..
-					imageBytes = out.toByteArray();
 				} catch (Exception e) {
-					Log.error(e, "Error during JPEG encoding, restore prev img");
+					Log.error(e, "Error during PNG encoding, restore prev img");
 					imageBytes = data;
 				}
-	
-			//check file name ext eventually add jpg ext
-			if (fileName.endsWith("jpg") || fileName.endsWith("JPG")){				
-			} else {
-				fileName+=".jpg";
-			}
-		break;
-	
-		}//end switch
-			
-	
-		Log.trace("checking new img size");
-		if(imageBytes.length >= data.length) {
-			Log.trace("new img bites size > = orig img bites size");
-			//using original img			
-		} else {
-			Log.trace("new img bites size < orig img bites size");
-			content.put("name", fileName);
-			content.put("height", String.valueOf(resizedBitmap.getHeight()));
-			content.put("width", String.valueOf(resizedBitmap.getWidth()));
-			content.put("bits", imageBytes );	
-			//set the new mime type
-			if (fileName.endsWith("jpg") || fileName.endsWith("JPG")){
-				content.put("type", "image/jpeg");
-			} else {
-				content.put("type", "image/png");
-			}
-		}
+				if (fileName.endsWith("png") || fileName.endsWith("PNG")){
+					
+				} else {
+					fileName+=".png";
+				}
+				
+				break;
+				
+			case EncodedImage.IMAGE_TYPE_JPEG:
+			default:
 		
-		return content;
-	}
+				try {
+						Log.trace("starting resizing to jpg format ");
+						ByteArrayOutputStream out = new ByteArrayOutputStream();
+						OutputStream nuoviBytes= new DataOutputStream(out);
+						JpegEncoder jpgenc= new JpegEncoder(resizedBitmap, 75 , nuoviBytes, task);
+						if (task != null && task.isStopped()) return null; //resizing img is a long task. if user has stoped the operation..
+						imageBytes = out.toByteArray();
+					} catch (Exception e) {
+						Log.error(e, "Error during JPEG encoding, restore prev img");
+						imageBytes = data;
+					}
+		
+				//check file name ext eventually add jpg ext
+				if (fileName.endsWith("jpg") || fileName.endsWith("JPG")){				
+				} else {
+					fileName+=".jpg";
+				}
+			break;
+		
+			}//end switch
+				
+		
+			Log.trace("checking new img size");
+			if(imageBytes.length >= data.length) {
+				Log.trace("new img bites size > = orig img bites size");
+				//using original img			
+			} else {
+				Log.trace("new img bites size < orig img bites size");
+				content.put("name", fileName);
+				content.put("height", String.valueOf(resizedBitmap.getHeight()));
+				content.put("width", String.valueOf(resizedBitmap.getWidth()));
+				content.put("bits", imageBytes );	
+				//set the new mime type
+				if (fileName.endsWith("jpg") || fileName.endsWith("JPG")){
+					content.put("type", "image/jpeg");
+				} else {
+					content.put("type", "image/png");
+				}
+			}
+			
+			return content;
+		}
 		
 		/** 
 		 * Returns a PNG stored in a byte array from the supplied Image.

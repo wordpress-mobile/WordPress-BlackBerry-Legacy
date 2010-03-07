@@ -32,9 +32,10 @@ public class PostSettingsView extends StandardBaseView {
     private DateField  authoredOn;
     private PasswordEditField passwordField;
 	private CheckboxField resizePhoto;
+	private BasicEditField imageResizeWidthField;
+	private BasicEditField imageResizeHeightField;   
     
-    
-    public PostSettingsView(BlogObjectController _controller, Date postAuth, String password, boolean isResImg) {
+    public PostSettingsView(BlogObjectController _controller, Date postAuth, String password, boolean isResImg, Integer imageResizeWidth, Integer imageResizeHeight ) {
     	super(_resources.getString(WordPressResource.MENUITEM_SETTINGS), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
     	this.controller=_controller;
     	
@@ -86,6 +87,27 @@ public class PostSettingsView extends StandardBaseView {
 		//LabelField that displays text in the specified color.
 		BasicEditField lblDescResize = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS)); 
 		rowPhotoRes.add(lblDescResize);
+		
+        HorizontalFieldManager rowImageResizeWidth = new HorizontalFieldManager();
+        rowImageResizeWidth.add( getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)));
+        imageResizeWidthField = new BasicEditField(
+        		"", 
+        		(imageResizeWidth == null ? "" : imageResizeWidth.toString()), 
+        		4, 
+        		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
+        rowImageResizeWidth.add(imageResizeWidthField);
+        rowPhotoRes.add(rowImageResizeWidth);
+        
+        HorizontalFieldManager rowImageResizeHeight = new HorizontalFieldManager();
+        rowImageResizeHeight.add( getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)));
+        imageResizeHeightField = new BasicEditField(
+        		"", 
+        		(imageResizeHeight == null ? "" : imageResizeHeight.toString()), 
+        		4, 
+        		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
+        rowImageResizeHeight.add(imageResizeHeightField);
+        rowPhotoRes.add(rowImageResizeHeight);
+
 		add(rowPhotoRes);
 		
 		
@@ -115,7 +137,7 @@ public class PostSettingsView extends StandardBaseView {
 	};
 	
 	private void saveChanges() {
-		if(authoredOn.isDirty() || passwordField.isDirty() || resizePhoto.isDirty()) {
+		if(authoredOn.isDirty() || passwordField.isDirty() || resizePhoto.isDirty() || imageResizeWidthField.isDirty() || imageResizeHeightField.isDirty()) {
 			Log.trace("settings are changed");
 			
 			if(authoredOn.isDirty()) {
@@ -127,13 +149,18 @@ public class PostSettingsView extends StandardBaseView {
 				controller.setPassword(passwordField.getText());
 			}
 			
-			if(resizePhoto.isDirty()){
-				controller.setPhotoResizing(resizePhoto.getChecked());
+			if(resizePhoto.isDirty() || imageResizeWidthField.isDirty() || imageResizeHeightField.isDirty()){				
+				controller.setPhotoResizing(
+						resizePhoto.getChecked(), 
+						Integer.valueOf(imageResizeWidthField.getText()), 
+						Integer.valueOf(imageResizeHeightField.getText()));
 			}
+			
 			controller.setObjectAsChanged(true);
 		} else {
 			Log.trace("settings are NOT changed");
 		}
+		
 	}
 	
 	
@@ -141,7 +168,7 @@ public class PostSettingsView extends StandardBaseView {
 	public boolean onClose()   {
 		
 		boolean isModified=false;
-		if(authoredOn.isDirty() || passwordField.isDirty() || resizePhoto.isDirty()){
+		if(authoredOn.isDirty() || passwordField.isDirty() || resizePhoto.isDirty() || imageResizeWidthField.isDirty() || imageResizeHeightField.isDirty()) {
 			isModified = true;
 		}
 		if(!isModified) {

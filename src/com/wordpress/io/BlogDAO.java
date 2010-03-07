@@ -289,6 +289,24 @@ public class BlogDAO implements BaseDAO {
         
         ser.serialize(new Boolean(blog.isCommentNotifies()));
         ser.serialize(new Boolean(blog.isLocation()));
+        
+        // Store image resize dimensions if they have been set.
+        Integer imageResizeWidth = blog.getImageResizeWidth();
+        if(imageResizeWidth != null) {
+        	ser.serialize(imageResizeWidth);
+        }
+        else {
+        	ser.serialize(new Integer(0));
+        }
+        
+        Integer imageResizeHeight = blog.getImageResizeHeight();
+        if(imageResizeHeight != null) {
+        	ser.serialize(imageResizeHeight);
+        }
+        else {
+        	ser.serialize(new Integer(0));
+        }
+        
         out.close();
 
         //if there was an errors
@@ -416,6 +434,35 @@ public class BlogDAO implements BaseDAO {
         	Log.error("No location info found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
         
+        // Read image resize dimensions
+        try {
+        	Object testObj = ser.deserialize();
+        	if( testObj != null ) {
+        		Integer imageResizeWidth = (Integer)testObj;
+        		blog.setImageResizeWidth(imageResizeWidth);
+        	} else {
+        		Log.error("No image resize width found - End of file was reached. Probably a previous blog data file is loaded" );
+        		blog.setImageResizeWidth(new Integer(640));
+        	}
+        } catch (EOFException  e) {
+        	Log.error("No image resize width found - End of file was reached. Probably a previous blog data file is loaded" );
+        	blog.setImageResizeWidth(new Integer(640));
+		}
+
+        try {
+        	Object testObj = ser.deserialize();
+        	if( testObj != null ) {
+        		Integer imageResizeHeight = (Integer)testObj;
+        		blog.setImageResizeHeight(imageResizeHeight);
+        	} else {
+        		Log.error("No image resize height found - End of file was reached. Probably a previous blog data file is loaded" );
+        		blog.setImageResizeHeight(new Integer(480));
+        	}
+        } catch (EOFException  e) {
+        	Log.error("No image resize height found - End of file was reached. Probably a previous blog data file is loaded" );
+        	blog.setImageResizeHeight(new Integer(480));
+		}
+
         in.close();
         return blog;     
      } 
@@ -434,8 +481,6 @@ public class BlogDAO implements BaseDAO {
 			JSR75FileSystem.removeFile(filePath);
     	}    
     }
-    
-    
     
     /**
      * Calculate a MD5 hash of the blog object fields. The hash is the location 
