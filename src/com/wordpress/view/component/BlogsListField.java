@@ -214,7 +214,7 @@ public class BlogsListField {
     		
     		String blogName = currentRow.getName();
     		if(currentRow.isAwaitingModeration())
-    			blogName += " (" + currentRow.getAwaitingModeration() + ")";
+    			blogName = "(" + currentRow.getAwaitingModeration() + ") " + blogName;
     		
             drawText(graphics, leftImageWidth+5, y, w  - 5, height, blogName, _listField.getSelectedIndex() ==  index);
 

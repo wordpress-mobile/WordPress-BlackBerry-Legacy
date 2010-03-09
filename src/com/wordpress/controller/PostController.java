@@ -62,13 +62,18 @@ public class PostController extends BlogObjectController {
 		checkMediaObjectLinks();
 	}
 	
-	public void startGeoTagging() {
+	public void startGeoTagging(boolean sentAfterPosition) {
 		Gps gps = new Gps();
-		gps.addObserver(new GPSLocationCallBack());
+		gps.addObserver(new GPSLocationCallBack(sentAfterPosition));
 		gps.findMyPosition();
 	}
 	
-	private class GPSLocationCallBack implements Observer{
+	private class GPSLocationCallBack implements Observer {
+		private boolean sentAfterPosition = false;
+		
+		GPSLocationCallBack (boolean sendAfterPosition){
+			this.sentAfterPosition = sendAfterPosition;
+		}
 		
 		public void update(Observable observable, final Object object) {
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
@@ -82,7 +87,12 @@ public class PostController extends BlogObjectController {
 						double latitude = location.getQualifiedCoordinates().getLatitude();
 						double longitude = location.getQualifiedCoordinates().getLongitude();
 						updateLocationCustomField(latitude, longitude);
-						sendPostToBlog();
+						
+						if(sentAfterPosition)
+							sendPostToBlog();
+						else {
+							saveDraftPost();
+						}
 
 					} else if(object instanceof LocationException) {
 						displayError((LocationException)object, "GPS Error");
@@ -188,44 +198,6 @@ public class PostController extends BlogObjectController {
 		Log.debug("<<< updateLocationCustomField ");
 	}
 	
-	public void removeLocationCustomField() {
-		Log.debug(">>> removeLocationCustomField ");
-		if(post.isLocation()) {
-			Log.debug("location was not removed, bc post is already marked as geotagged");
-			return;
-		}
-		
-		Vector customFields = this.post.getCustomFields();
-		int size = customFields.size();
-    	Log.debug("Found "+size +" custom fields");
-    	
-		for (int i = 0; i <size; i++) {
-			Log.debug("Elaborating custom field # "+ i);
-			try {
-				Hashtable customField = (Hashtable)customFields.elementAt(i);
-				
-				String ID = (String)customField.get("id");
-				String key = (String)customField.get("key");
-				String value = (String)customField.get("value");
-				Log.debug("id - "+ID);
-				Log.debug("key - "+key);
-				Log.debug("value - "+value);	
-				
-				//find the lat/lon field
-				if(key.equalsIgnoreCase("geo_address") || key.equalsIgnoreCase("geo_public")
-						|| key.equalsIgnoreCase("geo_accuracy")
-						|| key.equalsIgnoreCase("geo_longitude") || key.equalsIgnoreCase("geo_latitude")) {
-				
-					 customField.remove("key");
-					 customField.remove("value");
-					 Log.debug("Removed custom field : "+ key);
-				} 
-			} catch(Exception ex) {
-				Log.error("Error while Elaborating custom field # "+ i);
-			}
-		}
-		Log.debug("<<< removeLocationCustomField ");
-	}
 		
 	//used when loading draft post from disk
 	public PostController(Post post, int _draftPostFolder) {
@@ -489,6 +461,7 @@ public class PostController extends BlogObjectController {
 		 setObjectAsChanged(false); //set the post as not modified because we have saved it.
 		 //the changes over the clean state for the UI Fields will be done into view-> save-draft menu item
 		 this.isDraft = true; //set as draft
+		 backCmd();
 		} catch (Exception e) {
 			displayError(e,"Error while saving draft post!");
 		}
@@ -516,7 +489,6 @@ public class PostController extends BlogObjectController {
 	    		
 	    	} else if(Dialog.SAVE == choice) {
 	    		saveDraftPost();
-	    		FrontController.getIstance().backAndRefreshView(false);
 	    		return true;
 	    	} else {
 	    		Log.trace("user has selected Cancel");

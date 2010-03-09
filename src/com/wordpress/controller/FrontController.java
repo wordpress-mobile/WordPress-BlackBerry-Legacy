@@ -103,7 +103,7 @@ public class FrontController {
 	}
 		
 	/**
-	 * show edit post view
+	 * show->edit post
 	 */
 	public void showPost(Post post){
 		//read custom field and set the post.isLocation = true  if location fields are present

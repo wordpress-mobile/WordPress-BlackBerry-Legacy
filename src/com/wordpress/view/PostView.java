@@ -175,10 +175,12 @@ public class PostView extends StandardBaseView {
         public void run() {
     		try {
     			updateModel();
+    			//post is changed
 	    		if (controller.isObjectChanged()) {
-	    			controller.saveDraftPost();
-	    			//clean the state of all fields into this view
-	    			cleanFieldState();
+	    			saveOrSendPost(false);	    				
+	    		} else 
+	    		{
+	    			controller.backCmd();
 	    		}
     		} catch (Exception e) {
     			controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_POST));
@@ -188,75 +190,16 @@ public class PostView extends StandardBaseView {
     
     //send post to blog
     private MenuItem _submitPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 100230, 10) {
-        public void run() {
+    	public void run() {
     		try {
     			updateModel();
-    			
-    			if (post.isLocation()) {
-    				
-    				boolean isPresent = false;
-    				Vector customFields = post.getCustomFields();
-    		    	int size = customFields.size();
-    		    	Log.debug("Found "+size +" custom fields");
-    		    	
-    				for (int i = 0; i <size; i++) {
-    					Log.debug("Elaborating custom field # "+ i);
-    					try {
-    						Hashtable customField = (Hashtable)customFields.elementAt(i);
-    						
-    						String ID = (String)customField.get("id");
-    						String key = (String)customField.get("key");
-    						String value = (String)customField.get("value");
-    						Log.debug("id - "+ID);
-    						Log.debug("key - "+key);
-    						Log.debug("value - "+value);	
-    						
-    						//find the lat/lon field
-    						if(key.equalsIgnoreCase("geo_longitude")) {
-    							isPresent = true;
-    						} 
-    						
-    						//update the geo_public custom field
-    						if( key.equalsIgnoreCase("geo_public")){
-    							Log.debug("Updated custom field : "+ key);
-    							if(post.isLocationPublic())
-    								customField.put("value", String.valueOf(1));
-    							else
-    								customField.put("value", String.valueOf(0));
-    						}
-    						
-    					} catch(Exception ex) {
-    						Log.error("Error while Elaborating custom field # "+ i);
-    					}
-    				}
-    				
-    				if(isPresent == true) {
-    					InquiryView infoView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_LOCATION_OVERWRITE));
-    			    	int choice=infoView.doModal();  
-    			    	if (choice == Dialog.YES) {
-    			    		//avvia il gps
-    			    		controller.startGeoTagging();
-    			    	} else {
-    			    		//invia al blog
-    			    		controller.sendPostToBlog();
-    			    	}
-    					
-    				} else {
-    					//start the gps controller
-    					controller.startGeoTagging();
-    				}
-    				
-    			} else {
-    				controller.removeLocationCustomField(); //remove the location field if necessary
-    				controller.sendPostToBlog();
-    			}
-    				
+    			saveOrSendPost(true);
     		} catch (Exception e) {
     			controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_POST));
     		}
-        }
+    	}
     };
-    
+
     /*
     private MenuItem _htmlItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_HTML, 100, 10) {
         public void run() {
@@ -264,6 +207,123 @@ public class PostView extends StandardBaseView {
         }
     };
 */
+  
+    private void saveOrSendPost(boolean sendPost)throws Exception {
+    	
+		if (post.isLocation()) {
+
+			boolean isPresent = false;
+
+			isPresent = findPreviousLocationCustomFields();
+			//location tags are already present, asks to user what we should do with old location data
+			if(isPresent == true) {
+				InquiryView infoView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_LOCATION_OVERWRITE));
+				int choice=infoView.doModal();  
+				if (choice == Dialog.YES) {
+					//avvia il gps
+					controller.startGeoTagging(sendPost);
+				} else {
+					if(sendPost)
+						controller.sendPostToBlog();
+					else
+						controller.saveDraftPost();
+				}
+			} //location tags are not already present, so we should only start the gps 
+			else {
+				//start the gps controller
+				controller.startGeoTagging(sendPost);
+			}
+		} else {
+			removeLocationCustomFields(); //remove the location field if necessary
+			if(sendPost)
+				controller.sendPostToBlog();
+			else {
+				controller.saveDraftPost();
+				
+			}
+		}
+    }
+    
+    /**
+     * find prev location customs fieds, and update location-public field according to GUI checkbox 
+     */
+    private boolean findPreviousLocationCustomFields(){
+		Vector customFields = post.getCustomFields();
+    	int size = customFields.size();
+    	boolean isPresent = false;
+    	Log.debug("Found "+size +" custom fields");
+    	
+		for (int i = 0; i <size; i++) {
+			Log.debug("Elaborating custom field # "+ i);
+			try {
+				Hashtable customField = (Hashtable)customFields.elementAt(i);
+				
+				String ID = (String)customField.get("id");
+				String key = (String)customField.get("key");
+				String value = (String)customField.get("value");
+				Log.debug("id - "+ID);
+				Log.debug("key - "+key);
+				Log.debug("value - "+value);	
+				
+				//find the lat/lon field
+				if(key.equalsIgnoreCase("geo_longitude")) {
+					isPresent = true;
+				} 
+				
+				//update the geo_public custom field
+				if( key.equalsIgnoreCase("geo_public")){
+					Log.debug("Updated custom field : "+ key);
+					if(post.isLocationPublic())
+						customField.put("value", String.valueOf(1));
+					else
+						customField.put("value", String.valueOf(0));
+				}
+				
+			} catch(Exception ex) {
+				Log.error("Error while Elaborating custom field # "+ i);
+			}
+		}
+		return isPresent;
+    }
+    
+    private void removeLocationCustomFields() {
+		Log.debug(">>> removeLocationCustomFields ");
+		if(post.isLocation()) {
+			Log.debug("location was not removed, bc post is already marked as geotagged");
+			return;
+		}
+		
+		Vector customFields = this.post.getCustomFields();
+		int size = customFields.size();
+    	Log.debug("Found "+size +" custom fields");
+    	
+		for (int i = 0; i <size; i++) {
+			Log.debug("Elaborating custom field # "+ i);
+			try {
+				Hashtable customField = (Hashtable)customFields.elementAt(i);
+				
+				String ID = (String)customField.get("id");
+				String key = (String)customField.get("key");
+				String value = (String)customField.get("value");
+				Log.debug("id - "+ID);
+				Log.debug("key - "+key);
+				Log.debug("value - "+value);	
+				
+				//find the lat/lon field
+				if(key.equalsIgnoreCase("geo_address") || key.equalsIgnoreCase("geo_public")
+						|| key.equalsIgnoreCase("geo_accuracy")
+						|| key.equalsIgnoreCase("geo_longitude") || key.equalsIgnoreCase("geo_latitude")) {
+				
+					 customField.remove("key");
+					 customField.remove("value");
+					 Log.debug("Removed custom field : "+ key);
+				} 
+			} catch(Exception ex) {
+				Log.error("Error while Elaborating custom field # "+ i);
+			}
+		}
+		Log.debug("<<< removeLocationCustomFields ");
+	}
     
     private MenuItem _photosItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA, 110, 10) {
         public void run() {
@@ -327,7 +387,7 @@ public class PostView extends StandardBaseView {
     /**
      * Change UI Fields "cleanliness" state to false.
      * A field's cleanliness state tracks when changes happen to a field.
-     */
+     
     private void cleanFieldState(){
     	title.setDirty(false);
     	bodyTextBox.setDirty(false);
@@ -336,7 +396,7 @@ public class PostView extends StandardBaseView {
     	isLocationPublic.setDirty(false);
     	enableLocation.setDirty(false);
     }
-    
+    */
 	/*
 	 * Update Post data model and Track post changes.
 	 * 
