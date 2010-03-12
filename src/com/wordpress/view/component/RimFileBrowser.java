@@ -1,6 +1,7 @@
 //#preprocess
 package com.wordpress.view.component;
 
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Stack;
 import java.util.Vector;
@@ -12,44 +13,64 @@ import javax.microedition.io.file.FileSystemRegistry;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.TouchEvent;
 //#endif
 import net.rim.device.api.ui.component.ListField;
+import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListFieldCallback;
 import net.rim.device.api.ui.component.Menu;
-import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.component.SeparatorField;
+import net.rim.device.api.ui.container.PopupScreen;
+import net.rim.device.api.ui.container.VerticalFieldManager;
+
 
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.io.JSR75FileSystem;
+import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 
-public class RimFileBrowser extends MainScreen {
+public class RimFileBrowser extends PopupScreen {
 
 
     private static final String  ROOT           = "/";
-    
     protected FileBrowserList    listField      = null;
-    private HeaderField titleField = null; 
     private String               currDirName    = ROOT;
     private String[] extensions; // File extensions to filter by.
     private FileBrowserMenu      menu;
     private boolean              quit           = false;
     private Stack                dirStack       = new Stack();
-    private Bitmap               folderIcon     = null;
-	
-    private RimFileBrowserListener listener;
+
+    
+	private RimFileBrowserListener listener;
     private ResourceBundle resourceBundle;
+    private LabelField currentPathLabelField = new LabelField("/", DrawStyle.ELLIPSIS);
+    
+    private boolean isThumbEnabled = false;
+    private Bitmap predefinedThumb = null; 
+    private int predefinedThumbWidth = 48;
+    private int predefinedThumbHeight = 48;
+    private Bitmap   folderIcon     = null;
+    private Bitmap   folderIconBig     = null;
 
+    private Thread t = null;
+    private boolean isThumbRunning = false;
 
-    public RimFileBrowser(String[] extensions) {
+    
+	public RimFileBrowser(String[] extensions, boolean isThumbEnabled) {
+    	
+    	super(new VerticalFieldManager(), DEFAULT_MENU|DEFAULT_CLOSE);
+    	
     	resourceBundle = WordPressCore.getInstance().getResourceBundle();
 
     	if(extensions == null) {
@@ -58,9 +79,19 @@ public class RimFileBrowser extends MainScreen {
     		this.extensions = extensions;
     	}
     	
+    	this.isThumbEnabled = isThumbEnabled;
+    	
         initialize();
     }
-
+    
+    
+    protected void sublayout(int width, int height) {    
+    	layoutDelegate(width - 20, height - 20);
+    	setPositionDelegate(5, 5);
+    	setExtent(width - 10, height - 10);
+    	setPosition(5, 5);
+    }
+    
     
 	public boolean onMenu(int instance) {
 		boolean result;
@@ -82,8 +113,7 @@ public class RimFileBrowser extends MainScreen {
         }
         menu.makeMenu(theMenu, entry);
     }
-
-
+    
     public void setListener(RimFileBrowserListener listener) {
         this.listener = listener;
         Log.trace("file browser listener setup");
@@ -127,10 +157,10 @@ public class RimFileBrowser extends MainScreen {
     private void performDefaultActionOnItem() {
         String entry = null;
         Log.trace("performDefaultActionOnItem");
-        if (listField != null) {
+        if (listField != null ) {
             entry = listField.getSelectedEntry();
         }        
-       if (entry != null ) {
+       if (entry != null && !entry.equalsIgnoreCase("")) {
 	    		    	
 	        if (isDirectory(entry)) {
 	        	chooseDirectory();
@@ -141,7 +171,37 @@ public class RimFileBrowser extends MainScreen {
         }
     }
     
- 
+    
+    private Bitmap getPredefinedFolderIcon() {
+    	if(!isThumbEnabled) return folderIcon;
+    	else return folderIconBig;
+    }
+    
+    /**
+	 * get the thumb - 
+	 * @return
+	 */
+	private Bitmap getThumb(String path) {
+		byte[] readFile;
+		Bitmap bitmapRescale;
+		try {
+			readFile = JSR75FileSystem.readFile(path);
+			EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
+			//find the photo size
+			int scale = ImageUtils.findBestImgScale(img, predefinedThumbWidth, predefinedThumbHeight);
+			if(scale > 1)
+				img.setScale(scale); //set the scale
+			
+			Bitmap bitmap = img.getBitmap();
+			img = null;
+			return bitmap;
+		} catch (IOException e) {
+			Log.error(e, "Error while creating the img thumb");
+			return predefinedThumb;
+		}
+	}
+	
+    
     public boolean onClose() {
         if (!quit && !ROOT.equals(currDirName)) {
             // Change to the previous directory
@@ -150,6 +210,7 @@ public class RimFileBrowser extends MainScreen {
         }
 
         try {
+        	stopThumbLoader();
         	this.close();
             return true;
         } catch (Exception e) {
@@ -161,27 +222,21 @@ public class RimFileBrowser extends MainScreen {
     protected void onDisplay() {
 
         Log.trace("RimFileBrowser - OnDisplay");
-        int rowHeight = getFont().getHeight() + 4;
-        if(rowHeight < folderIcon.getHeight())
-        	rowHeight = folderIcon.getHeight() + 4;
-        
+        int rowHeight = getFont().getHeight() + 10;
+
+        if(isThumbEnabled) {
+        	if(rowHeight < predefinedThumbHeight)
+        		rowHeight = predefinedThumbHeight + 8;
+        } else {
+            if(rowHeight < folderIcon.getHeight())
+            	rowHeight = folderIcon.getHeight() + 10;
+        }
+
         listField.setRowHeight(rowHeight);
         super.onDisplay();
     }
 
    
-/*
-    protected boolean navigationClick(int status, int time) {
-        Log.trace("[RimFileBrowser.navigationClick]");
-        if (status == 0) {
-        	Log.trace("[RimFileBrowser.navigationClick] --> status == 0");
-            buttonPressed(listField.getSelectedIndex());
-            return true;
-        }
-        return false;
-    }
-*/
-
     // Update the stack of directories
     protected void chooseDirectory() {
         int selectedIndex = listField.getSelectedIndex();
@@ -237,14 +292,17 @@ public class RimFileBrowser extends MainScreen {
         }
     }
 
+    
     private void resetTitle() {
         String title = resourceBundle.getString(WordPressResource.TITLE_FILE_SELECTION_DIALOG);
         if (!ROOT.equals(currDirName)) {
             title = currDirName;
         }
-        titleField.setTitle(title);
+        currentPathLabelField.setText(title);
+//        titleField.setTitle(title);
     }
 
+    
     private void initialize() {
 
         Log.trace("[RimFileBrowser.initialize]");
@@ -252,18 +310,15 @@ public class RimFileBrowser extends MainScreen {
         menu = new FileBrowserMenu();
         // Pre load the icons
         folderIcon = Bitmap.getBitmapResource("folder_yellow_open.png");
-
-        titleField = new HeaderField("");
-		//if you want change color of the title bar, make sure to set 
-		//color for background and foreground (to avoid theme colors injection...)
-        titleField.setFontColor(Color.WHITE); 
-        titleField.setBackgroundColor(Color.BLACK); 
-  
-        resetTitle();        
-        setTitle(titleField);
-        
+        folderIconBig = Bitmap.getBitmapResource("folder_yellow_open_48.png");
+        predefinedThumb = Bitmap.getBitmapResource("file_temporary.png");
+        resetTitle();                
         listField = new FileBrowserList();
-        add(listField);
+        add(currentPathLabelField);
+        add( new SeparatorField());
+        VerticalFieldManager internalListManager = new VerticalFieldManager(Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR);
+        internalListManager.add(listField);        
+        add(internalListManager);
     }
 
     
@@ -382,13 +437,67 @@ public class RimFileBrowser extends MainScreen {
         return entries;
     }
 
-    private class FileBrowserList extends ListField implements ListFieldCallback {
+    
+    private void startThumbLoader() {
+    	Log.trace("starting Thumb Thread");
+    	if(t != null) {
+    		Log.trace("there is an istance of Thumb Thread already running");
+    		stopThumbLoader();
+    	}
+    	
+    	t = new Thread(new FileBrowserListThumbLoader());
+		t.setPriority(Thread.MIN_PRIORITY); //thread by default is set to priority normal
+		isThumbRunning = true;
+		t.start();
+    }
+    
+    private void stopThumbLoader() {
+    	Log.trace(">>> stopThumbLoader");
+    	isThumbRunning = false;
+    	try {
+    		if (t != null && t.isAlive() ) {
+				Log.trace("interrupting Thumb Thread");
+				t.interrupt();
+    		}
+		} catch (Exception e) {
+			Log.error(e, "Error while interrupting Thumb Thread");
+		} finally {
+			t = null;
+			Log.trace("Thumb Thread was set to null");
+		}
+    }
+    
+    private class FileBrowserListThumbLoader implements Runnable {
 
-      //  private final FileBrowserListener listener;
+		public void run() {
+			
+			if(!isThumbEnabled) return;
+			
+			Vector itemLista = listField.getListItems();
+			
+			for (int i = 0; i < itemLista.size(); i++) {
+				
+				if(isThumbRunning == false) return;
+				
+				FileBrowserListItem item = ((FileBrowserListItem) itemLista.elementAt(i));
+				if (item.isFile() && item.getThumb() == null) {
+					Bitmap thumb = getThumb("file://"+currDirName+item.getValue());
+		        	item.setThumb(thumb);
+					listField.invalidate(i);
+				}
+			}//end for
+		}
+    }
+    
+    private class FileBrowserList extends ListField implements ListFieldCallback {
 
         private Vector  listItems = new Vector();
 
-        public FileBrowserList() {
+        public Vector getListItems() {
+			return listItems;
+		}
+
+		public FileBrowserList() {
 
             // The number of rows is dynamic and it depends on the number of
             // files in the current directory, but the list is populated later
@@ -449,10 +558,11 @@ public class RimFileBrowser extends MainScreen {
     		Log.trace(">>> touchEvent");
     		int eventCode = message.getEvent();
     		
-    		if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
+    		/*if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
     		{       			
     			return false;
-    		} 
+    		} */
+    		
     		// Get the screen coordinates of the touch event
     		if(eventCode == TouchEvent.CLICK) {
     			Log.trace("TouchEvent.CLICK");
@@ -465,66 +575,49 @@ public class RimFileBrowser extends MainScreen {
     	
         
         public void changeDirectory(int index) {
+        	stopThumbLoader(); 
             int count = 0;
             // Show directories first
             Enumeration dirs = getDirectoryEntries();
+            listItems.removeAllElements();
+            
+            int test = this.getSize();
+            while (test > 0 ) {
+            	this.delete(0);
+            	test--;
+            }
+            
             while(dirs.hasMoreElements()) {
                 String dir = (String)dirs.nextElement();
-                if (count == listItems.size()) {
-                    // We need to add a new entry in the list
-                    insert(0);
-                    FileBrowserListItem item = new FileBrowserListItem(dir, folderIcon);
-                    listItems.addElement(item);
-                } else {
-                    // An item existed already, we just need to refresh it
-                    FileBrowserListItem oldItem = (FileBrowserListItem)listItems.elementAt(count);
-                    oldItem.setValue(dir);
-                    oldItem.setIcon(folderIcon);
-                    oldItem.setSeparator(false);
-                    oldItem.setSelected(false);
-                }
+                // We need to add a new entry in the list
+                insert(0);
+                FileBrowserListItem item = new FileBrowserListItem(dir, getPredefinedFolderIcon());
+                listItems.addElement(item);
                 count++;
             }
-            // Now add the separator
-            if (count == listItems.size()) {
-                insert(0);
-                FileBrowserListItem separator = new FileBrowserListItem(null, null);
-                separator.setSeparator(true);
-                listItems.addElement(separator);
-            } else {
-                FileBrowserListItem oldItem = (FileBrowserListItem)listItems.elementAt(count);
-                oldItem.setValue(null);
-                oldItem.setIcon(null);
-                oldItem.setSeparator(true);
-            }
-            count++;
+            
             // Add the files
             Enumeration files = getFileEntries();
+          
+            // Now add the separator only if there are directory and files 
+            if(files.hasMoreElements())
+                if(count > 0) {
+	                insert(0);
+	                FileBrowserListItem separator = new FileBrowserListItem(null, null);
+	                separator.setSeparator(true);
+	                listItems.addElement(separator);
+    	            count++;
+                }
+            
             while(files.hasMoreElements()) {
                 String file = (String)files.nextElement();
-                if (count == listItems.size()) {
-                    // We need to add a new entry in the list
-                    insert(0);
-                    FileBrowserListItem item = new FileBrowserListItem(file, null);
-                    listItems.addElement(item);
-                } else {
-                    // An item existed already, we just need to refresh it
-                    FileBrowserListItem oldItem = (FileBrowserListItem)listItems.elementAt(count);
-                    oldItem.setValue(file);
-                    oldItem.setIcon(null);
-                    oldItem.setSeparator(false);
-                    oldItem.setSelected(count == index);
-                }
+                // We need to add a new entry in the list
+                insert(0);
+                FileBrowserListItem item = new FileBrowserListItem(file, null);
+                listItems.addElement(item);
                 count++;
             }
-            // Now remove any left items
-            int itemsToDelete = listItems.size() - count;
-            for(int i=0;i<itemsToDelete;++i) {
-                // We must always remove the last one
-                int remIdx = listItems.size() - 1;
-                delete(remIdx);
-                listItems.removeElementAt(remIdx);
-            }
+
             // We select the index if there is at least one (real) item
             if (count > 1) {
                 setSelectedIndex(index);
@@ -533,6 +626,9 @@ public class RimFileBrowser extends MainScreen {
             resetTitle();
             // Forces a repaint
             invalidate();
+            //start thumb retrivial
+            if(isThumbEnabled)
+            	startThumbLoader();
         }
 
         private int numRows() {
@@ -669,7 +765,8 @@ public class RimFileBrowser extends MainScreen {
             super.setSelectedIndex(index);
             ((FileBrowserListItem) listItems.elementAt(current)).setSelected(false);
             ((FileBrowserListItem) listItems.elementAt(index)).setSelected(true);
-            invalidate();
+            invalidate(current);
+            invalidate(index);
         }
     }
 
@@ -681,6 +778,10 @@ public class RimFileBrowser extends MainScreen {
         private Bitmap          icon;
         private boolean         selected    = false;
         private boolean         separator   = false;
+
+        private Bitmap    thumb;
+		private int thumbHeight;
+		private int thumbWidth;
 
         public FileBrowserListItem(String value, Bitmap icon) {
             this.value = value;
@@ -698,23 +799,14 @@ public class RimFileBrowser extends MainScreen {
         }
 
         private void drawName(Graphics graphics, int x, int y, int width, int height) {
-
-            if (selected) {
-                graphics.setColor(Color.WHITE);
-            } else {
-                graphics.setColor(Color.BLACK);
-            }
-
-            graphics.drawText(value, x + PADDING + 3, y + PADDING + 2, DrawStyle.LEFT
-                                    | DrawStyle.TOP, width - x - (PADDING * 2));
+        	int fontHeight = graphics.getFont().getHeight();
+        	int imageTop = y + ((height - fontHeight) / 2);
+            graphics.drawText(value, x + PADDING + 3, imageTop, DrawStyle.LEFT
+                                    | DrawStyle.ELLIPSIS , width - x - (PADDING * 2));
 
         }
 
         private void drawSeparator(Graphics graphics, int x, int y, int width, int height) {
-
-            graphics.setColor(Color.WHITE);
-            graphics.fillRect(x - 1, y - 1, width + 2, height + 1);
-            graphics.setColor(Color.BLACK);
             graphics.drawLine(x, y + (height / 2), x + width, y + (height / 2));
         }
 
@@ -726,29 +818,60 @@ public class RimFileBrowser extends MainScreen {
             return separator;
         }
 
+        public boolean isFile() {
+        	   if (icon == null &&  value != null) 
+        		   return true;
+        	   else return false; 
+        }
+       
+        public Bitmap getThumb() {
+        	return thumb;
+        }
+        
         private int drawIcon(Graphics graphics, int x, int y, int height) {
 
-            if (icon == null) {
-                return 0;
+        	//this is a file, draw the thumb if enabled 
+            if (isFile()) {
+            	
+            	if (!isThumbEnabled) return 0; //thumb not enabled 
+            	
+            	Bitmap currentBitmap = null;
+            	//put the default thumb size first.
+            	int currentBitmapWidth  = 0;
+            	int currentBitmapHeight = 0;
+            	//thumb is not already loaded, shows the default one
+            	if(thumb == null) {
+            		currentBitmap = predefinedThumb;
+            		currentBitmapWidth = predefinedThumbWidth;
+                	currentBitmapHeight = predefinedThumbHeight;
+                } else {
+                	currentBitmap = this.thumb;
+                	currentBitmapWidth = thumbWidth;
+                	currentBitmapHeight = thumbHeight;
+                }
+
+	            int imageTop = y + ((height - currentBitmapHeight) / 2);
+	            int imageLeft = x + ((height - currentBitmapWidth) / 2);
+    			graphics.drawBitmap(imageLeft, imageTop, currentBitmapWidth, currentBitmapHeight, currentBitmap, 0, 0);            	
+            } else {
+            	//this is a folder
+	            int imageWidth  = icon.getWidth();
+	            int imageHeight = icon.getHeight();
+	            int imageTop = y + ((height - imageHeight) / 2);
+	            int imageLeft = x + ((height - imageWidth) / 2);
+	            graphics.drawBitmap(imageLeft, imageTop, imageWidth, imageHeight, icon, 0, 0);
             }
-
-            int imageWidth  = icon.getWidth();
-            int imageHeight = icon.getHeight();
-            int imageTop = y + ((height - imageHeight) / 2);
-            int imageLeft = x + ((height - imageWidth) / 2);
-            graphics.drawBitmap(imageLeft, imageTop, imageWidth, imageHeight, icon, 0, 0);
-
+            
             return height;
         }
 
         private void drawBackground(Graphics graphics, int x, int y, int width, int height) {
-            if (selected) {
+            int color = graphics.getColor();
+        	if (selected) {
                 graphics.setColor(Color.BLUE);
                 graphics.fillRect(x - 1, y - 1, width + 2, height + 1);
-            } else {
-                graphics.setColor(Color.WHITE);
-                graphics.fillRect(x - 1, y - 1, width + 2, height + 1);
-            }
+            } 
+            graphics.setColor(color);
         }
 
         public void setSelected(boolean selected) {
@@ -765,6 +888,11 @@ public class RimFileBrowser extends MainScreen {
 
         public void setIcon(Bitmap icon) {
             this.icon = icon;
+        }
+        public void setThumb(Bitmap thumb) {
+            this.thumb = thumb;
+            this.thumbWidth = thumb.getWidth();
+        	this.thumbHeight = thumb.getHeight();
         }
     }
 
@@ -797,9 +925,9 @@ public class RimFileBrowser extends MainScreen {
                     chooseFile();
                 }
             };
-
+            //0x00010000
         private final MenuItem   cancelMenu  =
-            new MenuItem(resourceBundle, WordPressResource.MENUITEM_CLOSE, 20000, 1000) {
+            new MenuItem(resourceBundle, WordPressResource.MENUITEM_CLOSE, 2000000, 1000) {
                 public void run() {
                     quit();
                 }
@@ -811,8 +939,26 @@ public class RimFileBrowser extends MainScreen {
                     up();
                 }
             };
-
-		
+            
+        private final MenuItem   viewTitlesMenu  =
+            	new MenuItem(resourceBundle, WordPressResource.MENUITEM_VIEW_TITLES, 200000, 1000) {
+            	public void run() {
+            		Log.trace(">>> viewTitlesMenu");
+            		isThumbEnabled = false;
+            		stopThumbLoader();
+            		onDisplay();
+            		listField.changeDirectory(0);
+            	}
+            };
+            
+            private final MenuItem   viewThumbnailsMenu  =
+            	new MenuItem(resourceBundle, WordPressResource.MENUITEM_VIEW_THUMBNAILS, 200000, 1000) {
+            	public void run() {
+            		isThumbEnabled = true;
+            		onDisplay();
+            		listField.changeDirectory(0);
+            	}
+            };
 	  
         public void makeMenu(Menu menu, String entry)
         { 
@@ -820,14 +966,19 @@ public class RimFileBrowser extends MainScreen {
         	
             if (!ROOT.equals(currDirName)) {
                 menu.add(upMenu);
-                if (entry != null && !isDirectory(entry)) {
+                if (entry != null && !entry.equalsIgnoreCase("") && !isDirectory(entry)) {
                     menu.add(selectMenu);
                 }
             }
             
-            if (entry != null) {
+            if (entry != null && !entry.equalsIgnoreCase("")) {
             	menu.add(openMenu);
             }
+
+            if(isThumbEnabled)
+            	menu.add(viewTitlesMenu);
+            else
+            	menu.add(viewThumbnailsMenu);
             
            menu.add(cancelMenu);
         }

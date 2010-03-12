@@ -233,9 +233,13 @@ src\gravatar.png
 src\icons\application-icon-new.png
 src\icons\edit_add.png
 src\icons\enqueued.png
+src\icons\file_temporary.png
 src\icons\folder_yellow_open.png
+src\icons\folder_yellow_open_48.png
+src\icons\folder_yellow_open_64.png
 src\icons\loading-gif.bin
 src\icons\stop.png
+src\icons\unknown.png
 src\icons\video_rec.png
 src\icons\video_thumb.png
 src\icons\wordpress_home_220.png

@@ -36,6 +36,7 @@ public class WordPress extends UiApplication implements WordPressResource {
     private Timer timer = new Timer();
     private SplashScreen loadingScreen = null;
     private MainController mainScreen = null;
+    private boolean isSDCardNotFound = false;
     
     static {
         //retrieve a reference to the ResourceBundle for localization support
@@ -209,13 +210,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 						//ok
 					} else {
 						//microSD not present. set the storage to memory device
-						invokeLater(new Runnable() {
-							public void run() {
-								String errorMsgSD =_resources.getString(WordPressResource.ERROR_SDCARD_NOT_FOUND); 
-								ErrorView errView = new ErrorView(errorMsgSD);
-								errView.show();
-							}
-						});
+						isSDCardNotFound = true;
 						AppDAO.setBaseDirPath(BaseDAO.DEVICE_STORE_PATH); 
 						baseDirPath = null;
 					}
@@ -279,7 +274,15 @@ public class WordPress extends UiApplication implements WordPressResource {
 	   public void run() {
    	   invokeLater(new Runnable() {
 			public void run() {
+				
 				timer.cancel();
+				//previous the user has set the storage to the SD, but SD card is not available right now.
+				if(isSDCardNotFound) {
+					String errorMsgSD =_resources.getString(WordPressResource.ERROR_SDCARD_NOT_FOUND); 
+					ErrorView errView = new ErrorView(errorMsgSD);
+					errView.doModal();
+				}
+				
 			    popScreen(loadingScreen);
 				mainScreen = new MainController();
 			    mainScreen.showView();

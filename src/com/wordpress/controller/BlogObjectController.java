@@ -315,7 +315,7 @@ public abstract class BlogObjectController extends BaseController {
 		case BROWSER_PHOTO:
            	 String imageExtensions[] = { "jpg", "jpeg","bmp", "png", "gif"};
            	 
-           	RimFileBrowser photoFileBrowser = new RimFileBrowser(imageExtensions);
+           	RimFileBrowser photoFileBrowser = new RimFileBrowser(imageExtensions, true);
            	photoFileBrowser.setListener(new MultimediaFileBrowserListener(PHOTO));
            	UiApplication.getUiApplication().pushScreen(photoFileBrowser);
            	
@@ -334,7 +334,7 @@ public abstract class BlogObjectController extends BaseController {
 			
 		case BROWSER_VIDEO:
           	String videoExtensions[] = MultimediaUtils.getSupportedVideoFormat();// "mp4", "m4a","3gp", "3gp2", "avi", "wmv", "asf", "avi"};
-         	RimFileBrowser videoFileBrowser = new RimFileBrowser(videoExtensions);
+         	RimFileBrowser videoFileBrowser = new RimFileBrowser(videoExtensions, false);
          	videoFileBrowser.setListener(new MultimediaFileBrowserListener(VIDEO));
            	UiApplication.getUiApplication().pushScreen(videoFileBrowser);
           	/*    FileSelectorPopupScreen fpsVideo = new FileSelectorPopupScreen(null, videoExtensions);
