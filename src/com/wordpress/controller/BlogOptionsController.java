@@ -10,6 +10,7 @@ import net.rim.device.api.ui.component.Dialog;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.BlogOptionsView;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
@@ -55,7 +56,15 @@ public class BlogOptionsController extends BaseController {
 
 	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
-	    	saveAndBack();
+	    	
+	    	boolean isModified = isModified();
+			
+			if(!isModified) {
+				backCmd();
+				return;
+			} else  {
+				saveAndBack();
+			}
 	   }
 	};
 
@@ -92,8 +101,10 @@ public class BlogOptionsController extends BaseController {
 		boolean isLocation = view.isLocation();
 		//we can use isDirty on all view...
 		if(!blog.getUsername().equals(user) || !blog.getPassword().equals(pass)
-			|| blog.getMaxPostCount() != valueMaxPostCount || isResPhotos != blog.isResizePhotos()
-			|| !imageResizeWidth.equals(blog.getImageResizeWidth()) || !imageResizeHeight.equals(blog.getImageResizeHeight())
+			|| blog.getMaxPostCount() != valueMaxPostCount 
+			|| isResPhotos != blog.isResizePhotos()			
+			|| !imageResizeWidth.equals(blog.getImageResizeWidth() )
+			|| !imageResizeHeight.equals(blog.getImageResizeHeight()) 
 			|| isCommentNotifications != blog.isCommentNotifies()  
 			|| isLocation != blog.isLocation()
 		) {
@@ -105,21 +116,20 @@ public class BlogOptionsController extends BaseController {
 	
 	//called when user click the OK button
 	private void  saveAndBack(){
-		boolean isModified=this.isModified();
-		
-		if(!isModified) {
-			backCmd();
-			return;
-		}
+		//Before saving we should do an additional check over img resize width and height.
+		//it is necessary when user put a value into width/height field and then press backbutton;
+		//the focus lost on those fields is never fired....
+		Integer imageResizeWidth = view.getImageResizeWidth();
+		Integer imageResizeHeight = view.getImageResizeHeight();
+		int[] keepAspectRatio = ImageUtils.keepAspectRatio(imageResizeWidth.intValue(), imageResizeHeight.intValue());
+		imageResizeWidth = new Integer(keepAspectRatio[0]);
+		imageResizeHeight = new Integer(keepAspectRatio[1]);
 		
 		String pass= view.getBlogPass();
 		String user= view.getBlogUser();
 		int maxPostIndex=view.getMaxRecentPostIndex();
 		int valueMaxPostCount=AddBlogsController.recentsPostValues[maxPostIndex];
 		boolean isResPhotos = view.isResizePhoto();
-		Integer imageResizeWidth = view.getImageResizeWidth();
-		Integer imageResizeHeight = view.getImageResizeHeight();
-		
 		blog.setPassword(pass);
 		blog.setUsername(user);
 		blog.setResizePhotos(isResPhotos);

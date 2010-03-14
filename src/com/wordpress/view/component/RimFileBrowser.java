@@ -882,13 +882,7 @@ public class RimFileBrowser extends PopupScreen {
             return value;
         }
 
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public void setIcon(Bitmap icon) {
-            this.icon = icon;
-        }
+        
         public void setThumb(Bitmap thumb) {
             this.thumb = thumb;
             this.thumbWidth = thumb.getWidth();

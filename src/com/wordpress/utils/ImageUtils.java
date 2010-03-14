@@ -23,6 +23,26 @@ import com.wordpress.utils.log.Log;
  */
 public class ImageUtils {
 		
+	public static int DEFAULT_RESIZE_WIDTH = 640;
+	public static int DEFAULT_RESIZE_HEIGHT = 480;
+	
+	
+	public static int[] keepAspectRatio(int width, int height) {
+		int[] returnValues = {DEFAULT_RESIZE_WIDTH, DEFAULT_RESIZE_HEIGHT};
+
+		if(width == 0 || width == DEFAULT_RESIZE_WIDTH ) {
+			return returnValues;
+		}
+		
+		int newHeight = (int)(width * 0.75);
+		if(height != newHeight)
+			height = newHeight;
+		
+		returnValues[0] = width;
+		returnValues[1] = height;
+		return returnValues;
+	}
+	
 	/**
 	 * Sets the image width to the optimal width for the BlackBerry device screen
 	 * 
@@ -43,8 +63,7 @@ public class ImageUtils {
 	}
 	
 	public static EncodedImage resizeEncodedImage(EncodedImage image, int maxWidth, int maxHeight)
-	{
-		
+	{	
 		// getting image properties
 		int w = image.getWidth();
 		int h = image.getHeight();

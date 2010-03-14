@@ -14,6 +14,7 @@ import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 //#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.TouchGesture;
 import net.rim.device.api.ui.TouchEvent;
 //#endif
 import net.rim.device.api.ui.component.BitmapField;
@@ -427,11 +428,40 @@ public class CommentView extends StandardBaseView {
 		Comment prev = controller.getPreviousComment(comment);
 		if (prev != null)
 			menu.add(_prevCommentItem);
-			   	
                 
         //Create the default menu.
         super.makeMenu(menu, instance);
     }  
 
+    
+    
+	//#ifdef IS_OS47_OR_ABOVE
+    protected boolean touchEvent(TouchEvent message) {
+    	Log.trace(">>> touchEvent");
+    	int eventCode = message.getEvent();
+
+    	if(eventCode == TouchEvent.GESTURE) {
+    		TouchGesture gesture = message.getGesture();
+    		int gestureCode = gesture.getEvent();
+    		Log.trace(">>> TouchEvent.GESTURE ->  "+gestureCode);
+    		
+    		if (gestureCode == TouchGesture.SWIPE_EAST) {
+    			Comment next = controller.getNextComment(comment);
+    			if (next != null) {
+    				setViewValues(next);
+    			}
+    		} else if (gestureCode == TouchGesture.SWIPE_WEST) {
+    			Comment next = controller.getPreviousComment(comment);
+    			if (next != null) {
+    				setViewValues(next);
+    			}
+    		}
+    		return true;
+    	}
+
+    	return super.touchEvent(message); 
+    }
+	//#endif
+    
 }
 

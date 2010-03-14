@@ -15,6 +15,7 @@ import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Category;
 import com.wordpress.model.Tag;
+import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.MD5;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
@@ -442,11 +443,11 @@ public class BlogDAO implements BaseDAO {
         		blog.setImageResizeWidth(imageResizeWidth);
         	} else {
         		Log.error("No image resize width found - End of file was reached. Probably a previous blog data file is loaded" );
-        		blog.setImageResizeWidth(new Integer(640));
+        		blog.setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
         	}
         } catch (EOFException  e) {
         	Log.error("No image resize width found - End of file was reached. Probably a previous blog data file is loaded" );
-        	blog.setImageResizeWidth(new Integer(640));
+        	blog.setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
 		}
 
         try {
@@ -456,11 +457,11 @@ public class BlogDAO implements BaseDAO {
         		blog.setImageResizeHeight(imageResizeHeight);
         	} else {
         		Log.error("No image resize height found - End of file was reached. Probably a previous blog data file is loaded" );
-        		blog.setImageResizeHeight(new Integer(480));
+        		blog.setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
         	}
         } catch (EOFException  e) {
         	Log.error("No image resize height found - End of file was reached. Probably a previous blog data file is loaded" );
-        	blog.setImageResizeHeight(new Integer(480));
+        	blog.setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
 		}
 
         in.close();

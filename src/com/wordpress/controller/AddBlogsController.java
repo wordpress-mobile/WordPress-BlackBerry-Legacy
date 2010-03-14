@@ -24,6 +24,7 @@ import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.task.LoadBlogsDataTask;
 import com.wordpress.task.TaskProgressListener;
+import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
@@ -58,8 +59,8 @@ public class AddBlogsController extends BaseController{
 		guiValues.put("recentpost", recentsPostValuesLabel);
 		guiValues.put("recentpostselected", new Integer(0));
 		guiValues.put("isresphotos", new Boolean(false));
-		guiValues.put("imageResizeWidth", new Integer(640));
-		guiValues.put("imageResizeHeight", new Integer(480));
+		guiValues.put("imageResizeWidth", new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
+		guiValues.put("imageResizeHeight", new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
 		this.view= new AddBlogsView(this,guiValues);
 	}
 	
@@ -71,12 +72,21 @@ public class AddBlogsController extends BaseController{
 	//1 = user has inserted the url into popup dialog   
 	public void addBlogs(int source){
 		
+		//Before saving we should do an additional check over img resize width and height.
+		//it is necessary when user put a value into width/height field and then press backbutton;
+		//the focus lost on those fields is never fired....
+		imageResizeWidth = view.getImageResizeWidth();
+		imageResizeHeight = view.getImageResizeHeight();
+		int[] keepAspectRatio = ImageUtils.keepAspectRatio(imageResizeWidth.intValue(), imageResizeHeight.intValue());
+		imageResizeWidth = new Integer(keepAspectRatio[0]);
+		imageResizeHeight = new Integer(keepAspectRatio[1]);
+		
 		String pass= view.getBlogPass().trim();
 		String url= view.getBlogUrl().trim();
 		//url=Tools.checkURL(url); //check te presence of xmlrpc file
 		String user= view.getBlogUser().trim();
 		maxPostIndex=view.getMaxRecentPostIndex();
-		System.out.println("Max Show posts index: "+maxPostIndex);
+		Log.trace("Max Show posts index: "+maxPostIndex);
 		if(maxPostIndex < 0){
 			maxPostIndex=0;			
 			displayError("Please enter a correct number");
@@ -84,16 +94,8 @@ public class AddBlogsController extends BaseController{
 		}
 		
 		isResPhotos= view.isResizePhoto();
-		imageResizeWidth = view.getImageResizeWidth();
-		imageResizeHeight = view.getImageResizeHeight();
-		System.out.println("Resize photos : "+isResPhotos+" Width : "+imageResizeWidth+" Height : "+imageResizeHeight);
-		
-/*		if (pass != null && pass.length() == 0) {
-        	pass = null;
-            displayError("Please enter a password");
-            return;
-        }
-*/
+		Log.trace("Resize photos : "+isResPhotos+" Width : "+imageResizeWidth+" Height : "+imageResizeHeight);
+
         if (url != null && user != null && url.length() > 0 && user != null && user.length() > 0) {
             BlogAuthConn connection = new BlogAuthConn (url,user,pass);
             connection.addObserver(new AddBlogCallBack(source)); 

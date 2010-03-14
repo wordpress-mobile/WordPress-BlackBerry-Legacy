@@ -196,7 +196,7 @@ public class SendToBlogTask extends TaskImpl {
 							 
 				if(imageResizeWidth.intValue() <= 0 || imageResizeHeight.intValue() <= 0)
 				{
-					content = ImageUtils.resizePhoto(photosBytes, filePath, this, 640, 480);
+					content = ImageUtils.resizePhoto(photosBytes, filePath, this, ImageUtils.DEFAULT_RESIZE_WIDTH, ImageUtils.DEFAULT_RESIZE_HEIGHT);
 					Log.trace("img resize settings are NOT valid, using the default");
 				} else {
 					content = ImageUtils.resizePhoto(photosBytes, filePath, this, imageResizeWidth.intValue(), imageResizeHeight.intValue());
