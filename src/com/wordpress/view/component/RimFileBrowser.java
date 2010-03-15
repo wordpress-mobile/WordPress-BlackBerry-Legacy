@@ -57,11 +57,15 @@ public class RimFileBrowser extends PopupScreen {
     private LabelField currentPathLabelField = new LabelField("/", DrawStyle.ELLIPSIS);
     
     private boolean isThumbEnabled = false;
-    private Bitmap predefinedThumb = null; 
+	private String thumbEnabledExtensions[] = { "jpg", "jpeg","bmp", "png", "gif"}; //file ext to read for thumb generation
+	private Bitmap predefinedThumb = null; 
+    private Bitmap loadingThumb = null;
     private int predefinedThumbWidth = 48;
     private int predefinedThumbHeight = 48;
+    private Stack thumbStack = new Stack(); //stack of file to thumb 
     private Bitmap   folderIcon     = null;
     private Bitmap   folderIconBig     = null;
+    
 
     private Thread t = null;
     private boolean isThumbRunning = false;
@@ -182,8 +186,19 @@ public class RimFileBrowser extends PopupScreen {
 	 * @return
 	 */
 	private Bitmap getThumb(String path) {
+		boolean isThumbAllowed = false;
+		for(int i=0;i<thumbEnabledExtensions.length;++i) {
+			String ext = thumbEnabledExtensions[i];
+			
+			if (path.toLowerCase().endsWith(ext)) {
+				isThumbAllowed = true;				
+			}
+		}
+		
+		if(!isThumbAllowed)
+			return predefinedThumb;
+		
 		byte[] readFile;
-		Bitmap bitmapRescale;
 		try {
 			readFile = JSR75FileSystem.readFile(path);
 			EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
@@ -191,7 +206,7 @@ public class RimFileBrowser extends PopupScreen {
 			int scale = ImageUtils.findBestImgScale(img, predefinedThumbWidth, predefinedThumbHeight);
 			if(scale > 1)
 				img.setScale(scale); //set the scale
-			
+			img.setDecodeMode(EncodedImage.DECODE_ALPHA | EncodedImage.DECODE_READONLY);
 			Bitmap bitmap = img.getBitmap();
 			img = null;
 			return bitmap;
@@ -311,7 +326,8 @@ public class RimFileBrowser extends PopupScreen {
         // Pre load the icons
         folderIcon = Bitmap.getBitmapResource("folder_yellow_open.png");
         folderIconBig = Bitmap.getBitmapResource("folder_yellow_open_48.png");
-        predefinedThumb = Bitmap.getBitmapResource("file_temporary.png");
+        predefinedThumb = Bitmap.getBitmapResource("mime_unknown_48.png");
+        loadingThumb = Bitmap.getBitmapResource("file_temporary_48.png");
         resetTitle();                
         listField = new FileBrowserList();
         add(currentPathLabelField);
@@ -319,10 +335,17 @@ public class RimFileBrowser extends PopupScreen {
         VerticalFieldManager internalListManager = new VerticalFieldManager(Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR);
         internalListManager.add(listField);        
         add(internalListManager);
+        
+        startThumbLoader();
     }
 
     
-  /*  private class FileBrowserListener implements KeyListener {
+  public void setPredefinedThumb(Bitmap predefinedThumb) {
+		this.predefinedThumb = predefinedThumb;
+	}
+
+
+	/*  private class FileBrowserListener implements KeyListener {
 
         private final static int KEYCODE_ENTER = Keypad.KEY_ENTER;
 
@@ -469,24 +492,40 @@ public class RimFileBrowser extends PopupScreen {
     
     private class FileBrowserListThumbLoader implements Runnable {
 
-		public void run() {
-			
-			if(!isThumbEnabled) return;
-			
-			Vector itemLista = listField.getListItems();
-			
-			for (int i = 0; i < itemLista.size(); i++) {
-				
-				if(isThumbRunning == false) return;
-				
-				FileBrowserListItem item = ((FileBrowserListItem) itemLista.elementAt(i));
-				if (item.isFile() && item.getThumb() == null) {
-					Bitmap thumb = getThumb("file://"+currDirName+item.getValue());
-		        	item.setThumb(thumb);
-					listField.invalidate(i);
-				}
-			}//end for
-		}
+    	//Object[] item = {item, String.valueOf(index)};
+    	Object[] currentItem = null;
+		
+    	public void run() {
+    		next();
+    	}
+    	private void next() {
+    		Log.trace("FileBrowserListThumbLoader.next");
+    		synchronized (thumbStack) {
+    			while(!isThumbEnabled || thumbStack.size() == 0) {
+    				try {
+    					thumbStack.wait();
+    				} catch (InterruptedException e) {
+    					Log.error(e, "Error while synch over thumbStack");
+    				}
+    			}
+    			currentItem =  (Object[]) thumbStack.pop();
+    		}
+    		doThumb();
+    	}
+    	
+    	private void doThumb() {
+    		Log.trace("FileBrowserListThumbLoader.doThumb");    		
+    		FileBrowserListItem item = (FileBrowserListItem) currentItem[0];
+    		if (item.isFile() && item.getThumb() == null) {
+    			String path = "file://"+currDirName+item.getValue();
+    			Bitmap thumb = getThumb(path);
+    			item.setThumb(thumb);
+    			item = null;
+    			Integer indexOfCurrentItem = (Integer)currentItem[1];
+    			listField.invalidate(indexOfCurrentItem.intValue());
+    		}
+    		next();
+    	}
     }
     
     private class FileBrowserList extends ListField implements ListFieldCallback {
@@ -575,7 +614,12 @@ public class RimFileBrowser extends PopupScreen {
     	
         
         public void changeDirectory(int index) {
-        	stopThumbLoader(); 
+
+        	synchronized (thumbStack) {
+        		//this cleans the stack from the previous files queue that needing thumb
+        		thumbStack.removeAllElements();
+        	}
+        	
             int count = 0;
             // Show directories first
             Enumeration dirs = getDirectoryEntries();
@@ -626,9 +670,6 @@ public class RimFileBrowser extends PopupScreen {
             resetTitle();
             // Forces a repaint
             invalidate();
-            //start thumb retrivial
-            if(isThumbEnabled)
-            	startThumbLoader();
         }
 
         private int numRows() {
@@ -638,6 +679,29 @@ public class RimFileBrowser extends PopupScreen {
         // ListFieldCallback functions
         public void drawListRow(ListField listField, Graphics graphics, int index, int y, int width) {
             FileBrowserListItem item = ((FileBrowserListItem) listItems.elementAt(index));
+         
+            if (item.isFile() && item.getThumb() == null) { //thumb not yet created
+	            String path = item.getValue();
+	            boolean isValidFileForThumb = false;
+	            for(int i=0;i<thumbEnabledExtensions.length;++i) {
+	    			String ext = thumbEnabledExtensions[i];
+	    			if (path.toLowerCase().endsWith(ext)) {
+	    				isValidFileForThumb = true;
+	    				Object[] tmpValues = {item, new Integer(index)};
+	    				synchronized (thumbStack) {
+	    					thumbStack.push(tmpValues);
+	    					thumbStack.notifyAll();
+						}
+	    				break;
+	    			}
+	    		}
+	            
+	            if(isValidFileForThumb == false) {
+	            	item.setThumb(predefinedThumb);
+	            }
+	            
+            }
+            
             item.draw(graphics, 0, y, width, listField.getRowHeight());
         }
 
@@ -824,10 +888,6 @@ public class RimFileBrowser extends PopupScreen {
         	   else return false; 
         }
        
-        public Bitmap getThumb() {
-        	return thumb;
-        }
-        
         private int drawIcon(Graphics graphics, int x, int y, int height) {
 
         	//this is a file, draw the thumb if enabled 
@@ -841,7 +901,7 @@ public class RimFileBrowser extends PopupScreen {
             	int currentBitmapHeight = 0;
             	//thumb is not already loaded, shows the default one
             	if(thumb == null) {
-            		currentBitmap = predefinedThumb;
+            		currentBitmap = loadingThumb;
             		currentBitmapWidth = predefinedThumbWidth;
                 	currentBitmapHeight = predefinedThumbHeight;
                 } else {
@@ -859,7 +919,7 @@ public class RimFileBrowser extends PopupScreen {
 	            int imageHeight = icon.getHeight();
 	            int imageTop = y + ((height - imageHeight) / 2);
 	            int imageLeft = x + ((height - imageWidth) / 2);
-	            graphics.drawBitmap(imageLeft, imageTop, imageWidth, imageHeight, icon, 0, 0);
+	            graphics.drawBitmap(imageLeft, imageTop, imageWidth, imageHeight, getPredefinedFolderIcon(), 0, 0);
             }
             
             return height;
@@ -882,7 +942,10 @@ public class RimFileBrowser extends PopupScreen {
             return value;
         }
 
-        
+        public Bitmap getThumb() {
+        	return thumb;
+        }
+         
         public void setThumb(Bitmap thumb) {
             this.thumb = thumb;
             this.thumbWidth = thumb.getWidth();
@@ -938,10 +1001,12 @@ public class RimFileBrowser extends PopupScreen {
             	new MenuItem(resourceBundle, WordPressResource.MENUITEM_VIEW_TITLES, 200000, 1000) {
             	public void run() {
             		Log.trace(">>> viewTitlesMenu");
-            		isThumbEnabled = false;
-            		stopThumbLoader();
+            		synchronized (thumbStack) {
+            			isThumbEnabled = false;
+            			thumbStack.removeAllElements();
+					}
             		onDisplay();
-            		listField.changeDirectory(0);
+            		listField.invalidate();
             	}
             };
             
@@ -950,7 +1015,7 @@ public class RimFileBrowser extends PopupScreen {
             	public void run() {
             		isThumbEnabled = true;
             		onDisplay();
-            		listField.changeDirectory(0);
+            		listField.invalidate();
             	}
             };
 	  

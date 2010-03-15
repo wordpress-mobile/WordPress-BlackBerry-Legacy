@@ -8,6 +8,7 @@ import net.rim.blackberry.api.invoke.Invoke;
 import net.rim.device.api.io.file.FileSystemJournalListener;
 import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.ApplicationManager;
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.CodeModuleManager;
 import net.rim.device.api.ui.UiApplication;
@@ -335,6 +336,7 @@ public abstract class BlogObjectController extends BaseController {
 		case BROWSER_VIDEO:
           	String videoExtensions[] = MultimediaUtils.getSupportedVideoFormat();// "mp4", "m4a","3gp", "3gp2", "avi", "wmv", "asf", "avi"};
          	RimFileBrowser videoFileBrowser = new RimFileBrowser(videoExtensions, false);
+         	videoFileBrowser.setPredefinedThumb(Bitmap.getBitmapResource("video_thumb_48.png"));
          	videoFileBrowser.setListener(new MultimediaFileBrowserListener(VIDEO));
            	UiApplication.getUiApplication().pushScreen(videoFileBrowser);
           	/*    FileSelectorPopupScreen fpsVideo = new FileSelectorPopupScreen(null, videoExtensions);

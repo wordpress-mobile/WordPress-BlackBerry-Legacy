@@ -18,6 +18,7 @@ import net.rim.device.api.ui.TouchGesture;
 import net.rim.device.api.ui.TouchEvent;
 //#endif
 import net.rim.device.api.ui.component.BitmapField;
+import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
@@ -445,18 +446,26 @@ public class CommentView extends StandardBaseView {
     		int gestureCode = gesture.getEvent();
     		Log.trace(">>> TouchEvent.GESTURE ->  "+gestureCode);
     		
-    		if (gestureCode == TouchGesture.SWIPE_EAST) {
-    			Comment next = controller.getNextComment(comment);
-    			if (next != null) {
-    				setViewValues(next);
-    			}
-    		} else if (gestureCode == TouchGesture.SWIPE_WEST) {
-    			Comment next = controller.getPreviousComment(comment);
-    			if (next != null) {
-    				setViewValues(next);
-    			}
+    	
+    		switch(gestureCode) {
+    		
+	    		case TouchGesture.SWIPE:
+	    			if(gesture.getSwipeDirection() == TouchGesture.SWIPE_EAST) {
+	    				Comment next = controller.getNextComment(comment);
+	        			if (next != null) {
+	        				setViewValues(next);
+	        			}
+	    				return true;
+	    			}
+	    			if(gesture.getSwipeDirection() == TouchGesture.SWIPE_WEST) {
+	    				Comment next = controller.getPreviousComment(comment);
+	        			if (next != null) {
+	        				setViewValues(next);
+	        			}
+	    				return true;
+	    			}
+	    			return false;
     		}
-    		return true;
     	}
 
     	return super.touchEvent(message); 
