@@ -316,7 +316,7 @@ public abstract class BlogObjectController extends BaseController {
 		case BROWSER_PHOTO:
            	 String imageExtensions[] = { "jpg", "jpeg","bmp", "png", "gif"};
            	 
-           	RimFileBrowser photoFileBrowser = new RimFileBrowser(imageExtensions, true);
+           	RimFileBrowser photoFileBrowser = new RimFileBrowser(imageExtensions, false);
            	photoFileBrowser.setListener(new MultimediaFileBrowserListener(PHOTO));
            	UiApplication.getUiApplication().pushScreen(photoFileBrowser);
            	

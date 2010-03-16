@@ -1,3 +1,11 @@
+ERROR_RESIZE_HEIGHT#0="";
+ERROR_RESIZE_WIDTH#0="";
+MENUITEM_VIEW_THUMBNAILS#0="";
+MENUITEM_VIEW_TITLES#0="";
+LABEL_RESIZE_IMAGE_WIDTH#0="Breite";
+LABEL_RESIZE_IMAGE_HEIGHT#0="Höhe";
+GET_FREE_BLOG#0="";
+GET_FREE_BLOG_MENU_ITEM#0="";
 ABOUTVIEW_DESC#0="Eine Open Source BlackBerry Applikation für WordPress Websites";
 ABOUTVIEW_DEVELOPED_BY#0="Definiert von Firma Automattic & entwickelt von Danais.";
 ABOUTVIEW_MORE_INFO#0="Für weitere Infromationen oder um am Projekt teilzuhaben, besuchen Sie bitte unseren Webauftritt unter";
@@ -42,14 +50,14 @@ LABEL_CATEGORY_PARENT#0="Übergeordnete Kategorie";
 LABEL_COMMENT#0="Kommentar";
 LABEL_COMMENT_NOTIFICATIONS#0="Kommentar Benachrichtigungen";
 LABEL_COMMENT_NOTIFICATIONS_INTERVAL#0={
-    "Off",
-    "120 Minuten",
-    "90 Minuten",
-    "60 Minuten",
-    "30 Minuten",
-    "15 Minuten",
-    "10 Minuten",
-    "5 Minuten",
+	"Off",
+	"120 Minuten",
+	"90 Minuten",
+	"60 Minuten",
+	"30 Minuten",
+	"15 Minuten",
+	"10 Minuten",
+	"5 Minuten",
 };
 LABEL_COMMENT_ON#0="Ein";
 LABEL_CONTENT#0="inhalt";
