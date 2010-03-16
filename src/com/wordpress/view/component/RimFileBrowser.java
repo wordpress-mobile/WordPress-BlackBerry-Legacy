@@ -734,14 +734,19 @@ public class RimFileBrowser extends PopupScreen {
 
         protected int moveFocus(int amount, int status, int time) {
             FileBrowserListItem item;
-
+            
+            if(listItems.size() == 0) return super.moveFocus(amount, status, time);
+            
             int oldSelection = getSelectedIndex();
             item = ((FileBrowserListItem) listItems.elementAt(oldSelection));
             item.setSelected(false);
             invalidate(oldSelection);
-
+            
             // Forward the call
             int ret = super.moveFocus(amount, status, time);
+            
+            if(listItems.size() == 0) return ret;
+            
             int newSelection = getSelectedIndex();
 
             // Select the new item
@@ -780,6 +785,8 @@ public class RimFileBrowser extends PopupScreen {
             int oldSelection = getSelectedIndex();
             super.moveFocus(x, y, status, time);
             int newSelection = getSelectedIndex();
+            
+            if(listItems.size() == 0) return;
             
             if(oldSelection != -1) {
 	            item = ((FileBrowserListItem) listItems.elementAt(oldSelection));
