@@ -12,6 +12,7 @@ import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BitmapField;
+import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ObjectListField;
 import net.rim.device.api.ui.container.MainScreen;
@@ -35,22 +36,23 @@ public class BlogView extends BaseView {
 	private static final int mnuPosts = 100;
 	private static final int mnuPages = 110;
 	private static final int mnuComments = 120;
-	private static final int mnuOptions = 130;
-	private static final int mnuRefresh= 140;
+	private static final int mnuMedia = 130;
+	private static final int mnuStats = 140;
+	private static final int mnuOptions = 150;
+	private static final int mnuRefresh= 160;
 	
 	
 	private int awaitingModeration = 0;
 	private BlogListField list;
-    private static final int MIN_HEIGHT = 34; //based on the image
-    //the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
-    private static final int MAX_HEIGHT = 48; 
 	
 	//main menu entries
-	private int[] mainMenuItems = {mnuPosts, mnuPages, mnuComments, mnuOptions, mnuRefresh};
+	private int[] mainMenuItems = {mnuPosts, mnuPages, mnuComments, mnuMedia, mnuStats, mnuOptions, mnuRefresh};
 	private String[] mainMenuItemsLabel = {
 			_resources.getString(WordPressResource.BUTTON_POSTS),
 			_resources.getString(WordPressResource.BUTTON_PAGES),
 			_resources.getString(WordPressResource.BUTTON_COMMENTS),
+			_resources.getString(WordPressResource.BUTTON_MEDIA),
+			_resources.getString(WordPressResource.BUTTON_STATS),
 			_resources.getString(WordPressResource.BUTTON_OPTIONS),
 			_resources.getString(WordPressResource.BUTTON_REFRESH_BLOG)
 			};
@@ -168,21 +170,7 @@ public class BlogView extends BaseView {
       for(int count = 0; count < mainMenuItems.length; ++count) {
       	list.insert(count);
       }
-	/*       
-			 // Leave some space at the bottom to avoid scrolling issue
-	     // on some devices. This is just a workaround
-	     int allowSpace = Display.getHeight() - ( titleField.getHeight()); 
-	     int screenHeight = (98 * allowSpace) / 100;
-	     int rowHeight = screenHeight /  mainMenuItems.length;
-	
-	     if (rowHeight < MIN_HEIGHT) {
-	         rowHeight = MIN_HEIGHT;
-	     }
-	     if (rowHeight > MAX_HEIGHT) {
-	         rowHeight = MAX_HEIGHT;
-	     }
-	     */
-  	   
+
 	   list.setRowHeight(48);  //the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
 	   list.setCallback(new BlogListFieldCallBack());	
 	   add(list); 
@@ -235,15 +223,18 @@ public class BlogView extends BaseView {
 		case (mnuComments):
 			controller.showComments();
 			break;
-
+		case (mnuMedia):
+			Dialog.inform("Too Early!");
+			break;
+		case (mnuStats):
+			Dialog.inform("Too Early!");
+			break;
 		case (mnuOptions):
 			controller.showBlogOptions();
 			break;
-
 		case (mnuRefresh):
 			controller.refreshBlog();
 			break;
-
 		default:
 			controller.displayError("There was an error with the request.");
 			break;
@@ -284,9 +275,13 @@ public class BlogView extends BaseView {
 	
 	private class BlogListFieldCallBack extends BasicListFieldCallBack {
 		
-		private Bitmap imgFolder = Bitmap.getBitmapResource("drafts-folder.png");
+		private Bitmap imgWritePost = Bitmap.getBitmapResource("write_post.png");
+		private Bitmap imgWritePage = Bitmap.getBitmapResource("write_page.png");
+		private Bitmap imgComments = Bitmap.getBitmapResource("comments.png");
+		private Bitmap imgMedia = Bitmap.getBitmapResource("media_library.png");
 		private Bitmap imgSettings = Bitmap.getBitmapResource("settings.png");
-		private Bitmap imgRefresh = Bitmap.getBitmapResource("refresh.png");  
+		private Bitmap imgRefresh = Bitmap.getBitmapResource("refresh.png");
+		private Bitmap imgStats = Bitmap.getBitmapResource("stats.png");  
 		private Bitmap icon;
 		
 		// We are going to take care of drawing the item.
@@ -295,13 +290,19 @@ public class BlogView extends BaseView {
 			String label = mainMenuItemsLabel[index];
 			
 			if ( mainMenuItems[index] == mnuPosts) {
-				icon = imgFolder;
+				icon = imgWritePost;
 			}   
 			if ( mainMenuItems[index] == mnuPages) {
-				icon = imgFolder;
-			}  
+				icon = imgWritePage;
+			}
+			if ( mainMenuItems[index] == mnuMedia) {
+				icon = imgMedia;
+			}
+			if ( mainMenuItems[index] == mnuStats) {
+				icon = imgStats;
+			}
 			if ( mainMenuItems[index] == mnuComments) {
-				icon = imgFolder;
+				icon = imgComments;
 				
 				if(awaitingModeration > 0)
 					label += " ("+awaitingModeration+")";

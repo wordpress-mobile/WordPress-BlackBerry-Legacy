@@ -30,6 +30,5 @@ public final class WordPressInfo {
     
     public static Bitmap getNewCommentsIcon() {
     	return newCommentsIcon;
-    }
-    
+    }    
 }

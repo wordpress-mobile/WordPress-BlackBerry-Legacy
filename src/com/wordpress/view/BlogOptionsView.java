@@ -20,6 +20,7 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogOptionsController;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.BorderedFieldManager;
 
 public class BlogOptionsView extends StandardBaseView {
@@ -158,9 +159,9 @@ public class BlogOptionsView extends StandardBaseView {
 			add(commentNotificationManager);
 			
 			
-            ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
-            ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
-    		buttonBACK.setChangeListener(blogsController.getBackButtonListener());
+            BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
+            BaseButtonField buttonBACK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
+            buttonBACK.setChangeListener(blogsController.getBackButtonListener());
             buttonOK.setChangeListener(blogsController.getOkButtonListener());
             
             HorizontalFieldManager buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);

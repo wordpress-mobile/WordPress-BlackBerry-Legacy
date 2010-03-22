@@ -50,7 +50,7 @@ import net.rim.device.api.ui.Manager;
  */
 public class BorderedFieldManager extends Manager {
 	/** The border width. */
-	private static int borderWidth = 4;
+	private static int borderWidth = 6;
 	
 	/**
 	 * Show a normal border on the bottom.
@@ -108,11 +108,13 @@ public class BorderedFieldManager extends Manager {
 
         // Paint the rounded rectangular cutout section for the contents
         graphics.setColor(backgroundColor);
-        graphics.fillRoundRect(borderWidth, borderWidth, width - (borderWidth * 2), height - (bottomBorderNone ? borderWidth : (borderWidth * 2)), 10, 10);
+        graphics.fillRoundRect(borderWidth, borderWidth, 
+        		width - (borderWidth * 2), height - (bottomBorderNone ? borderWidth : (borderWidth * 2)), 10, 10);
 
         // Paint the inner border of the cutout section
         graphics.setColor(Color.DARKGRAY);
-        graphics.drawRoundRect(borderWidth, borderWidth, width - (borderWidth * 2), height - (bottomBorderNone ? borderWidth : (borderWidth * 2)), 10, 10);
+        graphics.drawRoundRect(borderWidth, borderWidth, 
+        		width - (borderWidth * 2), height - (bottomBorderNone ? borderWidth : (borderWidth * 2)), 10, 10);
 
         if(bottomBorderLine) {
         	graphics.drawLine(0, height - 1, width - 1, height - 1);
@@ -132,8 +134,8 @@ public class BorderedFieldManager extends Manager {
         for(int i=0; i<count; i++) {
     		y += 2;
             Field field = this.getField(i);
-            this.setPositionChild(field, 8, y);
-            this.layoutChild(field, maxWidth - (borderWidth * 2) - 6, getPreferredHeightOfChild(field));
+            this.setPositionChild(field, borderWidth*2, y);
+            this.layoutChild(field, maxWidth - (borderWidth * 4) , getPreferredHeightOfChild(field));
             y += field.getHeight();
         }
         setExtent(maxWidth, getPreferredHeight());

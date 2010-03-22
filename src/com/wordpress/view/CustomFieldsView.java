@@ -18,6 +18,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.BitmapButtonField;
 import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
@@ -72,9 +73,9 @@ public class CustomFieldsView extends StandardBaseView {
 		//add(lblDesc);
 		
 		//add the buttons
-        ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
-        ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
-		buttonBACK.setChangeListener(listenerBackButton);
+        BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
+        BaseButtonField buttonBACK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
+        buttonBACK.setChangeListener(listenerBackButton);
         buttonOK.setChangeListener(listenerOkButton);
         HorizontalFieldManager buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
         buttonsManager.add(buttonOK);

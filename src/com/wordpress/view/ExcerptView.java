@@ -13,6 +13,7 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Post;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
@@ -40,8 +41,9 @@ public class ExcerptView extends StandardBaseView {
     	rowParent.add(excerptContent);
         add(rowParent);
         
-        ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
-        ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
+        BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
+        BaseButtonField buttonBACK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
+        
 		buttonBACK.setChangeListener(listenerBackButton);
         buttonOK.setChangeListener(listenerOkButton);
         HorizontalFieldManager buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);

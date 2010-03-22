@@ -24,7 +24,9 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.BorderedFieldManager;
+import com.wordpress.view.component.EmbossedButtonField;
 
 public class AddBlogsView extends StandardBaseView {
 	
@@ -164,8 +166,8 @@ public class AddBlogsView extends StandardBaseView {
 
             add(rowResizePhotos);
             
-            ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
-            ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
+            BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
+            BaseButtonField buttonBACK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
     		buttonBACK.setChangeListener(addBlogsController.getBackButtonListener());
             buttonOK.setChangeListener(addBlogsController.getOkButtonListener());
             
@@ -176,7 +178,7 @@ public class AddBlogsView extends StandardBaseView {
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
     		
             HorizontalFieldManager buttonsManagerGetFreeBlog = new HorizontalFieldManager(Field.FIELD_HCENTER);
-            ButtonField buttonGetFreeBlog= new ButtonField(_resources.getString(WordPressResource.GET_FREE_BLOG), ButtonField.CONSUME_CLICK);
+            BaseButtonField buttonGetFreeBlog= GUIFactory.createButton(_resources.getString(WordPressResource.GET_FREE_BLOG), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH);
             buttonGetFreeBlog.setChangeListener(listenerGetBlogButton);
             buttonsManagerGetFreeBlog.add(buttonGetFreeBlog);
     		add(buttonsManagerGetFreeBlog); 

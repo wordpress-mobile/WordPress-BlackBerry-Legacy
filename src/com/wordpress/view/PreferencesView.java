@@ -37,6 +37,7 @@ import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.conn.ConnectionUtils;
 import com.wordpress.utils.log.FileAppender;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
@@ -81,8 +82,8 @@ public class PreferencesView extends StandardBaseView {
             addStorageOptionFields();
             addStartupOptionsFields();
             
-            ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
-            ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
+            BaseButtonField buttonOK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
+            BaseButtonField buttonBACK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
     		buttonBACK.setChangeListener(listenerBackButton);
             buttonOK.setChangeListener(listenerOkButton);
             buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
@@ -165,7 +166,7 @@ public class PreferencesView extends StandardBaseView {
 		 
 		 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_REMOVE_TEMPFILE)); 
 		 storageManager.add(lblDesc);
-		 ButtonField buttonReset= new ButtonField(_resources.getString(WordPressResource.BUTTON_REMOVE), ButtonField.CONSUME_CLICK);
+		 BaseButtonField buttonReset= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_REMOVE), ButtonField.CONSUME_CLICK);
 		 buttonReset.setChangeListener(listenerResetButton);
 		 storageManager.add(buttonReset);
 		 add(storageManager);

@@ -67,8 +67,12 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 		Bitmap toDraw = null;
 		if (selected) {
 			toDraw = bgSelected;
+		//	graphics.setColor(0x5292f7);
+		//	graphics.fillRect(x - 1, y - 1, width + 2, height + 1);
 		} else {
 			toDraw = bg;
+		//	graphics.setColor(Color.WHITE);
+		//	graphics.fillRect(x - 1, y - 1, width + 2, height + 1);
 		}
 		
 		int imgWidth = toDraw.getWidth();
@@ -95,7 +99,7 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
         if (selected) {
             graphics.setColor(Color.BLACK);
         } else {
-            graphics.setColor(Color.GRAY);
+            graphics.setColor(Color.BLACK);
         }
 
         if (title != null) {

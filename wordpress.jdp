@@ -146,16 +146,17 @@ src\com\wordpress\view\CommentReplyView.java
 src\com\wordpress\view\CommentsView.java
 src\com\wordpress\view\CommentView.java
 src\com\wordpress\view\component\AnimatedGIFField.java
+src\com\wordpress\view\component\BaseButtonField.java
 src\com\wordpress\view\component\BasicListFieldCallBack.java
 src\com\wordpress\view\component\BitmapButtonField.java
+src\com\wordpress\view\component\BitmapButtonField2.java
 src\com\wordpress\view\component\BlogsListField.java
 src\com\wordpress\view\component\BorderedFieldManager.java
 src\com\wordpress\view\component\BorderedFocusChangeListenerPatch.java
 src\com\wordpress\view\component\CategoriesListField.java
 src\com\wordpress\view\component\CheckBoxListField.java
 src\com\wordpress\view\component\CommentsListField.java
-src\com\wordpress\view\component\CustomButtonField.java
-src\com\wordpress\view\component\FileSelectorPopupScreen.java
+src\com\wordpress\view\component\EmbossedButtonField.java
 src\com\wordpress\view\component\HeaderField.java
 src\com\wordpress\view\component\HorizontalPaddedFieldManager.java
 src\com\wordpress\view\component\HtmlTextField.java
@@ -166,6 +167,7 @@ src\com\wordpress\view\component\RimFileBrowser.java
 src\com\wordpress\view\component\RimFileBrowserListener.java
 src\com\wordpress\view\component\ThrobberRenderer.java
 src\com\wordpress\view\component\VerticalPaddedFieldManager.java
+src\com\wordpress\view\container\JustifiedEvenlySpacedHorizontalFieldManager.java
 src\com\wordpress\view\CustomFieldsView.java
 src\com\wordpress\view\dialog\ConnectionInProgressView.java
 src\com\wordpress\view\dialog\DiscardChangeInquiryView.java
@@ -176,6 +178,7 @@ src\com\wordpress\view\dialog\WaitScreen.java
 src\com\wordpress\view\DraftPagesView.java
 src\com\wordpress\view\DraftPostsView.java
 src\com\wordpress\view\ExcerptView.java
+src\com\wordpress\view\GUIFactory.java
 src\com\wordpress\view\MainView.java
 src\com\wordpress\view\MediaEntryPropView.java
 src\com\wordpress\view\mm\MediaObjFileJournalListener.java
@@ -197,6 +200,9 @@ src\com\wordpress\view\PostView.java
 src\com\wordpress\view\PreferencesView.java
 src\com\wordpress\view\PreviewView.java
 src\com\wordpress\view\StandardBaseView.java
+src\com\wordpress\view\touch\BottomBarButtonField.java
+src\com\wordpress\view\touch\BottomBarItem.java
+src\com\wordpress\view\touch\BottomBarManager.java
 src\com\wordpress\xmlrpc\BlogAuthConn.java
 src\com\wordpress\xmlrpc\BlogConn.java
 src\com\wordpress\xmlrpc\BlogConnResponse.java
@@ -233,13 +239,16 @@ src\disclosure-indicator.png
 src\drafts-folder.png
 src\gravatar.png
 src\icons\application-icon-new.png
+src\icons\comments.png
 src\icons\edit_add.png
 src\icons\enqueued.png
 src\icons\file_temporary_48.png
 src\icons\folder_yellow_open.png
 src\icons\folder_yellow_open_48.png
 src\icons\loading-gif.bin
+src\icons\media_library.png
 src\icons\mime_unknown_48.png
+src\icons\stats.png
 src\icons\stop.png
 src\icons\video_rec.png
 src\icons\video_thumb.png
@@ -249,6 +258,8 @@ src\icons\wordpress_home_300.png
 src\icons\wordpress_home_340.png
 src\icons\wordpress_home_460.png
 src\icons\wplogo_header.png
+src\icons\write_page.png
+src\icons\write_post.png
 src\important.png
 src\MainBackground.png
 src\org\kobjects\base64\Base64.java
@@ -291,4 +302,4 @@ Title=WordPress
 Type=0
 UserData=|src
 Vendor=Research In Motion Limited
-Version=1.0
+Version=1.1
