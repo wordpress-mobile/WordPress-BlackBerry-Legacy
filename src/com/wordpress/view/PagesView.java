@@ -1,19 +1,14 @@
+//#preprocess
 package com.wordpress.view;
 
 import java.util.Date;
 import java.util.Hashtable;
 
-import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.FieldChangeListener;
-import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.component.ButtonField;
-import net.rim.device.api.ui.component.LabelField;
-import net.rim.device.api.ui.component.SeparatorField;
-import net.rim.device.api.ui.container.HorizontalFieldManager;
+import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
@@ -21,73 +16,73 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PagesController;
 import com.wordpress.model.Page;
-import com.wordpress.view.component.BitmapButtonField;
 import com.wordpress.view.component.ListActionListener;
 import com.wordpress.view.component.PostsListField;
+
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.Touchscreen;
+import com.wordpress.view.touch.BottomBarItem;
+//#endif
 
 public class PagesView extends BaseView implements ListActionListener {
 	
     private PagesController controller= null;
     private PostsListField  pagesList; 
-    private HorizontalFieldManager topButtonsManager;
     private VerticalFieldManager dataScroller;
-    private ButtonField buttonNewPost;
-	private ButtonField buttonDraftPosts;
-	private ButtonField buttonRefresh;
-	private LabelField lblPagesNumber;
-	private LabelField lblNewPagesNumber;
-	private Bitmap _writeBitmap = Bitmap.getBitmapResource("write.png");
-	private Bitmap _localDraftBitmap = Bitmap.getBitmapResource("browser.png");
-	private Bitmap _refreshBitmap = Bitmap.getBitmapResource("refresh.png");
 
 	
 	 public PagesView(PagesController _controller, Page[] pages, int numberOfNewPosts) {
 	    	super(_resources.getString(WordPressResource.TITLE_PAGES)+ " > "+ _controller.getBlogName(), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 	    	this.controller=_controller;
 	        
-	    	  //A HorizontalFieldManager to hold the buttons headings.
-	        topButtonsManager = new HorizontalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
-	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
-	        
-	        //setup top buttons
-	        buttonNewPost = new BitmapButtonField(_writeBitmap, ButtonField.CONSUME_CLICK | Field.FIELD_VCENTER);
-	        buttonNewPost.setChangeListener(listenerButton);
-	        buttonDraftPosts = new BitmapButtonField(_localDraftBitmap,  ButtonField.CONSUME_CLICK | Field.FIELD_VCENTER);
-	        buttonDraftPosts.setChangeListener(listenerButton);
-	        buttonRefresh = new BitmapButtonField(_refreshBitmap,  ButtonField.CONSUME_CLICK | Field.FIELD_VCENTER);
-	        buttonRefresh.setChangeListener(listenerButton);
-
-	        topButtonsManager.add(buttonNewPost);
-	        topButtonsManager.add(buttonDraftPosts);
-	        topButtonsManager.add(buttonRefresh);
-	        
-	        VerticalFieldManager pageNumbersFieldManager = new VerticalFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
-	        		| HorizontalFieldManager.NO_VERTICAL_SCROLL | Field.FIELD_BOTTOM | Field.FIELD_RIGHT | Field.USE_ALL_WIDTH);
-	        
 	        if(pages != null) {
-	        	lblPagesNumber = getLabel(getNumberOfTotalPageLabel(pages.length), Field.FIELD_BOTTOM | Field.FIELD_RIGHT);
-	        	lblNewPagesNumber = getLabel(getNumberOfNewPageLabel(numberOfNewPosts), Field.FIELD_BOTTOM | Field.FIELD_RIGHT);
+	        	String subTitleValue = getNumberOfTotalPageLabel(pages.length)+ " " + getNumberOfNewPageLabel(numberOfNewPosts);
+	        	this.setSubTitleText(subTitleValue);
+	        } else {
+	        	this.setSubTitleText("");
 	        }
-	        else {
-	        	lblPagesNumber = getLabel("N.A.", Field.FIELD_BOTTOM | Field.FIELD_RIGHT);
-	        	lblNewPagesNumber = getLabel("", Field.FIELD_BOTTOM | Field.FIELD_RIGHT);
-	        }
-	        lblPagesNumber.setFont(lblPagesNumber.getFont().derive(Font.PLAIN));
-	        lblNewPagesNumber.setFont(lblNewPagesNumber.getFont().derive(Font.PLAIN));
-	        pageNumbersFieldManager.add(lblPagesNumber);
-	        pageNumbersFieldManager.add(lblNewPagesNumber);
-	        topButtonsManager.add(pageNumbersFieldManager);
-	    
 	        
 	        //A HorizontalFieldManager to hold the posts list
 	        dataScroller = new VerticalFieldManager(VerticalFieldManager.VERTICAL_SCROLL
 	                 | VerticalFieldManager.VERTICAL_SCROLLBAR);
-
-			add(topButtonsManager);
-			add(new SeparatorField());
+	        
+	        //#ifdef IS_OS47_OR_ABOVE
+        	initUpBottomBar();
+        	//#endif
+		
 			add(dataScroller);
 			buildList(pages);
 	 }
+	 
+		//#ifdef IS_OS47_OR_ABOVE
+		private void initUpBottomBar() {
+			if (Touchscreen.isSupported() == false) return;
+			
+			BottomBarItem items[] = new BottomBarItem[3];
+			items[0] = new BottomBarItem("write.png", "write.png", _resources.getString(WordPressResource.MENUITEM_NEW));
+			items[1] = new BottomBarItem("browser.png", "browser.png", _resources.getString(WordPressResource.MENUITEM_LOCALDRAFTS));
+			items[2] = new BottomBarItem("refresh.png", "refresh.png", _resources.getString(WordPressResource.MENUITEM_REFRESH));
+			
+			initializeBottomBar(items);
+		}
+		
+		protected void bottomBarActionPerformed(int mnuItem) {
+			switch (mnuItem) {
+			case 0:
+				controller.newPage();	
+				break;
+			case 1:
+				controller.showDraftPages(); 
+				break;
+			case 2:
+				controller.refreshPagesList(); //reload only the posts list			
+				break;
+			default:
+				break;
+			}
+		}
+	//#endif
+	 
 
 	 private String getNumberOfNewPageLabel(int recentPage) {
 	        String numerOfPageLabel = null;
@@ -109,7 +104,6 @@ public class PagesView extends BaseView implements ListActionListener {
 	 }
 	 
 	private void buildList(Page[] pages) {
-		removeAllMenuItems();
         
 		Hashtable elements[]= new Hashtable[0];
 		
@@ -141,67 +135,75 @@ public class PagesView extends BaseView implements ListActionListener {
 		
 		dataScroller.add(pagesList);
 		pagesList.setFocus(); //set the focus over the list
-
-		if(pages != null && pages.length > 0 ) {
-			addMenuItem(_editPostItem);
-			addMenuItem(_deletePostItem);
-		}
-		
-		addMenuItem(_refreshPostListItem);
 	}
 	 
 
-    private MenuItem _editPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDIT, 200, 10) {
+    //Override the makeMenu method so we can add a custom menu item
+    //if the checkbox ListField has focus.
+    protected void makeMenu(Menu menu, int instance)
+    {
+    	
+        Field focus = getLeafFieldWithFocus();
+        if(pagesList != null && focus == pagesList) 
+        {
+        	if(pagesList.getSize() > 0 ) {
+        		addMenuItem(_editPageMenuItem);
+    			addMenuItem(_deletePageMenuItem);
+    		}
+        }
+        
+        menu.add(_newPageMenuItem);
+        menu.add(_draftPageMenuItem);
+        menu.add(_refreshPageListItem);                
+        
+        //Create the default menu.
+        super.makeMenu(menu, instance);
+    }
+
+    private MenuItem _newPageMenuItem = new MenuItem( _resources, WordPressResource.MENUITEM_NEW, 200, 10) {
         public void run() {
-            int selectedPage = pagesList.getSelectedIndex();
-            controller.editPage(selectedPage);
+        	controller.newPage();
         }
     };
-	
-	private MenuItem _deletePostItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE, 210, 10) {
+    
+    private MenuItem _draftPageMenuItem = new MenuItem( _resources, WordPressResource.MENUITEM_LOCALDRAFTS, 210, 10) {
+        public void run() {
+    	 controller.showDraftPages(); 
+        }
+    };
+ 
+    private MenuItem _editPageMenuItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDIT, 200000, 10) {
+    	public void run() {
+    		int selectedPage = pagesList.getSelectedIndex();
+    		controller.editPage(selectedPage);
+    	}
+    };
+    
+	private MenuItem _deletePageMenuItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE, 210000, 10) {
         public void run() {
             int selectedPage = pagesList.getSelectedIndex();
             controller.deletePage(selectedPage);
         }
     };
     
-    private MenuItem _refreshPostListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 220, 10) {
+    private MenuItem _refreshPageListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 220000, 10) {
         public void run() {
         	controller.refreshPagesList();
         }
     };
      
-    /*
-    private MenuItem _draftPostsItem = new MenuItem( _resources, WordPressResource.MENUITEM_LOCALDRAFT, 120, 10) {
-        public void run() {
-    	 controller.showDraftPages(); 
-        }
-    };
- */
-    
-	private FieldChangeListener listenerButton = new FieldChangeListener() {
-	    public void fieldChanged(Field field, int context) {
-	    	if(field == buttonNewPost){
-	    		controller.newPage();	    		
-	    	} else if(field == buttonRefresh){
-	    		controller.refreshPagesList(); //reload only the posts list
-	    	} else if(field == buttonDraftPosts) {
-	    		controller.showDraftPages(); 
-	    	}
-	   }
-	};
 
-	
+    	
 	public void refresh(Page[] pages, int count){
 		dataScroller.delete(pagesList);
+				
+        if(pages != null) {
+        	String subTitleValue = getNumberOfTotalPageLabel(pages.length)+ " " + getNumberOfNewPageLabel(count);
+        	this.setSubTitleText(subTitleValue);
+        } else {
+        	this.setSubTitleText("");
+        }
 		
-		if(pages != null) {
-			lblPagesNumber.setText(getNumberOfTotalPageLabel(pages.length));
-			lblNewPagesNumber.setText(getNumberOfNewPageLabel(count));
-		} else {
-			lblPagesNumber.setText("N.A.");
-			lblNewPagesNumber.setText("");
-		}
 		buildList(pages);
 	}
 

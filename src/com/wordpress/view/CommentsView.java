@@ -6,11 +6,8 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.Menu;
-import net.rim.device.api.ui.component.SeparatorField;
-import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
@@ -21,16 +18,12 @@ import com.wordpress.controller.GravatarController;
 import com.wordpress.model.Comment;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.CommentsListField;
-import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.component.ListActionListener;
 
 public class CommentsView extends BaseView implements ListActionListener {
 	
     private CommentsController controller= null;
-    private HorizontalFieldManager topManager;
     private VerticalFieldManager dataScroller;
-	private LabelField lblPostsNumber;
-	
 	private CommentsListField commentListController;
 	private GravatarController gravatarController;
 	private ListField commentsList;
@@ -40,20 +33,12 @@ public class CommentsView extends BaseView implements ListActionListener {
 	    	this.controller=_controller;
 			gravatarController = gvtCtrl;
 	                
-	    	  //A HorizontalFieldManager to hold the posts number label
-	    	topManager = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
-	            | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
-
-	        lblPostsNumber = getLabel(_resources.getString(WordPressResource.MENUITEM_COMMENTS)+" "+controller.getCommentsCount());
-	        topManager.add(lblPostsNumber);
+	        this.setSubTitleText(_resources.getString(WordPressResource.MENUITEM_COMMENTS)+" "+controller.getCommentsCount());
 	    	
 	        //A Vertical FM to hold the comments list
 	        dataScroller = new VerticalFieldManager(VerticalFieldManager.VERTICAL_SCROLL
 	                 | VerticalFieldManager.VERTICAL_SCROLLBAR);
-
 	        
-			add(topManager);
-			add(new SeparatorField());
 			add(dataScroller);
 			buildList(comments);
 	 }
@@ -76,7 +61,7 @@ public class CommentsView extends BaseView implements ListActionListener {
 		dataScroller.add(commentsList);
 		
 		//update comment number
-		lblPostsNumber.setText(_resources.getString(WordPressResource.MENUITEM_COMMENTS)+" "+comments.length);
+	    this.setSubTitleText(_resources.getString(WordPressResource.MENUITEM_COMMENTS)+" "+controller.getCommentsCount());
 		
 		switchMenu();
 		addMenuItem(_refreshCommentsListItem);
@@ -253,18 +238,6 @@ public class CommentsView extends BaseView implements ListActionListener {
 		return this.controller;
 	}
 
-	/*
-	 // Handle trackball clicks.
-	protected boolean navigationClick(int status, int time) {
-		Field fieldWithFocus = this.getFieldWithFocus();
-		if(fieldWithFocus == topManager) { //focus on the top buttons, do not open menu on whell click
-			return true;
-		}
-		else 
-		 return super.navigationClick(status,time);
-	}
-*/
-	
 	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {
 		gravatarController.deleteObservers(); //remove the observers but continue to working
@@ -272,7 +245,6 @@ public class CommentsView extends BaseView implements ListActionListener {
 		controller.backCmd();
 		return true;
 	}
-	
 	
 	public boolean onMenu(int instance) {
 		boolean result;

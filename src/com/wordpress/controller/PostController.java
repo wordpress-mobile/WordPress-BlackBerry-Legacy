@@ -388,9 +388,10 @@ public class PostController extends BlogObjectController {
 	public void sendPostToBlog() {
 		
 		if(post.getStatus() == null || post.getStatus().equals(LOCAL_DRAFT_KEY)) {
-			displayMessage(_resources.getString(WordPressResource.MESSAGE_LOCAL_DRAFT_NOT_SUBMIT));
-			return;
-		}	
+		//	displayMessage(_resources.getString(WordPressResource.MESSAGE_LOCAL_DRAFT_NOT_SUBMIT));
+		//	return;
+			post.setStatus("publish");
+		}
 		
 		//adding post connection
 		BlogConn connection;

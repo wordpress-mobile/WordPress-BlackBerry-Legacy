@@ -224,10 +224,10 @@ public class BlogView extends BaseView {
 			controller.showComments();
 			break;
 		case (mnuMedia):
-			Dialog.inform("Too Early!");
+			Dialog.inform("Work in progress!");
 			break;
 		case (mnuStats):
-			Dialog.inform("Too Early!");
+			Dialog.inform("Work in progress!");
 			break;
 		case (mnuOptions):
 			controller.showBlogOptions();

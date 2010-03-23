@@ -116,11 +116,10 @@ public class BottomBarButtonField extends Field {
 		}
 		if(hasHover) {
 			graphics.pushContext(0, 0, width, height, 0, 0);
-	        // Paint the inner border of the cutout section
-	        graphics.setColor(Color.DARKGRAY);
-	        graphics.drawRoundRect(1, 1 , width-1, height-1, 15, 15);
+			graphics.setColor(Color.DARKGRAY);
+			graphics.drawRoundRect(1, 1 , width-1, height-1, 15, 15);
 			graphics.setGlobalAlpha(60);
-			graphics.setColor(Color.BLUE);
+			graphics.setColor(Color.GRAY);
 			graphics.fillRoundRect(1, 1, width-1, height-1, 15, 15);
 			graphics.popContext();
 		}

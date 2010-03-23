@@ -22,6 +22,7 @@ public class BottomBarManager extends Manager {
 		X_PTS = new int[]{0, 0, getPreferredWidth(), getPreferredWidth()};
         Y_PTS = new int[]{0, HEIGHT, HEIGHT, 0};
         upperDrawColors = new int[]{0xdeebff, 0x9cbeff, 0x9cbeff, 0xdeebff};
+        //upperDrawColors = new int[]{Color.WHITE, Color.LIGHTGREY, Color.LIGHTGREY, Color.WHITE};
 	}
 	
 	protected void sublayout(int maxWidth, int maxHeight) {
@@ -41,7 +42,7 @@ public class BottomBarManager extends Manager {
 	
 	protected void paintBackground(Graphics graphics) {
 		graphics.drawShadedFilledPath(X_PTS, Y_PTS, null, upperDrawColors, null);
-		graphics.setColor(Color.GRAY);
+		graphics.setColor(Color.BLACK);
 		graphics.drawLine(0, 0 , fieldWidth, 0);
 	}
 
