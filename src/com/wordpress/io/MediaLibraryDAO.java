@@ -29,13 +29,24 @@ public class MediaLibraryDAO implements BaseDAO {
     	Serializer ser= new Serializer(in);
     	Vector comments = (Vector) ser.deserialize();
     	in.close();
-
-    	mediaLib = new MediaLibrary[comments.size()];
+    	
+    	Vector controlledMediaEntries = new Vector();
+    	String error = null;
     	for (int i = 0; i < comments.size(); i++) {
     		Hashtable elementAt = (Hashtable) comments.elementAt(i);
     		MediaLibrary tmpEntry = hashtable2MediaLibraryEntry(elementAt);
-    		mediaLib[i] = tmpEntry;
+    		if(tmpEntry != null)
+    		 controlledMediaEntries.addElement(tmpEntry);
+    		else 
+    			error = new String ("Error while loading media library from device memory");
 		}
+
+    	mediaLib = new MediaLibrary[controlledMediaEntries.size()];
+    	for (int i = 0; i < controlledMediaEntries.size(); i++) {
+    		MediaLibrary elementAt = (MediaLibrary) controlledMediaEntries.elementAt(i);
+    		mediaLib[i] = elementAt;
+		}
+    	
     	return mediaLib;
 	}
 	
@@ -118,11 +129,11 @@ public class MediaLibraryDAO implements BaseDAO {
 	}
 	
 	private static synchronized Hashtable mediaItem2Hashtable(MediaLibrary item) {
-		
         Hashtable content = new Hashtable();
         if (item.getTitle() != null) {
             content.put("title", item.getTitle());
         }
+        content.put("cutandpaste", new Boolean(item.isCutAndPaste()));
         
 		//convert media object before save them
 		Vector mediaObjects = item.getMediaObjects();
@@ -137,20 +148,27 @@ public class MediaLibraryDAO implements BaseDAO {
 	}
 	
 	private static synchronized MediaLibrary hashtable2MediaLibraryEntry(Hashtable storedData) {
-		MediaLibrary entry = new MediaLibrary();
-		entry.setTitle((String) storedData.get("title"));
-		
-		if(storedData.get("mediaObjects") != null) {
-			Vector hashedMediaIbjects = (Vector) storedData.get("mediaObjects");
-			Vector mediaObjects = new Vector(hashedMediaIbjects.size());
-			for (int i = 0; i < hashedMediaIbjects.size(); i++) {
-				Hashtable tmp = (Hashtable) hashedMediaIbjects.elementAt(i);
-				MediaEntry tmpMedia = MediaEntry.deserialize(tmp);
-				if(tmpMedia != null )
-					mediaObjects.addElement(tmpMedia);
-				}
-		entry.setMediaObjects(mediaObjects);
+		try {
+			MediaLibrary entry = new MediaLibrary();
+			entry.setTitle((String) storedData.get("title"));
+			Boolean isCutAndPaste = (Boolean)storedData.get("cutandpaste");
+			entry.setCutAndPaste(isCutAndPaste.booleanValue());
+			
+			if(storedData.get("mediaObjects") != null) {
+				Vector hashedMediaIbjects = (Vector) storedData.get("mediaObjects");
+				Vector mediaObjects = new Vector(hashedMediaIbjects.size());
+				for (int i = 0; i < hashedMediaIbjects.size(); i++) {
+					Hashtable tmp = (Hashtable) hashedMediaIbjects.elementAt(i);
+					MediaEntry tmpMedia = MediaEntry.deserialize(tmp);
+					if(tmpMedia != null )
+						mediaObjects.addElement(tmpMedia);
+					}
+			entry.setMediaObjects(mediaObjects);
+			}
+			return entry;
+		} catch (Exception e) {
+			Log.trace(e, "Error while reading media library from device storage");
+			return null;
 		}
-        return entry;
 	}
 }

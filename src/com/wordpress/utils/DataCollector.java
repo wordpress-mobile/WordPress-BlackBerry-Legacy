@@ -155,6 +155,7 @@ public class DataCollector {
 	}
 	
 	public void pingStatsEndpoint(int numberOfBlog) {
+		Log.trace("Pinging Stat Endpoint...");
 		byte[] data = getAllInfo(numberOfBlog);	
 		final HTTPPostConn connection = new HTTPPostConn( targetURL  , data);
 		connection.startConnWork(); //starts connection

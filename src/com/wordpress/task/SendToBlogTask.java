@@ -52,7 +52,7 @@ public class SendToBlogTask extends TaskImpl {
 		this.blog = blog;
 		this.library = library;
 		//adding multimedia connection
-		Vector mediaObjects = page.getMediaObjects();
+		Vector mediaObjects = library.getMediaObjects();
 		for (int i =0; i < mediaObjects.size(); i++ ) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			NewMediaObjectConn mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 

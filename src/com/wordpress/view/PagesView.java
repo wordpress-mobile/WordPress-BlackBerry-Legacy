@@ -147,8 +147,8 @@ public class PagesView extends BaseView implements ListActionListener {
         if(pagesList != null && focus == pagesList) 
         {
         	if(pagesList.getSize() > 0 ) {
-        		addMenuItem(_editPageMenuItem);
-    			addMenuItem(_deletePageMenuItem);
+        		menu.add(_editPageMenuItem);
+        		menu.add(_deletePageMenuItem);
     		}
         }
         

@@ -2,9 +2,11 @@ package com.wordpress.controller;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
+import net.rim.device.api.system.Clipboard;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
@@ -12,6 +14,7 @@ import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.MediaLibraryDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.model.MediaEntry;
 import com.wordpress.model.MediaLibrary;
 import com.wordpress.task.SendToBlogTask;
 import com.wordpress.task.TaskProgressListener;
@@ -149,6 +152,23 @@ private class SubmitlibraryTaskListener implements TaskProgressListener {
 			});
 		
 		if (!sendTask.isError()){
+
+			
+			MediaLibrary mediaLibraryObj = getMediaLibraryObj();
+			if(mediaLibraryObj.isCutAndPaste()) {
+				Vector mediaObjects = mediaLibraryObj.getMediaObjects();
+				StringBuffer tmpBuff = new StringBuffer();
+				for (int i = 0; i < mediaObjects.size(); i++) {
+
+					MediaEntry remoteFileInfo = (MediaEntry)mediaObjects.elementAt(i);					
+					tmpBuff.append(remoteFileInfo.getMediaObjectAsHtml());
+				}
+				 // Retrieve the Clipboard object.
+				 Clipboard  cp = Clipboard.getClipboard();
+				 // Copy to clipboard.
+				 cp.put(tmpBuff.toString());
+			}
+			
 			if(internalIdx != -1) {
 				//delete the draft from disk
 				try {

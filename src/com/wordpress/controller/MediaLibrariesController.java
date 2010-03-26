@@ -9,6 +9,7 @@ import net.rim.device.api.ui.UiApplication;
 import com.wordpress.io.MediaLibraryDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.MediaLibrary;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.MediaLibrariesView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 
@@ -23,10 +24,6 @@ public class MediaLibrariesController extends BaseController {
 	public MediaLibrariesController(Blog currentBlog) {
 		super();	
 		this.currentBlog=currentBlog;
-		getMediaLibraries();
-	}
-
-	public MediaLibrary[] getMediaLibraries() {
 		try {
 			//load the media Library obj 
 			mediaLibrary = MediaLibraryDAO.loadAllMediaLibrary(currentBlog);
@@ -34,8 +31,19 @@ public class MediaLibrariesController extends BaseController {
 			displayError(e, "Error while reading drafts phones memory");
 		} catch (RecordStoreException e) {
 			displayError(e, "Error while reading drafts phones memory");
+		} catch (Exception e) {
+			displayError(e, "Error while reading drafts phones memory");
 		}
-		
+	}
+
+	public MediaLibrary[] getMediaLibraries() {
+		mediaLibrary = new MediaLibrary[0];
+		try {
+			//load the media Library obj 
+			mediaLibrary = MediaLibraryDAO.loadAllMediaLibrary(currentBlog);
+		} catch (Exception e) {
+			Log.error(e, "Error while reading drafts phones memory");
+		}
 		return mediaLibrary;
 	}
 
@@ -51,8 +59,6 @@ public class MediaLibrariesController extends BaseController {
 	public String getCurrentBlogName() {
 		return currentBlog.getName();
 	}
-	
-	
 	
 	public void deleteMediaLibrary(int selected){
 		MediaLibrary[] newMediaLibrary = new MediaLibrary[mediaLibrary.length-1];

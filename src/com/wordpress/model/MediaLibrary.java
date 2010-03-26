@@ -11,8 +11,9 @@ public class MediaLibrary extends BlogEntry {
     private Boolean isPhotoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
     private Integer imageResizeWidth = null;
     private Integer imageResizeHeight = null;
+    private boolean isCutAndPaste = false; //cut&paste the response from the server when sending data
     
-    public Boolean isPhotoResizing() {
+	public Boolean isPhotoResizing() {
 		return isPhotoResizing;
 	}
 	public Integer getImageResizeWidth() {
@@ -33,5 +34,11 @@ public class MediaLibrary extends BlogEntry {
 	}
 	public String getTitle() {
 		return title;
+	}
+    public boolean isCutAndPaste() {
+		return isCutAndPaste;
+	}
+	public void setCutAndPaste(boolean isCutAndPaste) {
+		this.isCutAndPaste = isCutAndPaste;
 	}
 }

@@ -16,6 +16,7 @@ import net.rim.device.api.ui.TouchEvent;
 
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.BitmapField;
+import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.container.FlowFieldManager;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
@@ -39,6 +40,7 @@ public class MediaLibraryView extends StandardBaseView {
 	private BasicEditField title;
 	private LabelField lblPhotoNumber;
 	private FlowFieldManager thumbManager;
+	private CheckboxField cutAndPaste;
 	
     public MediaLibraryView(MediaLibraryController _controller, MediaLibrary  entry) {
     	super(_resources.getString(WordPressResource.TITLE_POSTVIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -54,11 +56,24 @@ public class MediaLibraryView extends StandardBaseView {
         rowTitle.add(lblTitle);
         rowTitle.add(title);
         outerManagerRowTitle.add(rowTitle);
+    	BasicEditField lblTitleDesc = getDescriptionTextField(_resources.getString(WordPressResource.MEDIALIBRARY_SCREEEN_TITLE_DESC));
+    	outerManagerRowTitle.add(lblTitleDesc);
         add(outerManagerRowTitle);
+        
+        //row cut&paste
+    	BorderedFieldManager outerManagerCutAndPaste = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
+         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
+    	
+    	cutAndPaste = new CheckboxField(_resources.getString(WordPressResource.LABEL_CUT_AND_PASTE), entry.isCutAndPaste());
+    	outerManagerCutAndPaste.add(cutAndPaste);
+    	BasicEditField lblCutAndPasteDesc = getDescriptionTextField(_resources.getString(WordPressResource.MEDIALIBRARY_SCREEEN_CUTANDPASTE_DESC));
+    	outerManagerCutAndPaste.add(lblCutAndPasteDesc);
+        add(outerManagerCutAndPaste);        
+        
         
         //row photo #s and thumbs
     	BorderedFieldManager outerManagerRowPhoto = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
-         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);    	 
+         		| Manager.NO_VERTICAL_SCROLL);    	 
     	lblPhotoNumber = getLabel("", LabelField.FOCUSABLE);
     	lblPhotoNumber.setText(entry.getMediaObjects().size() + " "+_resources.getString(WordPressResource.TITLE_MEDIA_VIEW));    	
         outerManagerRowPhoto.add(lblPhotoNumber);
@@ -136,6 +151,11 @@ public class MediaLibraryView extends StandardBaseView {
 			entry.setTitle(title.getText());
 			controller.setObjectAsChanged(true);
 			Log.trace("title dirty");
+		}
+		
+		if(cutAndPaste.isDirty()) {
+			entry.setCutAndPaste(cutAndPaste.getChecked());
+			controller.setObjectAsChanged(true);
 		}
 	}
 	
