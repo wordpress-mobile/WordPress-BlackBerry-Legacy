@@ -1,7 +1,6 @@
 package com.wordpress.model;
 
 import java.util.Date;
-import java.util.Vector;
 
 
 /**
@@ -9,7 +8,7 @@ import java.util.Vector;
  * @author dercoli
  *
  */
-public class Post {
+public class Post extends BlogEntry {
 
     private Blog blog;
     private String id = null;
@@ -30,8 +29,6 @@ public class Post {
     private Boolean isPhotoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
     private Integer imageResizeWidth = null;
     private Integer imageResizeHeight = null;
-	private Vector customFields = new Vector();  
-    private Vector mediaObjects = new Vector();
 	private boolean isLocation = false; //true when per-post location setting is active
 	private boolean isLocationPublic = true; //true when location setting is public
 
@@ -193,22 +190,6 @@ public class Post {
 	
 	public Integer getImageResizeHeight() {
 		return imageResizeHeight;
-	}
-	
-	public void setCustomFields(Vector custom_field) {
-		this.customFields = custom_field;
-	}
-
-	public Vector getCustomFields() {
-		return customFields;
-	}
-
-	public Vector getMediaObjects() {
-		return mediaObjects;
-	}
-
-	public void setMediaObjects(Vector mediaObjects) {
-		this.mediaObjects = mediaObjects;
 	}
 
 	public boolean isLocation() {

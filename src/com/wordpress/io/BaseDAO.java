@@ -13,6 +13,7 @@ public interface BaseDAO {
 	public static final String DRAFT_FOLDER_PREFIX = "d/";
 	public static final String PAGE_FOLDER_PREFIX = "p/";
 	public static final String COMMENTS_FILE = "comments";
+	public static final String MEDIALIBRARY_FILE = "media_library";
 	public static final String GRAVATARS_FILE = "gravatars";
 	public static final String BLOG_FILE = "blog";
 	

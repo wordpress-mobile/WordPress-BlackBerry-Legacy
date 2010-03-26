@@ -18,11 +18,11 @@ import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.FileUtils;
 import com.wordpress.io.JSR75FileSystem;
+import com.wordpress.model.AudioEntry;
 import com.wordpress.model.Blog;
+import com.wordpress.model.BlogEntry;
 import com.wordpress.model.MediaEntry;
-import com.wordpress.model.Page;
 import com.wordpress.model.PhotoEntry;
-import com.wordpress.model.Post;
 import com.wordpress.model.VideoEntry;
 import com.wordpress.task.SendToBlogTask;
 import com.wordpress.utils.MultimediaUtils;
@@ -46,15 +46,14 @@ import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.PreviewHTTPConn;
 
 /**
- * This is the base class for Post and Page Obj
  * @author dercoli
  *
  */
 public abstract class BlogObjectController extends BaseController {
 	
 	protected Blog blog;
-	protected Page page=null; //page object
-	protected Post post=null; //post object (mutually excluded with page obj) 
+	protected BlogEntry blogEntry;
+ 
 	protected boolean isModified = false; //the state of post/page. track changes on post/page..
 	protected int draftFolder=-1; //identify draft post folder
 	protected boolean isDraft= false; // identify if post/page is loaded from draft folder
@@ -62,8 +61,10 @@ public abstract class BlogObjectController extends BaseController {
 	public static final int NONE=-1;
 	public static final int PHOTO=1;
 	public static final int VIDEO=2;
-	public static final int BROWSER_VIDEO=3;
-	public static final int BROWSER_PHOTO=4;
+	public static final int AUDIO=3;
+	public static final int BROWSER_VIDEO=4;
+	public static final int BROWSER_PHOTO=5;
+	public static final int BROWSER_AUDIO=6;
 	
 	//related view
 	protected SendToBlogTask sendTask;
@@ -82,48 +83,19 @@ public abstract class BlogObjectController extends BaseController {
 	//journal listener
 	FileSystemJournalListener mediaFileFSListener = null;
 	
-	public void showSettingsView(){
-		boolean isPhotoResing = blog.isResizePhotos(); //first set the value as the predefined blog value
-		Integer imageResizeWidth = blog.getImageResizeWidth();
-		Integer imageResizeHeight = blog.getImageResizeHeight();
-		if(post != null) {
-			if (post.getIsPhotoResizing() != null ) {
-				isPhotoResing = post.getIsPhotoResizing().booleanValue();			
-			}
-			if (post.getImageResizeWidth() != null ) {
-				imageResizeWidth = post.getImageResizeWidth();
-			}
-			if (post.getImageResizeHeight() != null ) {
-				imageResizeHeight = post.getImageResizeHeight();
-			}
-			settingsView= new PostSettingsView(this, post.getAuthoredOn(), post.getPassword(), isPhotoResing, imageResizeWidth, imageResizeHeight);		
-		} else {
-			if (page.getIsPhotoResizing() != null ) {
-				isPhotoResing = page.getIsPhotoResizing().booleanValue();			
-			}
-			if (page.getImageResizeWidth() != null ) {
-				imageResizeWidth = page.getImageResizeWidth();
-			}
-			if( page.getImageResizeHeight() != null ) {
-				imageResizeHeight = page.getImageResizeHeight();
-			}
-			settingsView= new PostSettingsView(this, page.getDateCreatedGMT(), page.getWpPassword(), isPhotoResing, imageResizeWidth, imageResizeHeight);		
-		}
-		UiApplication.getUiApplication().pushScreen(settingsView);
+	
+	public BlogObjectController(Blog _blog, BlogEntry entry) {
+		this.blog = _blog;
+		this.blogEntry = entry;
 	}
 	
+	public abstract void showSettingsView();
 	
 	public void showCustomFieldsView(String title){
 		CustomFieldsView view;
-		
-		if( post != null )
-			view = new CustomFieldsView(this, post.getCustomFields(), title);
-		else
-			view = new CustomFieldsView(this, page.getCustomFields(), title);
-		
+		view = new CustomFieldsView(this, blogEntry.getCustomFields(), title);
 		UiApplication.getUiApplication().pushScreen(view);
 	}
-	
 	
 	public void setObjectAsChanged(boolean value) {
 		isModified = value;
@@ -133,16 +105,11 @@ public abstract class BlogObjectController extends BaseController {
 		return isModified;
 	}
 	
-	
 	protected String[] getPhotoList() {
 		String[] draftPostPhotoList = new String [0];
 		
 		Vector mediaObjects;
-		if(post != null) {
-			mediaObjects = post.getMediaObjects();				
-		} else {
-			mediaObjects = page.getMediaObjects();
-		}
+		mediaObjects = blogEntry.getMediaObjects();
 		draftPostPhotoList = new String[mediaObjects.size()];
 		
 		for (int i = 0; i < mediaObjects.size(); i++) {
@@ -159,11 +126,7 @@ public abstract class BlogObjectController extends BaseController {
 			Log.trace(">>> checkMediaLink ");
 			
 			Vector mediaObjects;
-			if(post != null) {
-				mediaObjects = post.getMediaObjects();				
-			} else {
-				mediaObjects = page.getMediaObjects();
-			}
+			mediaObjects = blogEntry.getMediaObjects();
 			
 			Vector notFoundMediaObjects = new Vector();
 			//checking the existence of photo already linked with the page/post obj
@@ -203,18 +166,18 @@ public abstract class BlogObjectController extends BaseController {
     		if(type == VIDEO) {
     			mediaObj = new VideoEntry();
     			//dont remove the file listener, because we cannot close the recording app programmatically, and the user could change the filename
-    		} else {
+    		}else if(type == PHOTO) {
     			mediaObj = new PhotoEntry();
+    			removeMediaFileJournalListener(); //remove the fs listener.
+    		} else {
+    			//audio
+    			mediaObj = new AudioEntry();
     			removeMediaFileJournalListener(); //remove the fs listener.
     		}
 			mediaObj.setFilePath(completePath);
        	 	
        	 	Vector mediaObjects;
-			if(post != null) {
-				mediaObjects = post.getMediaObjects();				
-			} else {
-				mediaObjects = page.getMediaObjects();
-			}
+       	 	mediaObjects = blogEntry.getMediaObjects();
 			//checking the existence of photo already linked with the page/post obj
 			for (int i = 0; i < mediaObjects.size(); i++) {
 				MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
@@ -245,11 +208,7 @@ public abstract class BlogObjectController extends BaseController {
 		Log.trace("deleting link to photo: "+key);
 		isModified = true; //set the post/page as modified
 		Vector mediaObjects;
-		if(post != null) {
-			mediaObjects = post.getMediaObjects();				
-		} else {
-			mediaObjects = page.getMediaObjects();
-		}
+		mediaObjects = blogEntry.getMediaObjects();
 		//checking the existence of photo linked with the page/post obj
 		for (int i = 0; i < mediaObjects.size(); i++) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
@@ -267,11 +226,7 @@ public abstract class BlogObjectController extends BaseController {
 		photoView= new PhotosView(this);
 
 		Vector mediaObjects;
-		if(post != null) {
-			mediaObjects = post.getMediaObjects();				
-		} else {
-			mediaObjects = page.getMediaObjects();
-		}
+		mediaObjects = blogEntry.getMediaObjects();
 						
 		for (int i = 0; i < mediaObjects.size(); i++) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
@@ -308,48 +263,36 @@ public abstract class BlogObjectController extends BaseController {
 	public void showAddMediaPopUp(int mediaType) {
 		int response= BROWSER_PHOTO;
 		
-    	MultimediaPopupScreen multimediaPopupScreen = new MultimediaPopupScreen(mediaType);
-    	UiApplication.getUiApplication().pushModalScreen(multimediaPopupScreen); //modal screen...
-		response = multimediaPopupScreen.getResponse();
+		//when user want to add an audio the app doesn't show the rec-or-library popup
+		if(mediaType != AUDIO) {		
+	    	MultimediaPopupScreen multimediaPopupScreen = new MultimediaPopupScreen(mediaType);
+	    	UiApplication.getUiApplication().pushModalScreen(multimediaPopupScreen); //modal screen...
+			response = multimediaPopupScreen.getResponse();
+		} else {
+			response = BROWSER_AUDIO; 
+		}
 			
 		switch (response) {
 		case BROWSER_PHOTO:
-           	 String imageExtensions[] = { "jpg", "jpeg","bmp", "png", "gif"};
-           	 
+           	String imageExtensions[] = { "jpg", "jpeg","bmp", "png", "gif"};
            	RimFileBrowser photoFileBrowser = new RimFileBrowser(imageExtensions, false);
            	photoFileBrowser.setListener(new MultimediaFileBrowserListener(PHOTO));
            	UiApplication.getUiApplication().pushScreen(photoFileBrowser);
-           	
-           /*  FileSelectorPopupScreen fps = new FileSelectorPopupScreen(null, imageExtensions);
-             fps.pickFile();
-             String theFile = fps.getFile();
-             if (theFile == null){
-            	 
-             } else {
-    		     if(!theFile.startsWith("file:///")) {
-    		    	 theFile = "file:///"+ theFile;
-    		       } 
-				addLinkToMediaObject(theFile, PHOTO);	
-             }			*/		
 			break;
 			
 		case BROWSER_VIDEO:
-          	String videoExtensions[] = MultimediaUtils.getSupportedVideoFormat();// "mp4", "m4a","3gp", "3gp2", "avi", "wmv", "asf", "avi"};
+          	String videoExtensions[] = MultimediaUtils.getSupportedWordPressVideoFormat();// "mp4", "m4a","3gp", "3gp2", "avi", "wmv", "asf", "avi"};
          	RimFileBrowser videoFileBrowser = new RimFileBrowser(videoExtensions, false);
          	videoFileBrowser.setPredefinedThumb(Bitmap.getBitmapResource("video_thumb_48.png"));
          	videoFileBrowser.setListener(new MultimediaFileBrowserListener(VIDEO));
-           	UiApplication.getUiApplication().pushScreen(videoFileBrowser);
-          	/*    FileSelectorPopupScreen fpsVideo = new FileSelectorPopupScreen(null, videoExtensions);
-            fpsVideo.pickFile();
-            String theVideoFile = fpsVideo.getFile();
-            if (theVideoFile == null){
-           	 
-            } else {
-   		     if(!theVideoFile.startsWith("file:///")) {
-   		    	theVideoFile = "file:///"+ theVideoFile;
-   		       } 
-				addLinkToMediaObject(theVideoFile, VIDEO);	
-            }	*/				
+           	UiApplication.getUiApplication().pushScreen(videoFileBrowser);			
+           	break;
+           	
+		case BROWSER_AUDIO:
+           	String audioExtensions[] = MultimediaUtils.getSupportedWordPressAudioFormat();
+           	RimFileBrowser audioFileBrowser = new RimFileBrowser(audioExtensions, false);
+           	audioFileBrowser.setListener(new MultimediaFileBrowserListener(AUDIO));
+           	UiApplication.getUiApplication().pushScreen(audioFileBrowser);
 			break;
 			
 		case PHOTO:
@@ -456,10 +399,7 @@ public abstract class BlogObjectController extends BaseController {
 		StringBuffer topMediaFragment = new StringBuffer();
 		StringBuffer bottomMediaFragment = new StringBuffer();
 		Vector mediaObjects;
-		if(post != null)
-			mediaObjects = post.getMediaObjects();
-		else 
-			mediaObjects = page.getMediaObjects();
+		mediaObjects = blogEntry.getMediaObjects();
 		
 		for (int i = 0; i < mediaObjects.size(); i++) {
 

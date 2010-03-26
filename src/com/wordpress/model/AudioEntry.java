@@ -4,11 +4,11 @@ import com.wordpress.utils.StringUtils;
 
 import net.rim.device.api.system.Bitmap;
 
-public class VideoEntry extends MediaEntry {
+public class AudioEntry extends MediaEntry {
 
-	public static final String videoPredefinedThumb = "video_thumb.png";
+	public static final String audioPredefinedThumb = "audio.png";
 	
-	public VideoEntry() {
+	public AudioEntry() {
 		super();
 	}
 	
@@ -17,7 +17,7 @@ public class VideoEntry extends MediaEntry {
 	 * @return
 	 */
 	public Bitmap getThumb() {
-		return  Bitmap.getBitmapResource(videoPredefinedThumb);
+		return  Bitmap.getBitmapResource(audioPredefinedThumb);
 	}
 	
 	/**
@@ -37,20 +37,18 @@ public class VideoEntry extends MediaEntry {
 			String[] split = StringUtils.split(title, "/");
 			title = split[split.length-1];
 		}
-		//[wpvideo code]
-		if(videoPressShortCode != null && !videoPressShortCode.trim().equals("")) {
-			tmpBuff.append(videoPressShortCode);
-		} else { 
-			tmpBuff.append("<p>");
-			tmpBuff.append("<a href=\""+this.getFileURL()+"\" title=\""+title+"\">"+
-					title+
-			"</a>");
-			tmpBuff.append("</p>");
-		}
-		
+
+
+		tmpBuff.append("<p>");
+		tmpBuff.append("<a href=\""+this.getFileURL()+"\" title=\""+title+"\">"+
+				title+
+		"</a>");
+		tmpBuff.append("</p>");
+
+
 		return tmpBuff.toString();
 	}
-		
+
 	/**
 	 * Return the Small html rappresentation of the media obj, usefull on preview
 	 * @return

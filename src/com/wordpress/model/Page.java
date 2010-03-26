@@ -3,7 +3,7 @@ package com.wordpress.model;
 import java.util.Date;
 import java.util.Vector;
 
-public class Page {
+public class Page extends BlogEntry {
 	
 	private Date dateCreated = null;
 	private int userID = -1;
@@ -27,12 +27,10 @@ public class Page {
 	private int wpAuthorID = -1;
 	private String wpAuthorDisplayName;
 	private Date dateCreatedGMT;
-	private Vector customFields = new Vector();
 	private String wpPageTemplate;
     private Boolean isPhotoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
     private Integer imageResizeWidth = null;
     private Integer imageResizeHeight = null;
-    private Vector mediaObjects = new Vector();
     
 	
 	public Page(int pageID, String Title, String description, Date dateCreated) {
@@ -149,14 +147,6 @@ public class Page {
 		return dateCreated;
 	}
 
-	public void setCustomFields(Vector custom_field) {
-		this.customFields = custom_field;
-	}
-
-	public Vector getCustomFields() {
-		return customFields;
-	}
-
 	public void setPageId(int pageId) {
 		this.pageID = pageId;
 	}
@@ -260,13 +250,5 @@ public class Page {
 	
 	public Integer getImageResizeHeight() {
 		return imageResizeHeight;
-	}
-	
-	public Vector getMediaObjects() {
-		return mediaObjects;
-	}
-
-	public void setMediaObjects(Vector mediaObjects) {
-		this.mediaObjects = mediaObjects;
 	}
 }

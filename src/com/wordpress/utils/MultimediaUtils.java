@@ -98,7 +98,7 @@ public class MultimediaUtils {
 		return encoding;
 	}
 
-	public static String[] getSupportedVideoFormat(){
+	public static String[] getSupportedWordPressVideoFormat(){
 		String[] lines= {"avi", "mov", "mp4", "m4v", "mpg", "3gp", "3g2"};
 		return lines; 
 		/*
@@ -108,6 +108,11 @@ public class MultimediaUtils {
 		String[] lines=StringUtils.split(formatiSuportati, " ");
 		return lines;*/
 	}	
+	
+	public static String[] getSupportedWordPressAudioFormat(){
+		String audioExtensions[] = { "mp3", "m4a","wav", "ogg"};
+		return audioExtensions;
+	}
 	
 	public static String getVideoMIMEType(String ext){
 		if(ext.toLowerCase().equals("avi"))
@@ -134,5 +139,21 @@ public class MultimediaUtils {
 		return "";		
 	}
 
+	public static String getAudioMIMEType(String ext){
+		if(ext.toLowerCase().equals("mp3"))
+			return "audio/mpeg";
+		
+		if(ext.toLowerCase().equals("m4a"))
+			return "audio/mp4";
+		
+		if(ext.toLowerCase().equals("wav"))
+			return "audio/wav";
+		
+		if(ext.toLowerCase().equals("ogg"))
+			return "application/ogg";
+		
+		return "";		
+	}
+	
 }
 

@@ -346,7 +346,7 @@ public class PreferencesView extends StandardBaseView {
 		 
 		 //video config
 		 if(MultimediaUtils.isVideoRecordingSupported()){
-			 String[] lines=MultimediaUtils.getSupportedVideoFormat();
+			 String[] lines=MultimediaUtils.getSupportedWordPressVideoFormat();
 			 int selectedIndex=0;
 			 for (int i = 0; i < lines.length; i++) {
 				 if(lines[i].equalsIgnoreCase(mPrefs.getVideoEncoding())){

@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.view;
 
 import java.util.Hashtable;
@@ -12,6 +13,11 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ListActionListener;
 import com.wordpress.view.component.PostsListField;
 
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.Touchscreen;
+import com.wordpress.view.touch.BottomBarItem;
+//#endif
+
 public class DraftPostsView extends BaseView implements ListActionListener {
 	
     private DraftPostsController controller= null;
@@ -20,10 +26,42 @@ public class DraftPostsView extends BaseView implements ListActionListener {
 	
 	 public DraftPostsView(DraftPostsController  _controller, Hashtable[] post) {
 	    	super(_resources.getString(WordPressResource.TITLE_DRAFT_POSTS)+" > "+_controller.getCurrentBlogName());
-	    	this.controller=_controller;	        
+	    	this.controller=_controller;
 	        buildList(post);
 	 }
 
+	 
+	 //#ifdef IS_OS47_OR_ABOVE
+	 private void initUpBottomBar(int size) {
+		 if (Touchscreen.isSupported() == false) return;
+
+		 int numberOfButtons = 1;
+		 if( size > 1 ){
+			 numberOfButtons = 2;
+		 }
+		 BottomBarItem items[] = new BottomBarItem[numberOfButtons];
+		 items[0] = new BottomBarItem("write.png", "write.png", _resources.getString(WordPressResource.MENUITEM_NEW));
+		 if(numberOfButtons == 2)
+			 items[1] = new BottomBarItem("stop.png", "browser.png", _resources.getString(WordPressResource.MENUITEM_DELETE));
+
+		 initializeBottomBar(items);
+	 }
+
+	 protected void bottomBarActionPerformed(int mnuItem) {
+		 switch (mnuItem) {
+		 case 0:
+			 controller.newPost();
+			 break;
+		 case 1:
+			 int selectedPost = listaPost.getSelectedIndex();
+			 controller.deletePost(selectedPost);
+			 break;
+		 default:
+			 break;
+		 }
+	 }
+	 //#endif
+	 
 
 	private void buildList(Hashtable[] post) {
 		removeAllMenuItems();	
@@ -37,6 +75,14 @@ public class DraftPostsView extends BaseView implements ListActionListener {
 			addMenuItem(_deletePostItem);
 		} 
 		addMenuItem(_newPostItem);
+		
+        //#ifdef IS_OS47_OR_ABOVE
+		int size = 0;
+		if ((post != null) && post.length > 0)
+			size = 3;
+    	initUpBottomBar(size);
+    	//#endif
+		
 		add(listaPost);
 	}
 	

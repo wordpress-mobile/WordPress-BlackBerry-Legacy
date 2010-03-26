@@ -43,7 +43,7 @@ public final class VideoFileJournalListener implements FileSystemJournalListener
             if (path != null) {
             	
             	Log.debug("FS listener : "+path);
-            	String[] supportedVideoFormat = MultimediaUtils.getSupportedVideoFormat();
+            	String[] supportedVideoFormat = MultimediaUtils.getSupportedWordPressVideoFormat();
             	boolean isSupportedFileFormat = false;
             	for (int i = 0; i < supportedVideoFormat.length; i++) {
 					if(path.toLowerCase().endsWith(supportedVideoFormat[i])) {

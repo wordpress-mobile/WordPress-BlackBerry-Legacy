@@ -20,7 +20,7 @@ public abstract class MediaEntry {
 	protected String MIMEType = ""; //do not store this value
 	protected String videoPressShortCode = null; 
 	
-	public static final String predefinedThumb = "video_thumb.png";
+	public static final String predefinedThumb = "mime_unknown.png";
 
 	public MediaEntry() {}
 	

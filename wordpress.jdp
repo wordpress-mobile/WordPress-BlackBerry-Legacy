@@ -60,6 +60,8 @@ src\com\wordpress\controller\FilteredCommentsController.java
 src\com\wordpress\controller\FrontController.java
 src\com\wordpress\controller\GravatarController.java
 src\com\wordpress\controller\MainController.java
+src\com\wordpress\controller\MediaLibrariesController.java
+src\com\wordpress\controller\MediaLibraryController.java
 src\com\wordpress\controller\MultimediaController.java
 src\com\wordpress\controller\NotificationController.java
 src\com\wordpress\controller\PageController.java
@@ -76,16 +78,19 @@ src\com\wordpress\io\CommentsDAO.java
 src\com\wordpress\io\DraftDAO.java
 src\com\wordpress\io\FileUtils.java
 src\com\wordpress\io\JSR75FileSystem.java
+src\com\wordpress\io\MediaLibraryDAO.java
 src\com\wordpress\io\PageDAO.java
 src\com\wordpress\io\Serializer.java
 src\com\wordpress\location\Gps.java
+src\com\wordpress\model\AudioEntry.java
 src\com\wordpress\model\Author.java
 src\com\wordpress\model\Blog.java
+src\com\wordpress\model\BlogEntry.java
 src\com\wordpress\model\BlogInfo.java
 src\com\wordpress\model\Category.java
 src\com\wordpress\model\Comment.java
 src\com\wordpress\model\MediaEntry.java
-src\com\wordpress\model\MediaObject.java
+src\com\wordpress\model\MediaLibrary.java
 src\com\wordpress\model\Option.java
 src\com\wordpress\model\Page.java
 src\com\wordpress\model\PhotoEntry.java
@@ -168,6 +173,7 @@ src\com\wordpress\view\component\RimFileBrowserListener.java
 src\com\wordpress\view\component\ThrobberRenderer.java
 src\com\wordpress\view\component\VerticalPaddedFieldManager.java
 src\com\wordpress\view\container\JustifiedEvenlySpacedHorizontalFieldManager.java
+src\com\wordpress\view\container\TableLayoutManager.java
 src\com\wordpress\view\CustomFieldsView.java
 src\com\wordpress\view\dialog\ConnectionInProgressView.java
 src\com\wordpress\view\dialog\DiscardChangeInquiryView.java
@@ -181,6 +187,8 @@ src\com\wordpress\view\ExcerptView.java
 src\com\wordpress\view\GUIFactory.java
 src\com\wordpress\view\MainView.java
 src\com\wordpress\view\MediaEntryPropView.java
+src\com\wordpress\view\MediaLibrariesView.java
+src\com\wordpress\view\MediaLibraryView.java
 src\com\wordpress\view\mm\MediaObjFileJournalListener.java
 src\com\wordpress\view\mm\MediaViewMediator.java
 src\com\wordpress\view\mm\MultimediaPopupScreen.java
@@ -239,6 +247,8 @@ src\disclosure-indicator.png
 src\drafts-folder.png
 src\gravatar.png
 src\icons\application-icon-new.png
+src\icons\audio.png
+src\icons\bg_orange.png
 src\icons\comments.png
 src\icons\edit_add.png
 src\icons\enqueued.png
@@ -247,6 +257,7 @@ src\icons\folder_yellow_open.png
 src\icons\folder_yellow_open_48.png
 src\icons\loading-gif.bin
 src\icons\media_library.png
+src\icons\mime_unknown.png
 src\icons\mime_unknown_48.png
 src\icons\stats.png
 src\icons\stop.png

@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.view;
 
 
@@ -6,12 +7,20 @@ import java.util.Vector;
 import net.rim.blackberry.api.browser.Browser;
 import net.rim.blackberry.api.browser.BrowserSession;
 import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.TouchEvent;
+//#endif
+
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
+import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
@@ -45,6 +54,7 @@ public class PhotosView extends StandardBaseView {
     	noPhotoBorderedManager.add(noPhoto);
     	
         updateUI(counterPhotos);
+        addMenuItem(_addAudioItem);
         addMenuItem(_addPhotoItem);
         addMenuItem(_addVideoItem);
     }
@@ -80,6 +90,12 @@ public class PhotosView extends StandardBaseView {
     private MenuItem _addVideoItem = new MenuItem( _resources, WordPressResource.MENUITEM_VIDEO_ADD, 110, 10) {
         public void run() {
         	controller.showAddMediaPopUp(BlogObjectController.VIDEO);
+        }
+    };
+    
+    private MenuItem _addAudioItem = new MenuItem( _resources, WordPressResource.MENUITEM_AUDIO_ADD, 110, 10) {
+        public void run() {
+        	controller.showAddMediaPopUp(BlogObjectController.AUDIO);
         }
     };
     
@@ -182,6 +198,19 @@ public class PhotosView extends StandardBaseView {
     	}
     }
     
+	public boolean onMenu(int instance) {
+		boolean result;
+		// Prevent the context menu from being shown if focus
+		// is on the bitmap
+		if (getLeafFieldWithFocus() instanceof BitmapField 
+				&& instance == Menu.INSTANCE_CONTEXT) {
+			result = false;
+		} else {
+			result = super.onMenu(instance);
+		}
+		return result;
+	}
+    
     protected void onExposed() {
     	Log.trace("MediaView - onExposed");
     	controller.removeMediaFileJournalListener(); //remove the fs listener (used only when recording live video)
@@ -229,7 +258,90 @@ public class PhotosView extends StandardBaseView {
 		Bitmap bitmapRescale = mediaEntry.getThumb();
 		
 		BitmapField photoBitmapField = new BitmapField(bitmapRescale, 
-				BitmapField.FOCUSABLE | BitmapField.FIELD_HCENTER | Manager.FIELD_VCENTER);
+				BitmapField.FOCUSABLE | BitmapField.FIELD_HCENTER | Manager.FIELD_VCENTER){
+			
+            /**
+             * Overrides default implementation.  Performs default action if the 
+             * 4ways trackpad was clicked; otherwise, the default action occurs.
+             * 
+             * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
+             */
+        	protected boolean navigationClick(int status, int time) {
+        		Log.trace(">>> navigationClick");
+        		
+        		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
+        			Log.trace("Input came from the trackwheel");
+        			// Input came from the trackwheel
+        			return super.navigationClick(status, time);
+        			
+        		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
+        			Log.trace("Input came from a four way navigation input device");
+                	Field fieldWithFocus = this;
+                	MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
+                	if(mediaViewMediator != null) {
+                		controller.showMediaObjectProperties(mediaViewMediator);
+                	}
+        			return true;
+        		}
+        		return super.navigationClick(status, time);
+        	}
+        	        	
+            //Allow the space bar to toggle the status of the selected row.
+            protected boolean keyChar(char key, int status, int time)
+            {
+                //If the spacebar was pressed...
+                if (key == Characters.SPACE || key == Characters.ENTER)
+                {
+                	Field fieldWithFocus = this;
+                	MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
+                	if(mediaViewMediator != null) {
+                		controller.showMediaObjectProperties(mediaViewMediator);
+                	}
+                	return true;
+                }
+                return false;
+            }
+			
+			
+        	//#ifdef IS_OS47_OR_ABOVE
+        	protected boolean touchEvent(TouchEvent message) {
+        		Log.trace(">>> touchEvent");
+                boolean isOutOfBounds = false;
+                int x = message.getX(1);
+                int y = message.getY(1);
+                // Check to ensure point is within this field
+                if(x < 0 || y < 0 || x > this.getExtent().width || y > this.getExtent().height) {
+                    isOutOfBounds = true;
+                }
+                if (isOutOfBounds) return false;
+        		    		
+        		//DOWN, UP, CLICK, UNCLICK, MOVE, and CANCEL. An additional event, GESTURE
+        		int eventCode = message.getEvent();
+        		if(eventCode == TouchEvent.CLICK) {
+        			Log.trace("TouchEvent.CLICK");
+                	Field fieldWithFocus = this;
+                	MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
+                	if(mediaViewMediator != null) {
+                		controller.showMediaObjectProperties(mediaViewMediator);
+                	}
+        			return true;
+        		}else if(eventCode == TouchEvent.DOWN) {
+        			Log.trace("TouchEvent.CLICK");
+        		} else if(eventCode == TouchEvent.UP) {
+        			Log.trace("TouchEvent.UP");
+        		} else if(eventCode == TouchEvent.UNCLICK) {
+        			Log.trace("TouchEvent.UNCLICK");
+        			return true; //consume the event: avoid context menu!!
+        		} else if(eventCode == TouchEvent.CANCEL) {
+        			Log.trace("TouchEvent.CANCEL");
+        		}
+        		
+        		return false; 
+        		//return super.touchEvent(message);
+        	}
+        	//#endif
+			
+		};
 		photoBitmapField.setSpace(5, 5);
 		return photoBitmapField;
 /*

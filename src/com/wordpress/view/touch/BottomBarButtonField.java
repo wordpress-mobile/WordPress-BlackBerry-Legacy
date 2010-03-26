@@ -107,21 +107,21 @@ public class BottomBarButtonField extends Field {
 		else {
 			bitmap = disabledBitmap;
 		}
+		if(hasHover) {
+			graphics.pushContext(0, 0, width, height, 0, 0);
+			graphics.setColor(Color.DARKGRAY);
+			graphics.drawRoundRect(1, 1 , width-1, height-1, 15, 15);
+			graphics.setGlobalAlpha(180);
+			graphics.setColor(0xffc318);
+			graphics.fillRoundRect(1, 1, width-1, height-1, 15, 15);
+			graphics.popContext();
+		}
 		if(bitmap != null) {
 			graphics.drawBitmap(
 					(width/2) - (bitmapWidth/2),
 					height - 10 - bitmapHeight,
 					bitmapWidth, bitmapHeight,
 					bitmap, 0, 0);
-		}
-		if(hasHover) {
-			graphics.pushContext(0, 0, width, height, 0, 0);
-			graphics.setColor(Color.DARKGRAY);
-			graphics.drawRoundRect(1, 1 , width-1, height-1, 15, 15);
-			graphics.setGlobalAlpha(60);
-			graphics.setColor(Color.GRAY);
-			graphics.fillRoundRect(1, 1, width-1, height-1, 15, 15);
-			graphics.popContext();
 		}
 	}
 }

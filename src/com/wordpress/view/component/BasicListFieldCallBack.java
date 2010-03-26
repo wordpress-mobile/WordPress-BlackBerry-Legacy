@@ -14,7 +14,7 @@ import net.rim.device.api.ui.component.ListFieldCallback;
 public abstract class BasicListFieldCallBack implements ListFieldCallback {
 	
     protected Bitmap bg = Bitmap.getBitmapResource("bg_light.png");
-	protected Bitmap bgSelected = Bitmap.getBitmapResource("bg_blue.png");
+	protected Bitmap bgSelected = Bitmap.getBitmapResource("bg_orange.png");
 	protected static final int PADDING = 2;
     
 	
@@ -67,14 +67,11 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 		Bitmap toDraw = null;
 		if (selected) {
 			toDraw = bgSelected;
-		//	graphics.setColor(0x5292f7);
+		//	graphics.setColor(0xffe79c);
 		//	graphics.fillRect(x - 1, y - 1, width + 2, height + 1);
 		} else {
 			toDraw = bg;
-		//	graphics.setColor(Color.WHITE);
-		//	graphics.fillRect(x - 1, y - 1, width + 2, height + 1);
 		}
-		
 		int imgWidth = toDraw.getWidth();
 		while (width > -2) {
 			graphics.drawBitmap(x - 1, y - 1, width + 2, height + 1, toDraw, 0, 0);
@@ -85,7 +82,6 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 	}
 	
 	protected void drawBorder(Graphics graphics, int x, int y, int width, int height) {
-		
 		graphics.setColor(Color.GRAY);
 		graphics.drawLine(x, y - 1, x + width, y - 1);
 		graphics.drawLine(x, y + height - 1, x + width, y + height - 1);
@@ -156,7 +152,8 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 
 
     	public int indexOfList(ListField listField, String prefix, int start) {
-    		return listField.getSelectedIndex();
+    		//return listField.getSelectedIndex();
+    		return -1;
     	}
 	    
     	public int getPreferredWidth(ListField listField) {

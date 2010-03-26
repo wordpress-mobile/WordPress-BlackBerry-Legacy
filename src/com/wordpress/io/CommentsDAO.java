@@ -20,7 +20,7 @@ import com.wordpress.model.Comment;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.log.Log;
 
-public class CommentsDAO implements BaseDAO{
+public class CommentsDAO implements BaseDAO {
 	
 	public static synchronized Vector loadComments(Blog blog) throws IOException, RecordStoreException {
 		

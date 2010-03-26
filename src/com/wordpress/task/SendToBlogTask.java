@@ -16,9 +16,11 @@ import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.MediaEntry;
+import com.wordpress.model.MediaLibrary;
 import com.wordpress.model.Page;
 import com.wordpress.model.PhotoEntry;
 import com.wordpress.model.Post;
+import com.wordpress.model.VideoEntry;
 import com.wordpress.utils.CalendarUtils;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.MultimediaUtils;
@@ -42,7 +44,23 @@ public class SendToBlogTask extends TaskImpl {
 	private final Blog blog;
 	private Page page;
 	private Post post;
+	private MediaLibrary library;
 	private int draftFolder; 
+	
+	
+	public SendToBlogTask(Blog blog, MediaLibrary library) {
+		this.blog = blog;
+		this.library = library;
+		//adding multimedia connection
+		Vector mediaObjects = page.getMediaObjects();
+		for (int i =0; i < mediaObjects.size(); i++ ) {
+			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
+			NewMediaObjectConn mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
+					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);				
+			executionQueue.push(mediaConnection);
+		}
+	}
+	
 	
 	public SendToBlogTask(Blog blog, Page page, int draftPageFolder, BlogConn connection) {
 		this.blog = blog;
@@ -173,10 +191,14 @@ public class SendToBlogTask extends TaskImpl {
 			currentObjectPhotoResSetting = post.getIsPhotoResizing();
 			imageResizeWidth = post.getImageResizeWidth();
 			imageResizeHeight = post.getImageResizeHeight();
-		} else {
+		} else if( page != null ) {
 			currentObjectPhotoResSetting = page.getIsPhotoResizing();
 			imageResizeWidth = page.getImageResizeWidth();
 			imageResizeHeight = page.getImageResizeHeight();
+		} else {
+			currentObjectPhotoResSetting = library.isPhotoResizing();
+			imageResizeWidth = library.getImageResizeWidth();
+			imageResizeHeight = library.getImageResizeHeight();
 		}
 		
 		if( currentObjectPhotoResSetting == null ){
@@ -250,13 +272,21 @@ public class SendToBlogTask extends TaskImpl {
 			prepareImage(mediaEntry);
 			sendCallBack = new SendMediaCallBack(mediaEntry);
 			sendCallBack.setOldFilePath(oldFilePath); //set the old file path, because error during resize/sending
-		} else {
+		}else if (mediaEntry instanceof VideoEntry) {
 			Log.trace("Media file is a video content");
 			//set the right content type based on the file extension
 			String[] split = StringUtils.split(mediaEntry.getFilePath(), ".");
 			String ext = split[split.length-1];
 			String videoMIMEType = MultimediaUtils.getVideoMIMEType(ext);
 			mediaEntry.setMIMEType(videoMIMEType);
+			sendCallBack = new SendMediaCallBack(mediaEntry);
+		} else {
+			Log.trace("Media file is an audio content");
+			//set the right content type based on the file extension
+			String[] split = StringUtils.split(mediaEntry.getFilePath(), ".");
+			String ext = split[split.length-1];
+			String audioMIMEType = MultimediaUtils.getAudioMIMEType(ext);
+			mediaEntry.setMIMEType(audioMIMEType);
 			sendCallBack = new SendMediaCallBack(mediaEntry);
 		}
 					

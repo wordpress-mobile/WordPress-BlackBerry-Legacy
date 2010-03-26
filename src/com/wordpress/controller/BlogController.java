@@ -55,6 +55,14 @@ public class BlogController extends BaseController {
 		}
 	}
 	
+	
+	public void showMediaLibrary() {
+		if (currentBlog != null) {
+			MediaLibrariesController ctrl = new MediaLibrariesController(currentBlog);
+			ctrl.showView();
+		}
+	}
+	
 	/** refresh all blog information */
 	public void refreshBlog(){
 		if(currentBlog != null) {

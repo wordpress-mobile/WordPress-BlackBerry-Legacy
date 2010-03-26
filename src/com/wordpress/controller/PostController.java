@@ -27,6 +27,7 @@ import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.ExcerptView;
 import com.wordpress.view.NewCategoryView;
 import com.wordpress.view.PostCategoriesView;
+import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PostView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
@@ -41,18 +42,14 @@ public class PostController extends BlogObjectController {
 	
 	private PostView view = null;
 	private PostCategoriesView catView = null;
-	
 	private String[] postStatusKey; // = {"draft, pending, private, publish, localdraft"};
 	private String[] postStatusLabel; 
-
 	
 	//used when new post/recent post
 	// 0 = new post
 	// 1 = edit recent post
 	public PostController(Post post) {
-		super();	
-		this.post=post;
-		this.blog = post.getBlog();
+		super(post.getBlog(), post);	
 		//assign new space on draft folder, used for photo IO
 		try {
 			draftFolder = DraftDAO.storePost(post, draftFolder);
@@ -61,7 +58,19 @@ public class PostController extends BlogObjectController {
 		}
 		checkMediaObjectLinks();
 	}
-	
+
+	//used when loading draft post from disk
+	public PostController(Post post, int _draftPostFolder) {
+		super(post.getBlog(), post);	
+		this.draftFolder=_draftPostFolder;
+		this.isDraft = true;
+		checkMediaObjectLinks();
+	}
+
+	protected Post getPostObj() {
+		return (Post)blogEntry;
+	}
+		
 	public void startGeoTagging(boolean sentAfterPosition) {
 		Gps gps = new Gps();
 		gps.addObserver(new GPSLocationCallBack(sentAfterPosition));
@@ -110,8 +119,8 @@ public class PostController extends BlogObjectController {
 	protected void updateLocationCustomField(double latitude, double longitude) {
 		
 		Log.debug(">>> updateLocationCustomField ");
-		
-		Vector customFields = this.post.getCustomFields();
+		Post post = getPostObj();
+		Vector customFields = post.getCustomFields();
 		int size = customFields.size();
     	Log.debug("Found "+size +" custom fields");
     	boolean latitudeFound = false;
@@ -198,19 +207,9 @@ public class PostController extends BlogObjectController {
 		Log.debug("<<< updateLocationCustomField ");
 	}
 	
-		
-	//used when loading draft post from disk
-	public PostController(Post post, int _draftPostFolder) {
-		super();	
-		this.post=post;
-		this.blog = post.getBlog();
-		this.draftFolder=_draftPostFolder;
-		this.isDraft = true;
-		checkMediaObjectLinks();
-	}
-	
 	public void showView() {
 		//unfolds hashtable of status
+		Post post = getPostObj();
 		Hashtable postStatusHash = post.getBlog().getPostStatusList();
 		postStatusLabel= new String [0];
 		postStatusKey = new String [0];
@@ -252,6 +251,7 @@ public class PostController extends BlogObjectController {
 	}
 		
 	public int getPostStatusFieldIndex() {
+		Post post = getPostObj();
 		String status = post.getStatus();
 		if(post.getStatus() != null )
 		for (int i = 0; i < postStatusKey.length; i++) {
@@ -266,6 +266,7 @@ public class PostController extends BlogObjectController {
 		
 	
 	public String getPostCategoriesLabel() {
+		Post post = getPostObj();
 		//start with categories
 		int[] selectedCategories = post.getCategories();
 		Category[] blogCategories = post.getBlog().getCategories();
@@ -309,6 +310,7 @@ public class PostController extends BlogObjectController {
 	}
 	
 	public void newCategory(String label, int parentCatID){	
+		Post post = getPostObj();
 		NewCategoryConn connection = new NewCategoryConn (post.getBlog().getXmlRpcUrl(), 
 				Integer.parseInt(post.getBlog().getId()), post.getBlog().getUsername(),
 				post.getBlog().getPassword(), label, parentCatID);
@@ -327,6 +329,7 @@ public class PostController extends BlogObjectController {
 	}
 	
 	public void setPostCategories(Category[] selectedCategories){
+		Post post = getPostObj();
 		//TODO: simply this methods.
 		//first: find if there is any change in selected categories
 		int[] postPrevCategories = post.getCategories();
@@ -386,7 +389,7 @@ public class PostController extends BlogObjectController {
 	
 	
 	public void sendPostToBlog() {
-		
+		Post post = getPostObj();
 		if(post.getStatus() == null || post.getStatus().equals(LOCAL_DRAFT_KEY)) {
 		//	displayMessage(_resources.getString(WordPressResource.MESSAGE_LOCAL_DRAFT_NOT_SUBMIT));
 		//	return;
@@ -458,6 +461,7 @@ public class PostController extends BlogObjectController {
 	//user save post as localdraft
 	public void saveDraftPost() {
 		try {
+    	Post post = getPostObj();
 		 draftFolder = DraftDAO.storePost(post, draftFolder);
 		 setObjectAsChanged(false); //set the post as not modified because we have saved it.
 		 //the changes over the clean state for the UI Fields will be done into view-> save-draft menu item
@@ -469,7 +473,7 @@ public class PostController extends BlogObjectController {
 	}
 			
 	public boolean dismissView() {
-		
+		Post post = getPostObj();
 		if( isObjectChanged() ) {
 
 			String quest=_resources.getString(WordPressResource.MESSAGE_INQUIRY_DIALOG_BOX);
@@ -511,6 +515,7 @@ public class PostController extends BlogObjectController {
 	
 	
 	public void setAuthDate(long authoredOn) {
+		Post post = getPostObj();
 		if(post.getAuthoredOn() != null ) {
 			if ( post.getAuthoredOn().getTime() != authoredOn ) {
 				post.setAuthoredOn(authoredOn);
@@ -523,6 +528,7 @@ public class PostController extends BlogObjectController {
 	}
 	
 	public void setPassword(String password) {
+		Post post = getPostObj();
 		if( post.getPassword() != null && !post.getPassword().equalsIgnoreCase(password) ){
 			post.setPassword(password);
 			setObjectAsChanged(true);
@@ -537,7 +543,7 @@ public class PostController extends BlogObjectController {
 	public void setPhotoResizing(boolean isPhotoRes, Integer imageResizeWidth, Integer imageResizeHeight) {
 
 		Log.trace("Entering setPhotoResizing. imageResizeWidth is " + imageResizeWidth.toString());
-		
+		Post post = getPostObj();
 		if( post.getIsPhotoResizing() != null && !post.getIsPhotoResizing().booleanValue()== isPhotoRes ){
 			post.setIsPhotoResizing(new Boolean(isPhotoRes));
 			setObjectAsChanged(true);
@@ -571,6 +577,7 @@ public class PostController extends BlogObjectController {
 
 	 	
 	public void showComments() {
+		Post post = getPostObj();
 		if(post.getId() == null || post.getId().equals("")) {
 			displayMessage(_resources.getString(WordPressResource.MESSAGE_LOCAL_DRAFT_NO_COMMENT));
 			return;
@@ -580,21 +587,44 @@ public class PostController extends BlogObjectController {
 		}
 	}
 	
-	public void showExcerptView(String title){			
+	public void showExcerptView(String title){		
+		Post post = getPostObj();
 		ExcerptView excerptView= new ExcerptView(this, post, title);
 		UiApplication.getUiApplication().pushScreen(excerptView);
 	}
 	
 	
-	public void showCategoriesView(){			
+	public void showCategoriesView(){
+		Post post = getPostObj();
 		catView= new PostCategoriesView(this, post.getBlog().getCategories(), post.getCategories());
 		UiApplication.getUiApplication().pushScreen(catView);
 	}
 	
 	
-	public void showNewCategoriesView(){			
+	public void showNewCategoriesView(){
+		Post post = getPostObj();
 		NewCategoryView newCatView= new NewCategoryView(this, post.getBlog().getCategories());		
 		UiApplication.getUiApplication().pushScreen(newCatView);
+	}
+	
+	public  void showSettingsView(){
+		Post post = getPostObj();
+		boolean isPhotoResing = blog.isResizePhotos(); //first set the value as the predefined blog value
+		Integer imageResizeWidth = blog.getImageResizeWidth();
+		Integer imageResizeHeight = blog.getImageResizeHeight();
+
+		if (post.getIsPhotoResizing() != null ) {
+			isPhotoResing = post.getIsPhotoResizing().booleanValue();			
+		}
+		if (post.getImageResizeWidth() != null ) {
+			imageResizeWidth = post.getImageResizeWidth();
+		}
+		if (post.getImageResizeHeight() != null ) {
+			imageResizeHeight = post.getImageResizeHeight();
+		}
+		settingsView= new PostSettingsView(this, post.getAuthoredOn(), post.getPassword(), isPhotoResing, imageResizeWidth, imageResizeHeight);		
+
+		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
 
 	/*
@@ -621,6 +651,7 @@ public class PostController extends BlogObjectController {
 		public void update(Observable observable, final Object object) {
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
+					Post post = getPostObj();
 					
 					dismissDialog(connectionProgressView);
 					BlogConnResponse resp= (BlogConnResponse) object;

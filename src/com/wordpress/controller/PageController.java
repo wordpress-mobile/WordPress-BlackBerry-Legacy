@@ -17,6 +17,7 @@ import com.wordpress.task.SendToBlogTask;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.PageView;
+import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 import com.wordpress.xmlrpc.BlogConn;
@@ -32,12 +33,10 @@ public class PageController extends BlogObjectController {
 	private String[] pageTemplateKey; 
 	private String[] pageTemplateLabel; 
 	private Page[] remotePages; //the page on the blog
-
+	
 	//used when new page/edit page
 	public PageController(Blog blog, Page page) {
-		super();	
-		this.blog = blog;
-		this.page= page;	
+		super(blog, page);	
 		//assign new space on draft folder, used for photo IO
 		try {
 			draftFolder = PageDAO.storePage(blog, page, draftFolder);
@@ -50,13 +49,15 @@ public class PageController extends BlogObjectController {
 		
 	//used when loading draft page from disk
 	public PageController(Blog blog, Page page, int _draftPostFolder) {
-		super();
-		this.blog = blog;	
-		this.page=page;
+		super(blog, page);
 		this.draftFolder=_draftPostFolder;
 		this.isDraft = true;
 		remotePages = PageDAO.buildPagesArray(blog.getPages());
 		checkMediaObjectLinks();
+	}
+	
+	protected Page getPageObj() {
+		return (Page)blogEntry;
 	}
 	
 	public void showView() {
@@ -110,7 +111,7 @@ public class PageController extends BlogObjectController {
 
 		
 		String[] draftPostPhotoList = getPhotoList();
-		this.view= new PageView(this, page);
+		this.view= new PageView(this, getPageObj());
 		view.setNumberOfPhotosLabel(draftPostPhotoList.length);
 		UiApplication.getUiApplication().pushScreen(view);
 	}
@@ -127,7 +128,7 @@ public class PageController extends BlogObjectController {
 	
 	public int getParentPageFieldIndex() {
 		for (int i = 0; i < remotePages.length; i++) {
-			if ( remotePages[i].getID() == page.getWpPageParentID() )
+			if ( remotePages[i].getID() == getPageObj().getWpPageParentID() )
 				return i;
 		}
 		return remotePages.length; //selected no parent page (base Page page title)
@@ -139,7 +140,7 @@ public class PageController extends BlogObjectController {
 		if(remotePages.length > selectedFieldIndex)
 			parentPageID = remotePages[selectedFieldIndex].getID();
 		
-		page.setWpPageParentID(parentPageID);
+		getPageObj().setWpPageParentID(parentPageID);
 	}
 		
 	public String[] getPageTemplateLabels() {
@@ -153,7 +154,7 @@ public class PageController extends BlogObjectController {
 	public int getPageTemplateFieldIndex() {
 
 		for (int i = 0; i < pageTemplateKey.length; i++) {
-			if ( pageTemplateKey[i].equals(page.getWpPageTemplate()))
+			if ( pageTemplateKey[i].equals(getPageObj().getWpPageTemplate()))
 				return i;
 		}
 		//can't find index of the selected page template, try with "default"/"home" template
@@ -176,7 +177,7 @@ public class PageController extends BlogObjectController {
 	
 		
 	public int getPageStatusFieldIndex() {
-		String status = page.getPageStatus();
+		String status = getPageObj().getPageStatus();
 		if(status != null )
 		for (int i = 0; i < pageStatusKey.length; i++) {
 			String key = pageStatusKey[i];
@@ -192,29 +193,30 @@ public class PageController extends BlogObjectController {
 
 	public void sendPageToBlog() {
 		
-		if(page.getPageStatus() == null || page.getPageStatus().equals(LOCAL_DRAFT_KEY)) {
-			displayMessage(_resources.getString(WordPressResource.MESSAGE_LOCAL_DRAFT_NOT_SUBMIT));
-			return;
+		if(getPageObj().getPageStatus() == null || getPageObj().getPageStatus().equals(LOCAL_DRAFT_KEY)) {
+			//displayMessage(_resources.getString(WordPressResource.MESSAGE_LOCAL_DRAFT_NOT_SUBMIT));
+			//return;
+			getPageObj().setPageStatus("publish");
 		}	
 		
-		String remoteStatus = page.getPageStatus();
+		String remoteStatus = getPageObj().getPageStatus();
 		boolean publish=false;
 		//if( remoteStatus.equalsIgnoreCase("private") || remoteStatus.equalsIgnoreCase("publish"))
 		if(remoteStatus.equalsIgnoreCase("publish"))
 			publish= true;
 		
 		BlogConn connection;
-		if( page.getID()== -1 ) { //new page
+		if( getPageObj().getID()== -1 ) { //new page
 	           connection = new NewPageConn (blog.getXmlRpcUrl(), blog.getUsername(), 
-	        		   blog.getPassword(), Integer.parseInt(blog.getId()), page ,publish);
+	        		   blog.getPassword(), Integer.parseInt(blog.getId()), getPageObj() ,publish);
 		
 		} else { //edit post
 			 connection = new EditPageConn (blog.getXmlRpcUrl(), blog.getUsername(), 
-	        		   blog.getPassword(), Integer.parseInt(blog.getId()), page ,publish);
+	        		   blog.getPassword(), Integer.parseInt(blog.getId()), getPageObj() ,publish);
 		
 		}
 		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
-		sendTask = new SendToBlogTask(blog, page, draftFolder, connection);
+		sendTask = new SendToBlogTask(blog, getPageObj(), draftFolder, connection);
 		sendTask.setProgressListener(new SubmitPageTaskListener());
 		//push into the Runner
 		WordPressCore.getInstance().getTasksRunner().enqueue(sendTask);
@@ -256,10 +258,11 @@ public class PageController extends BlogObjectController {
 		
 	public void saveDraftPage() {
 		try {
-		 draftFolder = PageDAO.storePage(blog, page, draftFolder);
+		 draftFolder = PageDAO.storePage(blog, getPageObj(), draftFolder);
 		 setObjectAsChanged(false); //set the post as not modified because we have saved it.
 		 //the changes over the clean state for the UI Fields will be done into view-> save-draft menu item
 		 this.isDraft = true; //set as draft
+		 backCmd();
 		} catch (Exception e) {
 			displayError(e,"Error while saving draft page!");
 		}
@@ -309,6 +312,7 @@ public class PageController extends BlogObjectController {
 	
 	
 	public void setAuthDate(long authoredOn) {
+		Page page = getPageObj();
 		if(page.getDateCreatedGMT() != null ) {
 			if ( page.getDateCreatedGMT().getTime() != authoredOn ) {
 				page.setDateCreatedGMT(new Date(authoredOn));
@@ -322,7 +326,7 @@ public class PageController extends BlogObjectController {
 
 
 	public void setPassword(String password) {
-		
+		Page page = getPageObj();
 		if( page.getWpPassword() != null && !page.getWpPassword().equalsIgnoreCase(password) ){
 			page.setWpPassword(password);
 			setObjectAsChanged(true);
@@ -335,7 +339,7 @@ public class PageController extends BlogObjectController {
 	}
 	
 	public void setPhotoResizing(boolean isPhotoRes, Integer imageResizeWidth, Integer imageResizeHeight) {
-		
+		Page page = getPageObj();
 		if( page.getIsPhotoResizing() != null && !page.getIsPhotoResizing().booleanValue()== isPhotoRes ){
 			page.setIsPhotoResizing(new Boolean(isPhotoRes));
 			setObjectAsChanged(true);
@@ -376,5 +380,25 @@ public class PageController extends BlogObjectController {
 	
 	public void refreshView() {
 		//resfresh the post view. not used.
+	}
+	
+	public void showSettingsView(){
+		Page page = getPageObj();
+		boolean isPhotoResing = blog.isResizePhotos(); //first set the value as the predefined blog value
+		Integer imageResizeWidth = blog.getImageResizeWidth();
+		Integer imageResizeHeight = blog.getImageResizeHeight();
+
+		if (page.getIsPhotoResizing() != null ) {
+			isPhotoResing = page.getIsPhotoResizing().booleanValue();			
+		}
+		if (page.getImageResizeWidth() != null ) {
+			imageResizeWidth = page.getImageResizeWidth();
+		}
+		if( page.getImageResizeHeight() != null ) {
+			imageResizeHeight = page.getImageResizeHeight();
+		}
+		settingsView= new PostSettingsView(this, page.getDateCreatedGMT(), page.getWpPassword(), isPhotoResing, imageResizeWidth, imageResizeHeight);		
+		
+		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
 }

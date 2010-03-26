@@ -224,7 +224,7 @@ public class BlogView extends BaseView {
 			controller.showComments();
 			break;
 		case (mnuMedia):
-			Dialog.inform("Work in progress!");
+			controller.showMediaLibrary();
 			break;
 		case (mnuStats):
 			Dialog.inform("Work in progress!");

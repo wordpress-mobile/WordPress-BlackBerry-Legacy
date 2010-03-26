@@ -16,6 +16,7 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
@@ -89,8 +90,8 @@ public class MediaEntryPropView extends StandardBaseView {
 		 add(rowMediaObjPosition);
 		 //-------------
 		 
-        ButtonField buttonOK= new ButtonField(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
-        ButtonField buttonBACK= new ButtonField(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
+		BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
+		BaseButtonField buttonBACK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
 		buttonBACK.setChangeListener(listenerBackButton);
         buttonOK.setChangeListener(listenerOkButton);
         HorizontalFieldManager buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);

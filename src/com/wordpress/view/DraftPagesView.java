@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.view;
 
 import java.util.Date;
@@ -14,6 +15,11 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ListActionListener;
 import com.wordpress.view.component.PostsListField;
 
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.Touchscreen;
+import com.wordpress.view.touch.BottomBarItem;
+//#endif
+
 public class DraftPagesView extends BaseView implements ListActionListener {
 	
     private DraftPagesController controller= null;
@@ -24,6 +30,37 @@ public class DraftPagesView extends BaseView implements ListActionListener {
 	    	this.controller=_controller;	        
 	        buildList(pages);
 	 }
+	 
+	 //#ifdef IS_OS47_OR_ABOVE
+	 private void initUpBottomBar(int size) {
+		 if (Touchscreen.isSupported() == false) return;
+
+		 int numberOfButtons = 1;
+		 if( size > 1 ){
+			 numberOfButtons = 2;
+		 }
+		 BottomBarItem items[] = new BottomBarItem[numberOfButtons];
+		 items[0] = new BottomBarItem("write.png", "write.png", _resources.getString(WordPressResource.MENUITEM_NEW));
+		 if(numberOfButtons == 2)
+			 items[1] = new BottomBarItem("stop.png", "browser.png", _resources.getString(WordPressResource.MENUITEM_DELETE));
+
+		 initializeBottomBar(items);
+	 }
+
+	 protected void bottomBarActionPerformed(int mnuItem) {
+		 switch (mnuItem) {
+		 case 0:
+			 controller.newPage();
+			 break;
+		 case 1:
+			 int selectedPost = pageListField.getSelectedIndex();
+			 controller.deletePage(selectedPost);
+			 break;
+		 default:
+			 break;
+		 }
+	 }
+	 //#endif
 
 
 	 private void buildList(Page[] pages) {
@@ -59,6 +96,13 @@ public class DraftPagesView extends BaseView implements ListActionListener {
 			 } 
 			 
 		 }
+		 
+		 //#ifdef IS_OS47_OR_ABOVE
+		 int size = 0;
+		 if ((pages != null) && pages.length > 0)
+			 size = 3;
+		 initUpBottomBar(size);
+		 //#endif
 		 
 		 addMenuItem(_newItem);
 		 add(pageListField);

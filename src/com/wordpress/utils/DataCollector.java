@@ -126,7 +126,7 @@ public class DataCollector {
 	}
 	
 	
-	public boolean isCollectedDataExpired() {
+	private boolean isCollectedDataExpired() {
 		Log.trace("Find out if stats was expired");
 	
 		Preferences appPrefs = Preferences.getIstance();
@@ -154,9 +154,14 @@ public class DataCollector {
 		
 	}
 	
+	public void pingStatsEndpoint(int numberOfBlog) {
+		byte[] data = getAllInfo(numberOfBlog);	
+		final HTTPPostConn connection = new HTTPPostConn( targetURL  , data);
+		connection.startConnWork(); //starts connection
+	}
 	
 	/**
-	 * Called at startup to stats gathering and check updating
+	 * Called at startup and at fixed interval to gather stats and/or check updating
 	 *  	
 	 * @param numberOfBlog
 	 */
@@ -165,13 +170,15 @@ public class DataCollector {
 		Preferences appPrefs= Preferences.getIstance();
 				
 		if(appPrefs.isFirstStartupOrUpgrade) {
-			byte[] data = getAllInfo(numberOfBlog);	
-			final HTTPPostConn connection = new HTTPPostConn( targetURL  , data);
-			connection.startConnWork(); //starts connection
+			pingStatsEndpoint(numberOfBlog);
 			appPrefs.isFirstStartupOrUpgrade = false; //consume the first startup event
 		} else {
 			//checking new app version and send stats
-			checkForUpdateSilent(numberOfBlog);
+			if(this.isCollectedDataExpired()) {
+				checkForUpdateSilent(numberOfBlog);
+			}	else {
+				Log.trace("< 5 days");
+			}
 		}
 		Log.trace("<<< Collect data");
 	}
@@ -213,8 +220,6 @@ public class DataCollector {
 	
 	private void checkForUpdateSilent(int numberOfBlog){
 		try {
-			//start check upgrade
-			if(this.isCollectedDataExpired()) {
 				Preferences appPrefs= Preferences.getIstance();
 				byte[] data = getAllInfo(numberOfBlog);
 				final HTTPPostConn connection = new HTTPPostConn( targetURL , data);
@@ -225,9 +230,6 @@ public class DataCollector {
 				long currentTime = System.currentTimeMillis();
 				opt.put("update_check_time", String.valueOf(currentTime)); //update last update chek time
 				AppDAO.storeApplicationPreferecens(appPrefs);
-			}	else {
-				Log.trace("< 5 days");
-			}
 		} catch (Exception e) {
 			Log.error(e, "Error while checking upgrade");
 		}

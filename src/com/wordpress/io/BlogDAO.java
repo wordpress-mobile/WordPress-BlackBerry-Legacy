@@ -419,7 +419,7 @@ public class BlogDAO implements BaseDAO {
         		Log.error("No comment notification info found - End of file was reached. Probably a previous blog data file is loaded" );
         	}
         		
-        } catch (EOFException  e) {
+        } catch (Exception  e) {
         	Log.error("No comment notification info found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
         
@@ -431,7 +431,7 @@ public class BlogDAO implements BaseDAO {
         	} else {
         		Log.error("No comment notification info found - End of file was reached. Probably a previous blog data file is loaded" );
         	}
-        } catch (EOFException  e) {
+        } catch (Exception  e) {
         	Log.error("No location info found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
         
@@ -445,7 +445,7 @@ public class BlogDAO implements BaseDAO {
         		Log.error("No image resize width found - End of file was reached. Probably a previous blog data file is loaded" );
         		blog.setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
         	}
-        } catch (EOFException  e) {
+        } catch (Exception  e) {
         	Log.error("No image resize width found - End of file was reached. Probably a previous blog data file is loaded" );
         	blog.setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
 		}
@@ -459,7 +459,7 @@ public class BlogDAO implements BaseDAO {
         		Log.error("No image resize height found - End of file was reached. Probably a previous blog data file is loaded" );
         		blog.setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
         	}
-        } catch (EOFException  e) {
+        } catch (Exception  e) {
         	Log.error("No image resize height found - End of file was reached. Probably a previous blog data file is loaded" );
         	blog.setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
 		}

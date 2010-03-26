@@ -43,6 +43,8 @@ public class PostSettingsView extends StandardBaseView {
 	private Integer imageResizeWidth;
 	private Integer imageResizeHeight;
 	
+	BorderedFieldManager rowDate;
+	BorderedFieldManager rowPassword;
     
     public PostSettingsView(BlogObjectController _controller, Date postAuth, String password, boolean isResImg, Integer imageResizeWidth, Integer imageResizeHeight ) {
     	super(_resources.getString(WordPressResource.MENUITEM_SETTINGS), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
@@ -56,7 +58,7 @@ public class PostSettingsView extends StandardBaseView {
     	}
 			
 		//row date 
-        BorderedFieldManager rowDate = new BorderedFieldManager(
+        rowDate = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL
         		| BorderedFieldManager.BOTTOM_BORDER_NONE);
@@ -76,7 +78,7 @@ public class PostSettingsView extends StandardBaseView {
 		add(rowDate); 
 		
         //row password
-        BorderedFieldManager rowPassword = new BorderedFieldManager(
+        rowPassword = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL
         		| BorderedFieldManager.BOTTOM_BORDER_NONE);
@@ -119,7 +121,14 @@ public class PostSettingsView extends StandardBaseView {
         add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
     }
     
-	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
+    
+    public void removeDateAndPasswdField() {
+    	delete(rowDate);
+    	delete(rowPassword);
+    }
+    
+    
+    private FieldChangeListener listenerOkButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
 	    	saveChanges();
 	    	controller.backCmd();

@@ -37,11 +37,9 @@ public class MainController extends BaseController implements TaskProgressListen
 	}
 	
 	public void showView(){
-		
-		
+				
 		int numberOfBlog = 0; 
-		
-		
+				
 		Log.trace(">>> Checking blogs data");
 	   	 try {
 	   		Hashtable blogsInfo = BlogDAO.getBlogsInfo();
@@ -110,10 +108,6 @@ public class MainController extends BaseController implements TaskProgressListen
 			try {
 				Log.trace("CheckUpdateTask");
 				DataCollector dtc = new DataCollector();
-				if (!dtc.isCollectedDataExpired()){
-					Log.trace("delay time is not over");
-					return;
-				}
 				dtc.collectData(applicationBlogs.size()); //start data gathering here
 			} catch (Throwable  e) {
 				cancel();
@@ -142,6 +136,9 @@ public class MainController extends BaseController implements TaskProgressListen
 	    							
 	    			if (selectedBlog.equals(currentBlog) ) {
 	    				applicationBlogs.removeElementAt(i);
+	    				//ping the stats endpoint with new blog #
+	    				DataCollector dtc = new DataCollector();
+	    				dtc.pingStatsEndpoint(applicationBlogs.size());
 	    				return;
 	    			}
 	    		}
@@ -218,7 +215,10 @@ public class MainController extends BaseController implements TaskProgressListen
 	
 	//listener for the adding blogs task
 	public void taskComplete(Object obj) {
-		taskUpdate(obj);		
+		taskUpdate(obj);
+		//ping the stats endpoint with new blog #
+		DataCollector dtc = new DataCollector();
+		dtc.pingStatsEndpoint(applicationBlogs.size());
 	}
 	
 	//listener for the adding blogs task
