@@ -105,11 +105,7 @@ public abstract class BaseView extends MainScreen {
     protected LabelField getLabel(String label) {
     	return GUIFactory.getLabel(label);
 	}
-    
-    protected LabelField getLabel(String label, long style) {
-    	return GUIFactory.getLabel(label, style);    	
-	} 
-    
+        
     /**
      * TOUCHSCREEN ADDED
      */
@@ -148,6 +144,7 @@ public abstract class BaseView extends MainScreen {
 				Integer itemIdx = (Integer)field.getCookie();
 				if(context == BottomBarButtonField.CHANGE_CLICK) {
 					bottomBarActionPerformed(itemIdx.intValue());
+					hoverField = null;
 				}
 				else if(context == BottomBarButtonField.CHANGE_HOVER_GAINED) {
 					hoverField = field;

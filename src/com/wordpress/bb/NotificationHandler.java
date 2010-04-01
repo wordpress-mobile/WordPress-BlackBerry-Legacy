@@ -38,7 +38,6 @@ public class NotificationHandler {
 	private boolean isNotificationEnabled;
 	private NotificationTask currentNotificationTask = null;
 	private NotificationDetailsTask currentDetailsTask = null;
-	private MainController guiController = null;
 	private Hashtable awaitingCommentsID = new Hashtable(); //key: blog.xmlrpcurl, value: int[] commentsID
 
 	private NotificationHandler() {
@@ -56,14 +55,7 @@ public class NotificationHandler {
 		return instance;
 	}
 
-	/**
-	 * set the gui screen that show notification of new messages
-	 * @param guiController
-	 */
-	public void setGuiController(MainController guiController) {
-		this.guiController = guiController;
-	}
-	
+
 	/**
 	 * Sets whether notifications are enabled.
 	 * 
@@ -152,7 +144,7 @@ public class NotificationHandler {
 			try {
 				Log.trace("NotificationDetailsTask - run method");
 				
-				BlogInfo[] blogsList = guiController.getApplicationBlogs();
+				BlogInfo[] blogsList = MainController.getIstance().getApplicationBlogs();
 				executionQueue = new Queue();
 				
 				for (int i = 0; i < blogsList.length; i++) {
@@ -197,7 +189,7 @@ public class NotificationHandler {
 					UiApplication.getUiApplication().invokeLater(new Runnable() {
 						public void run() {
 							notifyNewMessages();
-							guiController.refreshView(); //update the main view
+							MainController.getIstance().refreshView(); //update the main view
 						}
 					});
 				}
@@ -332,7 +324,7 @@ public class NotificationHandler {
 				Log.trace("NotificationTask - run method");
 				
 				//read all the blogs from the filesystem and prepare the relative connections					
-				BlogInfo[] blogsList = guiController.getApplicationBlogs();
+				BlogInfo[] blogsList = MainController.getIstance().getApplicationBlogs();
 				executionQueue = new Queue();
 				
 				for (int i = 0; i < blogsList.length; i++) {

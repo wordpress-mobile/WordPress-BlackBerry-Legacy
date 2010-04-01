@@ -153,13 +153,7 @@ public class AddBlogsController extends BaseController{
 
 		for (int i = 0; i < addedBlog.size(); i++) {
 			Blog loadedBlog = (Blog)addedBlog.elementAt(i);
-			String blogName = loadedBlog.getName();
-			String blogXmlRpcUrl=loadedBlog.getXmlRpcUrl();
-			String blogId= loadedBlog.getId();
-			int blogLoadingState = loadedBlog.getLoadingState();
-			String usr = loadedBlog.getUsername();
-			String passwd = loadedBlog.getPassword();
-			BlogInfo blogI = new BlogInfo(blogId, blogName, blogXmlRpcUrl, usr, passwd,blogLoadingState, loadedBlog.isCommentNotifies());
+			BlogInfo blogI = new BlogInfo(loadedBlog);
 			applicationBlogs.addElement(blogI);
 		}
 		

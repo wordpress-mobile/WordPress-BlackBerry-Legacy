@@ -147,12 +147,12 @@ public class MainView extends BaseView {
         	addMenuItem(_showBlogItem);
         	addMenuItem(_deleteBlogItem);
         }
-        
         add(listaBlog);    
 	 }
 	 
 	 //update the view of blog list entry
 	 public synchronized void setBlogItemViewState(BlogInfo blogInfo) {
+		 if (blogListController == null) return;
 		 blogListController.setBlogState(blogInfo);
 	 }
 	 
@@ -163,12 +163,6 @@ public class MainView extends BaseView {
 		 return blogListController.getBlogs().length;
 	 }
 	
-	 /*
-	 protected boolean trackwheelClick(int status, int time) {
-		   Log.trace(">>> trackwheelClick");
-		   returnh
-	 }
-	 */
 	 
     /**
      * Overrides default implementation.  Performs the show blog action if the 
@@ -239,8 +233,7 @@ public class MainView extends BaseView {
         }
     };
     
- 
-
+   
     //add blog menu item 
     private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 150, 10) {
         public void run() {

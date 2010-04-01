@@ -12,12 +12,12 @@ public class AudioEntry extends MediaEntry {
 		super();
 	}
 	
-	/**
-	 * get the thumb - 128x128 pixel
-	 * @return
-	 */
 	public Bitmap getThumb() {
 		return  Bitmap.getBitmapResource(audioPredefinedThumb);
+	}
+	
+	public Bitmap getThumb(int width, int height) {
+		return  getThumb();
 	}
 	
 	/**

@@ -227,7 +227,7 @@ public class BlogView extends BaseView {
 			controller.showMediaLibrary();
 			break;
 		case (mnuStats):
-			Dialog.inform("Work in progress!");
+			controller.showStats();
 			break;
 		case (mnuOptions):
 			controller.showBlogOptions();

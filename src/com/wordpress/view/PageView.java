@@ -112,8 +112,9 @@ public class PageView extends StandardBaseView {
 		bodyTextBox= new HtmlTextField(buildBodyFieldContentFromHtml);
 		
 		
-		LabelField lblPageContent = getLabel(_resources.getString(WordPressResource.LABEL_POST_CONTENT));
+		LabelField lblPageContent = getLabel(_resources.getString(WordPressResource.LABEL_CONTENT));
 		outerManagerRowContent.add(lblPageContent);
+		outerManagerRowContent.add(GUIFactory.createSepatorField());
 		outerManagerRowContent.add(bodyTextBox);
 		add(outerManagerRowContent);
 		

@@ -62,7 +62,6 @@ src\com\wordpress\controller\GravatarController.java
 src\com\wordpress\controller\MainController.java
 src\com\wordpress\controller\MediaLibrariesController.java
 src\com\wordpress\controller\MediaLibraryController.java
-src\com\wordpress\controller\MultimediaController.java
 src\com\wordpress\controller\NotificationController.java
 src\com\wordpress\controller\PageController.java
 src\com\wordpress\controller\PagesController.java
@@ -71,6 +70,7 @@ src\com\wordpress\controller\PostsController.java
 src\com\wordpress\controller\PreferenceController.java
 src\com\wordpress\controller\RecentCommentsController.java
 src\com\wordpress\controller\RefreshBlogController.java
+src\com\wordpress\controller\StatsController.java
 src\com\wordpress\io\AppDAO.java
 src\com\wordpress\io\BaseDAO.java
 src\com\wordpress\io\BlogDAO.java
@@ -160,6 +160,7 @@ src\com\wordpress\view\component\BorderedFieldManager.java
 src\com\wordpress\view\component\BorderedFocusChangeListenerPatch.java
 src\com\wordpress\view\component\CategoriesListField.java
 src\com\wordpress\view\component\CheckBoxListField.java
+src\com\wordpress\view\component\ColoredLabelField.java
 src\com\wordpress\view\component\CommentsListField.java
 src\com\wordpress\view\component\EmbossedButtonField.java
 src\com\wordpress\view\component\HeaderField.java
@@ -167,15 +168,18 @@ src\com\wordpress\view\component\HorizontalPaddedFieldManager.java
 src\com\wordpress\view\component\HtmlTextField.java
 src\com\wordpress\view\component\ListActionListener.java
 src\com\wordpress\view\component\NoBlogsListField.java
+src\com\wordpress\view\component\PillButtonField.java
 src\com\wordpress\view\component\PostsListField.java
 src\com\wordpress\view\component\RimFileBrowser.java
 src\com\wordpress\view\component\RimFileBrowserListener.java
 src\com\wordpress\view\component\ThrobberRenderer.java
 src\com\wordpress\view\component\VerticalPaddedFieldManager.java
 src\com\wordpress\view\container\JustifiedEvenlySpacedHorizontalFieldManager.java
+src\com\wordpress\view\container\PillButtonSet.java
 src\com\wordpress\view\container\TableLayoutManager.java
 src\com\wordpress\view\CustomFieldsView.java
 src\com\wordpress\view\dialog\ConnectionInProgressView.java
+src\com\wordpress\view\dialog\CredentialDialog.java
 src\com\wordpress\view\dialog\DiscardChangeInquiryView.java
 src\com\wordpress\view\dialog\ErrorView.java
 src\com\wordpress\view\dialog\InfoView.java
@@ -208,6 +212,7 @@ src\com\wordpress\view\PostView.java
 src\com\wordpress\view\PreferencesView.java
 src\com\wordpress\view\PreviewView.java
 src\com\wordpress\view\StandardBaseView.java
+src\com\wordpress\view\StatsView.java
 src\com\wordpress\view\touch\BottomBarButtonField.java
 src\com\wordpress\view\touch\BottomBarItem.java
 src\com\wordpress\view\touch\BottomBarManager.java
@@ -222,6 +227,7 @@ src\com\wordpress\xmlrpc\comment\GetCommentsConn.java
 src\com\wordpress\xmlrpc\comment\GetCommentStatusListConn.java
 src\com\wordpress\xmlrpc\comment\NewCommentConn.java
 src\com\wordpress\xmlrpc\GetAuthorsConn.java
+src\com\wordpress\xmlrpc\HTTPGetConn.java
 src\com\wordpress\xmlrpc\HTTPPostConn.java
 src\com\wordpress\xmlrpc\NewCategory.java
 src\com\wordpress\xmlrpc\NewCategoryConn.java

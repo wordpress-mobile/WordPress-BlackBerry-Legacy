@@ -17,15 +17,15 @@ public class BlogInfo {
 	private boolean isCommentNotifies = false; //true when comment notifies is active
 	private int commentsAwaitingModeration = 0;
 
-	public BlogInfo(String id, String name, String xmlRpcUrl, String usr, String passwd, int state, boolean notifies) {
+	public BlogInfo(Blog currentBlog) {
 		super();
-		this.id = id;
-		this.name = name;
-		this.xmlRpcUrl = xmlRpcUrl;
-		this.state = state;
-		this.isCommentNotifies = notifies;
-		this.username = usr;
-		this.password = passwd;
+		this.id = currentBlog.getId(); 
+		this.name = currentBlog.getName();
+		this.xmlRpcUrl = currentBlog.getXmlRpcUrl();
+		this.username = currentBlog.getUsername();
+		this.password = currentBlog.getPassword();
+		this.state = currentBlog.getLoadingState();
+		this.isCommentNotifies =currentBlog.isCommentNotifies();
 	}
 	
 	public String getId() {

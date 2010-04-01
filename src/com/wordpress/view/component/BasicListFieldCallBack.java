@@ -152,8 +152,8 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 
 
     	public int indexOfList(ListField listField, String prefix, int start) {
-    		//return listField.getSelectedIndex();
-    		return -1;
+    		return listField.getSelectedIndex();
+    		//return -1;
     	}
 	    
     	public int getPreferredWidth(ListField listField) {

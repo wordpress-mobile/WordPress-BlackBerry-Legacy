@@ -1,5 +1,6 @@
 package com.wordpress.view;
 
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
@@ -31,7 +32,6 @@ public class CommentReplyView extends StandardBaseView {
 	private Comment comment;
 	
 	private HtmlTextField replyContent;
-	private LabelField originalContent;
     
     public CommentReplyView(Blog currentBlog, CommentsController _controller, Comment comment, GravatarController gvtCtrl) {
     	super(_resources.getString(WordPressResource.MENUITEM_COMMENTS_REPLY), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -43,8 +43,10 @@ public class CommentReplyView extends StandardBaseView {
         BorderedFieldManager outerManagerRowFrom = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
         
-        LabelField lblCommentAuthor = getLabel(_resources.getString(WordPressResource.LABEL_AUTHOR));	
-        outerManagerRowFrom.add(lblCommentAuthor);
+		LabelField lblCommentAuthor = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_AUTHOR),
+				Color.BLACK);	
+		outerManagerRowFrom.add(lblCommentAuthor);
+		outerManagerRowFrom.add(GUIFactory.createSepatorField());
         
         HorizontalFieldManager innerManagerRowFrom = new HorizontalFieldManager(Manager.NO_HORIZONTAL_SCROLL | Manager.NO_VERTICAL_SCROLL);
         BitmapField gravatarBitmap = new BitmapField(GravatarController.defaultGravatarBitmap.getBitmap(), BitmapField.NON_FOCUSABLE | Manager.FIELD_VCENTER);
@@ -87,18 +89,21 @@ public class CommentReplyView extends StandardBaseView {
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL
         		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-		LabelField lblCommentContent = getLabel(_resources.getString(WordPressResource.LABEL_COMMENT));		
+		commentContentManager.add(GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_COMMENT),
+        		Color.BLACK));
+		commentContentManager.add(GUIFactory.createSepatorField());
 		BasicEditField commentContent = new  BasicEditField(BasicEditField.READONLY);
 		commentContent.setText(comment.getContent()); 
-        commentContentManager.add(lblCommentContent);
         commentContentManager.add(commentContent);
     	
         //reply content
         BorderedFieldManager commentReplyManager = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL);
-        LabelField lblReplay = getLabel(_resources.getString(WordPressResource.LABEL_CONTENT));
+        LabelField lblReplay = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_CONTENT),
+        		Color.BLACK);
         replyContent = new HtmlTextField("");
         commentReplyManager.add(lblReplay);
+        commentReplyManager.add(GUIFactory.createSepatorField());
         commentReplyManager.add(replyContent);
 
         add(commentContentManager);

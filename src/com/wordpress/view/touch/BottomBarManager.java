@@ -31,8 +31,8 @@ public class BottomBarManager extends Manager {
 		int count = this.getFieldCount();
 		for(int i=0; i<count; i++) {
 			Field field = this.getField(i);
-			this.setPositionChild(field, (i * buttonWidth) + 1, 1);
-			this.layoutChild(field, buttonWidth - 2, HEIGHT - 2);
+			this.setPositionChild(field, (i * buttonWidth) + 1, 2);//1
+			this.layoutChild(field, buttonWidth - 2, HEIGHT - 3); //HEIGHT - 2
 		}
 		setExtent(displayWidth, HEIGHT);
 		
@@ -42,8 +42,14 @@ public class BottomBarManager extends Manager {
 	
 	protected void paintBackground(Graphics graphics) {
 		graphics.drawShadedFilledPath(X_PTS, Y_PTS, null, upperDrawColors, null);
-		graphics.setColor(Color.BLACK);
+		graphics.setColor(0x212121);
 		graphics.drawLine(0, 0 , fieldWidth, 0);
+		int alpha = graphics.getGlobalAlpha(); //remove the next lines
+		graphics.setGlobalAlpha( 0x44 );
+		graphics.setColor(Color.WHITE);
+		graphics.drawLine(0, 1 , fieldWidth, 1);
+		graphics.drawLine(0, 2 , fieldWidth, 2);
+		graphics.setGlobalAlpha( alpha );
 	}
 
 	protected void paint(Graphics graphics) {

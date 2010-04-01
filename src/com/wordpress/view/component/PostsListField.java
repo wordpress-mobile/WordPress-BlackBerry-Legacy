@@ -165,7 +165,7 @@ public class PostsListField extends ObjectListField  {
             int leftImageWidth = 0;
                   
             drawFirstRowMainText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentRow.getTitle(), currentRow.isSelected);
-            drawSecondRowText(graphics, leftImageWidth, y, w - leftImageWidth, height, currentRow.getDate(), currentRow.isSelected);
+            drawSecondRowText(graphics, leftImageWidth, y, w - leftImageWidth, height, currentRow.getSubTitle(), currentRow.isSelected);
 
             graphics.setFont(originalFont);
             graphics.setColor(originalColor);
@@ -194,15 +194,17 @@ public class PostsListField extends ObjectListField  {
         	return (String)data.get("title");
         }
         
-        public String getDate() {
+        public String getSubTitle() {
 			if (data.containsKey("date_created_gmt")) {
 				Date dateCreated = (Date) data.get("date_created_gmt");
 				long time = dateCreated.getTime();
 				Date dateCreatedTZ = new Date(CalendarUtils.adjustTimeToDefaultTimezone(time));		
 				String format = sdFormat.format(dateCreatedTZ);
 				return format;	
-			
-			} else
+			} else if (data.containsKey("images_number")) {
+				String subTitle = (String) data.get("images_number");
+				return subTitle;
+			}else
 				return "";
 		}
                    

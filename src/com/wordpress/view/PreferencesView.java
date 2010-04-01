@@ -6,6 +6,7 @@ import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
@@ -104,8 +105,10 @@ public class PreferencesView extends StandardBaseView {
 				 | Manager.NO_VERTICAL_SCROLL);
 		 
 
-		 LabelField lblStatus = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_STARTUP));
+		 LabelField lblStatus = GUIFactory.getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_STARTUP),
+				 Color.BLACK);
 		 optManager.add(lblStatus);
+		 optManager.add(GUIFactory.createSepatorField());
 		 
 		 //startup checkbox		 
 		 autoStartup = new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_STARTUP_LABEL), mPrefs.isAutoStartup());
@@ -135,8 +138,10 @@ public class PreferencesView extends StandardBaseView {
 				 Manager.NO_HORIZONTAL_SCROLL
 				 | Manager.NO_VERTICAL_SCROLL);
 
-		 LabelField lblStatus = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_STORAGE));
+		 LabelField lblStatus = GUIFactory.getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_STORAGE),
+				 Color.BLACK);
 		 storageManager.add(lblStatus);
+		 storageManager.add(GUIFactory.createSepatorField());
 
 		 if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD()) {
 			 //row storage opt
@@ -178,8 +183,10 @@ public class PreferencesView extends StandardBaseView {
 				 Manager.NO_HORIZONTAL_SCROLL
 				 | Manager.NO_VERTICAL_SCROLL);
 		 
-		 LabelField lblTitle = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_LOG_OPTIONS));
+		 LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_LOG_OPTIONS),
+				 Color.BLACK);
 		 debugManager.add(lblTitle);
+		 debugManager.add(GUIFactory.createSepatorField());
 		 
          BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_DEBUG_DESC)); 
 		 debugManager.add(lblDesc);
@@ -195,8 +202,10 @@ public class PreferencesView extends StandardBaseView {
 				 | Manager.NO_VERTICAL_SCROLL);
 		 
 		 
-		 LabelField lblTitle = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_CONNECTION_OPTIONS));
+		 LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_CONNECTION_OPTIONS),
+				 Color.BLACK);
 		 optManager.add(lblTitle);
+		 optManager.add(GUIFactory.createSepatorField());
 		 
          //description text
          LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_DESC)); 
@@ -228,8 +237,10 @@ public class PreferencesView extends StandardBaseView {
 				 Manager.NO_HORIZONTAL_SCROLL
 				 | Manager.NO_VERTICAL_SCROLL);
 		 
-		 LabelField lblTitle = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_ADVANCED_CONNECTION_OPTIONS));
+		 LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_ADVANCED_CONNECTION_OPTIONS),
+				 Color.BLACK);
 		 optManager.add(lblTitle);
+		 optManager.add(GUIFactory.createSepatorField());
 		 
 	      //description
 		 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_USERDEFINEDCONN_DESC)); 

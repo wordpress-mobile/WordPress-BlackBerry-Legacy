@@ -79,13 +79,13 @@ public class HTTPPostConn extends BlogConn  {
 			connResponse.setResponseObject(response);
 		}
 		catch (Exception cce) {
-			setErrorMessage(cce, "Get Template error: Invalid server response");
+			setErrorMessage(cce, "Connection Error: Invalid server response");
 		}
 
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			Log.error("Get Template error: Notify error"); 		
+			Log.error("Connection Error: Notification error"); 		
 		}
 	}
 }

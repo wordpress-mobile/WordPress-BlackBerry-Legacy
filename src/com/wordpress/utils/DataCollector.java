@@ -14,6 +14,7 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.DialogClosedListener;
 
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.AppDAO;
 import com.wordpress.model.Preferences;
@@ -42,10 +43,6 @@ public class DataCollector {
 	}
 	
 	ConnectionInProgressView connectionProgressView=null;
-	
-	//http://localhost/geo4you/info.php
-	//http://api.wordpress.org/bbapp/update-check/1.0/
-	private static String targetURL = "http://api.wordpress.org/bbapp/update-check/1.0/";
 	
 	private static int UPDATE_REMOTE_CHECK_NUMBER_DELAY_DAYS = 5; //after xx days check for upgrade
 	
@@ -157,7 +154,7 @@ public class DataCollector {
 	public void pingStatsEndpoint(int numberOfBlog) {
 		Log.trace("Pinging Stat Endpoint...");
 		byte[] data = getAllInfo(numberOfBlog);	
-		final HTTPPostConn connection = new HTTPPostConn( targetURL  , data);
+		final HTTPPostConn connection = new HTTPPostConn( WordPressInfo.BB_APP_STATS_ENDPOINT_URL  , data);
 		connection.startConnWork(); //starts connection
 	}
 	
@@ -202,7 +199,7 @@ public class DataCollector {
 		long currentTime = System.currentTimeMillis();
 		
 		//start check upgrade
-		final HTTPPostConn connection = new HTTPPostConn( targetURL , data);
+		final HTTPPostConn connection = new HTTPPostConn( WordPressInfo.BB_APP_STATS_ENDPOINT_URL , data);
 		connection.addObserver(new CheckUpdateCallBack());
 
 		connectionProgressView= new ConnectionInProgressView(
@@ -223,7 +220,7 @@ public class DataCollector {
 		try {
 				Preferences appPrefs= Preferences.getIstance();
 				byte[] data = getAllInfo(numberOfBlog);
-				final HTTPPostConn connection = new HTTPPostConn( targetURL , data);
+				final HTTPPostConn connection = new HTTPPostConn( WordPressInfo.BB_APP_STATS_ENDPOINT_URL , data);
 				connection.addObserver(new CheckAutomaticUpdateCallBack());
 				connection.startConnWork(); //starts connection
 				//store the date of check

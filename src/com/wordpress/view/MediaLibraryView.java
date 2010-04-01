@@ -74,7 +74,7 @@ public class MediaLibraryView extends StandardBaseView {
         //row photo #s and thumbs
     	BorderedFieldManager outerManagerRowPhoto = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL);    	 
-    	lblPhotoNumber = getLabel("", LabelField.FOCUSABLE);
+    	lblPhotoNumber = GUIFactory.getLabel("", LabelField.FOCUSABLE);
     	lblPhotoNumber.setText(entry.getMediaObjects().size() + " "+_resources.getString(WordPressResource.TITLE_MEDIA_VIEW));    	
         outerManagerRowPhoto.add(lblPhotoNumber);
         
@@ -99,7 +99,7 @@ public class MediaLibraryView extends StandardBaseView {
     			controller.saveLibrary();
 	    		controller.backCmd();
     		} catch (Exception e) {
-    			controller.displayError(e, "Error while saving media library");
+    			controller.displayError(e, "Error while saving media library files");
     		}
         }
     };
@@ -111,7 +111,7 @@ public class MediaLibraryView extends StandardBaseView {
     			updateModel();
    				controller.sendLibraryToBlog();
     		} catch (Exception e) {
-    			controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_PAGE));
+    			controller.displayError(e, "Error while sending media files");
     		}
         }
     };
@@ -168,12 +168,12 @@ public class MediaLibraryView extends StandardBaseView {
 
 	private void updateThumbs() {
 		thumbManager.deleteAll();
-    	
+    					
     	Vector mediaObjects = entry.getMediaObjects();
 		
         //set the media obj numbers label
     	lblPhotoNumber.setText(mediaObjects.size() + " "+_resources.getString(WordPressResource.TITLE_MEDIA_VIEW));    	
-    	
+
     	for (int i =0; i < mediaObjects.size(); i++ ) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			Bitmap bitmapThumb = tmp.getThumb();

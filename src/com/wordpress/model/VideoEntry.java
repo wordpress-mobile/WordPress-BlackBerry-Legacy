@@ -12,12 +12,13 @@ public class VideoEntry extends MediaEntry {
 		super();
 	}
 	
-	/**
-	 * get the thumb - 128x128 pixel
-	 * @return
-	 */
+	
 	public Bitmap getThumb() {
 		return  Bitmap.getBitmapResource(videoPredefinedThumb);
+	}
+	
+	public Bitmap getThumb(int width, int height) {
+		return  getThumb();
 	}
 	
 	/**

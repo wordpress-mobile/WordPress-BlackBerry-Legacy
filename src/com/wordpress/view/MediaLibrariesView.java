@@ -46,10 +46,16 @@ public class MediaLibrariesView extends BaseView implements ListActionListener {
 			for (int i = 0; i < mediaLibrary.length; i++) {
 				Hashtable smallDataForTheList = new Hashtable();
 				String title = mediaLibrary[i].getTitle();
-	             if (title == null || title.length() == 0) {
-	            	 title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
-	             }
+				if (title == null || title.length() == 0) {
+					title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
+				}
 				smallDataForTheList.put("title", title);
+
+				if (mediaLibrary[i].getMediaObjects() != null) {
+					String subTitle = mediaLibrary[i].getMediaObjects().size() + " "+_resources.getString(WordPressResource.TITLE_MEDIA_VIEW);
+					smallDataForTheList .put("images_number", subTitle);
+				}
+
 				mediaLibData[i]=(smallDataForTheList);
 			}
 			listaPost.set(mediaLibData);

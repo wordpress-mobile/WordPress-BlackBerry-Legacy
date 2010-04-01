@@ -142,6 +142,7 @@ public class PostView extends StandardBaseView {
 		bodyTextBox= new HtmlTextField(buildBodyFieldContentFromHtml);
         LabelField lblPostContent = getLabel(_resources.getString(WordPressResource.LABEL_POST_CONTENT));
 		outerManagerRowContent.add(lblPostContent);
+		outerManagerRowContent.add(GUIFactory.createSepatorField());
         outerManagerRowContent.add(bodyTextBox);
 		add(outerManagerRowContent);
         add(new LabelField("", Field.NON_FOCUSABLE)); //space after content

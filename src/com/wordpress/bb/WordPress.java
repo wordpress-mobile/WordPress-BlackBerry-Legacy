@@ -263,7 +263,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 					ErrorView errView = new ErrorView("Wordpress Startup Error!");
 					errView.doModal();
 					if (loadingScreen != null) popScreen(loadingScreen);
-					mainScreen = new MainController();
+					mainScreen = MainController.getIstance();
 					mainScreen.showView();
 				}
 			});
@@ -284,7 +284,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 				}
 				
 			    popScreen(loadingScreen);
-				mainScreen = new MainController();
+				mainScreen = MainController.getIstance();
 			    mainScreen.showView();
 			}
 		});

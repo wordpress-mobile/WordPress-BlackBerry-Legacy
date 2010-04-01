@@ -12,6 +12,10 @@ public final class WordPressInfo {
     public final static long GUID = 0x97ebc046dec5817fL;
     public final static long COMMENTS_UID = 0x8de9c6b3a49fd864L;
     
+	public final static String STATS_AUTH_ENDPOINT_URL = "https://public-api.wordpress.com/getuserblogs.php";
+	public final static String STATS_ENDPOINT_URL = "http://stats.wordpress.com/csv.php";
+	public final static String BB_APP_STATS_ENDPOINT_URL = "http://api.wordpress.org/bbapp/update-check/1.0/";
+    
     private static Bitmap icon = Bitmap.getBitmapResource("application-icon.png");
     private static Bitmap newCommentsIcon = Bitmap.getBitmapResource("application-icon-new.png");
     

@@ -66,8 +66,10 @@ public class CommentView extends StandardBaseView {
 	        BorderedFieldManager outerManagerFrom = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
 	        
-			LabelField lblCommentAuthor = getLabel(_resources.getString(WordPressResource.LABEL_AUTHOR));	
+			LabelField lblCommentAuthor = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_AUTHOR),
+					Color.BLACK);	
 			outerManagerFrom.add(lblCommentAuthor);
+			outerManagerFrom.add(GUIFactory.createSepatorField());
 	        HorizontalFieldManager rowFrom = new HorizontalFieldManager(Manager.NO_HORIZONTAL_SCROLL | Manager.NO_VERTICAL_SCROLL);
 	        gravatarBitmapField = new BitmapField(GravatarController.defaultGravatarBitmap.getBitmap(), BitmapField.NON_FOCUSABLE | Manager.FIELD_VCENTER);
 	        fromDataManager = new VerticalFieldManager(VerticalFieldManager.NO_VERTICAL_SCROLL | VerticalFieldManager.NO_HORIZONTAL_SCROLL 
@@ -92,8 +94,10 @@ public class CommentView extends StandardBaseView {
 	        //second manager
 	        BorderedFieldManager outerManagerInfo = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
-			LabelField lblCommentInfo = getLabel(_resources.getString(WordPressResource.LABEL_INFORMATIONS));	
+			LabelField lblCommentInfo = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_INFORMATIONS),
+					Color.BLACK);	
 			outerManagerInfo.add(lblCommentInfo);
+			outerManagerInfo.add(GUIFactory.createSepatorField());
 			
 	        //post of this comment
 	        HorizontalFieldManager rowOn = new HorizontalPaddedFieldManager();
@@ -123,7 +127,9 @@ public class CommentView extends StandardBaseView {
 	  		//comment data
 	        BorderedFieldManager outerManagerComment = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL );
-	        outerManagerComment.add(getLabel(_resources.getString(WordPressResource.LABEL_CONTENT)));
+	        outerManagerComment.add(GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_CONTENT),
+	        		Color.BLACK));
+	        outerManagerComment.add(GUIFactory.createSepatorField());
 	        commentContent = new HtmlTextField(" ");
 	  		outerManagerComment.add(commentContent);
 	  		add(outerManagerComment);	  			        	  		

@@ -1,8 +1,11 @@
 package com.wordpress.controller;
 
+import java.util.Vector;
+
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
+import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.CommentsDAO;
@@ -63,16 +66,8 @@ public class RefreshBlogController extends BaseController implements Observer{
 						currentBlog.setLoadingState(BlogInfo.STATE_LOADED);
 						BlogDAO.updateBlog(currentBlog);							
 						CommentsDAO.cleanGravatarCache(currentBlog);
-					} catch (final Exception e) {
 						
-/*						if(currentBlog != null) {
-							currentBlog.setLoadingState(BlogInfo.STATE_LOADED_WITH_ERROR);
-							try {
-								BlogDAO.updateBlog(currentBlog);
-							} catch (Exception e2) {
-								Log.error(e2, "Error while saving blogs");
-							}
-						}*/											
+					} catch (final Exception e) {
 					 	displayError(e,"Error while storing the blog data");	
 					}
 					
@@ -87,11 +82,32 @@ public class RefreshBlogController extends BaseController implements Observer{
 					} catch (Exception e) {
 						displayError(e,"Error while storing the blog data");	
 					}
-					
-				}
-			}
+				}//end else
+				
+				//update app blog
+				WordPressCore wpCore = WordPressCore.getInstance();
+				Vector applicationBlogs = wpCore.getApplicationBlogs();
+				//update application blogs
+				BlogInfo currentBlogI = new BlogInfo(currentBlog);
+				for(int count = 0; count < applicationBlogs.size(); ++count)
+		    	{
+		    		BlogInfo applicationBlogTmp = (BlogInfo)applicationBlogs.elementAt(count);
+		    		if (applicationBlogTmp.equals(currentBlogI) )		
+		    		{
+		    			applicationBlogs.setElementAt(currentBlogI, count);
+		    			break;
+		    		}
+		    	}
+				
+				//update the main blogs view
+				MainController.getIstance().updateBlogListEntry(currentBlogI);
+				
+			}//end run
 		});
-	}
+		
+
+		
+	}//end update
 
 	public void refreshView() {
 		

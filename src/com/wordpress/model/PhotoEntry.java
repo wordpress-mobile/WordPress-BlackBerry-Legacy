@@ -21,13 +21,17 @@ public class PhotoEntry extends MediaEntry {
 	 * @return
 	 */
 	public Bitmap getThumb() {
+		return getThumb(128, 128);
+	}
+	
+	public Bitmap getThumb(int width, int height) {
 		byte[] readFile;
 		Bitmap bitmapRescale;
 		try {
 			readFile = JSR75FileSystem.readFile(this.getFilePath());
 			EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
 			//find the photo size
-			int scale = ImageUtils.findBestImgScale(img, 128, 128);
+			int scale = ImageUtils.findBestImgScale(img, width, height);
 			if(scale > 1)
 				img.setScale(scale); //set the scale
 			
@@ -38,6 +42,7 @@ public class PhotoEntry extends MediaEntry {
 		}
 		
 		return bitmapRescale;
+		
 	}
 	
 

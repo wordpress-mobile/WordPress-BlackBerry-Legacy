@@ -41,6 +41,8 @@ public abstract class MediaEntry {
 	
 	public abstract Bitmap getThumb();
 	
+	public abstract Bitmap getThumb(int width , int height);
+	
 	
 	public Hashtable serialize() {
 		Hashtable hash = new Hashtable();

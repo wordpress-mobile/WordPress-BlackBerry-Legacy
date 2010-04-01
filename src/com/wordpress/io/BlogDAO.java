@@ -176,14 +176,7 @@ public class BlogDAO implements BaseDAO {
      */
     public static synchronized BlogInfo getBlogInfo(String blogPath) throws Exception{
 		Blog loadedBlog = loadBlog(blogPath);
-		String blogName = loadedBlog.getName();
-		String blogXmlRpcUrl=loadedBlog.getXmlRpcUrl();
-		String blogId= loadedBlog.getId();
-		int blogLoadingState = loadedBlog.getLoadingState();
-		boolean notifies= loadedBlog.isCommentNotifies();
-		String usr = loadedBlog.getUsername();
-		String passwd = loadedBlog.getPassword();
-		BlogInfo blogI = new BlogInfo(blogId, blogName,blogXmlRpcUrl,usr, passwd, blogLoadingState, notifies);
+		BlogInfo blogI = new BlogInfo(loadedBlog);
    		return blogI;
     }
     

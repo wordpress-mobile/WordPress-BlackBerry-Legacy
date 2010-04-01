@@ -63,6 +63,13 @@ public class BlogController extends BaseController {
 		}
 	}
 	
+	public void showStats() {
+		if (currentBlog != null) {
+			StatsController ctrl = new StatsController(currentBlog);
+			ctrl.showView();
+		}
+	}
+	
 	/** refresh all blog information */
 	public void refreshBlog(){
 		if(currentBlog != null) {

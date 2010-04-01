@@ -25,16 +25,34 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.view.MainView;
 
 
-public class MainController extends BaseController implements TaskProgressListener{
+public class MainController extends BaseController implements TaskProgressListener {
 	
 	private MainView view = null;
 	private Vector applicationBlogs = null;
 	
+	private static MainController singletonObject;
+	
+	public static MainController getIstance() {
+		if (singletonObject == null) {
+			singletonObject = new MainController();
+		}
+		return singletonObject;
+	}
+    
+    //singleton
+    private MainController() {
+    	super();
+		WordPressCore wpCore = WordPressCore.getInstance();
+		applicationBlogs = wpCore.getApplicationBlogs();
+    }
+	
+	
+/*	
 	public MainController() {
 		super();
 		WordPressCore wpCore = WordPressCore.getInstance();
 		applicationBlogs = wpCore.getApplicationBlogs();
-	}
+	}*/
 	
 	public void showView(){
 				
@@ -95,8 +113,6 @@ public class MainController extends BaseController implements TaskProgressListen
 
 		//schedule the update check task at startup
 		WordPressCore.getInstance().getTimer().schedule(new CheckUpdateTask(), 24*60*60*1000, 24*60*60*1000); //24h check
-		//set the notification screen
-		NotificationHandler.getInstance().setGuiController(this);
 		
 		this.view=new MainView(this); //main view init here!.	
 		UiApplication.getUiApplication().pushScreen(this.view);
@@ -213,6 +229,10 @@ public class MainController extends BaseController implements TaskProgressListen
 		}
 	}
 	
+	public void updateBlogListEntry(BlogInfo blogInfo){
+		view.setBlogItemViewState(blogInfo); 
+	}
+	
 	//listener for the adding blogs task
 	public void taskComplete(Object obj) {
 		taskUpdate(obj);
@@ -225,24 +245,18 @@ public class MainController extends BaseController implements TaskProgressListen
 	public void taskUpdate(Object obj) {
 		synchronized (view) {
 			Blog loadedBlog = (Blog)obj;
-			String blogName = loadedBlog.getName();
-			String blogXmlRpcUrl=loadedBlog.getXmlRpcUrl();
-			String blogId= loadedBlog.getId();
-			int blogLoadingState = loadedBlog.getLoadingState();
-			String usr = loadedBlog.getUsername();
-			String passwd = loadedBlog.getPassword();
-			BlogInfo blogI = new BlogInfo(blogId, blogName, blogXmlRpcUrl, usr, passwd,blogLoadingState, loadedBlog.isCommentNotifies());
-			view.setBlogItemViewState(blogI); 
+			BlogInfo loadedBlogInfo = new BlogInfo(loadedBlog);
+			view.setBlogItemViewState(loadedBlogInfo); 
 		
-			//update application blogs
+			//update application blogs (refresh controller have a similar code)
 			for(int count = 0; count < applicationBlogs.size(); ++count)
 	    	{
-	    		BlogInfo blog = (BlogInfo)applicationBlogs.elementAt(count);
+	    		BlogInfo applicationBlogTmp = (BlogInfo)applicationBlogs.elementAt(count);
 	    		
-	    		if (blogI.equals(blog) )		
+	    		if (loadedBlogInfo.equals(applicationBlogTmp) )		
 	    		{
-	    			blogI.setAwaitingModeration(blog.getAwaitingModeration());
-	    			applicationBlogs.setElementAt(blogI, count);
+	    			loadedBlogInfo.setAwaitingModeration(applicationBlogTmp.getAwaitingModeration());
+	    			applicationBlogs.setElementAt(loadedBlogInfo, count);
 	    			break;
 	    		}
 	    	}

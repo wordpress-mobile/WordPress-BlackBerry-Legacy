@@ -167,7 +167,7 @@ public class MediaLibraryDAO implements BaseDAO {
 			}
 			return entry;
 		} catch (Exception e) {
-			Log.trace(e, "Error while reading media library from device storage");
+			Log.trace(e, "Error while reading media library entry from device storage");
 			return null;
 		}
 	}

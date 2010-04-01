@@ -7,9 +7,11 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.LabelField;
+import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.util.LongIntHashtable;
 
 import com.wordpress.view.component.BaseButtonField;
+import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.component.EmbossedButtonField;
 
 public class GUIFactory {
@@ -42,38 +44,41 @@ public class GUIFactory {
     	  	return field;
     }
 	
-
+	 protected static synchronized SeparatorField createSepatorField() {
+		 SeparatorField sep = new SeparatorField() {
+				protected void paint( Graphics g ) 
+			    {
+			        int oldColour = g.getColor();
+			        try {
+			            g.setColor( Color.GRAY );
+			            super.paint( g );
+			        } finally {
+			            g.setColor( oldColour );
+			        }
+			    }
+		 };
+		 return sep;
+	 }
+	 
+	 
+	 protected static synchronized LabelField getLabel(String label, int color) {
+			LabelField lblField = new ColoredLabelField(label + " ", color);
+		  	Font fnt = Font.getDefault().derive(Font.BOLD);
+		  	lblField.setFont(fnt);
+			return lblField;
+		}
 
 	 protected static synchronized LabelField getLabel(String label) {
-			
-			LabelField lblField = new LabelField(label + " ")
-			{
-			    public void paint(Graphics graphics)
-			    {
-			        graphics.setColor(Color.GRAY);
-			        super.paint(graphics);
-			    }
-			};
+			LabelField lblField = new ColoredLabelField(label + " ", Color.GRAY);
 		  	Font fnt = Font.getDefault().derive(Font.BOLD);
 		  	lblField.setFont(fnt);
 			return lblField;
 		}
 	
-	//TODO: refactor of this 2 methods
 	 protected static synchronized LabelField getLabel(String label, long style) {
-			
-			LabelField lblField = new LabelField(label , style)
-			{
-			    public void paint(Graphics graphics)
-			    {
-			        graphics.setColor(Color.GRAY);
-			        super.paint(graphics);
-			    }
-			};
-		  	Font fnt = Font.getDefault().derive(Font.BOLD);
-		  	lblField.setFont(fnt);
-			return lblField;
-		}
-	 
-	
+		 LabelField lblField = new ColoredLabelField(label + " ", Color.GRAY, style);
+		 Font fnt = Font.getDefault().derive(Font.BOLD);
+		 lblField.setFont(fnt);
+		 return lblField;
+	 }	
 }

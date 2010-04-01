@@ -26,7 +26,7 @@ import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.BorderedFieldManager;
-import com.wordpress.view.component.EmbossedButtonField;
+
 
 public class AddBlogsView extends StandardBaseView {
 	
