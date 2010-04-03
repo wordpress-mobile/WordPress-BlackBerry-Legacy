@@ -73,7 +73,7 @@ public class NotificationController extends BaseController {
 		NotificationHandler.getInstance().shutdown();
 		
 		if (mPrefs.getUpdateTimeIndex() != 0)
-			NotificationHandler.getInstance().setEnabled(true, updateIntervalIndex);
+			NotificationHandler.getInstance().setCommentsNotification(true, updateIntervalIndex);
 		Log.trace("<<< NotificationController.saveSettings");
 	}
 	

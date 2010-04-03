@@ -5,7 +5,6 @@ import java.util.Hashtable;
 import java.util.TimerTask;
 import java.util.Vector;
 
-import javax.microedition.media.control.VolumeControl;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.blackberry.api.homescreen.HomeScreen;
@@ -18,6 +17,7 @@ import com.wordpress.controller.NotificationController;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Comment;
+import com.wordpress.model.Preferences;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
@@ -35,10 +35,8 @@ import com.wordpress.xmlrpc.comment.GetCommentsConn;
  */
 public class NotificationHandler {
 	private static NotificationHandler instance = null;
-	private boolean isNotificationEnabled;
 	private NotificationTask currentNotificationTask = null;
 	private NotificationDetailsTask currentDetailsTask = null;
-	private Hashtable awaitingCommentsID = new Hashtable(); //key: blog.xmlrpcurl, value: int[] commentsID
 
 	private NotificationHandler() {
 	}
@@ -61,7 +59,7 @@ public class NotificationHandler {
 	 * 
 	 * @param isEnabled True to enable notifications, false to disable
 	 */
-	public void setEnabled(boolean isEnabled, int updateTimeIndex) {
+	public void setCommentsNotification(boolean isEnabled, int updateTimeIndex) {
 		
 		if(updateTimeIndex == 0) return;
 		int updateInterval = NotificationController.decodeInterval(updateTimeIndex);
@@ -69,7 +67,6 @@ public class NotificationHandler {
 		if(updateInterval == 0) return;
 		
 		Log.trace("NotificationHandler enabled");
-		this.isNotificationEnabled = isEnabled;
 		stopInnerTask(); //it is not necessary here, anyway we have put one more checks
 		currentNotificationTask = new NotificationTask();
 		
@@ -78,7 +75,6 @@ public class NotificationHandler {
 	
 	
 	private void stopInnerTask() {
-		awaitingCommentsID.clear(); //clean the hashtable that contains comments id
 		if(currentNotificationTask != null) {
 			currentNotificationTask.stopping = true;
 			currentNotificationTask.cancel();
@@ -97,11 +93,10 @@ public class NotificationHandler {
 		Log.trace("NotificationHandler stopped");
 		cancelNotification();
 		stopInnerTask();
-		isNotificationEnabled = false;
 	}
 	
 	//start the task that gets the awaiting comments details
-	private void getAwaitingDetails(){
+	private void startFullCommentsRefresh(){
 		currentDetailsTask = new NotificationDetailsTask();
 		currentDetailsTask.run();
 	}
@@ -153,6 +148,9 @@ public class NotificationHandler {
 					if (blogInfo.getState() == BlogInfo.STATE_LOADED && blogInfo.isAwaitingModeration() && blogInfo.isCommentNotifies()) {
 						Log.trace("added the blog - "+ blogInfo.getName() + " - to the notifications details queue");
 						executionQueue.push(blogInfo);
+					} else if (blogInfo.getState() == BlogInfo.STATE_LOADED && blogInfo.isCommentsDownloadNecessary() && blogInfo.isCommentNotifies()) {
+						Log.trace("added the blog - "+ blogInfo.getName() + " - to the notifications details queue");
+						executionQueue.push(blogInfo);
 					}
 				}
 				
@@ -189,6 +187,12 @@ public class NotificationHandler {
 					UiApplication.getUiApplication().invokeLater(new Runnable() {
 						public void run() {
 							notifyNewMessages();
+							MainController.getIstance().refreshView(); //update the main view
+						}
+					});
+				} else {
+					UiApplication.getUiApplication().invokeLater(new Runnable() {
+						public void run() {
 							MainController.getIstance().refreshView(); //update the main view
 						}
 					});
@@ -244,7 +248,7 @@ public class NotificationHandler {
 		
 		public void update(Observable observable, final Object object) {
 			
-			try{ 
+			try { 
 				BlogConnResponse resp= (BlogConnResponse) object;
 				if(!resp.isError()) {
 					Vector respVector = (Vector) resp.getResponseObject(); // the response from wp server
@@ -254,51 +258,44 @@ public class NotificationHandler {
 						Log.error("Error while loading comments: "+ (String)vector2Comments.get("error"));
 					}
 					
-					//retrive the previous comments ID for the current blog
-					int[] previousComments = (int[])awaitingCommentsID.get(currentBlog.getXmlRpcUrl());
-					
-					//extract the new comments ID and put in the hashtable of Ids for the current blog
+					//retrive the previous comments ID List for  current blog
+					int[] previousComments = currentBlog.getCommentsID();
 					int[] newCommentsIDList = new int[commentsFromServer.length];
 					Log.trace("retrived comments from server # "+ commentsFromServer.length);
 					for (int i = 0; i < newCommentsIDList.length; i++) {
 						Comment	comment = commentsFromServer[i];
 						newCommentsIDList[i] = comment.getID();
 					}
-					awaitingCommentsID.put(currentBlog.getXmlRpcUrl(), newCommentsIDList);
-					
-					if(previousComments == null) {
-						Log.trace("this is the first time, store the comments");
-						isNewCommentInAwatingModeration = true;
-						storeComment(currentBlog, respVector);
-					} else {
-						//check if there are available new comments for moderation
-						Log.trace("this is NOT the first time, checing for comments");
-						boolean presence = false;
-						for (int i = 0; i < commentsFromServer.length; i++) {
-							Comment	commentFromServer = commentsFromServer[i];
-							//check the presence of this comment only if it is in awaiting of moderation 
-							Log.trace("stato del commento "+ commentFromServer.getStatus());
-							if  (!commentFromServer.getStatus().equalsIgnoreCase("hold")){
-								continue;
-							}
-							
-							for (int j = 0; j < previousComments.length; j++) {
-								if (previousComments[j] == commentFromServer.getID()) {
-									presence = true;
-									break;
-								}
-							}
-							
-							if(!presence) {
-								Log.trace("commento non trovato nella cache locale");
-								isNewCommentInAwatingModeration = true;
+					currentBlog.setCommentsID(newCommentsIDList);
+			
+					//check if there are available new comments for moderation
+					boolean presence = false;
+					for (int i = 0; i < commentsFromServer.length; i++) {
+						Comment	commentFromServer = commentsFromServer[i];
+						//check the presence of this comment only if it is in awaiting of moderation 
+						Log.trace("stato del commento "+ commentFromServer.getStatus());
+						if  (!commentFromServer.getStatus().equalsIgnoreCase("hold")){
+							continue;
+						}
+
+						for (int j = 0; j < previousComments.length; j++) {
+							if (previousComments[j] == commentFromServer.getID()) {
+								presence = true;
 								break;
 							}
 						}
-						
-						if(!presence)
-							storeComment(currentBlog, respVector);
+
+						if(!presence) {
+							Log.trace("commento non trovato nella cache locale");
+							isNewCommentInAwatingModeration = true;
+							break;
+						}
 					}
+
+					if(presence == false || currentBlog.isCommentsDownloadNecessary())
+						storeComment(currentBlog, respVector);
+
+					
 				} else {
 					final String respMessage=resp.getResponse();
 					Log.error("errore nel GetComments "+ respMessage);
@@ -317,7 +314,7 @@ public class NotificationHandler {
 		private Queue executionQueue = null; // queue of BlogInfo to check
 		private boolean stopping = false;
 		BlogInfo currentBlog = null;
-		private boolean isAwatingModeration = false;
+		private boolean isNeededCommentRefresh = false;
 		
 		public void run() {
 			try {
@@ -340,18 +337,27 @@ public class NotificationHandler {
 		        next();
 		        
 			} catch (Throwable  e) {
-				cancel();
-				Log.error(e, "Serious Error in NotificationTask: " + e.getMessage());
-				//When NotificationTask throws an exception, it calls cancel on itself 
-				//to remove itself from the Timer. 
-				//It then logs the exception.
-				//Because the exception never propagates back into the Timer thread, others Tasks continue to function even after 
-				//NotificationTask fails.
-				currentNotificationTask = new NotificationTask();
-				WordPressCore.getInstance().getTimer().schedule(currentNotificationTask, 24*60*60*1000, 24*60*60*1000); //24h check
+				restartTaskAfterFails(e);
 			} 			  
 		}
 	
+		//When NotificationTask throws an exception, it calls cancel on itself 
+		//to remove itself from the Timer. 
+		//It then logs the exception.
+		//Because the exception never propagates back into the Timer thread, others Tasks continue to function even after 
+		//NotificationTask fails.
+		private void restartTaskAfterFails(Throwable  e) {
+			int updateTimeIndex = Preferences.getIstance().getUpdateTimeIndex();
+			cancel();
+			Log.error(e, "Serious Error in NotificationTask: " + e.getMessage());
+			
+			int updateInterval = NotificationController.decodeInterval(updateTimeIndex);
+			Log.trace("updateInterval ms : " + updateInterval);
+			if(updateInterval == 0) updateInterval = 24*60*60*1000; //24h check
+			
+			currentNotificationTask = new NotificationTask();
+			WordPressCore.getInstance().getTimer().schedule(currentNotificationTask, updateInterval, updateInterval); 
+		}
 		
 		private void next() {
 			Log.trace("NotificationTask - next method");
@@ -371,8 +377,8 @@ public class NotificationHandler {
 				
 			} else {
 				
-				if (isAwatingModeration) {
-					getAwaitingDetails();  //retrive awaiting comments details
+				if (isNeededCommentRefresh) {
+					startFullCommentsRefresh();  //retrive awaiting comments details
 				}
 				
 				Log.trace("NotificationTask - next method end");
@@ -390,30 +396,36 @@ public class NotificationHandler {
 				Log.trace("risposta è del tipo "+ resp.getResponseObject().getClass().getName());
 
 				if(!resp.isError()) {
-					
 					respObj = (Hashtable) resp.getResponseObject(); // the response from wp server
+					
 					String pendingCommentsValue= String.valueOf(respObj.get("awaiting_moderation"));
 					int pendingComments = Integer.parseInt(pendingCommentsValue);
 					Log.trace("ci sono commenti pendenti # " + pendingComments);
-					currentBlog.setAwaitingModeration(pendingComments);
 					if(pendingComments > 0) {
-						isAwatingModeration = true;
-					}	
+						isNeededCommentRefresh = true;
+					} 
+					
+					//check to see if the number of totalcomments has changed
+					String totalComments= String.valueOf(respObj.get("total_comments"));
+					Log.trace("total blog comments "+ totalComments);
+					int parsedTotalComments = Integer.parseInt(totalComments);
+					if(currentBlog.getTotalNumbersOfComments() != parsedTotalComments) {
+						currentBlog.setCommentsDownloadNecessary(true);
+						isNeededCommentRefresh = true;
+					} else {
+						currentBlog.setCommentsDownloadNecessary(false);
+					}
+					
+					
+					currentBlog.setCommentsSummary(respObj);
+					
 				} else {
 					final String respMessage=resp.getResponse();
 					Log.error("errore nel GetCommentsCount "+ respMessage);
 				}		
 				next();
 			} catch (Throwable  e) {
-				cancel();
-				Log.error(e, "Serious Error in NotificationTask: " + e.getMessage());
-				//When NotificationTask throws an exception, it calls cancel on itself 
-				//to remove itself from the Timer. 
-				//It then logs the exception.
-				//Because the exception never propagates back into the Timer thread, others Tasks continue to function even after 
-				//NotificationTask fails.
-				currentNotificationTask = new NotificationTask();
-				WordPressCore.getInstance().getTimer().schedule(currentNotificationTask, 24*60*60*1000, 24*60*60*1000); //24h check
+				restartTaskAfterFails(e);
 			} 
 		}//end callback
 	}	

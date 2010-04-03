@@ -15,14 +15,17 @@ import net.rim.device.api.ui.TouchEvent;
 //#endif
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ListField;
+import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
+import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
 import com.wordpress.model.BlogInfo;
+import com.wordpress.model.Preferences;
 import com.wordpress.utils.DataCollector;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
@@ -291,8 +294,32 @@ public class MainView extends BaseView {
         }
     };
    
-    //override onClose() to display a dialog box when the application is closed    
-	public boolean onClose()   {
+    
+    /*
+     * used when background on close is activated
+     */
+    private MenuItem _exitItem = new MenuItem( _resources, WordPressResource.MENUITEM_EXIT, 102000, 2000) {
+        public void run() {
+        	WordPressCore.getInstance().exitWordPress();
+        }
+    };
+   
+    
+    //Override the makeMenu method so we can add a custom menu item
+    protected void makeMenu(Menu menu, int instance)
+    {
+    	
+    	if(Preferences.getIstance().isBackgroundOnClose())
+    		menu.add(_exitItem);
+   
+        //Create the default menu.
+        super.makeMenu(menu, instance);
+    }
+    
+    //override onClose() to display a dialog box when the application 
+    //menu close is selected or return btn is hitted    
+	public boolean onClose() {
+		Log.trace ("public boolean onClose()...");
     	return mainController.exitApp();
     }
 

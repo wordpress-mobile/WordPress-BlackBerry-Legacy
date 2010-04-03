@@ -1,5 +1,7 @@
 package com.wordpress.model;
 
+import java.util.Hashtable;
+
 public class BlogInfo {
 
 	public static int STATE_ADDED_TO_QUEUE = 0;
@@ -14,8 +16,14 @@ public class BlogInfo {
 	private String username;
 	private String password;
 	private int state = -1;
+	
 	private boolean isCommentNotifies = false; //true when comment notifies is active
-	private int commentsAwaitingModeration = 0;
+	
+	private int[] commentsID = new int[0];
+	private Hashtable commentsSummary = new Hashtable();
+//    approved:(new String("14")), awaiting_moderation:(new String("1")), spam:(new String("4")), total_comments:(new Number(19))
+	private boolean isCommentsDownloadNecessary = false;
+	
 
 	public BlogInfo(Blog currentBlog) {
 		super();
@@ -68,17 +76,47 @@ public class BlogInfo {
 	 * true when there are comments in the pending state
 	 */
 	public boolean isAwaitingModeration() {
-		if(commentsAwaitingModeration > 0)
+		if(getAwaitingModeration() > 0)
 			return true;
 		else return false;
 	}
 
+	public void setCommentsSummary(Hashtable commentsSummary) {
+		this.commentsSummary = commentsSummary;
+	}
+
 	public void setAwaitingModeration(int commNum) {
-		this.commentsAwaitingModeration = commNum;
+		commentsSummary.put("awaiting_moderation", String.valueOf(commNum));
 	}
 
 	public int getAwaitingModeration() {
-		return this.commentsAwaitingModeration;
+		if (commentsSummary.get("awaiting_moderation") == null) return 0;		
+		String pendingCommentsValue= String.valueOf(commentsSummary.get("awaiting_moderation"));
+		int pendingComments = Integer.parseInt(pendingCommentsValue);
+		return pendingComments;
+	}
+
+	public int getTotalNumbersOfComments() {
+		if (commentsSummary.get("total_comments") == null) return 0;	
+		String pendingCommentsValue= String.valueOf(commentsSummary.get("total_comments"));
+		int pendingComments = Integer.parseInt(pendingCommentsValue);
+		return pendingComments;
+	}
+
+	public int[] getCommentsID() {
+		return commentsID;
+	}
+
+	public void setCommentsID(int[] commentsID) {
+		this.commentsID = commentsID;
+	}
+
+	public boolean isCommentsDownloadNecessary() {
+		return isCommentsDownloadNecessary;
+	}
+
+	public void setCommentsDownloadNecessary(boolean isNeed) {
+		this.isCommentsDownloadNecessary = isNeed;
 	}
 
 	//variable state and isCommentNotifies not considered

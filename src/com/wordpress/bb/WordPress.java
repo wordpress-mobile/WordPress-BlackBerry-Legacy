@@ -254,7 +254,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 			
 			// Initialize the notification handler only if notification interval is != 0
 			if (appPrefs.getUpdateTimeIndex() != 0)
-				NotificationHandler.getInstance().setEnabled(true, appPrefs.getUpdateTimeIndex());
+				NotificationHandler.getInstance().setCommentsNotification(true, appPrefs.getUpdateTimeIndex());
 		
 		} catch (Exception e) {
 			timer.cancel();
