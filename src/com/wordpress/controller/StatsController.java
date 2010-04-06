@@ -179,21 +179,20 @@ private class GetStatsDataCallBack implements Observer {
 								Log.trace("RESPONSE - " + html);
 								lastStatsData = html;
 							} else {
-								Log.trace("EMPTY RESPONSE");
-								lastStatsData = "EMPTY RESPONSE";
+								Log.trace("STATS RESPONSE IS EMPTY");
+								lastStatsData = "";
 							}
 							UiApplication.getUiApplication().invokeLater(new Runnable() {
 								public void run() {
-									view.setStatsData();
+									view.setStatsData(lastStatsData);
 								}
 							});
 						} catch (Exception e) {
-							Log.error(e,"Errore durante il reperimento stats");
+							displayError("Error while retriving stats data: "+e.getMessage());
 							return;
 						}						
 											
 					} else {
-						Log.error("Errore durante il reperimento stats");
 						final String respMessage = resp.getResponse();
 					 	displayError(respMessage);	
 					}

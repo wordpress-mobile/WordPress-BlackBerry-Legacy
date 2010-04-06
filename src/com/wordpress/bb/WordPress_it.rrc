@@ -1,11 +1,3 @@
-ERROR_RESIZE_HEIGHT#0="Inserire un valore maggiore di zero.";
-ERROR_RESIZE_WIDTH#0="Inserire un valore maggiore di zero.";
-MENUITEM_VIEW_THUMBNAILS#0="Visualizza Anteprima";
-MENUITEM_VIEW_TITLES#0="Visualizza Titoli";
-LABEL_RESIZE_IMAGE_WIDTH#0="Larghezza\n";
-LABEL_RESIZE_IMAGE_HEIGHT#0="Altezza";
-GET_FREE_BLOG#0="Apri un blog con WordPress.com";
-GET_FREE_BLOG_MENU_ITEM#0="Apri un blog";
 ABOUTVIEW_DESC#0="Un'applicazione BlackBerry Open Source per siti WordPress";
 ABOUTVIEW_DEVELOPED_BY#0="Progettata e realizzata da Automattic e Danais.";
 ABOUTVIEW_MORE_INFO#0="Per maggiori informazioni o per contribuire al progetto, visita il nostro sito web";
@@ -32,10 +24,14 @@ DESCRIPTION_POST_PASSWORD#0="L'impostazione di una password richiederà all'utent
 DESCRIPTION_REMOVE_TEMPFILE#0="La rimozione di tutti i file temporanei del dispositivo riporterà l'applicazione nelle condizioni iniziali, come al primo avvio.";
 DESCRIPTION_RESIZEPHOTOS#0="Il ridimensionamento delle foto permetterà una pubblicazione più rapida ma con foto più piccole. Le foto ridimensionate non saranno maggiori di 640 x 480.";
 ERROR_NOT_ENOUGHT_SPACE#0="La memoria del dispositivo è insufficiente! ";
+ERROR_RESIZE_HEIGHT#0="Inserire un valore maggiore di zero.";
+ERROR_RESIZE_WIDTH#0="Inserire un valore maggiore di zero.";
 ERROR_SDCARD_NOT_FOUND#0="SD card non trovata. Stai utilizzando la memoria del dispositivo.";
 ERROR_WHILE_SAVING_PAGE#0="Errore durante il salvataggio della pagina";
 ERROR_WHILE_SAVING_POST#0="Errore durante il salvataggio dell'articolo";
 ERROR_YOU_CANNOT_MANAGEPOST#0="Non è possibile gestire i post del tuo blog";
+GET_FREE_BLOG#0="Apri un blog con WordPress.com";
+GET_FREE_BLOG_MENU_ITEM#0="Apri un blog";
 LABEL_ADDLINK_CLEAR#0="Cancellare l'URL";
 LABEL_ADDLINK_PASTE#0="Incolla l'URL";
 LABEL_ADDLINK_TITLE#0="Inserire le informazioni dell'URL";
@@ -50,14 +46,14 @@ LABEL_CATEGORY_PARENT#0="Categoria genitore";
 LABEL_COMMENT#0="Commento";
 LABEL_COMMENT_NOTIFICATIONS#0="Notifiche Commenti";
 LABEL_COMMENT_NOTIFICATIONS_INTERVAL#0={
-	"Spento",
-	"120 minuti",
-	"90 minuti",
-	"60 minuti",
-	"30 minuti",
-	"15 minuti",
-	"10 minuti",
-	"5 minuti",
+    "Spento",
+    "120 minuti",
+    "90 minuti",
+    "60 minuti",
+    "30 minuti",
+    "15 minuti",
+    "10 minuti",
+    "5 minuti",
 };
 LABEL_COMMENT_ON#0="A";
 LABEL_CONTENT#0="Contenuto";
@@ -96,8 +92,9 @@ LABEL_POST_NUMBER_NEW#0="Nuovo";
 LABEL_POST_PUBLISHEDON#0="Pubblicato il";
 LABEL_POST_STATUS#0="Stato";
 LABEL_POST_TAGS#0="Tags";
-LABEL_POST_TITLE#0="Titolo";
 LABEL_RESIZEPHOTOS#0="Ridimensionamento foto";
+LABEL_RESIZE_IMAGE_HEIGHT#0="Altezza";
+LABEL_RESIZE_IMAGE_WIDTH#0="Larghezza\n";
 LABEL_TITLE#0="Titolo";
 LABEL_URL#0="URL";
 LABEL_USERNAME#0="Utente";
@@ -157,6 +154,8 @@ MENUITEM_SETUP#0="Configura";
 MENUITEM_SHOWBLOG#0="Mostra blog";
 MENUITEM_UP#0="Su";
 MENUITEM_VIDEO_ADD#0="Aggiungi un Video";
+MENUITEM_VIEW_THUMBNAILS#0="Visualizza Anteprima";
+MENUITEM_VIEW_TITLES#0="Visualizza Titoli";
 MESSAGE_APP_RESTART#0="L'applicazione si riavvia automaticamente, attendere circa 1 minuto.";
 MESSAGE_CANNOT_MANAGE_COMMENTS#0="Stai utilizzando una vecchia versione di WordPress, non si possono gestire i commenti via XmlRpc.";
 MESSAGE_COMMENT_LOST#0="La replica al commento andrà perduta, continuare?";

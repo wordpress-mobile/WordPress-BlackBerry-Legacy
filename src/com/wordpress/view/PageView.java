@@ -51,7 +51,7 @@ public class PageView extends StandardBaseView {
     	BorderedFieldManager outerManagerRowTitle = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
         HorizontalFieldManager rowTitle = new HorizontalPaddedFieldManager();
-		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_POST_TITLE)+":");
+		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_TITLE)+":");
 		title = new BasicEditField("", page.getTitle(), 100, Field.EDITABLE);
         rowTitle.add(lblTitle);
         rowTitle.add(title);

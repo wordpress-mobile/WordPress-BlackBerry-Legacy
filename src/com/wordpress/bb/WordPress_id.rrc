@@ -1,11 +1,3 @@
-ERROR_RESIZE_HEIGHT#0="";
-ERROR_RESIZE_WIDTH#0="";
-MENUITEM_VIEW_THUMBNAILS#0="";
-MENUITEM_VIEW_TITLES#0="";
-LABEL_RESIZE_IMAGE_WIDTH#0="lebar";
-LABEL_RESIZE_IMAGE_HEIGHT#0="tinggi";
-GET_FREE_BLOG#0="Buat Blog Gratis di WordPress.com";
-GET_FREE_BLOG_MENU_ITEM#0="Buat Blog Gratis";
 ABOUTVIEW_DESC#0="Aplikasi Open Source BlackBerry untuk WordPress";
 ABOUTVIEW_DEVELOPED_BY#0="Design oleh Automattic & Pengembangan oleh Danais.";
 ABOUTVIEW_MORE_INFO#0="Informasi lebih lanjut atau kontribusi ke proyek ini, kunjungi web site kami di";
@@ -36,6 +28,8 @@ ERROR_SDCARD_NOT_FOUND#0="SD card tidak ditemukan, beralih ke memori perangkat";
 ERROR_WHILE_SAVING_PAGE#0="Kesalahan sambil menyimpan data halaman";
 ERROR_WHILE_SAVING_POST#0="Kesalahan sambil menyimpan data tulisan";
 ERROR_YOU_CANNOT_MANAGEPOST#0="Anda tidak dapat kelola tulisan";
+GET_FREE_BLOG#0="Buat Blog Gratis di WordPress.com";
+GET_FREE_BLOG_MENU_ITEM#0="Buat Blog Gratis";
 LABEL_ADDLINK_CLEAR#0="Hapus URL";
 LABEL_ADDLINK_PASTE#0="Tempel URL";
 LABEL_ADDLINK_TITLE#0="Sisipkan Informasi Tautan";
@@ -50,14 +44,14 @@ LABEL_CATEGORY_PARENT#0="Kategori Induk";
 LABEL_COMMENT#0="Komentar";
 LABEL_COMMENT_NOTIFICATIONS#0="Pemberitahuan Komentar";
 LABEL_COMMENT_NOTIFICATIONS_INTERVAL#0={
-	"Dimatikan",
-	"120 menit",
-	"90 menit",
-	"60 menit",
-	"30 menit",
-	"15 menit",
-	"10 menit",
-	"5 menit",
+    "Dimatikan",
+    "120 menit",
+    "90 menit",
+    "60 menit",
+    "30 menit",
+    "15 menit",
+    "10 menit",
+    "5 menit",
 };
 LABEL_COMMENT_ON#0="Aktif";
 LABEL_CONTENT#0="Konten";
@@ -96,8 +90,9 @@ LABEL_POST_NUMBER_NEW#0="Baru";
 LABEL_POST_PUBLISHEDON#0="Diterbitkan pada tanggal";
 LABEL_POST_STATUS#0="Status";
 LABEL_POST_TAGS#0="Tag";
-LABEL_POST_TITLE#0="Judul";
 LABEL_RESIZEPHOTOS#0="Pengubahan Ukuran Foto";
+LABEL_RESIZE_IMAGE_HEIGHT#0="tinggi";
+LABEL_RESIZE_IMAGE_WIDTH#0="lebar";
 LABEL_TITLE#0="Judul";
 LABEL_URL#0="Url";
 LABEL_USERNAME#0="Nama user";

@@ -1,11 +1,3 @@
-ERROR_RESIZE_HEIGHT#0="";
-ERROR_RESIZE_WIDTH#0="";
-MENUITEM_VIEW_THUMBNAILS#0="";
-MENUITEM_VIEW_TITLES#0="";
-LABEL_RESIZE_IMAGE_WIDTH#0="Rajauksen korkeus";
-LABEL_RESIZE_IMAGE_HEIGHT#0="Rajauksen leveys";
-GET_FREE_BLOG#0="Hanki ilmainen blogi WordPress.comissa.";
-GET_FREE_BLOG_MENU_ITEM#0="Hanki ilmainen blogi";
 ABOUTVIEW_DESC#0="Avoimenlähdekoodin BlackBerry-sovellus WordPress-sivustoille";
 ABOUTVIEW_DEVELOPED_BY#0="Suunnitellut Automattic & kehittänyt Danais.";
 ABOUTVIEW_MORE_INFO#0="Saadaksesi lisätietoa tai osallistuaksesi projektiin, käy kotisivuillamme osoitteessa";
@@ -36,6 +28,8 @@ ERROR_SDCARD_NOT_FOUND#0="Valitettavasti SD-muistikorttia ei löytynyt, sovellus 
 ERROR_WHILE_SAVING_PAGE#0="Ilmeni virhe tallentaessa sivudataa.";
 ERROR_WHILE_SAVING_POST#0="Ilmeni virhe tallentaessa artikkelin dataa.";
 ERROR_YOU_CANNOT_MANAGEPOST#0="Et voi hallita blogisi artikkelia.";
+GET_FREE_BLOG#0="Hanki ilmainen blogi WordPress.comissa.";
+GET_FREE_BLOG_MENU_ITEM#0="Hanki ilmainen blogi";
 LABEL_ADDLINK_CLEAR#0="Siisti URL-osoite";
 LABEL_ADDLINK_PASTE#0="Liitä URL-osoite";
 LABEL_ADDLINK_TITLE#0="Tuo linkin tiedot";
@@ -50,18 +44,17 @@ LABEL_CATEGORY_PARENT#0="Yläaihe";
 LABEL_COMMENT#0="Kommentti";
 LABEL_COMMENT_NOTIFICATIONS#0="Kommenttimuistutukset";
 LABEL_COMMENT_NOTIFICATIONS_INTERVAL#0={
-	"Pois käytöstä",
-	"120 minuuttia",
-	"90 minuuttia",
-	"60 minuuttia",
-	"30 minuuttia",
-	"15 minuuttia",
-	"10 minuuttia",
-	"5 minuuttia",
+    "Pois käytöstä",
+    "120 minuuttia",
+    "90 minuuttia",
+    "60 minuuttia",
+    "30 minuuttia",
+    "15 minuuttia",
+    "10 minuuttia",
+    "5 minuuttia",
 };
 LABEL_COMMENT_ON#0="Päälle";
 LABEL_CONTENT#0="Sisältö";
-LABEL_CUSTOM_FIELD_DESC#0="";
 LABEL_DATE#0="Päiväys";
 LABEL_DESC#0="Kuvaus";
 LABEL_EMPTYTITLE#0="Ei otsikkoa";
@@ -96,8 +89,9 @@ LABEL_POST_NUMBER_NEW#0="Uusi";
 LABEL_POST_PUBLISHEDON#0="Julkaistu:";
 LABEL_POST_STATUS#0="Tila";
 LABEL_POST_TAGS#0="Avainsanat";
-LABEL_POST_TITLE#0="Otsikko";
 LABEL_RESIZEPHOTOS#0="Rajaa kuvia";
+LABEL_RESIZE_IMAGE_HEIGHT#0="Rajauksen leveys";
+LABEL_RESIZE_IMAGE_WIDTH#0="Rajauksen korkeus";
 LABEL_TITLE#0="Otsikko";
 LABEL_URL#0="Url-osoite";
 LABEL_USERNAME#0="Käyttäjänimi";
@@ -170,8 +164,6 @@ MESSAGE_INQUIRY_DIALOG_BOX#0="Tallennetaanko muutokset?";
 MESSAGE_LOCAL_DRAFT_NOT_SUBMIT#0="Paikallisia luonnoksia ei voitu lähettää.";
 MESSAGE_LOCAL_DRAFT_NO_COMMENT#0="Ei kommentteja tähän lunnosartikkeliin";
 MESSAGE_LOCATION_OVERWRITE#0="Ylikirjoitetaanko sijaintitiedot nykyisillä sijaintitiedoilla?";
-MESSAGE_MEDIA_ON_BOTTOM#0="";
-MESSAGE_MEDIA_ON_TOP#0="";
 MESSAGE_NEW_VERSION_AVAILABLE#0="Uusi versio WordPress for BlackBerry-sovelluksesta on saatavilla. Haluatko päivittää nyt?";
 MESSAGE_NOTHING_TO_SEE_HERE#0="Täällä ei ole mitään nähtävää.";
 MESSAGE_NO_DRAFT_PAGES#0="Luonnossivuja ei löytynyt.";
@@ -179,8 +171,6 @@ MESSAGE_NO_DRAFT_POSTS#0="Luonnosartikkelia ei löytynyt.";
 MESSAGE_NO_NEW_VERSION_AVAILABLE#0="WordPress for BlackBerry-sovellus päivitetty.";
 MESSAGE_NO_POSTS#0="Artikkeleita ei löytynyt.";
 MESSAGE_REMOVE_TEMPFILES#0="Kaikki sovellusdata katoaa, haluatko varmasti jatkaa?";
-MESSAGE_XMLRPC_ENDPOINT#0="";
-MESSAGE_XMLRPC_ENDPOINT_FAILED#0="";
 NOTIFICATION_DESC#0="Valitse blogi, josta haluat kommentti-ilmoitukset";
 NOTIFICATION_INTERVAL_LABEL#0="Päivitä väliaika";
 OPTIONSSCREEN_ALLOW_BES#0="BlackBerry Enterprise-palvelin";
@@ -191,7 +181,6 @@ OPTIONSSCREEN_ALLOW_WAP2#0="Wap 2.0 Gateway";
 OPTIONSSCREEN_ALLOW_WIFI#0="Wi-Fi network";
 OPTIONSSCREEN_BACKGROUND_DESC#0="Voit poistua sovelluksesta sammuttamalla sen. Tämän kohdan tulee olla ruksattu, jos haluat ilmoituksia uusista kommenteista.";
 OPTIONSSCREEN_BACKGROUND_LABEL#0="Taustaa suljetaan.";
-OPTIONSSCREEN_DEBUG_DESC#0="";
 OPTIONSSCREEN_DEBUG_LABEL#0="Testaa";
 OPTIONSSCREEN_LABEL_APN#0="APN";
 OPTIONSSCREEN_LABEL_ENABLE_ADVANCED_CONNECTION_SETTINGS#0="Salli lisäasetukset";

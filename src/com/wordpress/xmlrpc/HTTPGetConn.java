@@ -90,7 +90,7 @@ public class HTTPGetConn extends BlogConn  {
 						{
 							baos.write(c);
 						}
-						response = new String (baos.toByteArray());
+						response = new String (baos.toByteArray(), "UTF-8");
 						keepGoing = false;
 		            	break;
 		         

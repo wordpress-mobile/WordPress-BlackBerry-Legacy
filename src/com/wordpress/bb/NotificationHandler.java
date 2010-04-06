@@ -96,7 +96,7 @@ public class NotificationHandler {
 	}
 	
 	//start the task that gets the awaiting comments details
-	private void startFullCommentsRefresh(){
+	private void startNotificationDetailsTask(){
 		currentDetailsTask = new NotificationDetailsTask();
 		currentDetailsTask.run();
 	}
@@ -146,10 +146,10 @@ public class NotificationHandler {
 					BlogInfo blogInfo = blogsList[i];
 					Log.trace("Considering the blog - "+ blogInfo.getName() + " - for the notifications details queue");
 					if (blogInfo.getState() == BlogInfo.STATE_LOADED && blogInfo.isAwaitingModeration() && blogInfo.isCommentNotifies()) {
-						Log.trace("added the blog - "+ blogInfo.getName() + " - to the notifications details queue");
+						Log.trace("added the blog - "+ blogInfo.getName() + " - because there are comments awaiting moderation");
 						executionQueue.push(blogInfo);
 					} else if (blogInfo.getState() == BlogInfo.STATE_LOADED && blogInfo.isCommentsDownloadNecessary() && blogInfo.isCommentNotifies()) {
-						Log.trace("added the blog - "+ blogInfo.getName() + " - to the notifications details queue");
+						Log.trace("added the blog - "+ blogInfo.getName() + " - becouse there are new comments to download");
 						executionQueue.push(blogInfo);
 					}
 				}
@@ -259,13 +259,14 @@ public class NotificationHandler {
 					}
 					
 					//retrive the previous comments ID List for  current blog
-					int[] previousComments = currentBlog.getCommentsID();
 					int[] newCommentsIDList = new int[commentsFromServer.length];
 					Log.trace("retrived comments from server # "+ commentsFromServer.length);
 					for (int i = 0; i < newCommentsIDList.length; i++) {
 						Comment	comment = commentsFromServer[i];
 						newCommentsIDList[i] = comment.getID();
 					}
+
+					int[] previousComments = currentBlog.getCommentsID();
 					currentBlog.setCommentsID(newCommentsIDList);
 			
 					//check if there are available new comments for moderation
@@ -294,7 +295,6 @@ public class NotificationHandler {
 
 					if(presence == false || currentBlog.isCommentsDownloadNecessary())
 						storeComment(currentBlog, respVector);
-
 					
 				} else {
 					final String respMessage=resp.getResponse();
@@ -314,7 +314,7 @@ public class NotificationHandler {
 		private Queue executionQueue = null; // queue of BlogInfo to check
 		private boolean stopping = false;
 		BlogInfo currentBlog = null;
-		private boolean isNeededCommentRefresh = false;
+		private boolean isNecessaryGetCommentsTask = false;
 		
 		public void run() {
 			try {
@@ -377,8 +377,8 @@ public class NotificationHandler {
 				
 			} else {
 				
-				if (isNeededCommentRefresh) {
-					startFullCommentsRefresh();  //retrive awaiting comments details
+				if (isNecessaryGetCommentsTask) {
+					startNotificationDetailsTask();  //retrive awaiting comments details
 				}
 				
 				Log.trace("NotificationTask - next method end");
@@ -402,16 +402,16 @@ public class NotificationHandler {
 					int pendingComments = Integer.parseInt(pendingCommentsValue);
 					Log.trace("ci sono commenti pendenti # " + pendingComments);
 					if(pendingComments > 0) {
-						isNeededCommentRefresh = true;
+						isNecessaryGetCommentsTask = true;
 					} 
 					
 					//check to see if the number of totalcomments has changed
-					String totalComments= String.valueOf(respObj.get("total_comments"));
+					String totalComments = String.valueOf(respObj.get("total_comments"));
 					Log.trace("total blog comments "+ totalComments);
 					int parsedTotalComments = Integer.parseInt(totalComments);
 					if(currentBlog.getTotalNumbersOfComments() != parsedTotalComments) {
 						currentBlog.setCommentsDownloadNecessary(true);
-						isNeededCommentRefresh = true;
+						isNecessaryGetCommentsTask = true;
 					} else {
 						currentBlog.setCommentsDownloadNecessary(false);
 					}

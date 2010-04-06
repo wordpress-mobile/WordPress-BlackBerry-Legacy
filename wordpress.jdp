@@ -119,6 +119,8 @@ src\com\wordpress\utils\conn\Gateway.java
 src\com\wordpress\utils\conn\ServiceBookConfig.java
 src\com\wordpress\utils\conn\TcpConfig.java
 src\com\wordpress\utils\conn\WiFiConfig.java
+src\com\wordpress\utils\csv\CSVReader.java
+src\com\wordpress\utils\csv\StatsParser.java
 src\com\wordpress\utils\DataCollector.java
 src\com\wordpress\utils\ImageUtils.java
 src\com\wordpress\utils\JpegEncoder.java

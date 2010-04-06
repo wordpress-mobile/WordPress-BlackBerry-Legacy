@@ -142,92 +142,6 @@ public class CommentView extends StandardBaseView {
 			setViewValues(comment);
 	 }
 
-	 private LabelField getAuthorUrlField(String url) {
-		 
-		 return new LabelField(url, LabelField.FOCUSABLE) {
-			 
-			 public void paint(Graphics graphics) {
-				 if(this.isFocus())
-					 graphics.setColor(Color.WHITE);
-				 else
-					 graphics.setColor(Color.BLUE);	
-				 super.paint(graphics);
-			 }
-
-			 private void performDefaultActionOnItem() {
-				 Tools.getBrowserSession(getText());
-			 }
-			 
-		        /**
-		         * Overrides default implementation.  Performs default action if the 
-		         * 4ways trackpad was clicked; otherwise, the default action occurs.
-		         * 
-		         * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
-		         */
-		    	protected boolean navigationClick(int status, int time) {
-		    		Log.trace(">>> navigationClick");
-		    		
-		    		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
-		    			Log.trace("Input came from the trackwheel");
-		    			// Input came from the trackwheel
-		    			return super.navigationClick(status, time);
-		    			
-		    		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
-		    			Log.trace("Input came from a four way navigation input device");
-		    			performDefaultActionOnItem();
-		    			 return true;
-		    		}
-		    		return super.navigationClick(status, time);
-		    	}
-		    	
-		        /**
-		         * Overrides default.  Enter key will take default action on selected item.
-		         *  
-		         * @see net.rim.device.api.ui.Screen#keyChar(char,int,int)
-		         * 
-		         */
-		    	protected boolean keyChar(char c, int status, int time) {
-		    		Log.trace(">>> keyChar");
-		    		// Close this screen if escape is selected.
-		    		if (c == Characters.ENTER) {
-		    			performDefaultActionOnItem();
-		    			return true;
-		    		}
-		    		return super.keyChar(c, status, time);
-		    	}
-		        
-		    	
-		        
-		    	//#ifdef IS_OS47_OR_ABOVE
-		    	protected boolean touchEvent(TouchEvent message) {
-		    		Log.trace(">>> touchEvent");
-		    		int eventCode = message.getEvent();
-		    		
-		    		// Get the screen coordinates of the touch event
-		    		if(eventCode == TouchEvent.CLICK) {
-		    			Log.trace("TouchEvent.CLICK");
-		    			performDefaultActionOnItem();
-		    			return true;
-					} 
-					return false; 
-		    	}
-		    	//#endif
-			 
-		        
-			 
-			 private MenuItem myContextMenuItemA = new MenuItem(_resources.getString(WordPressResource.MENUITEM_OPEN_URL), 10, 2) {
-		            public void run() {
-		            	performDefaultActionOnItem();
-		            }
-		        };
-		     
-		        protected void makeContextMenu(ContextMenu contextMenu) {
-		            contextMenu.addItem(myContextMenuItemA);
-		        }
-		 };
-		 
-	 }
-	 
 	 //refresh the view with the new comment content
 	 private void setViewValues(Comment newComment){
 		 this.comment = newComment;
@@ -249,7 +163,7 @@ public class CommentView extends StandardBaseView {
 		 }
 
 		 if(newComment.getAuthorUrl() != null && !newComment.getAuthorUrl().equals("")) {
-			 authorUrl = getAuthorUrlField(newComment.getAuthorUrl());
+			 authorUrl = GUIFactory.createClickableLabel(newComment.getAuthorUrl(), LabelField.FOCUSABLE);
 			 fromDataManager.add(authorUrl);
 		 }
 		 

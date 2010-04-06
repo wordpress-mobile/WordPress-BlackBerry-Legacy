@@ -12,7 +12,6 @@ import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BitmapField;
-import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ObjectListField;
 import net.rim.device.api.ui.container.MainScreen;
@@ -107,7 +106,7 @@ public class BlogView extends BaseView {
         	}
         };
         
-    	internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR) {
+    	internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR | USE_ALL_HEIGHT) {
     		public void paintBackground( Graphics g ) {
     			g.clear();
     			int color = g.getColor();
@@ -117,59 +116,22 @@ public class BlogView extends BaseView {
     			g.setColor( color );
     		}
     		
-    		protected void sublayout( int maxWidth, int maxHeight ) {
-    			
-    			int titleFieldHeight = 0;
-    			if ( titleField != null ) {
-    				titleFieldHeight = titleField.getHeight();
-    			}
-    			    			
-    			int displayWidth = Display.getWidth(); 
-    			int displayHeight = Display.getHeight();
-    			
-    			super.sublayout( displayWidth, displayHeight - (titleFieldHeight +5) );
-    			setExtent( displayWidth, displayHeight - titleFieldHeight );
-    		}
     	};
     	
-    	final int listWidth = wpLogoBitmapField.getBitmapWidth() - 10;
-    	
-    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR ) {
-        		protected void sublayout( int maxWidth, int maxHeight ) {
-        			//super.sublayout( displayWidth, displayHeight - titleFieldHeight );
-        			
-        			for (int i = 0;  i < getFieldCount();  i++) {
-        				Field field = getField(i);
-        				if (i == 0){
-        					layoutChild( field, listWidth, maxHeight );
-        					
-        					int x = maxWidth / 2;
-        					x = x - listWidth/2;
-        					
-        					setPositionChild(field, x, 0);
-        				} else { 
-        					
-        				}                        	
-        			}
-        			setExtent( maxWidth, maxHeight );
-        		}    		
-    	};
-    	
+    	//final int listWidth = wpLogoBitmapField.getBitmapWidth() - 10;
+    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR );
     	internalManager.add( wpLogoBitmapField );
-    //	LabelField blogLabel = getLabel(controller.getBlogName(), Field.FIELD_HCENTER | LabelField.ELLIPSIS);
-    	//internalManager.add(blogLabel);
     	internalManager.add( _container );
     	super.add( internalManager );
   
-    	
     	BlogInfo currentBlogInfo = controller.getCurrentBlogInfo();
 		awaitingModeration = currentBlogInfo.getAwaitingModeration();
 		list = new BlogListField();
 		
-		  //Populate the ListField
-      for(int count = 0; count < mainMenuItems.length; ++count) {
-      	list.insert(count);
-      }
+		//Populate the ListField
+		for(int count = 0; count < mainMenuItems.length; ++count) {
+			list.insert(count);
+		}
 
 	   list.setRowHeight(48);  //the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
 	   list.setCallback(new BlogListFieldCallBack());	

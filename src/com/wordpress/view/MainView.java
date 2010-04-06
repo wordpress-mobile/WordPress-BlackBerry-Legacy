@@ -35,13 +35,13 @@ import com.wordpress.view.component.NoBlogsListField;
 public class MainView extends BaseView {
 	
     private MainController mainController=null;
-    private VerticalFieldManager _container;
+    private VerticalFieldManager _scrollerManager;
     VerticalFieldManager internalManager;
     private ListField listaBlog;
     private BlogsListField blogListController;
     
 	public MainView(MainController mainController) {
-		super( MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
+		super( MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL | USE_ALL_HEIGHT);
 		
 		this.mainController=mainController;
 		
@@ -58,7 +58,7 @@ public class MainView extends BaseView {
         
         final BitmapField wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
         //final int listWidth = wpLogoBitmapField.getBitmapWidth() - 10;
-        
+
     	internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR) {
     		public void paintBackground( Graphics g ) {
     			g.clear();
@@ -68,46 +68,13 @@ public class MainView extends BaseView {
     			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
     			g.setColor( color );
     		}
-    		
-    		protected void sublayout( int maxWidth, int maxHeight ) {
-    			
-    			int titleFieldHeight = 0;
-    			if ( titleField != null ) {
-    				titleFieldHeight = titleField.getHeight();
-    			}
-    			    			
-    			int displayWidth = Display.getWidth(); 
-    			int displayHeight = Display.getHeight();
-    			
-    			super.sublayout( displayWidth, displayHeight - (titleFieldHeight +5) );
-    			setExtent( displayWidth, displayHeight - titleFieldHeight );
-    		}
     	};
-    	
-    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR ){
-    		protected void sublayout( int maxWidth, int maxHeight ) {
-    			//super.sublayout( displayWidth, displayHeight - titleFieldHeight );
-    			int listWidth = Display.getWidth() -10;
-    			for (int i = 0;  i < getFieldCount();  i++) {
-    				Field field = getField(i);
-    				if (i == 0){
-    					layoutChild( field, listWidth, maxHeight );
-    					
-    					int x = maxWidth / 2;
-    					x = x - listWidth/2;
-    					
-    					setPositionChild(field, x, 0);
-    				} else { 
-    					
-    				}                        	
-    			}
-    			setExtent( maxWidth, maxHeight );
-    		}
-    	};
+        
+    	_scrollerManager = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR | USE_ALL_HEIGHT );
     	
     	internalManager.add( wpLogoBitmapField );
-    	internalManager.add( _container );
-    	super.add( internalManager );  
+    	internalManager.add( _scrollerManager );
+    	super.add( internalManager );
 		
         setupUpBlogsView();
 	
@@ -117,9 +84,9 @@ public class MainView extends BaseView {
 		addMenuItem(_setupItem);
 		addMenuItem(_updateItem);
 	}
-	
+		
 	public void add( Field field ) {
-		_container.add( field );
+		_scrollerManager.add( field );
 	}
 	
 	 public void setupUpBlogsView() {
@@ -256,7 +223,7 @@ public class MainView extends BaseView {
     public void refreshBlogList() {
     	synchronized (this) {
 	        if(listaBlog != null){
-				_container.delete(listaBlog);
+				_scrollerManager.delete(listaBlog);
 			} 
 	        setupUpBlogsView(); //repaint entire list
     	}

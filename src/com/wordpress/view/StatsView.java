@@ -1,8 +1,10 @@
 //#preprocess
 package com.wordpress.view;
 
+import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.TextField;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
@@ -10,8 +12,11 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.StatsController;
+import com.wordpress.utils.csv.StatsParser;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.PillButtonField;
 import com.wordpress.view.container.PillButtonSet;
+import com.wordpress.view.container.TableLayoutManager;
 
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.Touchscreen;
@@ -19,10 +24,11 @@ import com.wordpress.view.touch.BottomBarItem;
 //#endif
 
 
+
 public class StatsView extends BaseView {
 	
 	private StatsController controller;
-	private TextField statsDataTextField;
+	private TextField statsDesc;
 	
 	private PillButtonSet topBarButton;
 	private PillButtonField _7daysBtn;
@@ -58,10 +64,10 @@ public class StatsView extends BaseView {
 		//add(topBarButton);
 		topBarButton.setSelectedField(_7daysBtn);
 		
-		VerticalFieldManager scrollerData = new VerticalFieldManager(VERTICAL_SCROLL | VERTICAL_SCROLLBAR | USE_ALL_WIDTH);
-		statsDataTextField = new TextField(USE_ALL_WIDTH | READONLY);
-		scrollerData.add(statsDataTextField);
-
+		scrollerData = new VerticalFieldManager(VERTICAL_SCROLL | VERTICAL_SCROLLBAR | USE_ALL_WIDTH);
+		statsDesc = new TextField(USE_ALL_WIDTH | READONLY);
+		
+		add(statsDesc);
 		add(scrollerData);
 		
 		//#ifdef IS_OS47_OR_ABOVE
@@ -83,10 +89,114 @@ public class StatsView extends BaseView {
 		updateSubTitle();
 	}
 	
-	public void setStatsData() {
-		statsDataTextField.setText(controller.getLastStatsData());
+	public void setStatsData(String data) {
+		String[] columnName = null;
+		String[] columnLink = null;
+		String[] columnHeader = null;
+		TableLayoutManager outerTable = null;
+		String dateColumnTitle = _resources.getString(WordPressResource.LABEL_DATE);
+		String viewsColumnTitle = _resources.getString(WordPressResource.LABEL_VIEWS);
+		
+		switch (controller.getType()) {
+		
+		case StatsController.TYPE_VIEW:
+			statsDesc.setText(_resources.getString(WordPressResource.MESSAGE_STATS_VIEW));
+			outerTable = new TableLayoutManager(new int[] {
+					TableLayoutManager.SPLIT_REMAINING_WIDTH,
+					TableLayoutManager.SPLIT_REMAINING_WIDTH }, new int[] { 2, 2 }, 5,
+					Manager.USE_ALL_WIDTH);
+			columnHeader = new String[]{dateColumnTitle, viewsColumnTitle};
+			columnName = new String[]{"date","views"};
+			break;
+			
+		case StatsController.TYPE_CLICKS:
+			statsDesc.setText(_resources.getString(WordPressResource.MESSAGE_STATS_CLICKS));
+			outerTable = new TableLayoutManager(new int[] {
+					TableLayoutManager.USE_PREFERRED_SIZE,
+					TableLayoutManager.SPLIT_REMAINING_WIDTH,
+					TableLayoutManager.USE_PREFERRED_SIZE }, new int[] { 2, 2, 2 }, 5,
+					Manager.USE_ALL_WIDTH);
+			columnHeader = new String[]{dateColumnTitle, _resources.getString(WordPressResource.MENUITEM_STATS_CLICKS),viewsColumnTitle};
+			columnName = new String[]{"date","click","views"};
+			columnLink = new String[]{null,"click",null};
+			break;
+			
+		case StatsController.TYPE_REFERRERS:
+			statsDesc.setText(_resources.getString(WordPressResource.MESSAGE_STATS_REFFERERS));
+			outerTable = new TableLayoutManager(new int[] {
+					TableLayoutManager.USE_PREFERRED_SIZE,
+					TableLayoutManager.SPLIT_REMAINING_WIDTH,
+					TableLayoutManager.USE_PREFERRED_SIZE }, new int[] { 2, 2, 2 }, 5,
+					Manager.USE_ALL_WIDTH);
+			columnHeader = new String[]{dateColumnTitle, _resources.getString(WordPressResource.MENUITEM_STATS_REFERRERS),viewsColumnTitle};
+			columnName = new String[]{"date","referrer","views"};
+			columnLink = new String[]{null,"referrer",null};
+			break;
+			
+		case StatsController.TYPE_SEARCH:
+			statsDesc.setText(_resources.getString(WordPressResource.MESSAGE_STATS_SEARCH_ENGINE_TERMS));
+			outerTable = new TableLayoutManager(new int[] {
+					TableLayoutManager.USE_PREFERRED_SIZE,
+					TableLayoutManager.SPLIT_REMAINING_WIDTH,
+					TableLayoutManager.USE_PREFERRED_SIZE }, new int[] { 2, 2, 2 }, 5,
+					Manager.USE_ALL_WIDTH);
+			columnHeader = new String[]{dateColumnTitle, _resources.getString(WordPressResource.MENUITEM_STATS_SEARCH),viewsColumnTitle};
+			columnName = new String[]{"date","searchterm","views"};
+			break;
+			
+		case StatsController.TYPE_TOP:
+			statsDesc.setText(_resources.getString(WordPressResource.MESSAGE_STATS_TOP));
+			outerTable = new TableLayoutManager(new int[] {
+					TableLayoutManager.USE_PREFERRED_SIZE,
+					TableLayoutManager.SPLIT_REMAINING_WIDTH,
+					TableLayoutManager.USE_PREFERRED_SIZE }, new int[] { 2, 2, 2 }, 5,
+					Manager.USE_ALL_WIDTH);
+			columnHeader = new String[]{dateColumnTitle, _resources.getString(WordPressResource.LABEL_TITLE),viewsColumnTitle};
+			columnName = new String[]{"date", "post_title", "views"};
+			columnLink = new String[]{null,"post_permalink",null};
+			break;
+		default:
+			return;
+		}
+		
+		buildStatsTable(data, columnHeader, columnName, columnLink, outerTable);
 	}
+	
+	
+	private void buildStatsTable(String data, String[] columnsHeader, String[] columnName, String[] columnLink, TableLayoutManager outerTable) {
+		scrollerData.deleteAll();
+		
+		if(columnsHeader == null)
+			columnsHeader = columnName;
 
+		for (int i = 0; i < columnsHeader.length; i++) {
+			outerTable.add(GUIFactory.getLabel(columnsHeader[i], LabelField.FIELD_HCENTER | DrawStyle.ELLIPSIS ));
+		}
+		for (int i = 0; i < columnsHeader.length; i++) {
+			outerTable.add(GUIFactory.createSepatorField());
+		}
+		
+		try {
+			StatsParser statParser = new StatsParser(data);
+			while (statParser.hasNext()) {
+				String[] nextLine = statParser.next();
+
+				for (int i = 0; i < columnName.length; i++) {
+					String _tmpName = columnName[i];
+					int _tmpIdx = statParser.getColumnIndex(_tmpName);
+					if(columnLink != null && columnLink[i] != null ) {
+						int _tmpIdxLink = statParser.getColumnIndex(columnLink[i]); //retrive the url
+						outerTable.add(GUIFactory.createClickableLabel(nextLine[_tmpIdx], nextLine[_tmpIdxLink], LabelField.FOCUSABLE | LabelField.FIELD_HCENTER | DrawStyle.ELLIPSIS));	
+					} else 
+					outerTable.add(GUIFactory.getLabel(nextLine[_tmpIdx], LabelField.FOCUSABLE | LabelField.FIELD_HCENTER | DrawStyle.ELLIPSIS));
+					
+				}
+			}
+		} catch (Exception e) {
+			Log.error(e, "Error while parsing stats data");
+		}
+		scrollerData.add(outerTable);
+	}
 	
 	private void updateSubTitle() {
 		String subtitle = null;
@@ -203,6 +313,7 @@ public class StatsView extends BaseView {
 			 retriveStatsType(StatsController.TYPE_CLICKS);
 		 }
 	 };
+	private VerticalFieldManager scrollerData;
 	
 	//#ifdef IS_OS47_OR_ABOVE
 	private void initUpBottomBar() {
