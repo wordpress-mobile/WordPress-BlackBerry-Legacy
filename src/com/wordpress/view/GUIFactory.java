@@ -107,12 +107,18 @@ public class GUIFactory {
 		 
 		 return new LabelField(label, LabelField.FOCUSABLE | style ) {
 			 
-			 public void paint(Graphics graphics) {
-				 if(this.isFocus())
-					 graphics.setColor(Color.WHITE);
-				 else
-					 graphics.setColor(Color.BLUE);	
-				 super.paint(graphics);
+			 public void paint(Graphics g) {		 
+			       int oldColour = g.getColor();
+			        try {           
+			            if(g.isDrawingStyleSet( Graphics.DRAWSTYLE_FOCUS ) ) {
+			                g.setColor( Color.WHITE );
+			            } else {
+			                g.setColor( Color.BLUE );
+			            }
+			            super.paint( g );
+			        } finally {
+			            g.setColor( oldColour );
+			        }
 			 }
 
 			 private void performDefaultActionOnItem() {

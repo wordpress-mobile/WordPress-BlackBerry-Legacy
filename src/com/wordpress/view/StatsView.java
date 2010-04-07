@@ -1,7 +1,15 @@
 //#preprocess
 package com.wordpress.view;
 
+import java.io.IOException;
+
+
+import net.rim.blackberry.api.browser.URLEncodedPostData;
+import net.rim.device.api.system.Display;
+import net.rim.device.api.system.EncodedImage;
+import net.rim.device.api.system.GIFEncodedImage;
 import net.rim.device.api.ui.DrawStyle;
+import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.LabelField;
@@ -14,8 +22,7 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.StatsController;
 import com.wordpress.utils.csv.StatsParser;
 import com.wordpress.utils.log.Log;
-import com.wordpress.view.component.PillButtonField;
-import com.wordpress.view.container.PillButtonSet;
+import com.wordpress.view.component.WebBitmapField;
 import com.wordpress.view.container.TableLayoutManager;
 
 //#ifdef IS_OS47_OR_ABOVE
@@ -23,20 +30,12 @@ import net.rim.device.api.ui.Touchscreen;
 import com.wordpress.view.touch.BottomBarItem;
 //#endif
 
-
-
 public class StatsView extends BaseView {
 	
 	private StatsController controller;
 	private TextField statsDesc;
+	private WebBitmapField chartImg;
 	
-	private PillButtonSet topBarButton;
-	private PillButtonField _7daysBtn;
-	private PillButtonField _30daysBtn;
-	private PillButtonField _90daysBtn;
-	private PillButtonField _365daysBtn;
-	private PillButtonField _allTimeBtn;
-			
 	private final String _7days = 7 +" " + _resources.getString(WordPressResource.LABEL_DAYS);
 	private final String _30days = 30 +" " + _resources.getString(WordPressResource.LABEL_DAYS);
 	private final String _90days = _resources.getString(WordPressResource.LABEL_QUARTER);
@@ -49,20 +48,6 @@ public class StatsView extends BaseView {
 		
 		this.controller=_controller;
 		
-		topBarButton = new PillButtonSet();
-		_7daysBtn = new PillButtonField( "7" );
-		_30daysBtn = new PillButtonField( "30" );
-		_90daysBtn = new PillButtonField( "90" );
-		_365daysBtn = new PillButtonField( "365" );
-		_allTimeBtn = new PillButtonField( _AllTime );
-		topBarButton.add( _7daysBtn );
-		topBarButton.add( _30daysBtn );
-		topBarButton.add( _90daysBtn );
-		topBarButton.add( _365daysBtn );
-		topBarButton.add(_allTimeBtn);
-		topBarButton.setMargin( 5, 15, 5, 15 );
-		//add(topBarButton);
-		topBarButton.setSelectedField(_7daysBtn);
 		
 		scrollerData = new VerticalFieldManager(VERTICAL_SCROLL | VERTICAL_SCROLLBAR | USE_ALL_WIDTH);
 		statsDesc = new TextField(USE_ALL_WIDTH | READONLY);
@@ -89,7 +74,7 @@ public class StatsView extends BaseView {
 		updateSubTitle();
 	}
 	
-	public void setStatsData(String data) {
+	public void setStatsData(byte[] data) {
 		String[] columnName = null;
 		String[] columnLink = null;
 		String[] columnHeader = null;
@@ -112,48 +97,48 @@ public class StatsView extends BaseView {
 		case StatsController.TYPE_CLICKS:
 			statsDesc.setText(_resources.getString(WordPressResource.MESSAGE_STATS_CLICKS));
 			outerTable = new TableLayoutManager(new int[] {
-					TableLayoutManager.USE_PREFERRED_SIZE,
+			//		TableLayoutManager.USE_PREFERRED_SIZE,
 					TableLayoutManager.SPLIT_REMAINING_WIDTH,
 					TableLayoutManager.USE_PREFERRED_SIZE }, new int[] { 2, 2, 2 }, 5,
 					Manager.USE_ALL_WIDTH);
-			columnHeader = new String[]{dateColumnTitle, _resources.getString(WordPressResource.MENUITEM_STATS_CLICKS),viewsColumnTitle};
-			columnName = new String[]{"date","click","views"};
-			columnLink = new String[]{null,"click",null};
+			columnHeader = new String[]{_resources.getString(WordPressResource.MENUITEM_STATS_CLICKS),viewsColumnTitle};
+			columnName = new String[]{"click","views"};
+			columnLink = new String[]{"click",null};
 			break;
 			
 		case StatsController.TYPE_REFERRERS:
 			statsDesc.setText(_resources.getString(WordPressResource.MESSAGE_STATS_REFFERERS));
 			outerTable = new TableLayoutManager(new int[] {
-					TableLayoutManager.USE_PREFERRED_SIZE,
+					//TableLayoutManager.USE_PREFERRED_SIZE,
 					TableLayoutManager.SPLIT_REMAINING_WIDTH,
 					TableLayoutManager.USE_PREFERRED_SIZE }, new int[] { 2, 2, 2 }, 5,
 					Manager.USE_ALL_WIDTH);
-			columnHeader = new String[]{dateColumnTitle, _resources.getString(WordPressResource.MENUITEM_STATS_REFERRERS),viewsColumnTitle};
-			columnName = new String[]{"date","referrer","views"};
-			columnLink = new String[]{null,"referrer",null};
+			columnHeader = new String[]{_resources.getString(WordPressResource.MENUITEM_STATS_REFERRERS),viewsColumnTitle};
+			columnName = new String[]{"referrer","views"};
+			columnLink = new String[]{"referrer",null};
 			break;
 			
 		case StatsController.TYPE_SEARCH:
 			statsDesc.setText(_resources.getString(WordPressResource.MESSAGE_STATS_SEARCH_ENGINE_TERMS));
 			outerTable = new TableLayoutManager(new int[] {
-					TableLayoutManager.USE_PREFERRED_SIZE,
+//					TableLayoutManager.USE_PREFERRED_SIZE,
 					TableLayoutManager.SPLIT_REMAINING_WIDTH,
 					TableLayoutManager.USE_PREFERRED_SIZE }, new int[] { 2, 2, 2 }, 5,
 					Manager.USE_ALL_WIDTH);
-			columnHeader = new String[]{dateColumnTitle, _resources.getString(WordPressResource.MENUITEM_STATS_SEARCH),viewsColumnTitle};
-			columnName = new String[]{"date","searchterm","views"};
+			columnHeader = new String[]{_resources.getString(WordPressResource.MENUITEM_STATS_SEARCH),viewsColumnTitle};
+			columnName = new String[]{"searchterm","views"};
 			break;
 			
 		case StatsController.TYPE_TOP:
 			statsDesc.setText(_resources.getString(WordPressResource.MESSAGE_STATS_TOP));
 			outerTable = new TableLayoutManager(new int[] {
-					TableLayoutManager.USE_PREFERRED_SIZE,
+//					TableLayoutManager.USE_PREFERRED_SIZE,
 					TableLayoutManager.SPLIT_REMAINING_WIDTH,
 					TableLayoutManager.USE_PREFERRED_SIZE }, new int[] { 2, 2, 2 }, 5,
 					Manager.USE_ALL_WIDTH);
-			columnHeader = new String[]{dateColumnTitle, _resources.getString(WordPressResource.LABEL_TITLE),viewsColumnTitle};
-			columnName = new String[]{"date", "post_title", "views"};
-			columnLink = new String[]{null,"post_permalink",null};
+			columnHeader = new String[]{_resources.getString(WordPressResource.LABEL_TITLE),viewsColumnTitle};
+			columnName = new String[]{"post_title", "views"};
+			columnLink = new String[]{"post_permalink",null};
 			break;
 		default:
 			return;
@@ -162,22 +147,29 @@ public class StatsView extends BaseView {
 		buildStatsTable(data, columnHeader, columnName, columnLink, outerTable);
 	}
 	
-	
-	private void buildStatsTable(String data, String[] columnsHeader, String[] columnName, String[] columnLink, TableLayoutManager outerTable) {
+	private void buildStatsTable(byte[] data, String[] columnsHeader, String[] columnName, String[] columnLink, TableLayoutManager outerTable) {
 		scrollerData.deleteAll();
 		
 		if(columnsHeader == null)
 			columnsHeader = columnName;
 
 		for (int i = 0; i < columnsHeader.length; i++) {
-			outerTable.add(GUIFactory.getLabel(columnsHeader[i], LabelField.FIELD_HCENTER | DrawStyle.ELLIPSIS ));
+			outerTable.add(GUIFactory.getLabel(columnsHeader[i], DrawStyle.ELLIPSIS ));
 		}
 		for (int i = 0; i < columnsHeader.length; i++) {
 			outerTable.add(GUIFactory.createSepatorField());
 		}
 		
+		StatsParser statParser = new StatsParser(data);
+		
 		try {
-			StatsParser statParser = new StatsParser(data);
+			statParser.parseAll();
+		} catch (IOException e1) {
+			controller.displayError(e1, "");
+			return;
+		}
+
+		try {
 			while (statParser.hasNext()) {
 				String[] nextLine = statParser.next();
 
@@ -186,17 +178,66 @@ public class StatsView extends BaseView {
 					int _tmpIdx = statParser.getColumnIndex(_tmpName);
 					if(columnLink != null && columnLink[i] != null ) {
 						int _tmpIdxLink = statParser.getColumnIndex(columnLink[i]); //retrive the url
-						outerTable.add(GUIFactory.createClickableLabel(nextLine[_tmpIdx], nextLine[_tmpIdxLink], LabelField.FOCUSABLE | LabelField.FIELD_HCENTER | DrawStyle.ELLIPSIS));	
+						outerTable.add(GUIFactory.createClickableLabel(nextLine[_tmpIdx], nextLine[_tmpIdxLink], LabelField.FOCUSABLE | DrawStyle.ELLIPSIS));	
 					} else 
-					outerTable.add(GUIFactory.getLabel(nextLine[_tmpIdx], LabelField.FOCUSABLE | LabelField.FIELD_HCENTER | DrawStyle.ELLIPSIS));
-					
+					outerTable.add(GUIFactory.getLabel(nextLine[_tmpIdx], LabelField.FOCUSABLE |  DrawStyle.ELLIPSIS));
 				}
 			}
+			
+			//build the url for the chart
+			if(controller.getType() == StatsController.TYPE_VIEW) {
+				chartImg = null;
+			} else { 
+				//	http://chart.apis.google.com/chart?chs=500x300&chd=t:200,40,20&chds=0,1000&cht=p3&chdl=Hello|World|pippo&chdlp=bv&chco=FF0000,00FF00,0000FF
+				statParser.reset();
+				//StringBuffer chdl = new StringBuffer("&chdl=");
+				StringBuffer chdl = new StringBuffer("");
+				StringBuffer chd = new StringBuffer("&chd=t:");
+				int max = 0;
+				while (statParser.hasNext()) {
+					String[] nextLine = statParser.next();
+	
+					for (int i = 0; i < columnName.length; i++) {
+						String _tmpName = columnName[i];
+						int _tmpIdx = statParser.getColumnIndex(_tmpName);
+						if(i ==  0) {
+							//key
+							chdl.append(nextLine[_tmpIdx]+"|");
+						} else {
+							//value
+							int value = Integer.parseInt(nextLine[_tmpIdx]);
+							if (value > max) max = value;
+							chd.append(nextLine[_tmpIdx]+",");
+						}
+												
+						//outerTable.add(GUIFactory.getLabel(nextLine[_tmpIdx], LabelField.FOCUSABLE |  DrawStyle.ELLIPSIS));
+						
+					}
+				}//end while
+				//building the chart url
+				chd.deleteCharAt(chd.length()-1);
+				chdl.deleteCharAt(chdl.length()-1);
+				String chartURL = "http://chart.apis.google.com/chart";
+				
+				//crate the link
+				URLEncodedPostData urlEncoder = new URLEncodedPostData("UTF-8", false);
+				urlEncoder.append("chl", chdl.toString());
+				int width = Display.getWidth(); 
+				int heigth = width/2;
+				
+				String chartParametersURL = "?chs="+width+"x"+heigth+"&cht=p3" +
+				chd.toString() + "&chds=0,"+max+"&"+new String(urlEncoder.getBytes())+"chco=FF0000,00FF00,0000FF";
+				chartImg = new WebBitmapField(chartURL+chartParametersURL, EncodedImage.getEncodedImageResource("loading-gif.bin"),
+				Field.FIELD_HCENTER);
+				scrollerData.add(chartImg);
+    		}
 		} catch (Exception e) {
-			Log.error(e, "Error while parsing stats data");
+			controller.displayError(e, "Error while parsing stats data");
 		}
 		scrollerData.add(outerTable);
 	}
+	
+	//private String[] chartColors = {"FF0000","00FF00","0000FF", "FFFF66", "FF3399", };
 	
 	private void updateSubTitle() {
 		String subtitle = null;
@@ -226,6 +267,8 @@ public class StatsView extends BaseView {
 			subtitle = _7days +" ";
 			break;
 		}
+		
+		subtitle +="- ";
 		
 		switch (controller.getType()) {
 		case StatsController.TYPE_VIEW:

@@ -2,6 +2,7 @@ package com.wordpress.xmlrpc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.io.HttpConnection;
@@ -21,6 +22,7 @@ public class HTTPGetConn extends BlogConn  {
 	private String wpDotComPassword = null;
 
 	private int dialogResponse = Dialog.CANCEL;
+	private Hashtable responseHeaders = new Hashtable();
 	
 	public HTTPGetConn(String url, String username, String password) {
 		super(url, username, password);
@@ -33,13 +35,18 @@ public class HTTPGetConn extends BlogConn  {
 		return wpDotComUsername;
 	}
 	
+    //get the response headers
+	public Hashtable getResponseHeaders() {
+		return responseHeaders;
+	}
+    
 
 	//we have overrided execute method, because there isn't xml-rpc conn, but only a simple http conn 
 	protected Object execute(String aCommand, Vector aArgs){
 		isWorking=true;
 		
 		HttpConnection conn = null;
-		String response = null;
+		Object response = null;
 		byte[] encodedAuthCredential = null;
 		
 		try {
@@ -57,6 +64,30 @@ public class HTTPGetConn extends BlogConn  {
 					Log.trace("Added the authorized header");
                     conn.setRequestProperty("Authorization", "Basic " + new String(encodedAuthCredential));
 				}
+				
+				
+				// List all the response headers from the server.
+	    		// Note: The first call to getHeaderFieldKey() will implicit send
+	    		// the HTTP request to the server.
+	    		Log.trace("==== Response headers from the server");
+	    		String   key;
+	    		for( int i = 0;( key = conn.getHeaderFieldKey( i ) )!= null; ++i ){
+	    			String headerName = conn.getHeaderFieldKey(i);
+	    			String headerValue = conn.getHeaderField(i);
+	    			
+	    			if (headerName == null && headerValue == null) {
+	    				// No more headers
+	    				break;
+	    			}
+	    			if (headerName == null) {
+	    				// The header value contains the server's HTTP version
+	    			} else {
+	    				responseHeaders.put(headerName , headerValue);
+	    				Log.trace(headerName + " " + headerValue); 
+	    			}
+	    		}
+	    		Log.trace("=== End Response headers from the server");	
+	    		
 				
 				int rc = conn.getResponseCode();
 				Log.trace("Server response  code: "+rc);
@@ -90,7 +121,7 @@ public class HTTPGetConn extends BlogConn  {
 						{
 							baos.write(c);
 						}
-						response = new String (baos.toByteArray(), "UTF-8");
+						response = baos.toByteArray();
 						keepGoing = false;
 		            	break;
 		         

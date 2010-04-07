@@ -56,7 +56,7 @@ public class StatsController extends BaseController {
 	private String apiKey = null;
 	private String blogStatID = null;
 	
-	private String lastStatsData ="";
+	private byte[] lastStatsData = new byte[0];
 	private int interval = INTERVAL_7DAYS; 
 	private int type = TYPE_VIEW;
 	
@@ -86,11 +86,6 @@ public class StatsController extends BaseController {
 	public void refreshView() {
 	}
 
-
-	public String getLastStatsData() {
-		return lastStatsData;
-	}
-	
 	public void setInterval(int interval) {
 		this.interval = interval;
 	}
@@ -137,6 +132,9 @@ public class StatsController extends BaseController {
 	    		String url = WordPressInfo.STATS_ENDPOINT_URL +"?api_key="+apiKey+"&blog_id="+blogStatID
 	    		+"&table="+decodeStatTable()+"&days="+interval;//+"&summarize";
 	    		
+	    		if(this.type != TYPE_VIEW)
+	    			url+="&summarize";
+	    		
 				final HTTPGetConn connection = new HTTPGetConn(url, wpDotComUsername, wpDotComPassword);
 				
 		        connection.addObserver(new GetStatsDataCallBack(connection));  
@@ -173,14 +171,14 @@ private class GetStatsDataCallBack implements Observer {
 					
 					if(!resp.isError()) {						
 						try {
-							String html = null;
-							html = (String)resp.getResponseObject();
-							if(html != null ) {
-								Log.trace("RESPONSE - " + html);
-								lastStatsData = html;
+							byte[] response = (byte[]) resp.getResponseObject();
+							if(response != null ) {
+								if(Log.getDefaultLogLevel() >= Log.TRACE)
+									Log.trace("RESPONSE - " + new String(response));
+								lastStatsData = response;
 							} else {
 								Log.trace("STATS RESPONSE IS EMPTY");
-								lastStatsData = "";
+								lastStatsData = new byte[0];
 							}
 							UiApplication.getUiApplication().invokeLater(new Runnable() {
 								public void run() {
@@ -200,13 +198,13 @@ private class GetStatsDataCallBack implements Observer {
 	} 
 			
 	
-	private void  parseStatsAuthResponse(String xmlResponse) {
+	private void  parseStatsAuthResponse(byte[] response) {
 		//parse the html and get the attribute for xmlrpc endpoint
-		if(xmlResponse != null) {
+		if(response != null) {
 			try {				
 				KXmlParser parser = new KXmlParser();
 				parser.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true); //relaxed parser
-				ByteArrayInputStream bais = new ByteArrayInputStream(xmlResponse.getBytes());
+				ByteArrayInputStream bais = new ByteArrayInputStream(response);
 				parser.setInput(bais, "ISO-8859-1");
 				
 				while (parser.next() != XmlPullParser.END_DOCUMENT) {
@@ -311,8 +309,7 @@ private class GetStatsDataCallBack implements Observer {
 
 					dismissDialog(connectionProgressView);
 					BlogConnResponse resp = (BlogConnResponse) object;
-					
-					
+
 					if(resp.isStopped()){
 						return;
 					}
@@ -320,13 +317,12 @@ private class GetStatsDataCallBack implements Observer {
 					if(!resp.isError()) {
 						
 						try {
-							String html = null;
-							html = (String)resp.getResponseObject();
-							if(html != null ) {
-								Log.trace("RESPONSE - " + html);
+							byte[] response = (byte[]) resp.getResponseObject();
+							if(response != null ) {
+								Log.trace("RESPONSE - " + new String(response));
 								wpDotComPassword = connection.getWpDotComPassword();
 								wpDotComUsername = connection.getWpDotComUsername();	
-								parseStatsAuthResponse(html);
+								parseStatsAuthResponse(response);
 								if(blogStatID != null && apiKey != null) {
 									UiApplication.getUiApplication().invokeLater(new Runnable() {
 										public void run() {

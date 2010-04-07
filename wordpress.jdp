@@ -170,14 +170,13 @@ src\com\wordpress\view\component\HorizontalPaddedFieldManager.java
 src\com\wordpress\view\component\HtmlTextField.java
 src\com\wordpress\view\component\ListActionListener.java
 src\com\wordpress\view\component\NoBlogsListField.java
-src\com\wordpress\view\component\PillButtonField.java
 src\com\wordpress\view\component\PostsListField.java
 src\com\wordpress\view\component\RimFileBrowser.java
 src\com\wordpress\view\component\RimFileBrowserListener.java
 src\com\wordpress\view\component\ThrobberRenderer.java
 src\com\wordpress\view\component\VerticalPaddedFieldManager.java
+src\com\wordpress\view\component\WebBitmapField.java
 src\com\wordpress\view\container\JustifiedEvenlySpacedHorizontalFieldManager.java
-src\com\wordpress\view\container\PillButtonSet.java
 src\com\wordpress\view\container\TableLayoutManager.java
 src\com\wordpress\view\CustomFieldsView.java
 src\com\wordpress\view\dialog\ConnectionInProgressView.java
