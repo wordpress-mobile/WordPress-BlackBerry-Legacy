@@ -2,9 +2,11 @@
 package com.wordpress.view;
 
 import java.io.IOException;
+import java.util.Vector;
 
 
 import net.rim.blackberry.api.browser.URLEncodedPostData;
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.GIFEncodedImage;
@@ -97,7 +99,7 @@ public class StatsView extends BaseView {
 		case StatsController.TYPE_CLICKS:
 			statsDesc.setText(_resources.getString(WordPressResource.MESSAGE_STATS_CLICKS));
 			outerTable = new TableLayoutManager(new int[] {
-			//		TableLayoutManager.USE_PREFERRED_SIZE,
+					TableLayoutManager.USE_PREFERRED_SIZE,
 					TableLayoutManager.SPLIT_REMAINING_WIDTH,
 					TableLayoutManager.USE_PREFERRED_SIZE }, new int[] { 2, 2, 2 }, 5,
 					Manager.USE_ALL_WIDTH);
@@ -109,7 +111,7 @@ public class StatsView extends BaseView {
 		case StatsController.TYPE_REFERRERS:
 			statsDesc.setText(_resources.getString(WordPressResource.MESSAGE_STATS_REFFERERS));
 			outerTable = new TableLayoutManager(new int[] {
-					//TableLayoutManager.USE_PREFERRED_SIZE,
+					TableLayoutManager.USE_PREFERRED_SIZE,
 					TableLayoutManager.SPLIT_REMAINING_WIDTH,
 					TableLayoutManager.USE_PREFERRED_SIZE }, new int[] { 2, 2, 2 }, 5,
 					Manager.USE_ALL_WIDTH);
@@ -121,7 +123,7 @@ public class StatsView extends BaseView {
 		case StatsController.TYPE_SEARCH:
 			statsDesc.setText(_resources.getString(WordPressResource.MESSAGE_STATS_SEARCH_ENGINE_TERMS));
 			outerTable = new TableLayoutManager(new int[] {
-//					TableLayoutManager.USE_PREFERRED_SIZE,
+					TableLayoutManager.USE_PREFERRED_SIZE,
 					TableLayoutManager.SPLIT_REMAINING_WIDTH,
 					TableLayoutManager.USE_PREFERRED_SIZE }, new int[] { 2, 2, 2 }, 5,
 					Manager.USE_ALL_WIDTH);
@@ -132,7 +134,7 @@ public class StatsView extends BaseView {
 		case StatsController.TYPE_TOP:
 			statsDesc.setText(_resources.getString(WordPressResource.MESSAGE_STATS_TOP));
 			outerTable = new TableLayoutManager(new int[] {
-//					TableLayoutManager.USE_PREFERRED_SIZE,
+					TableLayoutManager.USE_PREFERRED_SIZE,
 					TableLayoutManager.SPLIT_REMAINING_WIDTH,
 					TableLayoutManager.USE_PREFERRED_SIZE }, new int[] { 2, 2, 2 }, 5,
 					Manager.USE_ALL_WIDTH);
@@ -143,35 +145,49 @@ public class StatsView extends BaseView {
 		default:
 			return;
 		}
-		
-		buildStatsTable(data, columnHeader, columnName, columnLink, outerTable);
+		//clean the prev stats ui elements: graph and table...
+		scrollerData.deleteAll();
+		fillStatsUI(data, columnHeader, columnName, columnLink, outerTable);
 	}
 	
-	private void buildStatsTable(byte[] data, String[] columnsHeader, String[] columnName, String[] columnLink, TableLayoutManager outerTable) {
-		scrollerData.deleteAll();
-		
-		if(columnsHeader == null)
-			columnsHeader = columnName;
+	private void fillStatsUI(byte[] data, String[] columnsHeader, String[] columnName, String[] columnLink, TableLayoutManager outerTable) {
 
-		for (int i = 0; i < columnsHeader.length; i++) {
-			outerTable.add(GUIFactory.getLabel(columnsHeader[i], DrawStyle.ELLIPSIS ));
-		}
-		for (int i = 0; i < columnsHeader.length; i++) {
-			outerTable.add(GUIFactory.createSepatorField());
-		}
-		
+		//1. parse the data
 		StatsParser statParser = new StatsParser(data);
-		
 		try {
 			statParser.parseAll();
 		} catch (IOException e1) {
 			controller.displayError(e1, "");
 			return;
 		}
+		
+		//2.fill the stats Table
+		if(columnsHeader == null)
+			columnsHeader = columnName;
 
+		//adding header 
+		if(controller.getType() != StatsController.TYPE_VIEW)
+			outerTable.add(GUIFactory.getLabel("", DrawStyle.ELLIPSIS ));	
+		for (int i = 0; i < columnsHeader.length; i++) {
+			outerTable.add(GUIFactory.getLabel(columnsHeader[i], DrawStyle.ELLIPSIS ));
+		}
+		
+		//adding separator
+		if(controller.getType() != StatsController.TYPE_VIEW)
+			outerTable.add(GUIFactory.createSepatorField());
+		for (int i = 0; i < columnsHeader.length; i++) {
+			outerTable.add(GUIFactory.createSepatorField());
+		}
+
+		//fill the table
 		try {
+			int counter = 1;
 			while (statParser.hasNext()) {
 				String[] nextLine = statParser.next();
+				
+				if(controller.getType() != StatsController.TYPE_VIEW)
+					outerTable.add(GUIFactory.getLabel(String.valueOf(counter), LabelField.FOCUSABLE |  DrawStyle.ELLIPSIS));
+				
 
 				for (int i = 0; i < columnName.length; i++) {
 					String _tmpName = columnName[i];
@@ -182,62 +198,116 @@ public class StatsView extends BaseView {
 					} else 
 					outerTable.add(GUIFactory.getLabel(nextLine[_tmpIdx], LabelField.FOCUSABLE |  DrawStyle.ELLIPSIS));
 				}
+				counter++;
 			}
+		} catch (Exception e) {
+			controller.displayError(e, "Error while filling stats UI");
+		}
+		
+		//3. build the graphs
+		buildChart(columnName, statParser);	
+		scrollerData.add(outerTable);
+	}
+
+	private void buildChart(String[] columnName, StatsParser statParser) {
+		try {
+			statParser.reset();
+			if(statParser.hasNext() == false) return;
 			
-			//build the url for the chart
+			String chartURL = "http://chart.apis.google.com/chart";
+			String chartParametersURL = "";
+			int width = Display.getWidth(); 
+			int heigth = width/2;
+			chartImg = null;
+
 			if(controller.getType() == StatsController.TYPE_VIEW) {
-				chartImg = null;
-			} else { 
-				//	http://chart.apis.google.com/chart?chs=500x300&chd=t:200,40,20&chds=0,1000&cht=p3&chdl=Hello|World|pippo&chdlp=bv&chco=FF0000,00FF00,0000FF
-				statParser.reset();
-				//StringBuffer chdl = new StringBuffer("&chdl=");
-				StringBuffer chdl = new StringBuffer("");
-				StringBuffer chd = new StringBuffer("&chd=t:");
+				//draw a line chart
+				Vector xAxisValues = new Vector();
+				StringBuffer chd_y = new StringBuffer("");
 				int max = 0;
 				while (statParser.hasNext()) {
 					String[] nextLine = statParser.next();
-	
+
 					for (int i = 0; i < columnName.length; i++) {
 						String _tmpName = columnName[i];
 						int _tmpIdx = statParser.getColumnIndex(_tmpName);
 						if(i ==  0) {
-							//key
-							chdl.append(nextLine[_tmpIdx]+"|");
+							xAxisValues.addElement(nextLine[_tmpIdx]);
+						} else {
+							int value = Integer.parseInt(nextLine[_tmpIdx]);
+							if (value > max) max = value;
+							chd_y.append(value+",");
+						}
+					}
+				}//end while
+
+				chd_y.deleteCharAt(chd_y.length()-1);
+
+				//chxl=0:|Jan|Feb|March|April|May|
+				String startLabel = (String)xAxisValues.elementAt(0);
+				String endLabel = startLabel; 
+				if(xAxisValues.size() > 1)
+					endLabel = (String)xAxisValues.elementAt((xAxisValues.size()-1));
+				
+
+				String axisLabels= "&chxl=0:|"+startLabel+"|"+endLabel;
+				chartParametersURL = "?chs="+width+"x"+heigth+"&cht=lc" +
+				"&chxt=x,y&chxr=1,0,"+max+"&chds=0,"+max+axisLabels+
+				"&chd=t:"+chd_y.toString()+"&chco=FF0000&chf=bg,s,EFEFEF";
+
+			} else { 
+				//building a pie chart
+				//	http://chart.apis.google.com/chart?chs=500x300&chd=t:200,40,20&chds=0,1000&cht=p3&chdl=Hello|World|pippo&chdlp=bv&chco=FF0000,00FF00,0000FF
+				StringBuffer chdl = new StringBuffer("&chl=");
+				StringBuffer chd = new StringBuffer("&chd=t:");
+				int max = 0;
+				int counter = 1;
+				while (statParser.hasNext()) {
+					String[] nextLine = statParser.next();
+
+					for (int i = 0; i < columnName.length; i++) {
+						String _tmpName = columnName[i];
+						int _tmpIdx = statParser.getColumnIndex(_tmpName);
+						if(i ==  0) {
+							//labels
+							chdl.append(String.valueOf(counter)+"|");
 						} else {
 							//value
 							int value = Integer.parseInt(nextLine[_tmpIdx]);
 							if (value > max) max = value;
 							chd.append(nextLine[_tmpIdx]+",");
 						}
-												
-						//outerTable.add(GUIFactory.getLabel(nextLine[_tmpIdx], LabelField.FOCUSABLE |  DrawStyle.ELLIPSIS));
-						
 					}
+					counter++;
 				}//end while
+
 				//building the chart url
 				chd.deleteCharAt(chd.length()-1);
 				chdl.deleteCharAt(chdl.length()-1);
-				String chartURL = "http://chart.apis.google.com/chart";
-				
-				//crate the link
-				URLEncodedPostData urlEncoder = new URLEncodedPostData("UTF-8", false);
-				urlEncoder.append("chl", chdl.toString());
-				int width = Display.getWidth(); 
-				int heigth = width/2;
-				
-				String chartParametersURL = "?chs="+width+"x"+heigth+"&cht=p3" +
-				chd.toString() + "&chds=0,"+max+"&"+new String(urlEncoder.getBytes())+"chco=FF0000,00FF00,0000FF";
-				chartImg = new WebBitmapField(chartURL+chartParametersURL, EncodedImage.getEncodedImageResource("loading-gif.bin"),
-				Field.FIELD_HCENTER);
-				scrollerData.add(chartImg);
-    		}
+
+
+
+				chartParametersURL = "?chs="+width+"x"+heigth+"&cht=p3" +
+				chd.toString() + "&chds=0,"+max+"&"+chdl.toString()+"&chco=FF0000,00FF00,0000FF";
+			}
+
+			chartImg = new WebBitmapField(chartURL+chartParametersURL, 
+					Bitmap.getBitmapResource("stats.png"),
+					Field.FIELD_HCENTER);
+
+			scrollerData.add(chartImg);
+
 		} catch (Exception e) {
-			controller.displayError(e, "Error while parsing stats data");
+			controller.displayError(e, "Error while building stats chart");
 		}
-		scrollerData.add(outerTable);
+
+
 	}
+
+
 	
-	//private String[] chartColors = {"FF0000","00FF00","0000FF", "FFFF66", "FF3399", };
+	
+	//private String[] chartColors = {"FF0000","00FF00","0000FF", "#FFFF00", "FFFF66", "FF3399", };
 	
 	private void updateSubTitle() {
 		String subtitle = null;
@@ -363,11 +433,11 @@ public class StatsView extends BaseView {
 		if (Touchscreen.isSupported() == false) return;
 
 		BottomBarItem items[] = new BottomBarItem[5];
-		items[0] = new BottomBarItem("write.png", "write.png",  _resources.getString(WordPressResource.MENUITEM_STATS_VIEW));
-		items[1] = new BottomBarItem("write.png", "write.png", _resources.getString(WordPressResource.MENUITEM_STATS_TOP));
-		items[2] = new BottomBarItem("write.png", "write.png", _resources.getString(WordPressResource.MENUITEM_STATS_REFERRERS));
-		items[3] = new BottomBarItem("write.png", "write.png",  _resources.getString(WordPressResource.MENUITEM_STATS_SEARCH));
-		items[4] = new BottomBarItem("write.png", "write.png",  _resources.getString(WordPressResource.MENUITEM_STATS_CLICKS));
+		items[0] = new BottomBarItem("stats_view.png", "stats_view.png",  _resources.getString(WordPressResource.MENUITEM_STATS_VIEW));
+		items[1] = new BottomBarItem("stats_top.png", "stats_top.png", _resources.getString(WordPressResource.MENUITEM_STATS_TOP));
+		items[2] = new BottomBarItem("stats_referrers.png", "stats_referrers.png", _resources.getString(WordPressResource.MENUITEM_STATS_REFERRERS));
+		items[3] = new BottomBarItem("stats_search.png", "stats_search.png",  _resources.getString(WordPressResource.MENUITEM_STATS_SEARCH));
+		items[4] = new BottomBarItem("stats_clicks.png", "stats_clicks.png",  _resources.getString(WordPressResource.MENUITEM_STATS_CLICKS));
 
 		initializeBottomBar(items);
 	}

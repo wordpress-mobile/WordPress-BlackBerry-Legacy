@@ -267,6 +267,11 @@ src\icons\media_library.png
 src\icons\mime_unknown.png
 src\icons\mime_unknown_48.png
 src\icons\stats.png
+src\icons\stats_clicks.png
+src\icons\stats_referrers.png
+src\icons\stats_search.png
+src\icons\stats_top.png
+src\icons\stats_view.png
 src\icons\stop.png
 src\icons\video_rec.png
 src\icons\video_thumb.png

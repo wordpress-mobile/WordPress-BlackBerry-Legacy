@@ -16,9 +16,9 @@ public class WebBitmapField extends BitmapField implements Observer
     private EncodedImage bitmap = null;  
     private HTTPGetConn connection = null;
   
-    public WebBitmapField(String url, EncodedImage imgLoading,  long style)
+    public WebBitmapField(String url, Bitmap imgLoading,  long style)
     {  
-    	super(imgLoading.getBitmap(), style);
+    	super(imgLoading, style);
     	Log.trace("Building WebBitmapField with URL: "+url);
     	  
         try  
@@ -65,9 +65,11 @@ public class WebBitmapField extends BitmapField implements Observer
     			});
     		} catch (Exception e) {
     			Log.error(e, "The URL resource was downloaded, but the WebBitmap failed to set the img in the field");
+    			setImage(EncodedImage.getEncodedImageResource("mime_unknown.png"));
     		}						
 
     	} else {
+    		setImage(EncodedImage.getEncodedImageResource("mime_unknown.png"));
     		final String respMessage = resp.getResponse();
     		Log.error(respMessage);
     	}
