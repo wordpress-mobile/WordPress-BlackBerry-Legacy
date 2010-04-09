@@ -36,6 +36,10 @@ public class Blog {
 	private Vector pages = null;
 	private int[] viewedPages = new int[0]; //the viewed page. only the ID of the page as String
 	
+	
+	private String statsUsername = null;
+	private String statsPassword = null;
+	
 	public Vector getViewedPost() {
 		return viewedPost;
 	}
@@ -224,5 +228,21 @@ public class Blog {
 
 	public void setLocation(boolean isLocation) {
 		this.isLocation = isLocation;
+	}
+	
+	public String getStatsPassword() {
+		return statsPassword;
+	}
+	
+	public void setStatsPassword(String statsPassword) {
+		this.statsPassword = statsPassword;
+	}
+	
+	public String getStatsUsername() {
+		return statsUsername;
+	}
+	
+	public void setStatsUsername(String statsUsername) {
+		this.statsUsername = statsUsername;
 	}
 }

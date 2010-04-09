@@ -134,7 +134,8 @@ public class BlogOptionsView extends StandardBaseView {
             //row resize photos
             rowResizePhotos = new BorderedFieldManager(
 	        		Manager.NO_HORIZONTAL_SCROLL
-	        		| Manager.NO_VERTICAL_SCROLL);
+	        		| Manager.NO_VERTICAL_SCROLL
+	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
     		resizePhoto=new CheckboxField(_resources.getString(WordPressResource.LABEL_RESIZEPHOTOS), isResImg);
     		resizePhoto.setChangeListener(listenerResizePhotoCheckbox);
     		rowResizePhotos.add(resizePhoto);
@@ -171,7 +172,6 @@ public class BlogOptionsView extends StandardBaseView {
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
 	}
 
-	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {
 		return controller.dismissView();			
 	}

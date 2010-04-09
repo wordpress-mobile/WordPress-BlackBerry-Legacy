@@ -219,7 +219,7 @@ public class PostsView extends BaseView implements ListActionListener {
 		return this.controller;
 	}
 	
-	//override onClose() to by-pass the standard dialog box when the screen is closed    
+	//override onClose() to by-pass the standard dialog box when close commentMenuItem is hit  
 	public boolean onClose()   {
 		controller.backCmd();
 		return true;

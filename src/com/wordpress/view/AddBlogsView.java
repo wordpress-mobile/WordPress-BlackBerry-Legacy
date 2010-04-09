@@ -305,7 +305,6 @@ public class AddBlogsView extends StandardBaseView {
 		}
 	};
 
-	   //override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {
 		return controller.discardChange();			
 	}

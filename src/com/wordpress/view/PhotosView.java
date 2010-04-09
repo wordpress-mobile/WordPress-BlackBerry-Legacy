@@ -241,7 +241,6 @@ public class PhotosView extends StandardBaseView {
     	super.onDisplay();
     }
     
-    //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose() {
 		controller.removeMediaFileJournalListener();
 		controller.setPhotosNumber(counterPhotos);

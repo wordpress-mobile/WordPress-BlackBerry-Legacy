@@ -203,7 +203,7 @@ public class RimFileBrowser extends PopupScreen {
 			readFile = JSR75FileSystem.readFile(path);
 			EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
 			//find the photo size
-			int scale = ImageUtils.findBestImgScale(img, predefinedThumbWidth, predefinedThumbHeight);
+			int scale = ImageUtils.findBestImgScale(img.getWidth(), img.getHeight(), predefinedThumbWidth, predefinedThumbHeight);
 			if(scale > 1)
 				img.setScale(scale); //set the scale
 			img.setDecodeMode(EncodedImage.DECODE_ALPHA | EncodedImage.DECODE_READONLY);

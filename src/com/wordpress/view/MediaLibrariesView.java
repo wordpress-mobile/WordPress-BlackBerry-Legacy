@@ -98,9 +98,7 @@ public class MediaLibrariesView extends BaseView implements ListActionListener {
 	}
 //#endif
  
-	
          
-	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose(){
 		controller.backCmd();
 		return true;

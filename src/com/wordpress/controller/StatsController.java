@@ -126,9 +126,10 @@ public class StatsController extends BaseController {
 		return retType;
 	}
 	
+	
 	public void retriveStats() {
 	    try {
-	    	if (currentBlog != null) {
+	    	if (blogStatID != null) {
 	    		String url = WordPressInfo.STATS_ENDPOINT_URL +"?api_key="+apiKey+"&blog_id="+blogStatID
 	    		+"&table="+decodeStatTable()+"&days="+interval;//+"&summarize";
 	    		
@@ -152,8 +153,8 @@ public class StatsController extends BaseController {
 		}
 	}
 	
-private class GetStatsDataCallBack implements Observer {
-		
+	private class GetStatsDataCallBack implements Observer {
+
 		private final HTTPGetConn connection;
 
 		public GetStatsDataCallBack(final HTTPGetConn connection) {
@@ -162,41 +163,41 @@ private class GetStatsDataCallBack implements Observer {
 
 		public void update(Observable observable, final Object object) {
 
-					dismissDialog(connectionProgressView);
-					BlogConnResponse resp = (BlogConnResponse) object;
-										
-					if(resp.isStopped()){
-						return;
-					}
-					
-					if(!resp.isError()) {						
-						try {
-							byte[] response = (byte[]) resp.getResponseObject();
-							if(response != null ) {
-								if(Log.getDefaultLogLevel() >= Log.TRACE)
-									Log.trace("RESPONSE - " + new String(response));
-								lastStatsData = response;
-							} else {
-								Log.trace("STATS RESPONSE IS EMPTY");
-								lastStatsData = new byte[0];
-							}
-							UiApplication.getUiApplication().invokeLater(new Runnable() {
-								public void run() {
-									view.setStatsData(lastStatsData);
-								}
-							});
-						} catch (Exception e) {
-							displayError("Error while retriving stats data: "+e.getMessage());
-							return;
-						}						
-											
+			dismissDialog(connectionProgressView);
+			BlogConnResponse resp = (BlogConnResponse) object;
+
+			if(resp.isStopped()){
+				return;
+			}
+
+			if(!resp.isError()) {						
+				try {
+					byte[] response = (byte[]) resp.getResponseObject();
+					if(response != null ) {
+						if(Log.getDefaultLogLevel() >= Log.TRACE)
+							Log.trace("RESPONSE - " + new String(response));
+						lastStatsData = response;
 					} else {
-						final String respMessage = resp.getResponse();
-					 	displayError(respMessage);	
+						Log.trace("STATS RESPONSE IS EMPTY");
+						lastStatsData = new byte[0];
 					}
+					UiApplication.getUiApplication().invokeLater(new Runnable() {
+						public void run() {
+							view.setStatsData(lastStatsData);
+						}
+					});
+				} catch (Exception e) {
+					displayError("Error while retriving stats data: "+e.getMessage());
+					return;
+				}						
+
+			} else {
+				final String respMessage = resp.getResponse();
+				displayError(respMessage);	
+			}
 		}
 	} 
-			
+
 	
 	private void  parseStatsAuthResponse(byte[] response) {
 		//parse the html and get the attribute for xmlrpc endpoint
@@ -280,8 +281,15 @@ private class GetStatsDataCallBack implements Observer {
 	private void getStatsAuthData() {
 		try {
 	    	if (currentBlog != null) {
-				final HTTPGetConn connection = new HTTPGetConn(WordPressInfo.STATS_AUTH_ENDPOINT_URL, currentBlog.getUsername(), currentBlog.getPassword());
+	    		
+				final HTTPGetConn connection;
 				
+				if(currentBlog.getStatsPassword() == null)
+					connection = new HTTPGetConn(WordPressInfo.STATS_AUTH_ENDPOINT_URL, currentBlog.getUsername(), currentBlog.getPassword());
+				else
+					connection = new HTTPGetConn(WordPressInfo.STATS_AUTH_ENDPOINT_URL, currentBlog.getStatsUsername(), currentBlog.getStatsPassword());
+				
+				connection.setAuthMessage(_resources.getString(WordPressResource.MESSAGE_STATS_AUTH_REQUIRED));
 		        connection.addObserver(new GetStatsAuthDataCallBack(connection));  
 		        connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_INPROGRESS));	       
 		        connection.startConnWork(); //starts connection
@@ -295,6 +303,14 @@ private class GetStatsDataCallBack implements Observer {
 		} catch (Exception e) {
 	    	displayError(e, "Error while retriving Stats");
 		}
+	}
+	
+	private void storeStatsAuthPassword(String user, String pass) {
+		wpDotComPassword = user;
+		wpDotComUsername = pass;	
+		currentBlog.setStatsPassword(pass);
+		currentBlog.setStatsUsername(user);
+		//TODO : store the new blog data into FS
 	}
 	
 	private class GetStatsAuthDataCallBack implements Observer {
@@ -320,8 +336,7 @@ private class GetStatsDataCallBack implements Observer {
 							byte[] response = (byte[]) resp.getResponseObject();
 							if(response != null ) {
 								Log.trace("RESPONSE - " + new String(response));
-								wpDotComPassword = connection.getWpDotComPassword();
-								wpDotComUsername = connection.getWpDotComUsername();	
+								storeStatsAuthPassword(connection.getHttp401Username(), connection.getHttp401Password());
 								parseStatsAuthResponse(response);
 								if(blogStatID != null && apiKey != null) {
 									UiApplication.getUiApplication().invokeLater(new Runnable() {
@@ -335,7 +350,7 @@ private class GetStatsDataCallBack implements Observer {
 									displayMessage(_resources.getString(WordPressResource.MESSAGE_CANNOT_FIND_STATS));
 								}
 							} else {
-								Log.trace("HTTP RESPONSE IS EMPTY FROM STATS ENDPOINT");
+								Log.trace("HTTP RESPONSE IS EMPTY FROM STATS ENDPOINT or user has cancelled the operation");
 							}
 						} catch (Exception e) {
 							Log.error(e,"Error while parsing stats data");

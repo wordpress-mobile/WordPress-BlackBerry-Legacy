@@ -129,7 +129,6 @@ public class CommentReplyView extends StandardBaseView {
 	 };
 
 	
-    //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
     	Log.debug("daniloercolipresente");
 		if(!replyContent.isDirty()) {

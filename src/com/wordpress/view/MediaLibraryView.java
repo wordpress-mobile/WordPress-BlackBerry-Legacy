@@ -260,7 +260,6 @@ public class MediaLibraryView extends StandardBaseView {
 	}
     
 	
-    //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
 		try {
 			updateModel();

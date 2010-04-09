@@ -13,14 +13,15 @@ import com.wordpress.xmlrpc.HTTPGetConn;
 
 public class WebBitmapField extends BitmapField implements Observer  
 {  
-    private EncodedImage bitmap = null;  
-    private HTTPGetConn connection = null;
+    protected EncodedImage bitmap = null;  
+    protected HTTPGetConn connection = null;
+    protected String URL = null;
   
     public WebBitmapField(String url, Bitmap imgLoading,  long style)
     {  
     	super(imgLoading, style);
     	Log.trace("Building WebBitmapField with URL: "+url);
-    	  
+    	 this.URL = url; 
         try  
         {  
     		connection = new HTTPGetConn(url, "", "");
@@ -30,6 +31,7 @@ public class WebBitmapField extends BitmapField implements Observer
         catch (Exception e) {}  
     }  
   
+    
     //Invoked when the screen this field is attached to is popped off the display stack. 
     protected void onUndisplay() {
     	if (connection != null)
@@ -55,23 +57,24 @@ public class WebBitmapField extends BitmapField implements Observer
     	if(!resp.isError()) {						
     		try {
     			final byte[] response = (byte[]) resp.getResponseObject();
-
-    			UiApplication.getUiApplication().invokeLater(new Runnable() {
-    				public void run() {
-    					bitmap = EncodedImage.createEncodedImage(response, 0,  
-    							response.length);  
-    					setImage(bitmap);  
-    				}
-    			});
+    			bitmap = EncodedImage.createEncodedImage(response, 0,response.length);   
     		} catch (Exception e) {
     			Log.error(e, "The URL resource was downloaded, but the WebBitmap failed to set the img in the field");
-    			setImage(EncodedImage.getEncodedImageResource("mime_unknown.png"));
+    			bitmap = EncodedImage.getEncodedImageResource("mime_unknown.png");
     		}						
 
     	} else {
-    		setImage(EncodedImage.getEncodedImageResource("mime_unknown.png"));
+    		bitmap = EncodedImage.getEncodedImageResource("mime_unknown.png");
     		final String respMessage = resp.getResponse();
     		Log.error(respMessage);
     	}
+
+    	UiApplication.getUiApplication().invokeLater(new Runnable() {
+    		public void run() {
+    			setImage(bitmap);  
+    		}
+    	});
+
+    	connection = null;
     }
 }  

@@ -469,8 +469,6 @@ public class PostView extends StandardBaseView {
 		}
 	}
 
-
-    //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
 		try {
 			updateModel();

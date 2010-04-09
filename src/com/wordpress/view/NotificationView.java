@@ -90,7 +90,6 @@ public class NotificationView extends StandardBaseView {
 		return isModified;
 	}
 	 
-	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {
 		
 		boolean isModified = this.isModified();

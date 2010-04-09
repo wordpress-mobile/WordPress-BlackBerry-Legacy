@@ -70,7 +70,6 @@ public class PostCategoriesView extends BaseView {
         }
     };
   
-    //override onClose() to display a dialog box when the application is closed    
 	public boolean onClose()   {
 		Category[] selectedCategories = checkBoxController.getSelectedCategories();
 		controller.setPostCategories(selectedCategories); //sets the post new selected categories

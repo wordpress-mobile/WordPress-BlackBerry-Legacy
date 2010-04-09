@@ -15,6 +15,7 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.LabelField;
+import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.component.TextField;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
@@ -31,6 +32,7 @@ import com.wordpress.view.container.TableLayoutManager;
 import net.rim.device.api.ui.Touchscreen;
 import com.wordpress.view.touch.BottomBarItem;
 //#endif
+import com.wordpress.xmlrpc.HTTPGetConn;
 
 public class StatsView extends BaseView {
 	
@@ -216,8 +218,7 @@ public class StatsView extends BaseView {
 			
 			String chartURL = "http://chart.apis.google.com/chart";
 			String chartParametersURL = "";
-			int width = Display.getWidth(); 
-			int heigth = width/2;
+			
 			chartImg = null;
 
 			if(controller.getType() == StatsController.TYPE_VIEW) {
@@ -251,7 +252,7 @@ public class StatsView extends BaseView {
 				
 
 				String axisLabels= "&chxl=0:|"+startLabel+"|"+endLabel;
-				chartParametersURL = "?chs="+width+"x"+heigth+"&cht=lc" +
+				chartParametersURL = "?cht=lc" +
 				"&chxt=x,y&chxr=1,0,"+max+"&chds=0,"+max+axisLabels+
 				"&chd=t:"+chd_y.toString()+"&chco=FF0000&chf=bg,s,EFEFEF";
 
@@ -287,27 +288,65 @@ public class StatsView extends BaseView {
 
 
 
-				chartParametersURL = "?chs="+width+"x"+heigth+"&cht=p3" +
+				chartParametersURL ="?cht=p3" +
 				chd.toString() + "&chds=0,"+max+"&"+chdl.toString()+"&chco=FF0000,00FF00,0000FF";
 			}
 
-			chartImg = new WebBitmapField(chartURL+chartParametersURL, 
+			chartImg = new ChartBitmap(chartURL+chartParametersURL, 
 					Bitmap.getBitmapResource("stats.png"),
-					Field.FIELD_HCENTER);
+					Field.FIELD_HCENTER | Field.FOCUSABLE);
 
+			scrollerData.add(new LabelField(""));
 			scrollerData.add(chartImg);
+			scrollerData.add(new LabelField(""));
 
 		} catch (Exception e) {
 			controller.displayError(e, "Error while building stats chart");
 		}
-
-
 	}
 
+	private int getPredefinedChartWidth(){
+		return Display.getWidth() - 10;
+	}
+	
+	private int getPredefinedChartHeigth(){
+		return (Display.getWidth() - 10)/2;
+	}
 
+	private class ChartBitmap extends WebBitmapField {
 	
-	
-	//private String[] chartColors = {"FF0000","00FF00","0000FF", "#FFFF00", "FFFF66", "FF3399", };
+		public ChartBitmap(String url, Bitmap imgLoading, long style) {
+			super(url+"&chs="+getPredefinedChartWidth()+"x"+getPredefinedChartHeigth(), imgLoading, style);
+		}
+		
+		protected void layout(int width, int height) {
+			Log.trace("ChartBitmap Layout");
+			
+			if(bitmap != null) {
+				if ( bitmap.getWidth() == getPredefinedChartWidth() )
+				{
+					Log.trace("dimensione chart NON cambiata");
+					super.layout(width, height);
+					return;
+				}
+			}
+			
+			//stops the http connection if already active
+			if(connection != null) {
+				connection.stopConnWork();
+			}
+			
+			super.layout(width, height); 
+	        try  
+	        {  
+	    		connection = new HTTPGetConn(URL+"&chs="+getPredefinedChartWidth()+"x"+getPredefinedChartHeigth(), "", "");
+		        connection.addObserver(this);  	       
+		        connection.startConnWorkBackground(); //starts connection
+	        }  
+	        catch (Exception e) {} 
+			
+		}
+	}
 	
 	private void updateSubTitle() {
 		String subtitle = null;
@@ -465,7 +504,17 @@ public class StatsView extends BaseView {
 	}
 	//#endif
 
-    //override onClose() to display a dialog box when the application is closed    
+	public boolean onMenu(int instance) {
+		boolean result;
+		// Prevent the context menu from being shown if focus is on a labels
+		if (getLeafFieldWithFocus() instanceof LabelField  && instance == Menu.INSTANCE_CONTEXT) {
+			result = false;
+		} else {
+			result = super.onMenu(instance);
+		}
+		return result;
+	}
+	
 	public boolean onClose()   {
 		controller.backCmd();
 		return true;

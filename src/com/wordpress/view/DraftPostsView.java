@@ -103,7 +103,6 @@ public class DraftPostsView extends BaseView implements ListActionListener {
     		controller.updateViewDraftPostList();
     }
    
-	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {
 		controller.toPostsList();
 		return true;

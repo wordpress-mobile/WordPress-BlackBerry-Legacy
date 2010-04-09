@@ -211,7 +211,6 @@ public class PagesView extends BaseView implements ListActionListener {
 		return this.controller;
 	}
 	
-	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {
 		controller.backCmd();
 		return true;

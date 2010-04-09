@@ -127,19 +127,16 @@ public class ImageUtils {
 		  return immutableThumb;
 	  }
 
-	public static int findBestImgScale(EncodedImage image, int maxWidth, int maxHeight) {
-			// getting image properties
-			int w = image.getWidth();
-			int h = image.getHeight();
+	public static int findBestImgScale(int originalWidth, int originalHeight, int maxWidth, int maxHeight) {
 			
-			if(w < maxWidth && h < maxHeight) return 1; //image is smaller than the desidered size...no resize!
+			if(originalWidth < maxWidth && originalHeight < maxHeight) return 1; //image is smaller than the desidered size...no resize!
 			
 				
-			double numeratorW = w;
+			double numeratorW = originalWidth;
 			double denominatorW = maxWidth;
 			int scaleW = (int)Tools.round((numeratorW / denominatorW));
 	
-			double numeratorH = h;
+			double numeratorH = originalHeight;
 			double denominatorH = maxHeight;
 			int scaleH = (int) Tools.round(numeratorH / denominatorH);
 			

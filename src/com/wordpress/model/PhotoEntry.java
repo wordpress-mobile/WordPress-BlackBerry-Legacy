@@ -31,7 +31,7 @@ public class PhotoEntry extends MediaEntry {
 			readFile = JSR75FileSystem.readFile(this.getFilePath());
 			EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
 			//find the photo size
-			int scale = ImageUtils.findBestImgScale(img, width, height);
+			int scale = ImageUtils.findBestImgScale(img.getWidth(), img.getHeight(), width, height);
 			if(scale > 1)
 				img.setScale(scale); //set the scale
 			

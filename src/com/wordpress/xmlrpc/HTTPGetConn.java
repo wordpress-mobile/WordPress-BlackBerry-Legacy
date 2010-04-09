@@ -18,8 +18,9 @@ import com.wordpress.view.dialog.CredentialDialog;
 public class HTTPGetConn extends BlogConn  {
 
 	private boolean keepGoing;
-	private String wpDotComUsername = null;
-	private String wpDotComPassword = null;
+	private String http401Username = null;
+	private String http401Password = null;
+	private String authMessage = null;
 
 	private int dialogResponse = Dialog.CANCEL;
 	private Hashtable responseHeaders = new Hashtable();
@@ -27,22 +28,26 @@ public class HTTPGetConn extends BlogConn  {
 	public HTTPGetConn(String url, String username, String password) {
 		super(url, username, password);
 	}
-
-	public String getWpDotComPassword() {
-		return wpDotComPassword;
+	
+	public void setAuthMessage(String authMessage) {
+		this.authMessage = authMessage;
 	}
-	public String getWpDotComUsername() {
-		return wpDotComUsername;
+
+	public String getHttp401Password() {
+		return http401Password;
+	}
+	
+	public String getHttp401Username() {
+		return http401Username;
 	}
 	
     //get the response headers
 	public Hashtable getResponseHeaders() {
 		return responseHeaders;
 	}
-    
 
 	//we have overrided execute method, because there isn't xml-rpc conn, but only a simple http conn 
-	protected Object execute(String aCommand, Vector aArgs){
+	protected Object execute(String aCommand, Vector aArgs) {
 		isWorking=true;
 		
 		HttpConnection conn = null;
@@ -130,14 +135,14 @@ public class HTTPGetConn extends BlogConn  {
 
 		            	//A login and password is required, try wt username and password from blog first, if fails ask to user
 		            	if (askToUser == false) {
-		            		wpDotComPassword = this.mPassword;
-		        			wpDotComUsername = this.mUsername;
+		            		http401Password = this.mPassword;
+		        			http401Username = this.mUsername;
 		            	} else {
 		            		askToUser();
 		            	}
 		             	
-		            	if(wpDotComPassword != null) {
-		            		String login = this.wpDotComUsername+ ":"+this.wpDotComPassword;
+		            	if(http401Password != null) {
+		            		String login = this.http401Username+ ":"+this.http401Password;
 		            		//Encode the login information in Base64 format.
 		            		encodedAuthCredential = Base64OutputStream.encode(login.getBytes(), 0, login.length(), false, false);
 		            	} 
@@ -147,7 +152,6 @@ public class HTTPGetConn extends BlogConn  {
 		            default:
 		            	throw new Exception(""+conn.getResponseCode());
 				}
-				
 	  		 }//end while
 	  		 
 		} catch (Exception e) {
@@ -158,8 +162,15 @@ public class HTTPGetConn extends BlogConn  {
 		return response;
 	}
 	
-	private void askToUser() {
-		final CredentialDialog dlg = new CredentialDialog();
+	protected void askToUser() {
+		
+		final CredentialDialog dlg;
+		
+		if (authMessage == null) 
+			dlg = new CredentialDialog();
+		else
+			dlg = new CredentialDialog(authMessage);
+		
 		UiApplication.getUiApplication().invokeAndWait(new Runnable()
            {
               public void run()
@@ -170,11 +181,11 @@ public class HTTPGetConn extends BlogConn  {
            });
 		
 		if(dialogResponse == Dialog.D_OK) {
-			wpDotComPassword = dlg.getPassWord();
-			wpDotComUsername = dlg.getUserName();
+			http401Password = dlg.getPassWord();
+			http401Username = dlg.getUserName();
       	} else {
-      		wpDotComPassword  = null;
-      		wpDotComUsername = null;
+      		http401Password  = null;
+      		http401Username = null;
       		keepGoing = false;
       	}
 	}
@@ -201,4 +212,3 @@ public class HTTPGetConn extends BlogConn  {
 		}
 	}
 }
-

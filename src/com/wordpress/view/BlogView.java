@@ -115,7 +115,6 @@ public class BlogView extends BaseView {
     			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
     			g.setColor( color );
     		}
-    		
     	};
     	
     	//final int listWidth = wpLogoBitmapField.getBitmapWidth() - 10;
@@ -224,7 +223,6 @@ public class BlogView extends BaseView {
     
 
 	
-	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose() {
 		//controller.backCmd();
 		FrontController.getIstance().backAndRefreshView(true);	

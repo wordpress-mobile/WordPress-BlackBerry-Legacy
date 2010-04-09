@@ -665,7 +665,6 @@ public class PreferencesView extends StandardBaseView {
 			}
 		}
 		
-	    //override onClose() to display a dialog box when the application is closed    
 		public boolean onClose()   {
 			
 			if(!isUIChanged()) {

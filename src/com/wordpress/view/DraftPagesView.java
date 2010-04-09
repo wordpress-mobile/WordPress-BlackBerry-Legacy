@@ -120,7 +120,6 @@ public class DraftPagesView extends BaseView implements ListActionListener {
     		controller.updateViewDraftPageList();
     }
     
-	//override onClose() to by-pass the standard dialog box when the screen is closed    
 	public boolean onClose()   {
 		controller.toPageList();
 		return true;
