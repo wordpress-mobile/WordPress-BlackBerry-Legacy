@@ -5,7 +5,6 @@ import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.KeypadListener;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
@@ -63,9 +62,9 @@ public class MainView extends BaseView {
     		public void paintBackground( Graphics g ) {
     			g.clear();
     			int color = g.getColor();
-    			g.setColor( Color.LIGHTGREY );
-    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
-    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
+    			g.setColor(0xefebef);
+    			g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
+    			//g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
     			g.setColor( color );
     		}
     	};

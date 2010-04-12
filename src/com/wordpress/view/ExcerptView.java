@@ -1,5 +1,6 @@
 package com.wordpress.view;
 
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
@@ -37,7 +38,8 @@ public class ExcerptView extends StandardBaseView {
         
     	excerptContent = new HtmlTextField(post.getExcerpt());
     	
-    	rowParent.add(getLabel(_resources.getString(WordPressResource.LABEL_CONTENT)));
+    	rowParent.add(GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_CONTENT), Color.BLACK));
+    	rowParent.add(GUIFactory.createSepatorField());
     	rowParent.add(excerptContent);
         add(rowParent);
         

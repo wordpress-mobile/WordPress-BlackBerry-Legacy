@@ -78,7 +78,7 @@ public class NoBlogsListField {
         
     	
 		protected void drawBorder(Graphics graphics, int x, int y, int width,	int height) {
-			graphics.setColor(Color.GRAY);
+			graphics.setColor(Color.DARKGRAY);
 			graphics.drawLine(x-1, y , x + width-1, y);
 			
 			graphics.drawLine(x-1, y, x-1 , y + height-1); //linea verticale sx

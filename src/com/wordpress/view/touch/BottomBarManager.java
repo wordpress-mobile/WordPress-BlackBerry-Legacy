@@ -21,8 +21,7 @@ public class BottomBarManager extends Manager {
 		super(Manager.USE_ALL_WIDTH);
 		X_PTS = new int[]{0, 0, getPreferredWidth(), getPreferredWidth()};
         Y_PTS = new int[]{0, HEIGHT, HEIGHT, 0};
-        upperDrawColors = new int[]{0xdeebff, 0x9cbeff, 0x9cbeff, 0xdeebff};
-        //upperDrawColors = new int[]{Color.WHITE, Color.LIGHTGREY, Color.LIGHTGREY, Color.WHITE};
+        upperDrawColors = new int[]{0x5d595d, Color.BLACK, Color.BLACK, 0x5d595d};
 	}
 	
 	protected void sublayout(int maxWidth, int maxHeight) {
@@ -42,20 +41,10 @@ public class BottomBarManager extends Manager {
 	
 	protected void paintBackground(Graphics graphics) {
 		graphics.drawShadedFilledPath(X_PTS, Y_PTS, null, upperDrawColors, null);
-		graphics.setColor(0x212121);
+		graphics.setColor(Color.BLACK);
 		graphics.drawLine(0, 0 , fieldWidth, 0);
-		int alpha = graphics.getGlobalAlpha(); //remove the next lines
-		graphics.setGlobalAlpha( 0x44 );
-		graphics.setColor(Color.WHITE);
+		graphics.setColor(Color.GRAY);
 		graphics.drawLine(0, 1 , fieldWidth, 1);
-		graphics.drawLine(0, 2 , fieldWidth, 2);
-		graphics.setGlobalAlpha( alpha );
-	}
-
-	protected void paint(Graphics graphics) {
-	//	graphics.setBackgroundColor(Color.LIGHTGREY);
-	//	graphics.clear();
-		super.paint(graphics);
 	}	
 }
 //#endif

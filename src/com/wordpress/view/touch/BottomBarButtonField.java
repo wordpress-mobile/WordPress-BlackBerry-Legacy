@@ -5,8 +5,9 @@
 package com.wordpress.view.touch;
 
 
+import com.wordpress.view.GUIFactory;
+
 import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.TouchEvent;
@@ -18,6 +19,7 @@ public class BottomBarButtonField extends Field {
 	private int bitmapHeight;
 	private boolean hasHover;
 	
+	private static final int  btn_colour_background_focus = GUIFactory.BTN_COLOUR_BACKGROUND_FOCUS;
 	public static final int CHANGE_HOVER_GAINED = 100;
 	public static final int CHANGE_HOVER_LOST = 101;
 	public static final int CHANGE_CLICK = 110;
@@ -109,11 +111,9 @@ public class BottomBarButtonField extends Field {
 		}
 		if(hasHover) {
 			graphics.pushContext(0, 0, width, height, 0, 0);
-			graphics.setColor(Color.DARKGRAY);
-			graphics.drawRoundRect(1, 1 , width-1, height-1, 15, 15);
-			graphics.setGlobalAlpha(180);
-			graphics.setColor(0xffc318);
-			graphics.fillRoundRect(1, 1, width-1, height-1, 15, 15);
+			graphics.setGlobalAlpha(255);
+			graphics.setColor(btn_colour_background_focus);
+			graphics.fillRoundRect(1, 1, width-1, height-1,15, 15);
 			graphics.popContext();
 		}
 		if(bitmap != null) {

@@ -107,14 +107,14 @@ public class BorderedFieldManager extends Manager {
     //    graphics.fillRect(0, 0, width, height);
 
         // Paint the rounded rectangular cutout section for the contents
-        graphics.setColor(backgroundColor);
+        graphics.setColor(Color.WHITE);
         graphics.fillRoundRect(borderWidth, borderWidth, 
-        		width - (borderWidth * 2), height - (bottomBorderNone ? borderWidth : (borderWidth * 2)), 10, 10);
+        		width - (borderWidth * 2), height - (bottomBorderNone ? borderWidth : (borderWidth * 2)), 15, 15);
 
         // Paint the inner border of the cutout section
         graphics.setColor(Color.DARKGRAY);
         graphics.drawRoundRect(borderWidth, borderWidth, 
-        		width - (borderWidth * 2), height - (bottomBorderNone ? borderWidth : (borderWidth * 2)), 10, 10);
+        		width - (borderWidth * 2), height - (bottomBorderNone ? borderWidth : (borderWidth * 2)), 15, 15);
 
         if(bottomBorderLine) {
         	graphics.drawLine(0, height - 1, width - 1, height - 1);
@@ -130,13 +130,14 @@ public class BorderedFieldManager extends Manager {
      */
     protected void sublayout(int maxWidth, int maxHeight) {
         int count = this.getFieldCount();
-        int y = borderWidth;
+        int y = borderWidth+2;
         for(int i=0; i<count; i++) {
     		y += 2;
             Field field = this.getField(i);
-            this.setPositionChild(field, borderWidth*2, y);
-            this.layoutChild(field, maxWidth - (borderWidth * 4) , getPreferredHeightOfChild(field));
-            y += field.getHeight();
+            this.setPositionChild(field, borderWidth*2, y + field.getMarginTop());
+            this.layoutChild(field, maxWidth - (borderWidth * 4) , 
+            		getPreferredHeightOfChild(field) );
+            y += field.getHeight() + field.getMarginTop() + field.getMarginBottom();
         }
         setExtent(maxWidth, getPreferredHeight());
     }
@@ -156,9 +157,10 @@ public class BorderedFieldManager extends Manager {
         int count = this.getFieldCount();
         for(int i=0; i<count; i++) {
     		sum += 2;
-            sum += this.getField(i).getHeight();
+    		Field tmpField = this.getField(i);
+            sum += tmpField.getHeight() + tmpField.getMarginBottom() + tmpField.getMarginTop() ;
         }
-        sum += 2;
+        sum += 2+2;
         return sum;
     }
     

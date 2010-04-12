@@ -11,8 +11,6 @@ import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.KeypadListener;
-import net.rim.device.api.ui.Color;
-import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
@@ -158,6 +156,7 @@ public class CheckBoxListField {
                 if(oldSelection != -1) {
                 	data = (ChecklistData)_listData.elementAt(oldSelection);
                 	data.setSelected(false);
+                	invalidate(oldSelection);
                 }
 
                 // Forward the call
@@ -168,24 +167,64 @@ public class CheckBoxListField {
                 if(newSelection != -1) {
 	                data = (ChecklistData)_listData.elementAt(newSelection);
 	                data.setSelected(true);
+	                invalidate(newSelection);
                 }
-                invalidate();
 
                 return ret;
             }
             
             
             protected void moveFocus(int x, int y, int status, int time) {
+            	ChecklistData data = null;
             	int oldSelection = getSelectedIndex();
                 super.moveFocus(x, y, status, time);
                 int newSelection = getSelectedIndex();
-                ChecklistData data = (ChecklistData)_listData.elementAt(oldSelection);
-                data.setSelected(false);
                 
-                data = (ChecklistData)_listData.elementAt(newSelection);
-                data.setSelected(true);
-                invalidate();
+                if(oldSelection != -1) {
+                	data = (ChecklistData)_listData.elementAt(oldSelection);
+                	data.setSelected(false);
+                	invalidate(oldSelection);
+                }
+                
+                if(newSelection != -1) {
+                	data = (ChecklistData)_listData.elementAt(newSelection);
+                	data.setSelected(true);
+                	invalidate(newSelection);
+                }
+                
             }
+            
+        	protected void onUnfocus(){
+        		super.onUnfocus();
+        		ChecklistData data = null;
+        		int oldSelection = getSelectedIndex();
+        		if(oldSelection != -1) {
+        			data = (ChecklistData)_listData.elementAt(oldSelection);
+        			data.setSelected(false);
+        			invalidate(oldSelection);
+        		}
+        	}
+            
+        	/*
+        	 * direction - 
+        	 * If 1, the focus came from the previous field; 
+        	 * if -1, the focus came from the subsequent field; 
+        	 * if 0, the focus was set directly (not as a result of trackwheel movement). 
+        	 * The focus on a particular list item is set only if the selected index has not already been set.
+        	 *  
+        	 */
+        	protected void onFocus(int direction){
+        		super.onFocus(direction);
+        		ChecklistData data = null;
+        		int oldSelection = getSelectedIndex();
+        		if(oldSelection != -1) {
+        			data = (ChecklistData)_listData.elementAt(oldSelection);
+        			data.setSelected(true);
+        			invalidate(oldSelection);
+        		}
+        	}
+        	
+            
         };
         
         //Set the ListFieldCallback
@@ -316,7 +355,7 @@ public class CheckBoxListField {
             graphics.setColor(originalColor);
         }
         
-    	 
+    /*	 
     	protected void drawBackground(Graphics graphics, int x, int y, int width, int height, boolean selected) {
     		Bitmap toDraw = null;
     		if (selected) {
@@ -335,7 +374,7 @@ public class CheckBoxListField {
     			
     		}
     	}
-        
+        */
         //Returns the object at the specified index.
         public Object get(ListField list, int index) 
         {

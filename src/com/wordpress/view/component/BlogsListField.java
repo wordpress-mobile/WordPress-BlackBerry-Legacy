@@ -165,7 +165,6 @@ public class BlogsListField {
     }
     
     private class ListCallBack extends BasicListFieldCallBack {
-		private Bitmap imgCompleted = Bitmap.getBitmapResource("complete.png");
 		private Bitmap imgImportant = Bitmap.getBitmapResource("important.png");
 		private Bitmap imgQueue = Bitmap.getBitmapResource("enqueued.png");  
 		
@@ -182,14 +181,14 @@ public class BlogsListField {
     		
     		int stato = currentRow.getState();
 
-    		if (stato == BlogInfo.STATE_LOADING) { 
+    		if (stato == BlogInfo.STATE_LOADING || stato == BlogInfo.STATE_LOADED) { 
     			icon = null;
     		} else if (stato == BlogInfo.STATE_ADDED_TO_QUEUE) {
     			icon = imgQueue; 
     		} else if (stato == BlogInfo.STATE_LOADED_WITH_ERROR ||  stato == BlogInfo.STATE_ERROR) {
     			icon = imgImportant;
     		} else 
-    			icon = imgCompleted;
+    			icon = null;
     		
 			/*
 			 * 42px of row
@@ -198,18 +197,19 @@ public class BlogsListField {
 			height = height - 6;
 			w = w - 10;
     		
-    		//drawXXX(graphics, 0, y, width, listField.getRowHeight());
     		drawBackground(graphics, 5, y, w, height, _listField.getSelectedIndex() ==  index);
-    		drawBorder(graphics, 5, y, w, height);
+    		drawBorder(graphics, 5, y, w, height, _listField.getSelectedIndex() ==  index);
     		int leftImageWidth = 0;
-    		if (icon != null)
+    		
+    		if (icon != null) {
     			leftImageWidth = drawLeftImage(graphics, 5, y, height, icon);
-    		else {
-    			graphics.pushRegion(10, y+5, 32, 32, 0, 0);
-    			throbberRenderer.paint(graphics);
-    			graphics.popContext();
-    			
-    			leftImageWidth = height;
+    		} else {
+    			if (stato == BlogInfo.STATE_LOADING) {
+	    			graphics.pushRegion(10, y+5, 32, 32, 0, 0);
+	    			throbberRenderer.paint(graphics);
+	    			graphics.popContext();
+	    			leftImageWidth = height;
+    			}
     		}
     		
     		String blogName = currentRow.getName();
@@ -223,13 +223,15 @@ public class BlogsListField {
     	}
         
     	
-		protected void drawBorder(Graphics graphics, int x, int y, int width,	int height) {
-			graphics.setColor(Color.GRAY);
-			graphics.drawLine(x-1, y , x + width-1, y);
+		protected void drawBorder(Graphics graphics, int x, int y, int width,	int height, boolean selected) {
+			if(selected) 
+				graphics.setColor(Color.BLACK);
+			else 
+				graphics.setColor(Color.DARKGRAY);	
 			
+			graphics.drawLine(x-1, y , x + width-1, y);
 			graphics.drawLine(x-1, y, x-1 , y + height-1); //linea verticale sx
 			graphics.drawLine(x + width, y-1, x + width , y + height-1); //linea verticale dx
-			
 			graphics.drawLine(x-1, y + height - 1, x + width-1, y + height - 1);
 		}
     	    	

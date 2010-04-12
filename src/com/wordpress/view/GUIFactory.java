@@ -14,7 +14,6 @@ import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.util.LongIntHashtable;
 
-import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
@@ -35,7 +34,8 @@ public class GUIFactory {
 		_resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
 	}
 
-	protected static int BTN_COLOUR_BACKGROUND_FOCUS = 0x5292f7;
+	public static int BTN_COLOUR_BACKGROUND_FOCUS = 0x21759b;
+	public static int LIST_COLOUR_BACKGROUND_FOCUS = 0x21759b; 	//(0xd3e7f8);
 	
 	protected static synchronized BaseButtonField createButton(String label, long style) {
 		LongIntHashtable colourTable = new LongIntHashtable();
@@ -86,14 +86,15 @@ public class GUIFactory {
 		}
 
 	 protected static synchronized LabelField getLabel(String label) {
-			LabelField lblField = new ColoredLabelField(label + " ", Color.GRAY);
-		  	Font fnt = Font.getDefault().derive(Font.BOLD);
-		  	lblField.setFont(fnt);
-			return lblField;
+			return getLabel(label, Color.GRAY);
 		}
-	
+
 	 protected static synchronized LabelField getLabel(String label, long style) {
-		 LabelField lblField = new ColoredLabelField(label + " ", Color.GRAY, style);
+		 return getLabel(label, Color.GRAY, style);
+	 }	
+	 
+	 protected static synchronized LabelField getLabel(String label,int fgColor, long style) {
+		 LabelField lblField = new ColoredLabelField(label + " ", fgColor, style);
 		 Font fnt = Font.getDefault().derive(Font.BOLD);
 		 lblField.setFont(fnt);
 		 return lblField;

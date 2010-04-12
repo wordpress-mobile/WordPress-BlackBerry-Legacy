@@ -1,5 +1,7 @@
 package com.wordpress.view.component;
 
+import com.wordpress.view.GUIFactory;
+
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
@@ -13,10 +15,10 @@ import net.rim.device.api.ui.component.ListFieldCallback;
 
 public abstract class BasicListFieldCallBack implements ListFieldCallback {
 	
-    protected Bitmap bg = Bitmap.getBitmapResource("bg_light.png");
-	protected Bitmap bgSelected = Bitmap.getBitmapResource("bg_orange.png");
+    //protected Bitmap bg = Bitmap.getBitmapResource("bg_light.png");
+	//protected Bitmap bgSelected = Bitmap.getBitmapResource("bg_blue.png");
 	protected static final int PADDING = 2;
-    
+	protected int focusBgColor = GUIFactory.LIST_COLOUR_BACKGROUND_FOCUS;
 	
     protected int drawLeftImage(Graphics graphics, int x, int y, int height, EncodedImage leftImage) {
         
@@ -64,22 +66,34 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 
 	
 	protected void drawBackground(Graphics graphics, int x, int y, int width, int height, boolean selected) {
+		if (selected) {
+			graphics.setColor(this.focusBgColor);
+		} else {
+			graphics.setColor(Color.WHITE);
+		}
+		graphics.fillRect(x - 1, y - 1, width + 2, height + 1);
+	}
+	
+    /*	 
+	protected void drawBackground(Graphics graphics, int x, int y, int width, int height, boolean selected) {
 		Bitmap toDraw = null;
 		if (selected) {
 			toDraw = bgSelected;
-		//	graphics.setColor(0xffe79c);
-		//	graphics.fillRect(x - 1, y - 1, width + 2, height + 1);
+			int imgWidth = toDraw.getWidth();
+			while (width > -2) {
+				graphics.drawBitmap(x - 1, y - 1, width + 2, height + 1, toDraw, 0, 0);
+				width -= imgWidth;
+				// Overlap a little bit to avoid border issues
+				x += imgWidth - 2;
+			}
 		} else {
-			toDraw = bg;
-		}
-		int imgWidth = toDraw.getWidth();
-		while (width > -2) {
-			graphics.drawBitmap(x - 1, y - 1, width + 2, height + 1, toDraw, 0, 0);
-			width -= imgWidth;
-			// Overlap a little bit to avoid border issues
-			x += imgWidth - 2;
+			
+			graphics.setColor(Color.WHITE);
+            graphics.fillRect(x - 1, y - 1, width + 2, height + 1);
+			
 		}
 	}
+    */
 	
 	protected void drawBorder(Graphics graphics, int x, int y, int width, int height) {
 		graphics.setColor(Color.GRAY);
@@ -93,7 +107,7 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
         graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));
 
         if (selected) {
-            graphics.setColor(Color.BLACK);
+            graphics.setColor(Color.WHITE);
         } else {
             graphics.setColor(Color.BLACK);
         }
@@ -109,13 +123,11 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 	
 	 protected int drawFirstRowMainText(Graphics graphics, int x, int y, int width, int height, String title, boolean selected) {
 		 int myColor = Color.BLACK;
-		 
-	/*	 if (selected) {
-			 myColor=Color.BLACK;
+		 if (selected) {
+			 myColor=Color.WHITE;
 		 } else {
-			 myColor= Color.GRAY;
+			 myColor= Color.BLACK;
 		 }
-		 */
 		return drawFirstRowMainText(graphics, x, y, width, height, title, myColor);
 	 }
 	 
@@ -134,7 +146,6 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 		 
 		 return 0;
 	    }
-    
 
 	    protected void drawSecondRowText(Graphics graphics, int x, int y, int width, int height, String status, boolean selected) {
 	       // int fontHeight = ((2* height) / 5) - (PADDING * 2);
@@ -142,7 +153,7 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 	        graphics.setFont(Font.getDefault().derive(Font.PLAIN, fontHeight));
 
 	        if (selected) {
-	            graphics.setColor(Color.BLACK);
+	            graphics.setColor(Color.WHITE);
 	        } else {
 	            graphics.setColor(Color.LIGHTGREY);
 	        }

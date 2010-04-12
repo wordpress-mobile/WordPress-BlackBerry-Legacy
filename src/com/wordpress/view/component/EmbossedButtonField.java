@@ -1,6 +1,8 @@
 //#preprocess
 package com.wordpress.view.component;
 
+import com.wordpress.view.GUIFactory;
+
 import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
@@ -96,7 +98,7 @@ public class EmbossedButtonField extends BaseButtonField
         } else if( colourKey == COLOUR_BACKGROUND ) {
             return isStyle( Field.READONLY ) ? 0x777777 : 0x424242;
         } else if( colourKey == COLOUR_BACKGROUND_FOCUS ) {
-            return isStyle( Field.READONLY ) ? 0x5292f7 : 0x185AB5;
+            return isStyle( Field.READONLY ) ? GUIFactory.BTN_COLOUR_BACKGROUND_FOCUS : 0x185AB5;
         } else {
             throw new IllegalArgumentException();
         }

@@ -1,7 +1,6 @@
 package com.wordpress.view;
 
 import net.rim.device.api.system.Display;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
@@ -24,9 +23,9 @@ public abstract class StandardBaseView extends BaseView {
     		public void paintBackground( Graphics g ) {
     			g.clear();
     			int color = g.getColor();
-    			g.setColor( Color.LIGHTGREY );
-    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
-    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
+    			g.setColor(0xefebef);
+    			//g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
+    			g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
     			g.setColor( color );
     		}
     		

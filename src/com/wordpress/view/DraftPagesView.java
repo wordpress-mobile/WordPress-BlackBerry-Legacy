@@ -40,9 +40,9 @@ public class DraftPagesView extends BaseView implements ListActionListener {
 			 numberOfButtons = 2;
 		 }
 		 BottomBarItem items[] = new BottomBarItem[numberOfButtons];
-		 items[0] = new BottomBarItem("write.png", "write.png", _resources.getString(WordPressResource.MENUITEM_NEW));
+		 items[0] = new BottomBarItem("write_page-vs.png", "write_page-vs.png", _resources.getString(WordPressResource.MENUITEM_NEW));
 		 if(numberOfButtons == 2)
-			 items[1] = new BottomBarItem("stop.png", "browser.png", _resources.getString(WordPressResource.MENUITEM_DELETE));
+			 items[1] = new BottomBarItem("stop.png", "stop.png", _resources.getString(WordPressResource.MENUITEM_DELETE));
 
 		 initializeBottomBar(items);
 	 }

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import net.rim.device.api.i18n.SimpleDateFormat;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.FocusChangeListener;
@@ -25,7 +26,6 @@ import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.BorderedFieldManager;
-import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
 
@@ -63,18 +63,12 @@ public class PostSettingsView extends StandardBaseView {
         		| Manager.NO_VERTICAL_SCROLL
         		| BorderedFieldManager.BOTTOM_BORDER_NONE);
         
-        HorizontalFieldManager innerContainerForDateField = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
-                | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
-
-		LabelField lblDate = getLabel(_resources.getString(WordPressResource.LABEL_POST_PUBLISHEDON));   
-	    authoredOn= new DateField("", datetime, DateField.DATE_TIME);
+	    authoredOn= new DateField(_resources.getString(WordPressResource.LABEL_POST_PUBLISHEDON), datetime, DateField.DATE_TIME);
 	    authoredOn.setTimeZone(TimeZone.getDefault()); //setting the field time zone
 		SimpleDateFormat sdFormat = new SimpleDateFormat(_resources.getString(WordPressResource.DEFAULT_DATE_FORMAT));
 	    authoredOn.setFormat(sdFormat);
-	    innerContainerForDateField.add(lblDate);
-	    innerContainerForDateField.add(authoredOn);
 	    
-	    rowDate.add(innerContainerForDateField);
+	    rowDate.add(authoredOn);
 		add(rowDate); 
 		
         //row password
@@ -82,9 +76,7 @@ public class PostSettingsView extends StandardBaseView {
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL
         		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-		LabelField lblPassword = getLabel(_resources.getString(WordPressResource.LABEL_PASSWD));		
-        passwordField = new PasswordEditField("", password, 64, Field.EDITABLE);
-        rowPassword.add(lblPassword);
+        passwordField = new PasswordEditField(_resources.getString(WordPressResource.LABEL_PASSWD)+": ", password, 64, Field.EDITABLE);
         rowPassword.add(passwordField);
     	BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_POST_PASSWORD));
 		rowPassword.add(lblDesc);
@@ -205,7 +197,9 @@ public class PostSettingsView extends StandardBaseView {
 
 	private void addImageResizeWidthField() {
         rowImageResizeWidth = new HorizontalFieldManager();
-        rowImageResizeWidth.add( getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)));      
+        rowImageResizeWidth.add( 
+        		GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)+":", Color.BLACK)
+        		);      
         imageResizeWidthField = new BasicEditField(
         		"", 
         		(imageResizeWidth == null ? "" : imageResizeWidth.toString()), 
@@ -220,7 +214,9 @@ public class PostSettingsView extends StandardBaseView {
 
 	private void addImageResizeHeightField() {
 	    rowImageResizeHeight = new HorizontalFieldManager();
-	    rowImageResizeHeight.add( getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)));
+	    rowImageResizeHeight.add( 
+	    		GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)+":", Color.BLACK)
+	    		);
 	    imageResizeHeightField = new BasicEditField(
 	    		"", 
 	    		(imageResizeHeight == null ? "" : imageResizeHeight.toString()), 

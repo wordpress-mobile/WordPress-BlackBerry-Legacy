@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Keypad;
@@ -25,6 +26,7 @@ import com.wordpress.model.Post;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BorderedFieldManager;
+import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.dialog.InquiryView;
@@ -51,7 +53,7 @@ public class PostView extends StandardBaseView {
         //row photo #s
     	BorderedFieldManager outerManagerRowPhoto = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);    	 
-    	lblPhotoNumber = getLabel("");
+    	lblPhotoNumber = GUIFactory.getLabel("", Color.BLACK);
         setNumberOfPhotosLabel(0);
         outerManagerRowPhoto.add(lblPhotoNumber);
         add(outerManagerRowPhoto);
@@ -60,27 +62,26 @@ public class PostView extends StandardBaseView {
     	BorderedFieldManager outerManagerRowTitle = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
     	HorizontalFieldManager rowTitle = new HorizontalPaddedFieldManager();
-		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_TITLE)+":");
+		LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_TITLE)+":", Color.BLACK);
 		title = new BasicEditField("", post.getTitle(), 100, Field.EDITABLE);
         //title.setMargin(margins);
         rowTitle.add(lblTitle);
         rowTitle.add(title);
         outerManagerRowTitle.add(rowTitle);
         add(outerManagerRowTitle);
-                
-        //row tags
-    	BorderedFieldManager outerManagerRowInfos = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
-         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
-        HorizontalFieldManager rowTags = new HorizontalPaddedFieldManager();
-		LabelField lblTags = getLabel(_resources.getString(WordPressResource.LABEL_POST_TAGS)+":");
-		tags = new BasicEditField("", post.getTags(), 100, Field.EDITABLE);
-        rowTags.add(lblTags);
-        rowTags.add(tags);
-        outerManagerRowInfos.add(rowTags);
+
+        //row Infos
+        BorderedFieldManager outerManagerRowInfos = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
+        		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
+
+      //row status
+  		status = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":", controller.getStatusLabels(), controller.getPostStatusFieldIndex(), FIELD_VCENTER);
+  		status.setMargin(0, 5, 5, 5);
+  		outerManagerRowInfos.add(status);
         
         //row categories
-        HorizontalFieldManager rowCategories = new HorizontalPaddedFieldManager(Manager.USE_ALL_WIDTH);
-  		LabelField lblCategories = getLabel(_resources.getString(WordPressResource.LABEL_POST_CATEGORIES)+":");
+        HorizontalFieldManager rowCategories = new HorizontalFieldManager(Manager.USE_ALL_WIDTH);
+  		LabelField lblCategories =  new ColoredLabelField(_resources.getString(WordPressResource.LABEL_POST_CATEGORIES)+": ", Color.BLACK);
         String availableCategories = controller.getPostCategoriesLabel();
   		categories = new LabelField(availableCategories, LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH | LabelField.FOCUSABLE)
   		{
@@ -104,22 +105,20 @@ public class PostView extends StandardBaseView {
   		  		
   		rowCategories.add(lblCategories);
   		rowCategories.add(categories);
+  		rowCategories.setMargin(5, 5, 5, 5);
   		outerManagerRowInfos.add(rowCategories);
   		
-  		//row status
-        HorizontalFieldManager rowStatus = new HorizontalPaddedFieldManager();
-  		LabelField lblStatus =getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":");
-  		status = new ObjectChoiceField("", controller.getStatusLabels(),controller.getPostStatusFieldIndex());
-  		rowStatus.add(lblStatus);
-  		rowStatus.add(status); 
-  		outerManagerRowInfos.add(rowStatus);
- 
-  		add(outerManagerRowInfos);
-  		
+  	   //row tags
+		tags = new BasicEditField(_resources.getString(WordPressResource.LABEL_POST_TAGS)+": ", post.getTags(), 100, Field.EDITABLE);
+		tags.setMargin(5, 5, 5, 5);
+        outerManagerRowInfos.add(tags);
+  	
+        add(outerManagerRowInfos);
         //row location
         BorderedFieldManager locationManager = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
-        		| Manager.NO_VERTICAL_SCROLL);
+        		| Manager.NO_VERTICAL_SCROLL
+        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
 		enableLocation = new CheckboxField(_resources.getString(WordPressResource.LABEL_LOCATION_ADD), post.isLocation());
 		locationManager.add(enableLocation);
 		isLocationPublic = new CheckboxField(_resources.getString(WordPressResource.LABEL_LOCATION_PUBLIC), post.isLocationPublic());
@@ -140,7 +139,7 @@ public class PostView extends StandardBaseView {
   		}
   		
 		bodyTextBox= new HtmlTextField(buildBodyFieldContentFromHtml);
-        LabelField lblPostContent = getLabel(_resources.getString(WordPressResource.LABEL_POST_CONTENT));
+        LabelField lblPostContent = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_POST_CONTENT), Color.BLACK);
 		outerManagerRowContent.add(lblPostContent);
 		outerManagerRowContent.add(GUIFactory.createSepatorField());
         outerManagerRowContent.add(bodyTextBox);

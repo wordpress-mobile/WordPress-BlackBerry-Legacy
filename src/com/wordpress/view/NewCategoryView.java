@@ -1,19 +1,18 @@
 package com.wordpress.view;
 
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
-import net.rim.device.api.ui.container.HorizontalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Category;
 import com.wordpress.view.component.BorderedFieldManager;
-import com.wordpress.view.component.HorizontalPaddedFieldManager;
 
 
 public class NewCategoryView extends StandardBaseView {
@@ -41,11 +40,10 @@ public class NewCategoryView extends StandardBaseView {
         		| Manager.NO_VERTICAL_SCROLL
         		| BorderedFieldManager.BOTTOM_BORDER_NONE);
         
-		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_CATEGORY_NAME));
+		LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_CATEGORY_NAME), Color.BLACK);
 		catField = new BasicEditField("", "", 100, Field.EDITABLE);
         rowTitle.add(lblTitle);
         rowTitle.add(catField);
-        this.add(rowTitle);
         
         //row Parent
         BorderedFieldManager rowParent = new BorderedFieldManager(
@@ -53,17 +51,13 @@ public class NewCategoryView extends StandardBaseView {
         		| Manager.NO_VERTICAL_SCROLL
         		| BorderedFieldManager.BOTTOM_BORDER_NONE);
         
-        HorizontalFieldManager innerContainerForParentField = new HorizontalPaddedFieldManager(HorizontalFieldManager.NO_HORIZONTAL_SCROLL 
-                | HorizontalFieldManager.NO_VERTICAL_SCROLL | HorizontalFieldManager.USE_ALL_WIDTH);
 
-		LabelField lblParent = getLabel(_resources.getString(WordPressResource.LABEL_CATEGORY_PARENT));
-		parentCat = new ObjectChoiceField("", catTitles, 0);
-		innerContainerForParentField.add(lblParent);
-		innerContainerForParentField.add(parentCat);
-		rowParent.add(innerContainerForParentField);
-        this.add(rowParent);
+		parentCat = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_CATEGORY_PARENT)+": ", catTitles, 0);
+		rowParent.add(parentCat);
+        
+		this.add(rowTitle);
+		this.add(rowParent);
         addMenuItem(_newCategoryContextMenuItem);
-    	
     }
     
     private MenuItem _newCategoryContextMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_POST_NEWCATEGORY, 10, 2) {

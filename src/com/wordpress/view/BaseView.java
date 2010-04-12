@@ -83,8 +83,8 @@ public abstract class BaseView extends MainScreen {
 		HeaderField headerField = new HeaderField(title);
 		//if you want change color of the title bar, make sure to set 
 		//color for background and foreground (to avoid theme colors injection...)
-		headerField.setFontColor(Color.BLACK); 
-		headerField.setBackgroundColor(Color.GRAY); 
+		headerField.setFontColor(Color.WHITE); 
+		headerField.setBackgroundColor(Color.BLACK); 
 		return (Field)headerField;
 	}
 	

@@ -19,9 +19,6 @@ public class HeaderField extends Field {
     private int fontColor;
     private int backgroundColor;
     
-    private final int[] upperDrawColors;
-	private int[] X_PTS;
-	private int[] Y_PTS;
     
     public HeaderField(String title) {
         super(Field.NON_FOCUSABLE);
@@ -34,9 +31,6 @@ public class HeaderField extends Field {
         
         this.fieldWidth = Display.getWidth();
         calculateFieldHeight();
-        upperDrawColors = new int[]{0xdeebff, 0x9cbeff, 0x9cbeff, 0xdeebff};
-        X_PTS = new int[]{0, 0, fieldWidth, fieldWidth};
-        Y_PTS = new int[]{0, fieldHeight-1, fieldHeight-1, 0};  
     }
 
     
@@ -69,8 +63,6 @@ public class HeaderField extends Field {
     protected void layout(int width, int height) {
     	this.fieldWidth = Display.getWidth();
     	calculateFieldHeight();
-        X_PTS = new int[]{0, 0, fieldWidth, fieldWidth};
-        Y_PTS = new int[]{0, fieldHeight-1, fieldHeight-1, 0};  
         setExtent(getPreferredWidth(), getPreferredHeight());
     }
     
@@ -81,7 +73,7 @@ public class HeaderField extends Field {
     public int getPreferredHeight() {
     	return fieldHeight;
     }
-    
+   
     private void calculateFieldHeight() {
     	if(subTitle == null || subTitle.equalsIgnoreCase(""))
     		this.fieldHeight =  titleFont.getHeight()+2;
@@ -90,34 +82,28 @@ public class HeaderField extends Field {
     }
     
     protected void paint(Graphics graphics) {
-        if(fontColor == -1) {
-            fontColor = graphics.getColor();
-        }
-        graphics.setFont(titleFont);
-        int preferredWidth = this.getPreferredWidth();
-        int preferredHeight = this.getPreferredHeight();
-        
-        graphics.drawShadedFilledPath(X_PTS, Y_PTS, null, upperDrawColors, null);
         
         if(backgroundColor != -1) {
             graphics.setColor(backgroundColor);
-            graphics.drawLine(0, preferredHeight - 1 , preferredWidth, preferredHeight - 1);
         } else {
-        	graphics.setColor(Color.GRAY);
-        	graphics.drawLine(0, preferredHeight - 1, preferredWidth, preferredHeight - 1);           
+        	graphics.setColor( Color.LIGHTGREY );
         }
+        graphics.fillRect( 0, 0, getWidth(), getHeight() );
        
+        if(fontColor == -1) {
+        	fontColor = graphics.getColor();
+        }
+        graphics.setFont(titleFont);
         graphics.setColor(fontColor);
         
         if(showTitle) {
-            graphics.drawText(title, 1, 0, DrawStyle.HCENTER | DrawStyle.ELLIPSIS, preferredWidth);
+            graphics.drawText(title, 1, 0, DrawStyle.HCENTER | DrawStyle.ELLIPSIS, getWidth());
         }
         
-        graphics.setColor(Color.GRAY);
+        graphics.setColor(Color.LIGHTGREY);
         graphics.setFont(subTitleFont);
         if (subTitle != null && !subTitle.equalsIgnoreCase("")) {
-        	graphics.drawText(subTitle, 1, titleFont.getHeight()+2, DrawStyle.HCENTER | DrawStyle.ELLIPSIS, preferredWidth);
+        	graphics.drawText(subTitle, 1, titleFont.getHeight()+2, DrawStyle.HCENTER | DrawStyle.ELLIPSIS, getWidth());
         }
-        
     }
 }

@@ -59,7 +59,7 @@ public class PagesView extends BaseView implements ListActionListener {
 			if (Touchscreen.isSupported() == false) return;
 			
 			BottomBarItem items[] = new BottomBarItem[3];
-			items[0] = new BottomBarItem("write.png", "write.png", _resources.getString(WordPressResource.MENUITEM_NEW));
+			items[0] = new BottomBarItem("write_page-vs.png", "write_page-vs.png", _resources.getString(WordPressResource.MENUITEM_NEW));
 			items[1] = new BottomBarItem("browser.png", "browser.png", _resources.getString(WordPressResource.MENUITEM_LOCALDRAFTS));
 			items[2] = new BottomBarItem("refresh.png", "refresh.png", _resources.getString(WordPressResource.MENUITEM_REFRESH));
 			

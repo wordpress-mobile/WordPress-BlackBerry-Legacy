@@ -7,7 +7,6 @@ import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.KeypadListener;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
@@ -371,26 +370,6 @@ public class CategoriesListField {
             graphics.setFont(originalFont);
             graphics.setColor(originalColor);
         }
-        
-    	 
-    	protected void drawBackground(Graphics graphics, int x, int y, int width, int height, boolean selected) {
-    		Bitmap toDraw = null;
-    		if (selected) {
-    			toDraw = bgSelected;
-    			int imgWidth = toDraw.getWidth();
-    			while (width > -2) {
-    				graphics.drawBitmap(x - 1, y - 1, width + 2, height + 1, toDraw, 0, 0);
-    				width -= imgWidth;
-    				// Overlap a little bit to avoid border issues
-    				x += imgWidth - 2;
-    			}
-    		} else {
-    			
-    			graphics.setColor(Color.WHITE);
-                graphics.fillRect(x - 1, y - 1, width + 2, height + 1);
-    			
-    		}
-    	}
         
         //Returns the object at the specified index.
         public Object get(ListField list, int index) 

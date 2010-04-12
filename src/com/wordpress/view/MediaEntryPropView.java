@@ -1,5 +1,6 @@
 package com.wordpress.view;
 
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
@@ -72,8 +73,6 @@ public class MediaEntryPropView extends StandardBaseView {
         BorderedFieldManager rowMediaObjPosition = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL);
-		 HorizontalFieldManager rowVerticalAligment = new HorizontalPaddedFieldManager();
-		 LabelField lblStatus =getLabel(_resources.getString(WordPressResource.LABEL_VERTICAL_ALIGNMENT));
 		 String labelTop= _resources.getString(WordPressResource.LABEL_VERTICAL_ALIGNMENT_TOP);
 		 String labelBottom= _resources.getString(WordPressResource.LABEL_VERTICAL_ALIGNMENT_BOTTOM);
 		 String[] optLabels = {labelBottom, labelTop};
@@ -83,10 +82,8 @@ public class MediaEntryPropView extends StandardBaseView {
 		 if(mediaEntry.isVerticalAlignmentOnTop())
 			 selectedPosition = 1;
 		 
-		 mediaVerticalAlignment = new ObjectChoiceField("",optLabels, selectedPosition);
-		 rowVerticalAligment.add(lblStatus);
-		 rowVerticalAligment.add(mediaVerticalAlignment); 
-		 rowMediaObjPosition.add(rowVerticalAligment);
+		 mediaVerticalAlignment = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_VERTICAL_ALIGNMENT),optLabels, selectedPosition);
+		 rowMediaObjPosition.add(mediaVerticalAlignment);
 		 add(rowMediaObjPosition);
 		 //-------------
 		 
@@ -166,7 +163,7 @@ public class MediaEntryPropView extends StandardBaseView {
         		| Manager.NO_VERTICAL_SCROLL
         		| BorderedFieldManager.BOTTOM_BORDER_NONE);
             	
-        LabelField fileNameLbl = getLabel(label);   
+        LabelField fileNameLbl = GUIFactory.getLabel(label, Color.BLACK);   
         valueField.setText(value);
         rowFileName.add( fileNameLbl );
         rowFileName.add( valueField );

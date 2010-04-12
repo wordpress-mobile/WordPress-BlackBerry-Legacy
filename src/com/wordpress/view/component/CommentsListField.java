@@ -356,7 +356,7 @@ public class CommentsListField {
             }
             
             if (selected) {
-                graphics.setColor(Color.BLACK);
+                graphics.setColor(Color.WHITE);
             } else {
                 graphics.setColor(Color.LIGHTGREY);
             }

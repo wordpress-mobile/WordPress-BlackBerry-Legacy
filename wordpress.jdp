@@ -247,8 +247,6 @@ src\com\wordpress\xmlrpc\post\NewPostConn.java
 src\com\wordpress\xmlrpc\post\PostConn.java
 src\com\wordpress\xmlrpc\post\RecentPostConn.java
 src\com\wordpress\xmlrpc\PreviewHTTPConn.java
-src\complete.png
-src\Default.png
 src\defaultPostTemplate.html
 src\disclosure-indicator.png
 src\drafts-folder.png
@@ -261,11 +259,14 @@ src\icons\edit_add.png
 src\icons\enqueued.png
 src\icons\file_temporary_48.png
 src\icons\folder_yellow_open.png
+src\icons\folder_yellow_open_32.png
 src\icons\folder_yellow_open_48.png
 src\icons\loading-gif.bin
+src\icons\media_library-vs.png
 src\icons\media_library.png
 src\icons\mime_unknown.png
 src\icons\mime_unknown_48.png
+src\icons\settings.png
 src\icons\stats.png
 src\icons\stats_clicks.png
 src\icons\stats_referrers.png
@@ -281,10 +282,11 @@ src\icons\wordpress_home_300.png
 src\icons\wordpress_home_340.png
 src\icons\wordpress_home_460.png
 src\icons\wplogo_header.png
+src\icons\write_page-vs.png
 src\icons\write_page.png
+src\icons\write_post-vs.png
 src\icons\write_post.png
 src\important.png
-src\MainBackground.png
 src\org\kobjects\base64\Base64.java
 src\org\kxmlrpc\util\IsoDate.java
 src\org\kxmlrpc\XmlRpcClient.java
@@ -293,7 +295,6 @@ src\org\kxmlrpc\XmlRpcException.java
 src\org\kxmlrpc\XmlRpcParser.java
 src\org\kxmlrpc\XmlRpcWriter.java
 src\refresh.png
-src\settings.png
 src\sound.png
 src\uncheck.png
 src\video.png

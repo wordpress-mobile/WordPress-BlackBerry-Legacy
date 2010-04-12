@@ -4,6 +4,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
@@ -21,7 +22,6 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.BitmapButtonField;
 import com.wordpress.view.component.BorderedFieldManager;
-import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
 
@@ -44,23 +44,16 @@ public class CustomFieldsView extends StandardBaseView {
         BorderedFieldManager outerContainer = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL );
-         //Add new custom field:
-        LabelField lblNewCustomField = getLabel(_resources.getString(WordPressResource.LABEL_ADD_CUSTOM_FIELD));
-        outerContainer.add(lblNewCustomField);
         
-        HorizontalFieldManager rowName = new HorizontalPaddedFieldManager();
-        LabelField lblName = getLabel(_resources.getString(WordPressResource.LABEL_NAME)+":");
-        rowName.add(lblName);
-        _fieldName = new BasicEditField("", "", 100, Field.EDITABLE);
-        rowName.add(_fieldName);
-        outerContainer.add(rowName);
-                
-        HorizontalFieldManager rowValue = new HorizontalPaddedFieldManager();
-        LabelField lblValue = getLabel(_resources.getString(WordPressResource.LABEL_VALUE)+":");
-        rowValue.add(lblValue);
-        _fieldValue = new BasicEditField("", " ", 100, Field.EDITABLE);
-        rowValue.add(_fieldValue);
-        outerContainer.add(rowValue);
+         //Add new custom field:
+        LabelField lblNewCustomField = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_ADD_CUSTOM_FIELD), Color.BLACK);
+        outerContainer.add(lblNewCustomField);
+        outerContainer.add(GUIFactory.createSepatorField());
+        
+        _fieldName = new BasicEditField(_resources.getString(WordPressResource.LABEL_NAME)+": ", "", 100, Field.EDITABLE);
+        outerContainer.add(_fieldName);
+        _fieldValue = new BasicEditField(_resources.getString(WordPressResource.LABEL_VALUE)+": ", " ", 100, Field.EDITABLE);
+        outerContainer.add(_fieldValue);
         
         BitmapButtonField addButtonField = new BitmapButtonField(_addBitmap, ButtonField.CONSUME_CLICK);
         addButtonField.setChangeListener(addCustomField);
@@ -81,6 +74,7 @@ public class CustomFieldsView extends StandardBaseView {
         buttonsManager.add(buttonOK);
 		buttonsManager.add(buttonBACK);
 		add(buttonsManager); 
+		add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
 
 		//add the custom fields
 		initUI(oldCustomFields);
@@ -133,19 +127,11 @@ public class CustomFieldsView extends StandardBaseView {
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL);
         
-        HorizontalFieldManager rowName = new HorizontalPaddedFieldManager();
-        LabelField lblName = getLabel(_resources.getString(WordPressResource.LABEL_NAME)+":");
-        rowName.add(lblName);
-        BasicEditField fieldName = new BasicEditField("", insertedName, 100, Field.EDITABLE);
-        rowName.add(fieldName);
-        outerContainer.add(rowName);
+        BasicEditField fieldName = new BasicEditField(_resources.getString(WordPressResource.LABEL_NAME)+": ", insertedName, 100, Field.EDITABLE);
+        outerContainer.add(fieldName);
                 
-        HorizontalFieldManager rowValue = new HorizontalPaddedFieldManager();
-        LabelField lblValue = getLabel(_resources.getString(WordPressResource.LABEL_VALUE)+":");
-        rowValue.add(lblValue);
-        BasicEditField fieldValue = new BasicEditField("", insertedValue, 100, Field.EDITABLE);
-        rowValue.add(fieldValue);
-        outerContainer.add(rowValue);
+        BasicEditField fieldValue = new BasicEditField(_resources.getString(WordPressResource.LABEL_VALUE)+": ", insertedValue, 100, Field.EDITABLE);
+        outerContainer.add(fieldValue);
         
         BitmapButtonField addButtonField = new BitmapButtonField(_deleteBitmap, ButtonField.CONSUME_CLICK);
         MyFieldChangeListener myFieldChangeListener = new MyFieldChangeListener(fieldValue,fieldName);
@@ -154,7 +140,7 @@ public class CustomFieldsView extends StandardBaseView {
         changeListeners.addElement(myFieldChangeListener); //added change listener into array
         
         int fieldsCount = getFieldCount();
-        insert(outerContainer, fieldsCount-1); //leave the buttons at the bottom of the screen
+        insert(outerContainer, fieldsCount-2); //leave the buttons + spacedField at the bottom of the screen
     }
     
 	private FieldChangeListener addCustomField = new FieldChangeListener() {

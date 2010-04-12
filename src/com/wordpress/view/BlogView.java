@@ -110,9 +110,9 @@ public class BlogView extends BaseView {
     		public void paintBackground( Graphics g ) {
     			g.clear();
     			int color = g.getColor();
-    			g.setColor( Color.LIGHTGREY );
-    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
-    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
+    			g.setColor( 0xefebef );
+    			//g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
+    			g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
     			g.setColor( color );
     		}
     	};
@@ -288,7 +288,7 @@ public class BlogView extends BaseView {
 			
 			//drawXXX(graphics, 0, y, width, listField.getRowHeight());
 			drawBackground(graphics, 5, y, width, height, listField.getSelectedIndex() ==  index);
-			drawBorder(graphics, 5, y, width, height);
+			drawBorder(graphics, 5, y, width, height, listField.getSelectedIndex() ==  index);
 			int leftImageWidth = drawLeftImage(graphics, 5, y, height, icon);
 			drawText(graphics, leftImageWidth+5, y, width  - leftImageWidth, height, label, listField.getSelectedIndex() ==  index);
 			
@@ -296,8 +296,12 @@ public class BlogView extends BaseView {
 			graphics.setColor(originalColor);
 		}
 		
-		protected void drawBorder(Graphics graphics, int x, int y, int width,	int height) {
-			graphics.setColor(Color.GRAY);
+		protected void drawBorder(Graphics graphics, int x, int y, int width, int height, boolean selected) {
+			if(selected) 
+				graphics.setColor(Color.BLACK);
+			else 
+				graphics.setColor(Color.DARKGRAY);	
+			
 			graphics.drawLine(x-1, y , x + width-1, y);
 			
 			graphics.drawLine(x-1, y, x-1 , y + height-1); //linea verticale sx

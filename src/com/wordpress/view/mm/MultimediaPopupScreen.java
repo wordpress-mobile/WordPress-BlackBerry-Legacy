@@ -55,7 +55,7 @@ public class MultimediaPopupScreen extends PopupScreen {
         HorizontalFieldManager hManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
         if(MultimediaUtils.isVideoRecordingSupported()) {
 	    	Bitmap _bitmapCamera = Bitmap.getBitmapResource("video_rec.png");
-	    	bitmapFieldCamera = new BitmapField(_bitmapCamera, Field.NON_FOCUSABLE | Field.FIELD_HCENTER);
+	    	bitmapFieldCamera = new BitmapField(_bitmapCamera, Field.NON_FOCUSABLE | Field.FIELD_HCENTER | Field.FIELD_VCENTER | Field.USE_ALL_HEIGHT);
 	    	buttonCamera= new ButtonField(_resources.getString(WordPressResource.LABEL_VIDEO_REC));
 	    	buttonCamera.setChangeListener(listenerButtonVideo);
 	    	hManager.add(bitmapFieldCamera);
@@ -63,8 +63,8 @@ public class MultimediaPopupScreen extends PopupScreen {
         }
     	
         HorizontalFieldManager hManager2 = new HorizontalFieldManager(Field.FIELD_HCENTER);
-    	Bitmap _bitmapBrowser = Bitmap.getBitmapResource("browser.png");
-    	bitmapBrowser = new BitmapField(_bitmapBrowser, Field.NON_FOCUSABLE | Field.FIELD_HCENTER);
+    	Bitmap _bitmapBrowser = Bitmap.getBitmapResource("folder_yellow_open_32.png");
+    	bitmapBrowser = new BitmapField(_bitmapBrowser, Field.NON_FOCUSABLE | Field.FIELD_HCENTER | Field.FIELD_VCENTER | Field.USE_ALL_HEIGHT);
     	buttonBrowser= new ButtonField(_resources.getString(WordPressResource.LABEL_VIDEO_ADD_FROM_LIB));
     	buttonBrowser.setChangeListener(listenerButtonVideo);
     	hManager2.add(bitmapBrowser);
@@ -85,7 +85,7 @@ public class MultimediaPopupScreen extends PopupScreen {
         HorizontalFieldManager hManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
         if(MultimediaUtils.isPhotoCaptureSupported()) {
 	    	Bitmap _bitmapCamera = Bitmap.getBitmapResource("camera.png");
-	    	bitmapFieldCamera = new BitmapField(_bitmapCamera, Field.NON_FOCUSABLE | Field.FIELD_HCENTER);
+	    	bitmapFieldCamera = new BitmapField(_bitmapCamera, Field.NON_FOCUSABLE | Field.FIELD_HCENTER | Field.FIELD_VCENTER | Field.USE_ALL_HEIGHT);
 	    	buttonCamera= new ButtonField(_resources.getString(WordPressResource.LABEL_PHOTO_TAKE_FROM_CAMERA));
 	    	buttonCamera.setChangeListener(listenerButtonPhoto);
 	    	hManager.add(bitmapFieldCamera);
@@ -93,8 +93,8 @@ public class MultimediaPopupScreen extends PopupScreen {
         }
     	
         HorizontalFieldManager hManager2 = new HorizontalFieldManager(Field.FIELD_HCENTER);
-    	Bitmap _bitmapBrowser = Bitmap.getBitmapResource("browser.png");
-    	bitmapBrowser = new BitmapField(_bitmapBrowser, Field.NON_FOCUSABLE | Field.FIELD_HCENTER);
+    	Bitmap _bitmapBrowser = Bitmap.getBitmapResource("folder_yellow_open_32.png");
+    	bitmapBrowser = new BitmapField(_bitmapBrowser, Field.NON_FOCUSABLE | Field.FIELD_HCENTER | Field.FIELD_VCENTER | Field.USE_ALL_HEIGHT);
     	buttonBrowser= new ButtonField(_resources.getString(WordPressResource.LABEL_PHOTO_ADD_FROM_LIB));
     	buttonBrowser.setChangeListener(listenerButtonPhoto);
     	hManager2.add(bitmapBrowser);

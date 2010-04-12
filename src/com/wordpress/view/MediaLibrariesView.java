@@ -71,7 +71,7 @@ public class MediaLibrariesView extends BaseView implements ListActionListener {
 				numberOfButtons = 2;
 			}
 			BottomBarItem items[] = new BottomBarItem[numberOfButtons];
-			items[0] = new BottomBarItem("write.png", "write.png", _resources.getString(WordPressResource.MENUITEM_NEW));
+			items[0] = new BottomBarItem("media_library-vs.png", "media_library-vs.png", _resources.getString(WordPressResource.MENUITEM_NEW));
 			if(numberOfButtons == 2)
 			items[1] = new BottomBarItem("stop.png", "browser.png", _resources.getString(WordPressResource.MENUITEM_DELETE));
 			

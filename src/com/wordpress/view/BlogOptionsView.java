@@ -2,6 +2,7 @@ package com.wordpress.view;
 
 import java.util.Hashtable;
 
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.FocusChangeListener;
@@ -105,7 +106,7 @@ public class BlogOptionsView extends StandardBaseView {
 	        		Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL
 	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-    		LabelField lblUserName = getLabel(_resources.getString(WordPressResource.LABEL_USERNAME)); 
+    		LabelField lblUserName = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_USERNAME), Color.BLACK); 
             userNameField = new BasicEditField("", user, 60, Field.EDITABLE);
             rowUserName.add(lblUserName);
     		rowUserName.add(userNameField);
@@ -116,7 +117,7 @@ public class BlogOptionsView extends StandardBaseView {
 	        		Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL
 	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-    		LabelField lblPassword = getLabel(_resources.getString(WordPressResource.LABEL_PASSWD)); 
+    		LabelField lblPassword = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_PASSWD), Color.BLACK); 
             passwordField = new PasswordEditField("", pass, 64, Field.EDITABLE);
             rowPassword.add(lblPassword);
             rowPassword.add(passwordField);
@@ -244,7 +245,7 @@ public class BlogOptionsView extends StandardBaseView {
 	
 	private void addImageResizeWidthField() {
         rowImageResizeWidth = new HorizontalFieldManager();
-        rowImageResizeWidth.add( getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)));      
+        rowImageResizeWidth.add( GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)+":", Color.BLACK));      
         imageResizeWidthField = new BasicEditField(
         		"", 
         		(imageResizeWidth == null ? "" : imageResizeWidth.toString()), 
@@ -258,7 +259,7 @@ public class BlogOptionsView extends StandardBaseView {
 
 	private void addImageResizeHeightField() {
 	    rowImageResizeHeight = new HorizontalFieldManager();
-	    rowImageResizeHeight.add( getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)));
+	    rowImageResizeHeight.add( GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)+":", Color.BLACK));
 	    imageResizeHeightField = new BasicEditField(
 	    		"", 
 	    		(imageResizeHeight == null ? "" : imageResizeHeight.toString()), 

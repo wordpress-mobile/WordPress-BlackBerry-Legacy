@@ -1,6 +1,7 @@
 package com.wordpress.view;
 
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
@@ -42,7 +43,7 @@ public class PageView extends StandardBaseView {
         //row photo #s
     	BorderedFieldManager outerManagerRowPhoto = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);    	 
-    	lblPhotoNumber = getLabel("");
+    	lblPhotoNumber = GUIFactory.getLabel("", Color.BLACK);
         setNumberOfPhotosLabel(0);
         outerManagerRowPhoto.add(lblPhotoNumber);
         add(outerManagerRowPhoto);
@@ -51,51 +52,52 @@ public class PageView extends StandardBaseView {
     	BorderedFieldManager outerManagerRowTitle = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
         HorizontalFieldManager rowTitle = new HorizontalPaddedFieldManager();
-		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_TITLE)+":");
+		LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_TITLE)+":", Color.BLACK);
 		title = new BasicEditField("", page.getTitle(), 100, Field.EDITABLE);
         rowTitle.add(lblTitle);
         rowTitle.add(title);
         outerManagerRowTitle.add(rowTitle);
         add(outerManagerRowTitle);
-             		
-  		//row status
+
+        //opts Manager
     	BorderedFieldManager outerManagerRowInfos = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
-        HorizontalFieldManager rowStatus = new HorizontalPaddedFieldManager();
-  		LabelField lblStatus =getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":");
-  		status = new ObjectChoiceField("", controller.getStatusLabels(),controller.getPageStatusFieldIndex());
-  		rowStatus.add(lblStatus);
-  		rowStatus.add(status);
-  		outerManagerRowInfos.add(rowStatus);
-  		add(outerManagerRowInfos); 
+    	add(outerManagerRowInfos); 
+
+    	//row status
+  		status = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":", 
+  				controller.getStatusLabels(), 
+  				controller.getPageStatusFieldIndex()
+  				);
+  		status.setMargin(0, 5, 5, 5);
+  		outerManagerRowInfos.add(status);
 
   		//row parentPage
-        HorizontalFieldManager rowParentPage = new HorizontalPaddedFieldManager();
-  		LabelField lblParentPage =getLabel(_resources.getString(WordPressResource.LABEL_PARENT_PAGE)+":");
-  		parentPageField = new ObjectChoiceField("", controller.getParentPagesTitle(), controller.getParentPageFieldIndex());
-  		rowParentPage.add(lblParentPage);
-  		rowParentPage.add(parentPageField);
-  		outerManagerRowInfos.add(rowParentPage);
+  		parentPageField = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_PARENT_PAGE)+":", 
+  				controller.getParentPagesTitle(), 
+  				controller.getParentPageFieldIndex()
+  				);
+  		parentPageField.setMargin(5, 5, 5, 5);
+  		outerManagerRowInfos.add(parentPageField);
   	  		
   		//row pageTemplate
-        HorizontalFieldManager rowPageTemplate = new HorizontalPaddedFieldManager();
-  		LabelField lblPageTemplate =getLabel(_resources.getString(WordPressResource.LABEL_PAGE_TEMPLATE)+":");
-  		pageTemplateField = new ObjectChoiceField("", controller.getPageTemplateLabels(), controller.getPageTemplateFieldIndex());
-  		rowPageTemplate.add(lblPageTemplate);
-  		rowPageTemplate.add(pageTemplateField);
-  		outerManagerRowInfos.add(rowPageTemplate);
+  		pageTemplateField = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_PAGE_TEMPLATE)+": ", 
+  				controller.getPageTemplateLabels(), 
+  				controller.getPageTemplateFieldIndex()
+  				);
+  		pageTemplateField.setMargin(5, 5, 5, 5);
+  		outerManagerRowInfos.add(pageTemplateField);
   		
   		//row pageOrder
-        HorizontalFieldManager rowPageOrder = new HorizontalPaddedFieldManager();
-  		LabelField lblPageOrder = getLabel(_resources.getString(WordPressResource.LABEL_PAGE_ORDER)+":");
   		int pageOrder = page.getWpPageOrder();
   		if(pageOrder < 0) pageOrder=0;
-  		pageOrderField = new BasicEditField("",String.valueOf(pageOrder) , 100, Field.EDITABLE);
+  		pageOrderField = new BasicEditField(_resources.getString(WordPressResource.LABEL_PAGE_ORDER)+": ",
+  				String.valueOf(pageOrder) , 
+  				100, 
+  				Field.EDITABLE);
   		pageOrderField.setFilter(TextFilter.get(TextFilter.NUMERIC));
-  		rowPageOrder.add(lblPageOrder);
-  		rowPageOrder.add(pageOrderField);
-  		outerManagerRowInfos.add(rowPageOrder);
-  		
+  		pageOrderField.setMargin(5, 5, 5, 5);
+  		outerManagerRowInfos.add(pageOrderField);
   		
   		//row content - decode the page body content
     	BorderedFieldManager outerManagerRowContent = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
@@ -112,7 +114,7 @@ public class PageView extends StandardBaseView {
 		bodyTextBox= new HtmlTextField(buildBodyFieldContentFromHtml);
 		
 		
-		LabelField lblPageContent = getLabel(_resources.getString(WordPressResource.LABEL_CONTENT));
+		LabelField lblPageContent = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_CONTENT), Color.BLACK);
 		outerManagerRowContent.add(lblPageContent);
 		outerManagerRowContent.add(GUIFactory.createSepatorField());
 		outerManagerRowContent.add(bodyTextBox);

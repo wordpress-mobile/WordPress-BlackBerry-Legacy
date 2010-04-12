@@ -9,6 +9,7 @@ import net.rim.blackberry.api.browser.BrowserSession;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.KeypadListener;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
@@ -50,7 +51,7 @@ public class PhotosView extends StandardBaseView {
     	//init for the 0 photo item
     	noPhotoBorderedManager= new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL);
-    	LabelField noPhoto = getLabel(_resources.getString(WordPressResource.LABEL_NO_MEDIA));
+    	LabelField noPhoto = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_NO_MEDIA), Color.BLACK);
     	noPhotoBorderedManager.add(noPhoto);
     	
         updateUI(counterPhotos);
