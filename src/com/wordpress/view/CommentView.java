@@ -5,12 +5,8 @@ import java.util.Date;
 import java.util.Hashtable;
 
 import net.rim.device.api.i18n.SimpleDateFormat;
-import net.rim.device.api.system.Characters;
-import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
-import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 //#ifdef IS_OS47_OR_ABOVE
@@ -18,7 +14,6 @@ import net.rim.device.api.ui.TouchGesture;
 import net.rim.device.api.ui.TouchEvent;
 //#endif
 import net.rim.device.api.ui.component.BitmapField;
-import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
@@ -31,12 +26,10 @@ import com.wordpress.controller.BlogObjectController;
 import com.wordpress.controller.CommentsController;
 import com.wordpress.controller.GravatarController;
 import com.wordpress.model.Comment;
-import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
-import com.wordpress.view.component.BorderedFieldManager;
-import com.wordpress.view.component.BorderedFocusChangeListenerPatch;
-import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.component.HtmlTextField;
+import com.wordpress.view.container.BorderedFieldManager;
+import com.wordpress.view.container.BorderedFocusChangeListenerPatch;
 
 public class CommentView extends StandardBaseView {
 	
@@ -99,8 +92,8 @@ public class CommentView extends StandardBaseView {
 			outerManagerInfo.add(lblCommentInfo);
 			outerManagerInfo.add(GUIFactory.createSepatorField());
 			
-	        //post of this comment
-	        HorizontalFieldManager rowOn = new HorizontalPaddedFieldManager();
+	  		 //post of this comment
+	        HorizontalFieldManager rowOn = new HorizontalFieldManager();
 			LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_COMMENT_ON)+":");
 			title = new LabelField("", LabelField.FOCUSABLE);
 	        rowOn.add(lblTitle);
@@ -108,7 +101,7 @@ public class CommentView extends StandardBaseView {
 	        outerManagerInfo.add(rowOn);
 	        	        
 	        //date
-	        HorizontalFieldManager rowDate = new HorizontalPaddedFieldManager();
+	        HorizontalFieldManager rowDate = new HorizontalFieldManager();
 			LabelField lblDate = getLabel(_resources.getString(WordPressResource.LABEL_DATE)+":");
 			date = new LabelField("", LabelField.FOCUSABLE);
 	        rowDate.add(lblDate);
@@ -116,13 +109,14 @@ public class CommentView extends StandardBaseView {
 	        outerManagerInfo.add(rowDate);
 	        
 	  		//status
-	        HorizontalFieldManager rowStatus = new HorizontalPaddedFieldManager();
+	        HorizontalFieldManager rowStatus = new HorizontalFieldManager();
 	        LabelField lblStatus = getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":");
 	  		status =new LabelField("", LabelField.FOCUSABLE);
 	  		rowStatus.add(lblStatus);
 	  		rowStatus.add(status); 
 	  		outerManagerInfo.add(rowStatus);
 	  		add(outerManagerInfo);
+	  		
 	  		
 	  		//comment data
 	        BorderedFieldManager outerManagerComment = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL

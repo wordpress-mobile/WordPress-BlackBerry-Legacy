@@ -8,9 +8,19 @@ import net.rim.blackberry.api.browser.PostData;
 import net.rim.device.api.io.http.HttpHeaders;
 import net.rim.device.api.synchronization.UIDGenerator;
 
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.utils.log.Log;
 
 public class Tools {
+	
+	
+	
+	public static synchronized void openWordPressSignUpURL(String refScreen){
+		HttpHeaders headers = new HttpHeaders();
+    	headers.addProperty("User-Agent", "wp-blackberry/"+ Tools.getAppVersion());
+    	Tools.getBrowserSession(WordPressInfo.BB_APP_SIGNUP_URL,"/wp-blackberry/"+refScreen, headers, null);
+	}
+	
 	
 	/**
 	 * Invoke the default browser on the BlackBerry smartphone

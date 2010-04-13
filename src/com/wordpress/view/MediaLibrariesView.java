@@ -24,7 +24,7 @@ public class MediaLibrariesView extends BaseView implements ListActionListener {
 	private PostsListField listaPost; 
 	
 	 public MediaLibrariesView(MediaLibrariesController  _controller) {
-	    	super(_resources.getString(WordPressResource.TITLE_MEDIALIBRARY_VIEW)+" > "+_controller.getCurrentBlogName());
+	    	super(_resources.getString(WordPressResource.TITLE_PHONE_MEDIA_VIEW)+" > "+_controller.getCurrentBlogName());
 	    	this.controller=_controller;	        
 	        buildList();
 	 }
@@ -35,7 +35,7 @@ public class MediaLibrariesView extends BaseView implements ListActionListener {
 			delete(listaPost);
 		
 		listaPost = new PostsListField(); 	        
-		listaPost.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_MEDIA_LIBRARIES), DrawStyle.LEFT);
+		listaPost.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_FILE_GROUP), DrawStyle.LEFT);
 		listaPost.setDefautActionListener(this);
 		
 		MediaLibrary[] mediaLibrary = controller.getMediaLibraries();

@@ -5,7 +5,7 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.component.LabelField;
 
 import com.wordpress.model.MediaEntry;
-import com.wordpress.view.component.BorderedFieldManager;
+import com.wordpress.view.container.BorderedFieldManager;
 
 
 public class MediaViewMediator {

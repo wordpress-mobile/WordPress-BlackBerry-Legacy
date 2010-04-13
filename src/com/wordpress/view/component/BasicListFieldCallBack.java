@@ -15,8 +15,6 @@ import net.rim.device.api.ui.component.ListFieldCallback;
 
 public abstract class BasicListFieldCallBack implements ListFieldCallback {
 	
-    //protected Bitmap bg = Bitmap.getBitmapResource("bg_light.png");
-	//protected Bitmap bgSelected = Bitmap.getBitmapResource("bg_blue.png");
 	protected static final int PADDING = 2;
 	protected int focusBgColor = GUIFactory.LIST_COLOUR_BACKGROUND_FOCUS;
 	

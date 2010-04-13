@@ -22,7 +22,7 @@ import com.wordpress.controller.BlogOptionsController;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
-import com.wordpress.view.component.BorderedFieldManager;
+import com.wordpress.view.container.BorderedFieldManager;
 
 public class BlogOptionsView extends StandardBaseView {
 	
@@ -32,8 +32,6 @@ public class BlogOptionsView extends StandardBaseView {
 	private ObjectChoiceField  maxRecentPost;
 	private BorderedFieldManager rowResizePhotos;
 	private CheckboxField resizePhoto;
-	private HorizontalFieldManager rowImageResizeWidth;
-	private HorizontalFieldManager rowImageResizeHeight;
 	private BasicEditField imageResizeWidthField;
 	private BasicEditField imageResizeHeightField;
 	private CheckboxField commentNotifications;
@@ -189,10 +187,10 @@ public class BlogOptionsView extends StandardBaseView {
 	    		addImageResizeHeightField();
 	    	}
 	    	else {
-	    	       	rowResizePhotos.delete(rowImageResizeWidth);
-	    	       	rowImageResizeWidth = null;
-	    	       	rowResizePhotos.delete(rowImageResizeHeight);
-	    	       	rowImageResizeHeight = null;
+	    	       	rowResizePhotos.delete(imageResizeWidthField);
+	    	       	imageResizeWidthField = null;
+	    	       	rowResizePhotos.delete(imageResizeHeightField);
+	    	       	imageResizeHeightField = null;
 	    	}
 	   }
 	};
@@ -244,31 +242,25 @@ public class BlogOptionsView extends StandardBaseView {
 	};
 	
 	private void addImageResizeWidthField() {
-        rowImageResizeWidth = new HorizontalFieldManager();
-        rowImageResizeWidth.add( GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)+":", Color.BLACK));      
         imageResizeWidthField = new BasicEditField(
-        		"", 
+        		_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)+": ", 
         		(imageResizeWidth == null ? "" : imageResizeWidth.toString()), 
         		4, 
         		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
         
         imageResizeWidthField.setFocusListener(listenerImageResizeWidthField);
-        rowImageResizeWidth.add(imageResizeWidthField);
-       	rowResizePhotos.add(rowImageResizeWidth);
+       	rowResizePhotos.add(imageResizeWidthField);
 	}
 
 	private void addImageResizeHeightField() {
-	    rowImageResizeHeight = new HorizontalFieldManager();
-	    rowImageResizeHeight.add( GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)+":", Color.BLACK));
 	    imageResizeHeightField = new BasicEditField(
-	    		"", 
+	    		_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)+": ", 
 	    		(imageResizeHeight == null ? "" : imageResizeHeight.toString()), 
 	    		4, 
 	    		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
 	    
 	    imageResizeHeightField.setFocusListener(listenerImageResizeHeightField);
-	    rowImageResizeHeight.add(imageResizeHeightField);
-    	rowResizePhotos.add(rowImageResizeHeight);
+    	rowResizePhotos.add(imageResizeHeightField);
 	}
 
 }

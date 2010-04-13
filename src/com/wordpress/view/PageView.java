@@ -18,9 +18,9 @@ import com.wordpress.controller.PageController;
 import com.wordpress.model.Page;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
-import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.component.HtmlTextField;
+import com.wordpress.view.container.BorderedFieldManager;
 
 public class PageView extends StandardBaseView {
 	

@@ -19,9 +19,9 @@ import com.wordpress.controller.GravatarController;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Comment;
 import com.wordpress.utils.log.Log;
-import com.wordpress.view.component.BorderedFieldManager;
-import com.wordpress.view.component.BorderedFocusChangeListenerPatch;
 import com.wordpress.view.component.HtmlTextField;
+import com.wordpress.view.container.BorderedFieldManager;
+import com.wordpress.view.container.BorderedFocusChangeListenerPatch;
 import com.wordpress.view.dialog.InquiryView;
 
 

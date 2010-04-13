@@ -28,7 +28,7 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.utils.PropertyUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
-import com.wordpress.view.component.VerticalPaddedFieldManager;
+import com.wordpress.view.container.VerticalPaddedFieldManager;
 
 public class AboutView extends BaseView {
 	private AboutController controller;

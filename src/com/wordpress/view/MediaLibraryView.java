@@ -19,7 +19,6 @@ import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.container.FlowFieldManager;
-import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.bb.WordPressResource;
@@ -28,8 +27,7 @@ import com.wordpress.controller.MediaLibraryController;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.model.MediaLibrary;
 import com.wordpress.utils.log.Log;
-import com.wordpress.view.component.BorderedFieldManager;
-import com.wordpress.view.component.HorizontalPaddedFieldManager;
+import com.wordpress.view.container.BorderedFieldManager;
 
 public class MediaLibraryView extends StandardBaseView {
 	
@@ -43,19 +41,15 @@ public class MediaLibraryView extends StandardBaseView {
 	private CheckboxField cutAndPaste;
 	
     public MediaLibraryView(MediaLibraryController _controller, MediaLibrary  entry) {
-    	super(_resources.getString(WordPressResource.TITLE_POSTVIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
+    	super(_resources.getString(WordPressResource.TITLE_FILE_GROUP_VIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
     	this.controller=_controller;
 		this.entry = entry;
                 
         //row title
     	BorderedFieldManager outerManagerRowTitle = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
-        HorizontalFieldManager rowTitle = new HorizontalPaddedFieldManager();
-		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_TITLE)+":");
-		title = new BasicEditField("", entry.getTitle(), 100, Field.EDITABLE);
-        rowTitle.add(lblTitle);
-        rowTitle.add(title);
-        outerManagerRowTitle.add(rowTitle);
+		title = new BasicEditField(_resources.getString(WordPressResource.LABEL_TITLE)+": ", entry.getTitle(), 100, Field.EDITABLE);
+        outerManagerRowTitle.add(title);
     	BasicEditField lblTitleDesc = getDescriptionTextField(_resources.getString(WordPressResource.MEDIALIBRARY_SCREEEN_TITLE_DESC));
     	outerManagerRowTitle.add(lblTitleDesc);
         add(outerManagerRowTitle);

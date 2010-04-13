@@ -33,7 +33,8 @@
  * on 30 september 2009
  */
 
-package com.wordpress.view.component;
+package com.wordpress.view.container;
+
 
 import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.Color;

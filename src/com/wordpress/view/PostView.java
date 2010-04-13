@@ -25,10 +25,10 @@ import com.wordpress.controller.PostController;
 import com.wordpress.model.Post;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
-import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.component.HtmlTextField;
+import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.dialog.InquiryView;
 
 public class PostView extends StandardBaseView {
@@ -74,11 +74,6 @@ public class PostView extends StandardBaseView {
         BorderedFieldManager outerManagerRowInfos = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
 
-      //row status
-  		status = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":", controller.getStatusLabels(), controller.getPostStatusFieldIndex(), FIELD_VCENTER);
-  		status.setMargin(0, 5, 5, 5);
-  		outerManagerRowInfos.add(status);
-        
         //row categories
         HorizontalFieldManager rowCategories = new HorizontalFieldManager(Manager.USE_ALL_WIDTH);
   		LabelField lblCategories =  new ColoredLabelField(_resources.getString(WordPressResource.LABEL_POST_CATEGORIES)+": ", Color.BLACK);
@@ -112,7 +107,12 @@ public class PostView extends StandardBaseView {
 		tags = new BasicEditField(_resources.getString(WordPressResource.LABEL_POST_TAGS)+": ", post.getTags(), 100, Field.EDITABLE);
 		tags.setMargin(5, 5, 5, 5);
         outerManagerRowInfos.add(tags);
-  	
+        
+        //row status
+  		status = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":", controller.getStatusLabels(), controller.getPostStatusFieldIndex(), FIELD_VCENTER);
+  		status.setMargin(0, 5, 5, 5);
+  		outerManagerRowInfos.add(status);
+        
         add(outerManagerRowInfos);
         //row location
         BorderedFieldManager locationManager = new BorderedFieldManager(

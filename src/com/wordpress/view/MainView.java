@@ -6,6 +6,7 @@ import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
@@ -13,6 +14,7 @@ import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.TouchEvent;
 //#endif
 import net.rim.device.api.ui.component.BitmapField;
+import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.container.MainScreen;
@@ -27,9 +29,11 @@ import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.DataCollector;
 import com.wordpress.utils.ImageUtils;
+import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.BlogsListField;
-import com.wordpress.view.component.NoBlogsListField;
+import com.wordpress.view.component.EmbossedButtonField;
 
 public class MainView extends BaseView {
 	
@@ -61,15 +65,15 @@ public class MainView extends BaseView {
     	internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR) {
     		public void paintBackground( Graphics g ) {
     			g.clear();
-    			int color = g.getColor();
-    			g.setColor(0xefebef);
-    			g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
-    			//g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
-    			g.setColor( color );
+    			//int color = g.getColor();
+    			//g.setColor(0xefebef);
+    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
+    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
+    			//g.setColor( color );
     		}
     	};
         
-    	_scrollerManager = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR | USE_ALL_HEIGHT );
+    	_scrollerManager = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR | USE_ALL_HEIGHT | USE_ALL_WIDTH );
     	
     	internalManager.add( wpLogoBitmapField );
     	internalManager.add( _scrollerManager );
@@ -79,7 +83,6 @@ public class MainView extends BaseView {
 	
 		addMenuItem(_aboutItem);
 		addMenuItem(_addBlogItem);
-		addMenuItem(_notificationItem);
 		addMenuItem(_setupItem);
 		addMenuItem(_updateItem);
 	}
@@ -94,6 +97,7 @@ public class MainView extends BaseView {
     	
 		removeMenuItem(_deleteBlogItem);
     	removeMenuItem(_showBlogItem);
+    	removeMenuItem(_notificationItem);
     	
     	BlogInfo[] blogCaricati = mainController.getApplicationBlogs();
     	
@@ -108,15 +112,41 @@ public class MainView extends BaseView {
 		}*/
 		
         if (blogCaricati.length == 0) {
-        	NoBlogsListField blogListController = new NoBlogsListField();        	
-        	this.listaBlog = blogListController.getList();
+        	setUpPromoView();
         } else {
         	blogListController = new BlogsListField(blogCaricati);        	
-        	this.listaBlog = blogListController.getList();
+        	listaBlog = blogListController.getList();
         	addMenuItem(_showBlogItem);
+        	addMenuItem(_notificationItem);
         	addMenuItem(_deleteBlogItem);
+        	add(listaBlog);    
         }
-        add(listaBlog);    
+	 }
+	 
+	 private void setUpPromoView() {
+		 
+		 VerticalFieldManager setOne = new VerticalFieldManager(USE_ALL_WIDTH);
+		 setOne.setMargin( 15, 50, 15 , 50 );
+		 
+		 BaseButtonField buttonGetFreeBlog= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_NEW_TO_WP_BLOG), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH);
+		 buttonGetFreeBlog.setChangeListener(new FieldChangeListener() {
+			 public void fieldChanged(Field field, int context) {
+				 Tools.openWordPressSignUpURL("MainScreen"); 
+			 }
+		 });
+		 buttonGetFreeBlog.setMargin( 5, 5, 5 ,5 );
+		 
+		 BaseButtonField buttonHaveBlog = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_HAVE_A_WP_BLOG), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH);
+		 buttonHaveBlog.setChangeListener(new FieldChangeListener() {
+			 public void fieldChanged(Field field, int context) {
+				 mainController.addBlogs();
+			 }
+		 });
+		 buttonHaveBlog.setMargin( 5, 5, 5 ,5 );
+
+		 setOne.add(buttonHaveBlog);
+		 setOne.add(buttonGetFreeBlog);
+		 _scrollerManager.add(setOne); 
 	 }
 	 
 	 //update the view of blog list entry
@@ -171,6 +201,11 @@ public class MainView extends BaseView {
 	}
 	 
 	private boolean defaultAction() {
+		
+		if( listaBlog  == null ) {
+				return false;
+		} 
+		
 		if( blogListController  != null ) {
 			BlogInfo blogSelected = blogListController.getBlogSelected();
 	        mainController.showBlog(blogSelected);
@@ -221,9 +256,7 @@ public class MainView extends BaseView {
     
     public void refreshBlogList() {
     	synchronized (this) {
-	        if(listaBlog != null){
-				_scrollerManager.delete(listaBlog);
-			} 
+			_scrollerManager.deleteAll();
 	        setupUpBlogsView(); //repaint entire list
     	}
     }        
@@ -243,15 +276,19 @@ public class MainView extends BaseView {
     };
 
     private MenuItem _updateItem = new MenuItem( _resources, WordPressResource.MENUITEM_CHECKUPDATE, 1010, 10) {
-        public void run() {
-        	
-        	try {
+    	public void run() {
+
+    		try {
     			DataCollector dtc = new DataCollector();
-    			dtc.checkForUpdate(listaBlog.getSize()); //start data gathering here
+    			int numBlogs = 0;
+    			if(listaBlog != null){
+    				numBlogs = listaBlog.getSize();
+    			} 
+    			dtc.checkForUpdate(numBlogs); //start data gathering here
     		} catch (Exception e) {
     			mainController.displayError(e, "Error while checking for new versions.");
     		}
-        }
+    	}
     };
     
     private MenuItem _aboutItem = new MenuItem( _resources, WordPressResource.MENUITEM_ABOUT, 1020, 10) {

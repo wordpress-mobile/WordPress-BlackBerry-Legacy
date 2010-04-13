@@ -31,8 +31,8 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.utils.log.Log;
-import com.wordpress.view.component.BorderedFieldManager;
-import com.wordpress.view.component.BorderedFocusChangeListenerPatch;
+import com.wordpress.view.container.BorderedFieldManager;
+import com.wordpress.view.container.BorderedFocusChangeListenerPatch;
 import com.wordpress.view.dialog.InfoView;
 import com.wordpress.view.mm.MediaViewMediator;
 

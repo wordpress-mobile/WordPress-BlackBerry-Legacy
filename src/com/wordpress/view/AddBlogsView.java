@@ -2,7 +2,6 @@ package com.wordpress.view;
 
 import java.util.Hashtable;
 
-import net.rim.device.api.io.http.HttpHeaders;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
@@ -26,7 +25,7 @@ import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
-import com.wordpress.view.component.BorderedFieldManager;
+import com.wordpress.view.container.BorderedFieldManager;
 
 
 public class AddBlogsView extends StandardBaseView {
@@ -38,8 +37,6 @@ public class AddBlogsView extends StandardBaseView {
 	private ObjectChoiceField  maxRecentPost;
 	private BorderedFieldManager rowResizePhotos;
 	private CheckboxField resizePhoto;
-	private HorizontalFieldManager rowImageResizeWidth;
-	private HorizontalFieldManager rowImageResizeHeight;
 	private BasicEditField imageResizeWidthField;
 	private BasicEditField imageResizeHeightField;
 	private Integer imageResizeWidth;
@@ -193,7 +190,7 @@ public class AddBlogsView extends StandardBaseView {
 	
 	private FieldChangeListener listenerGetBlogButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
-	    	openWordPressSignUpURL();
+	    	Tools.openWordPressSignUpURL("AddBlogScreen");
 	   }
 	};
 	
@@ -205,10 +202,10 @@ public class AddBlogsView extends StandardBaseView {
 	    		addImageResizeHeightField();
 	    	}
 	    	else {
-	    	       	rowResizePhotos.delete(rowImageResizeWidth);
-	    	       	rowImageResizeWidth = null;
-	    	       	rowResizePhotos.delete(rowImageResizeHeight);
-	    	       	rowImageResizeHeight = null;
+	    	       	rowResizePhotos.delete(imageResizeWidthField);
+	    	       	imageResizeWidthField = null;
+	    	       	rowResizePhotos.delete(imageResizeHeightField);
+	    	       	imageResizeHeightField = null;
 	    	}
 	   }
 	};
@@ -260,33 +257,23 @@ public class AddBlogsView extends StandardBaseView {
 	};
 	
 	private void addImageResizeWidthField() {
-        rowImageResizeWidth = new HorizontalFieldManager();
-        rowImageResizeWidth.add( 
-        		GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)+":", Color.BLACK));      
         imageResizeWidthField = new BasicEditField(
-        		"", 
+        		_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)+": ", 
         		(imageResizeWidth == null ? "" : imageResizeWidth.toString()), 
         		4, 
         		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
-        
         imageResizeWidthField.setFocusListener(listenerImageResizeWidthField);
-        rowImageResizeWidth.add(imageResizeWidthField);
-       	rowResizePhotos.add(rowImageResizeWidth);
+        rowResizePhotos.add(imageResizeWidthField);
 	}
 
 	private void addImageResizeHeightField() {
-	    rowImageResizeHeight = new HorizontalFieldManager();
-	    rowImageResizeHeight.add( 
-	    		GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)+":", Color.BLACK));
 	    imageResizeHeightField = new BasicEditField(
-	    		"", 
+	    		_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)+": ", 
 	    		(imageResizeHeight == null ? "" : imageResizeHeight.toString()), 
 	    		4, 
 	    		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
-	    
 	    imageResizeHeightField.setFocusListener(listenerImageResizeHeightField);
-	    rowImageResizeHeight.add(imageResizeHeightField);
-    	rowResizePhotos.add(rowImageResizeHeight);
+    	rowResizePhotos.add(imageResizeHeightField);
 	}
 	
 	//add blog menu item 
@@ -296,16 +283,12 @@ public class AddBlogsView extends StandardBaseView {
 		}
 	};
 	
-	private void openWordPressSignUpURL(){
-		HttpHeaders headers = new HttpHeaders();
-    	headers.addProperty("User-Agent", "wp-blackberry/"+ Tools.getAppVersion());
-    	Tools.getBrowserSession("http://wordpress.com/signup/?ref=wp-blackberry","/wp-blackberry/AddBlogScreen", headers, null);
-	}
+
 	
 	//add blog menu item 
 	private MenuItem _getFreeBlogItem = new MenuItem( _resources, WordPressResource.GET_FREE_BLOG_MENU_ITEM, 150, 20) {
 		public void run() {
-			openWordPressSignUpURL();
+			Tools.openWordPressSignUpURL("AddBlogScreen");
 		}
 	};
 

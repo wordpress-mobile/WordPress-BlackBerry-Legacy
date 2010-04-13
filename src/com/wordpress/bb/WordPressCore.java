@@ -133,7 +133,7 @@ public class WordPressCore {
 	 * 
 	 */
 	public Bitmap getBackgroundBitmap() {
-		return Bitmap.getBitmapResource("bg_blue.gif.png");
+		return Bitmap.getBitmapResource("bg.png");
 /*		 int width = Display.getWidth(); 
 		 int height = Display.getHeight();
 		 

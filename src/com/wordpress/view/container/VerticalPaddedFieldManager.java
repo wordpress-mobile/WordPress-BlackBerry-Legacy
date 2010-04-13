@@ -1,4 +1,4 @@
-package com.wordpress.view.component;
+package com.wordpress.view.container;
 
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.container.VerticalFieldManager;

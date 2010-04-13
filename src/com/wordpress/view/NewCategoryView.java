@@ -12,7 +12,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Category;
-import com.wordpress.view.component.BorderedFieldManager;
+import com.wordpress.view.container.BorderedFieldManager;
 
 
 public class NewCategoryView extends StandardBaseView {

@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import net.rim.device.api.i18n.SimpleDateFormat;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.FocusChangeListener;
@@ -25,7 +24,7 @@ import com.wordpress.utils.CalendarUtils;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
-import com.wordpress.view.component.BorderedFieldManager;
+import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
 
@@ -36,8 +35,6 @@ public class PostSettingsView extends StandardBaseView {
     private PasswordEditField passwordField;
 	private BorderedFieldManager rowPhotoRes;
 	private CheckboxField resizePhoto;
-	private HorizontalFieldManager rowImageResizeWidth;
-	private HorizontalFieldManager rowImageResizeHeight;
 	private BasicEditField imageResizeWidthField;
 	private BasicEditField imageResizeHeightField;  
 	private Integer imageResizeWidth;
@@ -141,10 +138,10 @@ public class PostSettingsView extends StandardBaseView {
 	    		addImageResizeHeightField();
 	    	}
 	    	else {
-	    	       	rowPhotoRes.delete(rowImageResizeWidth);
-	    	       	rowImageResizeWidth = null;
-	    	       	rowPhotoRes.delete(rowImageResizeHeight);
-	    	       	rowImageResizeHeight = null;
+	    	       	rowPhotoRes.delete(imageResizeWidthField);
+	    	       	imageResizeWidthField = null;
+	    	       	rowPhotoRes.delete(imageResizeHeightField);
+	    	       	imageResizeHeightField = null;
 	    	}
 	   }
 	};
@@ -196,37 +193,27 @@ public class PostSettingsView extends StandardBaseView {
 	};
 
 	private void addImageResizeWidthField() {
-        rowImageResizeWidth = new HorizontalFieldManager();
-        rowImageResizeWidth.add( 
-        		GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)+":", Color.BLACK)
-        		);      
         imageResizeWidthField = new BasicEditField(
-        		"", 
+        		_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)+": ", 
         		(imageResizeWidth == null ? "" : imageResizeWidth.toString()), 
         		4, 
         		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
         
         imageResizeWidthField.setFocusListener(null);
         imageResizeWidthField.setFocusListener(listenerImageResizeWidthField);
-        rowImageResizeWidth.add(imageResizeWidthField);
-       	rowPhotoRes.add(rowImageResizeWidth);
+       	rowPhotoRes.add(imageResizeWidthField);
 	}
 
 	private void addImageResizeHeightField() {
-	    rowImageResizeHeight = new HorizontalFieldManager();
-	    rowImageResizeHeight.add( 
-	    		GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)+":", Color.BLACK)
-	    		);
 	    imageResizeHeightField = new BasicEditField(
-	    		"", 
+	    		_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)+": ", 
 	    		(imageResizeHeight == null ? "" : imageResizeHeight.toString()), 
 	    		4, 
 	    		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
 	    
 	    imageResizeHeightField.setFocusListener(null);
 	    imageResizeHeightField.setFocusListener(listenerImageResizeHeightField);
-	    rowImageResizeHeight.add(imageResizeHeightField);
-    	rowPhotoRes.add(rowImageResizeHeight);
+    	rowPhotoRes.add(imageResizeHeightField);
 	}
 	
 	private void saveChanges() {

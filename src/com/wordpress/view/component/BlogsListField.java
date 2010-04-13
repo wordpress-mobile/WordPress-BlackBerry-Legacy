@@ -227,7 +227,7 @@ public class BlogsListField {
 			if(selected) 
 				graphics.setColor(Color.BLACK);
 			else 
-				graphics.setColor(Color.DARKGRAY);	
+				graphics.setColor(Color.BLACK);	
 			
 			graphics.drawLine(x-1, y , x + width-1, y);
 			graphics.drawLine(x-1, y, x-1 , y + height-1); //linea verticale sx

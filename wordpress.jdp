@@ -26,8 +26,6 @@ application-icon.png
 lib\kxml2-2.3.0.jar
 src\aboutscreenfooter.png
 src\application-icon.png
-src\bg_blue.png
-src\bg_light.png
 src\browser.png
 src\camera.png
 src\category_child.png
@@ -158,8 +156,6 @@ src\com\wordpress\view\component\BasicListFieldCallBack.java
 src\com\wordpress\view\component\BitmapButtonField.java
 src\com\wordpress\view\component\BitmapButtonField2.java
 src\com\wordpress\view\component\BlogsListField.java
-src\com\wordpress\view\component\BorderedFieldManager.java
-src\com\wordpress\view\component\BorderedFocusChangeListenerPatch.java
 src\com\wordpress\view\component\CategoriesListField.java
 src\com\wordpress\view\component\CheckBoxListField.java
 src\com\wordpress\view\component\ColoredLabelField.java
@@ -169,15 +165,15 @@ src\com\wordpress\view\component\HeaderField.java
 src\com\wordpress\view\component\HorizontalPaddedFieldManager.java
 src\com\wordpress\view\component\HtmlTextField.java
 src\com\wordpress\view\component\ListActionListener.java
-src\com\wordpress\view\component\NoBlogsListField.java
 src\com\wordpress\view\component\PostsListField.java
 src\com\wordpress\view\component\RimFileBrowser.java
 src\com\wordpress\view\component\RimFileBrowserListener.java
 src\com\wordpress\view\component\ThrobberRenderer.java
-src\com\wordpress\view\component\VerticalPaddedFieldManager.java
 src\com\wordpress\view\component\WebBitmapField.java
-src\com\wordpress\view\container\JustifiedEvenlySpacedHorizontalFieldManager.java
+src\com\wordpress\view\container\BorderedFieldManager.java
+src\com\wordpress\view\container\BorderedFocusChangeListenerPatch.java
 src\com\wordpress\view\container\TableLayoutManager.java
+src\com\wordpress\view\container\VerticalPaddedFieldManager.java
 src\com\wordpress\view\CustomFieldsView.java
 src\com\wordpress\view\dialog\ConnectionInProgressView.java
 src\com\wordpress\view\dialog\CredentialDialog.java
@@ -248,11 +244,10 @@ src\com\wordpress\xmlrpc\post\PostConn.java
 src\com\wordpress\xmlrpc\post\RecentPostConn.java
 src\com\wordpress\xmlrpc\PreviewHTTPConn.java
 src\defaultPostTemplate.html
-src\disclosure-indicator.png
 src\drafts-folder.png
-src\gravatar.png
 src\icons\application-icon-new.png
 src\icons\audio.png
+src\icons\bg.png
 src\icons\bg_orange.png
 src\icons\comments.png
 src\icons\edit_add.png
@@ -261,6 +256,7 @@ src\icons\file_temporary_48.png
 src\icons\folder_yellow_open.png
 src\icons\folder_yellow_open_32.png
 src\icons\folder_yellow_open_48.png
+src\icons\gravatar.png
 src\icons\loading-gif.bin
 src\icons\media_library-vs.png
 src\icons\media_library.png
@@ -281,6 +277,7 @@ src\icons\wordpress_home_220.png
 src\icons\wordpress_home_300.png
 src\icons\wordpress_home_340.png
 src\icons\wordpress_home_460.png
+src\icons\wpicon.png
 src\icons\wplogo_header.png
 src\icons\write_page-vs.png
 src\icons\write_page.png

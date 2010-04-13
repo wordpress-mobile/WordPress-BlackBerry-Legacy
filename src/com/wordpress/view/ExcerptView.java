@@ -15,8 +15,8 @@ import com.wordpress.controller.PostController;
 import com.wordpress.model.Post;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
-import com.wordpress.view.component.BorderedFieldManager;
 import com.wordpress.view.component.HtmlTextField;
+import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
 

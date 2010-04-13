@@ -39,7 +39,7 @@ import com.wordpress.utils.conn.ConnectionUtils;
 import com.wordpress.utils.log.FileAppender;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
-import com.wordpress.view.component.BorderedFieldManager;
+import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
 public class PreferencesView extends StandardBaseView {

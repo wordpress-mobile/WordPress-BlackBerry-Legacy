@@ -11,9 +11,12 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.component.BitmapField;
+import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ObjectListField;
+import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
@@ -22,15 +25,15 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.model.BlogInfo;
-import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BasicListFieldCallBack;
+import com.wordpress.view.component.ColoredLabelField;
 
 
 public class BlogView extends BaseView {
 	
     private BlogController controller=null;
-    private VerticalFieldManager _container;
+    private VerticalFieldManager _scrollerManager;
     VerticalFieldManager internalManager;
 	private static final int mnuPosts = 100;
 	private static final int mnuPages = 110;
@@ -60,67 +63,32 @@ public class BlogView extends BaseView {
 		super( MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 		this.controller=_controller;
 		
-		//Set the preferred width to the image size or screen width if the image is larger than the screen width.
-		EncodedImage _theImage= EncodedImage.getEncodedImageResource("wplogo_header.png");
-		int _preferredWidth = -1;
-        if (_theImage.getWidth() > Display.getWidth()) {
-            _preferredWidth = Display.getWidth();
-        }
-        
-        final boolean  isResizedLogo;
-        final int  resizedLogoHeight;
-        final int  resizedLogoWidth;
-        if( _preferredWidth != -1) {
-        	isResizedLogo = true;
-        	EncodedImage resImg = ImageUtils.resizeEncodedImage(_theImage, _preferredWidth, _theImage.getHeight());
-        	_theImage = resImg;
-        	resizedLogoHeight = _theImage.getHeight();
-        	resizedLogoWidth = _theImage.getWidth();
-        } else {
-        	isResizedLogo = false;
-        	resizedLogoHeight = 0; //not used
-        	resizedLogoWidth = 0; // not used
-        }
-        
-        final BitmapField wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER)
-        {
-        	protected void paint(Graphics graphics) {
-        		super.paint(graphics);
-        		if(!isResizedLogo) {
-        			int fontHeight = 19;
-        			graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));
-        			graphics.setColor(Color.GRAY);
-        			graphics.drawText(controller.getBlogName(), 96, 59, DrawStyle.LEFT | DrawStyle.ELLIPSIS, 207);        			
-        		} else {
-        		/*	//logo height : 83 pixel -> text height : 19 px
-        			int fontHeight = (resizedLogoHeight * 19) / 83;
-        			graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));
-        			graphics.setColor(Color.GRAY);
-        			//X point at 96px when width = 320 pixel
-        			int newX = (resizedLogoWidth * 96) / 320;
-        			//Y point at 59px when height = 83 pixel
-        			int newY = (resizedLogoHeight * 59) / 83;
-        			int newWidth = (resizedLogoWidth * 207) / 320;
-        			graphics.drawText(controller.getBlogName(), newX, newY, DrawStyle.LEFT | DrawStyle.ELLIPSIS, newWidth);*/
-        		}
-        	}
-        };
-        
+		EncodedImage _theImage= EncodedImage.getEncodedImageResource("wpicon.png");
+		LabelField  blogTitleField = new ColoredLabelField(controller.getBlogName(), Color.DARKGRAY, Field.USE_ALL_HEIGHT | Field.FIELD_VCENTER | DrawStyle.ELLIPSIS);
+		Font fnt = Font.getDefault().derive(Font.BOLD, _theImage.getHeight() - 10);
+		blogTitleField.setFont(fnt);
+		
+        final BitmapField wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
+        wpLogoBitmapField.setMargin(5, 5, 5, 5);
     	internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR | USE_ALL_HEIGHT) {
     		public void paintBackground( Graphics g ) {
     			g.clear();
-    			int color = g.getColor();
-    			g.setColor( 0xefebef );
-    			//g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
-    			g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
-    			g.setColor( color );
+    	//		int color = g.getColor();
+    //			g.setColor( 0xefebef );
+    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
+//    			g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
+  //  			g.setColor( color );
     		}
     	};
     	
-    	//final int listWidth = wpLogoBitmapField.getBitmapWidth() - 10;
-    	_container = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR );
-    	internalManager.add( wpLogoBitmapField );
-    	internalManager.add( _container );
+    	_scrollerManager = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR );
+    	HorizontalFieldManager _headerManager = new HorizontalFieldManager( Manager.NO_HORIZONTAL_SCROLL | Manager.NO_VERTICAL_SCROLL | USE_ALL_WIDTH);
+    	_headerManager.setMargin(5, 5, 5, 5);
+    	_headerManager.add( wpLogoBitmapField );
+    	_headerManager.add( blogTitleField );
+    	
+    	internalManager.add( _headerManager );
+    	internalManager.add( _scrollerManager );
     	super.add( internalManager );
   
     	BlogInfo currentBlogInfo = controller.getCurrentBlogInfo();
@@ -140,7 +108,7 @@ public class BlogView extends BaseView {
 	}
 	
 	public void add( Field field ) {
-		_container.add( field );
+		_scrollerManager.add( field );
 	}
     
     private MenuItem _goItem = new MenuItem( _resources, WordPressResource.BUTTON_OK, 220, 10) {
@@ -300,7 +268,7 @@ public class BlogView extends BaseView {
 			if(selected) 
 				graphics.setColor(Color.BLACK);
 			else 
-				graphics.setColor(Color.DARKGRAY);	
+				graphics.setColor(Color.BLACK);	
 			
 			graphics.drawLine(x-1, y , x + width-1, y);
 			
