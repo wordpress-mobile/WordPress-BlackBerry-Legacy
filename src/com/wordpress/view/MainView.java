@@ -5,6 +5,7 @@ import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.KeypadListener;
+import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Graphics;
@@ -17,6 +18,7 @@ import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.Menu;
+import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
@@ -33,7 +35,6 @@ import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.BlogsListField;
-import com.wordpress.view.component.EmbossedButtonField;
 
 public class MainView extends BaseView {
 	
@@ -125,28 +126,41 @@ public class MainView extends BaseView {
 	 
 	 private void setUpPromoView() {
 		 
-		 VerticalFieldManager setOne = new VerticalFieldManager(USE_ALL_WIDTH);
-		 setOne.setMargin( 15, 50, 15 , 50 );
+		 HorizontalFieldManager buttonsManagerOne = new HorizontalFieldManager(Field.FIELD_HCENTER);
+		 HorizontalFieldManager buttonsManagerTwo = new HorizontalFieldManager(Field.FIELD_HCENTER);
+		 int width = Display.getWidth();
+		
 		 
-		 BaseButtonField buttonGetFreeBlog= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_NEW_TO_WP_BLOG), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH);
-		 buttonGetFreeBlog.setChangeListener(new FieldChangeListener() {
-			 public void fieldChanged(Field field, int context) {
-				 Tools.openWordPressSignUpURL("MainScreen"); 
-			 }
-		 });
-		 buttonGetFreeBlog.setMargin( 5, 5, 5 ,5 );
-		 
-		 BaseButtonField buttonHaveBlog = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_HAVE_A_WP_BLOG), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH);
+		 BaseButtonField buttonHaveBlog = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_HAVE_A_WP_BLOG), 
+				 ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
 		 buttonHaveBlog.setChangeListener(new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {
 				 mainController.addBlogs();
 			 }
 		 });
-		 buttonHaveBlog.setMargin( 5, 5, 5 ,5 );
 
-		 setOne.add(buttonHaveBlog);
-		 setOne.add(buttonGetFreeBlog);
-		 _scrollerManager.add(setOne); 
+		 if (width > 320)
+			 buttonHaveBlog.setMargin( 15, 30, 15, 30 );
+		 else
+			 buttonHaveBlog.setMargin( 4, 4, 4, 4 );
+		 
+		 BaseButtonField buttonGetFreeBlog = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_NEW_TO_WP_BLOG), 
+				 ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
+		 buttonGetFreeBlog.setChangeListener(new FieldChangeListener() {
+			 public void fieldChanged(Field field, int context) {
+				 Tools.openWordPressSignUpURL("MainScreen"); 
+			 }
+		 });
+		 
+		 if (width > 320)
+			 buttonGetFreeBlog.setMargin( 5, 30, 15 , 30 );
+		 else
+			 buttonGetFreeBlog.setMargin( 4, 4, 4, 4 );
+		
+		 buttonsManagerOne.add(buttonHaveBlog);
+		 buttonsManagerTwo.add(buttonGetFreeBlog);
+		 _scrollerManager.add(buttonsManagerOne);
+		 _scrollerManager.add(buttonsManagerTwo);
 	 }
 	 
 	 //update the view of blog list entry

@@ -112,7 +112,9 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 
         if (title != null) {
         	// Title is vertically centered
-        return   graphics.drawText(title, x + PADDING + 3, y + PADDING + 2 + (fontHeight / 2), DrawStyle.LEFT
+        	//y + PADDING + 2 + (fontHeight / 2)
+        	
+        return   graphics.drawText(title, x + PADDING + 3, y + 1 + (height-fontHeight)/2, DrawStyle.LEFT
                     | DrawStyle.TOP | DrawStyle.ELLIPSIS, width - x - (PADDING * 2));
         }
 

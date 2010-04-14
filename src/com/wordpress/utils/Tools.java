@@ -22,6 +22,32 @@ public class Tools {
 	}
 	
 	
+	
+	/**
+	 * Groups numbers by inserting 'separator' after every group of 'size' digits,
+	 * starting from the right.
+	 */
+	public static synchronized String groupDigits(String value, int size, char separator) {
+
+		StringBuffer r = new StringBuffer(value.length() + 10);
+		int ndx = 0;
+		int len = value.length() - 1;
+		int mod = len % size;
+		while (ndx < len) {
+			r.append(value.charAt(ndx));
+			if (mod == 0) {
+				r.append(separator);
+				mod = size;
+			}
+			mod--;
+			ndx++;
+		}
+		r.append(value.charAt(ndx));
+		return r.toString();
+	}
+	
+	
+	
 	/**
 	 * Invoke the default browser on the BlackBerry smartphone
 	 * 

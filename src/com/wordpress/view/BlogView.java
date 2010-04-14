@@ -11,7 +11,6 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
@@ -64,26 +63,22 @@ public class BlogView extends BaseView {
 		this.controller=_controller;
 		
 		EncodedImage _theImage= EncodedImage.getEncodedImageResource("wpicon.png");
-		LabelField  blogTitleField = new ColoredLabelField(controller.getBlogName(), Color.DARKGRAY, Field.USE_ALL_HEIGHT | Field.FIELD_VCENTER | DrawStyle.ELLIPSIS);
+		LabelField  blogTitleField = new ColoredLabelField(controller.getBlogName(), 0x464646, Field.USE_ALL_HEIGHT | Field.FIELD_VCENTER | DrawStyle.ELLIPSIS);
 		Font fnt = Font.getDefault().derive(Font.BOLD, _theImage.getHeight() - 10);
 		blogTitleField.setFont(fnt);
+		blogTitleField.setMargin(5, 5, 5, 5);
 		
         final BitmapField wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
         wpLogoBitmapField.setMargin(5, 5, 5, 5);
     	internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR | USE_ALL_HEIGHT) {
     		public void paintBackground( Graphics g ) {
     			g.clear();
-    	//		int color = g.getColor();
-    //			g.setColor( 0xefebef );
     			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
-//    			g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
-  //  			g.setColor( color );
     		}
     	};
     	
     	_scrollerManager = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR );
     	HorizontalFieldManager _headerManager = new HorizontalFieldManager( Manager.NO_HORIZONTAL_SCROLL | Manager.NO_VERTICAL_SCROLL | USE_ALL_WIDTH);
-    	_headerManager.setMargin(5, 5, 5, 5);
     	_headerManager.add( wpLogoBitmapField );
     	_headerManager.add( blogTitleField );
     	

@@ -3,6 +3,7 @@ package com.wordpress.view;
 import java.util.Hashtable;
 
 import net.rim.device.api.ui.Color;
+import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.FocusChangeListener;
@@ -177,7 +178,7 @@ public class AddBlogsView extends StandardBaseView {
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
     		
             HorizontalFieldManager buttonsManagerGetFreeBlog = new HorizontalFieldManager(Field.FIELD_HCENTER);
-            BaseButtonField buttonGetFreeBlog= GUIFactory.createButton(_resources.getString(WordPressResource.GET_FREE_BLOG), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH);
+            BaseButtonField buttonGetFreeBlog= GUIFactory.createButton(_resources.getString(WordPressResource.GET_FREE_BLOG), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
             buttonGetFreeBlog.setChangeListener(listenerGetBlogButton);
             buttonsManagerGetFreeBlog.add(buttonGetFreeBlog);
     		add(buttonsManagerGetFreeBlog); 

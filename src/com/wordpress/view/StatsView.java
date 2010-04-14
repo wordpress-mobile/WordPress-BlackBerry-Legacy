@@ -5,11 +5,9 @@ import java.io.IOException;
 import java.util.Vector;
 
 
-import net.rim.blackberry.api.browser.URLEncodedPostData;
+import net.rim.device.api.i18n.MessageFormat;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Display;
-import net.rim.device.api.system.EncodedImage;
-import net.rim.device.api.system.GIFEncodedImage;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
@@ -23,6 +21,7 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.StatsController;
+import com.wordpress.utils.Tools;
 import com.wordpress.utils.csv.StatsParser;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.WebBitmapField;
@@ -189,16 +188,21 @@ public class StatsView extends BaseView {
 				
 				if(controller.getType() != StatsController.TYPE_VIEW)
 					outerTable.add(GUIFactory.getLabel(String.valueOf(counter), LabelField.FOCUSABLE |  DrawStyle.ELLIPSIS));
-				
 
 				for (int i = 0; i < columnName.length; i++) {
 					String _tmpName = columnName[i];
 					int _tmpIdx = statParser.getColumnIndex(_tmpName);
+					String value = nextLine[_tmpIdx];
+					
+					//format the string if it regard the views
+					if(_tmpName.equalsIgnoreCase("views"))
+						value = Tools.groupDigits(value, 3, ',');
+					
 					if(columnLink != null && columnLink[i] != null ) {
 						int _tmpIdxLink = statParser.getColumnIndex(columnLink[i]); //retrive the url
-						outerTable.add(GUIFactory.createClickableLabel(nextLine[_tmpIdx], nextLine[_tmpIdxLink], LabelField.FOCUSABLE | DrawStyle.ELLIPSIS));	
+						outerTable.add(GUIFactory.createClickableLabel(value, nextLine[_tmpIdxLink], LabelField.FOCUSABLE | DrawStyle.ELLIPSIS));	
 					} else 
-					outerTable.add(GUIFactory.getLabel(nextLine[_tmpIdx], LabelField.FOCUSABLE |  DrawStyle.ELLIPSIS));
+					outerTable.add(GUIFactory.getLabel(value, LabelField.FOCUSABLE |  DrawStyle.ELLIPSIS));
 				}
 				counter++;
 			}
@@ -253,9 +257,9 @@ public class StatsView extends BaseView {
 
 				String axisLabels= "&chxl=0:|"+startLabel+"|"+endLabel;
 				chartParametersURL = "?cht=lc" +
-				"&chxt=x,y&chxr=1,0,"+max+"&chds=0,"+max+axisLabels+
+				"&chxt=x,y&chxr=1,0,"+max+"&chxs=1N*sz0*&chds=0,"+max+axisLabels+
 				"&chd=t:"+chd_y.toString()+"&chco=FF0000&chf=bg,s,EFEFEF";
-
+				
 			} else { 
 				//building a pie chart
 				//	http://chart.apis.google.com/chart?chs=500x300&chd=t:200,40,20&chds=0,1000&cht=p3&chdl=Hello|World|pippo&chdlp=bv&chco=FF0000,00FF00,0000FF
