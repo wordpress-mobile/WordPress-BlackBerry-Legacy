@@ -38,6 +38,8 @@ public class BlogOptionsView extends StandardBaseView {
 	private CheckboxField enableLocation;
 	private Integer imageResizeWidth;
 	private Integer imageResizeHeight;
+	private CheckboxField enableSignature;
+	private BasicEditField signatureField;
 	
 	HorizontalFieldManager buttonsManager;
 	
@@ -63,6 +65,21 @@ public class BlogOptionsView extends StandardBaseView {
 		}
 	}
 
+	//fields for signature
+	public boolean isSignatureCheckboxDirty(){
+		return enableSignature.isDirty();
+	}
+	public boolean isSignatureEditFieldDirty(){
+		return signatureField.isDirty();
+	}
+	public boolean  isSignatureEnabled(){
+		return enableSignature.getChecked();
+	}
+	public String  getSignature(){
+		return signatureField.getText();
+	}
+	
+	
 	public boolean isLocation(){
 		return enableLocation.getChecked();
 	}
@@ -97,6 +114,8 @@ public class BlogOptionsView extends StandardBaseView {
 			imageResizeHeight = (Integer)values.get("imageResizeHeight");
 			boolean isLocation = ((Boolean)values.get("islocation")).booleanValue();
 			boolean isCommentNotifications = ((Boolean)values.get("iscommentnotifications")).booleanValue();
+			boolean isSignatureActive = ((Boolean)values.get("isSignatureActive")).booleanValue();
+			String signature = (String)values.get("signature");
 	        //end loading
 			
             //row username
@@ -151,13 +170,27 @@ public class BlogOptionsView extends StandardBaseView {
             //row comment notifies and location
             BorderedFieldManager commentNotificationManager = new BorderedFieldManager(
 	        		Manager.NO_HORIZONTAL_SCROLL
-	        		| Manager.NO_VERTICAL_SCROLL);
+	        		| Manager.NO_VERTICAL_SCROLL
+	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
     		enableLocation = new CheckboxField(_resources.getString(WordPressResource.LABEL_LOCATION), isLocation);
     		commentNotifications = new CheckboxField(_resources.getString(WordPressResource.LABEL_COMMENT_NOTIFICATIONS), isCommentNotifications);
     		commentNotificationManager.add(commentNotifications);
     		commentNotificationManager.add(enableLocation);
 			add(commentNotificationManager);
 			
+			
+            //row Signature
+            BorderedFieldManager signatureManager = new BorderedFieldManager(
+	        		Manager.NO_HORIZONTAL_SCROLL
+	        		| Manager.NO_VERTICAL_SCROLL);
+    		enableSignature = new CheckboxField(_resources.getString(WordPressResource.DESCRIPTION_ADD_SIGNATURE), isSignatureActive);
+    		signatureManager.add(enableSignature);
+    		LabelField lblSignature = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_SIGNATURE), Color.BLACK); 
+    		signatureField = new BasicEditField("", signature, 1000, Field.EDITABLE);
+    		signatureManager.add(lblSignature);
+    		signatureManager.add(GUIFactory.createSepatorField());
+    		signatureManager.add(signatureField);
+			add(signatureManager);
 			
             BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
             BaseButtonField buttonBACK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);

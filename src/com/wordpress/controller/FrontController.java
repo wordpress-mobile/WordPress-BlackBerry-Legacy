@@ -149,7 +149,7 @@ public class FrontController {
 	 * show new post view
 	 */
 	public void newPost(Blog currentBlog) {
-		Post post =new Post(currentBlog);
+		Post post = new Post(currentBlog);
 		//check if the blog has the location enabled by default
 		boolean location = post.getBlog().isLocation();
 		post.setLocation(location);

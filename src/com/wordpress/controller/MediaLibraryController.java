@@ -49,7 +49,37 @@ public class MediaLibraryController extends BlogObjectController {
 
 	public void setPhotoResizing(boolean isPhotoRes, Integer imageResizeWidth,
 			Integer imageResizeHeight) {
-			
+		Log.trace("Entering setPhotoResizing. imageResizeWidth is " + imageResizeWidth.toString());
+		MediaLibrary library = getMediaLibraryObj();
+		if( library.isPhotoResizing() != null && !library.isPhotoResizing().booleanValue()== isPhotoRes ){
+			library.setPhotoResizing(new Boolean(isPhotoRes));
+			setObjectAsChanged(true);
+		} else {
+			if(library.isPhotoResizing() == null ){
+				library.setPhotoResizing(new Boolean(isPhotoRes));
+				setObjectAsChanged(true);
+			}
+		}
+
+		if(library.getImageResizeWidth() != null && !library.getImageResizeWidth().equals(imageResizeWidth)) {
+			library.setImageResizeWidth(imageResizeWidth);
+			setObjectAsChanged(true);
+		} else {
+			if(library.getImageResizeWidth() == null) {
+				library.setImageResizeWidth(imageResizeWidth);
+				setObjectAsChanged(true);
+			}
+		}
+		
+		if(library.getImageResizeHeight() != null && !library.getImageResizeHeight().equals(imageResizeHeight)) {
+			library.setImageResizeHeight(imageResizeHeight);
+			setObjectAsChanged(true);
+		} else {
+			if(library.getImageResizeHeight() == null) {
+				library.setImageResizeHeight(imageResizeHeight);
+				setObjectAsChanged(true);
+			}
+		}	
 	}
 
 	public void setPhotosNumber(int count) {
@@ -108,8 +138,8 @@ public class MediaLibraryController extends BlogObjectController {
 		if( entry.getImageResizeHeight() != null ) {
 			imageResizeHeight = entry.getImageResizeHeight();
 		}
-		settingsView= new PostSettingsView(this, new Date(), "", isPhotoResing, imageResizeWidth, imageResizeHeight);
-		settingsView.removeDateAndPasswdField();
+		
+		settingsView= new PostSettingsView(this, isPhotoResing, imageResizeWidth, imageResizeHeight);
 		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
 
@@ -118,6 +148,7 @@ public class MediaLibraryController extends BlogObjectController {
 
 	public void showView() {
 		this.view= new MediaLibraryView(this, getMediaLibraryObj());
+		this.photoView = view; //FIXME: merging 2 view in one...what a bad thing.
 		//view.setNumberOfPhotosLabel(draftPostPhotoList.length);
 		UiApplication.getUiApplication().pushScreen(view);
 	}
@@ -152,8 +183,6 @@ private class SubmitlibraryTaskListener implements TaskProgressListener {
 			});
 		
 		if (!sendTask.isError()){
-
-			
 			MediaLibrary mediaLibraryObj = getMediaLibraryObj();
 			if(mediaLibraryObj.isCutAndPaste()) {
 				Vector mediaObjects = mediaLibraryObj.getMediaObjects();
@@ -189,5 +218,9 @@ private class SubmitlibraryTaskListener implements TaskProgressListener {
 	public void taskUpdate(Object obj) {
 	
 	}	
-}
+ }
+
+	public void setSignature(boolean isSignatureEnabled, String signature) {
+		// do nothing for this view
+	}
 }

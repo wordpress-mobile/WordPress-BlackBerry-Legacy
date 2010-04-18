@@ -3,7 +3,6 @@ package com.wordpress.io;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
@@ -301,9 +300,11 @@ public class BlogDAO implements BaseDAO {
         	ser.serialize(new Integer(0));
         }
         
+        ser.serialize(new Boolean(blog.isSignatureEnabled()));
+        ser.serialize(blog.getSignature());
+        
         out.close();
 
-        //if there was an errors
 		if(isError) {
 			throw new IOException(wholeErrorMessage);
 		}
@@ -457,6 +458,22 @@ public class BlogDAO implements BaseDAO {
         	blog.setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
 		}
 
+        //since version 1.2
+        try {
+        	Object testObj = ser.deserialize();
+        	//some devices when reach the end of the input stream doesn't throws EOFException, but returns null.
+        	if( testObj != null ) {
+        		boolean isSignatureActive =((Boolean)testObj).booleanValue();
+        		blog.setSignatureEnabled(isSignatureActive);       	        		
+        	} 
+        	
+        	testObj = ser.deserialize();
+        	blog.setSignature((String)testObj);       	        		
+        		
+        } catch (Exception  e) {
+        	Log.error("No signature info found - End of file was reached. Probably a previous blog data file is loaded" );
+		}
+        
         in.close();
         return blog;     
      } 

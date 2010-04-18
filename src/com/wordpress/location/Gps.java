@@ -21,12 +21,11 @@ public class Gps extends Observable implements Runnable {
 	
 	protected Thread t = null;
 	protected LocationProvider locationProvider;
-	protected static int _interval = 1;   // Seconds - this is the period of position query.
 	protected int threadPriority = Thread.NORM_PRIORITY;
 	protected boolean isWorking;
 	protected ResourceBundle _resources = WordPressCore.getInstance().getResourceBundle();
 	
-	public void run() {
+	public void run() { 
 		
 		Log.debug("finding your position...");
 		final ConnectionInProgressView connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPress.MESSAGE_FINDING_YOUR_LOCATION));
@@ -39,57 +38,119 @@ public class Gps extends Observable implements Runnable {
   		});
         
 		try {
-			
-			Criteria criteria = getAssistedCriteria();
-			Log.debug("trying to get the assisted GPS...");
+
+			/*
+			 * when using a getXXXCriteria... remeber that:
+			 * 
+			 * If no concrete LocationProvider could be created that typically 
+			 * can match the defined criteria but there are other location providers not meeting 
+			 * the criteria that could be returned for a more relaxed criteria, null is returned to indicate this
+			 *  
+			 */
+
+			Log.debug("Trying to get the Assisted GPS...");
+			Criteria criteria = getAssistedCriteria(Criteria.POWER_USAGE_MEDIUM);
 			locationProvider = LocationProvider.getInstance(criteria);
+
 			if ( locationProvider == null ) {
-				Log.debug("assisted gps is not available, trying to get the autonomous gps");
-				criteria = getAutonomousPosCriteria();
+				Log.debug("assisted gps one is not available, trying to get the assisted gps with less power consumption");
+				criteria = getAssistedCriteria(Criteria.NO_REQUIREMENT);
 				locationProvider = LocationProvider.getInstance(criteria);
 			}
+
+			if ( locationProvider == null ) {
+				Log.debug("assisted gps is not available, trying to get the autonomous gps with high consumption");
+				criteria = getAutonomousPosCriteria(Criteria.POWER_USAGE_HIGH);
+				locationProvider = LocationProvider.getInstance(criteria);
+			}
+
+			if ( locationProvider == null ) {
+				Log.debug("autonomous gps with high consumption is not available, trying to get the autonomous gps with medium consumption");
+				criteria = getAutonomousPosCriteria(Criteria.POWER_USAGE_MEDIUM);
+				locationProvider = LocationProvider.getInstance(criteria);
+			}
+
+			if ( locationProvider == null ) {
+				Log.debug("autonomous gps with medium consumption is not available, trying to get the autonomous gps with no requirement on consumption");
+				criteria = getAutonomousPosCriteria(Criteria.NO_REQUIREMENT);
+				locationProvider = LocationProvider.getInstance(criteria);
+			}
+
 			if ( locationProvider == null ) {
 				Log.debug("autonomous gps is not available, trying to get cell towers signals");
 				criteria = getCellSiteCriteria();
 				locationProvider = LocationProvider.getInstance(criteria);
 			}
+						
 			if ( locationProvider == null ) {
-
-				Runnable showGpsUnsupportedDialog = new Runnable() 
-				{
-					public void run() {
-						Screen scr=UiApplication.getUiApplication().getActiveScreen();
-		 			 	UiApplication.getUiApplication().popScreen(scr);
-						Dialog.alert(_resources.getString(WordPress.MESSAGE_GPS_DISABLED_NOT_SUPPORTED));
-						notifyObservers(null);
-					}
-				};
-				
-				UiApplication.getUiApplication().invokeLater( showGpsUnsupportedDialog );  // Ask event-dispatcher thread to display dialog ASAP.
-			} else {
-				final Location location = locationProvider.getLocation(-1);
-				double longitude = location.getQualifiedCoordinates().getLongitude();
-	            double latitude = location.getQualifiedCoordinates().getLatitude();
-	            Log.debug("latitude " + latitude+ " longitude "+ longitude);
-	            
-	            UiApplication.getUiApplication().invokeLater(new Runnable() {
-	            	public void run() {
-	            		Screen scr=UiApplication.getUiApplication().getActiveScreen();
-	            		UiApplication.getUiApplication().popScreen(scr);	
-	            		notifyObservers(location);
-	            	}
-	            });
-			
+				Log.debug("cell towers signals are not available, trying the default GPS");
+				locationProvider = LocationProvider.getInstance(null);
 			}
+			
+			if ( locationProvider == null ) {
+				Log.error("No GPS  LocationProviders that meet our criteria are currently available");
+				UiApplication.getUiApplication().invokeLater( showGpsUnsupportedDialog );  // Ask event-dispatcher thread to display dialog ASAP.
+				return;
+			}
+
 		} catch (LocationException e) {
-			Log.error(e, "Error while interrupting GPS");
+			//this Ex occurs when all LocationProviders are currently permanently unavailable
+			Log.error(e, "All LocationProviders are currently permanently unavailable");
+			UiApplication.getUiApplication().invokeLater( showGpsUnsupportedDialog );  // Ask event-dispatcher thread to display dialog ASAP.
+			return;
+		}
+		
+		//retrive the device position
+		try {	
+			
+			final Location location = locationProvider.getLocation(-1);
+			double longitude = location.getQualifiedCoordinates().getLongitude();
+			double latitude = location.getQualifiedCoordinates().getLatitude();
+			Log.debug("latitude " + latitude+ " longitude "+ longitude);
+
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					Screen scr=UiApplication.getUiApplication().getActiveScreen();
+					UiApplication.getUiApplication().popScreen(scr);	
+				}
+			});
+			notifyObservers(location);
+
+		} catch (LocationException e) {
+			Log.error(e, "LocationException while getLocation()");
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					Screen scr=UiApplication.getUiApplication().getActiveScreen();
+					UiApplication.getUiApplication().popScreen(scr);	
+				}
+			});
 			notifyObservers(e);
 		} catch (InterruptedException e) {
-			Log.error(e, "Error while interrupting GPS");
+			Log.error(e, "InterruptedException while getLocation()");
+			notifyObservers(e);
+		} catch (Exception e) {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					Screen scr=UiApplication.getUiApplication().getActiveScreen();
+					UiApplication.getUiApplication().popScreen(scr);	
+				}
+			});
 			notifyObservers(e);
 		}
         Log.debug("location thread has finished"); 
 	}
+	
+	
+	
+	Runnable showGpsUnsupportedDialog = new Runnable() 
+	{
+		public void run() {
+			Screen scr=UiApplication.getUiApplication().getActiveScreen();
+			 	UiApplication.getUiApplication().popScreen(scr);
+			Dialog.alert(_resources.getString(WordPress.MESSAGE_GPS_DISABLED_NOT_SUPPORTED));
+			notifyObservers(null);
+		}
+	};
 	
 	
 	/**
@@ -127,14 +188,15 @@ public class Gps extends Observable implements Runnable {
      * To use this mode requires wireless network coverage, and the BlackBerry device and the wireless service provider must
      * support this mode.
      */
-    private Criteria getAssistedCriteria() {
+    private Criteria getAssistedCriteria(int powerConsumption) {
     	Criteria criteria = new Criteria();
     	criteria.setHorizontalAccuracy(Criteria.NO_REQUIREMENT);
     	criteria.setVerticalAccuracy(Criteria.NO_REQUIREMENT);
     	criteria.setCostAllowed(true);
-    	criteria.setPreferredPowerConsumption(Criteria.POWER_USAGE_HIGH);
+    	criteria.setPreferredPowerConsumption(powerConsumption);
     	return criteria;
     }
+    
     
     /**
      * autonomous: Use this mode to get location information from the GPS receiver on the BlackBerry device without assistance
@@ -142,12 +204,12 @@ public class Gps extends Observable implements Runnable {
      * and does not require assistance from the wireless network. However, the speed at which this mode retrieves
      * location information is slower than the other modes.
      */
-    private Criteria getAutonomousPosCriteria() {
+    private Criteria getAutonomousPosCriteria(int powerConsumption) {
     	Criteria criteria = new Criteria();
     	criteria.setHorizontalAccuracy(Criteria.NO_REQUIREMENT);
     	criteria.setVerticalAccuracy(Criteria.NO_REQUIREMENT);
     	criteria.setCostAllowed(false);
-    	criteria.setPreferredPowerConsumption(Criteria.POWER_USAGE_HIGH);
+    	criteria.setPreferredPowerConsumption(powerConsumption);
     	return criteria;
     }
     

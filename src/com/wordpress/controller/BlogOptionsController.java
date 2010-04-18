@@ -45,7 +45,11 @@ public class BlogOptionsController extends BaseController {
 		guiValues.put("imageResizeHeight", blog.getImageResizeHeight());
 		guiValues.put("islocation", new Boolean(blog.isLocation()));
 		guiValues.put("iscommentnotifications", new Boolean(blog.isCommentNotifies()));
-		
+		guiValues.put("isSignatureActive", new Boolean(blog.isSignatureEnabled()));
+		String signature = blog.getSignature();
+		if(signature == null) 
+			signature = _resources.getString(WordPressResource.DEFAULT_SIGNATURE);
+		guiValues.put("signature", signature);
 		this.view= new BlogOptionsView(this,guiValues);
 	}
 	
@@ -71,7 +75,8 @@ public class BlogOptionsController extends BaseController {
 
 	private FieldChangeListener listenerBackButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
-	        backCmd();
+	        //backCmd();
+	    	dismissView();
 	   }
 	};
 
@@ -107,6 +112,8 @@ public class BlogOptionsController extends BaseController {
 			|| !imageResizeHeight.equals(blog.getImageResizeHeight()) 
 			|| isCommentNotifications != blog.isCommentNotifies()  
 			|| isLocation != blog.isLocation()
+			|| view.isSignatureCheckboxDirty()
+			|| view.isSignatureEditFieldDirty() 
 		) {
 			isModified=true;
 		}
@@ -138,7 +145,8 @@ public class BlogOptionsController extends BaseController {
 		blog.setMaxPostCount(valueMaxPostCount);
 		blog.setCommentNotifies(view.isCommentNotifications());
 		blog.setLocation(view.isLocation());
-		
+		blog.setSignatureEnabled(view.isSignatureEnabled());
+		blog.setSignature(view.getSignature());
 		try {
 			BlogDAO.updateBlog(blog);
 		} catch (Exception e) {

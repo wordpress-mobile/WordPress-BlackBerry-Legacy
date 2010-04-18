@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import net.rim.device.api.i18n.SimpleDateFormat;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.FocusChangeListener;
@@ -42,14 +43,52 @@ public class PostSettingsView extends StandardBaseView {
 	
 	BorderedFieldManager rowDate;
 	BorderedFieldManager rowPassword;
-    
-    public PostSettingsView(BlogObjectController _controller, Date postAuth, String password, boolean isResImg, Integer imageResizeWidth, Integer imageResizeHeight ) {
+	
+	//fields to display signature
+	BorderedFieldManager rowSignature;
+	private CheckboxField enableSignature;
+	private BasicEditField signatureField;
+	
+	
+	//used from media view - remove some field to the basic costructor
+	public PostSettingsView(BlogObjectController _controller,
+			boolean isResImg, Integer imageResizeWidth, Integer imageResizeHeight) {
+		this(_controller, new Date(), "", isResImg, imageResizeWidth, imageResizeHeight);
+    	delete(rowDate);
+    	delete(rowPassword);
+	}
+	
+	//used from post view - adds some field to the basic costructor
+	public PostSettingsView(BlogObjectController _controller, Date postAuth, String password, 
+			boolean isResImg, Integer imageResizeWidth, Integer imageResizeHeight,
+			boolean isSignatureEnabled, String signature) {
+		
+		this(_controller, postAuth, password, isResImg, imageResizeWidth, imageResizeHeight);
+		
+		rowSignature = new BorderedFieldManager(
+        		Manager.NO_HORIZONTAL_SCROLL
+        		| Manager.NO_VERTICAL_SCROLL 
+        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
+		
+		enableSignature = new CheckboxField(_resources.getString(WordPressResource.DESCRIPTION_ADD_SIGNATURE), isSignatureEnabled);
+		rowSignature.add(enableSignature);
+		LabelField lblSignature = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_SIGNATURE), Color.BLACK); 
+		signatureField = new BasicEditField("", signature, 1000, Field.EDITABLE);
+		rowSignature.add(lblSignature);
+		rowSignature.add(GUIFactory.createSepatorField());
+		rowSignature.add(signatureField);
+		insert(rowSignature, 2);
+	}
+	
+	//used from page view
+    public PostSettingsView(BlogObjectController _controller, Date postAuth, String password, 
+    		boolean isResImg, Integer imageResizeWidth, Integer imageResizeHeight ) {
     	super(_resources.getString(WordPressResource.MENUITEM_SETTINGS), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
     	this.controller=_controller;
     	this.imageResizeWidth = imageResizeWidth;
     	this.imageResizeHeight = imageResizeHeight;
     	
-    	long datetime = new Date().getTime();;
+    	long datetime = new Date().getTime();
     	if(postAuth != null ) {
     		datetime = CalendarUtils.adjustTimeToDefaultTimezone(postAuth.getTime());
     	}
@@ -110,11 +149,6 @@ public class PostSettingsView extends StandardBaseView {
         add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
     }
     
-    
-    public void removeDateAndPasswdField() {
-    	delete(rowDate);
-    	delete(rowPassword);
-    }
     
     
     private FieldChangeListener listenerOkButton = new FieldChangeListener() {
@@ -216,10 +250,13 @@ public class PostSettingsView extends StandardBaseView {
     	rowPhotoRes.add(imageResizeHeightField);
 	}
 	
+	
 	private void saveChanges() {
 		if(authoredOn.isDirty() || passwordField.isDirty() || resizePhoto.isDirty() 
 				|| (imageResizeWidthField == null ? false : imageResizeWidthField.isDirty())
 				|| (imageResizeHeightField == null ? false : imageResizeHeightField.isDirty())
+				|| (enableSignature == null ? false : enableSignature.isDirty())
+				|| (signatureField == null ? false : signatureField.isDirty())
 			){
 			
 			Log.trace("settings are changed");
@@ -259,6 +296,12 @@ public class PostSettingsView extends StandardBaseView {
 						resizeHeight);
 			}
 			
+			if( (enableSignature == null ? false : enableSignature.isDirty()) ||
+			 (signatureField == null ? false : signatureField.isDirty()) ) {
+				controller.setSignature(enableSignature.getChecked(), signatureField.getText());
+			}
+			
+			
 			controller.setObjectAsChanged(true);
 		} else {
 			Log.trace("settings are NOT changed");
@@ -272,7 +315,10 @@ public class PostSettingsView extends StandardBaseView {
 		
 		if(authoredOn.isDirty() || passwordField.isDirty() || resizePhoto.isDirty()
 				|| (imageResizeWidthField == null ? false : imageResizeWidthField.isDirty())
-				|| (imageResizeHeightField == null ? false : imageResizeHeightField.isDirty()) ) {
+				|| (imageResizeHeightField == null ? false : imageResizeHeightField.isDirty())
+				|| (enableSignature == null ? false : enableSignature.isDirty())
+				|| (signatureField == null ? false : signatureField.isDirty())
+		) {
 			
 			isModified = true;
 		}

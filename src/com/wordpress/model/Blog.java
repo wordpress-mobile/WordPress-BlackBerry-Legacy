@@ -21,6 +21,9 @@ public class Blog {
 	private boolean isCommentNotifies=false; //true when comment notifies is active
 	private boolean isLocation=false; //true when location is active
 	
+	private boolean isSignatureEnabled=true; //true add a signature at the end of each post
+	private String signature=null;
+
 	private int maxPostCount=-1;
 
 	private Category[] categories = null;
@@ -36,9 +39,8 @@ public class Blog {
 	private Vector pages = null;
 	private int[] viewedPages = new int[0]; //the viewed page. only the ID of the page as String
 	
-	
-	private String statsUsername = null;
-	private String statsPassword = null;
+	private String statsUsername = null; //this field is not stored 
+	private String statsPassword = null; //this field is not stored
 	
 	public Vector getViewedPost() {
 		return viewedPost;
@@ -74,24 +76,13 @@ public class Blog {
 		return name;
 	}
 
-	/*public void setBlogName(String blogName) {
-		this.blogName = blogName;
-	}
-*/
+
 	public String getUrl() {
 		return url;
 	}
-/*
-	public void setBlogUrl(String blogUrl) {
-		this.blogUrl = blogUrl;
-	}
-*/
+
 	public String getXmlRpcUrl() {
 		return xmlRpcUrl;
-	}
-
-	public void setXmlRpcUrl(String blogXmlRpcUrl) {
-		this.xmlRpcUrl = blogXmlRpcUrl;
 	}
 
 	public String getUsername() {
@@ -245,4 +236,21 @@ public class Blog {
 	public void setStatsUsername(String statsUsername) {
 		this.statsUsername = statsUsername;
 	}
+	
+	public boolean isSignatureEnabled() {
+		return isSignatureEnabled;
+	}
+
+	public void setSignatureEnabled(boolean isSignatureActive) {
+		this.isSignatureEnabled = isSignatureActive;
+	}
+
+	
+	public String getSignature() {
+		return signature;
+	}
+
+	public void setSignature(String signature) {
+		this.signature = signature;
+	}	
 }

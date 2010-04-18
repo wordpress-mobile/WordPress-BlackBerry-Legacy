@@ -3,23 +3,17 @@ package com.wordpress.view;
 
 import java.util.Vector;
 
-import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.system.Characters;
-import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 
-//#ifdef IS_OS47_OR_ABOVE
-import net.rim.device.api.ui.TouchEvent;
-//#endif
-
 import net.rim.device.api.ui.component.BasicEditField;
-import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.CheckboxField;
-import net.rim.device.api.ui.component.LabelField;
-import net.rim.device.api.ui.container.FlowFieldManager;
-import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.component.Menu;
+
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.VirtualKeyboard;
+//#endif
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
@@ -29,30 +23,49 @@ import com.wordpress.model.MediaLibrary;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.container.BorderedFieldManager;
 
-public class MediaLibraryView extends StandardBaseView {
+
+public class MediaLibraryView extends PhotosView {
 	
-	private MediaLibraryController controller;
 	private MediaLibrary entry;
 	
 	//content of tabs summary
 	private BasicEditField title;
-	private LabelField lblPhotoNumber;
-	private FlowFieldManager thumbManager;
 	private CheckboxField cutAndPaste;
 	
     public MediaLibraryView(MediaLibraryController _controller, MediaLibrary  entry) {
-    	super(_resources.getString(WordPressResource.TITLE_FILE_GROUP_VIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
-    	this.controller=_controller;
+    	super(_controller);  	
 		this.entry = entry;
                 
+    	//#ifdef IS_OS47_OR_ABOVE
+    	VirtualKeyboard virtKbd = getVirtualKeyboard();
+    	if(virtKbd != null)
+    		virtKbd.setVisibility(VirtualKeyboard.HIDE);
+    	//#endif
+		
         //row title
     	BorderedFieldManager outerManagerRowTitle = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
-		title = new BasicEditField(_resources.getString(WordPressResource.LABEL_TITLE)+": ", entry.getTitle(), 100, Field.EDITABLE);
+		title = new BasicEditField(_resources.getString(WordPressResource.LABEL_TITLE)+": ", entry.getTitle(), 100, Field.EDITABLE) {
+	    	//#ifdef IS_OS47_OR_ABOVE
+			protected void onUnfocus() {
+				super.onUnfocus();
+				VirtualKeyboard virtKbd = getVirtualKeyboard();
+		    	if(virtKbd != null)
+		    		virtKbd.setVisibility(VirtualKeyboard.HIDE);
+			}
+			protected void onFocus(int direction) {
+				super.onFocus(direction);
+				VirtualKeyboard virtKbd = getVirtualKeyboard();
+		    	if(virtKbd != null)
+		    		virtKbd.setVisibility(VirtualKeyboard.SHOW);
+			}
+			//#endif
+		};
+		
         outerManagerRowTitle.add(title);
     	BasicEditField lblTitleDesc = getDescriptionTextField(_resources.getString(WordPressResource.MEDIALIBRARY_SCREEEN_TITLE_DESC));
     	outerManagerRowTitle.add(lblTitleDesc);
-        add(outerManagerRowTitle);
+        insert(outerManagerRowTitle, 0);
         
         //row cut&paste
     	BorderedFieldManager outerManagerCutAndPaste = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
@@ -62,35 +75,33 @@ public class MediaLibraryView extends StandardBaseView {
     	outerManagerCutAndPaste.add(cutAndPaste);
     	BasicEditField lblCutAndPasteDesc = getDescriptionTextField(_resources.getString(WordPressResource.MEDIALIBRARY_SCREEEN_CUTANDPASTE_DESC));
     	outerManagerCutAndPaste.add(lblCutAndPasteDesc);
-        add(outerManagerCutAndPaste);        
-        
-        
-        //row photo #s and thumbs
-    	BorderedFieldManager outerManagerRowPhoto = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
-         		| Manager.NO_VERTICAL_SCROLL);    	 
-    	lblPhotoNumber = GUIFactory.getLabel("", LabelField.FOCUSABLE);
-    	lblPhotoNumber.setText(entry.getMediaObjects().size() + " "+_resources.getString(WordPressResource.TITLE_MEDIA_VIEW));    	
-        outerManagerRowPhoto.add(lblPhotoNumber);
-        
-        thumbManager = new FlowFieldManager(Manager.USE_ALL_WIDTH | Manager.NO_HORIZONTAL_SCROLL
-         		| Manager.VERTICAL_SCROLL);    
-        outerManagerRowPhoto.add(thumbManager);
-        
-		add(outerManagerRowPhoto);
+    	insert(outerManagerCutAndPaste, 1);        
+                    
+	
+    	addMenuItem(_settingsItem);
 		addMenuItem(_saveDraftItem);
 		addMenuItem(_submitItem);
-		addMenuItem(_photosItem);
-		addMenuItem(_settingsItem);
 		
-		updateThumbs();
+		//updateThumbs 
+		Vector	mediaObjects = entry.getMediaObjects();
+		for (int i = 0; i < mediaObjects.size(); i++) {
+			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
+			addMedia(tmp);
+		}			
     }
+    
    
+  //override the method of photoview class
+    protected void addExclusiveMenuItem(Menu menu, int instance) {
+    
+    }
+        
     //save a local copy of post
     private MenuItem _saveDraftItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 100220, 10) {
         public void run() {
     		try {
     			updateModel();
-    			controller.saveLibrary();
+    			((MediaLibraryController)controller).saveLibrary();
 	    		controller.backCmd();
     		} catch (Exception e) {
     			controller.displayError(e, "Error while saving media library files");
@@ -103,39 +114,22 @@ public class MediaLibraryView extends StandardBaseView {
         public void run() {
     		try {
     			updateModel();
-   				controller.sendLibraryToBlog();
+    			((MediaLibraryController)controller).sendLibraryToBlog();
     		} catch (Exception e) {
     			controller.displayError(e, "Error while sending media files");
     		}
         }
     };
     
-   
-    private MenuItem _photosItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA, 110, 10) {
-        public void run() {
-        	controller.showPhotosView();
-        }
-    };
-    
-    private MenuItem _settingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETTINGS, 110, 10) {
+      
+    private MenuItem _settingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETTINGS, 100210, 10) {
         public void run() {
         	controller.showSettingsView();
         }
     };
-
-    	
-    
-    /**
-     * Change UI Fields "cleanliness" state to false.
-     * A field's cleanliness state tracks when changes happen to a field.
-     */
-    private void cleanFieldState(){
-    	title.setDirty(false);
-    }
-    
-       	
+           	
 	/*
-	 * Update Page data model and Track changes.
+	 * Update data model and Track changes.
 	 * 
 	 * Photos changes are tracked into controller 
 	 */
@@ -152,115 +146,15 @@ public class MediaLibraryView extends StandardBaseView {
 			controller.setObjectAsChanged(true);
 		}
 	}
-	
-	
-    protected void onExposed() {
-    	Log.trace("ON EXPOSED");
-    	updateThumbs();
-    }
 
-
-	private void updateThumbs() {
-		thumbManager.deleteAll();
-    					
-    	Vector mediaObjects = entry.getMediaObjects();
-		
-        //set the media obj numbers label
-    	lblPhotoNumber.setText(mediaObjects.size() + " "+_resources.getString(WordPressResource.TITLE_MEDIA_VIEW));    	
-
-    	for (int i =0; i < mediaObjects.size(); i++ ) {
-			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
-			Bitmap bitmapThumb = tmp.getThumb();
-			BitmapField bitmapField = new BitmapField(bitmapThumb, 
-					BitmapField.FOCUSABLE | BitmapField.FIELD_HCENTER | Manager.FIELD_VCENTER){
-				
-	            /**
-	             * Overrides default implementation.  Performs default action if the 
-	             * 4ways trackpad was clicked; otherwise, the default action occurs.
-	             * 
-	             * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
-	             */
-	        	protected boolean navigationClick(int status, int time) {
-	        		Log.trace(">>> navigationClick");
-	        		
-	        		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
-	        			Log.trace("Input came from the trackwheel");
-	        			// Input came from the trackwheel
-	        			return super.navigationClick(status, time);
-	        			
-	        		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
-	        			Log.trace("Input came from a four way navigation input device");
-	        			controller.showPhotosView();
-	        			return true;
-	        		}
-	        		return super.navigationClick(status, time);
-	        	}
-	        	        	
-	            //Allow the space bar to toggle the status of the selected row.
-	            protected boolean keyChar(char key, int status, int time)
-	            {
-	                //If the spacebar was pressed...
-	                if (key == Characters.SPACE || key == Characters.ENTER)
-	                {
-	                	controller.showPhotosView();
-	                	return true;
-	                }
-	                return false;
-	            }
-				
-				
-	        	//#ifdef IS_OS47_OR_ABOVE
-	        	protected boolean touchEvent(TouchEvent message) {
-	        		Log.trace(">>> touchEvent");
-	                boolean isOutOfBounds = false;
-	                int x = message.getX(1);
-	                int y = message.getY(1);
-	                // Check to ensure point is within this field
-	                if(x < 0 || y < 0 || x > this.getExtent().width || y > this.getExtent().height) {
-	                    isOutOfBounds = true;
-	                }
-	                if (isOutOfBounds) return false;
-	        		    		
-	        		//DOWN, UP, CLICK, UNCLICK, MOVE, and CANCEL. An additional event, GESTURE
-	        		int eventCode = message.getEvent();
-	        		if(eventCode == TouchEvent.CLICK) {
-	        			Log.trace("TouchEvent.CLICK");
-	        			controller.showPhotosView();
-	        			return true;
-	        		}else if(eventCode == TouchEvent.DOWN) {
-	        			Log.trace("TouchEvent.CLICK");
-	        		} else if(eventCode == TouchEvent.UP) {
-	        			Log.trace("TouchEvent.UP");
-	        		} else if(eventCode == TouchEvent.UNCLICK) {
-	        			Log.trace("TouchEvent.UNCLICK");
-	        			return true; //consume the event: avoid context menu!!
-	        		} else if(eventCode == TouchEvent.CANCEL) {
-	        			Log.trace("TouchEvent.CANCEL");
-	        		}
-	        		
-	        		return false; 
-	        		//return super.touchEvent(message);
-	        	}
-	        	//#endif
-				
-			};
-
-			bitmapField.setSpace(5, 5);
-			thumbManager.add(bitmapField);
-    	}//end for 
-		
-        super.onExposed();
-        lblPhotoNumber.setFocus();
-	}
-    
-	
 	public boolean onClose()   {
+		controller.removeMediaFileJournalListener();
 		try {
 			updateModel();
 		} catch (Exception e) {
 			controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_PAGE));
 		}
-		return controller.dismissView();	
+		return ((MediaLibraryController)controller).dismissView();	
     }
 	
 	public BaseController getController() {

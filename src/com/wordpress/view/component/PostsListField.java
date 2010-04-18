@@ -260,11 +260,17 @@ public class PostsListField extends ObjectListField  {
 		Log.trace(">>> touchEvent");
 		int eventCode = message.getEvent();
 		if (eventCode == TouchEvent.CLICK) {
-			
-			if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
+			 boolean isOutOfBounds = false;
+	        int x = message.getX(1);
+	        int y = message.getY(1);
+			// Check to ensure point is within this field
+	        if(x < 0 || y < 0 || x > getExtent().width || y > getExtent().height) {
+	            isOutOfBounds = true;
+	        }
+			if(isOutOfBounds)
     		{       			
-    			return false;
-    		} 
+    			return true; //consume
+    		}  
 			
 			if (this.defautActionListener != null) {
 				defautActionListener.actionPerformed();

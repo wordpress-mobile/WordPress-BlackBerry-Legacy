@@ -214,6 +214,14 @@ public class DraftDAO implements BaseDAO{
         content.put("mt_allow_pings", new Integer(post.isTrackbackEnabled() ? 1 : 0));
         content.put("isLocation", new Boolean(post.isLocation()));
         content.put("isLocationPublic", new Boolean(post.isLocationPublic()));
+
+		if(post.isSignatureEnabled() != null) {
+			content.put("isSignatureActive", post.isSignatureEnabled());
+		}
+        String signature = post.getSignature();
+		if(signature != null) {
+			content.put("signature", signature);
+		}
 		return content;
 	}	
 	
@@ -293,6 +301,15 @@ public class DraftDAO implements BaseDAO{
 			boolean isLocationPublic =((Boolean)postData.get("isLocationPublic")).booleanValue();
 			post.setLocationPublic(isLocationPublic);    
 		}
+		
+		if(postData.get("isSignatureActive") != null) {
+			Boolean isSignatureActive = ((Boolean)postData.get("isSignatureActive"));
+			post.setSignatureEnabled(isSignatureActive);
+		}
+		
+		if(postData.get("signature") != null) {
+			post.setSignature((String)postData.get("signature"));
+		} 
 		
         return post;
 	}

@@ -622,8 +622,30 @@ public class PostController extends BlogObjectController {
 		if (post.getImageResizeHeight() != null ) {
 			imageResizeHeight = post.getImageResizeHeight();
 		}
-		settingsView= new PostSettingsView(this, post.getAuthoredOn(), post.getPassword(), isPhotoResing, imageResizeWidth, imageResizeHeight);		
-
+		
+		//only for a new post show signature fields...
+		if(post.getId() == null ) {
+			//adding signature fields
+		boolean isSignatureEnabled = blog.isSignatureEnabled();
+		String  signature = blog.getSignature();
+		if(signature == null) 
+			signature = _resources.getString(WordPressResource.DEFAULT_SIGNATURE);
+		
+		if (post.isSignatureEnabled() != null ) {
+			isSignatureEnabled = post.isSignatureEnabled().booleanValue();			
+		}
+		if (post.getSignature() != null ) {
+			signature = post.getSignature();
+		}
+		
+		settingsView = new PostSettingsView(this, post.getAuthoredOn(), post.getPassword(),
+				isPhotoResing, imageResizeWidth, imageResizeHeight,
+				isSignatureEnabled, signature);		
+		} else {
+			settingsView = new PostSettingsView(this, post.getAuthoredOn(), post.getPassword(),
+					isPhotoResing, imageResizeWidth, imageResizeHeight);
+		}
+		
 		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
 
@@ -689,5 +711,12 @@ public class PostController extends BlogObjectController {
 				}
 			});
 		}
+	}
+
+
+	public void setSignature(boolean isSignatureEnabled, String signature) {
+		Post post = getPostObj();
+		post.setSignatureEnabled(new Boolean(isSignatureEnabled));
+		post.setSignature(signature);
 	}
 }

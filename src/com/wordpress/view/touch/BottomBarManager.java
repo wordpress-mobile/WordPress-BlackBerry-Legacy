@@ -21,7 +21,7 @@ public class BottomBarManager extends Manager {
 		super(Manager.USE_ALL_WIDTH);
 		X_PTS = new int[]{0, 0, getPreferredWidth(), getPreferredWidth()};
         Y_PTS = new int[]{0, HEIGHT, HEIGHT, 0};
-        upperDrawColors = new int[]{0x5d595d, Color.BLACK, Color.BLACK, 0x5d595d};
+        upperDrawColors = new int[]{0x444444, Color.BLACK, Color.BLACK, 0x444444};
 	}
 	
 	protected void sublayout(int maxWidth, int maxHeight) {

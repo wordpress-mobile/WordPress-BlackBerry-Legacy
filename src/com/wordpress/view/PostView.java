@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.view;
 
 
@@ -5,12 +6,17 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.Keypad;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.TouchEvent;
+//#endif
+
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.Dialog;
@@ -80,17 +86,65 @@ public class PostView extends StandardBaseView {
         String availableCategories = controller.getPostCategoriesLabel();
   		categories = new LabelField(availableCategories, LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH | LabelField.FOCUSABLE)
   		{
-  			protected boolean keyDown(int keycode, int time) {
-  				switch (Keypad.key(keycode)) {
-  				case Keypad.KEY_SPACE:
-  				case Keypad.KEY_ALT:
-  				case Keypad.KEY_ENTER:
-  					controller.showCategoriesView();
-  					return true;
-  				default:
-  					return false;
-  				}
-  			}
+
+        	protected boolean navigationClick(int status, int time) {
+        		Log.trace(">>> navigationClick");
+        		
+        		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
+        			Log.trace("Input came from the trackwheel");
+        			// Input came from the trackwheel
+        			return super.navigationClick(status, time);
+        			
+        		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
+        			controller.showCategoriesView();
+        			return true;
+        		}
+        		return super.navigationClick(status, time);
+        	}
+        	        	
+            protected boolean keyChar(char key, int status, int time)
+            {
+                if (key == Characters.SPACE || key == Characters.ENTER)
+                {
+                	controller.showCategoriesView();
+                	return true;
+                }
+                return false;
+            }
+			
+			
+        	//#ifdef IS_OS47_OR_ABOVE
+        	protected boolean touchEvent(TouchEvent message) {
+        		Log.trace(">>> touchEvent");
+                boolean isOutOfBounds = false;
+                int x = message.getX(1);
+                int y = message.getY(1);
+                // Check to ensure point is within this field
+                if(x < 0 || y < 0 || x > this.getExtent().width || y > this.getExtent().height) {
+                    isOutOfBounds = true;
+                }
+                if (isOutOfBounds) return false;
+        		    		
+        		int eventCode = message.getEvent();
+        		if(eventCode == TouchEvent.CLICK) {
+        			controller.showCategoriesView();
+        			return true;
+        		}else if(eventCode == TouchEvent.DOWN) {
+        			Log.trace("TouchEvent.CLICK");
+        		} else if(eventCode == TouchEvent.UP) {
+        			Log.trace("TouchEvent.UP");
+        		} else if(eventCode == TouchEvent.UNCLICK) {
+        			Log.trace("TouchEvent.UNCLICK");
+        			return true; //consume the event: avoid context menu!!
+        		} else if(eventCode == TouchEvent.CANCEL) {
+        			Log.trace("TouchEvent.CANCEL");
+        		}
+        		
+        		return false; 
+        		//return super.touchEvent(message);
+        	}
+        	//#endif
+  			
 
   			//override context menu      
 	        protected void makeContextMenu(ContextMenu contextMenu) {

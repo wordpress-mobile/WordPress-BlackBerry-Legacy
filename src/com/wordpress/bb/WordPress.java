@@ -6,11 +6,16 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import net.rim.blackberry.api.homescreen.HomeScreen;
+import net.rim.blackberry.api.menuitem.ApplicationMenuItem;
+import net.rim.blackberry.api.menuitem.ApplicationMenuItemRepository;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.notification.NotificationsConstants;
 import net.rim.device.api.notification.NotificationsManager;
+import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.ApplicationManager;
+import net.rim.device.api.system.ApplicationManagerException;
 import net.rim.device.api.system.Backlight;
+import net.rim.device.api.system.CodeModuleManager;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.UiApplication;
 
@@ -76,6 +81,8 @@ public class WordPress extends UiApplication implements WordPressResource {
                         //HomeScreen.setRolloverIcon(WordPressInfo.getRolloverIcon(), 0);
                     	initLog();
                     	Log.trace("==== Registering WordPress Comments Notification ====");
+                    	
+                    //	addGlobalMenuItems();
 
                     	//Define a dummy object that provides the source for the event.
                     	Object eventSource = new Object() {
@@ -153,13 +160,14 @@ public class WordPress extends UiApplication implements WordPressResource {
     
 	public WordPress(String[] args){
 		
-		boolean autoStart = false;
+	/*	boolean autoStart = false;
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].indexOf("autostartup") != -1) {
 				autoStart = true;
 			}
 		}
-
+*/
+		
 		WordPressInfo.initialize(args);
 		
 		//When device is in startup check the startup variable
@@ -172,6 +180,56 @@ public class WordPress extends UiApplication implements WordPressResource {
         	loadApp();
 		}
 	}
+	
+	
+	private void addGlobalMenuItems() {
+		
+		ApplicationDescriptor appDesc = ApplicationDescriptor.currentApplicationDescriptor();
+		ApplicationMenuItemRepository amir = ApplicationMenuItemRepository.getInstance();
+			amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_BROWSER,
+			new ShareToWordPressMenuItem(10, appDesc));
+	}
+	
+	private class ShareToWordPressMenuItem extends ApplicationMenuItem {
+		private final String  appname;
+		
+	    //using the default constructors here.
+		ShareToWordPressMenuItem(int order, ApplicationDescriptor appDesc){
+	        super(order);
+			appname = appDesc.getName();
+    		System.out.println("Nome del modulo: " + appname);
+	    }
+
+	    //methods we must implement
+	    //Run is called when the menuItem is invoked
+	    public Object run(Object context){
+	    	if(context != null ) {
+	    		
+	    		System.out.println(context.getClass().getName());
+	    		System.out.println("test " +ApplicationDescriptor.currentApplicationDescriptor().getName());
+	    /*		
+	    		int moduleHandle = CodeModuleManager.getModuleHandle(appname); 
+	    		if (moduleHandle > 0) 
+	    		{ 
+	    		ApplicationDescriptor[] apDes = CodeModuleManager.getApplicationDescriptors(moduleHandle); 
+	    		try {
+					ApplicationManager.getApplicationManager().runApplication(apDes[0], true);
+				} catch (ApplicationManagerException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}  
+	    		}*/    		
+	    	}
+	        return context;
+	    }
+
+	    //toString should return the string we want to
+	    //use as the label of the menuItem
+	    public String toString(){
+	        return "Share to WP";
+	    }
+	}
+	
 	
 	private void loadApp() {
 		

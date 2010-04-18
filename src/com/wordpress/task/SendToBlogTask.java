@@ -7,8 +7,11 @@ import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
+import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.EncodedImage;
 
+import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.AppDAO;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.DraftDAO;
@@ -141,6 +144,9 @@ public class SendToBlogTask extends TaskImpl {
 						((EditPostConn) blogConn).setPost(post);
 						type = "EditPostConn";
 					}
+					
+					addTheSignature();
+					
 				} else {
 					
 					//adding multimedia info to page. 
@@ -172,6 +178,40 @@ public class SendToBlogTask extends TaskImpl {
 			//end
 			if (progressListener != null)
 				progressListener.taskComplete(null);		
+		}
+	}
+
+
+	private void addTheSignature() {
+		if(post.getId()!= null) {
+			Log.trace("This is not a new post, signature not necessary!");
+			return;
+		}
+		
+		//add the signature to the end of post here
+		String signature = null;
+		boolean needSig = false;
+		
+		if(post.isSignatureEnabled() != null) {
+			Log.trace("post signature settings found!");
+			needSig = post.isSignatureEnabled().booleanValue();
+			signature = post.getSignature();
+		} else {
+			Log.trace("not found post signature settings, reading the signature settings from blog setting");
+			//read the value from blog
+			needSig = blog.isSignatureEnabled();
+			signature = blog.getSignature();
+			if(needSig &&  signature == null) {
+				ResourceBundle _resources = WordPressCore.getInstance().getResourceBundle();
+				signature = _resources.getString(WordPressResource.DEFAULT_SIGNATURE);
+				}
+		}
+		
+		if(needSig && signature != null) {
+			Log.trace("adding signature to the post body");
+			String bodyWithoutSign = post.getBody();
+			bodyWithoutSign += " <p>"+signature+"</p>";
+			post.setBody(bodyWithoutSign);
 		}
 	}
 

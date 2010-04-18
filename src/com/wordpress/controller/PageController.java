@@ -401,4 +401,8 @@ public class PageController extends BlogObjectController {
 		
 		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
+	
+	public void setSignature(boolean isSignatureEnabled, String signature) {
+		//do nothing for this view 		
+	}
 }

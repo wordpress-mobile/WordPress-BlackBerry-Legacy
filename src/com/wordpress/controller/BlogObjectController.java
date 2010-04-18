@@ -79,6 +79,7 @@ public abstract class BlogObjectController extends BaseController {
 	public abstract void setAuthDate(long authoredOn);
 	public abstract void setPassword(String password);
 	public abstract void setPhotoResizing(boolean isPhotoRes, Integer imageResizeWidth, Integer imageResizeHeight);
+	public abstract void setSignature(boolean isSignatureEnabled, String signature);
 
 	//journal listener
 	FileSystemJournalListener mediaFileFSListener = null;
@@ -513,9 +514,10 @@ public abstract class BlogObjectController extends BaseController {
 	 * @return
 	 */
 	public static synchronized String buildBodyFieldContentFromHtml(String originalContent) {
+		return originalContent;
 		//String[] split = StringUtils.split(originalContent, Characters.ENTER);
-		String replaceAll = StringUtils.replaceAll(originalContent, "<p>", "");
-		replaceAll = StringUtils.replaceAll(replaceAll, "</p>", Characters.ENTER+"");
-		return replaceAll;		
+		//String replaceAll = StringUtils.replaceAll(originalContent, "<p>", "");
+		//replaceAll = StringUtils.replaceAll(replaceAll, "</p>", Characters.ENTER+"");
+		//return replaceAll;		
 	}
 }

@@ -38,11 +38,11 @@ import com.wordpress.view.mm.MediaViewMediator;
 
 public class PhotosView extends StandardBaseView {
 	
-    private BlogObjectController controller; //controller associato alla view
+    protected BlogObjectController controller; //controller associato alla view
 	private int counterPhotos = 0;
-	private Vector uiLink = new Vector();
+	protected Vector uiLink = new Vector();
 	private BorderedFieldManager noPhotoBorderedManager = null;
-	private boolean refreshThumbOnExpose = false; //used when adding a photo, or photo is changed on the FS.
+	protected boolean refreshThumbOnExpose = false; //used when adding a photo, or photo is changed on the FS.
 	
     public PhotosView(BlogObjectController _controller) {
     	super(_resources.getString(WordPressResource.TITLE_MEDIA_VIEW), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -60,22 +60,11 @@ public class PhotosView extends StandardBaseView {
         addMenuItem(_addVideoItem);
     }
     	
-    private void updateUI(int count) {
+    protected void updateUI(int count) {
     	this.setTitleText(count + " "+_resources.getString(WordPressResource.TITLE_MEDIA_VIEW) );
-    	removeMenuItem(_deletePhotoItem);
-    	removeMenuItem(_showPhotoItem);
-    	removeMenuItem(_showPhotoPropertiesItem);
-    	removeMenuItem(_allOnTopPhotoItem);
-    	removeMenuItem(_allOnBottomPhotoItem);
-    	
     	if(count == 0) {
     		add(noPhotoBorderedManager);
     	} else {
-    		addMenuItem(_showPhotoItem);
-    		addMenuItem(_showPhotoPropertiesItem);
-    		addMenuItem(_deletePhotoItem);
-    		addMenuItem(_allOnTopPhotoItem);
-    		addMenuItem(_allOnBottomPhotoItem);
     		if(noPhotoBorderedManager.getManager() != null) {
     			delete(noPhotoBorderedManager); 
     		}
@@ -159,7 +148,7 @@ public class PhotosView extends StandardBaseView {
     		}
     };
     
-    private MenuItem _allOnTopPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_ALLTOP, 100000, 10) {
+    protected MenuItem _allOnTopPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_ALLTOP, 100000, 10) {
         public void run() {
         	for (int i = 0; i < uiLink.size(); i++) {
         		MediaViewMediator tmpLink = (MediaViewMediator)uiLink.elementAt(i);
@@ -172,7 +161,7 @@ public class PhotosView extends StandardBaseView {
         }
     };
     
-     private MenuItem _allOnBottomPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_ALLBOTTOM, 100000, 10) {
+     protected MenuItem _allOnBottomPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_ALLBOTTOM, 100000, 10) {
         public void run() {
         	for (int i = 0; i < uiLink.size(); i++) {
         		MediaViewMediator tmpLink = (MediaViewMediator)uiLink.elementAt(i);
@@ -200,7 +189,7 @@ public class PhotosView extends StandardBaseView {
     }
     
 	public boolean onMenu(int instance) {
-		boolean result;
+		boolean result;		
 		// Prevent the context menu from being shown if focus
 		// is on the bitmap
 		if (getLeafFieldWithFocus() instanceof BitmapField 
@@ -211,7 +200,31 @@ public class PhotosView extends StandardBaseView {
 		}
 		return result;
 	}
+
+    //Override the makeMenu method so we can add a custom menu item
+    protected void makeMenu(Menu menu, int instance)
+    {
+    	    	
+    	if (getLeafFieldWithFocus() instanceof BitmapField ) {
+    		menu.add(_showPhotoItem);
+    		menu.add(_showPhotoPropertiesItem);
+    		menu.add(_deletePhotoItem);
+    	}        
+
+    	addExclusiveMenuItem(menu, instance);
     
+        //Create the default menu.
+        super.makeMenu(menu, instance);
+    }
+	
+    protected void addExclusiveMenuItem(Menu menu, int instance) {
+    	if(uiLink.size() > 0) {
+    		menu.add(_allOnTopPhotoItem);
+    		menu.add(_allOnBottomPhotoItem);
+    	}
+    }
+    
+	
     protected void onExposed() {
     	Log.trace("MediaView - onExposed");
     	controller.removeMediaFileJournalListener(); //remove the fs listener (used only when recording live video)

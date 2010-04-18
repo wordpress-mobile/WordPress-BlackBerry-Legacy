@@ -86,7 +86,7 @@ public class HeaderField extends Field {
         if(backgroundColor != -1) {
             graphics.setColor(backgroundColor);
         } else {
-        	graphics.setColor( Color.LIGHTGREY );
+        	graphics.setColor( Color.BLACK );
         }
         graphics.fillRect( 0, 0, getWidth(), getHeight() );
        

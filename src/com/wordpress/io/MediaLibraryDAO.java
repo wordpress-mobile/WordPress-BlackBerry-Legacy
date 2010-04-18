@@ -144,6 +144,17 @@ public class MediaLibraryDAO implements BaseDAO {
 			}
 		content.put("mediaObjects", hashedMediaIbjects);
 		
+		
+		if(item.isPhotoResizing() != null) {
+			content.put("IsPhotoResizing", item.isPhotoResizing());
+		}
+		if(item.getImageResizeWidth() != null) {
+			content.put("imageResizeWidth", item.getImageResizeWidth());
+		}
+		if(item.getImageResizeHeight() != null) {
+			content.put("imageResizeHeight", item.getImageResizeHeight());
+		}
+		
 		return content;
 	}
 	
@@ -165,6 +176,20 @@ public class MediaLibraryDAO implements BaseDAO {
 					}
 			entry.setMediaObjects(mediaObjects);
 			}
+			
+			//set the prop for photo res
+			if(storedData.get("IsPhotoResizing") != null) {
+				entry.setPhotoResizing((Boolean) storedData.get("IsPhotoResizing"));
+			}
+			
+			if(storedData.get("imageResizeWidth") != null) {
+				entry.setImageResizeWidth((Integer) storedData.get("imageResizeWidth"));
+			}
+			
+			if(storedData.get("imageResizeHeight") != null) {
+				entry.setImageResizeHeight((Integer) storedData.get("imageResizeHeight"));
+			}
+			
 			return entry;
 		} catch (Exception e) {
 			Log.trace(e, "Error while reading media library entry from device storage");
