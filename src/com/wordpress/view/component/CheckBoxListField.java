@@ -241,7 +241,7 @@ public class CheckBoxListField {
         for(int count = 0; count < elementLength; ++count)
         {
            ChecklistData checklistData = new ChecklistData(_elements[count], _elementsChecked[count]);
-           if(count == 0) checklistData.setSelected(true); //select the first element
+           //if(count == 0) checklistData.setSelected(true); //select the first element
            _listData.addElement(checklistData); 
            _checkList.insert(count);
         }    
@@ -355,26 +355,6 @@ public class CheckBoxListField {
             graphics.setColor(originalColor);
         }
         
-    /*	 
-    	protected void drawBackground(Graphics graphics, int x, int y, int width, int height, boolean selected) {
-    		Bitmap toDraw = null;
-    		if (selected) {
-    			toDraw = bgSelected;
-    			int imgWidth = toDraw.getWidth();
-    			while (width > -2) {
-    				graphics.drawBitmap(x - 1, y - 1, width + 2, height + 1, toDraw, 0, 0);
-    				width -= imgWidth;
-    				// Overlap a little bit to avoid border issues
-    				x += imgWidth - 2;
-    			}
-    		} else {
-    			
-    			graphics.setColor(Color.WHITE);
-                graphics.fillRect(x - 1, y - 1, width + 2, height + 1);
-    			
-    		}
-    	}
-        */
         //Returns the object at the specified index.
         public Object get(ListField list, int index) 
         {

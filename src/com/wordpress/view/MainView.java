@@ -8,14 +8,17 @@ import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
+import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.Ui;
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.TouchEvent;
 //#endif
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
+import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
@@ -35,6 +38,7 @@ import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.BlogsListField;
+import com.wordpress.view.component.ColoredLabelField;
 
 public class MainView extends BaseView {
 	
@@ -125,13 +129,30 @@ public class MainView extends BaseView {
 	 }
 	 
 	 private void setUpPromoView() {
+		 int width = Display.getWidth();
 		 
+	
+		 Font fnt = Font.getDefault().derive(Font.BOLD);
+		 int fntHeight = fnt.getHeight();
+		 fnt = Font.getDefault().derive(Font.BOLD, fntHeight+2, Ui.UNITS_px);
+		 		 
+		 HorizontalFieldManager taglineManager = new HorizontalFieldManager(Field.FIELD_HCENTER |Field.USE_ALL_WIDTH);
+		 LabelField lblField = new ColoredLabelField(_resources.getString(WordPressResource.PROMOSCREEN_TAGLINE), 
+				 0x444444, Field.USE_ALL_WIDTH | DrawStyle.HCENTER);
+		 lblField.setFont(fnt);
+		 
+		 taglineManager.add(lblField);
+		 if (width > 320)
+			 lblField.setMargin( 30, 30, 15, 30 );
+		 else
+			 lblField.setMargin( 4, 4, 4, 4 );
+		 
+		 _scrollerManager.add(taglineManager);
+		 		 		 
 		 HorizontalFieldManager buttonsManagerOne = new HorizontalFieldManager(Field.FIELD_HCENTER);
 		 HorizontalFieldManager buttonsManagerTwo = new HorizontalFieldManager(Field.FIELD_HCENTER);
-		 int width = Display.getWidth();
 		
-		 
-		 BaseButtonField buttonHaveBlog = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_HAVE_A_WP_BLOG), 
+		 BaseButtonField buttonHaveBlog = GUIFactory.createButton(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WP_BLOG), 
 				 ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
 		 buttonHaveBlog.setChangeListener(new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {
@@ -140,11 +161,11 @@ public class MainView extends BaseView {
 		 });
 
 		 if (width > 320)
-			 buttonHaveBlog.setMargin( 15, 30, 15, 30 );
+			 buttonHaveBlog.setMargin( 5, 30, 15, 30 );
 		 else
 			 buttonHaveBlog.setMargin( 4, 4, 4, 4 );
 		 
-		 BaseButtonField buttonGetFreeBlog = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_NEW_TO_WP_BLOG), 
+		 BaseButtonField buttonGetFreeBlog = GUIFactory.createButton(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_NEW_TO_WP_BLOG), 
 				 ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
 		 buttonGetFreeBlog.setChangeListener(new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {

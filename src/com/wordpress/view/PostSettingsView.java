@@ -58,7 +58,7 @@ public class PostSettingsView extends StandardBaseView {
     	delete(rowPassword);
 	}
 	
-	//used from post view - adds some field to the basic costructor
+	//used from post view to adds some fields used to show signature settings
 	public PostSettingsView(BlogObjectController _controller, Date postAuth, String password, 
 			boolean isResImg, Integer imageResizeWidth, Integer imageResizeHeight,
 			boolean isSignatureEnabled, String signature) {
@@ -72,10 +72,8 @@ public class PostSettingsView extends StandardBaseView {
 		
 		enableSignature = new CheckboxField(_resources.getString(WordPressResource.DESCRIPTION_ADD_SIGNATURE), isSignatureEnabled);
 		rowSignature.add(enableSignature);
-		LabelField lblSignature = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_SIGNATURE), Color.BLACK); 
-		signatureField = new BasicEditField("", signature, 1000, Field.EDITABLE);
-		rowSignature.add(lblSignature);
-		rowSignature.add(GUIFactory.createSepatorField());
+		signatureField = new BasicEditField(_resources.getString(WordPressResource.LABEL_SIGNATURE)+": ", signature, 1000, Field.EDITABLE);
+		signatureField.setMargin(5, 0, 5, 0);
 		rowSignature.add(signatureField);
 		insert(rowSignature, 2);
 	}

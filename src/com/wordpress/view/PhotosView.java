@@ -51,7 +51,7 @@ public class PhotosView extends StandardBaseView {
     	//init for the 0 photo item
     	noPhotoBorderedManager= new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL);
-    	LabelField noPhoto = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_NO_MEDIA), Color.BLACK);
+    	LabelField noPhoto = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_NO_MEDIA), Color.BLACK, Field.FOCUSABLE);
     	noPhotoBorderedManager.add(noPhoto);
     	
         updateUI(counterPhotos);
@@ -64,6 +64,7 @@ public class PhotosView extends StandardBaseView {
     	this.setTitleText(count + " "+_resources.getString(WordPressResource.TITLE_MEDIA_VIEW) );
     	if(count == 0) {
     		add(noPhotoBorderedManager);
+    		noPhotoBorderedManager.setFocus();
     	} else {
     		if(noPhotoBorderedManager.getManager() != null) {
     			delete(noPhotoBorderedManager); 

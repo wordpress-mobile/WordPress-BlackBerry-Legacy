@@ -63,7 +63,7 @@ public class MediaLibraryView extends PhotosView {
 		};
 		
         outerManagerRowTitle.add(title);
-    	BasicEditField lblTitleDesc = getDescriptionTextField(_resources.getString(WordPressResource.MEDIALIBRARY_SCREEEN_TITLE_DESC));
+    	BasicEditField lblTitleDesc = getDescriptionTextField(_resources.getString(WordPressResource.MEDIALIBRARYSCREEEN_TITLE_DESC));
     	outerManagerRowTitle.add(lblTitleDesc);
         insert(outerManagerRowTitle, 0);
         
@@ -71,13 +71,12 @@ public class MediaLibraryView extends PhotosView {
     	BorderedFieldManager outerManagerCutAndPaste = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
     	
-    	cutAndPaste = new CheckboxField(_resources.getString(WordPressResource.LABEL_CUT_AND_PASTE), entry.isCutAndPaste());
+    	cutAndPaste = new CheckboxField(_resources.getString(WordPressResource.MEDIALIBRARYSCREEEN_COPY_FILE_URL), entry.isCutAndPaste());
     	outerManagerCutAndPaste.add(cutAndPaste);
-    	BasicEditField lblCutAndPasteDesc = getDescriptionTextField(_resources.getString(WordPressResource.MEDIALIBRARY_SCREEEN_CUTANDPASTE_DESC));
+    	BasicEditField lblCutAndPasteDesc = getDescriptionTextField(_resources.getString(WordPressResource.MEDIALIBRARYSCREEEN_COPY_FILE_URL_DESC));
     	outerManagerCutAndPaste.add(lblCutAndPasteDesc);
     	insert(outerManagerCutAndPaste, 1);        
                     
-	
     	addMenuItem(_settingsItem);
 		addMenuItem(_saveDraftItem);
 		addMenuItem(_submitItem);
@@ -87,10 +86,9 @@ public class MediaLibraryView extends PhotosView {
 		for (int i = 0; i < mediaObjects.size(); i++) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			addMedia(tmp);
-		}			
+		}
     }
-    
-   
+       
   //override the method of photoview class
     protected void addExclusiveMenuItem(Menu menu, int instance) {
     

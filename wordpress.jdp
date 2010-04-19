@@ -153,8 +153,6 @@ src\com\wordpress\view\CommentView.java
 src\com\wordpress\view\component\AnimatedGIFField.java
 src\com\wordpress\view\component\BaseButtonField.java
 src\com\wordpress\view\component\BasicListFieldCallBack.java
-src\com\wordpress\view\component\BitmapButtonField.java
-src\com\wordpress\view\component\BitmapButtonField2.java
 src\com\wordpress\view\component\BlogsListField.java
 src\com\wordpress\view\component\CategoriesListField.java
 src\com\wordpress\view\component\CheckBoxListField.java

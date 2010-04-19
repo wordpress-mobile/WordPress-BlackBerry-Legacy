@@ -133,7 +133,7 @@ public class BorderedFieldManager extends Manager {
         int count = this.getFieldCount();
         int y = borderWidth+2;
         for(int i=0; i<count; i++) {
-    		y += 2;
+        	y += 2;
             Field field = this.getField(i);
             this.setPositionChild(field, borderWidth*2, y + field.getMarginTop());
             this.layoutChild(field, maxWidth - (borderWidth * 4) , 
@@ -155,6 +155,7 @@ public class BorderedFieldManager extends Manager {
      */
     public int getPreferredHeight() {
         int sum = (bottomBorderNone ? borderWidth : (borderWidth * 2));
+        sum+=2;
         int count = this.getFieldCount();
         for(int i=0; i<count; i++) {
     		sum += 2;

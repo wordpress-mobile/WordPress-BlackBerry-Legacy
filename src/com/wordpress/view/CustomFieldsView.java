@@ -20,7 +20,6 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
-import com.wordpress.view.component.BitmapButtonField;
 import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
@@ -30,8 +29,6 @@ public class CustomFieldsView extends StandardBaseView {
     private BlogObjectController controller;
     private final Vector oldCustomFields;
     private Vector changeListeners = new Vector();
-    private Bitmap _deleteBitmap = Bitmap.getBitmapResource("stop.png");
-    private Bitmap _addBitmap = Bitmap.getBitmapResource("edit_add.png");
 	private BasicEditField _fieldValue;
 	private BasicEditField _fieldName;
         
@@ -55,7 +52,7 @@ public class CustomFieldsView extends StandardBaseView {
         _fieldValue = new BasicEditField(_resources.getString(WordPressResource.LABEL_VALUE)+": ", " ", 100, Field.EDITABLE);
         outerContainer.add(_fieldValue);
         
-        BitmapButtonField addButtonField = new BitmapButtonField(_addBitmap, ButtonField.CONSUME_CLICK);
+        BaseButtonField addButtonField= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_ADD), ButtonField.CONSUME_CLICK);
         addButtonField.setChangeListener(addCustomField);
         outerContainer.add(addButtonField);
 		
@@ -133,7 +130,7 @@ public class CustomFieldsView extends StandardBaseView {
         BasicEditField fieldValue = new BasicEditField(_resources.getString(WordPressResource.LABEL_VALUE)+": ", insertedValue, 100, Field.EDITABLE);
         outerContainer.add(fieldValue);
         
-        BitmapButtonField addButtonField = new BitmapButtonField(_deleteBitmap, ButtonField.CONSUME_CLICK);
+        BaseButtonField addButtonField= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_REMOVE), ButtonField.CONSUME_CLICK);
         MyFieldChangeListener myFieldChangeListener = new MyFieldChangeListener(fieldValue,fieldName);
         addButtonField.setChangeListener(myFieldChangeListener);
         outerContainer.add(addButtonField);

@@ -93,7 +93,6 @@ public class MainController extends BaseController implements TaskProgressListen
 					
 					blogInfo.setAwaitingModeration(awaitingCommentsCount);
 				}
-				
 				applicationBlogs.addElement(blogInfo);
 			}
 			numberOfBlog = blogsList.length;  //get the number of blog
@@ -256,6 +255,7 @@ public class MainController extends BaseController implements TaskProgressListen
 	    		if (loadedBlogInfo.equals(applicationBlogTmp) )		
 	    		{
 	    			loadedBlogInfo.setAwaitingModeration(applicationBlogTmp.getAwaitingModeration());
+	    			loadedBlogInfo.setCommentNotifies(applicationBlogTmp.isCommentNotifies());
 	    			applicationBlogs.setElementAt(loadedBlogInfo, count);
 	    			break;
 	    		}
