@@ -31,14 +31,21 @@ public class Preferences {
     
     private boolean isDebugMode = false; //no store this var into FS
 	public boolean isFirstStartupOrUpgrade = false; //no store this var into FS
-    //we use this hashtable to store opt parameters. 
-    //keys: 
+
+	//we use this hashtable to store opt parameters. 
+    //keys - type 
 	//device_uuid - update_check_time
 	//autostartup - boolean
 	//backgroundonclose - boolean
 	//updatetimeindex - Integer
+	//gps_provider_index - Integer
     private Hashtable opt = new Hashtable(); 
         
+    private final static String GPS_SETTINGS = "gps_provider_index";
+    public final static int GPS_ASSISTED = 0;
+    public final static int GPS_AUTONOMOUS = 1;
+    public final static int GPS_CELL_TOWER = 2;
+    
 	public static Preferences getIstance() {
 		if (singletonObject == null) {
 			singletonObject = new Preferences();
@@ -243,5 +250,18 @@ public class Preferences {
 	public void setUpdateTimeIndex(int value) {
 		Integer valore = new Integer(value);
 		opt.put("updatetimeindex", valore);
+	}	
+	
+	// return an hashtable with keys defined above
+	public int getGPSSettings() {
+		Integer valore = (Integer) opt.get(GPS_SETTINGS);
+		if(valore == null) 
+			return 0;
+		return valore.intValue();
 	}
+	
+	public void setGPSSettings(int value) {
+		Integer valore = new Integer(value);
+		opt.put(GPS_SETTINGS, valore);
+	}	
 }

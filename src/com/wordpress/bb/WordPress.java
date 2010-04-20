@@ -316,9 +316,16 @@ public class WordPress extends UiApplication implements WordPressResource {
 		
 		} catch (Exception e) {
 			timer.cancel();
+			final String excMsg;
+			
+			if(e != null && e.getMessage()!= null ) {
+				excMsg = "\n" + e.getMessage();
+			} else {
+				excMsg = "";
+			}
 			invokeLater(new Runnable() {
 				public void run() {
-					ErrorView errView = new ErrorView("Wordpress Startup Error!");
+					ErrorView errView = new ErrorView("Startup Error:"+excMsg);
 					errView.doModal();
 					if (loadingScreen != null) popScreen(loadingScreen);
 					mainScreen = MainController.getIstance();

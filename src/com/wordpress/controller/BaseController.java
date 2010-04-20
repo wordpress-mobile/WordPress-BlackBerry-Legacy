@@ -36,7 +36,6 @@ public abstract class BaseController {
 	}
 	
 	
-	
 	private void _displayError(final String msg) {
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {

@@ -19,6 +19,8 @@ import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.EditField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
+import net.rim.device.api.ui.component.RadioButtonField;
+import net.rim.device.api.ui.component.RadioButtonGroup;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.text.URLTextFilter;
 
@@ -68,7 +70,10 @@ public class PreferencesView extends StandardBaseView {
 	private ObjectChoiceField storageOpt;
 	private CheckboxField autoStartup;
 	private CheckboxField backgroundOnClose;
-
+	private RadioButtonField  _gpsAssisted;
+	private RadioButtonField  _gpsAutonomous;
+	private RadioButtonField  _gpsCellTower;
+	private RadioButtonGroup rgrp;
 	
 	 public PreferencesView(PreferenceController _preferencesController) {
 	    	super(_resources.getString(WordPressResource.TITLE_SETTINGS_VIEW), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
@@ -79,9 +84,10 @@ public class PreferencesView extends StandardBaseView {
 	    	//addMultimediaOption(); 
             addConnectionOptionsFields();
             addAdvancedConnectionOptionsFields();
-            addDebugModeOptionFields();
+            addGPSOptionsFields();
             addStorageOptionFields();
             addStartupOptionsFields();
+            addDebugModeOptionFields();
             
             BaseButtonField buttonOK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
             BaseButtonField buttonBACK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
@@ -96,6 +102,29 @@ public class PreferencesView extends StandardBaseView {
             add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
 
     		addMenuItem(_saveItem);
+	 }
+	 
+
+	 private void addGPSOptionsFields() {
+		 BorderedFieldManager gpsManager = new BorderedFieldManager(
+				 Manager.NO_HORIZONTAL_SCROLL
+				 | Manager.NO_VERTICAL_SCROLL);
+		 rgrp = new RadioButtonGroup();
+
+		 LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_GPS),
+				 Color.BLACK);
+		 gpsManager.add(lblTitle);
+		 gpsManager.add(GUIFactory.createSepatorField());
+
+		 int gpsMode = mPrefs.getGPSSettings();
+		 
+		 _gpsAssisted=new RadioButtonField (_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_GPS_ASSISTED), rgrp, gpsMode == Preferences.GPS_ASSISTED ? true : false);
+		 gpsManager.add(_gpsAssisted);
+		 _gpsAutonomous=new RadioButtonField (_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_GPS_AUTONOMOUS), rgrp,  gpsMode == Preferences.GPS_AUTONOMOUS ? true : false);
+		 gpsManager.add(_gpsAutonomous);
+		 _gpsCellTower=new RadioButtonField (_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_GPS_CELLTOWER), rgrp, gpsMode == Preferences.GPS_CELL_TOWER ? true : false);
+		 gpsManager.add(_gpsCellTower);
+		 add(gpsManager);
 	 }
 
 	 private void addStartupOptionsFields() {
@@ -600,11 +629,13 @@ public class PreferencesView extends StandardBaseView {
 			mPrefs.setAutoStartup(autoStartup.getChecked());
 			mPrefs.setBackgroundOnClose(backgroundOnClose.getChecked());
 			
+			//GPS options
+			mPrefs.setGPSSettings(rgrp.getSelectedIndex());			
+			
 			updateStorageMode();
 			
 			setDirty(false);
 		}
-
 
 		private void updateStorageMode(){
 			if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD() && storageOpt != null) {
