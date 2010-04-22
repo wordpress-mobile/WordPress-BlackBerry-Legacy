@@ -93,7 +93,7 @@ public class Gps extends Observable implements Runnable {
 		//retrive the device position
 		try {
 			
-			final Location location = locationProvider.getLocation(-1);
+			final Location location = locationProvider.getLocation(120);
 			double longitude = location.getQualifiedCoordinates().getLongitude();
 			double latitude = location.getQualifiedCoordinates().getLatitude();
 			Log.debug("latitude " + latitude+ " longitude "+ longitude);

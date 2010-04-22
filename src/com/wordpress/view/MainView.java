@@ -48,39 +48,50 @@ public class MainView extends BaseView {
     private ListField listaBlog;
     private BlogsListField blogListController;
     
+    private  BitmapField wpClassicHeaderBitmapField;
+    private  EncodedImage classicHeaderImg;
+    private  BitmapField wpPromoBitmapField;
+    private  EncodedImage promoImg;
+
 	public MainView(MainController mainController) {
 		super( MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL | USE_ALL_HEIGHT);
 		
 		this.mainController=mainController;
-		
+	
 		//Set the preferred width to the image size or screen width if the image is larger than the screen width.
-		EncodedImage _theImage= EncodedImage.getEncodedImageResource("wplogo_header.png");
+		classicHeaderImg = EncodedImage.getEncodedImageResource("wplogo_header.png");
 		int _preferredWidth = -1;
-        if (_theImage.getWidth() > Display.getWidth()) {
+        if (classicHeaderImg.getWidth() > Display.getWidth()) {
             _preferredWidth = Display.getWidth();
         }
         if( _preferredWidth != -1) {        	
-        	EncodedImage resImg = ImageUtils.resizeEncodedImage(_theImage, _preferredWidth, _theImage.getHeight());
-        	_theImage = resImg;
+        	EncodedImage resImg = ImageUtils.resizeEncodedImage(classicHeaderImg, _preferredWidth, classicHeaderImg.getHeight());
+        	classicHeaderImg = resImg;
+        }
+		
+        if (Display.getWidth() >= 360  ) {
+        	promoImg = EncodedImage.getEncodedImageResource("wp_blue-xl.png");
+        } else {
+        	promoImg = EncodedImage.getEncodedImageResource("wp_blue-l.png");
         }
         
-        final BitmapField wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
-        //final int listWidth = wpLogoBitmapField.getBitmapWidth() - 10;
+		wpPromoBitmapField =  new BitmapField(promoImg.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER | Field.FOCUSABLE) {
+			protected void drawFocus(Graphics graphics, boolean on) {
+				//disabled the default focus behavior so that blue rectangle isn't drawn
+			}
+		};
+        wpClassicHeaderBitmapField =  new BitmapField(classicHeaderImg.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
 
     	internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR) {
     		public void paintBackground( Graphics g ) {
     			g.clear();
-    			//int color = g.getColor();
-    			//g.setColor(0xefebef);
-    			//g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
     			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
-    			//g.setColor( color );
     		}
     	};
         
     	_scrollerManager = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR | USE_ALL_HEIGHT | USE_ALL_WIDTH );
     	
-    	internalManager.add( wpLogoBitmapField );
+    	//internalManager.add( wpClassicHeaderBitmapField );
     	internalManager.add( _scrollerManager );
     	super.add( internalManager );
 		
@@ -95,6 +106,7 @@ public class MainView extends BaseView {
 	public void add( Field field ) {
 		_scrollerManager.add( field );
 	}
+	
 	
 	 public void setupUpBlogsView() {
     	listaBlog = null;
@@ -116,9 +128,17 @@ public class MainView extends BaseView {
 			mainController.displayError("Error while reading stored blogs");
 		}*/
 		
-        if (blogCaricati.length == 0) {
+    	try {
+    		if (wpClassicHeaderBitmapField.getManager() != null)
+    			internalManager.delete( wpClassicHeaderBitmapField );
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+    	if (blogCaricati.length == 0) {
         	setUpPromoView();
         } else {
+        	internalManager.insert( wpClassicHeaderBitmapField, 0);
         	blogListController = new BlogsListField(blogCaricati);        	
         	listaBlog = blogListController.getList();
         	addMenuItem(_showBlogItem);
@@ -130,7 +150,7 @@ public class MainView extends BaseView {
 	 
 	 private void setUpPromoView() {
 		 int width = Display.getWidth();
-		 
+		 _scrollerManager.add(wpPromoBitmapField);
 	
 		 Font fnt = Font.getDefault().derive(Font.BOLD);
 		 int fntHeight = fnt.getHeight();
@@ -143,9 +163,9 @@ public class MainView extends BaseView {
 		 
 		 taglineManager.add(lblField);
 		 if (width > 320)
-			 lblField.setMargin( 30, 30, 15, 30 );
+			 lblField.setMargin( 15, 30, 15, 30 );
 		 else
-			 lblField.setMargin( 4, 4, 4, 4 );
+			 lblField.setMargin( 6, 4, 4, 4 );
 		 
 		 _scrollerManager.add(taglineManager);
 		 		 		 
