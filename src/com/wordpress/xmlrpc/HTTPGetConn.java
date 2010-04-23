@@ -18,27 +18,12 @@ import com.wordpress.view.dialog.CredentialDialog;
 public class HTTPGetConn extends BlogConn  {
 
 	private boolean keepGoing;
-	private String http401Username = null;
-	private String http401Password = null;
-	private String authMessage = null;
-
+	
 	private int dialogResponse = Dialog.CANCEL;
 	private Hashtable responseHeaders = new Hashtable();
 	
 	public HTTPGetConn(String url, String username, String password) {
 		super(url, username, password);
-	}
-	
-	public void setAuthMessage(String authMessage) {
-		this.authMessage = authMessage;
-	}
-
-	public String getHttp401Password() {
-		return http401Password;
-	}
-	
-	public String getHttp401Username() {
-		return http401Username;
 	}
 	
     //get the response headers
@@ -133,10 +118,13 @@ public class HTTPGetConn extends BlogConn  {
 		            case (HttpConnection.HTTP_UNAUTHORIZED):
 		            	  //Connection is 401 UnAuthorized.
 
-		            	//A login and password is required, try wt username and password from blog first, if fails ask to user
+		            	//A login and password is required, try wt username and password from the blog first, if fails asks to user
 		            	if (askToUser == false) {
-		            		http401Password = this.mPassword;
-		        			http401Username = this.mUsername;
+		            		//checks if there are http 401 data in the blog data
+		            		if(this.http401Password == null) {
+		            			http401Password = this.mPassword;
+		            			http401Username = this.mUsername;
+		            		}
 		            	} else {
 		            		askToUser();
 		            	}
@@ -154,6 +142,14 @@ public class HTTPGetConn extends BlogConn  {
 				}
 	  		 }//end while
 	  		 
+	  		 /*
+	  		  * an http get could return an with empty body response.
+	  		 //check the response from the server
+	  		 if(response == null) {
+	  			 Log.trace("HTTP RESPONSE IS EMPTY.");
+	  			 setErrorMessage("Server Response Empty");
+	  		 }
+	  		 */
 		} catch (Exception e) {
 			 setErrorMessage(e, "A server communications error occurred:");
 		}
@@ -163,6 +159,9 @@ public class HTTPGetConn extends BlogConn  {
 	}
 	
 	protected void askToUser() {
+		//this check is necessary to ensure the user has not clicked cancel meanwhile
+		if (!isWorking)
+			return;
 		
 		final CredentialDialog dlg;
 		
@@ -177,7 +176,6 @@ public class HTTPGetConn extends BlogConn  {
               {
               	 dialogResponse = dlg.doModal();
               }
-
            });
 		
 		if(dialogResponse == Dialog.D_OK) {

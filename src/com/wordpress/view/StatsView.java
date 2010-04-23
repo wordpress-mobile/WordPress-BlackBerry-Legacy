@@ -4,8 +4,6 @@ package com.wordpress.view;
 import java.io.IOException;
 import java.util.Vector;
 
-
-import net.rim.device.api.i18n.MessageFormat;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.DrawStyle;

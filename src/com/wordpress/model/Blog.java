@@ -39,8 +39,8 @@ public class Blog {
 	private Vector pages = null;
 	private int[] viewedPages = new int[0]; //the viewed page. only the ID of the page as String
 	
-	private String statsUsername = null; //this field is not stored 
-	private String statsPassword = null; //this field is not stored
+	private String statsUsername = null; //this data could be different from http auth
+	private String statsPassword = null; //this data could be different from http auth 
 	
 	public Vector getViewedPost() {
 		return viewedPost;

@@ -28,6 +28,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	protected String urlConnessione;
     protected String mUsername;
     protected String mPassword;
+   
     protected XmlRpcClient mConnection;	
 	protected BlogConnResponse connResponse = new BlogConnResponse();
 	protected boolean isWorking = false;
@@ -35,6 +36,11 @@ public abstract class BlogConn extends Observable implements Runnable {
 	protected int threadPriority = Thread.NORM_PRIORITY;
 	protected int minThreadPriority = Thread.MIN_PRIORITY;
 	
+	//401 HTTP Auth data
+	protected String authMessage = null;
+	protected String http401Username = null;
+	protected String http401Password = null;
+
 	//create a variable to store the ResourceBundle for localization support
 	protected static ResourceBundle _resources;
 	
@@ -133,6 +139,27 @@ public abstract class BlogConn extends Observable implements Runnable {
 		isWorking=false;
 		return response;
 	}
+	
+	public void setAuthMessage(String authMessage) {
+		this.authMessage = authMessage;
+	}
+
+	public void setHttp401Username(String http401Username) {
+		this.http401Username = http401Username;
+	}
+	
+	public void setHttp401Password(String http401Password) {
+		this.http401Password = http401Password;
+	}
+	
+	public String getHttp401Password() {
+		return http401Password;
+	}
+	
+	public String getHttp401Username() {
+		return http401Username;
+	}
+
 	
 	
 	protected void setPostCategories(int[] categories, String postID) throws Exception {

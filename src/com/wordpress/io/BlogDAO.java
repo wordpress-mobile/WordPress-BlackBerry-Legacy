@@ -303,6 +303,9 @@ public class BlogDAO implements BaseDAO {
         ser.serialize(new Boolean(blog.isSignatureEnabled()));
         ser.serialize(blog.getSignature());
         
+        ser.serialize(blog.getStatsUsername());
+        ser.serialize(blog.getStatsPassword());
+        
         out.close();
 
 		if(isError) {
@@ -459,6 +462,7 @@ public class BlogDAO implements BaseDAO {
 		}
 
         //since version 1.2
+        //reading signature data
         try {
         	Object testObj = ser.deserialize();
         	//some devices when reach the end of the input stream doesn't throws EOFException, but returns null.
@@ -472,6 +476,17 @@ public class BlogDAO implements BaseDAO {
         		
         } catch (Exception  e) {
         	Log.error("No signature info found - End of file was reached. Probably a previous blog data file is loaded" );
+		}
+
+        //reading stats data
+        try {
+        	Object statsUsr = ser.deserialize();
+        	Object statsPasswd = ser.deserialize();
+        	blog.setStatsUsername((String)statsUsr);
+        	blog.setStatsPassword((String)statsPasswd);
+        } catch (Exception  e) {
+        	Log.error("No stats auth data found - End of file was reached. Probably a previous blog data file is loaded" );
+        	
 		}
         
         in.close();

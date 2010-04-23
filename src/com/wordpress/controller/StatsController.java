@@ -10,6 +10,7 @@ import org.xmlpull.v1.XmlPullParser;
 
 import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
@@ -51,8 +52,6 @@ public class StatsController extends BaseController {
 	
 	ConnectionInProgressView connectionProgressView = null;
 	private Blog currentBlog = null;
-	private String wpDotComUsername = null;
-	private String wpDotComPassword = null;
 	private String apiKey = null;
 	private String blogStatID = null;
 	
@@ -80,7 +79,7 @@ public class StatsController extends BaseController {
 	}
 
 	public void showView() {
-	    getStatsAuthData();
+	    retriveStatsAuthData();
 	}
 
 	public void refreshView() {
@@ -136,7 +135,8 @@ public class StatsController extends BaseController {
 	    		if(this.type != TYPE_VIEW)
 	    			url+="&summarize";
 	    		
-				final HTTPGetConn connection = new HTTPGetConn(url, wpDotComUsername, wpDotComPassword);
+				final HTTPGetConn connection = new HTTPGetConn(url, currentBlog.getStatsUsername(), 
+						currentBlog.getStatsPassword());
 				
 		        connection.addObserver(new GetStatsDataCallBack(connection));  
 		        connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_INPROGRESS));	       
@@ -278,39 +278,52 @@ public class StatsController extends BaseController {
 	
 
 
-	private void getStatsAuthData() {
+	private void retriveStatsAuthData() {
 		try {
-	    	if (currentBlog != null) {
-	    		
+			if (currentBlog != null) {
+
 				final HTTPGetConn connection;
-				
-				if(currentBlog.getStatsPassword() == null)
-					connection = new HTTPGetConn(WordPressInfo.STATS_AUTH_ENDPOINT_URL, currentBlog.getUsername(), currentBlog.getPassword());
-				else
-					connection = new HTTPGetConn(WordPressInfo.STATS_AUTH_ENDPOINT_URL, currentBlog.getStatsUsername(), currentBlog.getStatsPassword());
-				
+
+				connection = new HTTPGetConn(WordPressInfo.STATS_AUTH_ENDPOINT_URL, 
+						currentBlog.getUsername(), 
+						currentBlog.getPassword());
+				//the blog has an http401 pass 
+				if(currentBlog.getStatsPassword() != null || currentBlog.getStatsUsername() != null) {
+					connection.setHttp401Password(currentBlog.getStatsPassword());
+					connection.setHttp401Username(currentBlog.getStatsUsername());
+				}
+
 				connection.setAuthMessage(_resources.getString(WordPressResource.MESSAGE_STATS_AUTH_REQUIRED));
-		        connection.addObserver(new GetStatsAuthDataCallBack(connection));  
-		        connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_INPROGRESS));	       
-		        connection.startConnWork(); //starts connection
-						
+				connection.addObserver(new GetStatsAuthDataCallBack(connection));  
+				connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_INPROGRESS));	       
+				connection.startConnWork(); //starts connection
+
 				int choice = connectionProgressView.doModal();
 				if(choice==Dialog.CANCEL) {
 					connection.stopConnWork(); //stop the connection if the user click on cancel button
 				}	
 			}
-	    	
+
 		} catch (Exception e) {
-	    	displayError(e, "Error while retriving Stats");
+			displayError(e, "Error while retriving Stats");
 		}
 	}
 	
 	private void storeStatsAuthPassword(String user, String pass) {
-		wpDotComPassword = user;
-		wpDotComUsername = pass;	
-		currentBlog.setStatsPassword(pass);
-		currentBlog.setStatsUsername(user);
-		//TODO : store the new blog data into FS
+		//check if http 401 credential are changed
+		if(!user.equals(currentBlog.getStatsUsername())
+			|| !pass.equals(currentBlog.getStatsPassword()) ) {
+			Log.trace("Http Auth data changed");
+			currentBlog.setStatsPassword(pass);
+			currentBlog.setStatsUsername(user);
+			
+			try {
+				BlogDAO.updateBlog(currentBlog);
+			} catch (Exception e) {
+				Log.error(e, "Error while updating blog with Auth data");
+			}
+			
+		}
 	}
 	
 	private class GetStatsAuthDataCallBack implements Observer {
@@ -323,46 +336,46 @@ public class StatsController extends BaseController {
 
 		public void update(Observable observable, final Object object) {
 
-					dismissDialog(connectionProgressView);
-					BlogConnResponse resp = (BlogConnResponse) object;
+			dismissDialog(connectionProgressView);
+			BlogConnResponse resp = (BlogConnResponse) object;
 
-					if(resp.isStopped()){
-						return;
-					}
-					
-					if(!resp.isError()) {
-						
-						try {
-							byte[] response = (byte[]) resp.getResponseObject();
-							if(response != null ) {
-								Log.trace("RESPONSE - " + new String(response));
-								storeStatsAuthPassword(connection.getHttp401Username(), connection.getHttp401Password());
-								parseStatsAuthResponse(response);
-								if(blogStatID != null && apiKey != null) {
-									UiApplication.getUiApplication().invokeLater(new Runnable() {
-										public void run() {
-											UiApplication.getUiApplication().pushScreen(view);
-											retriveStats();
-										}
-									});
-								} else {
-									//No stats for you blog found
-									displayMessage(_resources.getString(WordPressResource.MESSAGE_CANNOT_FIND_STATS));
+			if(resp.isStopped()){
+				return;
+			}
+
+			if(!resp.isError()) {
+
+				try {
+					byte[] response = (byte[]) resp.getResponseObject();
+					if(response != null ) {
+						Log.trace("RESPONSE - " + new String(response));
+						storeStatsAuthPassword(connection.getHttp401Username(), connection.getHttp401Password());
+						parseStatsAuthResponse(response);
+						if(blogStatID != null && apiKey != null) {
+							UiApplication.getUiApplication().invokeLater(new Runnable() {
+								public void run() {
+									UiApplication.getUiApplication().pushScreen(view);
+									retriveStats();
 								}
-							} else {
-								Log.trace("HTTP RESPONSE IS EMPTY FROM STATS ENDPOINT or user has cancelled the operation");
-							}
-						} catch (Exception e) {
-							Log.error(e,"Error while parsing stats data");
-							displayError("Error while parsing stats data");
-							return;
-						}						
-											
+							});
+						} else {
+							//No stats for you blog found
+							displayMessage(_resources.getString(WordPressResource.MESSAGE_CANNOT_FIND_STATS));
+						}
 					} else {
-						Log.error("Error while retriving stats data");
-						final String respMessage = resp.getResponse();
-					 	displayError(respMessage);	
+						Log.trace("HTTP RESPONSE IS EMPTY FROM STATS ENDPOINT or user has cancelled the operation");
 					}
+				} catch (Exception e) {
+					Log.error(e,"Error while parsing stats data");
+					displayError("Error while parsing stats data");
+					return;
+				}						
+
+			} else {
+				Log.error("Error while retriving stats data");
+				final String respMessage = resp.getResponse();
+				displayError(respMessage);	
+			}
 		}
 	} 
 }
