@@ -17,7 +17,7 @@
                         
         <property name="module.fullname"       value="WordPress"/>
         <property name="module.desc"           value="WordPress for BlackBerry mobile app"/>
-        <property name="module.company"        value="Automattic - Danais"/>
+        <property name="module.company"        value="Automattic"/>
 
         <property name="dir.src"          value="src"  />
         <property name="dir.lib"           value="lib"  />
