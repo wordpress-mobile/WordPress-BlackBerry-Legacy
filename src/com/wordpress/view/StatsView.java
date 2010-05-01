@@ -256,11 +256,11 @@ public class StatsView extends BaseView {
 				String axisLabels= "&chxl=0:|"+startLabel+"|"+endLabel;
 				chartParametersURL = "?cht=lc" +
 				"&chxt=x,y&chxr=1,0,"+max+"&chxs=1N*sz0*&chds=0,"+max+axisLabels+
-				"&chd=t:"+chd_y.toString()+"&chco=FF0000&chf=bg,s,EFEFEF";
+				"&chd=t:"+chd_y.toString()+"&chco=21759b&chf=bg,s,EFEFEF";
 				
 			} else { 
-				//building a pie chart
-				//	http://chart.apis.google.com/chart?chs=500x300&chd=t:200,40,20&chds=0,1000&cht=p3&chdl=Hello|World|pippo&chdlp=bv&chco=FF0000,00FF00,0000FF
+				//building a bar chart
+				
 				StringBuffer chdl = new StringBuffer("&chl=");
 				StringBuffer chd = new StringBuffer("&chd=t:");
 				int max = 0;
@@ -288,10 +288,8 @@ public class StatsView extends BaseView {
 				chd.deleteCharAt(chd.length()-1);
 				chdl.deleteCharAt(chdl.length()-1);
 
-
-
-				chartParametersURL ="?cht=p3" +
-				chd.toString() + "&chds=0,"+max+"&"+chdl.toString()+"&chco=FF0000,00FF00,0000FF";
+				chartParametersURL ="?cht=bvs" +"&chxt=x,y&chxr=1,0,"+(max+10)+"&chxs=1N*sz0*"+
+				chd.toString() + "&chds=0,"+(max+10)+chdl.toString()+"&chco=21759b|d54e21|464646|ffffe0&chf=bg,s,EFEFEF";
 			}
 
 			chartImg = new ChartBitmap(chartURL+chartParametersURL, 

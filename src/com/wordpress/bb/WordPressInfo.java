@@ -8,8 +8,8 @@ import net.rim.device.api.system.Bitmap;
  */
 public final class WordPressInfo {
 
-	/** System event log GUID */
-    public final static long GUID = 0x97ebc046dec5817fL;
+	/** System event GUID */
+    public final static long APPLICATION_ID = 0x97ebc046dec5817fL;
     public final static long COMMENTS_UID = 0x8de9c6b3a49fd864L;
     
 	public final static String STATS_AUTH_ENDPOINT_URL = "https://public-api.wordpress.com/getuserblogs.php";

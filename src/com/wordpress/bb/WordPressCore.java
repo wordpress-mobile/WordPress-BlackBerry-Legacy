@@ -37,6 +37,8 @@ public class WordPressCore {
 		UiApplication.getUiApplication().addFileSystemListener(sdCardListener);
 		timer = new Timer();
 		_resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
+     	//register this app istance
+	   // ShareToWordPressHelper.getInstance().registerWordPressIstance(UiApplication.getUiApplication());
 	}
 	
 	public static WordPressCore getInstance() {
@@ -83,6 +85,7 @@ public class WordPressCore {
 		getTasksRunner().quit(); //stop the runner thread
 		timer.cancel(); //cancel the timer
 		NotificationHandler.getInstance().shutdown(); //stop the notification handler
+		//ShareToWordPressHelper.getInstance().deregisterIstance();
 		System.exit(0);
 	}
 	
