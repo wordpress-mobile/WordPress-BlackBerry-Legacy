@@ -79,7 +79,7 @@ public class AboutView extends BaseView {
     	BasicEditField moreInfoField = new BasicEditField(BasicEditField.READONLY);
     	moreInfoField.setText(_resources.getString(WordPressResource.ABOUTVIEW_MORE_INFO));
     	col2.add(moreInfoField);
-    	urlAddr = GUIFactory.createClickableLabel("http://blackberry.wordpress.org", LabelField.FOCUSABLE);
+    	urlAddr = GUIFactory.createURLLabelField("http://blackberry.wordpress.org", "http://blackberry.wordpress.org", LabelField.FOCUSABLE);
     	col2.add(urlAddr);
     	Bitmap img = Bitmap.getBitmapResource("aboutscreenfooter.png");
     	BitmapField bf = new BitmapField(img);    	

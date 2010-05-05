@@ -198,7 +198,7 @@ public class StatsView extends BaseView {
 					
 					if(columnLink != null && columnLink[i] != null ) {
 						int _tmpIdxLink = statParser.getColumnIndex(columnLink[i]); //retrive the url
-						outerTable.add(GUIFactory.createClickableLabel(value, nextLine[_tmpIdxLink], LabelField.FOCUSABLE | DrawStyle.ELLIPSIS));	
+						outerTable.add(GUIFactory.createURLLabelField(value, nextLine[_tmpIdxLink], LabelField.FOCUSABLE | DrawStyle.ELLIPSIS));	
 					} else 
 					outerTable.add(GUIFactory.getLabel(value, LabelField.FOCUSABLE |  DrawStyle.ELLIPSIS));
 				}

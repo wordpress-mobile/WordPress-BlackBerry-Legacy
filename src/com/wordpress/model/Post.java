@@ -34,17 +34,12 @@ public class Post extends BlogEntry {
 	private Boolean isSignatureEnabled= null; // 0 = false ; 1 = true //null = get option from blog settings
 	private String signature=null;
 
-    public Post(Blog aBlog) {
-        blog = aBlog;
-    }
-
-    public Post(Blog aBlog, String aId, String aTitle, String aAuthor, Date aAuthoredOn) {
-        blog = aBlog;
-        id = aId;
-        title = aTitle;
-        author = aAuthor;
-        authoredOn = aAuthoredOn;
-    }
+	public Post(Blog aBlog) {
+		blog = aBlog;
+		//check if the blog has the location enabled by default
+		boolean location = aBlog.isLocation();
+		this.setLocation(location);
+	}
 
     public Blog getBlog() {
         return blog;

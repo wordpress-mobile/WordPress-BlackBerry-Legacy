@@ -45,9 +45,7 @@ public class PostController extends BlogObjectController {
 	private String[] postStatusKey; // = {"draft, pending, private, publish, localdraft"};
 	private String[] postStatusLabel; 
 	
-	//used when new post/recent post
-	// 0 = new post
-	// 1 = edit recent post
+	//used when new post / or when post is loaded from server 
 	public PostController(Post post) {
 		super(post.getBlog(), post);	
 		//assign new space on draft folder, used for photo IO
@@ -59,7 +57,7 @@ public class PostController extends BlogObjectController {
 		checkMediaObjectLinks();
 	}
 
-	//used when loading draft post from disk
+	//used when loading from draft folder on the device memory
 	public PostController(Post post, int _draftPostFolder) {
 		super(post.getBlog(), post);	
 		this.draftFolder=_draftPostFolder;

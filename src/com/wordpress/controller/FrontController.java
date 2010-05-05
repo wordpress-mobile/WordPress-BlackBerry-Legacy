@@ -102,10 +102,14 @@ public class FrontController {
 		ctrl.refreshBlog();
 	}
 		
+	public void showPost(Post post){
+		this.showPost(post, false);
+	}
+	
 	/**
 	 * show->edit post
 	 */
-	public void showPost(Post post){
+	public void showPost(Post post, boolean isPostChanged){
 		//read custom field and set the post.isLocation = true  if location fields are present
 		Vector customFields = post.getCustomFields();
     	int size = customFields.size();
@@ -135,6 +139,9 @@ public class FrontController {
 		
 		PostController ctrl=new PostController(post);
 		ctrl.showView();
+		
+		if(isPostChanged)
+			ctrl.setObjectAsChanged(isPostChanged);
 	}
 	
 	/**
@@ -150,9 +157,6 @@ public class FrontController {
 	 */
 	public void newPost(Blog currentBlog) {
 		Post post = new Post(currentBlog);
-		//check if the blog has the location enabled by default
-		boolean location = post.getBlog().isLocation();
-		post.setLocation(location);
 		PostController ctrl=new PostController(post);
 		ctrl.showView();
 	}

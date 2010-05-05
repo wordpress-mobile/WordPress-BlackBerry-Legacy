@@ -10,6 +10,7 @@ import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 
@@ -51,6 +52,7 @@ public class PostView extends StandardBaseView {
 	private CheckboxField enableLocation;
 	private CheckboxField isLocationPublic;
 	
+	
     public PostView(PostController _controller, Post _post) {
     	super(_resources.getString(WordPressResource.TITLE_POSTVIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
     	this.controller=_controller;
@@ -59,7 +61,58 @@ public class PostView extends StandardBaseView {
         //row photo #s
     	BorderedFieldManager outerManagerRowPhoto = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);    	 
-    	lblPhotoNumber = GUIFactory.getLabel("", Color.BLACK);
+    	//lblPhotoNumber = GUIFactory.getLabel("", Color.BLACK);
+    	lblPhotoNumber = new ColoredLabelField("", Color.BLACK,  LabelField.FOCUSABLE) {
+          
+    		protected boolean navigationClick(int status, int time) {
+        		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
+        			return super.navigationClick(status, time);
+        		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
+        			controller.showPhotosView();
+        			return true;
+        		}
+        		return super.navigationClick(status, time);
+        	}
+        	        	
+            protected boolean keyChar(char key, int status, int time)
+            {
+                if (key == Characters.SPACE || key == Characters.ENTER)
+                {
+                	controller.showPhotosView();
+                	return true;
+                }
+                return false;
+            }
+            
+        	//#ifdef IS_OS47_OR_ABOVE
+        	protected boolean touchEvent(TouchEvent message) {
+                boolean isOutOfBounds = false;
+                int x = message.getX(1);
+                int y = message.getY(1);
+                // Check to ensure point is within this field
+                if(x < 0 || y < 0 || x > this.getExtent().width || y > this.getExtent().height) {
+                    isOutOfBounds = true;
+                }
+                if (isOutOfBounds) return false;
+        		    		
+        		int eventCode = message.getEvent();
+        		if(eventCode == TouchEvent.CLICK) {
+        			controller.showPhotosView();
+        			return true;
+        		}else if(eventCode == TouchEvent.DOWN) {
+        		} else if(eventCode == TouchEvent.UP) {
+        		} else if(eventCode == TouchEvent.UNCLICK) {
+        			return true; //consume the event: avoid context menu!!
+        		} else if(eventCode == TouchEvent.CANCEL) {
+        		}
+        		
+        		return false; 
+        	}
+        	//#endif
+    	};
+	  	Font fnt = Font.getDefault().derive(Font.BOLD);
+	  	lblPhotoNumber.setFont(fnt);
+	  	
         setNumberOfPhotosLabel(0);
         outerManagerRowPhoto.add(lblPhotoNumber);
         add(outerManagerRowPhoto);
@@ -209,6 +262,9 @@ public class PostView extends StandardBaseView {
 		addMenuItem(_customFieldsMenuItem);
 		addMenuItem(_excerptMenuItem);
 		addMenuItem(_commentsMenuItem);
+		
+		//move the focus to the title Field
+		title.setFocus();
 		
     }
     	

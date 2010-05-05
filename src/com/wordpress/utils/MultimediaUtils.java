@@ -98,6 +98,11 @@ public class MultimediaUtils {
 		return encoding;
 	}
 
+	public static String[] getSupportedWordPressImageFormat() {
+		String[] imageFormats = { "jpg", "jpeg","bmp", "png", "gif"};
+		return imageFormats;
+	}
+	
 	public static String[] getSupportedWordPressVideoFormat(){
 		String[] lines= {"avi", "mov", "mp4", "m4v", "mpg", "3gp", "3g2"};
 		return lines; 

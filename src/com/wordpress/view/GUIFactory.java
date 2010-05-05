@@ -77,21 +77,20 @@ public class GUIFactory {
 		 return sep;
 	 }
 	 
+	 protected static synchronized LabelField getLabel(String label) {
+		 return getLabel(label, Color.GRAY);
+	 }
+	 
+	 protected static synchronized LabelField getLabel(String label, long style) {
+		 return getLabel(label, Color.GRAY, style);
+	 }	
 	 
 	 protected static synchronized LabelField getLabel(String label, int color) {
 			LabelField lblField = new ColoredLabelField(label + " ", color);
 		  	Font fnt = Font.getDefault().derive(Font.BOLD);
 		  	lblField.setFont(fnt);
 			return lblField;
-		}
-
-	 protected static synchronized LabelField getLabel(String label) {
-			return getLabel(label, Color.GRAY);
-		}
-
-	 protected static synchronized LabelField getLabel(String label, long style) {
-		 return getLabel(label, Color.GRAY, style);
-	 }	
+	}
 	 
 	 protected static synchronized LabelField getLabel(String label,int fgColor, long style) {
 		 LabelField lblField = new ColoredLabelField(label + " ", fgColor, style);
@@ -100,11 +99,7 @@ public class GUIFactory {
 		 return lblField;
 	 }	
 	 
-	 public static synchronized LabelField createClickableLabel(String label, long style) {
-		return createClickableLabel(label, label, style);
-	 }
-	
-	 public static synchronized LabelField createClickableLabel(String label, final String url, long style) {
+	 public static synchronized LabelField createURLLabelField(String label, final String url, long style) {
 		 
 		 return new LabelField(label, LabelField.FOCUSABLE | style ) {
 			 

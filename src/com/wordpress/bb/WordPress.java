@@ -48,12 +48,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 	    app.enterEventDispatcher();
 	}
 	
-	public void newSharing() {
-		Log.trace("new sharing");
-		System.out.println("new sharing");
-	}
-	
-	
+		
 	 /**
      * Method to execute in autostart mode.
      */
@@ -80,11 +75,11 @@ public class WordPress extends UiApplication implements WordPressResource {
                         HomeScreen.updateIcon(WordPressInfo.getIcon(), 0);
                         //HomeScreen.setRolloverIcon(WordPressInfo.getRolloverIcon(), 0);
                     	initLog();
-
-                    	//add globals menu items
-                    	//ShareToWordPressHelper.getInstance().addGlobalMenuItems();
                     	
                     	Log.trace("==== Registering WordPress Comments Notification ====");
+                    	
+                    	//adds the global menuitems for sharing to WP 
+                    	ShareToWordPressHelper.getInstance().addGlobalMenuItems(_resources);
                     	
                     	//Define a dummy object that provides the source for the event.
                     	Object eventSource = new Object() {
@@ -252,7 +247,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 			Log.addAppender(fileAppender);
 			WordPressCore.getInstance().setFileAppender(fileAppender); // add the file appender to the queue
 			
-			timer.schedule(new CountDown(), 3000); //3sec splash
+     		timer.schedule(new CountDown(), 3000); //3sec splash
 			
 			// Initialize the notification handler only if notification interval is != 0
 			if (appPrefs.getUpdateTimeIndex() != 0)
@@ -276,7 +271,10 @@ public class WordPress extends UiApplication implements WordPressResource {
 					mainScreen.showView();
 				}
 			});
-		}	
+		} finally {
+			//register this app istance into runtime store
+		    ShareToWordPressHelper.getInstance().registerIstance(UiApplication.getUiApplication());
+		}
 	}
 	
    private class CountDown extends TimerTask {

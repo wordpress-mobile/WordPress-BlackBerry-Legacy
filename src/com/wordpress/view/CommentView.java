@@ -157,7 +157,7 @@ public class CommentView extends StandardBaseView {
 		 }
 
 		 if(newComment.getAuthorUrl() != null && !newComment.getAuthorUrl().equals("")) {
-			 authorUrl = GUIFactory.createClickableLabel(newComment.getAuthorUrl(), LabelField.FOCUSABLE);
+			 authorUrl = GUIFactory.createURLLabelField(newComment.getAuthorUrl(), newComment.getAuthorUrl(), LabelField.FOCUSABLE);
 			 fromDataManager.add(authorUrl);
 		 }
 		 
