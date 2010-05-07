@@ -185,10 +185,8 @@ public class BlogOptionsView extends StandardBaseView {
 	        		| Manager.NO_VERTICAL_SCROLL);
     		enableSignature = new CheckboxField(_resources.getString(WordPressResource.DESCRIPTION_ADD_SIGNATURE), isSignatureActive);
     		signatureManager.add(enableSignature);
-    		LabelField lblSignature = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_SIGNATURE), Color.BLACK); 
-    		signatureField = new BasicEditField("", signature, 1000, Field.EDITABLE);
-    		signatureManager.add(lblSignature);
-    		signatureManager.add(GUIFactory.createSepatorField());
+    		signatureField = new BasicEditField(_resources.getString(WordPressResource.LABEL_SIGNATURE)+": ", signature, 1000, Field.EDITABLE);
+    		signatureField.setMargin(5, 0, 5, 0);
     		signatureManager.add(signatureField);
 			add(signatureManager);
 			

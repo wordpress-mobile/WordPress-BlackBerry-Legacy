@@ -10,6 +10,7 @@ import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.Menu;
+import net.rim.device.api.ui.component.SeparatorField;
 
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.VirtualKeyboard;
@@ -43,7 +44,7 @@ public class MediaLibraryView extends PhotosView {
     	//#endif
 		
         //row title
-    	BorderedFieldManager outerManagerRowTitle = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
+    	BorderedFieldManager outerManagerRowInfo = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
 		title = new BasicEditField(_resources.getString(WordPressResource.LABEL_TITLE)+": ", entry.getTitle(), 100, Field.EDITABLE) {
 	    	//#ifdef IS_OS47_OR_ABOVE
@@ -62,21 +63,23 @@ public class MediaLibraryView extends PhotosView {
 			//#endif
 		};
 		
-        outerManagerRowTitle.add(title);
+        outerManagerRowInfo.add(title);
     	BasicEditField lblTitleDesc = getDescriptionTextField(_resources.getString(WordPressResource.MEDIALIBRARYSCREEEN_TITLE_DESC));
-    	outerManagerRowTitle.add(lblTitleDesc);
-        insert(outerManagerRowTitle, 0);
-        
-        //row cut&paste
-    	BorderedFieldManager outerManagerCutAndPaste = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
-         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
+    	outerManagerRowInfo.add(lblTitleDesc);
     	
+    	//add the separator    		
+    	SeparatorField sepatorField = GUIFactory.createSepatorField();
+    	sepatorField.setMargin(5,0,5,0);
+    	outerManagerRowInfo.add(sepatorField);
+        
+    	//add the cut&paste fields
     	cutAndPaste = new CheckboxField(_resources.getString(WordPressResource.MEDIALIBRARYSCREEEN_COPY_FILE_URL), entry.isCutAndPaste());
-    	outerManagerCutAndPaste.add(cutAndPaste);
+    	outerManagerRowInfo.add(cutAndPaste);
     	BasicEditField lblCutAndPasteDesc = getDescriptionTextField(_resources.getString(WordPressResource.MEDIALIBRARYSCREEEN_COPY_FILE_URL_DESC));
-    	outerManagerCutAndPaste.add(lblCutAndPasteDesc);
-    	insert(outerManagerCutAndPaste, 1);        
+    	outerManagerRowInfo.add(lblCutAndPasteDesc);
                     
+    	insert(outerManagerRowInfo, 0);
+    	
     	addMenuItem(_settingsItem);
 		addMenuItem(_saveDraftItem);
 		addMenuItem(_submitItem);
