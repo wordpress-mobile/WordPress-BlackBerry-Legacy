@@ -7,6 +7,7 @@ import net.rim.blackberry.api.menuitem.ApplicationMenuItem;
 import net.rim.blackberry.api.menuitem.ApplicationMenuItemRepository;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.ApplicationDescriptor;
+import net.rim.device.api.system.ControlledAccessException;
 import net.rim.device.api.system.RuntimeStore;
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
@@ -71,23 +72,28 @@ public class ShareToWordPressHelper {
 	 * @param istance
 	 */
 	void registerIstance(UiApplication istance) {
-		//Open the RuntimeStore.
-		RuntimeStore store = RuntimeStore.getRuntimeStore();
-		//Obtain the reference of WordPress for BlackBerry.
-		Object obj = store.get(WordPressInfo.APPLICATION_ID);
+		try{
+			//Open the RuntimeStore.
+			RuntimeStore store = RuntimeStore.getRuntimeStore();
+			//Obtain the reference of WordPress for BlackBerry.
+			Object obj = store.get(WordPressInfo.APPLICATION_ID);
 
-		//If obj is null, there is no current reference
-		//to WordPress for BlackBerry.
-		if (obj == null)
-		{    
-			//Store a reference to this instance in the RuntimeStore.
-			store.put(WordPressInfo.APPLICATION_ID, istance);
-			Log.trace("Application References added to the runtimestore");
-		} else
-		{
-			//should never fall here bc the app deregister istance on exit
-			Log.trace("runtimestore not empty, why??");
-			store.replace(WordPressInfo.APPLICATION_ID, UiApplication.getUiApplication());
+			//If obj is null, there is no current reference
+			//to WordPress for BlackBerry.
+			if (obj == null)
+			{    
+				//Store a reference to this instance in the RuntimeStore.
+				store.put(WordPressInfo.APPLICATION_ID, istance);
+				Log.trace("Application References added to the runtimestore");
+			} else
+			{
+				//should never fall here bc the app deregister istance on exit
+				Log.trace("runtimestore not empty, why??");
+				store.replace(WordPressInfo.APPLICATION_ID, UiApplication.getUiApplication());
+			}
+
+		} catch (ControlledAccessException  e) {
+			Log.trace(e, "Error while accessing the runtime store");
 		}
 	}
 	
@@ -127,19 +133,10 @@ public class ShareToWordPressHelper {
 
 		//There is a dialog displayed within the app. do nothing in this case
 		if (scr instanceof Dialog ){
-			System.out.println("dialog visualizzata!!");
+			
 			return;
 		}
 					
-		
-		/*
-		if (! (scr instanceof MainView || scr instanceof BlogView  
-				|| scr instanceof  PreferencesView
-				|| scr instanceof  NotificationView ) ){
-			Dialog.alert("Please, save your changes and go back on the home screen before sharing items.");
-			return;
-		}
-*/
 		Vector applicationBlogs = WordPressCore.getInstance().getApplicationBlogs();
 		if(applicationBlogs.size() == 0) {
 			Dialog.alert(noBlogAvailable);			
@@ -229,9 +226,7 @@ public class ShareToWordPressHelper {
 				Log.error(e, "Error while loading selected blog");
 				Dialog.alert("Error while loading selected Blog");
 			}				
-		} else {
-			Log.trace("pressed escape");
-		}
+		} 
 	}
 	
 	

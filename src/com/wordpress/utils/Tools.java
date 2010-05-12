@@ -17,7 +17,7 @@ public class Tools {
 	
 	public static synchronized void openWordPressSignUpURL(String refScreen){
 		HttpHeaders headers = new HttpHeaders();
-    	headers.addProperty("User-Agent", "wp-blackberry/"+ Tools.getAppVersion());
+    	//headers.addProperty("User-Agent", "wp-blackberry/"+ Tools.getAppVersion());
     	Tools.getBrowserSession(WordPressInfo.BB_APP_SIGNUP_URL,"/wp-blackberry/"+refScreen, headers, null);
 	}
 	

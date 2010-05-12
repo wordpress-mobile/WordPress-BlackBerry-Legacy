@@ -51,7 +51,8 @@ public class WordPressApplicationPermissions{
             original.getPermission( ApplicationPermissions.PERMISSION_EVENT_INJECTOR ) == ApplicationPermissions.VALUE_ALLOW &&
             original.getPermission( ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS ) == ApplicationPermissions.VALUE_ALLOW &&
             original.getPermission( ApplicationPermissions.PERMISSION_FILE_API ) == ApplicationPermissions.VALUE_ALLOW  &&
-        	original.getPermission( ApplicationPermissions.PERMISSION_LOCATION_API ) == ApplicationPermissions.VALUE_ALLOW )
+        	original.getPermission( ApplicationPermissions.PERMISSION_LOCATION_API ) == ApplicationPermissions.VALUE_ALLOW &&
+        	original.getPermission( ApplicationPermissions.PERMISSION_WIFI ) == ApplicationPermissions.VALUE_ALLOW )
         {
                 // All of the necessary permissions are currently available.  
                 return;
@@ -67,6 +68,7 @@ public class WordPressApplicationPermissions{
         permRequest.addPermission( ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_FILE_API );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_LOCATION_API );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_WIFI );
         
         boolean acceptance = ApplicationPermissionsManager.getInstance().invokePermissionsRequest( permRequest );
         
