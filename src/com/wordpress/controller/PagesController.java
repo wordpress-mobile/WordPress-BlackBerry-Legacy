@@ -88,7 +88,7 @@ public class PagesController extends BaseController{
 	public void deletePage(int selectedIndex){
 		if(selectedIndex == -1) return;
 		
-		int result=this.askQuestion("Delete selected Page?");   
+		int result=this.askQuestion(_resources.getString(WordPressResource.MESSAGE_DELETE_PAGE));   
 		
     	if(Dialog.YES==result) {
 		
@@ -99,7 +99,7 @@ public class PagesController extends BaseController{
 		     
 			 connection.addObserver(new deletePageCallBack(selectedIndex)); //not page id, selectedID
 		     
-		     connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONN_DELETE_POST));
+		     connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONN_DELETE_PAGE));
 	  
 		    connection.startConnWork(); //starts connection
 		    int choice = connectionProgressView.doModal();

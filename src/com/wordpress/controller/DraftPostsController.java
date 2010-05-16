@@ -8,7 +8,9 @@ import java.util.Vector;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.Dialog;
 
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.DraftDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
@@ -104,6 +106,10 @@ public class DraftPostsController extends BaseController {
 	
 	
 	public void deletePost(int selected){
+		int result=this.askQuestion(_resources.getString(WordPressResource.MESSAGE_DELETE_POST));   
+    	if(Dialog.YES != result) {
+    		return;
+    	}		
 		int draftPostID = loadedPostID[selected];
 		try {
 			DraftDAO.removePost(currentBlog, draftPostID);

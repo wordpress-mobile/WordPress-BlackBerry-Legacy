@@ -137,7 +137,8 @@ public class PostsController extends BaseController{
 
 	public void deletePost(int postID){
 		if(postID == -1) return;
-		int result=this.askQuestion("Delete selected post?");   
+		
+		int result=this.askQuestion(_resources.getString(WordPressResource.MESSAGE_DELETE_POST));   
 		
     	if(Dialog.YES==result) {
 		

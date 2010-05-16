@@ -7,7 +7,9 @@ import java.util.Vector;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.Dialog;
 
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Page;
@@ -83,6 +85,9 @@ public class DraftPagesController extends BaseController {
 
 	
 	public void deletePage(int selected){
+		int result=this.askQuestion(_resources.getString(WordPressResource.MESSAGE_DELETE_PAGE));   
+    	if(Dialog.YES != result ) return; 
+		
 		String pageFileName = pagesFileName[selected];
 		try {
 			PageDAO.removePage(currentBlog, Integer.parseInt(pageFileName) );

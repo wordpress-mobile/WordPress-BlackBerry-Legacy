@@ -144,6 +144,9 @@ public class MainController extends BaseController implements TaskProgressListen
 		} else {
 			try {
 				
+				int result=this.askQuestion(_resources.getString(WordPressResource.MESSAGE_DELETE_BLOG));   
+		    	if(Dialog.YES!=result) return;
+				
 				BlogDAO.removeBlog(selectedBlog);
 				
 	    		for (int i = 0; i < applicationBlogs.size(); i++) {
