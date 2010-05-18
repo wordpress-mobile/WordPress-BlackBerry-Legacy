@@ -11,12 +11,15 @@ import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.TouchEvent;
+import com.wordpress.view.touch.BottomBarItem;
+import net.rim.device.api.ui.Touchscreen;
 //#endif
 
 import net.rim.device.api.ui.component.BitmapField;
@@ -31,12 +34,13 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.ClickableLabelField;
 import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.container.BorderedFocusChangeListenerPatch;
 import com.wordpress.view.dialog.InfoView;
 import com.wordpress.view.mm.MediaViewMediator;
 
-public class PhotosView extends StandardBaseView {
+public class MediaView extends StandardBaseView {
 	
     protected BlogObjectController controller; //controller associato alla view
 	private int counterPhotos = 0;
@@ -44,7 +48,7 @@ public class PhotosView extends StandardBaseView {
 	private BorderedFieldManager noPhotoBorderedManager = null;
 	protected boolean refreshThumbOnExpose = false; //used when adding a photo, or photo is changed on the FS.
 	
-    public PhotosView(BlogObjectController _controller) {
+    public MediaView(BlogObjectController _controller) {
     	super(_resources.getString(WordPressResource.TITLE_MEDIA_VIEW), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
     	this.controller=_controller;
     	
@@ -54,12 +58,50 @@ public class PhotosView extends StandardBaseView {
     	LabelField noPhoto = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_NO_MEDIA), Color.BLACK, Field.FOCUSABLE);
     	noPhotoBorderedManager.add(noPhoto);
     	
-        updateUI(counterPhotos);
+    	//#ifdef IS_OS47_OR_ABOVE
+    	initUpBottomBar();
+    	//#endif
+
+    	updateUI(counterPhotos);
         addMenuItem(_addAudioItem);
         addMenuItem(_addPhotoItem);
         addMenuItem(_addVideoItem);
+        
     }
     	
+	//#ifdef IS_OS47_OR_ABOVE
+	private void initUpBottomBar() {
+		if (Touchscreen.isSupported() == false) return;
+		
+		BottomBarItem items[] = new BottomBarItem[4];
+		items[0] = new BottomBarItem("bottombar_add.png", "bottombar_add.png", _resources.getString(WordPressResource.MENUITEM_PHOTO_ADD));
+		items[1] = new BottomBarItem("bottombar_add.png", "bottombar_add.png", _resources.getString(WordPressResource.MENUITEM_VIDEO_ADD));
+		items[2] = new BottomBarItem("bottombar_add.png", "bottombar_add.png", _resources.getString(WordPressResource.MENUITEM_AUDIO_ADD));
+		items[3] = new BottomBarItem("bottombar_delete.png", "bottombar_disabled.png", _resources.getString(WordPressResource.MENUITEM_MEDIA_REMOVE));
+		initializeBottomBar(items);
+	}
+	
+	protected void bottomBarActionPerformed(int mnuItem) {
+		switch (mnuItem) {
+		case 0:
+			controller.showAddMediaPopUp(BlogObjectController.PHOTO);
+			break;
+		case 1:
+			controller.showAddMediaPopUp(BlogObjectController.VIDEO);
+			break;
+		case 2:
+			controller.showAddMediaPopUp(BlogObjectController.AUDIO);
+			break;
+		case 3:
+			removeMediaItem();
+			break;
+		default:
+			break;
+		}
+	}
+	//#endif
+    
+    
     protected void updateUI(int count) {
     	this.setTitleText(count + " "+_resources.getString(WordPressResource.TITLE_MEDIA_VIEW) );
     	if(count == 0) {
@@ -70,6 +112,13 @@ public class PhotosView extends StandardBaseView {
     			delete(noPhotoBorderedManager); 
     		}
     	}
+    	
+	    //#ifdef IS_OS47_OR_ABOVE
+		if(count == 0) {
+			setBottomBarButtonState(3, false); //disable the delete btn
+		} else
+			setBottomBarButtonState(3, true);
+		//#endif
     }
     
     private MenuItem _addPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_PHOTO_ADD, 110, 10) {
@@ -91,62 +140,21 @@ public class PhotosView extends StandardBaseView {
     };
     
     private MenuItem _showPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_OPEN, 120, 10) {
-        public void run() {        	
-        	Field fieldWithFocus = getLeafFieldWithFocus();
-        	MediaEntry mediaEntry = getMediaEntry(fieldWithFocus);
-        	if (mediaEntry == null) {
-        		Log.error("Connot find post/page media object in the screen");
-        		return;
-        	}
-        	BrowserSession videoClip = Browser.getDefaultSession();
-    		videoClip.displayPage(mediaEntry.getFilePath());
-    			
-        	/*if(mediaEntry instanceof PhotoEntry) {
-        		controller.showEnlargedPhoto(mediaEntry.getFilePath());
-        	} else {
-        		BrowserSession videoClip = Browser.getDefaultSession();
-        		videoClip.displayPage(mediaEntry.getFilePath());
-        	}*/
+        public void run() {
+        	openMediaItem();
         }
     };
-         
+    
     private MenuItem _showPhotoPropertiesItem = new MenuItem( _resources, WordPressResource.MENUITEM_PROPERTIES, 130, 10) {
         public void run() {        	
-        	Field fieldWithFocus = getLeafFieldWithFocus();
-        	MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
-        	if(mediaViewMediator != null) {
-        		controller.showMediaObjectProperties(mediaViewMediator);
-        	}
+        	showMediaItemProperties();
         }
     };
     
-    private MediaViewMediator getMediator(Field source) {
-    	for (int i = 0; i < uiLink.size(); i++) {
-    		MediaViewMediator tmpLink = (MediaViewMediator)uiLink.elementAt(i);
-    		Field bitmapField = tmpLink.getField();
-    		if (source.equals(bitmapField)) {
-    			return tmpLink;
-    		}
-		}
-    	return null;
-    }
-
-    private MediaEntry getMediaEntry(Field source) {
-    	MediaViewMediator mediaViewMediator = getMediator(source);
-    	if (mediaViewMediator != null) {
-    		return mediaViewMediator.getMediaEntry();
-    	}
-    	return null;
-    }
-    
     private MenuItem _deletePhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_REMOVE, 130, 10) {
-        public void run() {        	
-        	Field fieldWithFocus = getLeafFieldWithFocus();
-    			MediaEntry mediaEntry = getMediaEntry(fieldWithFocus);
-    			if(mediaEntry != null) {
-    				controller.deleteLinkToMediaObject(mediaEntry.getFilePath());
-    			}
-    		}
+    	public void run() {        	
+    		removeMediaItem();
+    	}
     };
     
     protected MenuItem _allOnTopPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_ALLTOP, 100000, 10) {
@@ -175,6 +183,56 @@ public class PhotosView extends StandardBaseView {
         }
     };
     
+    protected void removeMediaItem() {
+		Field fieldWithFocus = getLeafFieldWithFocus();
+		MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
+		if (mediaViewMediator != null) {
+			MediaEntry mediaEntry = mediaViewMediator.getMediaEntry();
+			if(mediaEntry != null) {
+				controller.deleteLinkToMediaObject(mediaEntry.getFilePath());
+			}
+		}
+    }
+    
+    protected void openMediaItem() {
+    	Field fieldWithFocus = getLeafFieldWithFocus();
+    	if(fieldWithFocus == null) return;
+    	MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
+    	MediaEntry mediaEntry = null;
+		if (mediaViewMediator != null) {
+			mediaEntry = mediaViewMediator.getMediaEntry();
+		}
+    	if (mediaEntry == null) {
+    		Log.error("Connot find post/page media object in the screen");
+    		return;
+    	}
+    	BrowserSession videoClip = Browser.getDefaultSession();
+		videoClip.displayPage(mediaEntry.getFilePath());
+    }
+    
+    protected void showMediaItemProperties() {
+    	Field fieldWithFocus = getLeafFieldWithFocus();
+    	if(fieldWithFocus == null) return;
+    	MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
+    	if(mediaViewMediator != null) {
+    		controller.showMediaObjectProperties(mediaViewMediator);
+    	}
+    }
+        
+    private MediaViewMediator getMediator(Field source) {
+    	for (int i = 0; i < uiLink.size(); i++) {
+    		MediaViewMediator tmpLink = (MediaViewMediator)uiLink.elementAt(i);
+    		Field[] fieldsManaged = tmpLink.getFields();
+    		for (int j = 0; j < fieldsManaged.length; j++) {
+    			Field tmpField = fieldsManaged[j];
+    			if (source.equals(tmpField)) {
+    				return tmpLink;
+    			}
+			}
+		}
+    	return null;
+    }
+      
     //called from controller: delete the thumbnail
     public void deleteMedia(String key){
     	for (int i = 0; i < uiLink.size(); i++) {
@@ -190,11 +248,10 @@ public class PhotosView extends StandardBaseView {
     }
     
 	public boolean onMenu(int instance) {
-		boolean result;		
+		boolean result;				
 		// Prevent the context menu from being shown if focus
 		// is on the bitmap
-		if (getLeafFieldWithFocus() instanceof BitmapField 
-				&& instance == Menu.INSTANCE_CONTEXT) {
+		if (instance == Menu.INSTANCE_CONTEXT) {
 			result = false;
 		} else {
 			result = super.onMenu(instance);
@@ -206,7 +263,8 @@ public class PhotosView extends StandardBaseView {
     protected void makeMenu(Menu menu, int instance)
     {
     	    	
-    	if (getLeafFieldWithFocus() instanceof BitmapField ) {
+    	//if (getLeafFieldWithFocus() instanceof BitmapField ) {
+    	if (counterPhotos > 0) {
     		menu.add(_showPhotoItem);
     		menu.add(_showPhotoPropertiesItem);
     		menu.add(_deletePhotoItem);
@@ -237,8 +295,9 @@ public class PhotosView extends StandardBaseView {
     			MediaEntry mediaEntry = tmpLink.getMediaEntry();
     			Bitmap bitmapThumb = mediaEntry.getThumb();
     			//if thumb is a photo then...
-    			if( tmpLink.getField() instanceof BitmapField) {
-    				BitmapField bitmapField = (BitmapField) tmpLink.getField();
+    			Field[] fieldsManaged = tmpLink.getFields();
+    			if( fieldsManaged[0] instanceof BitmapField) {
+    				BitmapField bitmapField = (BitmapField) fieldsManaged[0];
     				bitmapField.setBitmap(bitmapThumb);
     			} else {
     				//video prev is a bitmap right now!!
@@ -290,11 +349,7 @@ public class PhotosView extends StandardBaseView {
         			
         		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
         			Log.trace("Input came from a four way navigation input device");
-                	Field fieldWithFocus = this;
-                	MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
-                	if(mediaViewMediator != null) {
-                		controller.showMediaObjectProperties(mediaViewMediator);
-                	}
+        			openMediaItem();
         			return true;
         		}
         		return super.navigationClick(status, time);
@@ -306,11 +361,7 @@ public class PhotosView extends StandardBaseView {
                 //If the spacebar was pressed...
                 if (key == Characters.SPACE || key == Characters.ENTER)
                 {
-                	Field fieldWithFocus = this;
-                	MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
-                	if(mediaViewMediator != null) {
-                		controller.showMediaObjectProperties(mediaViewMediator);
-                	}
+                	openMediaItem();
                 	return true;
                 }
                 return false;
@@ -333,11 +384,7 @@ public class PhotosView extends StandardBaseView {
         		int eventCode = message.getEvent();
         		if(eventCode == TouchEvent.CLICK) {
         			Log.trace("TouchEvent.CLICK");
-                	Field fieldWithFocus = this;
-                	MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
-                	if(mediaViewMediator != null) {
-                		controller.showMediaObjectProperties(mediaViewMediator);
-                	}
+        			openMediaItem();
         			return true;
         		}else if(eventCode == TouchEvent.DOWN) {
         			Log.trace("TouchEvent.CLICK");
@@ -415,10 +462,16 @@ public class PhotosView extends StandardBaseView {
         	}
         };
 	  		  	
-        LabelField fileNameLbl = getLabel(_resources.getString(WordPressResource.LABEL_FILE_NAME));        
+        LabelField fileNameLbl = getLabel(_resources.getString(WordPressResource.LABEL_FILE_NAME));
         fromDataManager.add( fileNameLbl );
         String fileName =  mediaEntry.getFileName() != null ? mediaEntry.getFileName() : "";
-        LabelField filenameField = new LabelField(fileName, LabelField.NON_FOCUSABLE | LabelField.ELLIPSIS);        
+        ClickableLabelField filenameField = new ClickableLabelField(fileName, LabelField.FOCUSABLE | LabelField.ELLIPSIS);
+		 FieldChangeListener listener = new FieldChangeListener() {
+			 public void fieldChanged(Field field, int context) {
+				 showMediaItemProperties();
+			 }
+		 };
+ 		filenameField.setChangeListener(listener);
 		fromDataManager.add( filenameField );
         
 	//	fromDataManager.add(new LabelField("", Field.NON_FOCUSABLE)); //space between title and filename
@@ -426,13 +479,14 @@ public class PhotosView extends StandardBaseView {
 		LabelField titleLbl = getLabel(_resources.getString(WordPressResource.LABEL_TITLE));        
         fromDataManager.add( titleLbl );
         String title = mediaEntry.getTitle() != null ? mediaEntry.getTitle() : "";       
-        LabelField titleField = new LabelField(title, LabelField.NON_FOCUSABLE | LabelField.ELLIPSIS);
+        ClickableLabelField titleField = new ClickableLabelField(title, LabelField.FOCUSABLE | LabelField.ELLIPSIS);
         if(title.equals("")) {
         	//define the italic font
         	Font fnt = this.getFont().derive(Font.ITALIC);
         	titleField.setText("None");
         	titleField.setFont(fnt);
         }
+        titleField.setChangeListener(listener);
 
         
 		fromDataManager.add( titleField );

@@ -159,6 +159,7 @@ src\com\wordpress\view\component\BlogSelectorPopupScreen.java
 src\com\wordpress\view\component\BlogsListField.java
 src\com\wordpress\view\component\CategoriesListField.java
 src\com\wordpress\view\component\CheckBoxListField.java
+src\com\wordpress\view\component\ClickableLabelField.java
 src\com\wordpress\view\component\ColoredLabelField.java
 src\com\wordpress\view\component\CommentsListField.java
 src\com\wordpress\view\component\EmbossedButtonField.java
@@ -191,6 +192,7 @@ src\com\wordpress\view\MainView.java
 src\com\wordpress\view\MediaEntryPropView.java
 src\com\wordpress\view\MediaLibrariesView.java
 src\com\wordpress\view\MediaLibraryView.java
+src\com\wordpress\view\MediaView.java
 src\com\wordpress\view\mm\MediaObjFileJournalListener.java
 src\com\wordpress\view\mm\MediaViewMediator.java
 src\com\wordpress\view\mm\MultimediaPopupScreen.java
@@ -202,7 +204,6 @@ src\com\wordpress\view\NewCategoryView.java
 src\com\wordpress\view\NotificationView.java
 src\com\wordpress\view\PagesView.java
 src\com\wordpress\view\PageView.java
-src\com\wordpress\view\PhotosView.java
 src\com\wordpress\view\PostCategoriesView.java
 src\com\wordpress\view\PostSettingsView.java
 src\com\wordpress\view\PostsView.java
@@ -252,6 +253,7 @@ src\icons\bg_orange.png
 src\icons\bottombar_add.png
 src\icons\bottombar_browser.png
 src\icons\bottombar_delete.png
+src\icons\bottombar_disabled.png
 src\icons\bottombar_refresh.png
 src\icons\comments.png
 src\icons\edit_add.png

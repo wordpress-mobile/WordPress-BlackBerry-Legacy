@@ -32,7 +32,7 @@ import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.CustomFieldsView;
 import com.wordpress.view.MediaEntryPropView;
-import com.wordpress.view.PhotosView;
+import com.wordpress.view.MediaView;
 import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PreviewView;
 import com.wordpress.view.component.RimFileBrowser;
@@ -69,7 +69,7 @@ public abstract class BlogObjectController extends BaseController {
 	//related view
 	protected SendToBlogTask sendTask;
 	protected PostSettingsView settingsView = null;
-	protected PhotosView photoView = null;
+	protected MediaView photoView = null;
 	protected ConnectionInProgressView connectionProgressView=null;
 
 		
@@ -224,7 +224,7 @@ public abstract class BlogObjectController extends BaseController {
 		
 	public void showPhotosView(){
 		
-		photoView= new PhotosView(this);
+		photoView= new MediaView(this);
 
 		Vector mediaObjects;
 		mediaObjects = blogEntry.getMediaObjects();

@@ -30,8 +30,8 @@ public class MediaViewMediator {
 			manager.invalidate();
 		}
 		
-		public Field getField() {
-			return bitmapField;
+		public Field[] getFields() {
+			return new Field[]{bitmapField, fileNameField, titleField};
 		}
 
 		public MediaEntry getMediaEntry() {

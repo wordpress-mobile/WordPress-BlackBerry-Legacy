@@ -46,8 +46,7 @@ public class MainController extends BaseController implements TaskProgressListen
 		WordPressCore wpCore = WordPressCore.getInstance();
 		applicationBlogs = wpCore.getApplicationBlogs();
     }
-	
-	
+		
 /*	
 	public MainController() {
 		super();

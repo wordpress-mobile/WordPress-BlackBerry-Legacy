@@ -21,6 +21,7 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.view.component.HeaderField;
 
 //#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.VirtualKeyboard;
 import net.rim.device.api.ui.Touchscreen;
 import com.wordpress.view.touch.BottomBarButtonField;
 import com.wordpress.view.touch.BottomBarItem;
@@ -81,10 +82,6 @@ public abstract class BaseView extends MainScreen {
     //create the title filed
 	protected Field getTitleField(String title) {
 		HeaderField headerField = new HeaderField(title);
-		//if you want change color of the title bar, make sure to set 
-		//color for background and foreground (to avoid theme colors injection...)
-		headerField.setFontColor(Color.WHITE); 
-		headerField.setBackgroundColor(Color.BLACK); 
 		return (Field)headerField;
 	}
 	
@@ -111,11 +108,51 @@ public abstract class BaseView extends MainScreen {
      */
   //#ifdef IS_OS47_OR_ABOVE         
 	private Field hoverField;
+	protected BottomBarManager bottomButtonsManager = null; 
+	private volatile boolean isBottomBarVisible = false;
+	
+	protected void sublayout( int maxWidth, int maxHeight ) {
+	
+		/* We MUST remove the bottom bar when the virtual keyboad is visible on the screen.  
+		  * There is in no lister to catch that event, and we really won't setup a polling 
+		  * thread on the virtual kb status. Instead we want to rearrange twice the View when 
+		  * kb is displayed or removed from screen. this could take a little bit more time 
+		  * during hide/show of  kb, but don't requires another thread or timertask to do that.
+		  */
+		
+		//Log.trace("==Layout della classe base view");
+		if (Touchscreen.isSupported() == true && bottomButtonsManager != null
+				&& VirtualKeyboard.isSupported() ) {
+			//Log.trace("A");	
+			if(this.getVirtualKeyboard().getVisibility() == (VirtualKeyboard.SHOW)	) {
+				//Log.trace("B");
+				if(isBottomBarVisible) {
+					isBottomBarVisible = false;
+					setStatus(null);
+					//Log.trace("C");
+				}
+			} else {
+				//Log.trace("D");
+				if(!isBottomBarVisible) {
+					isBottomBarVisible = true;
+					setStatus(bottomButtonsManager);
+					//Log.trace("E");
+				}
+			}
+		}
+		super.sublayout(maxWidth, maxHeight);
+	}
+	
+	protected void setBottomBarButtonState(int pos, boolean editable) {	
+		if (Touchscreen.isSupported() == false) return;
+		BottomBarButtonField btn = (BottomBarButtonField) bottomButtonsManager.getField(pos);
+		btn.setEditable(editable);
+	}
 	
 	protected void initializeBottomBar(BottomBarItem[] items) {
 		if (Touchscreen.isSupported() == false) return;
 		
-		BottomBarManager bottomButtonsManager = new BottomBarManager();
+		bottomButtonsManager = new BottomBarManager();
 		int len = Math.min(items.length, 5);
 		for(int i=0; i<len; i++) {
 			BottomBarButtonField button;

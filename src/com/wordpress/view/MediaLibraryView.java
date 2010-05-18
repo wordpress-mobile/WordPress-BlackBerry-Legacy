@@ -25,7 +25,7 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.view.container.BorderedFieldManager;
 
 
-public class MediaLibraryView extends PhotosView {
+public class MediaLibraryView extends MediaView {
 	
 	private MediaLibrary entry;
 	

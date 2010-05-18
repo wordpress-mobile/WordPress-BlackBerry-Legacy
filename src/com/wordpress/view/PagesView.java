@@ -58,10 +58,11 @@ public class PagesView extends BaseView implements ListActionListener {
 		private void initUpBottomBar() {
 			if (Touchscreen.isSupported() == false) return;
 			
-			BottomBarItem items[] = new BottomBarItem[3];
+			BottomBarItem items[] = new BottomBarItem[4];
 			items[0] = new BottomBarItem("bottombar_add.png", "bottombar_add.png", _resources.getString(WordPressResource.MENUITEM_NEW));
-			items[1] = new BottomBarItem("bottombar_browser.png", "bottombar_browser.png", _resources.getString(WordPressResource.MENUITEM_LOCALDRAFTS));
-			items[2] = new BottomBarItem("bottombar_refresh.png", "bottombar_refresh.png", _resources.getString(WordPressResource.MENUITEM_REFRESH));
+			items[1] = new BottomBarItem("bottombar_delete.png", "bottombar_disabled.png", _resources.getString(WordPressResource.MENUITEM_DELETE));
+			items[2] = new BottomBarItem("bottombar_browser.png", "bottombar_browser.png", _resources.getString(WordPressResource.MENUITEM_LOCALDRAFTS));
+			items[3] = new BottomBarItem("bottombar_refresh.png", "bottombar_refresh.png", _resources.getString(WordPressResource.MENUITEM_REFRESH));
 			
 			initializeBottomBar(items);
 		}
@@ -72,9 +73,13 @@ public class PagesView extends BaseView implements ListActionListener {
 				controller.newPage();	
 				break;
 			case 1:
-				controller.showDraftPages(); 
+	            int selectedPage = pagesList.getSelectedIndex();
+	            controller.deletePage(selectedPage);
 				break;
 			case 2:
+				controller.showDraftPages(); 
+				break;
+			case 3:
 				controller.refreshPagesList(); //reload only the posts list			
 				break;
 			default:
@@ -135,6 +140,13 @@ public class PagesView extends BaseView implements ListActionListener {
 		
 		dataScroller.add(pagesList);
 		pagesList.setFocus(); //set the focus over the list
+		
+	    //#ifdef IS_OS47_OR_ABOVE
+			if(elements.length == 0) {
+				setBottomBarButtonState(1, false); //disable the delete btn
+			} else
+				setBottomBarButtonState(1, true);
+    	//#endif
 	}
 	 
 

@@ -95,6 +95,7 @@ public class BottomBarButtonField extends Field {
 	
 	public void setEditable(boolean editable) {
 		super.setEditable(editable);
+		this.hasHover = false;
 		invalidate();
 	}
 	

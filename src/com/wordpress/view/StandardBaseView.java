@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.view;
 
 import net.rim.device.api.system.Display;
@@ -6,7 +7,12 @@ import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.Touchscreen;
+//#endif
+
 import com.wordpress.controller.BaseController;
+
 
 /**
  * Base view with an image in background
@@ -21,20 +27,26 @@ public abstract class StandardBaseView extends BaseView {
 		super(title, style);
 	  	VerticalFieldManager internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR ) {
     		public void paintBackground( Graphics g ) {
-    			g.clear();
+    		/*	g.clear();
     			int color = g.getColor();
     			g.setColor(0xefebef);
     			//g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
     			g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
-    			g.setColor( color );
+    			g.setColor( color );*/
+    			g.clear();
+    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
     		}
     		
     		protected void sublayout( int maxWidth, int maxHeight ) {
-    			
     			int titleFieldHeight = 0;
     			if ( titleField != null ) {
     				titleFieldHeight = titleField.getHeight();
     			}
+    		    //#ifdef IS_OS47_OR_ABOVE
+    			if (Touchscreen.isSupported() == true && bottomButtonsManager != null && bottomButtonsManager.isVisible()) {
+    				titleFieldHeight += bottomButtonsManager.getHeight();
+    			}  			   				
+    			//#endif
     			
     			int displayWidth = Display.getWidth(); 
     			int displayHeight = Display.getHeight();
