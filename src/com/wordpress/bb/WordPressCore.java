@@ -25,7 +25,7 @@ public class WordPressCore {
 	private MySDListener sdCardListener = null;
 	private Timer timer = null;
 	private Vector applicationBlogs = new Vector();
-	 
+
 	//create a variable to store the ResourceBundle for localization support
     private final ResourceBundle _resources;
 
@@ -83,7 +83,7 @@ public class WordPressCore {
 		getTasksRunner().quit(); //stop the runner thread
 		timer.cancel(); //cancel the timer
 		NotificationHandler.getInstance().shutdown(); //stop the notification handler
-		ShareToWordPressHelper.getInstance().deregisterIstance();
+		SharingHelper.getInstance().removeCHAPIListener();
 		System.exit(0);
 	}
 	
@@ -162,5 +162,5 @@ public class WordPressCore {
 	public Vector getApplicationBlogs() {
 		return applicationBlogs;
 	}	
-	
+
 }

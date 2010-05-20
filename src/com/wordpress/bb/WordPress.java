@@ -47,8 +47,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 		WordPress app = new WordPress(args);
 	    app.enterEventDispatcher();
 	}
-	
-		
+			
 	 /**
      * Method to execute in autostart mode.
      */
@@ -70,17 +69,16 @@ public class WordPress extends UiApplication implements WordPressResource {
                     else
                     {
                     	// The BlackBerry has finished its startup process
-                    	
+                    	                    	
                     	// Configure the rollover icons                    	
                         HomeScreen.updateIcon(WordPressInfo.getIcon(), 0);
                         //HomeScreen.setRolloverIcon(WordPressInfo.getRolloverIcon(), 0);
                     	initLog();
                     	
+                    	//adds the CHAPI sharing to WP 
+                		SharingHelper.getInstance().verifyRegistration();
+                    	
                     	Log.trace("==== Registering WordPress Comments Notification ====");
-                    	
-                    	//adds the global menuitems for sharing to WP 
-                    	ShareToWordPressHelper.getInstance().addGlobalMenuItems(_resources);
-                    	
                     	//Define a dummy object that provides the source for the event.
                     	Object eventSource = new Object() {
                     		public String toString() {
@@ -148,15 +146,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 	}
     
 	public WordPress(String[] args){
-		
-	/*	boolean autoStart = false;
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].indexOf("autostartup") != -1) {
-				autoStart = true;
-			}
-		}
-*/
-		
+				
 		WordPressInfo.initialize(args);
 		
 		//When device is in startup check the startup variable
@@ -245,14 +235,16 @@ public class WordPress extends UiApplication implements WordPressResource {
 			fileAppender.setLogLevel(Log.ERROR); //if we set level to TRACE the file log size grows too fast
 			fileAppender.open();
 			Log.addAppender(fileAppender);
-			WordPressCore.getInstance().setFileAppender(fileAppender); // add the file appender to the queue
+			WordPressCore wpCore = WordPressCore.getInstance();
+			wpCore.setFileAppender(fileAppender); // add the file appender to the queue
+						
+			SharingHelper.getInstance().verifyRegistration(); //probably we can cut of this line
 			
      		timer.schedule(new CountDown(), 3000); //3sec splash
 			
 			// Initialize the notification handler only if notification interval is != 0
 			if (appPrefs.getUpdateTimeIndex() != 0)
 				NotificationHandler.getInstance().setCommentsNotification(true, appPrefs.getUpdateTimeIndex());
-		
 		} catch (Exception e) {
 			timer.cancel();
 			final String excMsg;
@@ -271,9 +263,6 @@ public class WordPress extends UiApplication implements WordPressResource {
 					mainScreen.showView();
 				}
 			});
-		} finally {
-			//register this app istance into runtime store
-		    ShareToWordPressHelper.getInstance().registerIstance(UiApplication.getUiApplication());
 		}
 	}
 	
@@ -297,5 +286,5 @@ public class WordPress extends UiApplication implements WordPressResource {
 		});
       }
    }
-
+   
 }

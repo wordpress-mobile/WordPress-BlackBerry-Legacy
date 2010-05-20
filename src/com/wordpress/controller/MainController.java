@@ -10,8 +10,7 @@ import javax.microedition.rms.RecordStoreException;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
-import com.wordpress.bb.NotificationHandler;
-import com.wordpress.bb.ShareToWordPressHelper;
+import com.wordpress.bb.SharingHelper;
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
@@ -46,13 +45,6 @@ public class MainController extends BaseController implements TaskProgressListen
 		WordPressCore wpCore = WordPressCore.getInstance();
 		applicationBlogs = wpCore.getApplicationBlogs();
     }
-		
-/*	
-	public MainController() {
-		super();
-		WordPressCore wpCore = WordPressCore.getInstance();
-		applicationBlogs = wpCore.getApplicationBlogs();
-	}*/
 	
 	public void showView(){
 				
@@ -109,12 +101,18 @@ public class MainController extends BaseController implements TaskProgressListen
 		} catch (Exception e) {
 			//don't propagate this Exception
 		}
-
+		
+		WordPressCore wpCore = WordPressCore.getInstance();
 		//schedule the update check task at startup
-		WordPressCore.getInstance().getTimer().schedule(new CheckUpdateTask(), 24*60*60*1000, 24*60*60*1000); //24h check
+		wpCore.getTimer().schedule(new CheckUpdateTask(), 24*60*60*1000, 24*60*60*1000); //24h check
 		
 		this.view=new MainView(this); //main view init here!.	
 		UiApplication.getUiApplication().pushScreen(this.view);
+	
+		//chapi "post startup" registration
+		SharingHelper sHelper = SharingHelper.getInstance();
+		sHelper.addCHAPIListener();
+		sHelper.checkPendingRequest();
 	}
 	
 

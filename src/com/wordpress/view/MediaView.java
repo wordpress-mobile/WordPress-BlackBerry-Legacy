@@ -2,12 +2,18 @@
 package com.wordpress.view;
 
 
+import java.io.IOException;
 import java.util.Vector;
+
+import javax.microedition.content.ContentHandler;
+import javax.microedition.content.Invocation;
+import javax.microedition.content.Registry;
 
 import net.rim.blackberry.api.browser.Browser;
 import net.rim.blackberry.api.browser.BrowserSession;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
@@ -32,8 +38,14 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
+import com.wordpress.io.JSR75FileSystem;
+import com.wordpress.model.AudioEntry;
 import com.wordpress.model.MediaEntry;
+import com.wordpress.model.VideoEntry;
+import com.wordpress.utils.MultimediaUtils;
+import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.SelectorPopupScreen;
 import com.wordpress.view.component.ClickableLabelField;
 import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.container.BorderedFocusChangeListenerPatch;
@@ -140,9 +152,9 @@ public class MediaView extends StandardBaseView {
     };
     
     private MenuItem _showPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_OPEN, 120, 10) {
-        public void run() {
-        	openMediaItem();
-        }
+    	public void run() {
+    		openMediaItemUsingDefaultBrowser();
+    	}
     };
     
     private MenuItem _showPhotoPropertiesItem = new MenuItem( _resources, WordPressResource.MENUITEM_PROPERTIES, 130, 10) {
@@ -193,23 +205,60 @@ public class MediaView extends StandardBaseView {
 			}
 		}
     }
-    
-    protected void openMediaItem() {
-    	Field fieldWithFocus = getLeafFieldWithFocus();
-    	if(fieldWithFocus == null) return;
-    	MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
-    	MediaEntry mediaEntry = null;
+   
+    /**
+     * This is used when chapi could not find an app to open the media file
+     */
+    protected void openMediaItemUsingDefaultBrowser() {
+		Field fieldWithFocus = getLeafFieldWithFocus();
+		if(fieldWithFocus == null) return;
+		MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
+		MediaEntry mediaEntry = null;
 		if (mediaViewMediator != null) {
 			mediaEntry = mediaViewMediator.getMediaEntry();
 		}
-    	if (mediaEntry == null) {
-    		Log.error("Connot find post/page media object in the screen");
-    		return;
-    	}
-    	BrowserSession videoClip = Browser.getDefaultSession();
+		if (mediaEntry == null) {
+			Log.error("Connot find media object in the screen");
+			return;
+		}
+		BrowserSession videoClip = Browser.getDefaultSession();
 		videoClip.displayPage(mediaEntry.getFilePath());
     }
     
+    protected void openMediaItemUsingCHAPI() {
+		try {
+			Invocation invoc =  buildCHAPIInvocation();
+			if (invoc != null) {
+				// Get access to the Registry and pass it the Invocation
+				Registry registry = Registry.getRegistry(getClass().getName());
+				ContentHandler[] candidates = registry.findHandler(invoc);
+				
+				if(candidates.length == 0) { //there is no ext-app that could open this file
+					openMediaItemUsingDefaultBrowser();
+					return;
+				}
+
+				String[] appNames = new String[candidates.length];
+				for (int i = 0; i < candidates.length; i++) {
+					appNames[i] = candidates[i].getAppName();
+				}
+				String title = _resources.getString(WordPressResource.MENUITEM_OPEN_IN);
+				SelectorPopupScreen selScr = new SelectorPopupScreen(title, appNames);
+				selScr.pickBlog();
+				int selection = selScr.getSelectedBlog();
+				if(selection != -1) {
+					invoc.setID(candidates[selection].getID());
+					registry.invoke(invoc);                
+				}
+			}
+		} 
+		catch (Exception ioe)
+		{
+			Log.error(ioe, "Error while finding a chapi endpoint");
+			openMediaItemUsingDefaultBrowser();
+		}
+    }
+       
     protected void showMediaItemProperties() {
     	Field fieldWithFocus = getLeafFieldWithFocus();
     	if(fieldWithFocus == null) return;
@@ -258,23 +307,105 @@ public class MediaView extends StandardBaseView {
 		}
 		return result;
 	}
+	
+	protected Invocation buildCHAPIInvocation() {
+		try {
+			Field fieldWithFocus = getLeafFieldWithFocus();
+			if (fieldWithFocus == null)
+				return null;
+			MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
+			MediaEntry mediaEntry = null;
+			if (mediaViewMediator != null) {
+				mediaEntry = mediaViewMediator.getMediaEntry();
+			}
+			if (mediaEntry == null)
+				return null;
 
-    //Override the makeMenu method so we can add a custom menu item
-    protected void makeMenu(Menu menu, int instance)
-    {
-    	    	
-    	//if (getLeafFieldWithFocus() instanceof BitmapField ) {
-    	if (counterPhotos > 0) {
-    		menu.add(_showPhotoItem);
-    		menu.add(_showPhotoPropertiesItem);
-    		menu.add(_deletePhotoItem);
-    	}        
+			String[] split = StringUtils.split(mediaEntry.getFilePath(), ".");
+			String ext = split[split.length - 1];
+			String MIMEType = "";
 
-    	addExclusiveMenuItem(menu, instance);
-    
-        //Create the default menu.
-        super.makeMenu(menu, instance);
-    }
+			// Create the Invocation with the file URL
+			Invocation invoc = new Invocation(mediaEntry.getFilePath());
+			invoc.setResponseRequired(false); // We don't require a response
+			// We want to invoke a handler that has registered with ACTION_OPEN
+			invoc.setAction(ContentHandler.ACTION_OPEN);
+			if (mediaEntry instanceof VideoEntry) {
+				MIMEType = MultimediaUtils.getVideoMIMEType(ext);
+			} else if (mediaEntry instanceof AudioEntry) {
+				MIMEType = MultimediaUtils.getAudioMIMEType(ext);
+			} else {
+				byte[] readFile = JSR75FileSystem.readFile(mediaEntry.getFilePath());
+				EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
+				MIMEType = img.getMIMEType();
+			}
+			invoc.setType(MIMEType);
+			return invoc;
+		} catch (Exception ioe) {
+			Log.error(ioe, "Error while creating the chapi invocation object");
+		}
+
+		return null;
+	}
+	
+	//Override the makeMenu method so we can add a custom menu item
+	protected void makeMenu(Menu menu, int instance)
+	{
+		//if (getLeafFieldWithFocus() instanceof BitmapField ) {
+		if (counterPhotos > 0) {
+			menu.add(_showPhotoPropertiesItem);
+			menu.add(_deletePhotoItem);
+		
+			try {
+				Invocation invoc =  buildCHAPIInvocation();
+				if (invoc != null) {
+					// Get access to the Registry and pass it the Invocation
+					Registry registry = Registry.getRegistry(getClass().getName());
+					ContentHandler[] candidates = registry.findHandler(invoc);
+					for (int i = 0; i < candidates.length; i++) {
+						MenuItem tmpMnu = createCHAPIMenuItem(invoc, candidates[i]);
+						menu.add(tmpMnu);
+					}	
+					
+					if(candidates.length == 0) //add a generic open menu that open the file in the native browser
+						menu.add(_showPhotoItem);
+					
+				} else {
+					//no invocation found.
+					menu.add(_showPhotoItem); //add a generic open menu that open the file in the native browser
+				}
+			} 
+			catch (Exception ioe)
+			{
+				Log.error(ioe, "Error while creating the chapi menu item");
+				menu.add(_showPhotoItem); //add a generic open menu that open the file in the native browser
+			}
+		}
+		
+		addExclusiveMenuItem(menu, instance);
+		//Create the default menu.
+		super.makeMenu(menu, instance);
+	}
+
+	protected MenuItem createCHAPIMenuItem(final Invocation invoc, final ContentHandler handler) {
+		String label = _resources.getString(WordPressResource.MENUITEM_OPEN_IN) +" "+ handler.getAppName();
+		MenuItem mnuItem= new MenuItem(label, 120, 10) {
+			public void run() {
+				try
+				{   
+					// Get access to the Registry and pass it the Invocation
+					Registry registry = Registry.getRegistry(getClass().getName());
+					invoc.setID(handler.getID());
+					registry.invoke(invoc);                
+				}
+				catch (IOException ioe)
+				{
+					controller.displayError(ioe, "Error opening the file!");
+				}
+			}	
+		};
+		return mnuItem;
+	}
 	
     protected void addExclusiveMenuItem(Menu menu, int instance) {
     	if(uiLink.size() > 0) {
@@ -349,7 +480,7 @@ public class MediaView extends StandardBaseView {
         			
         		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
         			Log.trace("Input came from a four way navigation input device");
-        			openMediaItem();
+        			openMediaItemUsingCHAPI();
         			return true;
         		}
         		return super.navigationClick(status, time);
@@ -361,7 +492,7 @@ public class MediaView extends StandardBaseView {
                 //If the spacebar was pressed...
                 if (key == Characters.SPACE || key == Characters.ENTER)
                 {
-                	openMediaItem();
+                	openMediaItemUsingCHAPI();
                 	return true;
                 }
                 return false;
@@ -384,7 +515,7 @@ public class MediaView extends StandardBaseView {
         		int eventCode = message.getEvent();
         		if(eventCode == TouchEvent.CLICK) {
         			Log.trace("TouchEvent.CLICK");
-        			openMediaItem();
+        			openMediaItemUsingCHAPI();
         			return true;
         		}else if(eventCode == TouchEvent.DOWN) {
         			Log.trace("TouchEvent.CLICK");

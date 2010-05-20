@@ -31,6 +31,7 @@ src\category_child.png
 src\check.png
 src\com\wordpress\bb\NotificationHandler.java
 src\com\wordpress\bb\ShareToWordPressHelper.java
+src\com\wordpress\bb\SharingHelper.java
 src\com\wordpress\bb\SplashScreen.java
 src\com\wordpress\bb\WordPress.java
 src\com\wordpress\bb\WordPress.rrc
@@ -155,7 +156,6 @@ src\com\wordpress\view\CommentView.java
 src\com\wordpress\view\component\AnimatedGIFField.java
 src\com\wordpress\view\component\BaseButtonField.java
 src\com\wordpress\view\component\BasicListFieldCallBack.java
-src\com\wordpress\view\component\BlogSelectorPopupScreen.java
 src\com\wordpress\view\component\BlogsListField.java
 src\com\wordpress\view\component\CategoriesListField.java
 src\com\wordpress\view\component\CheckBoxListField.java
@@ -170,6 +170,7 @@ src\com\wordpress\view\component\ListActionListener.java
 src\com\wordpress\view\component\PostsListField.java
 src\com\wordpress\view\component\RimFileBrowser.java
 src\com\wordpress\view\component\RimFileBrowserListener.java
+src\com\wordpress\view\component\SelectorPopupScreen.java
 src\com\wordpress\view\component\ThrobberRenderer.java
 src\com\wordpress\view\component\WebBitmapField.java
 src\com\wordpress\view\container\BorderedFieldManager.java

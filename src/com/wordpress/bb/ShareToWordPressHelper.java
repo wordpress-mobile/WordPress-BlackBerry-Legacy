@@ -13,7 +13,6 @@ import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
-import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.AudioEntry;
@@ -25,12 +24,8 @@ import com.wordpress.model.Post;
 import com.wordpress.model.VideoEntry;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.log.Log;
-import com.wordpress.view.BaseView;
-import com.wordpress.view.BlogView;
 import com.wordpress.view.MainView;
-import com.wordpress.view.NotificationView;
-import com.wordpress.view.PreferencesView;
-import com.wordpress.view.component.BlogSelectorPopupScreen;
+import com.wordpress.view.component.SelectorPopupScreen;
 
 public class ShareToWordPressHelper {
 	
@@ -160,7 +155,8 @@ public class ShareToWordPressHelper {
 
 			String[] blogNames = new String[tmpBlogs.size()];
 			tmpBlogs.copyInto(blogNames);
-			BlogSelectorPopupScreen selScr = new BlogSelectorPopupScreen(blogNames);
+			String title = WordPressCore.getInstance().getResourceBundle().getString(WordPressResource.TITLE_BLOG_SELECTOR_POPUP);
+			SelectorPopupScreen selScr = new SelectorPopupScreen(title, blogNames);
 			selScr.pickBlog();
 			selection = selScr.getSelectedBlog();
 		}

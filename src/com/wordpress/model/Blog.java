@@ -21,7 +21,7 @@ public class Blog {
 	private boolean isCommentNotifies=false; //true when comment notifies is active
 	private boolean isLocation=false; //true when location is active
 	
-	private boolean isSignatureEnabled=true; //true add a signature at the end of each post
+	private boolean isSignatureEnabled=false; //true add a signature at the end of each post
 	private String signature=null;
 
 	private int maxPostCount=-1;

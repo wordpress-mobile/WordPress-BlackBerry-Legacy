@@ -11,7 +11,7 @@
     	
         <property name="module.version" value="0.0" />
 
-        <property name="platform"              value="os42" />
+        <property name="platform"              value="os45" />
         <property name="module.name"           value="WordPress"/>
         <property name="module.release.prefix" value="WordPress"/>
                         

@@ -14,13 +14,13 @@ import net.rim.device.api.ui.container.PopupScreen;
 import com.wordpress.bb.WordPressResource;
 
 /**
- * A PopupScreen with a file browser allowing for file selection.
+ * A PopupScreen for selection.
  */
 
-public class BlogSelectorPopupScreen extends PopupScreen {
+public class SelectorPopupScreen extends PopupScreen {
 
 	ObjectListField _olf; 
-	int selectedBlog = -1;
+	int selectedItem = -1;
 
 	//create a variable to store the ResourceBundle for localization support
     protected static ResourceBundle _resources;
@@ -30,17 +30,16 @@ public class BlogSelectorPopupScreen extends PopupScreen {
         _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
     }
 
-	public BlogSelectorPopupScreen(String[] blogNames) {
+	public SelectorPopupScreen(String title, String[] items) {
 		super(new DialogFieldManager());
 		DialogFieldManager dfm = (DialogFieldManager) getDelegate();
 		dfm.setIcon(new BitmapField(Bitmap.getPredefinedBitmap(Bitmap.QUESTION)));
-		dfm.setMessage(new RichTextField(_resources.getString(WordPressResource.TITLE_BLOG_SELECTOR_POPUP), Field.NON_FOCUSABLE ));
+		dfm.setMessage(new RichTextField(title, Field.NON_FOCUSABLE ));
 		
 		_olf = new ObjectListField();
 		dfm.addCustomField(_olf);
 		
-		// Update the field with blog names
-		_olf.set(blogNames);
+		_olf.set(items);
 	}
 
 	public void pickBlog() {
@@ -49,14 +48,13 @@ public class BlogSelectorPopupScreen extends PopupScreen {
 
 
 	public int getSelectedBlog() {
-		return selectedBlog;
+		return selectedItem;
 	}
 	
 
 	// Handles a user picking an entry in the ObjectListField.
 	private void doSelection() {
-		// Determine the current path.
-		selectedBlog = _olf.getSelectedIndex();
+		selectedItem = _olf.getSelectedIndex();
 		this.close();
 	}
 
@@ -69,7 +67,7 @@ public class BlogSelectorPopupScreen extends PopupScreen {
 	protected boolean keyChar(char c, int status, int time) {
 		// Close this screen if escape is selected.
 		if (c == Characters.ESCAPE) {
-			selectedBlog = -1;
+			selectedItem = -1;
 			this.close();
 			return true;
 		} else if (c == Characters.ENTER) {

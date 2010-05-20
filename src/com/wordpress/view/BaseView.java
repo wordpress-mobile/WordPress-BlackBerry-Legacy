@@ -18,6 +18,7 @@ import com.wordpress.bb.NotificationHandler;
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.HeaderField;
 
 //#ifdef IS_OS47_OR_ABOVE
@@ -112,19 +113,20 @@ public abstract class BaseView extends MainScreen {
 	private volatile boolean isBottomBarVisible = false;
 	
 	protected void sublayout( int maxWidth, int maxHeight ) {
-	
+		
 		/* We MUST remove the bottom bar when the virtual keyboad is visible on the screen.  
 		  * There is in no lister to catch that event, and we really won't setup a polling 
 		  * thread on the virtual kb status. Instead we want to rearrange twice the View when 
 		  * kb is displayed or removed from screen. this could take a little bit more time 
 		  * during hide/show of  kb, but don't requires another thread or timertask to do that.
-		  */
+		  */		  
 		
 		//Log.trace("==Layout della classe base view");
 		if (Touchscreen.isSupported() == true && bottomButtonsManager != null
 				&& VirtualKeyboard.isSupported() ) {
-			//Log.trace("A");	
-			if(this.getVirtualKeyboard().getVisibility() == (VirtualKeyboard.SHOW)	) {
+			//Log.trace("A");
+			int kbVisibility = this.getVirtualKeyboard().getVisibility();
+			if( kbVisibility == VirtualKeyboard.SHOW || kbVisibility == VirtualKeyboard.SHOW_FORCE ) {
 				//Log.trace("B");
 				if(isBottomBarVisible) {
 					isBottomBarVisible = false;

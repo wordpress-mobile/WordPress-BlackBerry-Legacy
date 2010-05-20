@@ -2,27 +2,77 @@ package com.wordpress.utils;
 
 import java.util.Vector;
 
+import javax.microedition.content.ContentHandler;
+import javax.microedition.content.Invocation;
+import javax.microedition.content.Registry;
+
 import net.rim.blackberry.api.browser.Browser;
 import net.rim.blackberry.api.browser.BrowserSession;
 import net.rim.blackberry.api.browser.PostData;
+import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.io.http.HttpHeaders;
 import net.rim.device.api.synchronization.UIDGenerator;
 
+import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressInfo;
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.SelectorPopupScreen;
 
 public class Tools {
+		
+	public static synchronized void openFileWithExternalApp(String fileURL){
+		
+		ResourceBundle resourceBundle = WordPressCore.getInstance().getResourceBundle();
+		
+		// Create the Invocation with the file URL
+		Invocation invoc = new Invocation(fileURL);
+		invoc.setResponseRequired(false); // We don't require a response
+		invoc.setAction(ContentHandler.ACTION_OPEN);
+		
+		if(!fileURL.startsWith("file://")){
+			Tools.getNativeBrowserSession(fileURL);
+			return;
+		} 
+		
+		// Get access to the Registry and pass it the Invocation
+		Registry registry = Registry.getRegistry("com.wordpress.utils.Tools");
+		try {
+			ContentHandler[] candidates = new ContentHandler[0];
+			candidates = registry.findHandler(invoc);
+		
+			if(candidates.length == 0) {
+				Tools.getNativeBrowserSession(fileURL);
+				return;
+			}
+
+			String[] appNames = new String[candidates.length];
+			for (int i = 0; i < candidates.length; i++) {
+				appNames[i] = candidates[i].getAppName();
+			}
+			String title = resourceBundle.getString(WordPressResource.MENUITEM_OPEN_IN);
+			SelectorPopupScreen selScr = new SelectorPopupScreen(title, appNames);
+			selScr.pickBlog();
+			int selection = selScr.getSelectedBlog();
+			if(selection != -1) {
+				invoc.setID(candidates[selection].getID());
+				registry.invoke(invoc);                
+			}
+			
 	
-	
+		} catch (Exception e) {
+			Log.error(e, "Error while finding a chapi endpoint");
+			Tools.getNativeBrowserSession(fileURL);
+			return;
+		}
+	}
 	
 	public static synchronized void openWordPressSignUpURL(String refScreen){
 		HttpHeaders headers = new HttpHeaders();
     	//headers.addProperty("User-Agent", "wp-blackberry/"+ Tools.getAppVersion());
-    	Tools.getBrowserSession(WordPressInfo.BB_APP_SIGNUP_URL,"/wp-blackberry/"+refScreen, headers, null);
+    	Tools.getNativeBrowserSession(WordPressInfo.BB_APP_SIGNUP_URL,"/wp-blackberry/"+refScreen, headers, null);
 	}
-	
-	
-	
+		
 	/**
 	 * Groups numbers by inserting 'separator' after every group of 'size' digits,
 	 * starting from the right.
@@ -46,7 +96,16 @@ public class Tools {
 		return r.toString();
 	}
 	
-	
+	public static synchronized BrowserSession getNativeBrowserSession(String URL) {
+		// Get the default sessionBrowserSession
+    	BrowserSession browserSession = Browser.getDefaultSession();
+    	// now launch the URL
+    	browserSession.displayPage(URL);
+    	// The following line is a work around to the issue found in
+    	// version 4.2.0
+    	browserSession.showBrowser();
+		return browserSession;
+	}
 	
 	/**
 	 * Invoke the default browser on the BlackBerry smartphone
@@ -58,18 +117,7 @@ public class Tools {
 	 *  the BlackBerry Browser, the Wi-Fi Browser, or the BlackBerry Unite! Browser
 	 *  see DB-00701
 	 */
-	public static synchronized BrowserSession getBrowserSession(String URL) {
-		// Get the default sessionBrowserSession
-    	BrowserSession browserSession = Browser.getDefaultSession();
-    	// now launch the URL
-    	browserSession.displayPage(URL);
-    	// The following line is a work around to the issue found in
-    	// version 4.2.0
-    	browserSession.showBrowser();
-		return browserSession;
-	}
-	
-	public static synchronized BrowserSession getBrowserSession(String URL, String referrer, HttpHeaders headers, PostData postData) {
+	public static synchronized BrowserSession getNativeBrowserSession(String URL, String referrer, HttpHeaders headers, PostData postData) {
 		// Get the default sessionBrowserSession
     	BrowserSession browserSession = Browser.getDefaultSession();
     	// now launch the URL

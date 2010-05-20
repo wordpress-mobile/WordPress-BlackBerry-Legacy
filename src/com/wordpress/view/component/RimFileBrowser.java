@@ -169,8 +169,7 @@ public class RimFileBrowser extends PopupScreen {
 	        if (isDirectory(entry)) {
 	        	chooseDirectory();
 	        } else {
-	        	//open the file into the browser
-	        	Tools.getBrowserSession("file://"+currDirName + entry);
+	        	Tools.openFileWithExternalApp("file://"+currDirName + entry);
 	        }
         }
     }
@@ -977,8 +976,7 @@ public class RimFileBrowser extends PopupScreen {
                     if (isDirectory(entry)) {
                     	chooseDirectory();
                     } else {
-                    	//open the file into the browser
-                    	Tools.getBrowserSession("file://"+currDirName + entry);
+                    	Tools.openFileWithExternalApp("file://"+currDirName + entry);
                     }
                 }
             };
