@@ -97,7 +97,7 @@ public class GUIFactory {
 		 ClickableLabelField clickableLabelField = new ClickableLabelField(label, LabelField.FOCUSABLE | style );
 		 FieldChangeListener listener = new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {
-				 Tools.getNativeBrowserSession(url);
+				 Tools.openURL(url);
 			 }
 		 };
 		 clickableLabelField.setChangeListener(listener);

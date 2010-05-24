@@ -119,6 +119,41 @@ public class MultimediaUtils {
 		return audioExtensions;
 	}
 	
+	
+	public static String getFileMIMEType(String ext){
+		String mime = null;
+		mime = getImageMIMEType(ext); 
+		if(!mime.equalsIgnoreCase("")) return mime;
+		mime = getAudioMIMEType(ext);
+		if(!mime.equalsIgnoreCase("")) return mime;
+		mime = getVideoMIMEType(ext);
+		if(!mime.equalsIgnoreCase("")) return mime;
+		
+		return "";
+	}
+	
+	
+	
+	public static String getImageMIMEType(String ext){
+		if(ext.toLowerCase().equals("jpg"))
+			return "image/jpeg";
+		
+		if(ext.toLowerCase().equals("jpeg"))
+			return "image/jpeg";
+
+		if(ext.toLowerCase().equals("bmp"))
+			return "image/bmp";
+		
+		if(ext.toLowerCase().equals("png"))
+			return "image/png";
+		
+		if(ext.toLowerCase().equals("gif"))
+			return "image/gif";
+
+		return "";		
+	}
+	
+	
 	public static String getVideoMIMEType(String ext){
 		if(ext.toLowerCase().equals("avi"))
 			return "video/x-msvideo";

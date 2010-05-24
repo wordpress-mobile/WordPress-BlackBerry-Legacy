@@ -19,6 +19,7 @@ import net.rim.device.api.ui.component.PasswordEditField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.text.URLTextFilter;
 
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AddBlogsController;
 import com.wordpress.controller.BaseController;
@@ -191,7 +192,7 @@ public class AddBlogsView extends StandardBaseView {
 	
 	private FieldChangeListener listenerGetBlogButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
-	    	Tools.openWordPressSignUpURL("AddBlogScreen");
+	    	Tools.getNativeBrowserSession(WordPressInfo.BB_APP_SIGNUP_URL);
 	   }
 	};
 	
@@ -289,7 +290,7 @@ public class AddBlogsView extends StandardBaseView {
 	//add blog menu item 
 	private MenuItem _getFreeBlogItem = new MenuItem( _resources, WordPressResource.GET_FREE_BLOG_MENU_ITEM, 150, 20) {
 		public void run() {
-			Tools.openWordPressSignUpURL("AddBlogScreen");
+			Tools.getNativeBrowserSession(WordPressInfo.BB_APP_SIGNUP_URL);
 		}
 	};
 

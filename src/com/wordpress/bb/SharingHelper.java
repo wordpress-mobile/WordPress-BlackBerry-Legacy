@@ -99,7 +99,7 @@ public class SharingHelper implements RequestListener{
 		}
 		// Wasn't registered before, so do it now.
 		String[] actions = new String[] { ContentHandler.ACTION_SEND };
-		String[] actionNames = new String[] { "Send Via WordPress" };
+		String[] actionNames = new String[] { _resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS) };
 		ActionNameMap[] maps = new ActionNameMap[]{ new ActionNameMap(actions, actionNames, "en") };
 			registry.register(CHAPI_CLASS_NAME, CHAPI_MIME_TYPES, CHAPI_SUFFIXES, actions, maps,
 					CHAPI_ID, null);
@@ -108,20 +108,20 @@ public class SharingHelper implements RequestListener{
 		{
 			Log.error(e, "Could not register for " + CHAPI_ID);
 		}
-		/* 
+		
 		
 		ShareToWordPressMenuItem shareToWordPressMenuItem = new ShareToWordPressMenuItem(10000, 
 				_resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS));
 
+		
+		//#ifndef IS_OS47_OR_ABOVE
 		//add the global menu item
 		ApplicationMenuItemRepository amir = ApplicationMenuItemRepository.getInstance();
-		Log.trace(">>>ciao ciao");
-	
 		Log.trace(">>>Old menu items will be registered");
 		amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_FILE_EXPLORER_BROWSE, shareToWordPressMenuItem, ApplicationDescriptor.currentApplicationDescriptor());
 		amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_FILE_EXPLORER_ITEM, shareToWordPressMenuItem, ApplicationDescriptor.currentApplicationDescriptor());
-		amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_BROWSER, shareToWordPressMenuItem);
-		*/
+		//amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_BROWSER, shareToWordPressMenuItem);
+		//#endif
 		
 		Log.trace("<<< verifyRegistration");
 	}

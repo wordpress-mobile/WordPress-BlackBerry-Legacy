@@ -43,7 +43,7 @@ public abstract class StandardBaseView extends BaseView {
     				titleFieldHeight = titleField.getHeight();
     			}
     		    //#ifdef IS_OS47_OR_ABOVE
-    			if (Touchscreen.isSupported() == true && bottomButtonsManager != null && bottomButtonsManager.isVisible()) {
+    			if (Touchscreen.isSupported() == true && bottomButtonsManager != null && isBottomBarVisible) {
     				titleFieldHeight += bottomButtonsManager.getHeight();
     			}  			   				
     			//#endif

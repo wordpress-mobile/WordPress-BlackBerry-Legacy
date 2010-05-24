@@ -110,7 +110,7 @@ public abstract class BaseView extends MainScreen {
   //#ifdef IS_OS47_OR_ABOVE         
 	private Field hoverField;
 	protected BottomBarManager bottomButtonsManager = null; 
-	private volatile boolean isBottomBarVisible = false;
+	protected volatile boolean isBottomBarVisible = false;
 	
 	protected void sublayout( int maxWidth, int maxHeight ) {
 		
@@ -126,6 +126,7 @@ public abstract class BaseView extends MainScreen {
 				&& VirtualKeyboard.isSupported() ) {
 			//Log.trace("A");
 			int kbVisibility = this.getVirtualKeyboard().getVisibility();
+			
 			if( kbVisibility == VirtualKeyboard.SHOW || kbVisibility == VirtualKeyboard.SHOW_FORCE ) {
 				//Log.trace("B");
 				if(isBottomBarVisible) {

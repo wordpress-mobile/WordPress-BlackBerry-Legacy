@@ -317,7 +317,7 @@ public class SendToBlogTask extends TaskImpl {
 			//set the right content type based on the file extension
 			String[] split = StringUtils.split(mediaEntry.getFilePath(), ".");
 			String ext = split[split.length-1];
-			String videoMIMEType = MultimediaUtils.getVideoMIMEType(ext);
+			String videoMIMEType = MultimediaUtils.getFileMIMEType(ext);
 			mediaEntry.setMIMEType(videoMIMEType);
 			sendCallBack = new SendMediaCallBack(mediaEntry);
 		} else {
@@ -325,7 +325,7 @@ public class SendToBlogTask extends TaskImpl {
 			//set the right content type based on the file extension
 			String[] split = StringUtils.split(mediaEntry.getFilePath(), ".");
 			String ext = split[split.length-1];
-			String audioMIMEType = MultimediaUtils.getAudioMIMEType(ext);
+			String audioMIMEType = MultimediaUtils.getFileMIMEType(ext);
 			mediaEntry.setMIMEType(audioMIMEType);
 			sendCallBack = new SendMediaCallBack(mediaEntry);
 		}

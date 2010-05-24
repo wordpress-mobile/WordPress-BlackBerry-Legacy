@@ -40,8 +40,8 @@ which in turn uses the kXML parser <http://sourceforge.net/projects/kxml/>. Thes
 products are licensed under licensed under the GNU Library or Lesser General Public License (LGPL).
 See the respective web pages for a copy of the license. The modified source code for
 kXML-RPC is included with this source distribution, in the "thirdparty" source directory.
-- WordPress for BlackBerry uses a small number of class from LogicMail <http://logicmail.org/>. 
-Those class are used for characters encoding.
+- WordPress for BlackBerry uses a small number of classes from LogicMail <http://logicmail.org/>. 
+Those classes are used for characters encoding.
 
 
 

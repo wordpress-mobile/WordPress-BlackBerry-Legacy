@@ -103,7 +103,6 @@ src\com\wordpress\task\AsyncRunner.java
 src\com\wordpress\task\CommentsTask.java
 src\com\wordpress\task\GetGravatarTask.java
 src\com\wordpress\task\LoadBlogsDataTask.java
-src\com\wordpress\task\ResizeImageTask.java
 src\com\wordpress\task\SendToBlogTask.java
 src\com\wordpress\task\Task.java
 src\com\wordpress\task\TaskImpl.java
@@ -124,7 +123,6 @@ src\com\wordpress\utils\csv\CSVReader.java
 src\com\wordpress\utils\csv\StatsParser.java
 src\com\wordpress\utils\DataCollector.java
 src\com\wordpress\utils\ImageUtils.java
-src\com\wordpress\utils\JpegEncoder.java
 src\com\wordpress\utils\LocalHttpConn.java
 src\com\wordpress\utils\log\Appender.java
 src\com\wordpress\utils\log\BlackberryEventLogAppender.java
@@ -137,7 +135,6 @@ src\com\wordpress\utils\MinimalPNGEncoder.java
 src\com\wordpress\utils\MultimediaUtils.java
 src\com\wordpress\utils\observer\Observable.java
 src\com\wordpress\utils\observer\Observer.java
-src\com\wordpress\utils\PNGEncoder.java
 src\com\wordpress\utils\PropertyUtils.java
 src\com\wordpress\utils\Queue.java
 src\com\wordpress\utils\SecondaryResourceFetchThread.java

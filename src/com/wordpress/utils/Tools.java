@@ -66,13 +66,7 @@ public class Tools {
 			return;
 		}
 	}
-	
-	public static synchronized void openWordPressSignUpURL(String refScreen){
-		HttpHeaders headers = new HttpHeaders();
-    	//headers.addProperty("User-Agent", "wp-blackberry/"+ Tools.getAppVersion());
-    	Tools.getNativeBrowserSession(WordPressInfo.BB_APP_SIGNUP_URL,"/wp-blackberry/"+refScreen, headers, null);
-	}
-		
+			
 	/**
 	 * Groups numbers by inserting 'separator' after every group of 'size' digits,
 	 * starting from the right.
@@ -95,6 +89,84 @@ public class Tools {
 		r.append(value.charAt(ndx));
 		return r.toString();
 	}
+	
+	
+	/**
+	 * Finds installed Browsers and asks user which one should be used to open the page
+	 */
+	public static synchronized void openURL(String url){
+		
+		ResourceBundle resourceBundle = WordPressCore.getInstance().getResourceBundle();
+		
+		// Create the Invocation with the file URL
+		Invocation invoc = new Invocation(url);
+		invoc.setResponseRequired(false); // We don't require a response
+		invoc.setType("text/html");
+		//invoc.setAction(ContentHandler.ACTION_OPEN);
+		
+		if(!url.startsWith("http")){
+			Tools.getNativeBrowserSession(url);
+			return;
+		} 
+		
+		// Get access to the Registry and pass it the Invocation
+		Registry registry = Registry.getRegistry("com.wordpress.utils.Tools");		
+		try {
+			ContentHandler[] candidates = new ContentHandler[0];
+			candidates = registry.findHandler(invoc);
+			
+			//check the #s of apps that can handle html file
+			if(candidates.length == 0) {
+				Tools.getNativeBrowserSession(url);
+				return;
+			}
+					
+			//remove the net.rim.bb.mediacontenthandler from content handler list
+			Vector newCandidates = new Vector();
+			for (int i = 0; i < candidates.length; i++) {
+				if(candidates[i].getID().equalsIgnoreCase("net.rim.bb.mediacontenthandler")) {
+					
+				} else { 
+					newCandidates.addElement(candidates[i]);
+				}
+			}
+			
+			candidates = new ContentHandler[newCandidates.size()];
+			newCandidates.copyInto(candidates);
+
+			if(candidates.length == 0) {
+				Tools.getNativeBrowserSession(url);
+				return;
+			}
+
+			//add the native browser at the end of the list		
+			String[] appNames = new String[candidates.length+1];
+			for (int i = 0; i < appNames.length-1; i++) {
+				appNames[i] = candidates[i].getAppName();
+			}
+			appNames[appNames.length-1] = resourceBundle.getString(WordPressResource.NATIVE_BROWSER);
+				
+			String title = resourceBundle.getString(WordPressResource.MENUITEM_OPEN_IN);
+			SelectorPopupScreen selScr = new SelectorPopupScreen(title, appNames);
+			selScr.pickBlog();
+			int selection = selScr.getSelectedBlog();
+			if(selection != -1) {
+				if(selection < appNames.length-1) {
+					invoc.setID(candidates[selection].getID());
+					registry.invoke(invoc);
+				} else {
+					//native browser
+					Tools.getNativeBrowserSession(url);
+				}
+			}
+	
+		} catch (Exception e) {
+			Log.error(e, "Error while finding a chapi endpoint");
+			Tools.getNativeBrowserSession(url);
+			return;
+		}
+	}	
+	
 	
 	public static synchronized BrowserSession getNativeBrowserSession(String URL) {
 		// Get the default sessionBrowserSession

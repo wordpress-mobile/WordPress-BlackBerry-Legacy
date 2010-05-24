@@ -13,7 +13,6 @@ import net.rim.blackberry.api.browser.Browser;
 import net.rim.blackberry.api.browser.BrowserSession;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
-import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
@@ -38,10 +37,7 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
-import com.wordpress.io.JSR75FileSystem;
-import com.wordpress.model.AudioEntry;
 import com.wordpress.model.MediaEntry;
-import com.wordpress.model.VideoEntry;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
@@ -58,7 +54,7 @@ public class MediaView extends StandardBaseView {
 	private int counterPhotos = 0;
 	protected Vector uiLink = new Vector();
 	private BorderedFieldManager noPhotoBorderedManager = null;
-	protected boolean refreshThumbOnExpose = false; //used when adding a photo, or photo is changed on the FS.
+	private MediaEntry lastAddedMediaObj = null;
 	
     public MediaView(BlogObjectController _controller) {
     	super(_resources.getString(WordPressResource.TITLE_MEDIA_VIEW), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -151,7 +147,7 @@ public class MediaView extends StandardBaseView {
         }
     };
     
-    private MenuItem _showPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_OPEN, 120, 10) {
+    private MenuItem _showOpenInNativeBrowserItem = new MenuItem( _resources, WordPressResource.MENUITEM_OPEN, 120, 10) {
     	public void run() {
     		openMediaItemUsingDefaultBrowser();
     	}
@@ -324,21 +320,13 @@ public class MediaView extends StandardBaseView {
 			String[] split = StringUtils.split(mediaEntry.getFilePath(), ".");
 			String ext = split[split.length - 1];
 			String MIMEType = "";
-
 			// Create the Invocation with the file URL
 			Invocation invoc = new Invocation(mediaEntry.getFilePath());
 			invoc.setResponseRequired(false); // We don't require a response
 			// We want to invoke a handler that has registered with ACTION_OPEN
-			invoc.setAction(ContentHandler.ACTION_OPEN);
-			if (mediaEntry instanceof VideoEntry) {
-				MIMEType = MultimediaUtils.getVideoMIMEType(ext);
-			} else if (mediaEntry instanceof AudioEntry) {
-				MIMEType = MultimediaUtils.getAudioMIMEType(ext);
-			} else {
-				byte[] readFile = JSR75FileSystem.readFile(mediaEntry.getFilePath());
-				EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
-				MIMEType = img.getMIMEType();
-			}
+			invoc.setAction(ContentHandler.ACTION_OPEN);			
+			MIMEType = MultimediaUtils.getFileMIMEType(ext);
+			
 			invoc.setType(MIMEType);
 			return invoc;
 		} catch (Exception ioe) {
@@ -351,7 +339,7 @@ public class MediaView extends StandardBaseView {
 	//Override the makeMenu method so we can add a custom menu item
 	protected void makeMenu(Menu menu, int instance)
 	{
-		//if (getLeafFieldWithFocus() instanceof BitmapField ) {
+
 		if (counterPhotos > 0) {
 			menu.add(_showPhotoPropertiesItem);
 			menu.add(_deletePhotoItem);
@@ -368,17 +356,17 @@ public class MediaView extends StandardBaseView {
 					}	
 					
 					if(candidates.length == 0) //add a generic open menu that open the file in the native browser
-						menu.add(_showPhotoItem);
+						menu.add(_showOpenInNativeBrowserItem);
 					
 				} else {
 					//no invocation found.
-					menu.add(_showPhotoItem); //add a generic open menu that open the file in the native browser
+					menu.add(_showOpenInNativeBrowserItem); //add a generic open menu that open the file in the native browser
 				}
 			} 
 			catch (Exception ioe)
 			{
 				Log.error(ioe, "Error while creating the chapi menu item");
-				menu.add(_showPhotoItem); //add a generic open menu that open the file in the native browser
+				menu.add(_showOpenInNativeBrowserItem); //add a generic open menu that open the file in the native browser
 			}
 		}
 		
@@ -418,31 +406,26 @@ public class MediaView extends StandardBaseView {
     protected void onExposed() {
     	Log.trace("MediaView - onExposed");
     	controller.removeMediaFileJournalListener(); //remove the fs listener (used only when recording live video)
+
     	//update the thumbnails
-    	if(refreshThumbOnExpose) {
-    		Log.trace("MediaView - onExposed - refresh thumbs");
-    		for (int i = 0; i < uiLink.size(); i++) {
-    			MediaViewMediator tmpLink = (MediaViewMediator)uiLink.elementAt(i);
-    			MediaEntry mediaEntry = tmpLink.getMediaEntry();
-    			Bitmap bitmapThumb = mediaEntry.getThumb();
-    			//if thumb is a photo then...
-    			Field[] fieldsManaged = tmpLink.getFields();
-    			if( fieldsManaged[0] instanceof BitmapField) {
-    				BitmapField bitmapField = (BitmapField) fieldsManaged[0];
-    				bitmapField.setBitmap(bitmapThumb);
-    			} else {
-    				//video prev is a bitmap right now!!
-    			}
+    	if(lastAddedMediaObj != null) {
+    		MediaViewMediator tmpLink = (MediaViewMediator)uiLink.elementAt(uiLink.size()-1);
+    		MediaEntry mediaEntry = tmpLink.getMediaEntry();
+    		Bitmap bitmapThumb = mediaEntry.getThumb();
+    		Field[] fieldsManaged = tmpLink.getFields();
+    		if( fieldsManaged[0] instanceof BitmapField) {
+    			BitmapField bitmapField = (BitmapField) fieldsManaged[0];
+    			bitmapField.setBitmap(bitmapThumb);
     		}
-    		refreshThumbOnExpose = false;
+    		lastAddedMediaObj = null;
     	}
+
     	super.onExposed();
     }
     
     protected void onDisplay() {
     	Log.trace("MediaView - OnDisplay");
 		controller.removeMediaFileJournalListener(); //remove the fs listener (used only when recording live video)
-		refreshThumbOnExpose = false;
     	super.onDisplay();
     }
     
@@ -574,8 +557,12 @@ public class MediaView extends StandardBaseView {
 		return photoBitmapField;*/
 	}
 	
+	/* This is used to ensure that last added medio obj preview will be ok */
+	public void setLastAddedMediaObj(MediaEntry mediaEntry) {
+		lastAddedMediaObj = mediaEntry;
+	}
+	
 	public void addMedia(MediaEntry mediaEntry){
-		refreshThumbOnExpose = true;
 		Field thumbField = this.buildThumbField(mediaEntry);
 		//outer Manager
         BorderedFieldManager borderedManager = new BorderedFieldManager(

@@ -26,6 +26,7 @@ import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
@@ -189,7 +190,7 @@ public class MainView extends BaseView {
 				 ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
 		 buttonGetFreeBlog.setChangeListener(new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {
-				 Tools.openWordPressSignUpURL("MainScreen"); 
+				 Tools.getNativeBrowserSession(WordPressInfo.BB_APP_SIGNUP_URL);
 			 }
 		 });
 		 

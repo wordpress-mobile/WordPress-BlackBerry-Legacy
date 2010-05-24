@@ -6,15 +6,15 @@ import net.rim.device.api.system.Bitmap;
 
 public class VideoEntry extends MediaEntry {
 
-	public static final String videoPredefinedThumb = "video_thumb.png";
-	
+
 	public VideoEntry() {
 		super();
+		predefinedThumb = "video_thumb.png";
 	}
 	
 	
 	public Bitmap getThumb() {
-		return  Bitmap.getBitmapResource(videoPredefinedThumb);
+		return  Bitmap.getBitmapResource(predefinedThumb);
 	}
 	
 	public Bitmap getThumb(int width, int height) {

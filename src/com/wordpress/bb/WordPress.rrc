@@ -217,6 +217,7 @@ MESSAGE_STATS_TOP#0="These posts on your blog got the most traffic.";
 MESSAGE_STATS_VIEW#0="These are total views of your blog.";
 MESSAGE_XMLRPC_ENDPOINT#0="We could not find the XMLRPC endpoint of your blog,  please insert the complete URL below";
 MESSAGE_XMLRPC_ENDPOINT_FAILED#0="We could not find the XMLRPC endpoint of your blog. Please have a look at FAQ available here: http://blackberry.wordpress.org/faq/";
+NATIVE_BROWSER#0="Native Browser";
 NOTIFICATION_DESC#0="Select which blog to receive comment notifications";
 NOTIFICATION_INTERVAL_LABEL#0="Update interval";
 OPTIONSSCREEN_ALLOW_BES#0="BlackBerry Enterprise Server";

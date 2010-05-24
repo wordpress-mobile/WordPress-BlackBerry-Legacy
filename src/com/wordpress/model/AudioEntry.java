@@ -6,14 +6,13 @@ import net.rim.device.api.system.Bitmap;
 
 public class AudioEntry extends MediaEntry {
 
-	public static final String audioPredefinedThumb = "audio.png";
-	
 	public AudioEntry() {
 		super();
+		predefinedThumb = "audio.png";
 	}
 	
 	public Bitmap getThumb() {
-		return  Bitmap.getBitmapResource(audioPredefinedThumb);
+		return  Bitmap.getBitmapResource(predefinedThumb);
 	}
 	
 	public Bitmap getThumb(int width, int height) {

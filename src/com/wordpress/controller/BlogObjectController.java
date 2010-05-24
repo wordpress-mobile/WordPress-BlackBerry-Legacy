@@ -9,7 +9,6 @@ import net.rim.device.api.io.file.FileSystemJournalListener;
 import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.CodeModuleManager;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
@@ -191,7 +190,10 @@ public abstract class BlogObjectController extends BaseController {
 				throw new IOException("The file "+completePath+" isn't readable");
 			
 			photoView.addMedia(mediaObj);
-			mediaObjects.addElement(mediaObj); 	
+			photoView.setLastAddedMediaObj(mediaObj);
+			
+			mediaObjects.addElement(mediaObj);
+			
 			
 		} catch (Exception e) {
 			displayError(e, "Cannot link the media file!");
