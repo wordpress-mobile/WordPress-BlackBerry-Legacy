@@ -5,7 +5,9 @@ import java.io.IOException;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.Dialog;
 
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.MediaLibraryDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.MediaLibrary;
@@ -61,6 +63,11 @@ public class MediaLibrariesController extends BaseController {
 	}
 	
 	public void deleteMediaLibrary(int selected){
+		int result=this.askQuestion(_resources.getString(WordPressResource.MESSAGE_DELETE_ITEM));   
+    	if(Dialog.YES != result) {
+    		return;
+    	}	
+		
 		MediaLibrary[] newMediaLibrary = new MediaLibrary[mediaLibrary.length-1];
 		int j = 0;
 		for (int i = 0; i < mediaLibrary.length; i++) {

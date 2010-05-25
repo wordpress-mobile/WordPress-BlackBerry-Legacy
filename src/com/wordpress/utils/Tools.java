@@ -102,7 +102,7 @@ public class Tools {
 		Invocation invoc = new Invocation(url);
 		invoc.setResponseRequired(false); // We don't require a response
 		invoc.setType("text/html");
-		//invoc.setAction(ContentHandler.ACTION_OPEN);
+		invoc.setAction(ContentHandler.ACTION_OPEN);
 		
 		if(!url.startsWith("http")){
 			Tools.getNativeBrowserSession(url);
@@ -188,7 +188,7 @@ public class Tools {
 	 *  In addition, an app can invoke the Internet Browser, the Wireless Application Protocol (WAP) Browser, 
 	 *  the BlackBerry Browser, the Wi-Fi Browser, or the BlackBerry Unite! Browser
 	 *  see DB-00701
-	 */
+	 
 	public static synchronized BrowserSession getNativeBrowserSession(String URL, String referrer, HttpHeaders headers, PostData postData) {
 		// Get the default sessionBrowserSession
     	BrowserSession browserSession = Browser.getDefaultSession();
@@ -199,7 +199,7 @@ public class Tools {
     	browserSession.showBrowser();
 		return browserSession;
 	}
-
+*/
 	
 	public static synchronized String getAppVersion() {
     	String version = PropertyUtils.getAppVersion(); //read from the alx files
@@ -283,19 +283,5 @@ public class Tools {
 	    v.copyInto(res);
 	    return res;
 	  }
-	  
-	  public static synchronized String getMemoryStats() {
-		 Runtime rt = java.lang.Runtime.getRuntime();
-     	 long totalMem=rt.totalMemory();
-     	 long freeMem=rt.freeMemory();
-     	 
-     	 float a = (float)(totalMem);
-     	 float b = 1048576f;
-     	 String totalMemMB=Float.toString(a/b);
-     	 
-     	 a = (float)(freeMem);
-     	 String totalFreeMemMB=Float.toString(a/b);
-     	 
-          return "Total MB heap: " + totalMemMB + "\nTotal MB free: " + totalFreeMemMB;
-	  }
+
 }

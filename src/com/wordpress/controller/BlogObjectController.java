@@ -417,8 +417,7 @@ public abstract class BlogObjectController extends BaseController {
 		}
 		
 		String htmlPage = topMediaFragment.toString() + "<p>&nbsp;</p>" + bodyContentForPreview 
-			+ "<p>&nbsp;</p>"+ bottomMediaFragment.toString();
-		
+			+ "<p>&nbsp;</p>"+ bottomMediaFragment.toString()+ getTheSignaturePreview();
 		
 		String html = FileUtils.readTxtFile("defaultPostTemplate.html");
 
@@ -437,6 +436,10 @@ public abstract class BlogObjectController extends BaseController {
 		}
 		
 		UiApplication.getUiApplication().pushScreen(new PreviewView(html));	
+	}
+	
+	protected String getTheSignaturePreview() {
+		return "";
 	}
 	
 	//callback for post loading

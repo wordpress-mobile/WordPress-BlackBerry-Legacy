@@ -190,7 +190,7 @@ public class MainView extends BaseView {
 				 ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
 		 buttonGetFreeBlog.setChangeListener(new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {
-				 Tools.getNativeBrowserSession(WordPressInfo.BB_APP_SIGNUP_URL);
+				 Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
 			 }
 		 });
 		 

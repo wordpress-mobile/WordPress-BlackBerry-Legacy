@@ -717,4 +717,32 @@ public class PostController extends BlogObjectController {
 		post.setSignatureEnabled(new Boolean(isSignatureEnabled));
 		post.setSignature(signature);
 	}
+	
+	protected String getTheSignaturePreview() {
+		Post post = getPostObj();
+		boolean needSig;
+		String signature;
+		
+		if(post.isSignatureEnabled() != null) {
+			Log.trace("post signature settings found!");
+			needSig = post.isSignatureEnabled().booleanValue();
+			signature = post.getSignature();
+		} else {
+			Log.trace("not found post signature settings, reading the signature settings from blog setting");
+			//read the value from blog
+			needSig = blog.isSignatureEnabled();
+			signature = blog.getSignature();
+			if(needSig &&  signature == null) {
+				signature = _resources.getString(WordPressResource.DEFAULT_SIGNATURE);
+				}
+		}
+		
+		if(needSig && signature != null) {
+			Log.trace("adding signature to the post preview");
+			return 	 "<p>"+signature+"</p>"; 
+		}
+
+		return "";
+	}
+	
 }

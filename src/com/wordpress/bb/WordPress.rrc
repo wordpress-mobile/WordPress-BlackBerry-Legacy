@@ -185,6 +185,7 @@ MESSAGE_CANNOT_FIND_STATS#0="We are unable to retrive stats data for your site. 
 MESSAGE_CANNOT_MANAGE_COMMENTS#0="You are running an old version of WordPress which doesn't support managing comments via XMLRPC.  Please upgrade your WordPress.";
 MESSAGE_COMMENT_LOST#0="Comment reply will be lost, are you sure?";
 MESSAGE_DELETE_BLOG#0="Delete the Blog?";
+MESSAGE_DELETE_ITEM#0="Delete the selected Item?";
 MESSAGE_DELETE_PAGE#0="Delete the Page?";
 MESSAGE_DELETE_POST#0="Delete the Post?";
 MESSAGE_EXIT_APP#0="Exit WordPress?";

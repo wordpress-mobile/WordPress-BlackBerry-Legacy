@@ -192,7 +192,7 @@ public class AddBlogsView extends StandardBaseView {
 	
 	private FieldChangeListener listenerGetBlogButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
-	    	Tools.getNativeBrowserSession(WordPressInfo.BB_APP_SIGNUP_URL);
+	    	Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
 	   }
 	};
 	
@@ -290,7 +290,7 @@ public class AddBlogsView extends StandardBaseView {
 	//add blog menu item 
 	private MenuItem _getFreeBlogItem = new MenuItem( _resources, WordPressResource.GET_FREE_BLOG_MENU_ITEM, 150, 20) {
 		public void run() {
-			Tools.getNativeBrowserSession(WordPressInfo.BB_APP_SIGNUP_URL);
+			Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
 		}
 	};
 

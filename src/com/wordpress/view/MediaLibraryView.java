@@ -90,6 +90,8 @@ public class MediaLibraryView extends MediaView {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			addMedia(tmp);
 		}
+		
+		cutAndPaste.setFocus();
     }
        
   //override the method of photoview class
