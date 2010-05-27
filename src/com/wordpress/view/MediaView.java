@@ -41,6 +41,8 @@ import com.wordpress.model.MediaEntry;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.ColoredLabelField;
+import com.wordpress.view.component.PillButtonField;
 import com.wordpress.view.component.SelectorPopupScreen;
 import com.wordpress.view.component.ClickableLabelField;
 import com.wordpress.view.container.BorderedFieldManager;
@@ -53,19 +55,52 @@ public class MediaView extends StandardBaseView {
     protected BlogObjectController controller; //controller associato alla view
 	private int counterPhotos = 0;
 	protected Vector uiLink = new Vector();
-	private BorderedFieldManager noPhotoBorderedManager = null;
+	private VerticalFieldManager noMediaContainer = null;
 	private MediaEntry lastAddedMediaObj = null;
 	
     public MediaView(BlogObjectController _controller) {
     	super(_resources.getString(WordPressResource.TITLE_MEDIA_VIEW), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
     	this.controller=_controller;
     	
-    	//init for the 0 photo item
-    	noPhotoBorderedManager= new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
+    	//setting up the box used when there are no media items
+    	noMediaContainer= new VerticalFieldManager(Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL);
-    	LabelField noPhoto = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_NO_MEDIA), Color.BLACK, Field.FOCUSABLE);
-    	noPhotoBorderedManager.add(noPhoto);
+    	//LabelField noPhoto = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_NO_MEDIA), Color.BLACK, Field.FOCUSABLE);
+    	//noMediaContainer.add(noPhoto);
     	
+		PillButtonField buttonAddAudio = new PillButtonField(_resources.getString(WordPressResource.MENUITEM_AUDIO_ADD));
+		buttonAddAudio.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
+		buttonAddAudio.setChangeListener(new FieldChangeListener() {
+			 public void fieldChanged(Field field, int context) {
+				 controller.showAddMediaPopUp(BlogObjectController.AUDIO);
+			 }
+		 });
+		buttonAddAudio.setMargin( 5, 6, 6, 5 );
+		
+		PillButtonField buttonAddVideo = new PillButtonField(_resources.getString(WordPressResource.MENUITEM_VIDEO_ADD));
+		buttonAddVideo.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
+		buttonAddVideo.setChangeListener(new FieldChangeListener() {
+			 public void fieldChanged(Field field, int context) {
+				 controller.showAddMediaPopUp(BlogObjectController.VIDEO); 
+			 }
+		 });
+		buttonAddVideo.setMargin( 5, 6, 6, 5 );
+		
+		PillButtonField buttonAddPhoto = new PillButtonField(_resources.getString(WordPressResource.MENUITEM_PHOTO_ADD));
+		buttonAddPhoto.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
+		buttonAddPhoto.setChangeListener(new FieldChangeListener() {
+			 public void fieldChanged(Field field, int context) {
+				 controller.showAddMediaPopUp(BlogObjectController.PHOTO);
+			 }
+		 });
+		buttonAddPhoto.setMargin( 10, 6, 6, 5 );
+		
+		noMediaContainer.add(buttonAddPhoto);
+		noMediaContainer.add(buttonAddVideo);
+		noMediaContainer.add(buttonAddAudio);
+    	
+		//end setting up the no media box
+		
     	//#ifdef IS_OS47_OR_ABOVE
     	initUpBottomBar();
     	//#endif
@@ -113,11 +148,11 @@ public class MediaView extends StandardBaseView {
     protected void updateUI(int count) {
     	this.setTitleText(count + " "+_resources.getString(WordPressResource.TITLE_MEDIA_VIEW) );
     	if(count == 0) {
-    		add(noPhotoBorderedManager);
-    		noPhotoBorderedManager.setFocus();
+    		add(noMediaContainer);
+    		noMediaContainer.setFocus();
     	} else {
-    		if(noPhotoBorderedManager.getManager() != null) {
-    			delete(noPhotoBorderedManager); 
+    		if(noMediaContainer.getManager() != null) {
+    			delete(noMediaContainer); 
     		}
     	}
     	
@@ -580,7 +615,7 @@ public class MediaView extends StandardBaseView {
         	}
         };
 	  		  	
-        LabelField fileNameLbl = getLabel(_resources.getString(WordPressResource.LABEL_FILE_NAME));
+        LabelField fileNameLbl = new ColoredLabelField(_resources.getString(WordPressResource.LABEL_FILE_NAME), Color.BLACK);
         fromDataManager.add( fileNameLbl );
         String fileName =  mediaEntry.getFileName() != null ? mediaEntry.getFileName() : "";
         ClickableLabelField filenameField = new ClickableLabelField(fileName, LabelField.FOCUSABLE | LabelField.ELLIPSIS);
@@ -594,7 +629,7 @@ public class MediaView extends StandardBaseView {
         
 	//	fromDataManager.add(new LabelField("", Field.NON_FOCUSABLE)); //space between title and filename
 
-		LabelField titleLbl = getLabel(_resources.getString(WordPressResource.LABEL_TITLE));        
+		LabelField titleLbl = new ColoredLabelField(_resources.getString(WordPressResource.LABEL_TITLE), Color.BLACK);        
         fromDataManager.add( titleLbl );
         String title = mediaEntry.getTitle() != null ? mediaEntry.getTitle() : "";       
         ClickableLabelField titleField = new ClickableLabelField(title, LabelField.FOCUSABLE | LabelField.ELLIPSIS);

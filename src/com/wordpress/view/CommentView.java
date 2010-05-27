@@ -27,6 +27,7 @@ import com.wordpress.controller.CommentsController;
 import com.wordpress.controller.GravatarController;
 import com.wordpress.model.Comment;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.container.BorderedFocusChangeListenerPatch;
@@ -84,7 +85,7 @@ public class CommentView extends StandardBaseView {
 	        outerManagerFrom.add(rowFrom);
 	        add(outerManagerFrom);
 	        
-	        //second manager
+	        //Informations box
 	        BorderedFieldManager outerManagerInfo = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
 			LabelField lblCommentInfo = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_INFORMATIONS),
@@ -94,7 +95,7 @@ public class CommentView extends StandardBaseView {
 			
 	  		 //post of this comment
 	        HorizontalFieldManager rowOn = new HorizontalFieldManager();
-			LabelField lblTitle = getLabel(_resources.getString(WordPressResource.LABEL_COMMENT_ON)+":");
+			LabelField lblTitle = new ColoredLabelField(_resources.getString(WordPressResource.LABEL_COMMENT_ON)+":", Color.BLACK);
 			title = new LabelField("", LabelField.FOCUSABLE);
 	        rowOn.add(lblTitle);
 	        rowOn.add(title);
@@ -102,7 +103,7 @@ public class CommentView extends StandardBaseView {
 	        	        
 	        //date
 	        HorizontalFieldManager rowDate = new HorizontalFieldManager();
-			LabelField lblDate = getLabel(_resources.getString(WordPressResource.LABEL_DATE)+":");
+			LabelField lblDate = new ColoredLabelField(_resources.getString(WordPressResource.LABEL_DATE)+":", Color.BLACK);
 			date = new LabelField("", LabelField.FOCUSABLE);
 	        rowDate.add(lblDate);
 	        rowDate.add(date);
@@ -110,7 +111,7 @@ public class CommentView extends StandardBaseView {
 	        
 	  		//status
 	        HorizontalFieldManager rowStatus = new HorizontalFieldManager();
-	        LabelField lblStatus = getLabel(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":");
+	        LabelField lblStatus = new ColoredLabelField(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":", Color.BLACK);
 	  		status =new LabelField("", LabelField.FOCUSABLE);
 	  		rowStatus.add(lblStatus);
 	  		rowStatus.add(status); 

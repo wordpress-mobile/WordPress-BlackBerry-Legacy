@@ -3,6 +3,7 @@ package com.wordpress.view;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
@@ -18,7 +19,8 @@ import com.wordpress.controller.PageController;
 import com.wordpress.model.Page;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
-import com.wordpress.view.component.HorizontalPaddedFieldManager;
+import com.wordpress.view.component.ClickableLabelField;
+import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.container.BorderedFieldManager;
 
@@ -30,7 +32,7 @@ public class PageView extends StandardBaseView {
 	private BasicEditField title;
 	private HtmlTextField bodyTextBox;
 	private ObjectChoiceField status;
-	private LabelField lblPhotoNumber;
+	private ClickableLabelField lblPhotoNumber;
 	private BasicEditField pageOrderField;
 	private ObjectChoiceField parentPageField;
 	private ObjectChoiceField pageTemplateField;
@@ -39,24 +41,15 @@ public class PageView extends StandardBaseView {
     	super(_resources.getString(WordPressResource.TITLE_POSTVIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
     	this.controller=_controller;
 		this.page = _page;
-        
-        //row photo #s
-    	BorderedFieldManager outerManagerRowPhoto = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
-         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);    	 
-    	lblPhotoNumber = GUIFactory.getLabel("", Color.BLACK);
-        setNumberOfPhotosLabel(0);
-        outerManagerRowPhoto.add(lblPhotoNumber);
-        add(outerManagerRowPhoto);
-        
+               
         //row title
     	BorderedFieldManager outerManagerRowTitle = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
-        HorizontalFieldManager rowTitle = new HorizontalPaddedFieldManager();
-		LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_TITLE)+":", Color.BLACK);
+		LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_TITLE), Color.BLACK);
 		title = new BasicEditField("", page.getTitle(), 100, Field.EDITABLE);
-        rowTitle.add(lblTitle);
-        rowTitle.add(title);
-        outerManagerRowTitle.add(rowTitle);
+		outerManagerRowTitle.add(lblTitle);
+		outerManagerRowTitle.add(GUIFactory.createSepatorField());
+		outerManagerRowTitle.add(title);
         add(outerManagerRowTitle);
 
         //opts Manager
@@ -64,12 +57,29 @@ public class PageView extends StandardBaseView {
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
     	add(outerManagerRowInfos); 
 
+        //row media files attached
+        LabelField lblMedia =  new ColoredLabelField(_resources.getString(WordPressResource.TITLE_MEDIA_VIEW)+": ", Color.BLACK);
+        HorizontalFieldManager rowMedia = new HorizontalFieldManager(Manager.USE_ALL_WIDTH);
+        lblPhotoNumber = new ClickableLabelField("0", LabelField.FOCUSABLE | LabelField.ELLIPSIS);
+        FieldChangeListener listenerPhotoNumber = new FieldChangeListener() {
+        	public void fieldChanged(Field field, int context) {
+        		if(context == 0)
+        			controller.showPhotosView(); 
+        	}
+        };
+        lblPhotoNumber.setChangeListener(listenerPhotoNumber);
+        setNumberOfPhotosLabel(0);
+        rowMedia.add(lblMedia);
+        rowMedia.add(lblPhotoNumber);
+        rowMedia.setMargin(5, 5, 5, 5);
+        outerManagerRowInfos.add(rowMedia);
+    	  	
     	//row status
   		status = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":", 
   				controller.getStatusLabels(), 
   				controller.getPageStatusFieldIndex()
   				);
-  		status.setMargin(0, 5, 5, 5);
+  		status.setMargin(5, 5, 5, 5);
   		outerManagerRowInfos.add(status);
 
   		//row parentPage
@@ -113,7 +123,6 @@ public class PageView extends StandardBaseView {
   		}
 		bodyTextBox= new HtmlTextField(buildBodyFieldContentFromHtml);
 		
-		
 		LabelField lblPageContent = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_CONTENT), Color.BLACK);
 		outerManagerRowContent.add(lblPageContent);
 		outerManagerRowContent.add(GUIFactory.createSepatorField());
@@ -133,7 +142,7 @@ public class PageView extends StandardBaseView {
     
     //set the photos number label text
     public void setNumberOfPhotosLabel(int count) {
-    	lblPhotoNumber.setText(count + " "+_resources.getString(WordPressResource.TITLE_MEDIA_VIEW));
+    	lblPhotoNumber.setText(String.valueOf(count));
     }
         
     //save a local copy of post
@@ -164,13 +173,6 @@ public class PageView extends StandardBaseView {
     		}
         }
     };
-    /*
-    private MenuItem _htmlItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_HTML, 100, 10) {
-        public void run() {
-        	UiApplication.getUiApplication().pushScreen(new HtmlTagPopupScreen());
-        }
-    };
-*/
     
     private MenuItem _customFieldsMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_CUSTOM_FIELDS, 110, 10) {
         public void run() {

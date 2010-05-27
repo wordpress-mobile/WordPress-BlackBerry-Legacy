@@ -3,7 +3,6 @@ package com.wordpress.view;
 import java.util.Hashtable;
 
 import net.rim.device.api.ui.Color;
-import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.FocusChangeListener;
@@ -27,6 +26,7 @@ import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
+import com.wordpress.view.component.PillButtonField;
 import com.wordpress.view.container.BorderedFieldManager;
 
 
@@ -43,51 +43,7 @@ public class AddBlogsView extends StandardBaseView {
 	private BasicEditField imageResizeHeightField;
 	private Integer imageResizeWidth;
 	private Integer imageResizeHeight;
-		
-	public boolean isResizePhoto(){
-		return resizePhoto.getChecked();
-	}
-	
-	public Integer getImageResizeWidth() {
-		if(imageResizeWidthField != null) {
-			return Integer.valueOf(imageResizeWidthField.getText());
-		}
-		else {
-			return new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH);
-		}
-	}
-	
-	public Integer getImageResizeHeight() {
-		if(imageResizeHeightField != null) {
-			return Integer.valueOf(imageResizeHeightField.getText());
-		}
-		else {
-			return new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT);
-		}
-	}
-	
-	public String getBlogUrl() {
-		return blogUrlField.getText();
-	}
-	
-	public void setBlogUrl(String newUrl) {
-		 blogUrlField.setText(newUrl);
-	}
-	
-	public String getBlogUser() {
-		return userNameField.getText();
-	}
-	
-	public String getBlogPass() {
-		return passwordField.getText();
-	}
-	
-	public int getMaxRecentPostIndex() {
-		return maxRecentPost.getSelectedIndex();
-	}
-	
-
-	
+			
 	public AddBlogsView(AddBlogsController addBlogsController, Hashtable values) {
 	    	super(_resources.getString(WordPressResource.TITLE_ADDBLOGS), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
 	    	this.controller=addBlogsController;
@@ -101,7 +57,6 @@ public class AddBlogsView extends StandardBaseView {
 			boolean isResImg= ((Boolean)values.get("isresphotos")).booleanValue();
 			imageResizeWidth = (Integer)values.get("imageResizeWidth");
 			imageResizeHeight = (Integer)values.get("imageResizeHeight");
-
 	        //end loading
 			
             //row url
@@ -179,8 +134,10 @@ public class AddBlogsView extends StandardBaseView {
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
     		
             HorizontalFieldManager buttonsManagerGetFreeBlog = new HorizontalFieldManager(Field.FIELD_HCENTER);
-            BaseButtonField buttonGetFreeBlog= GUIFactory.createButton(_resources.getString(WordPressResource.GET_FREE_BLOG), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
+            PillButtonField buttonGetFreeBlog = new PillButtonField(_resources.getString(WordPressResource.GET_FREE_BLOG));
+            buttonGetFreeBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
             buttonGetFreeBlog.setChangeListener(listenerGetBlogButton);
+            buttonGetFreeBlog.setMargin(0, 4, 0, 4);
             buttonsManagerGetFreeBlog.add(buttonGetFreeBlog);
     		add(buttonsManagerGetFreeBlog); 
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after button
@@ -189,6 +146,47 @@ public class AddBlogsView extends StandardBaseView {
     		addMenuItem(_getFreeBlogItem);
 	}
 	 
+	public boolean isResizePhoto(){
+		return resizePhoto.getChecked();
+	}
+	
+	public Integer getImageResizeWidth() {
+		if(imageResizeWidthField != null) {
+			return Integer.valueOf(imageResizeWidthField.getText());
+		}
+		else {
+			return new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH);
+		}
+	}
+	
+	public Integer getImageResizeHeight() {
+		if(imageResizeHeightField != null) {
+			return Integer.valueOf(imageResizeHeightField.getText());
+		}
+		else {
+			return new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT);
+		}
+	}
+	
+	public String getBlogUrl() {
+		return blogUrlField.getText();
+	}
+	
+	public void setBlogUrl(String newUrl) {
+		 blogUrlField.setText(newUrl);
+	}
+	
+	public String getBlogUser() {
+		return userNameField.getText();
+	}
+	
+	public String getBlogPass() {
+		return passwordField.getText();
+	}
+	
+	public int getMaxRecentPostIndex() {
+		return maxRecentPost.getSelectedIndex();
+	}
 	
 	private FieldChangeListener listenerGetBlogButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
@@ -284,8 +282,6 @@ public class AddBlogsView extends StandardBaseView {
 			controller.addBlogs(0);
 		}
 	};
-	
-
 	
 	//add blog menu item 
 	private MenuItem _getFreeBlogItem = new MenuItem( _resources, WordPressResource.GET_FREE_BLOG_MENU_ITEM, 150, 20) {

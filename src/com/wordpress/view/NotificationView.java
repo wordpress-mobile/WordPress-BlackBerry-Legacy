@@ -2,9 +2,9 @@ package com.wordpress.view;
 
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
-import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
@@ -35,27 +35,23 @@ public class NotificationView extends StandardBaseView {
 	 public NotificationView(NotificationController blogsController, String[] blogName, boolean blogSelected[]) {
 	    	super(_resources.getString(WordPressResource.TITLE_NOTIFICATION_VIEW), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
 	    	this.controller=blogsController;
-	    	
 
             BorderedFieldManager notifyRow = new BorderedFieldManager(
 	        		Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL );
             
-            
-            LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.NOTIFICATION_DESC)); 
-            Font fnt = this.getFont().derive(Font.ITALIC);
-   		 	lblDescReset.setFont(fnt);
+            BasicEditField lblDescReset = GUIFactory.getDescriptionTextField(_resources.getString(WordPressResource.NOTIFICATION_DESC)); 
    		 	notifyRow.add(lblDescReset);
    		 	
+   		 	String choices[] = _resources.getStringArray(WordPressResource.LABEL_COMMENT_NOTIFICATIONS_INTERVAL);
+   		 	updateInterval = new ObjectChoiceField (_resources.getString(WordPressResource.NOTIFICATION_INTERVAL_LABEL), 
+   		 			choices, controller.getSelectedIntervalTime());
+   		 	notifyRow.add(updateInterval);
+   		 	add(notifyRow);            
+
+   		 	//the blogs list
    		 	checkBoxController= new CheckBoxListField(blogName, blogSelected);
    		 	this.chkField= checkBoxController.get_checkList();
-//   		 	add(chkField);
-            
-   		 	String choices[] = _resources.getStringArray(WordPressResource.LABEL_COMMENT_NOTIFICATIONS_INTERVAL);
-            updateInterval = new ObjectChoiceField (_resources.getString(WordPressResource.NOTIFICATION_INTERVAL_LABEL), 
-            		choices, controller.getSelectedIntervalTime());
-            notifyRow.add(updateInterval);
-            add(notifyRow);            
 
             BorderedFieldManager listContainer = new BorderedFieldManager(
 	        		Manager.NO_HORIZONTAL_SCROLL

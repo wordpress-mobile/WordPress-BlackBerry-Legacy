@@ -1,4 +1,3 @@
-//#preprocess
 package com.wordpress.view;
 
 
@@ -6,17 +5,12 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import net.rim.device.api.system.Characters;
-import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.Font;
+import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
-
-//#ifdef IS_OS47_OR_ABOVE
-import net.rim.device.api.ui.TouchEvent;
-//#endif
 
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.CheckboxField;
@@ -32,23 +26,23 @@ import com.wordpress.controller.PostController;
 import com.wordpress.model.Post;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.ClickableLabelField;
 import com.wordpress.view.component.ColoredLabelField;
-import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.dialog.InquiryView;
 
 public class PostView extends StandardBaseView {
 	
-    private PostController controller; //controller associato alla view
+    private PostController controller;
     private Post post;    
-    //content of tabs summary
+    
 	private BasicEditField title;
 	private HtmlTextField bodyTextBox;
 	private BasicEditField tags;
 	private ObjectChoiceField status;
-	private LabelField categories;
-	private LabelField lblPhotoNumber;
+	private ClickableLabelField categories;
+	private ClickableLabelField lblPhotoNumber;
 	private CheckboxField enableLocation;
 	private CheckboxField isLocationPublic;
 	
@@ -57,154 +51,56 @@ public class PostView extends StandardBaseView {
     	super(_resources.getString(WordPressResource.TITLE_POSTVIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
     	this.controller=_controller;
 		this.post = _post;
-        	
-        //row photo #s
-    	BorderedFieldManager outerManagerRowPhoto = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
-         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);    	 
-    	//lblPhotoNumber = GUIFactory.getLabel("", Color.BLACK);
-    	lblPhotoNumber = new ColoredLabelField("", Color.BLACK,  LabelField.FOCUSABLE) {
-          
-    		protected boolean navigationClick(int status, int time) {
-        		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
-        			return super.navigationClick(status, time);
-        		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
-        			controller.showPhotosView();
-        			return true;
-        		}
-        		return super.navigationClick(status, time);
-        	}
-        	        	
-            protected boolean keyChar(char key, int status, int time)
-            {
-                if (key == Characters.SPACE || key == Characters.ENTER)
-                {
-                	controller.showPhotosView();
-                	return true;
-                }
-                return false;
-            }
-            
-        	//#ifdef IS_OS47_OR_ABOVE
-        	protected boolean touchEvent(TouchEvent message) {
-                boolean isOutOfBounds = false;
-                int x = message.getX(1);
-                int y = message.getY(1);
-                // Check to ensure point is within this field
-                if(x < 0 || y < 0 || x > this.getExtent().width || y > this.getExtent().height) {
-                    isOutOfBounds = true;
-                }
-                if (isOutOfBounds) return false;
-        		    		
-        		int eventCode = message.getEvent();
-        		if(eventCode == TouchEvent.CLICK) {
-        			controller.showPhotosView();
-        			return true;
-        		}else if(eventCode == TouchEvent.DOWN) {
-        		} else if(eventCode == TouchEvent.UP) {
-        		} else if(eventCode == TouchEvent.UNCLICK) {
-        			return true; //consume the event: avoid context menu!!
-        		} else if(eventCode == TouchEvent.CANCEL) {
-        		}
-        		
-        		return false; 
-        	}
-        	//#endif
-    	};
-	  	Font fnt = Font.getDefault().derive(Font.BOLD);
-	  	lblPhotoNumber.setFont(fnt);
-	  	
-        setNumberOfPhotosLabel(0);
-        outerManagerRowPhoto.add(lblPhotoNumber);
-        add(outerManagerRowPhoto);
-        
+             
         //row title
-    	BorderedFieldManager outerManagerRowTitle = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
+    	BorderedFieldManager rowTitle = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
-    	HorizontalFieldManager rowTitle = new HorizontalPaddedFieldManager();
-		LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_TITLE)+":", Color.BLACK);
+    	LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_TITLE), Color.BLACK);
 		title = new BasicEditField("", post.getTitle(), 100, Field.EDITABLE);
-        //title.setMargin(margins);
         rowTitle.add(lblTitle);
+        rowTitle.add(GUIFactory.createSepatorField());
         rowTitle.add(title);
-        outerManagerRowTitle.add(rowTitle);
-        add(outerManagerRowTitle);
+        add(rowTitle);
 
-        //row Infos
+        //The Box that shows categories - tags - media - status
         BorderedFieldManager outerManagerRowInfos = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
 
+        //row media files attached
+        LabelField lblMedia =  new ColoredLabelField(_resources.getString(WordPressResource.TITLE_MEDIA_VIEW)+": ", Color.BLACK);
+        HorizontalFieldManager rowMedia = new HorizontalFieldManager(Manager.USE_ALL_WIDTH);
+        lblPhotoNumber = new ClickableLabelField("0", LabelField.FOCUSABLE | LabelField.ELLIPSIS);
+        FieldChangeListener listenerPhotoNumber = new FieldChangeListener() {
+        	public void fieldChanged(Field field, int context) {
+        		if(context == 0)
+        			controller.showPhotosView(); 
+        	}
+        };
+        lblPhotoNumber.setChangeListener(listenerPhotoNumber);
+        setNumberOfPhotosLabel(0);
+        rowMedia.add(lblMedia);
+        rowMedia.add(lblPhotoNumber);
+        rowMedia.setMargin(5, 5, 5, 5);
+        outerManagerRowInfos.add(rowMedia);
+        
+        
         //row categories
         HorizontalFieldManager rowCategories = new HorizontalFieldManager(Manager.USE_ALL_WIDTH);
   		LabelField lblCategories =  new ColoredLabelField(_resources.getString(WordPressResource.LABEL_POST_CATEGORIES)+": ", Color.BLACK);
         String availableCategories = controller.getPostCategoriesLabel();
-  		categories = new LabelField(availableCategories, LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH | LabelField.FOCUSABLE)
-  		{
-
-        	protected boolean navigationClick(int status, int time) {
-        		Log.trace(">>> navigationClick");
-        		
-        		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
-        			Log.trace("Input came from the trackwheel");
-        			// Input came from the trackwheel
-        			return super.navigationClick(status, time);
-        			
-        		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
-        			controller.showCategoriesView();
-        			return true;
-        		}
-        		return super.navigationClick(status, time);
-        	}
-        	        	
-            protected boolean keyChar(char key, int status, int time)
-            {
-                if (key == Characters.SPACE || key == Characters.ENTER)
-                {
-                	controller.showCategoriesView();
-                	return true;
-                }
-                return false;
-            }
-			
-			
-        	//#ifdef IS_OS47_OR_ABOVE
-        	protected boolean touchEvent(TouchEvent message) {
-        		Log.trace(">>> touchEvent");
-                boolean isOutOfBounds = false;
-                int x = message.getX(1);
-                int y = message.getY(1);
-                // Check to ensure point is within this field
-                if(x < 0 || y < 0 || x > this.getExtent().width || y > this.getExtent().height) {
-                    isOutOfBounds = true;
-                }
-                if (isOutOfBounds) return false;
-        		    		
-        		int eventCode = message.getEvent();
-        		if(eventCode == TouchEvent.CLICK) {
-        			controller.showCategoriesView();
-        			return true;
-        		}else if(eventCode == TouchEvent.DOWN) {
-        			Log.trace("TouchEvent.CLICK");
-        		} else if(eventCode == TouchEvent.UP) {
-        			Log.trace("TouchEvent.UP");
-        		} else if(eventCode == TouchEvent.UNCLICK) {
-        			Log.trace("TouchEvent.UNCLICK");
-        			return true; //consume the event: avoid context menu!!
-        		} else if(eventCode == TouchEvent.CANCEL) {
-        			Log.trace("TouchEvent.CANCEL");
-        		}
-        		
-        		return false; 
-        		//return super.touchEvent(message);
-        	}
-        	//#endif
-  			
-
-  			//override context menu      
+        categories = new ClickableLabelField(availableCategories, LabelField.ELLIPSIS | LabelField.USE_ALL_WIDTH | LabelField.FOCUSABLE) {
+        	//override context menu      
 	        protected void makeContextMenu(ContextMenu contextMenu) {
 	            contextMenu.addItem(_categoryContextMenuItem);      
 	        }
-  		};
-  		  		
+        };
+        categories.setChangeListener(new FieldChangeListener() {
+        	public void fieldChanged(Field field, int context) {
+        		if(context == 0)
+        			controller.showCategoriesView();	 
+        	}
+        });
+  		
   		rowCategories.add(lblCategories);
   		rowCategories.add(categories);
   		rowCategories.setMargin(5, 5, 5, 5);
@@ -270,7 +166,7 @@ public class PostView extends StandardBaseView {
     	
     //set the photos number label text
     public void setNumberOfPhotosLabel(int count) {
-    	lblPhotoNumber.setText(count + " "+_resources.getString(WordPressResource.TITLE_MEDIA_VIEW));
+    	lblPhotoNumber.setText(String.valueOf(count));
     }
     
     //update the cat label field
@@ -310,14 +206,6 @@ public class PostView extends StandardBaseView {
     	}
     };
 
-    /*
-    private MenuItem _htmlItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_HTML, 100, 10) {
-        public void run() {
-        	UiApplication.getUiApplication().pushScreen(new HtmlTagPopupScreen());
-        }
-    };
-*/
-  
     private void saveOrSendPost(boolean sendPost)throws Exception {
     	
 		if (post.isLocation()) {
@@ -492,21 +380,6 @@ public class PostView extends StandardBaseView {
         }
     };
     
-    
-    	
-    /**
-     * Change UI Fields "cleanliness" state to false.
-     * A field's cleanliness state tracks when changes happen to a field.
-     
-    private void cleanFieldState(){
-    	title.setDirty(false);
-    	bodyTextBox.setDirty(false);
-    	tags.setDirty(false);
-    	status.setDirty(false);
-    	isLocationPublic.setDirty(false);
-    	enableLocation.setDirty(false);
-    }
-    */
 	/*
 	 * Update Post data model and Track post changes.
 	 * 

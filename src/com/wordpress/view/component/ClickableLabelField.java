@@ -18,20 +18,25 @@ import net.rim.device.api.ui.TouchEvent;
 
 public class ClickableLabelField extends LabelField {
 	
+	protected ResourceBundle _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
+	protected int textColor = Color.GRAY;
 	
+
 	public ClickableLabelField(String text,  long style) {
 		super(text, style);
 	}
 	
-	protected ResourceBundle _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
-	
-	 public void paint(Graphics g) {		 
+	public void setTextColor(int textColor) {
+		this.textColor = textColor;
+	}
+
+	public void paint(Graphics g) {		 
 	       int oldColour = g.getColor();
 	        try {           
 	            if(g.isDrawingStyleSet( Graphics.DRAWSTYLE_FOCUS ) ) {
 	                g.setColor( Color.WHITE );
 	            } else {
-	                g.setColor( Color.BLUE );
+	                g.setColor( textColor );
 	            }
 	            super.paint( g );
 	        } finally {

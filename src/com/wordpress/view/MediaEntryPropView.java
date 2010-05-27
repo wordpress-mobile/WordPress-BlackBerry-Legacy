@@ -18,7 +18,6 @@ import com.wordpress.controller.BlogObjectController;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
-import com.wordpress.view.component.HorizontalPaddedFieldManager;
 import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 import com.wordpress.view.dialog.ErrorView;

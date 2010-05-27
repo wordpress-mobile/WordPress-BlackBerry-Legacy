@@ -3,11 +3,9 @@ package com.wordpress.view;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
-import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
@@ -55,12 +53,7 @@ public class CustomFieldsView extends StandardBaseView {
         BaseButtonField addButtonField= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_ADD), ButtonField.CONSUME_CLICK);
         addButtonField.setChangeListener(addCustomField);
         outerContainer.add(addButtonField);
-		
         add(outerContainer);		
-		LabelField lblDesc = getLabel(_resources.getString(WordPressResource.LABEL_CUSTOM_FIELD_DESC)); 
-		Font fnt = this.getFont().derive(Font.ITALIC);
-		lblDesc.setFont(fnt);
-		//add(lblDesc);
 		
 		//add the buttons
         BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);

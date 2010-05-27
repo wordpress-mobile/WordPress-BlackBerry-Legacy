@@ -40,6 +40,7 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.BlogsListField;
 import com.wordpress.view.component.ColoredLabelField;
+import com.wordpress.view.component.PillButtonField;
 
 public class MainView extends BaseView {
 	
@@ -173,8 +174,9 @@ public class MainView extends BaseView {
 		 HorizontalFieldManager buttonsManagerOne = new HorizontalFieldManager(Field.FIELD_HCENTER);
 		 HorizontalFieldManager buttonsManagerTwo = new HorizontalFieldManager(Field.FIELD_HCENTER);
 		
-		 BaseButtonField buttonHaveBlog = GUIFactory.createButton(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WP_BLOG), 
-				 ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
+		PillButtonField buttonHaveBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WP_BLOG));
+		buttonHaveBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
+		 
 		 buttonHaveBlog.setChangeListener(new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {
 				 mainController.addBlogs();
@@ -186,8 +188,8 @@ public class MainView extends BaseView {
 		 else
 			 buttonHaveBlog.setMargin( 4, 4, 4, 4 );
 		 
-		 BaseButtonField buttonGetFreeBlog = GUIFactory.createButton(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_NEW_TO_WP_BLOG), 
-				 ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
+		PillButtonField buttonGetFreeBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_NEW_TO_WP_BLOG));
+		buttonGetFreeBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
 		 buttonGetFreeBlog.setChangeListener(new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {
 				 Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);

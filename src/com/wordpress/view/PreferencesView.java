@@ -83,10 +83,10 @@ public class PreferencesView extends StandardBaseView {
 	    	//the photo settings are managed into camera app.
 	    	//addMultimediaOption(); 
             addConnectionOptionsFields();
-            addAdvancedConnectionOptionsFields();
             addGPSOptionsFields();
             addStorageOptionFields();
             addStartupOptionsFields();
+            addAdvancedConnectionOptionsFields();
             addDebugModeOptionFields();
             
             BaseButtonField buttonOK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
@@ -143,9 +143,7 @@ public class PreferencesView extends StandardBaseView {
 		 autoStartup = new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_STARTUP_LABEL), mPrefs.isAutoStartup());
 		 optManager.add(autoStartup);
 		 //row startup description
-         LabelField lblStartup = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_STARTUP_DESC)); 
-		 Font fnt = this.getFont().derive(Font.ITALIC);
-		 lblStartup.setFont(fnt);
+         BasicEditField lblStartup = GUIFactory.getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_STARTUP_DESC)); 
 		 optManager.add(lblStartup);
 		 
 		 optManager.add(new LabelField("", Field.NON_FOCUSABLE));
@@ -154,8 +152,7 @@ public class PreferencesView extends StandardBaseView {
 		 backgroundOnClose = new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_BACKGROUND_LABEL), mPrefs.isBackgroundOnClose());
 		 optManager.add(backgroundOnClose);
 		 //background on close description
-         LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_BACKGROUND_DESC)); 
-		 lblDescReset.setFont(fnt);
+         BasicEditField lblDescReset = GUIFactory.getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_BACKGROUND_DESC)); 
 		 optManager.add(lblDescReset);	
 		 
 		 add(optManager);
@@ -198,11 +195,11 @@ public class PreferencesView extends StandardBaseView {
 			 storageManager.add(new LabelField("", Field.NON_FOCUSABLE));
 		 }
 		 
-		 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_REMOVE_TEMPFILE)); 
-		 storageManager.add(lblDesc);
-		 BaseButtonField buttonReset= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_REMOVE), ButtonField.CONSUME_CLICK);
+		 BaseButtonField buttonReset = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_REMOVE), ButtonField.CONSUME_CLICK);
 		 buttonReset.setChangeListener(listenerResetButton);
 		 storageManager.add(buttonReset);
+		 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_REMOVE_TEMPFILE)); 
+		 storageManager.add(lblDesc);
 		 add(storageManager);
 	 }
 	 
@@ -217,10 +214,13 @@ public class PreferencesView extends StandardBaseView {
 		 debugManager.add(lblTitle);
 		 debugManager.add(GUIFactory.createSepatorField());
 		 
-         BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_DEBUG_DESC)); 
+		 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_DEBUG_DESC)); 
 		 debugManager.add(lblDesc);
+		 	 
 		 _debugMode=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_DEBUG_LABEL), mPrefs.isDebugMode());
-		 debugManager.add(_debugMode);		 
+		 debugManager.add(_debugMode);	
+		 debugManager.add( getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_DEBUG_WARNING)));
+
 		 add(debugManager);
 	 }
 	 
@@ -237,7 +237,7 @@ public class PreferencesView extends StandardBaseView {
 		 optManager.add(GUIFactory.createSepatorField());
 		 
          //description text
-         LabelField lblDescReset = getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_DESC)); 
+         BasicEditField lblDescReset = GUIFactory.getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_DESC)); 
 		 Font fnt = this.getFont().derive(Font.ITALIC);
 		 lblDescReset.setFont(fnt);
 		 optManager.add(lblDescReset);
@@ -277,61 +277,42 @@ public class PreferencesView extends StandardBaseView {
 		 
 		 userConnectionEnabledField=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_ENABLE_ADVANCED_CONNECTION_SETTINGS), mPrefs.isUserConnectionOptionsEnabled());
 		 optManager.add(userConnectionEnabledField);
+		 BasicEditField lblWarning = getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_USERDEFINEDCONN_WARNING));
+		 optManager.add(lblWarning);
 		 
          //row _apn
-         HorizontalFieldManager rowAPN = new HorizontalFieldManager();
-         rowAPN.add( getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_APN)) ); 
-         _apn = new EditField("", mPrefs.getApn());
-         rowAPN.add(_apn);
-         optManager.add(rowAPN);
+         _apn = new EditField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_APN)+": ", mPrefs.getApn());
+         optManager.add(_apn);
          
          //row _username
-         HorizontalFieldManager rowUserName = new HorizontalFieldManager();
-         rowUserName.add( getLabel(_resources.getString(WordPressResource.LABEL_USERNAME)) ); 
-         _username = new EditField("", mPrefs.getUsername());
-         rowUserName.add(_username);
-         optManager.add(rowUserName);
+         _username = new EditField(_resources.getString(WordPressResource.LABEL_USERNAME)+": ", mPrefs.getUsername());
+         optManager.add(_username);
          
          //row _password
-         HorizontalFieldManager rowPass = new HorizontalFieldManager();
-         rowPass.add( getLabel(_resources.getString(WordPressResource.LABEL_PASSWD)) ); 
-         _password = new EditField("", mPrefs.getPassword());
-         rowPass.add(_password);
-         optManager.add(rowPass);
+         _password = new EditField(_resources.getString(WordPressResource.LABEL_PASSWD)+": ", mPrefs.getPassword());
+         optManager.add(_password);
 
          //row is wap connection?
          userConnectionWapTypeField=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_ISWAP), mPrefs.isUserConnectionWap());
          optManager.add(userConnectionWapTypeField);
          
          //row _gateway IP
-         HorizontalFieldManager rowGTW = new HorizontalFieldManager();
-         rowGTW.add( getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_GWAY)) ); 
-         _gateway = new EditField("", mPrefs.getGateway(), 100, Field.EDITABLE);
+         _gateway = new EditField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_GWAY)+": ", mPrefs.getGateway(), 100, Field.EDITABLE);
          _gateway.setFilter(new URLTextFilter());
-         rowGTW.add(_gateway);
-         optManager.add(rowGTW);
+         optManager.add(_gateway);
          
          //row _gatewayPort
-         HorizontalFieldManager rowGTWport = new HorizontalFieldManager();
-         rowGTWport.add( getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_GWAYPORT)) ); 
-         _gatewayPort = new EditField("", mPrefs.getGatewayPort(), EditField.DEFAULT_MAXCHARS, EditField.FILTER_INTEGER);
-         rowGTWport.add(_gatewayPort);
-         optManager.add(rowGTWport);
+         _gatewayPort = new EditField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_GWAYPORT)+": ", mPrefs.getGatewayPort(), EditField.DEFAULT_MAXCHARS, EditField.FILTER_INTEGER);
+         optManager.add(_gatewayPort);
          
          //row _sourcePort
-         HorizontalFieldManager rowSourcePort = new HorizontalFieldManager();
-         rowSourcePort.add( getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_SRCPORT)) ); 
-         _sourcePort = new EditField("", mPrefs.getSourcePort(), EditField.DEFAULT_MAXCHARS, EditField.FILTER_INTEGER);
-         rowSourcePort.add(_sourcePort);
-         optManager.add(rowSourcePort);
+         _sourcePort = new EditField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_SRCPORT)+": ", mPrefs.getSourcePort(), EditField.DEFAULT_MAXCHARS, EditField.FILTER_INTEGER);
+         optManager.add(_sourcePort);
          
          //row _sourceIP
-         HorizontalFieldManager rowSourceIP = new HorizontalFieldManager();
-         rowSourceIP.add( getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_SRCIP)) ); 
-         _sourceIP = new EditField("", mPrefs.getSourceIP());
-         rowSourceIP.add(_sourceIP);
-         optManager.add(rowSourceIP);
-         
+         _sourceIP = new EditField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_SRCIP)+": ", mPrefs.getSourceIP());
+         optManager.add(_sourceIP);
+
          add(optManager);
          
 	 }

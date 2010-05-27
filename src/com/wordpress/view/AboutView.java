@@ -1,21 +1,10 @@
-//#preprocess
 package com.wordpress.view;
 
-
 import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.system.Characters;
-import net.rim.device.api.system.KeypadListener;
-import net.rim.device.api.ui.Color;
-import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
-import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
-import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
-//#ifdef IS_OS47_OR_ABOVE
-import net.rim.device.api.ui.TouchEvent;
-//#endif
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.Menu;
@@ -26,8 +15,6 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AboutController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.utils.PropertyUtils;
-import com.wordpress.utils.Tools;
-import com.wordpress.utils.log.Log;
 import com.wordpress.view.container.VerticalPaddedFieldManager;
 
 public class AboutView extends BaseView {

@@ -11,14 +11,12 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.XYRect;
 import net.rim.device.api.ui.component.BasicEditField;
-import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.bb.NotificationHandler;
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
-import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.HeaderField;
 
 //#ifdef IS_OS47_OR_ABOVE
@@ -100,10 +98,6 @@ public abstract class BaseView extends MainScreen {
     	return GUIFactory.getDescriptionTextField(text);
     }
     
-    protected LabelField getLabel(String label) {
-    	return GUIFactory.getLabel(label);
-	}
-        
     /**
      * TOUCHSCREEN ADDED
      */

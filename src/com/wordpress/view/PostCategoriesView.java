@@ -15,13 +15,10 @@ import com.wordpress.view.component.CategoriesListField;
 
 public class PostCategoriesView extends BaseView {
 	
-    private PostController controller; //controller associato alla view
+    private PostController controller;
     private CategoriesListField checkBoxController;
     private ListField chkField;
     
-    private Category[] blogCategories;
-    
-
     public void refreshView(Category[] blogCategories, int[] postCategoriesID) {
     	checkBoxController= new CategoriesListField(blogCategories, postCategoriesID);
     	delete(chkField);
@@ -30,37 +27,12 @@ public class PostCategoriesView extends BaseView {
     	this.invalidate();
     }
     
-    
-    
     public PostCategoriesView(PostController _controller, Category[] blogCategories, int[] postCategoriesID) {
     	super(_resources.getString(WordPressResource.MENUITEM_POST_CATEGORIES));
     	this.controller=_controller;
-    	this.blogCategories=blogCategories;
-    	
     	checkBoxController= new CategoriesListField(blogCategories, postCategoriesID);
     	this.chkField= checkBoxController.get_checkList();
     	add(chkField);
-    //	add(new SeparatorField());
- 		      
-    	 //row new cat 
-      /*  HorizontalFieldManager rowTitle = new HorizontalFieldManager();
-
-		LabelField lblTitle = getLabel(_resources.getString(WordPressResource.MENUITEM_POST_NEWCATEGORY));   
-		
-    	Bitmap imgOpen = Bitmap.getBitmapResource("disclosure-indicator.png"); 
-  		BitmapField bfOpenCat = new BitmapField(imgOpen, BitmapField.FOCUSABLE)
-  		{			
-  		    //override context menu      
-	        protected void makeContextMenu(ContextMenu contextMenu) {
-	        	 contextMenu.addItem(_newCategoryContextMenuItem);
-	       }
-  		};
-  		bfOpenCat.setMargin(margins);
-  		bfOpenCat.setSpace(5, 5);
-  		rowTitle.add(lblTitle);
-  		rowTitle.add(bfOpenCat);
-  		this.add(rowTitle);
-  		*/ 
     	addMenuItem(_newCategoryContextMenuItem);
     }
     
@@ -95,8 +67,8 @@ public class PostCategoriesView extends BaseView {
 		return result;
 	}
 	
-    //Override the makeMenu method so we can add a custom menu item
-    //if the checkbox ListField has focus.
+    /*Override the makeMenu method so we can add a custom menu item
+     when the checkbox ListField has focus. */
     protected void makeMenu(Menu menu, int instance)
     {
         Field focus = UiApplication.getUiApplication().getActiveScreen().getLeafFieldWithFocus();
@@ -110,7 +82,5 @@ public class PostCategoriesView extends BaseView {
                 
         //Create the default menu.
         super.makeMenu(menu, instance);
-    }    
-
-		
+    }    		
 }
