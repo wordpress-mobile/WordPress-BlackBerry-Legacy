@@ -173,7 +173,6 @@ src\com\wordpress\view\component\WebBitmapField.java
 src\com\wordpress\view\container\BorderedFieldManager.java
 src\com\wordpress\view\container\BorderedFocusChangeListenerPatch.java
 src\com\wordpress\view\container\TableLayoutManager.java
-src\com\wordpress\view\container\VerticalPaddedFieldManager.java
 src\com\wordpress\view\CustomFieldsView.java
 src\com\wordpress\view\dialog\ConnectionInProgressView.java
 src\com\wordpress\view\dialog\CredentialDialog.java

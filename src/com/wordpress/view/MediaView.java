@@ -630,7 +630,8 @@ public class MediaView extends StandardBaseView {
 	//	fromDataManager.add(new LabelField("", Field.NON_FOCUSABLE)); //space between title and filename
 
 		LabelField titleLbl = new ColoredLabelField(_resources.getString(WordPressResource.LABEL_TITLE), Color.BLACK);        
-        fromDataManager.add( titleLbl );
+		titleLbl.setMargin(5, 0, 0, 0);
+		fromDataManager.add( titleLbl );
         String title = mediaEntry.getTitle() != null ? mediaEntry.getTitle() : "";       
         ClickableLabelField titleField = new ClickableLabelField(title, LabelField.FOCUSABLE | LabelField.ELLIPSIS);
         if(title.equals("")) {

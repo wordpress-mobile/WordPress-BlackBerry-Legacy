@@ -1,6 +1,5 @@
 package com.wordpress.view;
 
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
@@ -42,33 +41,40 @@ public class MediaEntryPropView extends StandardBaseView {
     	//retrive the media entry from the mediator
     	MediaEntry mediaEntry = mediaViewMediator.getMediaEntry();
     	
+    	//The Box that contains alphanumric file info
+        BorderedFieldManager rowFileInfo = new BorderedFieldManager(
+        		Manager.NO_HORIZONTAL_SCROLL
+        		| Manager.NO_VERTICAL_SCROLL
+        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
+    	    	
         //row FileName
-    	fileNameField = new BasicEditField("", "", 100, Field.EDITABLE);
-    	addEntry(_resources.getString(WordPressResource.LABEL_FILE_NAME), 
-    			fileNameField,
-    			mediaEntry.getFileName() != null ? mediaEntry.getFileName() : "");
+    	fileNameField = new BasicEditField(_resources.getString(WordPressResource.LABEL_FILE_NAME)+ ": ",
+    			mediaEntry.getFileName() != null ? mediaEntry.getFileName() : "", 100, Field.EDITABLE);
     	fileNameField.setFilter(TextFilter.get(TextFilter.FILENAME));
+    	fileNameField.setMargin(5, 0, 0, 0);
+    	rowFileInfo.add(fileNameField);
     	
         //title
-    	titleField = new BasicEditField("", "", 100, Field.EDITABLE);
-       	addEntry(_resources.getString(WordPressResource.LABEL_TITLE), 
-    			titleField,
-    			mediaEntry.getTitle() != null ? mediaEntry.getTitle() : "");
+    	titleField = new BasicEditField(_resources.getString(WordPressResource.LABEL_TITLE)+ ": ",
+    			mediaEntry.getTitle() != null ? mediaEntry.getTitle() : "", 100, Field.EDITABLE);
+    	titleField.setMargin(5, 0, 0, 0);
+    	rowFileInfo.add(titleField);
        	
         //caption
-       	captionField = new BasicEditField("", "", 100, Field.EDITABLE);
-       	addEntry(_resources.getString(WordPressResource.LABEL_CAPTION), 
-       			captionField,
-    			mediaEntry.getCaption() != null ? mediaEntry.getCaption() : "");
-
-        //description
-       	descriptionField = new BasicEditField("", "", 100, Field.EDITABLE);
-       	addEntry(_resources.getString(WordPressResource.LABEL_DESC), 
-       			descriptionField,
-    			mediaEntry.getDescription() != null ? mediaEntry.getDescription() : "");
-    
+       	captionField = new BasicEditField(_resources.getString(WordPressResource.LABEL_CAPTION)+ ": ", 
+       			mediaEntry.getCaption() != null ? mediaEntry.getCaption() : "", 100, Field.EDITABLE);
+       	captionField.setMargin(5, 0, 0, 0);
+       	rowFileInfo.add(captionField);
        	
-		 //row media object position
+        //description
+       	descriptionField = new BasicEditField(_resources.getString(WordPressResource.LABEL_DESC)+ ": ",
+       			mediaEntry.getDescription() != null ? mediaEntry.getDescription() : "", 100, Field.EDITABLE);
+       	descriptionField.setMargin(5, 0, 0, 0);
+       	rowFileInfo.add(descriptionField);
+       
+       	add(rowFileInfo);
+       	
+		 //The box that contains the media object position
         BorderedFieldManager rowMediaObjPosition = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL);
@@ -155,20 +161,7 @@ public class MediaEntryPropView extends StandardBaseView {
 		mediaViewMediator.mediaEntryChanged(); //notify the mediator, this update others UI
 		controller.backCmd(); //back to prev screen
 	}
-    
-    private void addEntry(String label, BasicEditField valueField, String value){
-        BorderedFieldManager rowFileName = new BorderedFieldManager(
-        		Manager.NO_HORIZONTAL_SCROLL
-        		| Manager.NO_VERTICAL_SCROLL
-        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-            	
-        LabelField fileNameLbl = GUIFactory.getLabel(label, Color.BLACK);   
-        valueField.setText(value);
-        rowFileName.add( fileNameLbl );
-        rowFileName.add( valueField );
-        add(rowFileName);
-    }
-    
+        
 	public boolean onClose()   {
 			
 		boolean isModified=isDirty();
@@ -193,7 +186,6 @@ public class MediaEntryPropView extends StandardBaseView {
     		Log.trace("user has selected cancel");
     		return false;
     	}
-		
     }
 	
 	public BaseController getController() {

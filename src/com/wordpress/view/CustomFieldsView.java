@@ -38,20 +38,56 @@ public class CustomFieldsView extends StandardBaseView {
 		//this is the base row  
         BorderedFieldManager outerContainer = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
-        		| Manager.NO_VERTICAL_SCROLL );
+        		| Manager.NO_VERTICAL_SCROLL ) {
+	     	   public void setDirty( boolean dirty ) {
+	   	        // We never want to be dirty or muddy
+	   	    }
+        	   public boolean isDirty( ) {
+          	        // We never want to be dirty or muddy
+           		   return false;
+            	    }
+        };
         
          //Add new custom field:
         LabelField lblNewCustomField = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_ADD_CUSTOM_FIELD), Color.BLACK);
         outerContainer.add(lblNewCustomField);
         outerContainer.add(GUIFactory.createSepatorField());
         
-        _fieldName = new BasicEditField(_resources.getString(WordPressResource.LABEL_NAME)+": ", "", 100, Field.EDITABLE);
+        _fieldName = new BasicEditField(_resources.getString(WordPressResource.LABEL_NAME)+": ", "", 100, Field.EDITABLE) {
+        	   public void setDirty( boolean dirty ) {
+        	        // We never want to be dirty or muddy
+        	    }
+        	   public boolean isDirty( ) {
+          	        // We never want to be dirty or muddy
+           		   return false;
+            	    }
+        };
         outerContainer.add(_fieldName);
-        _fieldValue = new BasicEditField(_resources.getString(WordPressResource.LABEL_VALUE)+": ", " ", 100, Field.EDITABLE);
+        _fieldValue = new BasicEditField(_resources.getString(WordPressResource.LABEL_VALUE)+": ", " ", 100, Field.EDITABLE) {
+        	   public void setDirty( boolean dirty ) {
+        	        // We never want to be dirty or muddy
+        	    }
+        	   public boolean isDirty( ) {
+       	        // We never want to be dirty or muddy
+        		   return false;
+         	    }
+        };
         outerContainer.add(_fieldValue);
         
         BaseButtonField addButtonField= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_ADD), ButtonField.CONSUME_CLICK);
-        addButtonField.setChangeListener(addCustomField);
+        addButtonField.setChangeListener(new FieldChangeListener() {
+			public void fieldChanged(Field field, int context) {
+				// get the value from the main UI row
+				String insertedName = _fieldName.getText();
+				String insertedValue = _fieldValue.getText();
+				// reset main UI value
+				_fieldName.setText("");
+				_fieldValue.setText("");
+				_fieldName.setFocus();
+				//add the box for the current added CF
+				addCustomField(insertedName, insertedValue);
+			}
+		});
         outerContainer.add(addButtonField);
         add(outerContainer);		
 		
@@ -117,41 +153,28 @@ public class CustomFieldsView extends StandardBaseView {
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL);
         
-        BasicEditField fieldName = new BasicEditField(_resources.getString(WordPressResource.LABEL_NAME)+": ", insertedName, 100, Field.EDITABLE);
-        outerContainer.add(fieldName);
+        BasicEditField customfieldNameField = new BasicEditField(_resources.getString(WordPressResource.LABEL_NAME)+": ", insertedName, 100, Field.EDITABLE);
+        outerContainer.add(customfieldNameField);
                 
-        BasicEditField fieldValue = new BasicEditField(_resources.getString(WordPressResource.LABEL_VALUE)+": ", insertedValue, 100, Field.EDITABLE);
-        outerContainer.add(fieldValue);
+        BasicEditField customfieldValueField = new BasicEditField(_resources.getString(WordPressResource.LABEL_VALUE)+": ", insertedValue, 100, Field.EDITABLE);
+        outerContainer.add(customfieldValueField);
         
-        BaseButtonField addButtonField= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_REMOVE), ButtonField.CONSUME_CLICK);
-        MyFieldChangeListener myFieldChangeListener = new MyFieldChangeListener(fieldValue,fieldName);
-        addButtonField.setChangeListener(myFieldChangeListener);
-        outerContainer.add(addButtonField);
+        BaseButtonField removeCustomFieldButton= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_REMOVE), ButtonField.CONSUME_CLICK);
+        RemoveCustomFieldChangeListener myFieldChangeListener = new RemoveCustomFieldChangeListener(customfieldValueField,customfieldNameField);
+        removeCustomFieldButton.setChangeListener(myFieldChangeListener);
+        outerContainer.add(removeCustomFieldButton);
         changeListeners.addElement(myFieldChangeListener); //added change listener into array
-        
+		setDirty(true);
         int fieldsCount = getFieldCount();
         insert(outerContainer, fieldsCount-2); //leave the buttons + spacedField at the bottom of the screen
     }
     
-	private FieldChangeListener addCustomField = new FieldChangeListener() {
-	    public void fieldChanged(Field field, int context) {
-	    	//get the value from the main UI row
-	    	String insertedName = _fieldName.getText();
-	    	String insertedValue = _fieldValue.getText();
-	    	//reset main UI value
-	    	_fieldName.setText("");
-	    	_fieldValue.setText("");
-	    	_fieldName.setFocus();
-	    	addCustomField(insertedName, insertedValue);
-	   }
-	};
-	
 
-	private class MyFieldChangeListener implements FieldChangeListener {
+	private class RemoveCustomFieldChangeListener implements FieldChangeListener {
 		BasicEditField fieldValue;
 		BasicEditField fieldName;
 		
-		public MyFieldChangeListener(BasicEditField fieldValue, BasicEditField fieldName) {
+		public RemoveCustomFieldChangeListener(BasicEditField fieldValue, BasicEditField fieldName) {
 			super();
 			this.fieldValue = fieldValue;
 			this.fieldName = fieldName;
@@ -174,7 +197,7 @@ public class CustomFieldsView extends StandardBaseView {
 	    		//find this change listener and remove from the list
 	    		int count = changeListeners.size();
 	    		for (int i = 0; i < count; i++) {
-	    			MyFieldChangeListener list = (MyFieldChangeListener)changeListeners.elementAt(i);
+	    			RemoveCustomFieldChangeListener list = (RemoveCustomFieldChangeListener)changeListeners.elementAt(i);
 	    			if(list.equals(this)){
 	    				changeListeners.removeElementAt(i);
 	    				Log.trace("listener rimosso");
@@ -198,6 +221,7 @@ public class CustomFieldsView extends StandardBaseView {
 	    }
 	};
 	
+		
 	private void saveChanges() {
 		if(isDirty()) {
 			upgradeCustomFields();
@@ -263,7 +287,7 @@ public class CustomFieldsView extends StandardBaseView {
 					Log.debug("value - "+value);	
 
 					for (int j = 0; j < listenerSize; j++) {
-						MyFieldChangeListener list = (MyFieldChangeListener)changeListeners.elementAt(j);
+						RemoveCustomFieldChangeListener list = (RemoveCustomFieldChangeListener)changeListeners.elementAt(j);
 						String tmpName= list.getName().trim();
 						String tmpValue = list.getValue().trim();
 						
@@ -291,7 +315,7 @@ public class CustomFieldsView extends StandardBaseView {
 		//add new custom fields
 		int listenerSize = changeListeners.size();
 		for (int i = 0; i <listenerSize; i++) {
-			MyFieldChangeListener list = (MyFieldChangeListener)changeListeners.elementAt(i);
+			RemoveCustomFieldChangeListener list = (RemoveCustomFieldChangeListener)changeListeners.elementAt(i);
 			//Hashtable customField = (Hashtable)oldCustomFields.elementAt(i);
 			Hashtable customField = new Hashtable();
 			customField.put("key", list.getName().trim()); //add the custom field value

@@ -8,14 +8,13 @@ import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.Menu;
-import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AboutController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.utils.PropertyUtils;
-import com.wordpress.view.container.VerticalPaddedFieldManager;
+import com.wordpress.view.container.TableLayoutManager;
 
 public class AboutView extends BaseView {
 	private AboutController controller;
@@ -25,9 +24,8 @@ public class AboutView extends BaseView {
     	super(_resources.getString(WordPressResource.TITLE_ABOUT_VIEW));
 		controller = _aboutController;
     	
-		//Bitmap _bitmap = Bitmap.getBitmapResource("application-icon.png");
         Bitmap _bitmap = PropertyUtils.getAppIcon();
-    	String name = PropertyUtils.getAppName();
+    	//String name = PropertyUtils.getAppName();
         
     	String version = PropertyUtils.getAppVersion(); //read from the alx files
         if(version == null || version.trim().equals("")) { //read value from jad file
@@ -37,45 +35,47 @@ public class AboutView extends BaseView {
         		version = "";
         }
         
-    	HorizontalFieldManager row= new HorizontalFieldManager(Manager.VERTICAL_SCROLL);
-    	VerticalFieldManager col1= new VerticalFieldManager();
-    	final VerticalFieldManager col2= new VerticalPaddedFieldManager();
-    	    	
+        //The Header Row
+        TableLayoutManager	firstRow = new TableLayoutManager(new int[] {
+        		TableLayoutManager.USE_PREFERRED_SIZE,
+        		TableLayoutManager.SPLIT_REMAINING_WIDTH
+        }, new int[] { 2, 2 }, 0,
+        Manager.USE_ALL_WIDTH);  
+           	
     	BitmapField wpLogo = new BitmapField(_bitmap, Field.FIELD_HCENTER | Field.FIELD_VCENTER);
     	wpLogo.setSpace(5, 5);
-		col1.add(wpLogo);    	
+    	
+    	VerticalFieldManager titleManager = new VerticalFieldManager(Manager.FIELD_VCENTER | Manager.USE_ALL_WIDTH );
     	LabelField titleField = new LabelField(_resources.getString(WordPressResource.TITLE_APPLICATION));
     	Font fnt = this.getFont().derive(Font.BOLD);
     	titleField.setFont(fnt);
-		col2.add(titleField);
+    	titleManager.add(titleField);
+    	titleManager.add(new LabelField(_resources.getString(WordPressResource.ABOUTVIEW_VERSION)+" "+version));
+
+    	firstRow.add(wpLogo);
+    	firstRow.add(titleManager);
+    	add(firstRow);
+    	//end header row
+    	    	
+    	String mainText = _resources.getString(WordPressResource.ABOUTVIEW_DESC) 
+    	+ "\n\n" 
+    	+ _resources.getString(WordPressResource.ABOUTVIEW_DEVELOPED_BY)
+    	+ "\n\n"
+    	+ _resources.getString(WordPressResource.ABOUTVIEW_MORE_INFO);
+    		   	
+    	BasicEditField mainTextField = new BasicEditField(BasicEditField.READONLY);
+    	mainTextField.setText(mainText);
+    	mainTextField.setMargin(10, 10, 2, 10);
+    	add(mainTextField);
     	
-    	col2.add(new LabelField(_resources.getString(WordPressResource.ABOUTVIEW_VERSION)+" "+version));
-    	col2.add(new LabelField("",Field.FOCUSABLE)); //space after title
-    	
-    	BasicEditField descriptionField = new BasicEditField(BasicEditField.READONLY);
-    	descriptionField.setText(_resources.getString(WordPressResource.ABOUTVIEW_DESC));
-    	col2.add(descriptionField);
-    	col2.add(new LabelField("",Field.FOCUSABLE)); //space after description
-    	
-    	BasicEditField developedByField = new BasicEditField(BasicEditField.READONLY);
-    	developedByField.setText(_resources.getString(WordPressResource.ABOUTVIEW_DEVELOPED_BY));
-    	col2.add(developedByField);
-    	col2.add(new LabelField("",Field.FOCUSABLE)); //space after description
-    	
-    	
-    	BasicEditField moreInfoField = new BasicEditField(BasicEditField.READONLY);
-    	moreInfoField.setText(_resources.getString(WordPressResource.ABOUTVIEW_MORE_INFO));
-    	col2.add(moreInfoField);
     	urlAddr = GUIFactory.createURLLabelField("http://blackberry.wordpress.org", "http://blackberry.wordpress.org", LabelField.FOCUSABLE);
-    	col2.add(urlAddr);
+    	urlAddr.setMargin(0, 10, 2, 10);
+    	add(urlAddr);
     	Bitmap img = Bitmap.getBitmapResource("aboutscreenfooter.png");
-    	BitmapField bf = new BitmapField(img);    	
-    	col2.add(bf);
-    	col2.add(new LabelField("",Field.FOCUSABLE));
-    	
-    	row.add(col1);
-    	row.add(col2);
-    	this.add(row);
+    	BitmapField bf = new BitmapField(img);
+    	bf.setMargin(0, 0, 2, 10);
+    	add(bf);
+    	add(new LabelField("",Field.FOCUSABLE));
     }
     
 	public boolean onMenu(int instance) {
@@ -89,8 +89,7 @@ public class AboutView extends BaseView {
 		}
 		return result;
 	}
-
-    
+	
 	public BaseController getController() {
 		return controller;
 	}

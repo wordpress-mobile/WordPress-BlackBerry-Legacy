@@ -99,6 +99,7 @@ public class CommentView extends StandardBaseView {
 			title = new LabelField("", LabelField.FOCUSABLE);
 	        rowOn.add(lblTitle);
 	        rowOn.add(title);
+	        rowOn.setMargin(5, 0, 0, 0);
 	        outerManagerInfo.add(rowOn);
 	        	        
 	        //date
@@ -107,6 +108,7 @@ public class CommentView extends StandardBaseView {
 			date = new LabelField("", LabelField.FOCUSABLE);
 	        rowDate.add(lblDate);
 	        rowDate.add(date);
+	        rowDate.setMargin(5, 0, 0, 0);
 	        outerManagerInfo.add(rowDate);
 	        
 	  		//status
@@ -115,9 +117,10 @@ public class CommentView extends StandardBaseView {
 	  		status =new LabelField("", LabelField.FOCUSABLE);
 	  		rowStatus.add(lblStatus);
 	  		rowStatus.add(status); 
+	  		rowStatus.setMargin(5, 0, 0, 0);
 	  		outerManagerInfo.add(rowStatus);
-	  		add(outerManagerInfo);
 	  		
+	  		add(outerManagerInfo);
 	  		
 	  		//comment data
 	        BorderedFieldManager outerManagerComment = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL

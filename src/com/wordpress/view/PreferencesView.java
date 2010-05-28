@@ -282,39 +282,46 @@ public class PreferencesView extends StandardBaseView {
 		 
          //row _apn
          _apn = new EditField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_APN)+": ", mPrefs.getApn());
+         _apn.setMargin(5, 0, 0, 0);
          optManager.add(_apn);
          
          //row _username
          _username = new EditField(_resources.getString(WordPressResource.LABEL_USERNAME)+": ", mPrefs.getUsername());
+         _username.setMargin(5, 0, 0, 0);
          optManager.add(_username);
          
          //row _password
          _password = new EditField(_resources.getString(WordPressResource.LABEL_PASSWD)+": ", mPrefs.getPassword());
+         _password.setMargin(5, 0, 0, 0);
          optManager.add(_password);
 
          //row is wap connection?
          userConnectionWapTypeField=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_ISWAP), mPrefs.isUserConnectionWap());
+         userConnectionWapTypeField.setMargin(5, 0, 0, 0);
          optManager.add(userConnectionWapTypeField);
          
          //row _gateway IP
          _gateway = new EditField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_GWAY)+": ", mPrefs.getGateway(), 100, Field.EDITABLE);
+         _gateway.setMargin(5, 0, 0, 0);
          _gateway.setFilter(new URLTextFilter());
          optManager.add(_gateway);
          
          //row _gatewayPort
          _gatewayPort = new EditField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_GWAYPORT)+": ", mPrefs.getGatewayPort(), EditField.DEFAULT_MAXCHARS, EditField.FILTER_INTEGER);
+         _gatewayPort.setMargin(5, 0, 0, 0);
          optManager.add(_gatewayPort);
          
          //row _sourcePort
          _sourcePort = new EditField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_SRCPORT)+": ", mPrefs.getSourcePort(), EditField.DEFAULT_MAXCHARS, EditField.FILTER_INTEGER);
+         _sourcePort.setMargin(5, 0, 0, 0);
          optManager.add(_sourcePort);
          
          //row _sourceIP
          _sourceIP = new EditField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_SRCIP)+": ", mPrefs.getSourceIP());
+         _sourceIP.setMargin(5, 0, 0, 0);
          optManager.add(_sourceIP);
 
          add(optManager);
-         
 	 }
 	 
 	 
