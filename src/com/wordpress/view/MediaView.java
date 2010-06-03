@@ -63,11 +63,8 @@ public class MediaView extends StandardBaseView {
     	this.controller=_controller;
     	
     	//setting up the box used when there are no media items
-    	noMediaContainer= new VerticalFieldManager(Manager.NO_HORIZONTAL_SCROLL
-        		| Manager.NO_VERTICAL_SCROLL);
-    	//LabelField noPhoto = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_NO_MEDIA), Color.BLACK, Field.FOCUSABLE);
-    	//noMediaContainer.add(noPhoto);
-    	
+    	noMediaContainer= new VerticalFieldManager(Manager.NO_HORIZONTAL_SCROLL | Manager.NO_VERTICAL_SCROLL);
+    	    	
 		PillButtonField buttonAddAudio = new PillButtonField(_resources.getString(WordPressResource.MENUITEM_AUDIO_ADD));
 		buttonAddAudio.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
 		buttonAddAudio.setChangeListener(new FieldChangeListener() {
@@ -75,7 +72,7 @@ public class MediaView extends StandardBaseView {
 				 controller.showAddMediaPopUp(BlogObjectController.AUDIO);
 			 }
 		 });
-		buttonAddAudio.setMargin( 5, 6, 6, 5 );
+		buttonAddAudio.setMargin( 5, 15, 5, 15 );
 		
 		PillButtonField buttonAddVideo = new PillButtonField(_resources.getString(WordPressResource.MENUITEM_VIDEO_ADD));
 		buttonAddVideo.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
@@ -84,7 +81,7 @@ public class MediaView extends StandardBaseView {
 				 controller.showAddMediaPopUp(BlogObjectController.VIDEO); 
 			 }
 		 });
-		buttonAddVideo.setMargin( 5, 6, 6, 5 );
+		buttonAddVideo.setMargin( 5, 15, 5, 15  );
 		
 		PillButtonField buttonAddPhoto = new PillButtonField(_resources.getString(WordPressResource.MENUITEM_PHOTO_ADD));
 		buttonAddPhoto.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
@@ -93,11 +90,18 @@ public class MediaView extends StandardBaseView {
 				 controller.showAddMediaPopUp(BlogObjectController.PHOTO);
 			 }
 		 });
-		buttonAddPhoto.setMargin( 10, 6, 6, 5 );
+		buttonAddPhoto.setMargin( 5, 15, 5, 15  );
 		
-		noMediaContainer.add(buttonAddPhoto);
-		noMediaContainer.add(buttonAddVideo);
-		noMediaContainer.add(buttonAddAudio);
+		//trick to avoid extra shifting on old devices
+		HorizontalFieldManager buttonsManagerOne = new HorizontalFieldManager(Field.FIELD_HCENTER);
+		buttonsManagerOne.add(buttonAddPhoto);
+		HorizontalFieldManager buttonsManagerTwo = new HorizontalFieldManager(Field.FIELD_HCENTER);
+		buttonsManagerTwo.add(buttonAddVideo);
+		HorizontalFieldManager buttonsManagerThree = new HorizontalFieldManager(Field.FIELD_HCENTER);
+		buttonsManagerThree.add(buttonAddAudio);
+		noMediaContainer.add(buttonsManagerOne);
+		noMediaContainer.add(buttonsManagerTwo);
+		noMediaContainer.add(buttonsManagerThree);
     	
 		//end setting up the no media box
 		

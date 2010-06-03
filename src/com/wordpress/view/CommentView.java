@@ -214,7 +214,7 @@ public class CommentView extends StandardBaseView {
 		 }
 		 
 		 if(newComment.getContent() != null) {
-			 String content= BlogObjectController.buildBodyFieldContentFromHtml((newComment.getContent()));			 
+			 String content= newComment.getContent();			 
 			 commentContent.setText(content);
 		 }
 		else 

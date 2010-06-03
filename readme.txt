@@ -42,6 +42,8 @@ See the respective web pages for a copy of the license. The modified source code
 kXML-RPC is included with this source distribution, in the "thirdparty" source directory.
 - WordPress for BlackBerry uses a small number of classes from LogicMail <http://logicmail.org/>. 
 Those classes are used for characters encoding.
+-  WordPress for BlackBerry uses a modified version of Jakarta-Regexp lib. 
+This lib is released under the Apache Software License, Version 1.1
 
 
 

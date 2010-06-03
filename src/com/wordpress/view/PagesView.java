@@ -135,7 +135,7 @@ public class PagesView extends BaseView implements ListActionListener {
 						
 		pagesList = new PostsListField(); 	        
 		pagesList.set(elements);
-		pagesList.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_POSTS), DrawStyle.LEFT);
+		pagesList.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_PAGES), DrawStyle.LEFT);
 		pagesList.setDefautActionListener(this);
 		
 		dataScroller.add(pagesList);

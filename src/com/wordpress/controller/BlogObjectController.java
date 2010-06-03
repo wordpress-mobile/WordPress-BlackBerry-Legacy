@@ -83,7 +83,6 @@ public abstract class BlogObjectController extends BaseController {
 	//journal listener
 	FileSystemJournalListener mediaFileFSListener = null;
 	
-	
 	public BlogObjectController(Blog _blog, BlogEntry entry) {
 		this.blog = _blog;
 		this.blogEntry = entry;
@@ -238,22 +237,6 @@ public abstract class BlogObjectController extends BaseController {
 		UiApplication.getUiApplication().pushScreen(photoView);
 	}
 	
-	/*
-	 * show selected photo
-	 
-	public void showEnlargedPhoto(String key){
-		Log.trace("showed photos: "+key);
-		byte[] data;
-		try {
-			data = JSR75FileSystem.readFile(key);			
-			EncodedImage img= EncodedImage.createEncodedImage(data,0, -1);
-			UiApplication.getUiApplication().pushScreen(new PhotoPreview(this, key ,img)); //modal screen...
-		} catch (Exception e) {
-			displayError(e, "Cannot load photos from disk!");
-			return;
-		}
-	}
-	*/
 	/*
 	 * show selected photo properties
 	 */
@@ -510,19 +493,5 @@ public abstract class BlogObjectController extends BaseController {
 			newContentBuff.append(split[i]);
 		}
 		return newContentBuff.toString();
-		//return originalContent;
-	}
-	
-	/**
-	 * Build the field body content from the html fragment of the body
-	 * @param body  original body text field content
-	 * @return
-	 */
-	public static synchronized String buildBodyFieldContentFromHtml(String originalContent) {
-		return originalContent;
-		//String[] split = StringUtils.split(originalContent, Characters.ENTER);
-		//String replaceAll = StringUtils.replaceAll(originalContent, "<p>", "");
-		//replaceAll = StringUtils.replaceAll(replaceAll, "</p>", Characters.ENTER+"");
-		//return replaceAll;		
 	}
 }

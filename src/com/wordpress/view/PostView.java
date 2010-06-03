@@ -7,10 +7,13 @@ import java.util.Vector;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.ContextMenu;
+import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
+import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.Ui;
 
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.CheckboxField;
@@ -29,6 +32,8 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ClickableLabelField;
 import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.component.HtmlTextField;
+import com.wordpress.view.component.MarkupToolBar;
+import com.wordpress.view.component.MarkupToolBarTextFieldMediator;
 import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.dialog.InquiryView;
 
@@ -45,7 +50,7 @@ public class PostView extends StandardBaseView {
 	private ClickableLabelField lblPhotoNumber;
 	private CheckboxField enableLocation;
 	private CheckboxField isLocationPublic;
-	
+	private LabelField wordCountField;
 	
     public PostView(PostController _controller, Post _post) {
     	super(_resources.getString(WordPressResource.TITLE_POSTVIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -132,23 +137,41 @@ public class PostView extends StandardBaseView {
     	BorderedFieldManager outerManagerRowContent = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL);
 
-  		String buildBodyFieldContentFromHtml = controller.buildBodyFieldContentFromHtml(post.getBody());
+  		String buildBodyFieldContentFromHtml = post.getBody();
   		//decode the post more content
   		String extendedBody = post.getExtendedBody();
   		if(extendedBody != null && !extendedBody.trim().equals("")) {
   			String extendedBodyHTML = Characters.ENTER +"<!--more-->" + Characters.ENTER;
-  			extendedBodyHTML += controller.buildBodyFieldContentFromHtml(extendedBody);
+  			extendedBodyHTML += extendedBody;
   			buildBodyFieldContentFromHtml += extendedBodyHTML;
   		}
+
+  		MarkupToolBarTextFieldMediator mediator = new MarkupToolBarTextFieldMediator();
   		
-		bodyTextBox= new HtmlTextField(buildBodyFieldContentFromHtml);
-        LabelField lblPostContent = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_POST_CONTENT), Color.BLACK);
-		outerManagerRowContent.add(lblPostContent);
+  		HorizontalFieldManager headerContent = new HorizontalFieldManager(Manager.NO_HORIZONTAL_SCROLL | Manager.USE_ALL_WIDTH);
+  		LabelField lblPostContent = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_POST_CONTENT), Color.BLACK);
+  		int fntHeight = Font.getDefault().getHeight();
+  		Font fnt = Font.getDefault().derive(Font.PLAIN, fntHeight-4, Ui.UNITS_px);
+  		wordCountField = new LabelField("0", Field.USE_ALL_WIDTH | Field.FIELD_BOTTOM | DrawStyle.RIGHT);
+  		wordCountField.setFont(fnt);
+  		mediator.setWcField(wordCountField);
+
+  		headerContent.add(lblPostContent);
+		headerContent.add(wordCountField);
+		outerManagerRowContent.add(headerContent);
 		outerManagerRowContent.add(GUIFactory.createSepatorField());
-        outerManagerRowContent.add(bodyTextBox);
+		
+		bodyTextBox = new HtmlTextField(buildBodyFieldContentFromHtml, mediator);
+		mediator.setTextField(bodyTextBox);
+		outerManagerRowContent.add(bodyTextBox);
+		outerManagerRowContent.add(GUIFactory.createSepatorField());
+		
+		MarkupToolBar markupToolBar = new MarkupToolBar(mediator);
+		mediator.setTb(markupToolBar);
+		markupToolBar.attachTo(outerManagerRowContent);
 		add(outerManagerRowContent);
         add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
-		
+        
 		addMenuItem(_saveDraftPostItem);
 		addMenuItem(_submitPostItem);
 		addMenuItem(_photosItem);
@@ -161,9 +184,8 @@ public class PostView extends StandardBaseView {
 		
 		//move the focus to the title Field
 		title.setFocus();
-		
     }
-    	
+    
     //set the photos number label text
     public void setNumberOfPhotosLabel(int count) {
     	lblPhotoNumber.setText(String.valueOf(count));
@@ -350,6 +372,7 @@ public class PostView extends StandardBaseView {
         }
     };
     
+
     private MenuItem _settingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETTINGS, 110, 10) {
         public void run() {
         	controller.showSettingsView();

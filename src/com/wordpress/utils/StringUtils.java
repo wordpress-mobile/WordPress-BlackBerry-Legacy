@@ -5,8 +5,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class StringUtils {
-	
-	
+
 	//check if RIM devices supports the encoding
 	public static boolean isDeviceSupportEncoding(String encoding){
 		try{
@@ -354,91 +353,24 @@ public class StringUtils {
 	}
     
 	
-	/*	FIX WP DOUBLE ENCODED AMPESAND */
-	//@see http://blackberry.trac.wordpress.org/ticket/17
-	public static String  fixWordPressDoubleEncodedAmpersandOld(String xmlInput) {
-		String output = StringUtils.replaceAll(xmlInput, "&amp;amp;", "&amp;"); //FIX WP DOUBLE ENCODED AMPESAND;
-		output = StringUtils.replaceAll(output, "&amp;#038;", "&#038;");
-		output = StringUtils.replaceAll(output, "&amp;#039;", "&#039;"); 
-		return output;
-		 /*
-		 StringBuffer tempResult = new StringBuffer(output.length());
-			
-			int ampInd = output.indexOf("&amp;");
-			int lastEnd = 0;
-			int entityValue = 0;
-			
-			while (ampInd >= 0){
-				int nextAmp = output.indexOf("&amp;", ampInd+5);
-				int nextSemi = output.indexOf(";", ampInd+5);
-				
-				if (nextSemi != -1 && (nextAmp == -1 || nextSemi < nextAmp)){ //check if html entity
-					String escape = output.substring(ampInd+5,nextSemi);
-					
-					char charAt1 = ' ';
-					
-					 if (escape.charAt(0) == '#') { //check numeric entity
-		                 charAt1 = escape.charAt(1);
-		                 if (charAt1 == 'x' || charAt1=='X') {
-		                	 try {
-		                		entityValue = Integer.valueOf(escape.substring(2), 16).intValue();
-							} catch (NumberFormatException e) {
-								entityValue = -1;
-							}
-		                 } else {
-		                	 try {
-		                		 entityValue = Integer.parseInt(escape.substring(1));
-							} catch (NumberFormatException e) {
-								entityValue = -1;
-							}
-		                 }
-		             } else  { //check mnemonic entity table
-		            	 
-		            	 String entFromTable = (String)htmlEntities.get(escape);
-		                	if(entFromTable != null) {
-		                		 entityValue = Integer.parseInt(entFromTable);
-		                	} else 
-		                		entityValue = -1;
-		             }
-					 
-					 tempResult.append(output.substring(lastEnd, ampInd)); //append all char before &amp;
-									 
-					if (entityValue == -1) { //se non hai trovato una entity definita 
-						tempResult.append("&");
-						tempResult.append(escape);
-						tempResult.append(";");
-					} else {
-						Log.trace("convertito in char: "+(char) (entityValue));
-						tempResult.append((char) (entityValue));
-					}
-					
-					lastEnd = nextSemi + 1;
-				}
-				ampInd = nextAmp;
-			}
-			tempResult.append(output.substring(lastEnd));
-			return unescape(tempResult.toString());*/
+	// Splits string 
+	public static String[] split(final String string, final String splitBy) {
+		final Vector tokens = new Vector();
+		final int tokenLength = splitBy.length();
+
+		int tokenStart = 0;
+		int splitIndex;
+		while ((splitIndex = string.indexOf(splitBy, tokenStart)) != -1) {
+			tokens.addElement(string.substring(tokenStart, splitIndex));
+			tokenStart = splitIndex + tokenLength;
+		}
+
+		tokens.addElement(string.substring(tokenStart));
+
+		final String[] result = new String[tokens.size()];
+		tokens.copyInto(result);
+		return result;
 	}
-	
-	  // Splits string 
-	  public static String[] split(final String string, final String splitBy) {
-		    final Vector tokens = new Vector();
-		    final int tokenLength = splitBy.length();
-
-		    int tokenStart = 0;
-		    int splitIndex;
-		    while ((splitIndex = string.indexOf(splitBy, tokenStart)) != -1) {
-		      tokens.addElement(string.substring(tokenStart, splitIndex));
-		      tokenStart = splitIndex + tokenLength;
-		    }
-
-		    tokens.addElement(string.substring(tokenStart));
-
-		    final String[] result = new String[tokens.size()];
-		    tokens.copyInto(result);
-		    return result;
-		  }
-	
 
     public static boolean equalsIgnoreCase(String string1, String string2) {
         // Strings are both null, return true

@@ -112,13 +112,13 @@ public class PageView extends StandardBaseView {
   		//row content - decode the page body content
     	BorderedFieldManager outerManagerRowContent = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL);
-  		String buildBodyFieldContentFromHtml = controller.buildBodyFieldContentFromHtml(page.getDescription());
+  		String buildBodyFieldContentFromHtml = page.getDescription();
 		
   		//decode the text more content
   		String extendedBody = page.getMtTextMore();
   		if(extendedBody != null && !extendedBody.trim().equals("")) {
   			String extendedBodyHTML = Characters.ENTER +"<!--more-->" + Characters.ENTER;
-  			extendedBodyHTML += controller.buildBodyFieldContentFromHtml(extendedBody);
+  			extendedBodyHTML += extendedBody;
   			buildBodyFieldContentFromHtml += extendedBodyHTML;
   		}
 		bodyTextBox= new HtmlTextField(buildBodyFieldContentFromHtml);

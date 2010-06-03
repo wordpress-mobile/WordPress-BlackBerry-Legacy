@@ -251,8 +251,7 @@ public class StatsController extends BaseController {
 							
 							parser.nextTag();
 							parser.require(XmlPullParser.END_TAG, null, "blog" );
-							
-							
+														
 							if(url != null) {
 								//trying to match the url
 								String blogUrl = currentBlog.getUrl();
@@ -359,7 +358,7 @@ public class StatsController extends BaseController {
 								}
 							});
 						} else {
-							//No stats for you blog found
+							//No stats ID for your blog found in the server response
 							displayMessage(_resources.getString(WordPressResource.MESSAGE_CANNOT_FIND_STATS));
 						}
 					} else {

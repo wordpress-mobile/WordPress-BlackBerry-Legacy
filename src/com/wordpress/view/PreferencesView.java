@@ -214,7 +214,8 @@ public class PreferencesView extends StandardBaseView {
 		 debugManager.add(lblTitle);
 		 debugManager.add(GUIFactory.createSepatorField());
 		 
-		 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_DEBUG_DESC)); 
+		 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_DEBUG_DESC));
+		 lblDesc.setMargin(0,0,5,0);
 		 debugManager.add(lblDesc);
 		 	 
 		 _debugMode=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_DEBUG_LABEL), mPrefs.isDebugMode());
@@ -237,11 +238,10 @@ public class PreferencesView extends StandardBaseView {
 		 optManager.add(GUIFactory.createSepatorField());
 		 
          //description text
-         BasicEditField lblDescReset = GUIFactory.getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_DESC)); 
-		 Font fnt = this.getFont().derive(Font.ITALIC);
-		 lblDescReset.setFont(fnt);
-		 optManager.add(lblDescReset);
-
+         BasicEditField lblDesc = GUIFactory.getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_DESC)); 
+		 lblDesc.setMargin(0,0,5,0);
+         optManager.add(lblDesc);
+		 
 		 if ( ConnectionUtils.isWifiAvailable() ) {
 			 _userAllowWiFi=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_ALLOW_WIFI), mPrefs.isWiFiConnectionPermitted());
 			 optManager.add(_userAllowWiFi);
@@ -272,7 +272,8 @@ public class PreferencesView extends StandardBaseView {
 		 optManager.add(GUIFactory.createSepatorField());
 		 
 	      //description
-		 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_USERDEFINEDCONN_DESC)); 
+		 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.OPTIONSSCREEN_USERDEFINEDCONN_DESC));
+		 lblDesc.setMargin(0,0,5,0);
 		 optManager.add(lblDesc);
 		 
 		 userConnectionEnabledField=new CheckboxField(_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_ENABLE_ADVANCED_CONNECTION_SETTINGS), mPrefs.isUserConnectionOptionsEnabled());
