@@ -9,6 +9,7 @@ import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
+import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.AutoTextEditField;
@@ -16,13 +17,14 @@ import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.DialogClosedListener;
 import net.rim.device.api.ui.component.EditField;
-import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.PopupScreen;
+import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.GUIFactory;
 import com.wordpress.view.component.MarkupToolBarTextFieldMediator.ButtonState;
+import com.wordpress.view.container.JustifiedEvenlySpacedHorizontalFieldManager;
 import com.wordpress.view.dialog.AddLinkDialog;
 import com.wordpress.view.dialog.InquiryView;
 
@@ -166,17 +168,23 @@ public class HtmlTextField extends AutoTextEditField {
     			//Log.trace("Context == 1" );
     			return; //not user changed
     		}
+    		
+    		synchronized (field) {
+    			if(ignore == true){
+    				return; 
+    			} else {
+    				ignore = true;
+    			}
+			}
+    		
     		AutoTextEditField campoIntelligente = ((AutoTextEditField) field);
-    		//	Log.trace("field change listener: "+ ((AutoTextEditField) field).getText());
-    			int pos = campoIntelligente.getCursorPosition();
-    			//Log.trace("current pos : "+pos);
-    			//check the current pos
-    			if(pos >= 1)
- 					if(campoIntelligente.charAt(pos-1) == '<' ) {
-    					Log.debug("match riconosciuto");
-    					TagPopupScreen inqView= new TagPopupScreen();
-    					UiApplication.getUiApplication().pushScreen(inqView); //modal screen...
-    				} 
+			int pos = campoIntelligente.getCursorPosition();
+			if(pos >= 1)
+				if(campoIntelligente.charAt(pos-1) == '<' ) {
+					TagPopupScreen inqView= new TagPopupScreen();
+					UiApplication.getUiApplication().pushScreen(inqView);
+				}
+				
     	}
     };
     
@@ -235,8 +243,9 @@ public class HtmlTextField extends AutoTextEditField {
     private class TagPopupScreen extends PopupScreen {
     	  public TagPopupScreen()
     	    {
-    	        super(new HorizontalFieldManager(Field.FIELD_HCENTER),Field.FOCUSABLE);
+    	        super(new VerticalFieldManager(Field.FIELD_HCENTER | Manager.NO_VERTICAL_SCROLL),Field.FOCUSABLE);
     	        ButtonState[] buttonStateList = mediator.getButtonStateList();
+    	        JustifiedEvenlySpacedHorizontalFieldManager internalBtnContainer = new JustifiedEvenlySpacedHorizontalFieldManager();
     	    	for (int i = 0; i < buttonStateList.length; i++) {
     	    		ButtonState tmpState = buttonStateList[i];
     	    		String tmpLabel = null;
@@ -245,7 +254,7 @@ public class HtmlTextField extends AutoTextEditField {
     	    		else 
     	    			tmpLabel = tmpState.getLabel();
     				
-    	    		BaseButtonField tmpButton= GUIFactory.createButton(tmpLabel, ButtonField.CONSUME_CLICK | DrawStyle.ELLIPSIS);
+    	    		BaseButtonField tmpButton= GUIFactory.createButton(tmpLabel, ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
     				final int tempIndex = i;
     				tmpButton.setChangeListener(
     					new FieldChangeListener() {
@@ -254,8 +263,9 @@ public class HtmlTextField extends AutoTextEditField {
     						}
     					}
     				);
-    				add(tmpButton);
+    				internalBtnContainer.add(tmpButton);
     			}
+    	    	add(internalBtnContainer);
     	    }
     	  
     		private void hh(int selection) {

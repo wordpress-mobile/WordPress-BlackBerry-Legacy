@@ -2,7 +2,6 @@ package com.wordpress.view;
 
 import java.util.Hashtable;
 
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.FocusChangeListener;
@@ -118,36 +117,22 @@ public class BlogOptionsView extends StandardBaseView {
 			String signature = (String)values.get("signature");
 	        //end loading
 			
-            //row username
+	        //row username & password & max number of post/page
             BorderedFieldManager rowUserName = new BorderedFieldManager(
 	        		Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL
 	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-    		LabelField lblUserName = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_USERNAME), Color.BLACK); 
-            userNameField = new BasicEditField("", user, 60, Field.EDITABLE);
-            rowUserName.add(lblUserName);
-    		rowUserName.add(userNameField);
-            add(rowUserName);
-    		
-            //row password
-            BorderedFieldManager rowPassword = new BorderedFieldManager(
-	        		Manager.NO_HORIZONTAL_SCROLL
-	        		| Manager.NO_VERTICAL_SCROLL
-	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-    		LabelField lblPassword = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_PASSWD), Color.BLACK); 
-            passwordField = new PasswordEditField("", pass, 64, Field.EDITABLE);
-            rowPassword.add(lblPassword);
-            rowPassword.add(passwordField);
-            add(rowPassword);
 
-            //row max recent post
-            BorderedFieldManager rowMaxRecentPost = new BorderedFieldManager(
-	        		Manager.NO_HORIZONTAL_SCROLL
-	        		| Manager.NO_VERTICAL_SCROLL
-	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-            maxRecentPost = new ObjectChoiceField (_resources.getString(WordPressResource.LABEL_MAXRECENTPOST), recentPost,recentPostSelect);
-            rowMaxRecentPost.add(maxRecentPost);
-            add(rowMaxRecentPost);            
+            userNameField = new BasicEditField(_resources.getString(WordPressResource.LABEL_USERNAME)+": ", user, 60, Field.EDITABLE);
+            userNameField.setMargin(5, 0, 5, 0);
+            rowUserName.add(userNameField);
+            passwordField = new PasswordEditField(_resources.getString(WordPressResource.LABEL_PASSWD)+": ", pass, 64, Field.EDITABLE);
+            passwordField.setMargin(5, 0, 5, 0);
+            rowUserName.add(passwordField);
+            maxRecentPost = new ObjectChoiceField (_resources.getString(WordPressResource.LABEL_MAX_RECENT_BLOG_ITEMS), recentPost,recentPostSelect);
+            maxRecentPost.setMargin(5, 0, 5, 0);
+            rowUserName.add(maxRecentPost);
+            add(rowUserName);           
 
             //row resize photos
             rowResizePhotos = new BorderedFieldManager(
@@ -172,12 +157,11 @@ public class BlogOptionsView extends StandardBaseView {
 	        		Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL
 	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-    		enableLocation = new CheckboxField(_resources.getString(WordPressResource.LABEL_LOCATION), isLocation);
+    		enableLocation = new CheckboxField(_resources.getString(WordPressResource.LABEL_LOCATION_ENABLE), isLocation);
     		commentNotifications = new CheckboxField(_resources.getString(WordPressResource.LABEL_COMMENT_NOTIFICATIONS), isCommentNotifications);
     		commentNotificationManager.add(commentNotifications);
     		commentNotificationManager.add(enableLocation);
 			add(commentNotificationManager);
-			
 			
             //row Signature
             BorderedFieldManager signatureManager = new BorderedFieldManager(

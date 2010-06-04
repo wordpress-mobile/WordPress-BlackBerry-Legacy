@@ -25,12 +25,12 @@ public class MarkupToolBarTextFieldMediator {
 
 	public MarkupToolBarTextFieldMediator() {
 		buttonStateList= new ButtonState[6];
-		buttonStateList[0] = new ButtonState("B", "Bold", "b");
-		buttonStateList[1] = new ButtonState("I", "Italic" ,"em");
-		buttonStateList[2] = new ButtonState("A","Link", "a");
-		buttonStateList[3] = new ButtonState("UL","Unorder List", "ul");
-		buttonStateList[4] = new ButtonState("OL", "Order List", "ol");
-		buttonStateList[5] = new ButtonState("LI","List Item", "li");	
+		buttonStateList[0] = new ButtonState("B", _resources.getString(WordPressResource.MENUITEM_HTML_BOLD), "b");
+		buttonStateList[1] = new ButtonState("I", _resources.getString(WordPressResource.MENUITEM_HTML_EMPH) ,"em");
+		buttonStateList[2] = new ButtonState("L",_resources.getString(WordPressResource.MENUITEM_HTML_LINK), "a");
+		buttonStateList[3] = new ButtonState("UL",_resources.getString(WordPressResource.MENUITEM_HTML_UL), "ul");
+		buttonStateList[4] = new ButtonState("OL", _resources.getString(WordPressResource.MENUITEM_HTML_OL), "ol");
+		buttonStateList[5] = new ButtonState("LI",_resources.getString(WordPressResource.MENUITEM_HTML_LI), "li");	
 	}
 		
 	public ButtonState[] getButtonStateList() {

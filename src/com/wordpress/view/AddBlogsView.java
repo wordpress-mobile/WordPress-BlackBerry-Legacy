@@ -26,7 +26,6 @@ import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
-import com.wordpress.view.component.PillButtonField;
 import com.wordpress.view.container.BorderedFieldManager;
 
 
@@ -64,46 +63,32 @@ public class AddBlogsView extends StandardBaseView {
 	        		Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL
 	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-            //HorizontalFieldManager rowURL = new HorizontalFieldManager();
-    		LabelField lblUrl = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_URL), Color.BLACK); 
-            blogUrlField = new BasicEditField("", url, 100, Field.EDITABLE);
+           	LabelField lblUrl = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_URL), Color.BLACK); 
+           	rowURL.add(lblUrl);
+           	rowURL.add(GUIFactory.createSepatorField());
+           	blogUrlField = new BasicEditField("", url, 100, Field.EDITABLE);
             blogUrlField.setFilter(new URLTextFilter());
             if(blogUrlField.getTextLength() > 0)
             	blogUrlField.setCursorPosition(blogUrlField.getTextLength());//set the cursor at the end
-            rowURL.add(lblUrl);
             rowURL.add(blogUrlField);
             add(rowURL);
             
-            //row username
+            //row username & password & max number of post/page
             BorderedFieldManager rowUserName = new BorderedFieldManager(
 	        		Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL
 	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-    		LabelField lblUserName = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_USERNAME), Color.BLACK); 
-            userNameField = new BasicEditField("", user, 60, Field.EDITABLE);
-            rowUserName.add(lblUserName);
-            rowUserName.add(userNameField);
-    		add(rowUserName);
-    		
-            //row password
-            BorderedFieldManager rowPassword = new BorderedFieldManager(
-	        		Manager.NO_HORIZONTAL_SCROLL
-	        		| Manager.NO_VERTICAL_SCROLL
-	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-    		LabelField lblPassword = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_PASSWD), Color.BLACK); 
-            passwordField = new PasswordEditField("", pass, 64, Field.EDITABLE);
-            rowPassword.add(lblPassword);
-            rowPassword.add(passwordField);
-            add(rowPassword);
 
-            //row max recent post
-            BorderedFieldManager rowMaxRecentPost = new BorderedFieldManager(
-	        		Manager.NO_HORIZONTAL_SCROLL
-	        		| Manager.NO_VERTICAL_SCROLL
-	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-            maxRecentPost = new ObjectChoiceField (_resources.getString(WordPressResource.LABEL_MAXRECENTPOST), recentPost,recentPostSelect);
-            rowMaxRecentPost.add(maxRecentPost);
-            add(rowMaxRecentPost);            
+            userNameField = new BasicEditField(_resources.getString(WordPressResource.LABEL_USERNAME)+": ", user, 60, Field.EDITABLE);
+            userNameField.setMargin(5, 0, 5, 0);
+            rowUserName.add(userNameField);
+            passwordField = new PasswordEditField(_resources.getString(WordPressResource.LABEL_PASSWD)+": ", pass, 64, Field.EDITABLE);
+            passwordField.setMargin(5, 0, 5, 0);
+            rowUserName.add(passwordField);
+            maxRecentPost = new ObjectChoiceField (_resources.getString(WordPressResource.LABEL_MAX_RECENT_BLOG_ITEMS), recentPost,recentPostSelect);
+            maxRecentPost.setMargin(5, 0, 5, 0);
+            rowUserName.add(maxRecentPost);
+            add(rowUserName);
 
             //row resize photos
             rowResizePhotos = new BorderedFieldManager(
@@ -132,7 +117,7 @@ public class AddBlogsView extends StandardBaseView {
             buttonsManager.add(buttonBACK);
     		add(buttonsManager); 
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
-    		
+    		/*
             HorizontalFieldManager buttonsManagerGetFreeBlog = new HorizontalFieldManager(Field.FIELD_HCENTER);
             PillButtonField buttonGetFreeBlog = new PillButtonField(_resources.getString(WordPressResource.GET_FREE_BLOG));
             buttonGetFreeBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
@@ -141,7 +126,7 @@ public class AddBlogsView extends StandardBaseView {
             buttonsManagerGetFreeBlog.add(buttonGetFreeBlog);
     		add(buttonsManagerGetFreeBlog); 
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after button
-    		
+    		*/
     		addMenuItem(_addBlogItem);
     		addMenuItem(_getFreeBlogItem);
 	}

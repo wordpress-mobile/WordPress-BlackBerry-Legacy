@@ -149,10 +149,10 @@ public class PostView extends StandardBaseView {
   		MarkupToolBarTextFieldMediator mediator = new MarkupToolBarTextFieldMediator();
   		
   		HorizontalFieldManager headerContent = new HorizontalFieldManager(Manager.NO_HORIZONTAL_SCROLL | Manager.USE_ALL_WIDTH);
-  		LabelField lblPostContent = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_POST_CONTENT), Color.BLACK);
+  		LabelField lblPostContent = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_POST_CONTENT), Color.BLACK, DrawStyle.ELLIPSIS);
   		int fntHeight = Font.getDefault().getHeight();
   		Font fnt = Font.getDefault().derive(Font.PLAIN, fntHeight-4, Ui.UNITS_px);
-  		wordCountField = new LabelField("0", Field.USE_ALL_WIDTH | Field.FIELD_BOTTOM | DrawStyle.RIGHT);
+  		wordCountField = new LabelField("0", Field.USE_ALL_WIDTH | Field.FIELD_HCENTER | DrawStyle.RIGHT);
   		wordCountField.setFont(fnt);
   		mediator.setWcField(wordCountField);
 
@@ -162,6 +162,7 @@ public class PostView extends StandardBaseView {
 		outerManagerRowContent.add(GUIFactory.createSepatorField());
 		
 		bodyTextBox = new HtmlTextField(buildBodyFieldContentFromHtml, mediator);
+		bodyTextBox.setMargin(5,0,5,0);//leave some spaces on the top & bottom
 		mediator.setTextField(bodyTextBox);
 		outerManagerRowContent.add(bodyTextBox);
 		outerManagerRowContent.add(GUIFactory.createSepatorField());
