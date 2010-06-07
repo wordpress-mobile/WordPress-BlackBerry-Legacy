@@ -6,7 +6,7 @@ This file contains the instructions to build the source code provided with the z
 
     - Download and install Apache Ant: http://ant.apache.org/ (version 1.7)
     - Download and install Sun Java Wireless Toolkit: http://java.sun.com/products/sjwtoolkit/ (version 2.5.2)
-    - Download and install Blackberry JDE 4.3: http://na.blackberry.com/eng/developers/ (version 4.3)
+    - Download and install Blackberry JDE ComponentPack 4.5.0_4.5.0.16 or higher : http://na.blackberry.com/eng/developers/ 
     - Download and install Blackberry JDE 4.7: http://na.blackberry.com/eng/developers/ (version 4.7)
     - Download and install Eclipse for Java Developer and the Blackberry JDE Plug-in for Eclipse 1.1 or higher. 
 
@@ -30,10 +30,10 @@ If you checkout the project using a previous svn client, such as 1.5.x, you shou
 3.3 Set the right values for:
     Your blackberry JDE home:
 
-    - rim.home.os43=<JDE 4.3 - home>
-      Example: rim.home=C:/Program Files/Research In Motion/BlackBerry JDE 4.3
+    - rim.home.os45=<JDE 4.5 - home>
+      Example: rim.home=C:/Program Files/Research In Motion/BlackBerry JDE 4.5.0.16
       or if you are using eclipse JDE Plug-in
-      C:\opt\eclipseRIM4.3\plugins\net.rim.eide.componentpack4.3\components\bin
+      C:/opt/eclipseRIM4.2.1/plugins/net.rim.eide.componentpack4.5.0_4.5.0.16/components
   
     - rim.home.os47=<JDE 4.7 -home >
       Example: rim.home=C:/Program Files/Research In Motion/BlackBerry JDE 4.7.0
@@ -53,11 +53,11 @@ If you checkout the project using a previous svn client, such as 1.5.x, you shou
     generates the required cod files. There are two sets of cod files:
 
     - <blackberry-dir>/output/xxx/release contains cod files which are suitable for
-      the emulator (they are not broken into chunks by rapc). xxx can be os43 or
+      the emulator (they are not broken into chunks by rapc). xxx can be os45 or
       os47.
 
     - <blackberry-dir>/output/xxx/release/ota contains the cod files suitable for
-      OTA installation. xxx can be os43 or os47.
+      OTA installation. xxx can be os45 or os47.
 
     In both directories there is a proper jad file for the installation.
 

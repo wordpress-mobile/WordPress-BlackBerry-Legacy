@@ -4,6 +4,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.view.dialog.AddLinkDialog;
 
 import net.rim.device.api.i18n.ResourceBundle;
+import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.DialogClosedListener;
 import net.rim.device.api.ui.component.LabelField;
@@ -54,9 +55,14 @@ public class MarkupToolBarTextFieldMediator {
 			textField.setFocus();
 	}
 	
-	public void updateWordCounter(int count) {
-		if(wcField != null)
-			wcField.setText(_resources.getString(WordPressResource.LABEL_WORD_COUNT)+": "+count);
+	public void updateWordCounter(final int count) {
+		if(wcField != null) {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					wcField.setText(_resources.getString(WordPressResource.LABEL_WORD_COUNT)+": "+count);
+				}
+			});			
+		}
 	}
 	
 	/* btn or menuItem was clicked */
@@ -102,6 +108,12 @@ public class MarkupToolBarTextFieldMediator {
     	private boolean isOpen;
 		private final String longLabel;
 
+		public ButtonState(String label, String longLabel, String tag) {
+			super();
+			this.label = label;
+			this.longLabel = longLabel;
+			this.tag = tag;
+		}
     	public boolean isOpen() {
 			return isOpen;
 		}
@@ -111,26 +123,12 @@ public class MarkupToolBarTextFieldMediator {
 		public String getLabel() {
 			return label;
 		}
-		public void setLabel(String label) {
-			this.label = label;
-		}
     	public String getTag() {
 			return tag;
 		}
-		public void setTag(String tag) {
-			this.tag = tag;
-		}
-	
 		public String getLongLabel() {
 			return longLabel;
-		}
-		
-		public ButtonState(String label, String longLabel, String tag) {
-			super();
-			this.label = label;
-			this.longLabel = longLabel;
-			this.tag = tag;
-		}
+		}	
     }
 
     

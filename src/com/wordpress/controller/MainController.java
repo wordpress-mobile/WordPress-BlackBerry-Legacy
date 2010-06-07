@@ -220,14 +220,14 @@ public class MainController extends BaseController implements TaskProgressListen
     	}
 	}
 
-	//listener for new comments in awaiting state
+	/*listener for new comments in awaiting state
 	public void newCommentNotifies(BlogInfo[] blogs) {
 		
 		for (int i = 0; i < blogs.length; i++) {
 			BlogInfo blogI = blogs[i];
 			view.setBlogItemViewState(blogI);			
 		}
-	}
+	}*/
 	
 	public void updateBlogListEntry(BlogInfo blogInfo){
 		view.setBlogItemViewState(blogInfo); 

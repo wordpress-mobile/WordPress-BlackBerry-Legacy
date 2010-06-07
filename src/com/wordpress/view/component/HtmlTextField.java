@@ -1,5 +1,8 @@
 package com.wordpress.view.component;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.apache.regexp.RE;
 import org.apache.regexp.RESyntaxException;
 
@@ -9,24 +12,24 @@ import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
+import net.rim.device.api.ui.FocusChangeListener;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.AutoTextEditField;
 import net.rim.device.api.ui.component.ButtonField;
-import net.rim.device.api.ui.component.Dialog;
-import net.rim.device.api.ui.component.DialogClosedListener;
 import net.rim.device.api.ui.component.EditField;
+import net.rim.device.api.ui.component.LabelField;
+import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.PopupScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
+import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.GUIFactory;
 import com.wordpress.view.component.MarkupToolBarTextFieldMediator.ButtonState;
 import com.wordpress.view.container.JustifiedEvenlySpacedHorizontalFieldManager;
-import com.wordpress.view.dialog.AddLinkDialog;
-import com.wordpress.view.dialog.InquiryView;
 
 public class HtmlTextField extends AutoTextEditField {
 
@@ -34,13 +37,15 @@ public class HtmlTextField extends AutoTextEditField {
     protected static ResourceBundle _resources;
 	private boolean ignore = false;
 	
+	private MarkupToolBarTextFieldMediator mediator;
+
 	//wc variable
 	private RE tagRexExp = null;
 	private RE htmlWhiteSpaceRegExp = null;
 	private RE keepOnlyWordsRegExp = null;
 	private RE countWordsRegExp = null;
-	private int wordCountID = -1;
-	private MarkupToolBarTextFieldMediator mediator;
+	private Timer timer;
+	private TimerTask updateTask = null;
 	    
 	static {
         //retrieve a reference to the ResourceBundle for localization support
@@ -81,6 +86,8 @@ public class HtmlTextField extends AutoTextEditField {
 		} catch (RESyntaxException e) {
 			Log.error(e, "errore while compiling regexp: \\S\\s+");
 		}
+		
+		timer = WordPressCore.getInstance().getTimer();
 		updateWordCountField();
     }
     
@@ -128,23 +135,27 @@ public class HtmlTextField extends AutoTextEditField {
     private void scheduleWordCountUpdate() {
     	
     	if(mediator == null) return;
-    	
-    	if(wordCountID != -1 ) {
-    		try {
-    			UiApplication.getUiApplication().cancelInvokeLater(wordCountID);
-    			//	Log.trace("wordCount runnable obj removed from the queue");
-    		} catch (Exception e) {
-    			Log.error(e, "no wordCount runnable obj in the queue");
-    		}
-    	}
 
-    	//Log.trace("wordCount runnable inserted in the queue");
-    	wordCountID = UiApplication.getUiApplication().invokeLater(new Runnable() {
-    		public void run() {
-    			updateWordCountField();
-    		}
-    	} , 3000, false);
-    	//end of count word section
+    	//cancel the queue and reset the state
+		if(updateTask != null) 
+			updateTask.cancel();
+		
+		updateTask = new TimerTask() {
+			public void run() {
+				try {
+					updateWordCountField();
+				} catch (Throwable t) {
+					cancel();
+					Log.error(t, "Serious Error in scheduleWordCountUpdate: " + t.getMessage());
+					//When updateTask throws an exception, it calls cancel on itself 
+					//to remove itself from the Timer. 
+					//It then logs the exception.
+					//Because the exception never propagates back into the Timer thread, others Tasks continue to function even after 
+					//updateTask fails.
+				}
+			}
+		};
+		timer.schedule(updateTask, 3000);
     }
     
     protected boolean keyChar(char key, int status, int time) {
@@ -164,8 +175,8 @@ public class HtmlTextField extends AutoTextEditField {
     private FieldChangeListener newlistener = new FieldChangeListener() {
     	public void fieldChanged(Field field, int context) {
 
+    		//Log.trace("FieldChangeListener - Context == "+context );
     		if(context == 1){
-    			//Log.trace("Context == 1" );
     			return; //not user changed
     		}
     		
@@ -183,138 +194,76 @@ public class HtmlTextField extends AutoTextEditField {
 				if(campoIntelligente.charAt(pos-1) == '<' ) {
 					TagPopupScreen inqView= new TagPopupScreen();
 					UiApplication.getUiApplication().pushScreen(inqView);
-				}
-				
+				}				
     	}
     };
-    
-    
-    private FieldChangeListener listener = new FieldChangeListener() {
-    	public void fieldChanged(Field field, int context) {
-
-    		if(context == 1){
-    			//Log.trace("Context == 1" );
-    			return; //not user changed
-    		}
-
-    		AutoTextEditField campoIntelligente = ((AutoTextEditField) field);
-
-    		//	Log.trace("field change listener: "+ ((AutoTextEditField) field).getText());
-
-    		synchronized (campoIntelligente) {
-
-    			if(ignore == true) {
-    				//ignore = false;
-    				return;
-    			}
-
-    			int pos = campoIntelligente.getCursorPosition();
-    			//Log.trace("current pos : "+pos);
-    			//check the current pos
-    			if(pos >= 3) {
-    				//possibly match, compare the 3 prev chars
-    				//Log.trace("prev 1 char : "+ campoIntelligente.charAt(pos-1)); //ht-t-p
-    				//Log.trace("prev 2 char : "+ campoIntelligente.charAt(pos-2)); //h-t-tp
-    				//Log.trace("prev 3 char : "+ campoIntelligente.charAt(pos-3));//h-ttp
-
-    				if (campoIntelligente.charAt(pos-1) == Characters.SPACE && campoIntelligente.charAt(pos-2) == 'a'
-    					&& campoIntelligente.charAt(pos-3) == '<' ) {
-
-    					Log.debug("match riconosciuto");
-    					signalMatch();
-    					InquiryView inqView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_HTTP_LINK));
-    					inqView.setDialogClosedListener(new MyDialogClosedListener(3));
-    					inqView.show();
-
-    				} else if (campoIntelligente.charAt(pos-1) == 'p' && campoIntelligente.charAt(pos-2) == 't' && campoIntelligente.charAt(pos-3) == 't' 
-    					&& ( campoIntelligente.charAt(pos-4) == 'h' || campoIntelligente.charAt(pos-4) == 'H')){
-    					Log.debug("match riconosciuto");
-    					signalMatch();
-    					InquiryView inqView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_HTTP_LINK));
-    					inqView.setDialogClosedListener(new MyDialogClosedListener(4));
-    					inqView.show();
-    				}		
-    			}
-    		}
-    	}
-    };
-    
     
     private class TagPopupScreen extends PopupScreen {
-    	  public TagPopupScreen()
-    	    {
-    	        super(new VerticalFieldManager(Field.FIELD_HCENTER | Manager.NO_VERTICAL_SCROLL),Field.FOCUSABLE);
-    	        ButtonState[] buttonStateList = mediator.getButtonStateList();
-    	        JustifiedEvenlySpacedHorizontalFieldManager internalBtnContainer = new JustifiedEvenlySpacedHorizontalFieldManager();
-    	    	for (int i = 0; i < buttonStateList.length; i++) {
-    	    		ButtonState tmpState = buttonStateList[i];
-    	    		String tmpLabel = null;
-    	    		if(tmpState.isOpen())
-    	    			tmpLabel = '/' + tmpState.getLabel();
-    	    		else 
-    	    			tmpLabel = tmpState.getLabel();
-    				
-    	    		BaseButtonField tmpButton= GUIFactory.createButton(tmpLabel, ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
-    				final int tempIndex = i;
-    				tmpButton.setChangeListener(
+    	private LabelField tooltipField;
+    	
+    	public TagPopupScreen()
+    	{
+    		super(new VerticalFieldManager(Field.FIELD_HCENTER | Manager.NO_VERTICAL_SCROLL),Field.FOCUSABLE);
+    		ButtonState[] buttonStateList = mediator.getButtonStateList();
+    		JustifiedEvenlySpacedHorizontalFieldManager internalBtnContainer = new JustifiedEvenlySpacedHorizontalFieldManager();
+    		for (int i = 0; i < buttonStateList.length; i++) {
+    			ButtonState tmpState = buttonStateList[i];
+    			String tmpLabel = null;
+    			if(tmpState.isOpen())
+    				tmpLabel = '/' + tmpState.getLabel();
+    			else 
+    				tmpLabel = tmpState.getLabel();
+
+    			final String longLabel = tmpState.getLongLabel();
+    			
+    			BaseButtonField tmpButton= GUIFactory.createButton(tmpLabel, ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
+    			final int tempIndex = i;
+    			tmpButton.setChangeListener(
     					new FieldChangeListener() {
     						public void fieldChanged(Field field, int context) {
-    							hh(tempIndex);
+    							insertTag(tempIndex);
     						}
     					}
-    				);
-    				internalBtnContainer.add(tmpButton);
-    			}
-    	    	add(internalBtnContainer);
-    	    }
-    	  
-    		private void hh(int selection) {
-    			backspace(1, 1); //delete chars
-    			mediator.actionPerformed(selection);
-    		    close();
-    		};
-    		
-    		protected boolean keyChar(char c, int status, int time) {
-    			// Close this screen if escape is selected.
-    			if (c == Characters.ESCAPE) {
-    				this.close();
-    				return true;
-    			} 
-    			else 	
-    			return super.keyChar(c, status, time);
+    			);
+
+    			tmpButton.setFocusListener(
+    					new FocusChangeListener() {
+    						public void focusChanged(Field field, int eventType) {
+    							if(eventType == FOCUS_GAINED) {
+    								setToolTip(longLabel);
+    							}
+    						}
+    					}
+    			);
+    			internalBtnContainer.add(tmpButton);
     		}
-    }
-    
-    
-    private void signalMatch() {
-    	ignore = true;
-    }
-
-    private class MyDialogClosedListener implements DialogClosedListener {
-
-    	private int charsNumber = 0;
-
-    	public MyDialogClosedListener(int charsNumber) {
-    		super();
-    		this.charsNumber = charsNumber;
+    		add(internalBtnContainer);
+    		SeparatorField separator = GUIFactory.createSepatorField();
+    		separator.setMargin(2,0,2,0);
+    		add(separator);
+    		tooltipField = new LabelField("", Field.USE_ALL_WIDTH);
+    		tooltipField.setMargin(0,5,0,5);
+    		add(tooltipField);
     	}
 
-    	public void dialogClosed(Dialog dialog, int choice) {
-    		if(dialog instanceof InquiryView) {
-    			if (choice == Dialog.YES) {
-    				AddLinkDialog pw = new AddLinkDialog();
-    				pw.setDialogClosedListener(new MyDialogClosedListener(this.charsNumber));
-    				pw.show();
-    			}
-    		} else {
-    			if (choice == Dialog.YES) {
-    				AddLinkDialog pw = (AddLinkDialog) dialog;
-    				//apply change on textField
-    				backspace(this.charsNumber, 1); //delete chars
-    				insert("<a href=\""+pw.getUrlFromField()+"\"  alt=\""+pw.getDescriptionFromField()+"\">"+pw.getDescriptionFromField()+"</a>",1);
-    			}
-    		}
-    		ignore = false;
+    	private void setToolTip(String tooltip){
+    		tooltipField.setText(tooltip);
+    	}
+
+    	private void insertTag(int buttonPressedIndex) {
+    		backspace(1, 1); //delete chars
+    		mediator.actionPerformed(buttonPressedIndex);
+    		close();
+    	};
+
+    	protected boolean keyChar(char c, int status, int time) {
+    		// Close this screen if escape is selected.
+    		if (c == Characters.ESCAPE) {
+    			this.close();
+    			return true;
+    		} 
+    		else 	
+    			return super.keyChar(c, status, time);
     	}
     }
 
@@ -336,54 +285,4 @@ public class HtmlTextField extends AutoTextEditField {
     	    contextMenu.addItem(tmpMenuItem);
 		}
     }
-
-    
-  /*  
-   * this method works well on 8700 and 8900
-   
-    protected boolean insert(char key, int status) {
-    	//Log.info("insert");
-    	Log.info("insert.key : "+key + " | status : "+status);
-    	
-    	boolean isInserted = super.insert(key,status); //call super for char insertion
-    	
-    	if(isInserted && key == 'p') {
-
-    		int pos = getCursorPosition();
-    		Log.info("current pos : "+pos);
-    		//check the current pos
-    		if(pos >= 3) {
-    			//possibly match, compare the 3 prev chars
-    			Log.info("prev 1 char : "+ this.charAt(pos-1)); //ht-t-p
-    			Log.info("prev 2 char : "+ this.charAt(pos-2)); //h-t-tp
-    			Log.info("prev 3 char : "+ this.charAt(pos-3));//h-ttp
-
-    			if (this.charAt(pos-1) == 'p' && this.charAt(pos-2) == 't' && this.charAt(pos-3) == 't' 
-    				&& ( this.charAt(pos-4) == 'h' || this.charAt(pos-4) == 'H'))
-    				if( pos > 4 ){ //not at the begin of the field, we can check the -4 char
-    					  if(this.charAt(pos-5) == Characters.SPACE || this.charAt(pos-5) == Characters.ENTER)
-    						  showRequestPopUp();
-    				} else {
-    					showRequestPopUp();
-    				}	
-    		}
-    	}
-    	return isInserted;
-    }
-
-    private void showRequestPopUp() {
-    	
-    	int choice =  controller.askQuestion(_resources.getString(WordPressResource.MESSAGE_HTTP_LINK));
-    	if (choice == Dialog.YES) {
-    		AddLinkDialog pw = new AddLinkDialog();
-    		if(pw.doModal() == Dialog.YES){
-    			//apply change on textField
-    			backspace(4, 1); //delete 4 chars
-    			insert("<a href=\""+pw.getUrlFromField()+"\"  alt=\""+pw.getDescriptionFromField()+"\">"+pw.getDescriptionFromField()+"</a>",1);
-    	      }
-    	} else {
-    		
-    	}
-    }
-*/    
 }

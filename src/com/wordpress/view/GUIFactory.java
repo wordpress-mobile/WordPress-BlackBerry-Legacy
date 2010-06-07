@@ -55,7 +55,7 @@ public class GUIFactory {
     	  	return field;
     }
 	
-	 protected static synchronized SeparatorField createSepatorField() {
+	 public static synchronized SeparatorField createSepatorField() {
 		 SeparatorField sep = new SeparatorField() {
 				protected void paint( Graphics g ) 
 			    {
