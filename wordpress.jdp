@@ -30,7 +30,6 @@ src\camera.png
 src\category_child.png
 src\check.png
 src\com\wordpress\bb\NotificationHandler.java
-src\com\wordpress\bb\ShareToWordPressHelper.java
 src\com\wordpress\bb\SharingHelper.java
 src\com\wordpress\bb\SplashScreen.java
 src\com\wordpress\bb\WordPress.java

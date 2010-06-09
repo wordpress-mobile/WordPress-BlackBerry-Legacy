@@ -2,10 +2,13 @@ package com.wordpress.view;
 
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.Color;
+import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
+import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
@@ -22,6 +25,8 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ClickableLabelField;
 import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.component.HtmlTextField;
+import com.wordpress.view.component.MarkupToolBar;
+import com.wordpress.view.component.MarkupToolBarTextFieldMediator;
 import com.wordpress.view.container.BorderedFieldManager;
 
 public class PageView extends StandardBaseView {
@@ -31,6 +36,7 @@ public class PageView extends StandardBaseView {
     //content of tabs summary
 	private BasicEditField title;
 	private HtmlTextField bodyTextBox;
+	private LabelField wordCountField;
 	private ObjectChoiceField status;
 	private ClickableLabelField lblPhotoNumber;
 	private BasicEditField pageOrderField;
@@ -123,18 +129,37 @@ public class PageView extends StandardBaseView {
   		}
 		bodyTextBox= new HtmlTextField(buildBodyFieldContentFromHtml);
 		
-		LabelField lblPageContent = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_CONTENT), Color.BLACK);
-		outerManagerRowContent.add(lblPageContent);
+		MarkupToolBarTextFieldMediator mediator = new MarkupToolBarTextFieldMediator();
+  		
+  		HorizontalFieldManager headerContent = new HorizontalFieldManager(Manager.NO_HORIZONTAL_SCROLL | Manager.USE_ALL_WIDTH);
+  		LabelField lblPostContent = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_CONTENT), Color.BLACK, DrawStyle.ELLIPSIS);
+  		int fntHeight = Font.getDefault().getHeight();
+  		Font fnt = Font.getDefault().derive(Font.PLAIN, fntHeight-4, Ui.UNITS_px);
+  		wordCountField = new LabelField("0", Field.USE_ALL_WIDTH | Field.FIELD_HCENTER | DrawStyle.RIGHT);
+  		wordCountField.setFont(fnt);
+  		mediator.setWcField(wordCountField);
+
+  		headerContent.add(lblPostContent);
+		headerContent.add(wordCountField);
+		outerManagerRowContent.add(headerContent);
 		outerManagerRowContent.add(GUIFactory.createSepatorField());
+		
+		bodyTextBox = new HtmlTextField(buildBodyFieldContentFromHtml, mediator);
+		bodyTextBox.setMargin(5,0,5,0);//leave some spaces on the top & bottom
+		mediator.setTextField(bodyTextBox);
 		outerManagerRowContent.add(bodyTextBox);
+		outerManagerRowContent.add(GUIFactory.createSepatorField());
+		
+		MarkupToolBar markupToolBar = new MarkupToolBar(mediator);
+		mediator.setTb(markupToolBar);
+		markupToolBar.attachTo(outerManagerRowContent);
 		add(outerManagerRowContent);
-		
-		add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
-		
+        add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
+ 
+		addMenuItem(_previewItem);
 		addMenuItem(_saveDraftItem);
 		addMenuItem(_submitItem);
 		addMenuItem(_photosItem);
-		addMenuItem(_previewItem);
 		addMenuItem(_settingsItem);
 		addMenuItem(_customFieldsMenuItem);
     }
@@ -146,7 +171,7 @@ public class PageView extends StandardBaseView {
     }
         
     //save a local copy of post
-    private MenuItem _saveDraftItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 100220, 10) {
+    private MenuItem _saveDraftItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 160000, 1000) {
         public void run() {
     		try {
     			updateModel();
@@ -162,7 +187,7 @@ public class PageView extends StandardBaseView {
     };
     
     //send post to blog
-    private MenuItem _submitItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 100230, 10) {
+    private MenuItem _submitItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 160000, 1000) {
         public void run() {
     		try {
     			updateModel();
@@ -174,19 +199,19 @@ public class PageView extends StandardBaseView {
         }
     };
     
-    private MenuItem _customFieldsMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_CUSTOM_FIELDS, 110, 10) {
+    private MenuItem _customFieldsMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_CUSTOM_FIELDS, 80000, 1000) {
         public void run() {
         	controller.showCustomFieldsView(title.getText());
         }
     };
     
-    private MenuItem _photosItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA, 110, 10) {
+    private MenuItem _photosItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA, 80000, 1000) {
         public void run() {
         	controller.showPhotosView();
         }
     };
     
-    private MenuItem _previewItem = new MenuItem( _resources, WordPressResource.MENUITEM_PREVIEW, 100210, 10) {
+    private MenuItem _previewItem = new MenuItem( _resources, WordPressResource.MENUITEM_PREVIEW, 160000, 1000) {
         public void run() {
         	
         	if(title.isDirty() || bodyTextBox.isDirty() || 
@@ -207,7 +232,7 @@ public class PageView extends StandardBaseView {
         }
     };
     
-    private MenuItem _settingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETTINGS, 110, 10) {
+    private MenuItem _settingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETTINGS, 80000, 1000) {
         public void run() {
         	controller.showSettingsView();
         }

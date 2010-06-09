@@ -1,7 +1,6 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
@@ -152,7 +151,7 @@ public class MediaLibraryController extends BlogObjectController {
 		//view.setNumberOfPhotosLabel(draftPostPhotoList.length);
 		UiApplication.getUiApplication().pushScreen(view);
 	}
-	
+		
 	public void sendLibraryToBlog() {
 		
 		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));

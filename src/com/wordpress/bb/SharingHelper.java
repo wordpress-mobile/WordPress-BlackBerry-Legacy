@@ -1,6 +1,7 @@
 //#preprocess
 package com.wordpress.bb;
 
+import java.io.IOException;
 import java.util.Vector;
 
 import javax.microedition.content.ActionNameMap;
@@ -16,6 +17,8 @@ import net.rim.blackberry.api.menuitem.ApplicationMenuItemRepository;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.i18n.ResourceBundleFamily;
 import net.rim.device.api.system.ApplicationDescriptor;
+import net.rim.device.api.system.ControlledAccessException;
+import net.rim.device.api.system.RuntimeStore;
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
@@ -38,8 +41,8 @@ public class SharingHelper implements RequestListener{
 	
 	/* We are using a singleton here. 
 	 * Keep in mind that you should remove manually the listener from the CHAPI server at application exist. 
-	 * Otherwise, the CHAPI server retain a reference to this class ever, and on next startup you have already 
-	 * a listener in the place. While we want add the listener not just after apps start, whitin the main screen view.
+	 * Otherwise, the CHAPI server retain a reference to this class, and at next startup you have already 
+	 * a listener in the place. While we want add the listener not at app startup, but within the main screen view.
 	 */
 	
 	private static SharingHelper instance;
@@ -48,6 +51,8 @@ public class SharingHelper implements RequestListener{
 	/* used when sharing via CHAPI apis*/
 	public final String CHAPI_CLASS_NAME = "com.wordpress.bb.WordPress";//WordPress.class.getName();
     public final static String CHAPI_ID = "com.wordpress.bb";
+    public final static long CHAPI_MENUITEM_ID = 0x4a4f670272a059c3L; //com.wordpress.bb.WordPress.chapiMenuItems
+    
     public final static String[] CHAPI_MIME_TYPES = new String[] {
     	"video/x-msvideo", "video/quicktime", "video/mp4", "video/mpeg", "video/3gpp", "video/3gpp2",
     	"audio/mpeg", "audio/mp4", "audio/wav", "application/ogg",
@@ -84,44 +89,61 @@ public class SharingHelper implements RequestListener{
 		}
 	}
 	
+	private void checkGlobalMenuItemRegistration(){
+		try{
+			//Open the RuntimeStore.
+			RuntimeStore store = RuntimeStore.getRuntimeStore();
+
+			Object obj = store.get(CHAPI_MENUITEM_ID);
+
+			//If obj is null, there is no global menu
+			if (obj == null)
+			{    
+
+				ShareToWordPressMenuItem shareToWordPressMenuItem = new ShareToWordPressMenuItem(10000, 
+						_resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS));
+
+				//add the global menu item
+				ApplicationMenuItemRepository amir = ApplicationMenuItemRepository.getInstance();
+				amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_BROWSER, shareToWordPressMenuItem);
+
+				//#ifndef IS_OS47_OR_ABOVE
+				Log.trace(">>>Old menu items will be registered");
+				amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_FILE_EXPLORER_BROWSE, shareToWordPressMenuItem, ApplicationDescriptor.currentApplicationDescriptor());
+				amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_FILE_EXPLORER_ITEM, shareToWordPressMenuItem, ApplicationDescriptor.currentApplicationDescriptor());
+				//#endif
+
+				store.put(CHAPI_MENUITEM_ID,shareToWordPressMenuItem);
+			} 
+		} catch (ControlledAccessException  e) {
+			Log.trace(e, "Error while accessing the runtime store to store the global menu item");
+		}
+	}
     
 	public void verifyRegistration() {
 		Log.trace(">>> verifyRegistration");
 		
+	//	checkGlobalMenuItemRegistration();
+		
 		try
 		{
-		Registry registry = Registry.getRegistry(CHAPI_CLASS_NAME);
-		ContentHandler registered = registry.forID(CHAPI_ID, true);
-
-		if (registered != null)
-		{
-			return;
-		}
-		// Wasn't registered before, so do it now.
-		String[] actions = new String[] { ContentHandler.ACTION_SEND };
-		String[] actionNames = new String[] { _resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS) };
-		ActionNameMap[] maps = new ActionNameMap[]{ new ActionNameMap(actions, actionNames, "en") };
+			Registry registry = Registry.getRegistry(CHAPI_CLASS_NAME);
+			ContentHandler registered = registry.forID(CHAPI_ID, true);
+			if (registered != null)
+			{
+				return;
+			}
+			// Wasn't registered before, so do it now.
+			String[] actions = new String[] { ContentHandler.ACTION_SEND };
+			String[] actionNames = new String[] { _resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS) };
+			ActionNameMap[] maps = new ActionNameMap[]{ new ActionNameMap(actions, actionNames, "en") };
 			registry.register(CHAPI_CLASS_NAME, CHAPI_MIME_TYPES, CHAPI_SUFFIXES, actions, maps,
 					CHAPI_ID, null);
 		}
-		catch (Exception e)
+		catch (Throwable t)
 		{
-			Log.error(e, "Could not register for " + CHAPI_ID);
+			Log.error(t, "Could not register for " + CHAPI_ID);
 		}
-		
-		
-		ShareToWordPressMenuItem shareToWordPressMenuItem = new ShareToWordPressMenuItem(10000, 
-				_resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS));
-
-		
-		//#ifndef IS_OS47_OR_ABOVE
-		//add the global menu item
-		ApplicationMenuItemRepository amir = ApplicationMenuItemRepository.getInstance();
-		Log.trace(">>>Old menu items will be registered");
-		amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_FILE_EXPLORER_BROWSE, shareToWordPressMenuItem, ApplicationDescriptor.currentApplicationDescriptor());
-		amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_FILE_EXPLORER_ITEM, shareToWordPressMenuItem, ApplicationDescriptor.currentApplicationDescriptor());
-		//amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_BROWSER, shareToWordPressMenuItem);
-		//#endif
 		
 		Log.trace("<<< verifyRegistration");
 	}
@@ -159,7 +181,6 @@ public class SharingHelper implements RequestListener{
 		synchronized (this) {
 			filename = pending.getURL();
 			type = pending.getType();				
-			 
 		}
 		server.finish(pending, Invocation.OK);
 			
@@ -270,20 +291,23 @@ public class SharingHelper implements RequestListener{
 		
 		//Run is called when the menuItem is invoked. KEEP IN MIND - YOU ARE IN THE CONTEXT OF CALLER
 		public Object run(final Object context){
-			Log.trace("ShareToWordPressMenuItem - RUN");
-			if(context != null ) {
-			/*	Invocation requ = new Invocation();
-				requ.setURL(context.toString());
-				requ.setID(CHAPI_ID);
-				registry.invoke(requ);*/
+			try {
+				Log.trace("ShareToWordPressMenuItem - RUN");
+				if(context != null ) {
+					Invocation requ = new Invocation();
+					requ.setURL(context.toString());
+					requ.setID(CHAPI_ID);
+					registry.invoke(requ);
+				}
+			} catch (Exception e) {
+				Log.error(e, "Error while running WP Global menu item"); 
 			}
-			return null;
+			return context;
 		}
-		
+
 		//toString should return the string we want to use as the label of the menuItem
 		public String toString(){
 			return text;
 		}
 	}
-	
 }

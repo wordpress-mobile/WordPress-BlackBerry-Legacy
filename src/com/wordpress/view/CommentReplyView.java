@@ -1,9 +1,12 @@
 package com.wordpress.view;
 
 import net.rim.device.api.ui.Color;
+import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.Dialog;
@@ -20,6 +23,8 @@ import com.wordpress.model.Blog;
 import com.wordpress.model.Comment;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.HtmlTextField;
+import com.wordpress.view.component.MarkupToolBar;
+import com.wordpress.view.component.MarkupToolBarTextFieldMediator;
 import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.container.BorderedFocusChangeListenerPatch;
 import com.wordpress.view.dialog.InquiryView;
@@ -32,6 +37,7 @@ public class CommentReplyView extends StandardBaseView {
 	private Comment comment;
 	
 	private HtmlTextField replyContent;
+	private LabelField wordCountField;
     
     public CommentReplyView(Blog currentBlog, CommentsController _controller, Comment comment, GravatarController gvtCtrl) {
     	super(_resources.getString(WordPressResource.MENUITEM_COMMENTS_REPLY), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -79,11 +85,9 @@ public class CommentReplyView extends StandardBaseView {
 			 fromDataManager.add(authorUrl);
 		 }
 
-
         outerManagerRowFrom.add(innerManagerRowFrom);
         add(outerManagerRowFrom);
-		 
-            	
+		             	
     	 //original comment content
         BorderedFieldManager commentContentManager = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
@@ -95,27 +99,44 @@ public class CommentReplyView extends StandardBaseView {
 		BasicEditField commentContent = new  BasicEditField(BasicEditField.READONLY);
 		commentContent.setText(comment.getContent()); 
         commentContentManager.add(commentContent);
+        add(commentContentManager);
     	
-        //reply content
+        //Comment Reply Area
         BorderedFieldManager commentReplyManager = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL);
-        LabelField lblReplay = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_CONTENT),
-        		Color.BLACK);
-        replyContent = new HtmlTextField("");
-        commentReplyManager.add(lblReplay);
-        commentReplyManager.add(GUIFactory.createSepatorField());
-        commentReplyManager.add(replyContent);
+   
+        MarkupToolBarTextFieldMediator mediator = new MarkupToolBarTextFieldMediator();
+  		
+  		HorizontalFieldManager headerContent = new HorizontalFieldManager(Manager.NO_HORIZONTAL_SCROLL | Manager.USE_ALL_WIDTH);
+  		LabelField lblPostContent = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_CONTENT), Color.BLACK, DrawStyle.ELLIPSIS);
+  		int fntHeight = Font.getDefault().getHeight();
+  		Font fnt = Font.getDefault().derive(Font.PLAIN, fntHeight-4, Ui.UNITS_px);
+  		wordCountField = new LabelField("0", Field.USE_ALL_WIDTH | Field.FIELD_HCENTER | DrawStyle.RIGHT);
+  		wordCountField.setFont(fnt);
+  		mediator.setWcField(wordCountField);
 
-        add(commentContentManager);
-        add(commentReplyManager);
+  		headerContent.add(lblPostContent);
+		headerContent.add(wordCountField);
+		commentReplyManager.add(headerContent);
+		commentReplyManager.add(GUIFactory.createSepatorField());
+		
+		replyContent = new HtmlTextField("", mediator);
+		replyContent.setMargin(5,0,5,0);//leave some spaces on the top & bottom
+		mediator.setTextField(replyContent);
+		commentReplyManager.add(replyContent);
+		commentReplyManager.add(GUIFactory.createSepatorField());
+		
+		MarkupToolBar markupToolBar = new MarkupToolBar(mediator);
+		mediator.setTb(markupToolBar);
+		markupToolBar.attachTo(commentReplyManager);
+		add(commentReplyManager);
         add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
-        
+
         addMenuItem(_replyCommentItem);
-        
         replyContent.setFocus(); //set the focus on the appropriate element
     }
     
-	private MenuItem _replyCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 1000, 100) {
+	private MenuItem _replyCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 80000, 1000) {
 		 public void run() {
 			 replyContent.setDirty(false);
 			 //create the new comment as reply

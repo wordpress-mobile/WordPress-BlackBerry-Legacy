@@ -59,8 +59,9 @@ public class HtmlTextField extends AutoTextEditField {
     public HtmlTextField(String content, MarkupToolBarTextFieldMediator mediator) {
     	super("",content, EditField.DEFAULT_MAXCHARS, EDITABLE | USE_ALL_HEIGHT | USE_ALL_WIDTH | FILTER_DEFAULT);
         setText(content);
-        this.setChangeListener(newlistener);
         this.mediator = mediator;
+        if(this.mediator != null)
+        	this.setChangeListener(newlistener);
         
         try {
 			tagRexExp = new RE("<.[^<>]*?>");
@@ -167,34 +168,34 @@ public class HtmlTextField extends AutoTextEditField {
     	} else {
     		ignore = false;
     	}
-    	
     	boolean isInserted = super.keyChar(key, status, time); //call super for char ....calling field change listener here.
     	return isInserted;
     }
     
     private FieldChangeListener newlistener = new FieldChangeListener() {
     	public void fieldChanged(Field field, int context) {
-
+    	
     		//Log.trace("FieldChangeListener - Context == "+context );
     		if(context == 1){
-    			return; //not user changed
+    			return; //not a user changes
     		}
     		
     		synchronized (field) {
     			if(ignore == true){
+    				ignore = false; //storm doesn't fire keychar in same cases
     				return; 
-    			} else {
-    				ignore = true;
     			}
+    			ignore = true;
 			}
     		
     		AutoTextEditField campoIntelligente = ((AutoTextEditField) field);
 			int pos = campoIntelligente.getCursorPosition();
-			if(pos >= 1)
+			if(pos >= 1) {
 				if(campoIntelligente.charAt(pos-1) == '<' ) {
 					TagPopupScreen inqView= new TagPopupScreen();
 					UiApplication.getUiApplication().pushScreen(inqView);
-				}				
+				}
+			}
     	}
     };
     
@@ -268,21 +269,24 @@ public class HtmlTextField extends AutoTextEditField {
     }
 
     protected void makeContextMenu(ContextMenu contextMenu) {
-    	ButtonState[] buttonStateList = mediator.getButtonStateList();
-    	for (int i = 0; i < buttonStateList.length; i++) {
-    		ButtonState tmpState = buttonStateList[i];
-    		final int currentIndex = i;
-    		String tmpLabel = null;
-    		if(tmpState.isOpen())
-    			tmpLabel = '/' + tmpState.getLongLabel();
-    		else 
-    			tmpLabel = tmpState.getLongLabel();
-    		MenuItem tmpMenuItem = new MenuItem(tmpLabel, 10, 10) {
-    	        public void run() {
-    	        	mediator.actionPerformed(currentIndex);
-    	        }
-    	    };
-    	    contextMenu.addItem(tmpMenuItem);
-		}
+    	if(mediator != null) {
+    		ButtonState[] buttonStateList = mediator.getButtonStateList();
+    		for (int i = 0; i < buttonStateList.length; i++) {
+    			ButtonState tmpState = buttonStateList[i];
+    			final int currentIndex = i;
+    			String tmpLabel = null;
+    			if(tmpState.isOpen())
+    				tmpLabel = '/' + tmpState.getLongLabel();
+    			else 
+    				tmpLabel = tmpState.getLongLabel();
+    			MenuItem tmpMenuItem = new MenuItem(tmpLabel, 10, 10) {
+    				public void run() {
+    					mediator.actionPerformed(currentIndex);
+    				}
+    			};
+    			contextMenu.addItem(tmpMenuItem);
+    		}
+    	}
+    	super.makeContextMenu(contextMenu);
     }
 }

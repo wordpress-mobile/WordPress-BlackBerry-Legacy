@@ -173,10 +173,10 @@ public class PostView extends StandardBaseView {
 		add(outerManagerRowContent);
         add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
         
+        addMenuItem(_previewItem);
 		addMenuItem(_saveDraftPostItem);
 		addMenuItem(_submitPostItem);
 		addMenuItem(_photosItem);
-		addMenuItem(_previewItem);
 		addMenuItem(_settingsItem);
 		addMenuItem(_categoryContextMenuItem);
 		addMenuItem(_customFieldsMenuItem);
@@ -200,7 +200,7 @@ public class PostView extends StandardBaseView {
     }
     
     //save a local copy of post
-    private MenuItem _saveDraftPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 100220, 10) {
+    private MenuItem _saveDraftPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 160000, 1000) {
         public void run() {
     		try {
     			updateModel();
@@ -218,7 +218,7 @@ public class PostView extends StandardBaseView {
     };
     
     //send post to blog
-    private MenuItem _submitPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 100230, 10) {
+    private MenuItem _submitPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 160000, 1000) {
     	public void run() {
     		try {
     			updateModel();
@@ -229,6 +229,28 @@ public class PostView extends StandardBaseView {
     	}
     };
 
+    private MenuItem _previewItem = new MenuItem( _resources, WordPressResource.MENUITEM_PREVIEW, 160000, 1000) {
+        public void run() {
+        	String categoriesLabel = controller.getPostCategoriesLabel();
+        	if(title.isDirty() || bodyTextBox.isDirty() || 
+        			tags.isDirty() || status.isDirty() || categories.isDirty() || lblPhotoNumber.isDirty()) {
+        		//post is just changed
+        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel); 
+        	} else if (controller.isObjectChanged()) {
+    			//post is changed, and the user has saved it as draft
+    			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
+    		} else {
+    			//post not changed, check if is published 
+    			if ("publish".equalsIgnoreCase(post.getStatus()) ) {
+    				controller.startRemotePreview(post.getLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
+            	} else {
+        			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
+            	}
+    		}
+        }
+    };
+    
+    
     private void saveOrSendPost(boolean sendPost)throws Exception {
     	
 		if (post.isLocation()) {
@@ -346,63 +368,42 @@ public class PostView extends StandardBaseView {
 		Log.debug("<<< removeLocationCustomFields ");
 	}
     
-    private MenuItem _photosItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA, 110, 10) {
+    private MenuItem _photosItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA, 80000, 100) {
         public void run() {
         	controller.showPhotosView();
         }
     };
     
-    private MenuItem _previewItem = new MenuItem( _resources, WordPressResource.MENUITEM_PREVIEW, 100210, 10) {
-        public void run() {
-        	String categoriesLabel = controller.getPostCategoriesLabel();
-        	if(title.isDirty() || bodyTextBox.isDirty() || 
-        			tags.isDirty() || status.isDirty() || categories.isDirty() || lblPhotoNumber.isDirty()) {
-        		//post is just changed
-        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel); 
-        	} else if (controller.isObjectChanged()) {
-    			//post is changed, and the user has saved it as draft
-    			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
-    		} else {
-    			//post not changed, check if is published 
-    			if ("publish".equalsIgnoreCase(post.getStatus()) ) {
-    				controller.startRemotePreview(post.getLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
-            	} else {
-        			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
-            	}
-    		}
-        }
-    };
-    
-
-    private MenuItem _settingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETTINGS, 110, 10) {
-        public void run() {
-        	controller.showSettingsView();
-        }
-    };
-    	
-    private MenuItem _categoryContextMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_POST_CATEGORIES, 110, 10) {
+    private MenuItem _categoryContextMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_POST_CATEGORIES, 80000, 100) {
         public void run() {
         	controller.showCategoriesView();
         }
     };
     
-    private MenuItem _customFieldsMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_CUSTOM_FIELDS, 110, 10) {
+    private MenuItem _customFieldsMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_CUSTOM_FIELDS, 80000, 100) {
         public void run() {
         	controller.showCustomFieldsView(title.getText());
         }
     };
     
-    private MenuItem _excerptMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_EXCERPT, 110, 10) {
+    private MenuItem _excerptMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_EXCERPT, 80000, 100) {
         public void run() {
         	controller.showExcerptView(title.getText());
         }
     };
        
-    private MenuItem _commentsMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_COMMENTS, 110, 10) {
+    private MenuItem _commentsMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_COMMENTS, 80000, 100) {
         public void run() {
         	controller.showComments();
         }
     };
+    
+    private MenuItem _settingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETTINGS, 80000, 100) {
+        public void run() {
+        	controller.showSettingsView();
+        }
+    };
+    
     
 	/*
 	 * Update Post data model and Track post changes.

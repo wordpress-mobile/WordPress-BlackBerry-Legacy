@@ -131,6 +131,14 @@ public class MediaLibraryView extends MediaView {
         }
     };
            	
+    
+    /*
+     * 	Vector mediaObjects = library.getMediaObjects();
+		for (int i =0; i < mediaObjects.size(); i++ ) {
+     */
+    
+    
+    
 	/*
 	 * Update data model and Track changes.
 	 * 
