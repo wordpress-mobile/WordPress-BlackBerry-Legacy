@@ -166,7 +166,14 @@ public class MediaLibraryController extends BlogObjectController {
 			sendTask.stop();
 		}
 	}
-
+	
+	public boolean isSendMenuItemAvailable(){
+		MediaLibrary mediaLibraryObj = getMediaLibraryObj();
+		Vector mediaObjects = mediaLibraryObj.getMediaObjects();
+		if (mediaObjects != null && mediaObjects.size() > 0 ) return true;
+		else return false;
+	}
+	
 //listener on send page to blog
 private class SubmitlibraryTaskListener implements TaskProgressListener {
 

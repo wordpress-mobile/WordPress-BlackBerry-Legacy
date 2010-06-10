@@ -121,9 +121,9 @@ public class MediaView extends StandardBaseView {
 		if (Touchscreen.isSupported() == false) return;
 		
 		BottomBarItem items[] = new BottomBarItem[4];
-		items[0] = new BottomBarItem("bottombar_add.png", "bottombar_add.png", _resources.getString(WordPressResource.MENUITEM_PHOTO_ADD));
-		items[1] = new BottomBarItem("bottombar_add.png", "bottombar_add.png", _resources.getString(WordPressResource.MENUITEM_VIDEO_ADD));
-		items[2] = new BottomBarItem("bottombar_add.png", "bottombar_add.png", _resources.getString(WordPressResource.MENUITEM_AUDIO_ADD));
+		items[0] = new BottomBarItem("bottombar_image.png", "bottombar_image.png", _resources.getString(WordPressResource.MENUITEM_PHOTO_ADD));
+		items[1] = new BottomBarItem("bottombar_video.png", "bottombar_video.png", _resources.getString(WordPressResource.MENUITEM_VIDEO_ADD));
+		items[2] = new BottomBarItem("bottombar_audio.png", "bottombar_audio.png", _resources.getString(WordPressResource.MENUITEM_AUDIO_ADD));
 		items[3] = new BottomBarItem("bottombar_delete.png", "bottombar_disabled.png", _resources.getString(WordPressResource.MENUITEM_MEDIA_REMOVE));
 		initializeBottomBar(items);
 	}

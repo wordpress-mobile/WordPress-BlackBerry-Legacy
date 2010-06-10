@@ -251,12 +251,14 @@ src\icons\audio.png
 src\icons\bg.png
 src\icons\bg_orange.png
 src\icons\bottombar_add.png
+src\icons\bottombar_audio.png
 src\icons\bottombar_browser.png
 src\icons\bottombar_delete.png
 src\icons\bottombar_disabled.png
+src\icons\bottombar_image.png
 src\icons\bottombar_refresh.png
+src\icons\bottombar_video.png
 src\icons\comments.png
-src\icons\edit_add.png
 src\icons\enqueued.png
 src\icons\file_temporary_48.png
 src\icons\folder_yellow_open.png
@@ -310,9 +312,7 @@ src\org\kxmlrpc\XmlRpcWriter.java
 src\refresh.png
 src\sound.png
 src\uncheck.png
-src\video.png
 src\wplogo.png
-src\write.png
 ]
 HaveAlxImports=0
 HaveDefs=0

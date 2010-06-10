@@ -82,7 +82,6 @@ public class MediaLibraryView extends MediaView {
     	
     	addMenuItem(_settingsItem);
 		addMenuItem(_saveDraftItem);
-		addMenuItem(_submitItem);
 		
 		//updateThumbs 
 		Vector	mediaObjects = entry.getMediaObjects();
@@ -123,20 +122,23 @@ public class MediaLibraryView extends MediaView {
     		}
         }
     };
-    
-      
+          
     private MenuItem _settingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETTINGS, 100210, 10) {
         public void run() {
         	controller.showSettingsView();
         }
     };
            	
-    
-    /*
-     * 	Vector mediaObjects = library.getMediaObjects();
-		for (int i =0; i < mediaObjects.size(); i++ ) {
-     */
-    
+  //Override the makeMenu method so we can add a custom menu item
+	protected void makeMenu(Menu menu, int instance)
+	{
+		if ( ((MediaLibraryController)controller).isSendMenuItemAvailable() ) {
+			menu.add(_submitItem);
+		}
+		
+		//Create the default menu.
+		super.makeMenu(menu, instance);
+	}
     
     
 	/*
