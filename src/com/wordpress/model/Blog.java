@@ -14,10 +14,15 @@ public class Blog {
 	private String username;
 	private String password;
 	
-	private boolean isResizePhotos=false;
+	private boolean isResizePhotos = false;
     private Integer imageResizeWidth = null;
     private Integer imageResizeHeight = null;
-	
+
+    //VideoPress video Resize Options
+	private boolean isResizeVideos = false;
+    private Integer videoResizeWidth = null;
+    private Integer videoResizeHeight = null;    
+    
 	private boolean isCommentNotifies=false; //true when comment notifies is active
 	private boolean isLocation=false; //true when location is active
 	
@@ -124,7 +129,31 @@ public class Blog {
 	public Integer getImageResizeHeight() {
 		return imageResizeHeight;
 	}
-		
+	
+	public boolean isResizeVideos() {
+		return isResizeVideos;
+	}
+
+	public void setResizeVideos(boolean isResizeVideos) {
+		this.isResizeVideos = isResizeVideos;
+	}
+
+	public Integer getVideoResizeWidth() {
+		return videoResizeWidth;
+	}
+
+	public void setVideoResizeWidth(Integer videoResizeWidth) {
+		this.videoResizeWidth = videoResizeWidth;
+	}
+
+	public Integer getVideoResizeHeight() {
+		return videoResizeHeight;
+	}
+
+	public void setVideoResizeHeight(Integer videoResizeHeight) {
+		this.videoResizeHeight = videoResizeHeight;
+	}
+	
 	public int getMaxPostCount() {
 		return maxPostCount;
 	}

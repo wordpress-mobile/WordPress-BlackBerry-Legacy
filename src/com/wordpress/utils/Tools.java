@@ -139,7 +139,7 @@ public class Tools {
 				return;
 			}
 
-			//add the native browser at the end of the list		
+			//add the native browser at the end of the list	of available applications	
 			String[] appNames = new String[candidates.length+1];
 			for (int i = 0; i < appNames.length-1; i++) {
 				appNames[i] = candidates[i].getAppName();

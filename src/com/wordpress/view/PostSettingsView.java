@@ -48,8 +48,7 @@ public class PostSettingsView extends StandardBaseView {
 	BorderedFieldManager rowSignature;
 	private CheckboxField enableSignature;
 	private BasicEditField signatureField;
-	
-	
+		
 	//used from media view - remove some field to the basic costructor
 	public PostSettingsView(BlogObjectController _controller,
 			boolean isResImg, Integer imageResizeWidth, Integer imageResizeHeight) {
@@ -69,7 +68,10 @@ public class PostSettingsView extends StandardBaseView {
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL 
         		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-		
+		rowSignature.add(
+        		GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_SIGNATURE_OPTIONS),Color.BLACK)
+        		);
+		rowSignature.add(GUIFactory.createSepatorField());
 		enableSignature = new CheckboxField(_resources.getString(WordPressResource.DESCRIPTION_ADD_SIGNATURE), isSignatureEnabled);
 		rowSignature.add(enableSignature);
 		signatureField = new BasicEditField(_resources.getString(WordPressResource.LABEL_SIGNATURE)+": ", signature, 1000, Field.EDITABLE);
@@ -120,6 +122,12 @@ public class PostSettingsView extends StandardBaseView {
 		rowPhotoRes = new BorderedFieldManager(
 				Manager.NO_HORIZONTAL_SCROLL
 				| Manager.NO_VERTICAL_SCROLL);
+		
+		LabelField titlePhotoOptions = GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_PHOTOS_OPTIONS),
+			 Color.BLACK);
+		rowPhotoRes.add(titlePhotoOptions);
+		rowPhotoRes.add(GUIFactory.createSepatorField());
+		
 		resizePhoto=new CheckboxField(_resources.getString(WordPressResource.LABEL_RESIZEPHOTOS), isResImg);
 		resizePhoto.setChangeListener(listenerResizePhotoCheckbox);
 		rowPhotoRes.add(resizePhoto);

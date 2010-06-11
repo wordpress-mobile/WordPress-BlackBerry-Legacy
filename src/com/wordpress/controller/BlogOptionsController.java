@@ -2,18 +2,11 @@ package com.wordpress.controller;
 
 import java.util.Hashtable;
 
-import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressResource;
-import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
-import com.wordpress.utils.ImageUtils;
-import com.wordpress.utils.log.Log;
 import com.wordpress.view.BlogOptionsView;
-import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
 
 public class BlogOptionsController extends BaseController {
@@ -46,6 +39,10 @@ public class BlogOptionsController extends BaseController {
 		guiValues.put("islocation", new Boolean(blog.isLocation()));
 		guiValues.put("iscommentnotifications", new Boolean(blog.isCommentNotifies()));
 		guiValues.put("isSignatureActive", new Boolean(blog.isSignatureEnabled()));
+		guiValues.put("isresvideos",  new Boolean(blog.isResizeVideos()));
+		guiValues.put("videoResizeWidth", blog.getVideoResizeWidth() == null ? new Integer(0) : blog.getVideoResizeWidth());
+		guiValues.put("videoResizeHeight", blog.getVideoResizeHeight() == null ? new Integer(0) : blog.getVideoResizeHeight());
+		
 		String signature = blog.getSignature();
 		if(signature == null) 
 			signature = _resources.getString(WordPressResource.DEFAULT_SIGNATURE);
@@ -56,129 +53,13 @@ public class BlogOptionsController extends BaseController {
 	public void showView(){
 		UiApplication.getUiApplication().pushScreen(view);
 	}
-
-
-	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
-	    public void fieldChanged(Field field, int context) {
-	    	
-	    	boolean isModified = isModified();
-			
-			if(!isModified) {
-				backCmd();
-				return;
-			} else  {
-				saveAndBack();
-			}
-	   }
-	};
-
-
-	private FieldChangeListener listenerBackButton = new FieldChangeListener() {
-	    public void fieldChanged(Field field, int context) {
-	        //backCmd();
-	    	dismissView();
-	   }
-	};
-
-	public FieldChangeListener getOkButtonListener() {
-		return listenerOkButton;
-	}
-	   
-	public FieldChangeListener getBackButtonListener() {
-		return listenerBackButton;
+	
+	public Blog getBlog() {
+		return blog;
 	}
 	
 	public String getBlogName() {
 		return blog.getName();
-	}
-	
-	private boolean isModified() {
-		boolean isModified=false;
-		
-		String pass= view.getBlogPass();
-		String user= view.getBlogUser();
-		int maxPostIndex=view.getMaxRecentPostIndex();
-		int valueMaxPostCount=AddBlogsController.recentsPostValues[maxPostIndex];
-		boolean isResPhotos = view.isResizePhoto();
-		Integer imageResizeWidth = view.getImageResizeWidth();
-		Integer imageResizeHeight = view.getImageResizeHeight();
-		boolean isCommentNotifications = view.isCommentNotifications();
-		boolean isLocation = view.isLocation();
-		//we can use isDirty on all view...
-		if(!blog.getUsername().equals(user) || !blog.getPassword().equals(pass)
-			|| blog.getMaxPostCount() != valueMaxPostCount 
-			|| isResPhotos != blog.isResizePhotos()			
-			|| !imageResizeWidth.equals(blog.getImageResizeWidth() )
-			|| !imageResizeHeight.equals(blog.getImageResizeHeight()) 
-			|| isCommentNotifications != blog.isCommentNotifies()  
-			|| isLocation != blog.isLocation()
-			|| view.isSignatureCheckboxDirty()
-			|| view.isSignatureEditFieldDirty() 
-		) {
-			isModified=true;
-		}
-		
-		return isModified;
-	}
-	
-	//called when user click the OK button
-	private void  saveAndBack(){
-		//Before saving we should do an additional check over img resize width and height.
-		//it is necessary when user put a value into width/height field and then press backbutton;
-		//the focus lost on those fields is never fired....
-		Integer imageResizeWidth = view.getImageResizeWidth();
-		Integer imageResizeHeight = view.getImageResizeHeight();
-		int[] keepAspectRatio = ImageUtils.keepAspectRatio(imageResizeWidth.intValue(), imageResizeHeight.intValue());
-		imageResizeWidth = new Integer(keepAspectRatio[0]);
-		imageResizeHeight = new Integer(keepAspectRatio[1]);
-		
-		String pass= view.getBlogPass();
-		String user= view.getBlogUser();
-		int maxPostIndex=view.getMaxRecentPostIndex();
-		int valueMaxPostCount=AddBlogsController.recentsPostValues[maxPostIndex];
-		boolean isResPhotos = view.isResizePhoto();
-		blog.setPassword(pass);
-		blog.setUsername(user);
-		blog.setResizePhotos(isResPhotos);
-		blog.setImageResizeWidth(imageResizeWidth);
-		blog.setImageResizeHeight(imageResizeHeight);
-		blog.setMaxPostCount(valueMaxPostCount);
-		blog.setCommentNotifies(view.isCommentNotifications());
-		blog.setLocation(view.isLocation());
-		blog.setSignatureEnabled(view.isSignatureEnabled());
-		blog.setSignature(view.getSignature());
-		try {
-			BlogDAO.updateBlog(blog);
-		} catch (Exception e) {
-			displayError(e, "Error while saving blog options");
-		}
-		
-		backCmd();
-	}
-	
-	public boolean dismissView() {
-		boolean isModified=this.isModified();
-			
-		if(!isModified) {
-			backCmd();
-			return true;
-		}
-		
-		String quest=_resources.getString(WordPressResource.MESSAGE_INQUIRY_DIALOG_BOX);
-    	DiscardChangeInquiryView infoView= new DiscardChangeInquiryView(quest);
-    	int choice=infoView.doModal();    	 
-    	if(Dialog.DISCARD == choice) {
-    		Log.trace("user has selected discard");
-    		backCmd();
-    		return true;
-    	}else if(Dialog.SAVE == choice) {
-    		Log.trace("user has selected save");
-    		saveAndBack();
-    		return true;
-    	} else {
-    		Log.trace("user has selected cancel");
-    		return false;
-    	}
 	}
 
 	public void refreshView() {

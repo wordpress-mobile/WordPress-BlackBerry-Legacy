@@ -261,37 +261,42 @@ public class MediaView extends StandardBaseView {
     }
     
     protected void openMediaItemUsingCHAPI() {
-		try {
-			Invocation invoc =  buildCHAPIInvocation();
-			if (invoc != null) {
-				// Get access to the Registry and pass it the Invocation
-				Registry registry = Registry.getRegistry(getClass().getName());
-				ContentHandler[] candidates = registry.findHandler(invoc);
-				
-				if(candidates.length == 0) { //there is no ext-app that could open this file
-					openMediaItemUsingDefaultBrowser();
-					return;
-				}
+    	try {
+    		Invocation invoc =  buildCHAPIInvocation();
+    		if (invoc == null) {
+    			return;
+    		}
+    		// Get access to the Registry and pass it the Invocation
+    		Registry registry = Registry.getRegistry(getClass().getName());
+    		ContentHandler[] candidates = registry.findHandler(invoc);
 
-				String[] appNames = new String[candidates.length];
-				for (int i = 0; i < candidates.length; i++) {
-					appNames[i] = candidates[i].getAppName();
-				}
-				String title = _resources.getString(WordPressResource.MENUITEM_OPEN_IN);
-				SelectorPopupScreen selScr = new SelectorPopupScreen(title, appNames);
-				selScr.pickBlog();
-				int selection = selScr.getSelectedBlog();
-				if(selection != -1) {
-					invoc.setID(candidates[selection].getID());
-					registry.invoke(invoc);                
-				}
-			}
-		} 
-		catch (Exception ioe)
-		{
-			Log.error(ioe, "Error while finding a chapi endpoint");
-			openMediaItemUsingDefaultBrowser();
-		}
+    		if(candidates.length == 0) { //there is no ext-app that could open this file
+    			Log.trace("there is no ext-app that could open this file, using browser");
+    			openMediaItemUsingDefaultBrowser();
+    		} else if(candidates.length == 1) { //there is 1 only ext-app that could open this file
+    			Log.trace("there is 1 only ext-app that could open this file");
+    			invoc.setID(candidates[0].getID());
+    			registry.invoke(invoc);
+    		} else {
+    			String[] appNames = new String[candidates.length];
+    			for (int i = 0; i < candidates.length; i++) {
+    				appNames[i] = candidates[i].getAppName();
+    			}
+    			String title = _resources.getString(WordPressResource.MENUITEM_OPEN_IN);
+    			SelectorPopupScreen selScr = new SelectorPopupScreen(title, appNames);
+    			selScr.pickBlog();
+    			int selection = selScr.getSelectedBlog();
+    			if(selection != -1) {
+    				invoc.setID(candidates[selection].getID());
+    				registry.invoke(invoc);                
+    			}
+    		}
+    	} 
+    	catch (Exception ioe)
+    	{
+    		Log.error(ioe, "Error while finding a chapi endpoint");
+    		openMediaItemUsingDefaultBrowser();
+    	}
     }
        
     protected void showMediaItemProperties() {

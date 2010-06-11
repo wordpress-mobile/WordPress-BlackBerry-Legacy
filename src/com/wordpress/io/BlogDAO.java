@@ -248,7 +248,6 @@ public class BlogDAO implements BaseDAO {
     	}
     	
     	ser.serialize(blog.getViewedPages());
-   	
     	
     	Category[] categories = blog.getCategories();
         if (categories != null) {
@@ -305,6 +304,10 @@ public class BlogDAO implements BaseDAO {
         
         ser.serialize(blog.getStatsUsername());
         ser.serialize(blog.getStatsPassword());
+        
+        ser.serialize(new Boolean(blog.isResizeVideos()));
+        ser.serialize(blog.getVideoResizeWidth()); //if it is null no problem, the serializer handles null value
+        ser.serialize(blog.getVideoResizeHeight()); //if it is null no problem, the serializer handles null value
         
         out.close();
 
@@ -491,7 +494,6 @@ public class BlogDAO implements BaseDAO {
         	Log.error("No signature info found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
         
-
         //reading stats data
         try {
         	Object statsUsr = ser.deserialize();
@@ -502,6 +504,41 @@ public class BlogDAO implements BaseDAO {
         	Log.error("No stats auth data found - End of file was reached. Probably a previous blog data file is loaded" );
 		} catch (Throwable  t) {
         	Log.error("No stats auth data found - End of file was reached. Probably a previous blog data file is loaded" );
+		}
+        
+		
+		
+		//since version 1.3
+		//reading VideoPress resize opt
+		try {
+			Object testObj = ser.deserialize();
+			//some devices when reach the end of the input stream doesn't throws EOFException, but returns null.
+			if( testObj != null ) {
+				boolean isVideoRes =((Boolean)testObj).booleanValue();
+				blog.setResizeVideos(isVideoRes);       	        		
+			} 
+		} catch (Exception  e) {
+			Log.error("No isVideoRes info found - End of file was reached. Probably a previous blog data file is loaded" );
+		} catch (Throwable  t) {
+			Log.error("No isVideoRes info found - End of file was reached. Probably a previous blog data file is loaded" );
+		}
+
+		try {
+			Object testObj = ser.deserialize();
+			blog.setVideoResizeWidth((Integer)testObj);
+		} catch (Exception  e) {
+			Log.error("No video resize width found - End of file was reached. Probably a previous blog data file is loaded" );
+		} catch (Throwable  t) {
+			Log.error("No video resize width found - End of file was reached. Probably a previous blog data file is loaded" );
+		}
+
+		try {
+			Object testObj = ser.deserialize();
+			blog.setVideoResizeHeight((Integer)testObj);
+		} catch (Exception  e) {
+			Log.error("No video resize height found - End of file was reached. Probably a previous blog data file is loaded" );
+		} catch (Throwable  t) {
+			Log.error("No video resize height found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
         
         in.close();
