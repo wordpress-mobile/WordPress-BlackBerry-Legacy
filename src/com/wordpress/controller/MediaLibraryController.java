@@ -46,41 +46,6 @@ public class MediaLibraryController extends BlogObjectController {
 		
 	}
 
-	public void setPhotoResizing(boolean isPhotoRes, Integer imageResizeWidth,
-			Integer imageResizeHeight) {
-		Log.trace("Entering setPhotoResizing. imageResizeWidth is " + imageResizeWidth.toString());
-		MediaLibrary library = getMediaLibraryObj();
-		if( library.isPhotoResizing() != null && !library.isPhotoResizing().booleanValue()== isPhotoRes ){
-			library.setPhotoResizing(new Boolean(isPhotoRes));
-			setObjectAsChanged(true);
-		} else {
-			if(library.isPhotoResizing() == null ){
-				library.setPhotoResizing(new Boolean(isPhotoRes));
-				setObjectAsChanged(true);
-			}
-		}
-
-		if(library.getImageResizeWidth() != null && !library.getImageResizeWidth().equals(imageResizeWidth)) {
-			library.setImageResizeWidth(imageResizeWidth);
-			setObjectAsChanged(true);
-		} else {
-			if(library.getImageResizeWidth() == null) {
-				library.setImageResizeWidth(imageResizeWidth);
-				setObjectAsChanged(true);
-			}
-		}
-		
-		if(library.getImageResizeHeight() != null && !library.getImageResizeHeight().equals(imageResizeHeight)) {
-			library.setImageResizeHeight(imageResizeHeight);
-			setObjectAsChanged(true);
-		} else {
-			if(library.getImageResizeHeight() == null) {
-				library.setImageResizeHeight(imageResizeHeight);
-				setObjectAsChanged(true);
-			}
-		}	
-	}
-
 	public void setPhotosNumber(int count) {
 			
 	}
@@ -138,7 +103,21 @@ public class MediaLibraryController extends BlogObjectController {
 			imageResizeHeight = entry.getImageResizeHeight();
 		}
 		
-		settingsView= new PostSettingsView(this, isPhotoResing, imageResizeWidth, imageResizeHeight);
+		boolean isVideoResing = blog.isResizeVideos(); 
+		Integer videoResizeWidth = blog.getVideoResizeWidth();
+		Integer videoResizeHeight = blog.getVideoResizeHeight();
+		if (entry.isVideoResizing() != null ) {
+			isVideoResing = entry.isVideoResizing().booleanValue();			
+		}
+		if (entry.getVideoResizeWidth() != null ) {
+			videoResizeWidth = entry.getVideoResizeWidth();
+		}
+		if (entry.getVideoResizeHeight() != null ) {
+			videoResizeHeight = entry.getVideoResizeHeight();
+		}
+		
+		settingsView= new PostSettingsView(this, isPhotoResing, imageResizeWidth, imageResizeHeight,
+				isVideoResing, videoResizeWidth, videoResizeHeight);
 		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
 

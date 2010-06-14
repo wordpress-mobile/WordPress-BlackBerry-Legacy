@@ -22,6 +22,7 @@ import com.wordpress.model.Blog;
 import com.wordpress.model.BlogEntry;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.model.PhotoEntry;
+import com.wordpress.model.Post;
 import com.wordpress.model.VideoEntry;
 import com.wordpress.task.SendToBlogTask;
 import com.wordpress.utils.MultimediaUtils;
@@ -77,7 +78,6 @@ public abstract class BlogObjectController extends BaseController {
 	public abstract void setPhotosNumber(int count);
 	public abstract void setAuthDate(long authoredOn);
 	public abstract void setPassword(String password);
-	public abstract void setPhotoResizing(boolean isPhotoRes, Integer imageResizeWidth, Integer imageResizeHeight);
 	public abstract void setSignature(boolean isSignatureEnabled, String signature);
 
 	//journal listener
@@ -102,6 +102,75 @@ public abstract class BlogObjectController extends BaseController {
 	
 	public boolean isObjectChanged() {
 		return isModified;
+	}
+	
+	public void setPhotoResizing(boolean isPhotoRes, Integer imageResizeWidth, Integer imageResizeHeight) {
+
+		Log.trace("Entering setPhotoResizing. imageResizeWidth is " + imageResizeWidth.toString());
+		if( blogEntry.isPhotoResizing() != null && !blogEntry.isPhotoResizing().booleanValue()== isPhotoRes ){
+			blogEntry.setPhotoResizing(new Boolean(isPhotoRes));
+			setObjectAsChanged(true);
+		} else {
+			if(blogEntry.isPhotoResizing() == null ){
+				blogEntry.setPhotoResizing(new Boolean(isPhotoRes));
+				setObjectAsChanged(true);
+			}
+		}
+
+		if(blogEntry.getImageResizeWidth() != null && !blogEntry.getImageResizeWidth().equals(imageResizeWidth)) {
+			blogEntry.setImageResizeWidth(imageResizeWidth);
+			setObjectAsChanged(true);
+		} else {
+			if(blogEntry.getImageResizeWidth() == null) {
+				blogEntry.setImageResizeWidth(imageResizeWidth);
+				setObjectAsChanged(true);
+			}
+		}
+		
+		if(blogEntry.getImageResizeHeight() != null && !blogEntry.getImageResizeHeight().equals(imageResizeHeight)) {
+			blogEntry.setImageResizeHeight(imageResizeHeight);
+			setObjectAsChanged(true);
+		} else {
+			if(blogEntry.getImageResizeHeight() == null) {
+				blogEntry.setImageResizeHeight(imageResizeHeight);
+				setObjectAsChanged(true);
+			}
+		}	
+	}
+	
+	public void setVideoResizing(boolean isVideoRes, Integer videoResizeWidth, Integer videoResizeHeight) {
+
+		Log.trace("Entering setVideoResizing. videoResizeWidth is " + videoResizeWidth.toString());
+		
+		if( blogEntry.isVideoResizing() != null && !blogEntry.isVideoResizing().booleanValue()== isVideoRes ){
+			blogEntry.setVideoResizing(new Boolean(isVideoRes));
+			setObjectAsChanged(true);
+		} else {
+			if(blogEntry.isVideoResizing() == null ){
+				blogEntry.setVideoResizing(new Boolean(isVideoRes));
+				setObjectAsChanged(true);
+			}
+		}
+
+		if(blogEntry.getVideoResizeWidth() != null && !blogEntry.getVideoResizeWidth().equals(videoResizeWidth)) {
+			blogEntry.setVideoResizeWidth(videoResizeWidth);
+			setObjectAsChanged(true);
+		} else {
+			if(blogEntry.getVideoResizeWidth() == null) {
+				blogEntry.setVideoResizeWidth(videoResizeWidth);
+				setObjectAsChanged(true);
+			}
+		}
+		
+		if(blogEntry.getVideoResizeHeight() != null && !blogEntry.getVideoResizeHeight().equals(videoResizeHeight)) {
+			blogEntry.setVideoResizeHeight(videoResizeHeight);
+			setObjectAsChanged(true);
+		} else {
+			if(blogEntry.getVideoResizeHeight() == null) {
+				blogEntry.setVideoResizeHeight(videoResizeHeight);
+				setObjectAsChanged(true);
+			}
+		}	
 	}
 	
 	protected String[] getPhotoList() {

@@ -187,8 +187,8 @@ public class DraftDAO implements BaseDAO{
         if (post.getLink() != null) {
         	content.put("link", post.getLink());
         }	     
-		if(post.getIsPhotoResizing() != null) {
-			content.put("IsPhotoResizing", post.getIsPhotoResizing());
+		if(post.isPhotoResizing() != null) {
+			content.put("IsPhotoResizing", post.isPhotoResizing());
 		}
 		if(post.getImageResizeWidth() != null) {
 			content.put("imageResizeWidth", post.getImageResizeWidth());
@@ -199,6 +199,15 @@ public class DraftDAO implements BaseDAO{
 		if(post.getCustomFields() != null ){
 			content.put("custom_fields", post.getCustomFields());
 		}
+		
+		if(post.isVideoResizing() !=null)
+			content.put("IsVideoResizing", post.isVideoResizing());
+		
+		if(post.getImageResizeWidth() != null)
+			content.put("videoResizeWidth", post.getVideoResizeWidth());
+		
+		if(post.getImageResizeHeight() != null)
+			content.put("videoResizeHeight", post.getVideoResizeHeight());
         
 		//convert media object before save them
 		Vector mediaObjects = post.getMediaObjects();
@@ -264,7 +273,7 @@ public class DraftDAO implements BaseDAO{
         
 		//set the prop for photo res
 		if(postData.get("IsPhotoResizing") != null) {
-			post.setIsPhotoResizing((Boolean) postData.get("IsPhotoResizing"));
+			post.setPhotoResizing((Boolean) postData.get("IsPhotoResizing"));
 		}
 		
 		if(postData.get("imageResizeWidth") != null) {
@@ -273,6 +282,20 @@ public class DraftDAO implements BaseDAO{
 		
 		if(postData.get("imageResizeHeight") != null) {
 			post.setImageResizeHeight((Integer) postData.get("imageResizeHeight"));
+		}
+		
+		//set the prop for videopres resizing options
+		if(postData.get("IsVideoResizing") != null) {
+			post.setVideoResizing((Boolean) postData.get("IsVideoResizing"));
+		}
+		
+		// Set the image resize dimension properties
+		if(postData.get("videoResizeWidth") != null) {
+			post.setVideoResizeWidth((Integer) postData.get("videoResizeWidth"));
+		}
+		
+		if(postData.get("videoResizeHeight") != null) {
+			post.setVideoResizeHeight((Integer) postData.get("videoResizeHeight"));
 		}
 
 		if(postData.get("custom_fields") != null) {

@@ -36,7 +36,7 @@ public class AddBlogsView extends StandardBaseView {
 	private BasicEditField userNameField;
 	private PasswordEditField passwordField;
 	private ObjectChoiceField  maxRecentPost;
-	private BorderedFieldManager rowResizePhotos;
+	private BorderedFieldManager mainOptionsRow;
 	private CheckboxField resizePhoto;
 	private BasicEditField imageResizeWidthField;
 	private BasicEditField imageResizeHeightField;
@@ -73,39 +73,41 @@ public class AddBlogsView extends StandardBaseView {
             rowURL.add(blogUrlField);
             add(rowURL);
             
-            //row username & password & max number of post/page
             BorderedFieldManager rowUserName = new BorderedFieldManager(
 	        		Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL
 	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
 
+            rowUserName.add(
+      				 GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_CREDENTIALS), Color.BLACK)
+      				 );
+            rowUserName.add(GUIFactory.createSepatorField());
             userNameField = new BasicEditField(_resources.getString(WordPressResource.LABEL_USERNAME)+": ", user, 60, Field.EDITABLE);
             userNameField.setMargin(5, 0, 5, 0);
             rowUserName.add(userNameField);
             passwordField = new PasswordEditField(_resources.getString(WordPressResource.LABEL_PASSWD)+": ", pass, 64, Field.EDITABLE);
             passwordField.setMargin(5, 0, 5, 0);
             rowUserName.add(passwordField);
-            maxRecentPost = new ObjectChoiceField (_resources.getString(WordPressResource.LABEL_MAX_RECENT_BLOG_ITEMS), recentPost,recentPostSelect);
-            maxRecentPost.setMargin(5, 0, 5, 0);
-            rowUserName.add(maxRecentPost);
             add(rowUserName);
 
-            //row resize photos
-            rowResizePhotos = new BorderedFieldManager(
+            //row  max number of post/page & resize photos
+            mainOptionsRow = new BorderedFieldManager(
 	        		Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL);
+            mainOptionsRow.add(
+   				 GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_MAIN_OPTIONS), Color.BLACK)
+   				 );
+            mainOptionsRow.add(GUIFactory.createSepatorField());
+            maxRecentPost = new ObjectChoiceField (_resources.getString(WordPressResource.LABEL_MAX_RECENT_BLOG_ITEMS), recentPost,recentPostSelect);
+            maxRecentPost.setMargin(5, 0, 5, 0);
+            mainOptionsRow.add(maxRecentPost);
     		resizePhoto=new CheckboxField(_resources.getString(WordPressResource.LABEL_RESIZEPHOTOS), isResImg);
-    		resizePhoto.setChangeListener(listenerResizePhotoCheckbox);
-    		rowResizePhotos.add(resizePhoto);
+    		mainOptionsRow.add(resizePhoto);
     		BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS)); 
-			rowResizePhotos.add(lblDesc);
-			
-			if(isResImg) {
-				addImageResizeWidthField();
-				addImageResizeHeightField();
-			}
-
-            add(rowResizePhotos);
+			mainOptionsRow.add(lblDesc);
+			addImageResizeWidthField();
+			addImageResizeHeightField();
+            add(mainOptionsRow);
             
             BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
             BaseButtonField buttonBACK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
@@ -179,22 +181,6 @@ public class AddBlogsView extends StandardBaseView {
 	   }
 	};
 	
-	// Enable or disable image resize width/height fields when the "resize image" checkbox changes.
-	private FieldChangeListener listenerResizePhotoCheckbox = new FieldChangeListener() {
-	    public void fieldChanged(Field field, int context) {
-	    	if(resizePhoto.getChecked() == true) {
-	    		addImageResizeWidthField();
-	    		addImageResizeHeightField();
-	    	}
-	    	else {
-	    	       	rowResizePhotos.delete(imageResizeWidthField);
-	    	       	imageResizeWidthField = null;
-	    	       	rowResizePhotos.delete(imageResizeHeightField);
-	    	       	imageResizeHeightField = null;
-	    	}
-	   }
-	};
-	
 	// Recalculate the image resize height whenever the image resize width changes. Aspect ratio is fixed.
 	private FocusChangeListener listenerImageResizeWidthField = new FocusChangeListener() {
 	    public void focusChanged(Field field, int eventType) {
@@ -248,7 +234,7 @@ public class AddBlogsView extends StandardBaseView {
         		4, 
         		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
         imageResizeWidthField.setFocusListener(listenerImageResizeWidthField);
-        rowResizePhotos.add(imageResizeWidthField);
+        mainOptionsRow.add(imageResizeWidthField);
 	}
 
 	private void addImageResizeHeightField() {
@@ -258,7 +244,7 @@ public class AddBlogsView extends StandardBaseView {
 	    		4, 
 	    		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
 	    imageResizeHeightField.setFocusListener(listenerImageResizeHeightField);
-    	rowResizePhotos.add(imageResizeHeightField);
+    	mainOptionsRow.add(imageResizeHeightField);
 	}
 	
 	//add blog menu item 

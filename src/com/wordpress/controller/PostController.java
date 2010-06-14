@@ -479,7 +479,6 @@ public class PostController extends BlogObjectController {
 	    	int choice=infoView.doModal();  
 	    	
 	    	if(Dialog.DISCARD == choice) {
-
 	    		try {
 	    			if( !isDraft ){ //not remove post if it is a draft post
 	    				DraftDAO.removePost(post.getBlog(), draftFolder);
@@ -489,7 +488,6 @@ public class PostController extends BlogObjectController {
 				}
 	    		FrontController.getIstance().backAndRefreshView(false);
 	    		return true;
-	    		
 	    	} else if(Dialog.SAVE == choice) {
 	    		saveDraftPost();
 	    		return true;
@@ -538,42 +536,7 @@ public class PostController extends BlogObjectController {
 		}
 	}
 	
-	public void setPhotoResizing(boolean isPhotoRes, Integer imageResizeWidth, Integer imageResizeHeight) {
 
-		Log.trace("Entering setPhotoResizing. imageResizeWidth is " + imageResizeWidth.toString());
-		Post post = getPostObj();
-		if( post.getIsPhotoResizing() != null && !post.getIsPhotoResizing().booleanValue()== isPhotoRes ){
-			post.setIsPhotoResizing(new Boolean(isPhotoRes));
-			setObjectAsChanged(true);
-		} else {
-			if(post.getIsPhotoResizing() == null ){
-				post.setIsPhotoResizing(new Boolean(isPhotoRes));
-				setObjectAsChanged(true);
-			}
-		}
-
-		if(post.getImageResizeWidth() != null && !post.getImageResizeWidth().equals(imageResizeWidth)) {
-			post.setImageResizeWidth(imageResizeWidth);
-			setObjectAsChanged(true);
-		} else {
-			if(post.getImageResizeWidth() == null) {
-				post.setImageResizeWidth(imageResizeWidth);
-				setObjectAsChanged(true);
-			}
-		}
-		
-		if(post.getImageResizeHeight() != null && !post.getImageResizeHeight().equals(imageResizeHeight)) {
-			post.setImageResizeHeight(imageResizeHeight);
-			setObjectAsChanged(true);
-		} else {
-			if(post.getImageResizeHeight() == null) {
-				post.setImageResizeHeight(imageResizeHeight);
-				setObjectAsChanged(true);
-			}
-		}	
-	}
-
-	 	
 	public void showComments() {
 		Post post = getPostObj();
 		if(post.getId() == null || post.getId().equals("")) {
@@ -607,18 +570,32 @@ public class PostController extends BlogObjectController {
 	
 	public  void showSettingsView(){
 		Post post = getPostObj();
-		boolean isPhotoResing = blog.isResizePhotos(); //first set the value as the predefined blog value
+		boolean isPhotoResing = blog.isResizePhotos();
 		Integer imageResizeWidth = blog.getImageResizeWidth();
 		Integer imageResizeHeight = blog.getImageResizeHeight();
 
-		if (post.getIsPhotoResizing() != null ) {
-			isPhotoResing = post.getIsPhotoResizing().booleanValue();			
+		if (post.isPhotoResizing() != null ) {
+			isPhotoResing = post.isPhotoResizing().booleanValue();			
 		}
 		if (post.getImageResizeWidth() != null ) {
 			imageResizeWidth = post.getImageResizeWidth();
 		}
 		if (post.getImageResizeHeight() != null ) {
 			imageResizeHeight = post.getImageResizeHeight();
+		}
+		
+		boolean isVideoResing = blog.isResizeVideos();
+		Integer videoResizeWidth = blog.getVideoResizeWidth();
+		Integer videoResizeHeight = blog.getVideoResizeHeight();
+		
+		if (post.isVideoResizing() != null ) {
+			isVideoResing = post.isVideoResizing().booleanValue();			
+		}
+		if (post.getVideoResizeWidth() != null ) {
+			videoResizeWidth = post.getVideoResizeWidth();
+		}
+		if (post.getVideoResizeHeight() != null ) {
+			videoResizeHeight = post.getVideoResizeHeight();
 		}
 		
 		//only for a new post show signature fields...
@@ -638,10 +615,12 @@ public class PostController extends BlogObjectController {
 		
 		settingsView = new PostSettingsView(this, post.getAuthoredOn(), post.getPassword(),
 				isPhotoResing, imageResizeWidth, imageResizeHeight,
+				isVideoResing, videoResizeWidth, videoResizeHeight,
 				isSignatureEnabled, signature);		
 		} else {
 			settingsView = new PostSettingsView(this, post.getAuthoredOn(), post.getPassword(),
-					isPhotoResing, imageResizeWidth, imageResizeHeight);
+					isPhotoResing, imageResizeWidth, imageResizeHeight,
+					isVideoResing, videoResizeWidth, videoResizeHeight);
 		}
 		
 		UiApplication.getUiApplication().pushScreen(settingsView);

@@ -338,38 +338,6 @@ public class PageController extends BlogObjectController {
 		}
 	}
 	
-	public void setPhotoResizing(boolean isPhotoRes, Integer imageResizeWidth, Integer imageResizeHeight) {
-		Page page = getPageObj();
-		if( page.getIsPhotoResizing() != null && !page.getIsPhotoResizing().booleanValue()== isPhotoRes ){
-			page.setIsPhotoResizing(new Boolean(isPhotoRes));
-			setObjectAsChanged(true);
-		} else {
-			if(page.getIsPhotoResizing() == null ){
-				page.setIsPhotoResizing(new Boolean(isPhotoRes));
-				setObjectAsChanged(true);
-			}
-		}
-		
-		if(page.getImageResizeWidth() != null && !page.getImageResizeWidth().equals(imageResizeWidth)) {
-			page.setImageResizeWidth(imageResizeWidth);
-			setObjectAsChanged(true);
-		} else {
-			if(page.getImageResizeWidth() == null) {
-				page.setImageResizeWidth(imageResizeWidth);
-				setObjectAsChanged(true);
-			}
-		}
-		
-		if(page.getImageResizeHeight() != null && !page.getImageResizeHeight().equals(imageResizeHeight)) {
-			page.setImageResizeHeight(imageResizeHeight);
-			setObjectAsChanged(true);
-		} else {
-			if(page.getImageResizeHeight() == null) {
-				page.setImageResizeHeight(imageResizeHeight);
-				setObjectAsChanged(true);
-			}
-		}	
-	}
 	
 	/*
 	 * set photos number on main post view
@@ -384,12 +352,12 @@ public class PageController extends BlogObjectController {
 	
 	public void showSettingsView(){
 		Page page = getPageObj();
-		boolean isPhotoResing = blog.isResizePhotos(); //first set the value as the predefined blog value
+		boolean isPhotoResing = blog.isResizePhotos();
 		Integer imageResizeWidth = blog.getImageResizeWidth();
 		Integer imageResizeHeight = blog.getImageResizeHeight();
 
-		if (page.getIsPhotoResizing() != null ) {
-			isPhotoResing = page.getIsPhotoResizing().booleanValue();			
+		if (page.isPhotoResizing() != null ) {
+			isPhotoResing = page.isPhotoResizing().booleanValue();			
 		}
 		if (page.getImageResizeWidth() != null ) {
 			imageResizeWidth = page.getImageResizeWidth();
@@ -397,8 +365,24 @@ public class PageController extends BlogObjectController {
 		if( page.getImageResizeHeight() != null ) {
 			imageResizeHeight = page.getImageResizeHeight();
 		}
-		settingsView= new PostSettingsView(this, page.getDateCreatedGMT(), page.getWpPassword(), isPhotoResing, imageResizeWidth, imageResizeHeight);		
 		
+		boolean isVideoResing = blog.isResizeVideos();
+		Integer videoResizeWidth = blog.getVideoResizeWidth();
+		Integer videoResizeHeight = blog.getVideoResizeHeight();
+		
+		if (page.isVideoResizing() != null ) {
+			isVideoResing = page.isVideoResizing().booleanValue();			
+		}
+		if (page.getVideoResizeWidth() != null ) {
+			videoResizeWidth = page.getVideoResizeWidth();
+		}
+		if (page.getVideoResizeHeight() != null ) {
+			videoResizeHeight = page.getVideoResizeHeight();
+		}
+		
+		settingsView= new PostSettingsView(this, page.getDateCreatedGMT(), page.getWpPassword(), 
+				isPhotoResing, imageResizeWidth, imageResizeHeight,
+				isVideoResing, videoResizeWidth, videoResizeHeight);		
 		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
 	

@@ -26,9 +26,6 @@ public class Post extends BlogEntry {
     private String extended = "";
     private String excerpt = "";
     private String link = null;
-    private Boolean isPhotoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
-    private Integer imageResizeWidth = null;
-    private Integer imageResizeHeight = null;
 	private boolean isLocation = false; //true when per-post location setting is active
 	private boolean isLocationPublic = true; //true when location setting is public
 	private Boolean isSignatureEnabled= null; // 0 = false ; 1 = true //null = get option from blog settings
@@ -163,30 +160,6 @@ public class Post extends BlogEntry {
 
 	public void setLink(String link) {
 		this.link = link;
-	}
-
-	public Boolean getIsPhotoResizing() {
-		return isPhotoResizing;
-	}
-
-	public void setIsPhotoResizing(Boolean isPhotoResizing) {
-		this.isPhotoResizing = isPhotoResizing;
-	}
-	
-	public void setImageResizeWidth(Integer imageResizeWidth) {
-		this.imageResizeWidth = imageResizeWidth;
-	}
-	
-	public Integer getImageResizeWidth() {
-		return imageResizeWidth;
-	}
-	
-	public void setImageResizeHeight(Integer imageResizeHeight) {
-		this.imageResizeHeight = imageResizeHeight;
-	}
-	
-	public Integer getImageResizeHeight() {
-		return imageResizeHeight;
 	}
 
 	public boolean isLocation() {

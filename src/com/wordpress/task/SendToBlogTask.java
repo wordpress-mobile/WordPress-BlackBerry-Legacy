@@ -228,11 +228,11 @@ public class SendToBlogTask extends TaskImpl {
 		Integer imageResizeWidth = null;
 		Integer imageResizeHeight = null;
 		if( post != null ) {
-			currentObjectPhotoResSetting = post.getIsPhotoResizing();
+			currentObjectPhotoResSetting = post.isPhotoResizing();
 			imageResizeWidth = post.getImageResizeWidth();
 			imageResizeHeight = post.getImageResizeHeight();
 		} else if( page != null ) {
-			currentObjectPhotoResSetting = page.getIsPhotoResizing();
+			currentObjectPhotoResSetting = page.isPhotoResizing();
 			imageResizeWidth = page.getImageResizeWidth();
 			imageResizeHeight = page.getImageResizeHeight();
 		} else {

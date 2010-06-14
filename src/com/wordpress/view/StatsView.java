@@ -6,6 +6,7 @@ import java.util.Vector;
 
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Display;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
@@ -22,12 +23,14 @@ import com.wordpress.controller.StatsController;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.csv.StatsParser;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.component.WebBitmapField;
 import com.wordpress.view.container.TableLayoutManager;
 
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.Touchscreen;
 import com.wordpress.view.touch.BottomBarItem;
+import net.rim.device.api.ui.decor.BackgroundFactory;
 //#endif
 import com.wordpress.xmlrpc.HTTPGetConn;
 
@@ -49,11 +52,13 @@ public class StatsView extends BaseView {
 		
 		this.controller=_controller;
 		
+		scrollerData = new VerticalFieldManager(VERTICAL_SCROLL | VERTICAL_SCROLLBAR | USE_ALL_WIDTH | FIELD_HCENTER);
+		scrollerData.setMargin(2,5,0,5);
 		
-		scrollerData = new VerticalFieldManager(VERTICAL_SCROLL | VERTICAL_SCROLLBAR | USE_ALL_WIDTH);
 		statsDesc = new TextField(USE_ALL_WIDTH | READONLY);
+		statsDesc.setMargin(0,0,5,0); //margin before the chart
+		scrollerData.add(statsDesc);
 		
-		add(statsDesc);
 		add(scrollerData);
 		
 		//#ifdef IS_OS47_OR_ABOVE
@@ -146,6 +151,7 @@ public class StatsView extends BaseView {
 		}
 		//clean the prev stats ui elements: graph and table...
 		scrollerData.deleteAll();
+		scrollerData.add(statsDesc);
 		fillStatsUI(data, columnHeader, columnName, columnLink, outerTable);
 	}
 	
@@ -184,9 +190,19 @@ public class StatsView extends BaseView {
 			while (statParser.hasNext()) {
 				String[] nextLine = statParser.next();
 				
-				if(controller.getType() != StatsController.TYPE_VIEW)
-					outerTable.add(GUIFactory.getLabel(String.valueOf(counter), LabelField.FOCUSABLE |  DrawStyle.ELLIPSIS));
-
+				LabelField currentLabelField = null;
+				
+				if(controller.getType() != StatsController.TYPE_VIEW) {
+					currentLabelField = GUIFactory.getLabel(String.valueOf(counter), LabelField.FOCUSABLE |  DrawStyle.ELLIPSIS);
+					outerTable.add(currentLabelField);
+					//#ifdef IS_OS47_OR_ABOVE
+					if(counter % 2 != 0)
+						currentLabelField.setBackground(BackgroundFactory.createSolidBackground(0xe6f0ff));
+					else
+						currentLabelField.setBackground(BackgroundFactory.createSolidBackground(Color.WHITE));
+					//#endif
+				}
+				
 				for (int i = 0; i < columnName.length; i++) {
 					String _tmpName = columnName[i];
 					int _tmpIdx = statParser.getColumnIndex(_tmpName);
@@ -197,10 +213,20 @@ public class StatsView extends BaseView {
 						value = Tools.groupDigits(value, 3, ',');
 					
 					if(columnLink != null && columnLink[i] != null ) {
-						int _tmpIdxLink = statParser.getColumnIndex(columnLink[i]); //retrive the url
-						outerTable.add(GUIFactory.createURLLabelField(value, nextLine[_tmpIdxLink], LabelField.FOCUSABLE | DrawStyle.ELLIPSIS));	
-					} else 
-					outerTable.add(GUIFactory.getLabel(value, LabelField.FOCUSABLE |  DrawStyle.ELLIPSIS));
+						int _tmpIdxLink = statParser.getColumnIndex(columnLink[i]); //retrieve the url
+						currentLabelField = GUIFactory.createURLLabelField(value, nextLine[_tmpIdxLink], LabelField.USE_ALL_WIDTH | LabelField.FOCUSABLE | DrawStyle.ELLIPSIS);
+						outerTable.add(currentLabelField);	
+					} else {
+						currentLabelField = new ColoredLabelField(value + " ", Color.BLACK, LabelField.USE_ALL_WIDTH | LabelField.FOCUSABLE |  DrawStyle.ELLIPSIS);
+						outerTable.add(currentLabelField);
+					}
+					
+					//#ifdef IS_OS47_OR_ABOVE
+					if(counter % 2 != 0)
+						currentLabelField.setBackground(BackgroundFactory.createSolidBackground(0xe6f0ff));
+					else
+						currentLabelField.setBackground(BackgroundFactory.createSolidBackground(Color.WHITE));
+					//#endif
 				}
 				counter++;
 			}
@@ -255,8 +281,8 @@ public class StatsView extends BaseView {
 
 				String axisLabels= "&chxl=0:|"+startLabel+"|"+endLabel;
 				chartParametersURL = "?cht=lc" +
-				"&chxt=x,y&chxr=1,0,"+max+"&chxs=1N*sz0*&chds=0,"+max+axisLabels+
-				"&chd=t:"+chd_y.toString()+"&chco=21759b&chf=bg,s,EFEFEF";
+				"&chxt=x,y&chxr=1,0,"+max+"&chxs=1N*sz0*&chds=0,"+(max+10)+axisLabels+
+				"&chd=t:"+chd_y.toString()+"&chco=21759b&chf=c,lg,90,A6A6A6,0,E7E7E7,1";
 				
 			} else { 
 				//building a bar chart
@@ -289,16 +315,16 @@ public class StatsView extends BaseView {
 				chdl.deleteCharAt(chdl.length()-1);
 
 				chartParametersURL ="?cht=bvs" +"&chxt=x,y&chxr=1,0,"+(max+10)+"&chxs=1N*sz0*"+
-				chd.toString() + "&chds=0,"+(max+10)+chdl.toString()+"&chco=21759b|d54e21|464646|ffffe0&chf=bg,s,EFEFEF";
+				chd.toString() + "&chds=0,"+(max+10)+chdl.toString()+"&chco=21759b|d54e21|464646|ffffe0&chf=c,lg,90,A6A6A6,0,E7E7E7,1";
 			}
 
 			chartImg = new ChartBitmap(chartURL+chartParametersURL, 
 					Bitmap.getBitmapResource("stats.png"),
-					Field.FIELD_HCENTER | Field.FOCUSABLE);
+					Field.FIELD_HCENTER | Field.FOCUSABLE | Field.USE_ALL_WIDTH  | DrawStyle.HCENTER);
+			chartImg.setMargin(5,0,5,0);
 
-			scrollerData.add(new LabelField(""));
 			scrollerData.add(chartImg);
-			scrollerData.add(new LabelField(""));
+		
 
 		} catch (Exception e) {
 			controller.displayError(e, "Error while building stats chart");

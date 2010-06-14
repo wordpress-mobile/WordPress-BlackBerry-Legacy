@@ -155,6 +155,15 @@ public class MediaLibraryDAO implements BaseDAO {
 			content.put("imageResizeHeight", item.getImageResizeHeight());
 		}
 		
+		if(item.isVideoResizing() !=null)
+			content.put("IsVideoResizing", item.isVideoResizing());
+		
+		if(item.getImageResizeWidth() != null)
+			content.put("videoResizeWidth", item.getVideoResizeWidth());
+		
+		if(item.getImageResizeHeight() != null)
+			content.put("videoResizeHeight", item.getVideoResizeHeight());
+		
 		return content;
 	}
 	
@@ -188,6 +197,20 @@ public class MediaLibraryDAO implements BaseDAO {
 			
 			if(storedData.get("imageResizeHeight") != null) {
 				entry.setImageResizeHeight((Integer) storedData.get("imageResizeHeight"));
+			}
+			
+			//set the prop for videopres resizing options
+			if(storedData.get("IsVideoResizing") != null) {
+				entry.setVideoResizing((Boolean) storedData.get("IsVideoResizing"));
+			}
+			
+			// Set the image resize dimension properties
+			if(storedData.get("videoResizeWidth") != null) {
+				entry.setVideoResizeWidth((Integer) storedData.get("videoResizeWidth"));
+			}
+			
+			if(storedData.get("videoResizeHeight") != null) {
+				entry.setVideoResizeHeight((Integer) storedData.get("videoResizeHeight"));
 			}
 			
 			return entry;

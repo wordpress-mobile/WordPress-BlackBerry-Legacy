@@ -28,10 +28,7 @@ public class Page extends BlogEntry {
 	private String wpAuthorDisplayName;
 	private Date dateCreatedGMT;
 	private String wpPageTemplate;
-    private Boolean isPhotoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
-    private Integer imageResizeWidth = null;
-    private Integer imageResizeHeight = null;
-    
+   
 	
 	public Page(int pageID, String Title, String description, Date dateCreated) {
 		this.pageID = pageID;
@@ -226,29 +223,5 @@ public class Page extends BlogEntry {
 
 	public String getWpPageTemplate() {
 		return wpPageTemplate;
-	}
-
-	public Boolean getIsPhotoResizing() {
-		return isPhotoResizing;
-	}
-
-	public void setIsPhotoResizing(Boolean isPhotoResizing) {
-		this.isPhotoResizing = isPhotoResizing;
-	}
-
-	public void setImageResizeWidth(Integer imageResizeWidth) {
-		this.imageResizeWidth = imageResizeWidth;
-	}
-	
-	public Integer getImageResizeWidth() {
-		return imageResizeWidth;
-	}
-	
-	public void setImageResizeHeight(Integer imageResizeHeight) {
-		this.imageResizeHeight = imageResizeHeight;
-	}
-	
-	public Integer getImageResizeHeight() {
-		return imageResizeHeight;
 	}
 }

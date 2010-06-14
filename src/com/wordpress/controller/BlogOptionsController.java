@@ -34,8 +34,8 @@ public class BlogOptionsController extends BaseController {
 		guiValues.put("recentpost", AddBlogsController.recentsPostValuesLabel);
 		guiValues.put("recentpostselected", new Integer(indexRecPost));
 		guiValues.put("isresphotos", new Boolean(blog.isResizePhotos()));
-		guiValues.put("imageResizeWidth", blog.getImageResizeWidth());
-		guiValues.put("imageResizeHeight", blog.getImageResizeHeight());
+		guiValues.put("imageResizeWidth", blog.getImageResizeWidth()); //this is never null bc during init we put the default size
+		guiValues.put("imageResizeHeight", blog.getImageResizeHeight()); //this is never null bc during init we put the default size
 		guiValues.put("islocation", new Boolean(blog.isLocation()));
 		guiValues.put("iscommentnotifications", new Boolean(blog.isCommentNotifies()));
 		guiValues.put("isSignatureActive", new Boolean(blog.isSignatureEnabled()));

@@ -48,11 +48,17 @@ public class PostSettingsView extends StandardBaseView {
 	BorderedFieldManager rowSignature;
 	private CheckboxField enableSignature;
 	private BasicEditField signatureField;
+	
+	//video resizing fields
+	private CheckboxField resizeVideo;
+	private BasicEditField videoResizeWidthField;
+	private BasicEditField videoResizeHeightField;
 		
 	//used from media view - remove some field to the basic costructor
 	public PostSettingsView(BlogObjectController _controller,
-			boolean isResImg, Integer imageResizeWidth, Integer imageResizeHeight) {
-		this(_controller, new Date(), "", isResImg, imageResizeWidth, imageResizeHeight);
+			boolean isResImg, Integer imageResizeWidth, Integer imageResizeHeight,
+			boolean isResVideo, Integer videoResizeWidth, Integer videoResizeHeight ) {
+		this(_controller, new Date(), "", isResImg, imageResizeWidth, imageResizeHeight, isResVideo, videoResizeWidth, videoResizeHeight);
     	delete(rowDate);
     	delete(rowPassword);
 	}
@@ -60,14 +66,14 @@ public class PostSettingsView extends StandardBaseView {
 	//used from post view to adds some fields used to show signature settings
 	public PostSettingsView(BlogObjectController _controller, Date postAuth, String password, 
 			boolean isResImg, Integer imageResizeWidth, Integer imageResizeHeight,
+			boolean isResVideo, Integer videoResizeWidth, Integer videoResizeHeight,
 			boolean isSignatureEnabled, String signature) {
 		
-		this(_controller, postAuth, password, isResImg, imageResizeWidth, imageResizeHeight);
+		this(_controller, postAuth, password, isResImg, imageResizeWidth, imageResizeHeight, isResVideo, videoResizeWidth, videoResizeHeight);
 		
 		rowSignature = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
-        		| Manager.NO_VERTICAL_SCROLL 
-        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
+        		| Manager.NO_VERTICAL_SCROLL);
 		rowSignature.add(
         		GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_SIGNATURE_OPTIONS),Color.BLACK)
         		);
@@ -77,12 +83,12 @@ public class PostSettingsView extends StandardBaseView {
 		signatureField = new BasicEditField(_resources.getString(WordPressResource.LABEL_SIGNATURE)+": ", signature, 1000, Field.EDITABLE);
 		signatureField.setMargin(5, 0, 5, 0);
 		rowSignature.add(signatureField);
-		insert(rowSignature, 2);
+		insert(rowSignature, 4);
 	}
 	
 	//used from page view
     public PostSettingsView(BlogObjectController _controller, Date postAuth, String password, 
-    		boolean isResImg, Integer imageResizeWidth, Integer imageResizeHeight ) {
+    		boolean isResImg, Integer imageResizeWidth, Integer imageResizeHeight, boolean isResVideo, Integer videoResizeWidth, Integer videoResizeHeight ) {
     	super(_resources.getString(WordPressResource.MENUITEM_SETTINGS), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
     	this.controller=_controller;
     	this.imageResizeWidth = imageResizeWidth;
@@ -121,27 +127,51 @@ public class PostSettingsView extends StandardBaseView {
 		//resize photo sections
 		rowPhotoRes = new BorderedFieldManager(
 				Manager.NO_HORIZONTAL_SCROLL
-				| Manager.NO_VERTICAL_SCROLL);
-		
+				| Manager.NO_VERTICAL_SCROLL
+				| BorderedFieldManager.BOTTOM_BORDER_NONE);
 		LabelField titlePhotoOptions = GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_PHOTOS_OPTIONS),
 			 Color.BLACK);
 		rowPhotoRes.add(titlePhotoOptions);
 		rowPhotoRes.add(GUIFactory.createSepatorField());
-		
 		resizePhoto=new CheckboxField(_resources.getString(WordPressResource.LABEL_RESIZEPHOTOS), isResImg);
-		resizePhoto.setChangeListener(listenerResizePhotoCheckbox);
 		rowPhotoRes.add(resizePhoto);
-
-		//LabelField that displays text in the specified color.
 		BasicEditField lblDescResize = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS)); 
 		rowPhotoRes.add(lblDescResize);
-
-		if(isResImg) {
-			addImageResizeWidthField();
-			addImageResizeHeightField();
-		}
-
+		addImageResizeWidthField();
+		addImageResizeHeightField();
 		add(rowPhotoRes);
+		
+        //row resize Videos
+		BorderedFieldManager rowVideoPressOptions = new BorderedFieldManager(
+        		Manager.NO_HORIZONTAL_SCROLL
+        		| Manager.NO_VERTICAL_SCROLL
+        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
+		
+		 LabelField lblTitleVideoPress = GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_VIDEOPRESS_OPTIONS),
+				 Color.BLACK);
+		 rowVideoPressOptions.add(lblTitleVideoPress);
+		 rowVideoPressOptions.add(GUIFactory.createSepatorField());
+		 
+		resizeVideo = new CheckboxField(_resources.getString(WordPressResource.LABEL_RESIZEVIDEOS), isResVideo );
+		rowVideoPressOptions.add(resizeVideo);
+ 		BasicEditField lblDescResizeVideo = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_RESIZEVIDEOS));
+ 		rowVideoPressOptions.add(lblDescResizeVideo);
+		
+		videoResizeWidthField = new BasicEditField(
+        		_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)+": ", 
+        		(videoResizeWidth  == null ? "" : videoResizeWidth.toString()), 
+        		4, 
+        		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
+        rowVideoPressOptions.add(videoResizeWidthField);
+        
+		videoResizeHeightField = new BasicEditField(
+        		_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)+": ", 
+        		(videoResizeHeight == null ? "" : videoResizeHeight.toString()), 
+        		4, 
+        		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
+        rowVideoPressOptions.add(videoResizeHeightField);
+ 		rowVideoPressOptions.add(getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_DEFAULT_VIDEO_VALUE)));
+		add(rowVideoPressOptions);
 		
         BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
         BaseButtonField buttonBACK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
@@ -154,8 +184,6 @@ public class PostSettingsView extends StandardBaseView {
         
         add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
     }
-    
-    
     
     private FieldChangeListener listenerOkButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
@@ -170,22 +198,6 @@ public class PostSettingsView extends StandardBaseView {
 	    }
 	};
 
-	// Enable or disable image resize width/height fields when the "resize image" checkbox changes.
-	private FieldChangeListener listenerResizePhotoCheckbox = new FieldChangeListener() {
-	    public void fieldChanged(Field field, int context) {
-	    	if(resizePhoto.getChecked() == true) {
-	    		addImageResizeWidthField();
-	    		addImageResizeHeightField();
-	    	}
-	    	else {
-	    	       	rowPhotoRes.delete(imageResizeWidthField);
-	    	       	imageResizeWidthField = null;
-	    	       	rowPhotoRes.delete(imageResizeHeightField);
-	    	       	imageResizeHeightField = null;
-	    	}
-	   }
-	};
-	
 	// Recalculate the image resize height whenever the image resize width changes. Aspect ratio is fixed.
 	private FocusChangeListener listenerImageResizeWidthField = new FocusChangeListener() {
 	    public void focusChanged(Field field, int eventType) {
@@ -261,6 +273,10 @@ public class PostSettingsView extends StandardBaseView {
 		if(authoredOn.isDirty() || passwordField.isDirty() || resizePhoto.isDirty() 
 				|| (imageResizeWidthField == null ? false : imageResizeWidthField.isDirty())
 				|| (imageResizeHeightField == null ? false : imageResizeHeightField.isDirty())
+				||  resizeVideo.isDirty() 
+				|| (videoResizeHeightField == null ? false : videoResizeHeightField.isDirty())
+				|| (videoResizeWidthField == null ? false : videoResizeWidthField.isDirty())
+				||  resizeVideo.isDirty() 
 				|| (enableSignature == null ? false : enableSignature.isDirty())
 				|| (signatureField == null ? false : signatureField.isDirty())
 			){
@@ -302,11 +318,28 @@ public class PostSettingsView extends StandardBaseView {
 						resizeHeight);
 			}
 			
+			boolean isVideoResizing = resizeVideo.getChecked();
+			Integer videoResizedWidth = new Integer(0);
+			Integer videoResizedHeight = new Integer(0);
+			try {
+				videoResizedWidth = Integer.valueOf(videoResizeWidthField.getText());
+			} catch (NumberFormatException e) {
+				Log.error(e, "Error reading video resizing width");
+			}
+			try {
+				videoResizedHeight =Integer.valueOf(videoResizeHeightField.getText());
+			} catch (NumberFormatException e) {
+				Log.error(e, "Error reading video resizing height");
+			}
+			
+			controller.setVideoResizing(isVideoResizing, 
+					videoResizedWidth, 
+					videoResizedHeight);
+			
 			if( (enableSignature == null ? false : enableSignature.isDirty()) ||
 			 (signatureField == null ? false : signatureField.isDirty()) ) {
 				controller.setSignature(enableSignature.getChecked(), signatureField.getText());
 			}
-			
 			
 			controller.setObjectAsChanged(true);
 		} else {
@@ -324,6 +357,9 @@ public class PostSettingsView extends StandardBaseView {
 				|| (imageResizeHeightField == null ? false : imageResizeHeightField.isDirty())
 				|| (enableSignature == null ? false : enableSignature.isDirty())
 				|| (signatureField == null ? false : signatureField.isDirty())
+				|| resizeVideo.isDirty()
+				|| videoResizeHeightField.isDirty()
+				|| videoResizeWidthField.isDirty()
 		) {
 			
 			isModified = true;

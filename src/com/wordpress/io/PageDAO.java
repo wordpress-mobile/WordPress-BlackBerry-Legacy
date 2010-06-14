@@ -168,9 +168,6 @@ public class PageDAO implements BaseDAO{
 	public static synchronized Page hashtable2Page(Hashtable returnPageData) {
 		
 		Page page = new Page();
-
-		//Date dateCreated = ((Date) returnPageData.get("dateCreated"));
-		//page.setDateCreated(dateCreated);
 		
 		Date dateCreated = ((Date) returnPageData.get("date_created_gmt"));
 		page.setDateCreatedGMT(dateCreated);
@@ -228,7 +225,7 @@ public class PageDAO implements BaseDAO{
 		
 		//set the prop for photo res
 		if(returnPageData.get("IsPhotoResizing") != null) {
-			page.setIsPhotoResizing((Boolean) returnPageData.get("IsPhotoResizing"));
+			page.setPhotoResizing((Boolean) returnPageData.get("IsPhotoResizing"));
 		}
 		
 		// Set the image resize dimension properties
@@ -240,12 +237,25 @@ public class PageDAO implements BaseDAO{
 			page.setImageResizeHeight((Integer) returnPageData.get("imageResizeHeight"));
 		}
 		
+		//set the prop for videopres resizing options
+		if(returnPageData.get("IsVideoResizing") != null) {
+			page.setVideoResizing((Boolean) returnPageData.get("IsVideoResizing"));
+		}
+		
+		// Set the image resize dimension properties
+		if(returnPageData.get("videoResizeWidth") != null) {
+			page.setVideoResizeWidth((Integer) returnPageData.get("videoResizeWidth"));
+		}
+		
+		if(returnPageData.get("videoResizeHeight") != null) {
+			page.setVideoResizeHeight((Integer) returnPageData.get("videoResizeHeight"));
+		}
+		
 		page.setWpAuthorDisplayName((String) returnPageData.get("wp_author_display_name"));
 		Vector cf=(Vector) returnPageData.get("custom_fields");
 		page.setCustomFields(cf);
 		
 		page.setWpPageTemplate((String) returnPageData.get("wp_page_template"));
-		
 		
 		if(returnPageData.get("mediaObjects") != null) {
 			Vector hashedMediaIbjects = (Vector) returnPageData.get("mediaObjects");
@@ -259,8 +269,6 @@ public class PageDAO implements BaseDAO{
 			}
 			page.setMediaObjects(mediaObjects);
 		}
-		
-		
 		
 		return page;
 	}
@@ -320,14 +328,23 @@ public class PageDAO implements BaseDAO{
 		if(page.getWpPageTemplate() !=null)
 			content.put("wp_page_template", page.getWpPageTemplate());
 		
-		if(page.getIsPhotoResizing() !=null)
-			content.put("IsPhotoResizing", page.getIsPhotoResizing());
+		if(page.isPhotoResizing() !=null)
+			content.put("IsPhotoResizing", page.isPhotoResizing());
 		
 		if(page.getImageResizeWidth() != null)
 			content.put("imageResizeWidth", page.getImageResizeWidth());
 		
 		if(page.getImageResizeHeight() != null)
 			content.put("imageResizeHeight", page.getImageResizeHeight());
+		
+		if(page.isVideoResizing() !=null)
+			content.put("IsVideoResizing", page.isVideoResizing());
+		
+		if(page.getImageResizeWidth() != null)
+			content.put("videoResizeWidth", page.getVideoResizeWidth());
+		
+		if(page.getImageResizeHeight() != null)
+			content.put("videoResizeHeight", page.getVideoResizeHeight());
 	
 		//convert media object before save them
 		Vector mediaObjects = page.getMediaObjects();
