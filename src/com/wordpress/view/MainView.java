@@ -1,7 +1,10 @@
 //#preprocess
 package com.wordpress.view;
 
+import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.CodeModuleGroup;
+import net.rim.device.api.system.CodeModuleGroupManager;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.KeypadListener;
@@ -17,7 +20,6 @@ import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.TouchEvent;
 //#endif
 import net.rim.device.api.ui.component.BitmapField;
-import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.Menu;
@@ -37,7 +39,6 @@ import com.wordpress.utils.DataCollector;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
-import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.BlogsListField;
 import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.component.PillButtonField;
@@ -99,6 +100,7 @@ public class MainView extends BaseView {
 		
         setupUpBlogsView();
 	
+        addMenuItem(_feedbackItem);
 		addMenuItem(_aboutItem);
 		addMenuItem(_addBlogItem);
 		addMenuItem(_setupItem);
@@ -347,6 +349,28 @@ public class MainView extends BaseView {
     			mainController.displayError(e, "Error while checking for new versions.");
     		}
     	}
+    };
+    
+    private MenuItem _feedbackItem = new MenuItem( _resources, WordPressResource.MENUITEM_FEEDBACK, 1020, 10) {
+        public void run() {
+        	try {
+        		 // Pull out the App World data from the CodeModuleGroup
+                String myAppName = ApplicationDescriptor.currentApplicationDescriptor().getName();
+                CodeModuleGroup group = CodeModuleGroupManager.load( myAppName );
+                final String myContentId = group == null ? "" : group.getProperty( "RIM_APP_WORLD_ID" );
+
+                //if App World data is null or empty string, put the id manually
+                if(myContentId != null && !myContentId.trim().equalsIgnoreCase("")){
+                	Tools.openAppWorld(myContentId);
+                } else {
+                	Tools.openAppWorld("5802"); //id of the App given by RIM
+                }
+                
+			} catch (Exception e) {
+				Log.error(e, "Problem invoking BlackBerry App World");
+				mainController.displayError("Problem invoking BlackBerry App World");
+			}
+        }
     };
     
     private MenuItem _aboutItem = new MenuItem( _resources, WordPressResource.MENUITEM_ABOUT, 1020, 10) {

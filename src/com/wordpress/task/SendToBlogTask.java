@@ -18,6 +18,7 @@ import com.wordpress.io.DraftDAO;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.io.PageDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.model.BlogEntry;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.model.MediaLibrary;
 import com.wordpress.model.Page;
@@ -45,6 +46,7 @@ public class SendToBlogTask extends TaskImpl {
 	private BlogConn blogConn = null;
 	private Queue executionQueue = new Queue(); // queue of BlogConn
 	private final Blog blog;
+	private BlogEntry blogEntry; //this class should be refactored very soon.
 	private Page page;
 	private Post post;
 	private MediaLibrary library;
@@ -53,7 +55,9 @@ public class SendToBlogTask extends TaskImpl {
 	
 	public SendToBlogTask(Blog blog, MediaLibrary library) {
 		this.blog = blog;
+		this.blogEntry = library;
 		this.library = library;
+		
 		//adding multimedia connection
 		Vector mediaObjects = library.getMediaObjects();
 		for (int i =0; i < mediaObjects.size(); i++ ) {
@@ -67,6 +71,7 @@ public class SendToBlogTask extends TaskImpl {
 	
 	public SendToBlogTask(Blog blog, Page page, int draftPageFolder, BlogConn connection) {
 		this.blog = blog;
+		this.blogEntry = page;
 		this.page = page;
 		this.draftFolder = draftPageFolder;
 		//adding multimedia connection
@@ -83,6 +88,7 @@ public class SendToBlogTask extends TaskImpl {
 
 	public SendToBlogTask(Post post, int draftPostFolder, BlogConn connection) {
 		this.post = post;
+		this.blogEntry = post;
 		this.blog = post.getBlog();
 		this.draftFolder = draftPostFolder;
 		//adding multimedia connection
@@ -486,10 +492,8 @@ public class SendToBlogTask extends TaskImpl {
 		StringBuffer topMediaFragment = new StringBuffer();
 		StringBuffer bottomMediaFragment = new StringBuffer();
 		Vector mediaObjects;
-		if(post != null)
-			mediaObjects = post.getMediaObjects();
-		else 
-			mediaObjects = page.getMediaObjects();
+		
+		mediaObjects = blogEntry.getMediaObjects();
 		
 		for (int i = 0; i < mediaObjects.size(); i++) {
 
@@ -500,9 +504,52 @@ public class SendToBlogTask extends TaskImpl {
 			else
 				tmpBuff  = 	bottomMediaFragment;
 			
-			tmpBuff.append(remoteFileInfo.getMediaObjectAsHtml());
+			String currentMediaObjHTML;
+			if (remoteFileInfo instanceof VideoEntry) {
+				currentMediaObjHTML = buildVideoHTML(remoteFileInfo);
+			} else {
+				currentMediaObjHTML = remoteFileInfo.getMediaObjectAsHtml();
+			}
+			tmpBuff.append(currentMediaObjHTML);
 		}
 		return topMediaFragment.toString() + html + bottomMediaFragment.toString();
+	}
+
+
+	private String buildVideoHTML(MediaEntry remoteFileInfo) {
+		boolean isRes = false;
+		Boolean currentObjectVideoResSetting = null;
+		Integer videoResizeWidth = null;
+		Integer videoResizeHeight = null;
+		currentObjectVideoResSetting = blogEntry.isVideoResizing();
+		if( currentObjectVideoResSetting != null) {
+			videoResizeWidth = blogEntry.getVideoResizeWidth();
+			videoResizeHeight = blogEntry.getVideoResizeHeight();
+			isRes = currentObjectVideoResSetting.booleanValue();
+		} else {
+			//read values from blog settings
+			isRes = blog.isResizeVideos();
+			videoResizeWidth = blog.getVideoResizeWidth();
+			videoResizeHeight = blog.getVideoResizeHeight();
+		}
+		String currentMediaObjHTML = remoteFileInfo.getMediaObjectAsHtml();
+		if (isRes && currentMediaObjHTML.endsWith("]")) {
+			String resizeString = "";
+			//video press tag with resizing enable
+			if(videoResizeWidth != null && videoResizeWidth.intValue() != 0)
+			{
+				resizeString = " w="+videoResizeWidth.toString();
+			}
+			
+			if(videoResizeHeight != null && videoResizeHeight.intValue() != 0)
+			{
+				resizeString += " h="+videoResizeHeight.toString();
+			}
+			resizeString+= "]";
+			
+			currentMediaObjHTML = StringUtils.replaceLast(currentMediaObjHTML, "]", resizeString);
+		}
+		return currentMediaObjHTML;
 	}
 	
 	

@@ -1,20 +1,19 @@
 package com.wordpress.utils;
 
+import java.io.IOException;
 import java.util.Vector;
 
 import javax.microedition.content.ContentHandler;
+import javax.microedition.content.ContentHandlerException;
 import javax.microedition.content.Invocation;
 import javax.microedition.content.Registry;
 
 import net.rim.blackberry.api.browser.Browser;
 import net.rim.blackberry.api.browser.BrowserSession;
-import net.rim.blackberry.api.browser.PostData;
 import net.rim.device.api.i18n.ResourceBundle;
-import net.rim.device.api.io.http.HttpHeaders;
 import net.rim.device.api.synchronization.UIDGenerator;
 
 import com.wordpress.bb.WordPressCore;
-import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.SelectorPopupScreen;
@@ -42,9 +41,15 @@ public class Tools {
 			candidates = registry.findHandler(invoc);
 		
 			if(candidates.length == 0) {
+				Log.trace("there is no ext-app that could open this file, using browser");
 				Tools.getNativeBrowserSession(fileURL);
 				return;
-			}
+			} else if(candidates.length == 1) { //there is 1 only ext-app that could open this file
+    			Log.trace("there is 1 only ext-app that could open this file");
+    			invoc.setID(candidates[0].getID());
+    			registry.invoke(invoc);
+    			return;
+    		}
 
 			String[] appNames = new String[candidates.length];
 			for (int i = 0; i < candidates.length; i++) {
@@ -58,8 +63,6 @@ public class Tools {
 				invoc.setID(candidates[selection].getID());
 				registry.invoke(invoc);                
 			}
-			
-	
 		} catch (Exception e) {
 			Log.error(e, "Error while finding a chapi endpoint");
 			Tools.getNativeBrowserSession(fileURL);
@@ -90,6 +93,35 @@ public class Tools {
 		return r.toString();
 	}
 	
+	
+    /***
+     * openAppWorld
+     * <p>
+     * Opens the App World pointing to a specific application. <p> 
+     * Note: This method takes advantage of
+     * javax.microedition.content, which was introduced in 4.3.
+     * There is no way to open the BlackBerry App World on an older OS.
+     * <p>
+     * @param myContentId App World ID of application to open.
+     * @throws IllegalArgumentException if myContentId is invalid
+     * @throws ContentHandlerException if App World is not installed
+     * @throws SecurityException if access is not permitted
+     * @throws IOException if access to the registry fails
+     */
+    public static void openAppWorld( String myContentId ) throws IllegalArgumentException, ContentHandlerException,
+            SecurityException, IOException {
+        Registry registry = Registry.getRegistry( Tools.class.getName() );
+        Invocation invocation = new Invocation( null, null, "net.rim.bb.appworld.Content", false, ContentHandler.ACTION_OPEN );
+        invocation.setArgs( new String[] { myContentId } );
+        boolean mustExit = registry.invoke( invocation );
+        if( mustExit ) // For strict compliance - this should never happen on a BlackBerry
+        {
+        	//screen.close();
+        }
+
+        //Invocation response = registry.getResponse( false );
+    }
+
 	
 	/**
 	 * Finds installed Browsers and asks user which one should be used to open the page

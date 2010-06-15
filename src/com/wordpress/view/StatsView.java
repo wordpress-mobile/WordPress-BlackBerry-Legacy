@@ -17,6 +17,7 @@ import net.rim.device.api.ui.component.TextField;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.StatsController;
@@ -53,10 +54,10 @@ public class StatsView extends BaseView {
 		this.controller=_controller;
 		
 		scrollerData = new VerticalFieldManager(VERTICAL_SCROLL | VERTICAL_SCROLLBAR | USE_ALL_WIDTH | FIELD_HCENTER);
-		scrollerData.setMargin(2,5,0,5);
+		scrollerData.setMargin(2,5,2,5);
 		
 		statsDesc = new TextField(USE_ALL_WIDTH | READONLY);
-		statsDesc.setMargin(0,0,5,0); //margin before the chart
+		statsDesc.setMargin(0,0,5,0);
 		scrollerData.add(statsDesc);
 		
 		add(scrollerData);
@@ -244,7 +245,6 @@ public class StatsView extends BaseView {
 			statParser.reset();
 			if(statParser.hasNext() == false) return;
 			
-			String chartURL = "http://chart.apis.google.com/chart";
 			String chartParametersURL = "";
 			
 			chartImg = null;
@@ -282,7 +282,7 @@ public class StatsView extends BaseView {
 				String axisLabels= "&chxl=0:|"+startLabel+"|"+endLabel;
 				chartParametersURL = "?cht=lc" +
 				"&chxt=x,y&chxr=1,0,"+max+"&chxs=1N*sz0*&chds=0,"+(max+10)+axisLabels+
-				"&chd=t:"+chd_y.toString()+"&chco=21759b&chf=c,lg,90,A6A6A6,0,E7E7E7,1";
+				"&chd=t:"+chd_y.toString()+"&chco=21759b&chf=c,lg,90,DADEDA,0,F6FAF6,1";
 				
 			} else { 
 				//building a bar chart
@@ -315,10 +315,10 @@ public class StatsView extends BaseView {
 				chdl.deleteCharAt(chdl.length()-1);
 
 				chartParametersURL ="?cht=bvs" +"&chxt=x,y&chxr=1,0,"+(max+10)+"&chxs=1N*sz0*"+
-				chd.toString() + "&chds=0,"+(max+10)+chdl.toString()+"&chco=21759b|d54e21|464646|ffffe0&chf=c,lg,90,A6A6A6,0,E7E7E7,1";
+				chd.toString() + "&chds=0,"+(max+10)+chdl.toString()+"&chco=21759b|d54e21|464646|ffffe0&chf=c,lg,90,DADEDA,0,F6FAF6,1";
 			}
 
-			chartImg = new ChartBitmap(chartURL+chartParametersURL, 
+			chartImg = new ChartBitmap(WordPressInfo.STATS_CHART_URL+chartParametersURL, 
 					Bitmap.getBitmapResource("stats.png"),
 					Field.FIELD_HCENTER | Field.FOCUSABLE | Field.USE_ALL_WIDTH  | DrawStyle.HCENTER);
 			chartImg.setMargin(5,0,5,0);

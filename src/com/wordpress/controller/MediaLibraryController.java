@@ -116,7 +116,7 @@ public class MediaLibraryController extends BlogObjectController {
 			videoResizeHeight = entry.getVideoResizeHeight();
 		}
 		
-		settingsView= new PostSettingsView(this, isPhotoResing, imageResizeWidth, imageResizeHeight,
+		settingsView = new PostSettingsView(this, isPhotoResing, imageResizeWidth, imageResizeHeight,
 				isVideoResing, videoResizeWidth, videoResizeHeight);
 		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
