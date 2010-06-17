@@ -1,13 +1,21 @@
 //#preprocess
 package com.wordpress.view;
 
+import net.rim.blackberry.api.invoke.Invoke;
+import net.rim.blackberry.api.invoke.MessageArguments;
+import net.rim.blackberry.api.mail.Address;
+import net.rim.blackberry.api.mail.Message;
+
 import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.CodeModuleGroup;
 import net.rim.device.api.system.CodeModuleGroupManager;
+import net.rim.device.api.system.Device;
+import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.KeypadListener;
+import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
@@ -101,7 +109,8 @@ public class MainView extends BaseView {
         setupUpBlogsView();
 	
         addMenuItem(_feedbackItem);
-		addMenuItem(_aboutItem);
+        addMenuItem(_feedbackItem2);
+        addMenuItem(_aboutItem);
 		addMenuItem(_addBlogItem);
 		addMenuItem(_setupItem);
 		addMenuItem(_updateItem);
@@ -372,6 +381,45 @@ public class MainView extends BaseView {
 			}
         }
     };
+    
+    private MenuItem _feedbackItem2 = new MenuItem( _resources, WordPressResource.MENUITEM_FEEDBACK, 1020, 10) {
+        public void run() {
+        	try {
+        		Message m = new Message();
+        		Address a = new Address("support@wordpress.com", "WordPress for BlackBerry Support Team");
+        		Address[] addresses = {a};
+        		m.addRecipients(net.rim.blackberry.api.mail.Message.RecipientType.TO, addresses);
+        		
+        		String manufacturer = "Manufacturer: " + 
+        			(DeviceInfo.getManufacturerName() == null ? " n.a." : DeviceInfo.getManufacturerName());
+        		String deviceName =  "Device Name: " + (DeviceInfo.getDeviceName() == null ? " n.a." : DeviceInfo.getDeviceName()); 
+        		String platformVersion = "Platform Version: " + (DeviceInfo.getPlatformVersion() == null ? " n.a." : DeviceInfo.getPlatformVersion()); 
+        		String deviceSoftwareVersion = "Software Version: " + (DeviceInfo.getSoftwareVersion() == null ? " n.a." : DeviceInfo.getSoftwareVersion());
+        		String currentNetworkName = "Current NetworkName: " + (RadioInfo.getCurrentNetworkName() == null ? " n.a." : RadioInfo.getCurrentNetworkName());
+
+        		StringBuffer mailContent = new StringBuffer();
+        		mailContent.append("App Version: "+Tools.getAppVersion()+ "\n");
+        		mailContent.append(manufacturer + "\n");
+        		mailContent.append(deviceName + "\n");
+        		mailContent.append(platformVersion + "\n" );
+        		mailContent.append(deviceSoftwareVersion + "\n");
+        		mailContent.append(currentNetworkName + "\n");
+        		mailContent.append("\n");
+        		mailContent.append("Note: After you send the email, use the Escape Key to return to the application.");
+        		mailContent.append("\n");
+        		mailContent.append("*** Add your comments below. ***");
+        		mailContent.append("\n");
+        		
+        		m.setContent(mailContent.toString());
+        		m.setSubject("WordPress for BlackBerry Feedback");
+        		Invoke.invokeApplication(Invoke.APP_TYPE_MESSAGES, new MessageArguments(m));
+			} catch (Exception e) {
+				Log.error(e, "Problem invoking BlackBerry Mail App");
+				mainController.displayError("Problem invoking BlackBerry Mail App");
+			}
+        }
+    };
+    
     
     private MenuItem _aboutItem = new MenuItem( _resources, WordPressResource.MENUITEM_ABOUT, 1020, 10) {
         public void run() {

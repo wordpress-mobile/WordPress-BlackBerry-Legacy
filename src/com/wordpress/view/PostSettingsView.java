@@ -159,14 +159,14 @@ public class PostSettingsView extends StandardBaseView {
 		
 		videoResizeWidthField = new BasicEditField(
         		_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)+": ", 
-        		(videoResizeWidth  == null ? "" : videoResizeWidth.toString()), 
+        		(videoResizeWidth  == null ? "0" : videoResizeWidth.toString()), 
         		4, 
         		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
         rowVideoPressOptions.add(videoResizeWidthField);
         
 		videoResizeHeightField = new BasicEditField(
         		_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)+": ", 
-        		(videoResizeHeight == null ? "" : videoResizeHeight.toString()), 
+        		(videoResizeHeight == null ? "0" : videoResizeHeight.toString()), 
         		4, 
         		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
         rowVideoPressOptions.add(videoResizeHeightField);

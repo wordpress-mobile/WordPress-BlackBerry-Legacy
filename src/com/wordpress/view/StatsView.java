@@ -21,6 +21,7 @@ import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.StatsController;
+import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.csv.StatsParser;
 import com.wordpress.utils.log.Log;
@@ -66,19 +67,13 @@ public class StatsView extends BaseView {
 		initUpBottomBar();
 		//#endif
 		
-		addMenuItem(_7daysMenuItem);
-		addMenuItem(_30daysMenuItem);
-		addMenuItem(_90daysMenuItem);
-		addMenuItem(_365daysMenuItem);
-		addMenuItem(_AllTimeMenuItem);
-		
 		addMenuItem(_viewsItem);
 		addMenuItem(_topPostAndPageItem);
 		addMenuItem(_referrersItem);
 		addMenuItem(_searchEngineTermsItem);
 		addMenuItem(_clicksItem);
 		
-		updateSubTitle();
+		updateSubTitle(); 
 	}
 	
 	public void setStatsData(byte[] data) {
@@ -282,7 +277,7 @@ public class StatsView extends BaseView {
 				String axisLabels= "&chxl=0:|"+startLabel+"|"+endLabel;
 				chartParametersURL = "?cht=lc" +
 				"&chxt=x,y&chxr=1,0,"+max+"&chxs=1N*sz0*&chds=0,"+(max+10)+axisLabels+
-				"&chd=t:"+chd_y.toString()+"&chco=21759b&chf=c,lg,90,DADEDA,0,F6FAF6,1";
+				"&chd=t:"+chd_y.toString()+"&chco=21759b&chf=c,lg,90,DADEDA,0,F6FAF6,1&chm=s,21759b,0,-1,6";
 				
 			} else { 
 				//building a bar chart
@@ -375,6 +370,12 @@ public class StatsView extends BaseView {
 	}
 	
 	private void updateSubTitle() {
+		
+		if( controller.getType() == StatsController.TYPE_VIEW) {
+			updateSubTitleForTypeView();
+			return;
+		}
+		
 		String subtitle = null;
 		
 		switch (controller.getInterval()) {
@@ -428,67 +429,136 @@ public class StatsView extends BaseView {
 		this.setSubTitleText(subtitle);
 	}
 	
-	private void retriveStatsInterval(int interval) {
-		controller.setInterval(interval);
-		controller.retriveStats();
-		updateSubTitle();
+	
+	private void updateSubTitleForTypeView() {
+		String subtitle = null;
+		
+		switch (controller.getIntervalForTypeView()) {
+		case StatsController.INTERVAL_TYPE_VIEW_DAYS:
+			subtitle = _resources.getString(WordPressResource.MESSAGE_STATS_VIEWS_DAY);
+			break;
+		case StatsController.INTERVAL_TYPE_VIEW_WEEKS:
+			subtitle = _resources.getString(WordPressResource.MESSAGE_STATS_VIEWS_WEEK);
+			break;
+		case StatsController.INTERVAL_TYPE_VIEW_MONTHS:
+			subtitle = _resources.getString(WordPressResource.MESSAGE_STATS_VIEWS_MONTH);
+			break;
+		default:
+			subtitle = " ";
+			break;
+		}
+
+		this.setSubTitleText(subtitle);
 	}
 	
-	private void retriveStatsType(int type) {
-		controller.setType(type);
-		controller.retriveStats();
+	
+	private void changeStatsInterval(int interval) {
+		controller.setInterval(interval);
+		controller.retrieveStats();
 		updateSubTitle();
 	}
 
-	 private MenuItem _7daysMenuItem = new MenuItem(_7days, 100, 100) {
-		 public void run() {
-			 retriveStatsInterval(StatsController.INTERVAL_7DAYS);
-		 }
-	 };
-	 private MenuItem _30daysMenuItem = new MenuItem(_30days, 110, 100) {
-		 public void run() {
-			 retriveStatsInterval(StatsController.INTERVAL_30DAYS);
-		 }
-	 };
-	 private MenuItem _90daysMenuItem = new MenuItem( _90days, 120, 100) {
-		 public void run() {
-			 retriveStatsInterval(StatsController.INTERVAL_QUARTER);
-		 }
-	 };
-	 private MenuItem _365daysMenuItem = new MenuItem( _365days, 130, 100) {
-		 public void run() {
-			 retriveStatsInterval(StatsController.INTERVAL_YEAR);
-		 }
-	 };
-	 private MenuItem _AllTimeMenuItem = new MenuItem( _AllTime, 140, 100) {
-		 public void run() {
-			 retriveStatsInterval(StatsController.INTERVAL_ALL);
-		 }
-	 };
+	private void changeStatsType(int type) {
+		controller.setType(type);
+		controller.retrieveStats();
+		updateSubTitle();
+	}
+
+	
+	
+	// Override the makeMenu method so we can add a custom menu item
+	protected void makeMenu(Menu menu, int instance) {
+		switch (controller.getType()) {
+		case StatsController.TYPE_VIEW:
+			menu.add(_daysForTypeViewMenuItem);
+			menu.add(_weeksForTypeViewMenuItem);
+			menu.add(_monthsForTypeViewMenuItem);
+			break;
+		default:
+			menu.add(_7daysMenuItem);
+			menu.add(_30daysMenuItem);
+			menu.add(_90daysMenuItem);
+			menu.add(_365daysMenuItem);
+			menu.add(_AllTimeMenuItem);
+			break;
+		}
+
+		// Create the default menu.
+		super.makeMenu(menu, instance);
+	}
+
+	
+	private MenuItem _daysForTypeViewMenuItem = new MenuItem(_resources, WordPressResource.LABEL_DAYS, 120, 100) {
+		public void run() {
+			controller.setIntervalForTypeView(StatsController.INTERVAL_TYPE_VIEW_DAYS);
+			controller.retrieveStats();
+			updateSubTitle();
+		}
+	};
+	private MenuItem _weeksForTypeViewMenuItem = new MenuItem(_resources, WordPressResource.LABEL_WEEKS, 130, 100) {
+		public void run() {
+			controller.setIntervalForTypeView(StatsController.INTERVAL_TYPE_VIEW_WEEKS);
+			controller.retrieveStats();
+			updateSubTitle();			 
+		}
+	};
+	private MenuItem _monthsForTypeViewMenuItem = new MenuItem(_resources, WordPressResource.LABEL_MONTHS, 140, 100) {
+		public void run() {
+			controller.setIntervalForTypeView(StatsController.INTERVAL_TYPE_VIEW_MONTHS);
+			controller.retrieveStats();
+			updateSubTitle();			 
+		}
+	};
+
+	private MenuItem _7daysMenuItem = new MenuItem(_7days, 100, 100) {
+		public void run() {
+			changeStatsInterval(StatsController.INTERVAL_7DAYS);
+		}
+	};
+	private MenuItem _30daysMenuItem = new MenuItem(_30days, 110, 100) {
+		public void run() {
+			changeStatsInterval(StatsController.INTERVAL_30DAYS);
+		}
+	};
+	private MenuItem _90daysMenuItem = new MenuItem( _90days, 120, 100) {
+		public void run() {
+			changeStatsInterval(StatsController.INTERVAL_QUARTER);
+		}
+	};
+	private MenuItem _365daysMenuItem = new MenuItem( _365days, 130, 100) {
+		public void run() {
+			changeStatsInterval(StatsController.INTERVAL_YEAR);
+		}
+	};
+	private MenuItem _AllTimeMenuItem = new MenuItem( _AllTime, 140, 100) {
+		public void run() {
+			changeStatsInterval(StatsController.INTERVAL_ALL);
+		}
+	};
 	 
 	 private MenuItem _viewsItem = new MenuItem( _resources, WordPressResource.MENUITEM_STATS_VIEW, 100000, 200) {
 		 public void run() {
-			 retriveStatsType(StatsController.TYPE_VIEW);
+			 changeStatsType(StatsController.TYPE_VIEW);
 		 }
 	 };
 	 private MenuItem _topPostAndPageItem = new MenuItem( _resources, WordPressResource.MENUITEM_STATS_TOP, 100000, 200) {
 		 public void run() {
-			 retriveStatsType(StatsController.TYPE_TOP);
+			 changeStatsType(StatsController.TYPE_TOP);
 		 }
 	 };
 	 private MenuItem _referrersItem = new MenuItem( _resources, WordPressResource.MENUITEM_STATS_REFERRERS, 100000, 200) {
 		 public void run() {
-			 retriveStatsType(StatsController.TYPE_REFERRERS);
+			 changeStatsType(StatsController.TYPE_REFERRERS);
 		 }
 	 };
 	 private MenuItem _searchEngineTermsItem = new MenuItem( _resources, WordPressResource.MENUITEM_STATS_SEARCH, 100000, 200) {
 		 public void run() {
-			 retriveStatsType(StatsController.TYPE_SEARCH);
+			 changeStatsType(StatsController.TYPE_SEARCH);
 		 }
 	 };
 	 private MenuItem _clicksItem = new MenuItem( _resources, WordPressResource.MENUITEM_STATS_CLICKS, 100000, 200) {
 		 public void run() {
-			 retriveStatsType(StatsController.TYPE_CLICKS);
+			 changeStatsType(StatsController.TYPE_CLICKS);
 		 }
 	 };
 	private VerticalFieldManager scrollerData;
@@ -510,19 +580,19 @@ public class StatsView extends BaseView {
 	protected void bottomBarActionPerformed(int mnuItem) {
 		switch (mnuItem) {
 		case 0:
-			retriveStatsType(StatsController.TYPE_VIEW);
+			changeStatsType(StatsController.TYPE_VIEW);
 			break;
 		case 1:
-			retriveStatsType(StatsController.TYPE_TOP);
+			changeStatsType(StatsController.TYPE_TOP);
 			break;
 		case 2:
-			retriveStatsType(StatsController.TYPE_REFERRERS);
+			changeStatsType(StatsController.TYPE_REFERRERS);
 			break;
 		case 3:
-			retriveStatsType(StatsController.TYPE_SEARCH);
+			changeStatsType(StatsController.TYPE_SEARCH);
 			break;
 		case 4:
-			retriveStatsType(StatsController.TYPE_CLICKS);
+			changeStatsType(StatsController.TYPE_CLICKS);
 			break;
 		default:
 			break;

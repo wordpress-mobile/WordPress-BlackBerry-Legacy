@@ -75,7 +75,13 @@ public class WordPress extends UiApplication implements WordPressResource {
                         //HomeScreen.setRolloverIcon(WordPressInfo.getRolloverIcon(), 0);
                     	initLog();
                     	
+                    	//#ifndef IS_OS47_OR_ABOVE
+	                    	//adds the global menuitems for sharing to WP 
+	                    	SharingHelperOldDevices.getInstance().addGlobalMenuItems(_resources);
+	                    //#endif                    	
+                    	
                     	//adds the CHAPI sharing to WP 
+	                    SharingHelper.getInstance().unregisterCHAPI();
                 		SharingHelper.getInstance().verifyRegistration();
                     	
                     	Log.trace("==== Registering WordPress Comments Notification ====");
@@ -239,6 +245,12 @@ public class WordPress extends UiApplication implements WordPressResource {
 			wpCore.setFileAppender(fileAppender); // add the file appender to the queue
 						
 			SharingHelper.getInstance().verifyRegistration(); //probably we can cut of this line
+			
+        	//#ifndef IS_OS47_OR_ABOVE
+				//register this app istance into runtime store
+				SharingHelperOldDevices.getInstance().registerIstance(UiApplication.getUiApplication());
+        	//#endif     
+			
 			
      		timer.schedule(new CountDown(), 3000); //3sec splash
 			

@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.bb;
 import java.io.IOException;
 import java.util.Timer;
@@ -84,6 +85,12 @@ public class WordPressCore {
 		timer.cancel(); //cancel the timer
 		NotificationHandler.getInstance().shutdown(); //stop the notification handler
 		SharingHelper.getInstance().removeCHAPIListener();
+		
+    	//#ifndef IS_OS47_OR_ABOVE
+			//deregister this app istance into runtime store
+			SharingHelperOldDevices.getInstance().deregisterIstance();
+		//#endif  
+		
 		System.exit(0);
 	}
 	

@@ -55,9 +55,10 @@ public class StatsController extends BaseController {
 	private String apiKey = null;
 	private String blogStatID = null;
 	
-	private byte[] lastStatsData = new byte[0];
-	private int interval = INTERVAL_7DAYS; 
 	private int type = TYPE_VIEW;
+	private int interval = INTERVAL_7DAYS;                     //last interval used to retrieve stats  
+	private int intervalForTypeView = INTERVAL_TYPE_VIEW_DAYS; //last interval used to retrieve stats of type view
+	private byte[] lastStatsData = new byte[0];
 	
 	public static final int TYPE_VIEW = 0;
 	public static final int TYPE_TOP = 1;
@@ -65,13 +66,19 @@ public class StatsController extends BaseController {
 	public static final int TYPE_SEARCH = 3;
 	public static final int TYPE_CLICKS = 4;
 	
+	//constants used to group stats when stats type != view
 	public static final int INTERVAL_7DAYS = 7;
 	public static final int INTERVAL_30DAYS = 30;
 	public static final int INTERVAL_QUARTER = 90;
 	public static final int INTERVAL_YEAR = 365;
 	public static final int INTERVAL_ALL = -1;
 
-
+	//constants used when the stats type = view
+	public static final int INTERVAL_TYPE_VIEW_DAYS = 300;
+	public static final int INTERVAL_TYPE_VIEW_WEEKS = 301;
+	public static final int INTERVAL_TYPE_VIEW_MONTHS = 302;
+	
+	
 	public StatsController(Blog currentBlog) {
 		super();	
 		this.currentBlog=currentBlog;
@@ -87,6 +94,14 @@ public class StatsController extends BaseController {
 
 	public void setInterval(int interval) {
 		this.interval = interval;
+	}
+	
+	public void setIntervalForTypeView(int interval) {
+		this.intervalForTypeView = interval;
+	}
+	
+	public int getIntervalForTypeView() {
+		return intervalForTypeView;
 	}
 	
 	public int getInterval() {
@@ -126,14 +141,30 @@ public class StatsController extends BaseController {
 	}
 	
 	
-	public void retriveStats() {
+	public void retrieveStats() {
 	    try {
 	    	if (blogStatID != null) {
 	    		String url = WordPressInfo.STATS_ENDPOINT_URL +"?api_key="+apiKey+"&blog_id="+blogStatID
-	    		+"&table="+decodeStatTable()+"&days="+interval;//+"&summarize";
+	    		+"&table="+decodeStatTable();
 	    		
-	    		if(this.type != TYPE_VIEW)
-	    			url+="&summarize";
+	    		if(this.type != TYPE_VIEW) {
+	    			url+="&days="+interval+"&summarize";
+	    		} else {
+	    			//&period=week&days=12 for the last quarter in weeks
+	    			switch (getIntervalForTypeView()) {
+	    			case StatsController.INTERVAL_TYPE_VIEW_DAYS:
+	    				url+="&days="+INTERVAL_30DAYS;
+	    				break;
+	    			case StatsController.INTERVAL_TYPE_VIEW_WEEKS:
+	    				url+="&period=week&days=30";
+	    				break;
+	    			case StatsController.INTERVAL_TYPE_VIEW_MONTHS:
+	    				url+="&period=months&days=11";
+	    				break;
+	    			default:
+	    				break;
+	    			}
+	    		}
 	    		
 				final HTTPGetConn connection = new HTTPGetConn(url, currentBlog.getStatsUsername(), 
 						currentBlog.getStatsPassword());
@@ -273,9 +304,6 @@ public class StatsController extends BaseController {
 			}
 		}
 	}
-	
-	
-
 
 	private void retriveStatsAuthData() {
 		try {
@@ -354,7 +382,7 @@ public class StatsController extends BaseController {
 							UiApplication.getUiApplication().invokeLater(new Runnable() {
 								public void run() {
 									UiApplication.getUiApplication().pushScreen(view);
-									retriveStats();
+									retrieveStats();
 								}
 							});
 						} else {
