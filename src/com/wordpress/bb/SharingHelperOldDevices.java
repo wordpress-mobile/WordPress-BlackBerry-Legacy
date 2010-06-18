@@ -202,8 +202,10 @@ public class SharingHelperOldDevices {
 				Log.trace("in URL: "+context.toString());
 				String decodedURL = context.toString();
 				
+				String decodedURLLowerCase = decodedURL.toLowerCase();
+				
 				for (int i = 0; i < audioExtensions.length; i++) {
-					if (decodedURL.endsWith(audioExtensions[i])) {
+					if (decodedURLLowerCase.endsWith(audioExtensions[i].toLowerCase())) {
 						mediaObj = new AudioEntry();
 						break;
 					}
@@ -211,7 +213,7 @@ public class SharingHelperOldDevices {
 				
 				if(mediaObj == null)
 				for (int i = 0; i < videoExtensions.length; i++) {
-					if (decodedURL.endsWith(videoExtensions[i])) {
+					if (decodedURLLowerCase.endsWith(videoExtensions[i].toLowerCase())) {
 						mediaObj = new VideoEntry();
 						break;
 					}
@@ -219,10 +221,15 @@ public class SharingHelperOldDevices {
 				
 				if(mediaObj == null)
 				for (int i = 0; i < imageExtensions.length; i++) {
-					if (decodedURL.endsWith(imageExtensions[i])) {
+					if (decodedURLLowerCase.endsWith(imageExtensions[i].toLowerCase())) {
 						mediaObj = new PhotoEntry();
 						break;
 					}
+				}
+				
+				if(mediaObj == null) {
+					Dialog.alert( _resources.getString(WordPressResource.ERROR_FILETYPE_NOT_SUPPORTED));
+					return;
 				}
 				
 				if(mediaObj != null && decodedURL.startsWith("file://")) {
@@ -237,8 +244,8 @@ public class SharingHelperOldDevices {
 				FrontController.getIstance().showPost(post, true);
 				
 			} catch (Exception e) {
-				Log.error(e, "Error while loading selected blog");
-				Dialog.alert("Error while loading selected Blog");
+				Log.error(e, "Error while Sharing to WordPress");
+				Dialog.alert("Error while Sharing to WordPress");
 			}				
 		}
 	}

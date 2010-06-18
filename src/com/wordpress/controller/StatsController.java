@@ -159,7 +159,7 @@ public class StatsController extends BaseController {
 	    				url+="&period=week&days=30";
 	    				break;
 	    			case StatsController.INTERVAL_TYPE_VIEW_MONTHS:
-	    				url+="&period=months&days=11";
+	    				url+="&period=month&days=31";
 	    				break;
 	    			default:
 	    				break;

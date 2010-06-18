@@ -10,7 +10,6 @@ import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.CodeModuleGroup;
 import net.rim.device.api.system.CodeModuleGroupManager;
-import net.rim.device.api.system.Device;
 import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;

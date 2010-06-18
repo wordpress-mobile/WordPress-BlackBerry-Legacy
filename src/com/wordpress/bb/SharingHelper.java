@@ -42,16 +42,20 @@ public class SharingHelper implements RequestListener{
 	private static SharingHelper instance;
 	private ResourceBundleFamily _resources;
 	
-	/* used when sharing via CHAPI apis*/
-	public final String CHAPI_CLASS_NAME = "com.wordpress.bb.WordPress";//WordPress.class.getName();
-    public final static String CHAPI_ID = "com.wordpress.bb";
-    public final static long CHAPI_MENUITEM_ID = 0x4a4f670272a059c3L; //com.wordpress.bb.WordPress.chapiMenuItems
+	//The Content Handler ID
+	private final static String CHAPI_ID = "com.wordpress.bb";
+	
+	//The content handler class name
+	private final static String CHAPI_CLASS_NAME = CHAPI_ID + ".WordPress"; 
+
+	public final static long CHAPI_MENUITEM_ID = 0x4a4f670272a059c3L; //com.wordpress.bb.WordPress.chapiMenuItems
     
     public final static String[] CHAPI_MIME_TYPES = new String[] {
     	"video/x-msvideo", "video/quicktime", "video/mp4", "video/mpeg", "video/3gpp", "video/3gpp2",
     	"audio/mpeg", "audio/mp4", "audio/wav", "application/ogg",
     	"image/jpg", "image/jpeg", "image/bmp", "image/png", "image/gif"
     };
+    
     public final static String[] CHAPI_SUFFIXES = new String[] {
     	"avi", "mov", "mp4", "m4v", "mpg", "3gp", "3g2",
     	"mp3", "m4a","wav", "ogg",
@@ -84,7 +88,8 @@ public class SharingHelper implements RequestListener{
 	}
 	
 	
-	//this is called only once during devices startup to refresh strings registered with chapi
+	//this is called only once during devices startup to refresh strings registered with chapi. 
+	//otherwise the string remains the same also after upgrading the app
 	protected void unregisterCHAPI() {
 		Log.trace("CHAPI unregister");
 		try {
@@ -209,10 +214,10 @@ public class SharingHelper implements RequestListener{
 				String videoExtensions[] = MultimediaUtils.getSupportedWordPressVideoFormat();
 				String audioExtensions[] = MultimediaUtils.getSupportedWordPressAudioFormat();
 				
-				if(filename != null && filename.startsWith("file://")) {
-				
+				if(filename != null && filename.toLowerCase().startsWith("file://")) {
+					String filenameLowerCase = filename.toLowerCase();
 					for (int i = 0; i < audioExtensions.length; i++) {
-						if (filename.endsWith(audioExtensions[i])) {
+						if (filenameLowerCase.endsWith(audioExtensions[i].toLowerCase())) {
 							mediaObj = new AudioEntry();
 							break;
 						}
@@ -220,7 +225,7 @@ public class SharingHelper implements RequestListener{
 
 					if(mediaObj == null)
 						for (int i = 0; i < videoExtensions.length; i++) {
-							if (filename.endsWith(videoExtensions[i])) {
+							if (filenameLowerCase.endsWith(videoExtensions[i].toLowerCase())) {
 								mediaObj = new VideoEntry();
 								break;
 							}
@@ -228,25 +233,34 @@ public class SharingHelper implements RequestListener{
 
 					if(mediaObj == null)
 						for (int i = 0; i < imageExtensions.length; i++) {
-							if (filename.endsWith(imageExtensions[i])) {
+							if (filenameLowerCase.endsWith(imageExtensions[i].toLowerCase())) {
 								mediaObj = new PhotoEntry();
 								break;
 							}
 						}
-				
+					
+					if(mediaObj == null) {
+						Dialog.alert( _resources.getString(WordPressResource.ERROR_FILETYPE_NOT_SUPPORTED));
+						return;
+					}
+									
 					mediaObj.setFilePath(filename);
 					Vector mediaObjs = new Vector();
 					mediaObjs.addElement(mediaObj);
 					post.setMediaObjects(mediaObjs);
+					
 				} else if(filename != null && type != null && type.startsWith("text/")) {
 					post.setBody(filename);
+				} else {
+					Dialog.alert( _resources.getString(WordPressResource.ERROR_FILETYPE_NOT_SUPPORTED));
+					return;
 				}
 				
 				FrontController.getIstance().showPost(post, true);
 				
 			} catch (Exception e) {
-				Log.error(e, "Error while loading selected blog");
-				Dialog.alert("Error while loading selected Blog");
+				Log.error(e, "Error while Sharing to WordPress");
+				Dialog.alert("Error while Sharing to WordPress");
 			}				
 		} 
 	}

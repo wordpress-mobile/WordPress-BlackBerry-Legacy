@@ -504,7 +504,7 @@ public class RimFileBrowser extends PopupScreen {
     				try {
     					thumbStack.wait();
     				} catch (InterruptedException e) {
-    					Log.error(e, "Error while synch over thumbStack");
+    					//Log.error(e, "Error while synch over thumbStack");
     				}
     			}
     			currentItem =  (Object[]) thumbStack.pop();

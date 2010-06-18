@@ -31,6 +31,7 @@ DESCRIPTION_POST_PASSWORD#0="Setting a password will require your visitors to en
 DESCRIPTION_REMOVE_TEMPFILE#0="Removing all temporary files stored on this device will result in a blank app.";
 DESCRIPTION_RESIZEPHOTOS#0="Resizing will speed up publishing but will result in smaller photos.";
 DESCRIPTION_RESIZEVIDEOS#0="You can specify any width or height for your Videos. The default width is the same as your blog theme\u2019s content width.";
+ERROR_FILETYPE_NOT_SUPPORTED#0="The file type is not supported.";
 ERROR_NOT_ENOUGHT_SPACE#0="Sorry, not enought space in device memory!";
 ERROR_RESIZE_HEIGHT#0="Image height must be at least one pixel.";
 ERROR_RESIZE_WIDTH#0="Image width must be at least one pixel.";
