@@ -7,7 +7,6 @@ import net.rim.blackberry.api.browser.BrowserSession;
 import net.rim.blackberry.api.browser.URLEncodedPostData;
 import net.rim.device.api.i18n.Locale;
 import net.rim.device.api.i18n.ResourceBundle;
-import net.rim.device.api.system.CodeModuleManager;
 import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.ui.UiApplication;
@@ -76,7 +75,7 @@ public class DataCollector {
 		
 		String deviceOS = "";
 		try {
-			deviceOS = getDeviceOS();
+			deviceOS = getPlatformVersion();
 			if("".equals(deviceOS)) {
 				//could be simulator. do one more check
 				if(DeviceInfo.isSimulator()) {
@@ -99,11 +98,10 @@ public class DataCollector {
 		
 		//crate the link
 		URLEncodedPostData urlEncoder = new URLEncodedPostData("UTF-8", false);
-		
 
 		urlEncoder.append("app_version", appVersion);
 		urlEncoder.append("device_language", language);
-		urlEncoder.append("device_uuid", (String)appPrefs.getOpt().get("device_uuid"));
+		urlEncoder.append("device_uuid", appPrefs.getDeviceUUID());
 		
 		if ( mobileCountryCode != -1 )
 			urlEncoder.append("mobile_country_code", ""+mobileCountryCode);
@@ -165,8 +163,7 @@ public class DataCollector {
 	 */
 	public void collectData(int numberOfBlog) {
 		Log.trace(">>> Collect data");
-		Preferences appPrefs= Preferences.getIstance();
-				
+		Preferences appPrefs= Preferences.getIstance();		
 		if(appPrefs.isFirstStartupOrUpgrade) {
 			pingStatsEndpoint(numberOfBlog);
 			appPrefs.isFirstStartupOrUpgrade = false; //consume the first startup event
@@ -188,27 +185,20 @@ public class DataCollector {
 	 * @throws Exception
 	 */
 	public void checkForUpdate(int numberOfBlog) throws Exception {
-		
 		Log.trace("checking for a new app version");
-		
 		Preferences appPrefs= Preferences.getIstance();
 		byte[] data = getAllInfo(numberOfBlog);	
-
-		//check upgrade only. no gathering stats
-		Hashtable opt = appPrefs.getOpt();
-		long currentTime = System.currentTimeMillis();
-		
-		//start check upgrade
 		final HTTPPostConn connection = new HTTPPostConn( WordPressInfo.BB_APP_STATS_ENDPOINT_URL , data);
 		connection.addObserver(new CheckUpdateCallBack());
-
 		connectionProgressView= new ConnectionInProgressView(
 				_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
 		connection.startConnWork(); //starts connection
 		
 		//store the date of check
+		Hashtable opt = appPrefs.getOpt();
+		long currentTime = System.currentTimeMillis();
 		opt.put("update_check_time", String.valueOf(currentTime)); //update last update chek time
-		AppDAO.storeApplicationPreferecens(appPrefs);
+		AppDAO.storeApplicationPreferecens(appPrefs);		
 		
 		int choice = connectionProgressView.doModal();
 		if(choice==Dialog.CANCEL) {
@@ -382,7 +372,6 @@ public class DataCollector {
 		
 		public void dialogClosed(Dialog dialog, int choice) {
 			if (choice == Dialog.YES) {
-				
 		        //Get the current application descriptor.
 				BrowserSession visit = Browser.getDefaultSession();
 				visit.displayPage(updateUrl);		        
@@ -414,24 +403,16 @@ public class DataCollector {
 	
 	//A string representing the platform version. 
 	//An empty string is returned when program is being run on a simulator.
-	private String getDeviceOS(){
-		String deviceOS = DeviceInfo.getPlatformVersion();
-		Log.debug("deviceOS: "+deviceOS);
-		return deviceOS;
+	private String getPlatformVersion(){
+		String platformVersion = DeviceInfo.getPlatformVersion() == null ? " n.a." : DeviceInfo.getPlatformVersion(); 
+		Log.debug("Platform Version: " +platformVersion);
+		return platformVersion;
 	}
 	
 	//ex. 4.6.1
 	private String getDeviceSoftwareVersion() {
-		  // Get the platform version
-    	int[] handles = CodeModuleManager.getModuleHandles();
-    	int size = handles.length;
-    	//Check for a particular RIM module (Here, the ribbon app)
-    	for (int i = size-1; i>=0;--i) {
-	    	if (CodeModuleManager.getModuleName(handles[i]).equals("net_rim_bb_ribbon_app")) {
-	    		Log.debug("DeviceVersion: "+CodeModuleManager.getModuleVersion(handles[i]));
-	    		return CodeModuleManager.getModuleVersion(handles[i]);
-	    	}
-    	}
-    	return "";
+		String deviceSoftwareVersion =  (DeviceInfo.getSoftwareVersion() == null ? " n.a." : DeviceInfo.getSoftwareVersion());
+		Log.debug("Software Version: " + deviceSoftwareVersion);
+		return deviceSoftwareVersion;
 	}
 }

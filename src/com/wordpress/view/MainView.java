@@ -108,7 +108,7 @@ public class MainView extends BaseView {
         setupUpBlogsView();
 	
         addMenuItem(_feedbackItem);
-        addMenuItem(_feedbackItem2);
+        addMenuItem(_bugReportItem);
         addMenuItem(_aboutItem);
 		addMenuItem(_addBlogItem);
 		addMenuItem(_setupItem);
@@ -298,7 +298,7 @@ public class MainView extends BaseView {
 	}
 	//#endif
 	
-    private MenuItem _showBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_SHOWBLOG, 130, 10) {
+    private MenuItem _showBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_SHOWBLOG, 1300, 900) {
         public void run() {
         BlogInfo blogSelected = blogListController.getBlogSelected();
         mainController.showBlog(blogSelected);
@@ -307,14 +307,14 @@ public class MainView extends BaseView {
     
    
     //add blog menu item 
-    private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 150, 10) {
+    private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 1500, 1000) {
         public void run() {
         	mainController.addBlogs();
         }
     };
 
         
-    private MenuItem _deleteBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE_BLOG, 200, 10) {
+    private MenuItem _deleteBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE_BLOG, 2000, 1000) {
         public void run() {
 	        BlogInfo blogSelected = blogListController.getBlogSelected();
 	        mainController.deleteBlog(blogSelected);
@@ -329,7 +329,7 @@ public class MainView extends BaseView {
     	}
     }        
     
-    private MenuItem _notificationItem = new MenuItem( _resources, WordPressResource.MENUITEM_NOTIFICATIONS, 900, 10) {
+    private MenuItem _notificationItem = new MenuItem( _resources, WordPressResource.MENUITEM_NOTIFICATIONS, 9000, 1000) {
         public void run() {
         	BlogInfo[] blogs = blogListController.getBlogs();
         	FrontController.getIstance().showNotificationView(blogs);
@@ -337,13 +337,13 @@ public class MainView extends BaseView {
     };
    
     
-    private MenuItem _setupItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETUP, 1000, 10) {
+    private MenuItem _setupItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETUP, 10000, 1000) {
         public void run() {
         	FrontController.getIstance().showSetupView();
         }
     };
 
-    private MenuItem _updateItem = new MenuItem( _resources, WordPressResource.MENUITEM_CHECKUPDATE, 1010, 10) {
+    private MenuItem _updateItem = new MenuItem( _resources, WordPressResource.MENUITEM_CHECKUPDATE, 11000, 1000) {
     	public void run() {
 
     		try {
@@ -359,7 +359,7 @@ public class MainView extends BaseView {
     	}
     };
     
-    private MenuItem _feedbackItem = new MenuItem( _resources, WordPressResource.MENUITEM_FEEDBACK, 1020, 10) {
+    private MenuItem _feedbackItem = new MenuItem( _resources, WordPressResource.MENUITEM_FEEDBACK, 80200, 1000) {
         public void run() {
         	try {
         		 // Pull out the App World data from the CodeModuleGroup
@@ -381,11 +381,11 @@ public class MainView extends BaseView {
         }
     };
     
-    private MenuItem _feedbackItem2 = new MenuItem( _resources, WordPressResource.MENUITEM_FEEDBACK, 1020, 10) {
+    private MenuItem _bugReportItem = new MenuItem( _resources, WordPressResource.MENUITEM_BUG_REPORT, 80300, 1000) {
         public void run() {
         	try {
         		Message m = new Message();
-        		Address a = new Address("support@wordpress.com", "WordPress for BlackBerry Support Team");
+        		Address a = new Address("support@wordpress.com", "WordPress Support Team");
         		Address[] addresses = {a};
         		m.addRecipients(net.rim.blackberry.api.mail.Message.RecipientType.TO, addresses);
         		
@@ -394,10 +394,15 @@ public class MainView extends BaseView {
         		String deviceName =  "Device Name: " + (DeviceInfo.getDeviceName() == null ? " n.a." : DeviceInfo.getDeviceName()); 
         		String platformVersion = "Platform Version: " + (DeviceInfo.getPlatformVersion() == null ? " n.a." : DeviceInfo.getPlatformVersion()); 
         		String deviceSoftwareVersion = "Software Version: " + (DeviceInfo.getSoftwareVersion() == null ? " n.a." : DeviceInfo.getSoftwareVersion());
-        		String currentNetworkName = "Current NetworkName: " + (RadioInfo.getCurrentNetworkName() == null ? " n.a." : RadioInfo.getCurrentNetworkName());
+        		String currentNetworkName = "Network Name: " + (RadioInfo.getCurrentNetworkName() == null ? " n.a." : RadioInfo.getCurrentNetworkName());
 
         		StringBuffer mailContent = new StringBuffer();
         		mailContent.append("App Version: "+Tools.getAppVersion()+ "\n");
+        		//#ifdef IS_OS47_OR_ABOVE
+        		mailContent.append("Package: Os4.7 or Higher\n");
+        		//#elseif
+        		mailContent.append("Package: Os4.2 or Higher\n");
+        		//#endif
         		mailContent.append(manufacturer + "\n");
         		mailContent.append(deviceName + "\n");
         		mailContent.append(platformVersion + "\n" );
@@ -410,7 +415,7 @@ public class MainView extends BaseView {
         		mailContent.append("\n");
         		
         		m.setContent(mailContent.toString());
-        		m.setSubject("WordPress for BlackBerry Feedback");
+        		m.setSubject("WordPress for BlackBerry Bug Report");
         		Invoke.invokeApplication(Invoke.APP_TYPE_MESSAGES, new MessageArguments(m));
 			} catch (Exception e) {
 				Log.error(e, "Problem invoking BlackBerry Mail App");
@@ -418,19 +423,18 @@ public class MainView extends BaseView {
 			}
         }
     };
-    
-    
-    private MenuItem _aboutItem = new MenuItem( _resources, WordPressResource.MENUITEM_ABOUT, 1020, 10) {
+
+    private MenuItem _aboutItem = new MenuItem( _resources, WordPressResource.MENUITEM_ABOUT, 80400, 1000) {
         public void run() {
         	FrontController.getIstance().showAboutView();
         }
     };
-   
+    
     
     /*
      * used when background on close is activated
      */
-    private MenuItem _exitItem = new MenuItem( _resources, WordPressResource.MENUITEM_EXIT, 102000, 2000) {
+    private MenuItem _exitItem = new MenuItem( _resources, WordPressResource.MENUITEM_EXIT, 200000, 2000) {
         public void run() {
         	WordPressCore.getInstance().exitWordPress();
         }

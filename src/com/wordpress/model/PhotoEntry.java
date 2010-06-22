@@ -1,16 +1,8 @@
 package com.wordpress.model;
 
-import java.io.IOException;
-
 import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.system.EncodedImage;
-
-import com.wordpress.io.JSR75FileSystem;
-import com.wordpress.utils.ImageUtils;
-import com.wordpress.utils.log.Log;
 
 public class PhotoEntry extends MediaEntry {
-	
 	
 	public PhotoEntry() {
 		super();
@@ -25,27 +17,9 @@ public class PhotoEntry extends MediaEntry {
 	}
 	
 	public Bitmap getThumb(int width, int height) {
-		byte[] readFile;
-		Bitmap bitmapRescale;
-		try {
-			readFile = JSR75FileSystem.readFile(this.getFilePath());
-			EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
-			//find the photo size
-			int scale = ImageUtils.findBestImgScale(img.getWidth(), img.getHeight(), width, height);
-			if(scale > 1)
-				img.setScale(scale); //set the scale
-			
-			bitmapRescale= img.getBitmap();
-		} catch (IOException e) {
-			Log.error("Error while creating the img thumb");
-			bitmapRescale = Bitmap.getBitmapResource(predefinedThumb);
-		}
-		
-		return bitmapRescale;
-		
+		return  Bitmap.getBitmapResource(predefinedThumb);
 	}
 	
-
 	public String getMediaObjectAsSmallHtml() {
 		
 		StringBuffer tmpBuff = new StringBuffer();
@@ -66,9 +40,9 @@ public class PhotoEntry extends MediaEntry {
 		 * 
 		 * <div id="attachment_30" class="wp-caption alignnone" style="width: 830px">
 		 * <a href="http://localhost/wp_mopress/wp-content/uploads/2009/03/back.jpg">
-		 * <img src="http://localhost/wp_mopress/wp-content/uploads/2009/03/back.jpg" alt="Utilizzato anche come testo alternativo all’immagine" title="back" width="820" height="992" class="size-full wp-image-30" />
+		 * <img src="http://localhost/wp_mopress/wp-content/uploads/2009/03/back.jpg" alt="Utilizzato anche come testo alternativo" title="back" width="820" height="992" class="size-full wp-image-30" />
 		 * </a>
-		 * <p class="wp-caption-text">Utilizzato anche come testo alternativo all’immagine</p>
+		 * <p class="wp-caption-text">Utilizzato anche come testo alternativo</p>
 		 * </div>
 		 * 
 		 * @return

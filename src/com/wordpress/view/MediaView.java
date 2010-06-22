@@ -3,6 +3,8 @@ package com.wordpress.view;
 
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import javax.microedition.content.ContentHandler;
@@ -13,6 +15,7 @@ import net.rim.blackberry.api.browser.Browser;
 import net.rim.blackberry.api.browser.BrowserSession;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
@@ -20,6 +23,7 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.UiApplication;
 
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.TouchEvent;
@@ -37,7 +41,10 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
+import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.MediaEntry;
+import com.wordpress.model.PhotoEntry;
+import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
@@ -56,7 +63,9 @@ public class MediaView extends StandardBaseView {
 	private int counterPhotos = 0;
 	protected Vector uiLink = new Vector();
 	private VerticalFieldManager noMediaContainer = null;
-	private MediaEntry lastAddedMediaObj = null;
+	private Timer timer = new Timer(); //timer used to photoPreview.
+	
+	//private MediaEntry lastAddedMediaObj = null;
 	
     public MediaView(BlogObjectController _controller) {
     	super(_resources.getString(WordPressResource.TITLE_MEDIA_VIEW), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -451,7 +460,7 @@ public class MediaView extends StandardBaseView {
     	Log.trace("MediaView - onExposed");
     	controller.removeMediaFileJournalListener(); //remove the fs listener (used only when recording live video)
 
-    	//update the thumbnails
+    	/*update the thumbnails
     	if(lastAddedMediaObj != null) {
     		MediaViewMediator tmpLink = (MediaViewMediator)uiLink.elementAt(uiLink.size()-1);
     		MediaEntry mediaEntry = tmpLink.getMediaEntry();
@@ -463,6 +472,7 @@ public class MediaView extends StandardBaseView {
     		}
     		lastAddedMediaObj = null;
     	}
+    	*/
 
     	super.onExposed();
     }
@@ -477,6 +487,7 @@ public class MediaView extends StandardBaseView {
 		controller.removeMediaFileJournalListener();
 		controller.setPhotosNumber(counterPhotos);
 		controller.backCmd();
+		timer.cancel();
 		return true;
     }
 	
@@ -487,7 +498,6 @@ public class MediaView extends StandardBaseView {
 	private Field buildThumbField(MediaEntry mediaEntry) {
 
 		Bitmap bitmapRescale = mediaEntry.getThumb();
-		
 		BitmapField photoBitmapField = new BitmapField(bitmapRescale, 
 				BitmapField.FOCUSABLE | BitmapField.FIELD_HCENTER | Manager.FIELD_VCENTER){
 			
@@ -562,6 +572,11 @@ public class MediaView extends StandardBaseView {
 			
 		};
 		photoBitmapField.setSpace(5, 5);
+		
+		if(mediaEntry instanceof PhotoEntry) {
+			BuildThumbImageTask taskImpl = new BuildThumbImageTask((PhotoEntry)mediaEntry, photoBitmapField);
+			timer.schedule(taskImpl, 2000);
+		}
 		return photoBitmapField;
 /*
 		if (mediaEntry instanceof VideoEntry){
@@ -601,10 +616,10 @@ public class MediaView extends StandardBaseView {
 		return photoBitmapField;*/
 	}
 	
-	/* This is used to ensure that last added medio obj preview will be ok */
+	/* This is used to ensure that last added medio obj preview will be ok 
 	public void setLastAddedMediaObj(MediaEntry mediaEntry) {
 		lastAddedMediaObj = mediaEntry;
-	}
+	}*/
 	
 	public void addMedia(MediaEntry mediaEntry){
 		Field thumbField = this.buildThumbField(mediaEntry);
@@ -650,7 +665,6 @@ public class MediaView extends StandardBaseView {
         	titleField.setFont(fnt);
         }
         titleField.setChangeListener(listener);
-
         
 		fromDataManager.add( titleField );
         
@@ -667,4 +681,43 @@ public class MediaView extends StandardBaseView {
 		counterPhotos++;
 		updateUI(counterPhotos);
 	}
+
+	private class BuildThumbImageTask extends TimerTask {
+		
+		private int width = 96;
+		private int height = 96;
+		private final PhotoEntry entry;
+		private final BitmapField field;
+
+		public BuildThumbImageTask(PhotoEntry entry, BitmapField field) {
+			super();
+			this.entry = entry;
+			this.field = field;
+		}
+
+		public void run() {
+			byte[] readFile;
+			try {
+				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+				readFile = JSR75FileSystem.readFile(entry.getFilePath());
+				EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
+				//find the photo size
+				int scale = ImageUtils.findBestImgScale(img.getWidth(), img.getHeight(), width, height);
+				if(scale > 1)
+					img.setScale(scale); //set the scale
+				
+				final Bitmap bitmapRescale = img.getBitmap();
+				UiApplication.getUiApplication().invokeLater(new Runnable() {
+		    		public void run() {
+		    			if(bitmapRescale != null)
+		    				field.setBitmap(bitmapRescale);
+		    		}
+		    	});
+			} catch (Throwable t) {
+				cancel();
+				Log.error(t, "Serious Error in buildThumbnails Task: " + t.getMessage());
+			}
+			
+		}
+	}	
 }

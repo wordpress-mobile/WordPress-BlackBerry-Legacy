@@ -12,6 +12,7 @@ import net.rim.blackberry.api.browser.Browser;
 import net.rim.blackberry.api.browser.BrowserSession;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.synchronization.UIDGenerator;
+import net.rim.device.api.system.DeviceInfo;
 
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
@@ -276,9 +277,17 @@ public class Tools {
 	    }
 	  }
 	
-	public static long generateDeviceUUID() {
-		//return (new Random()).nextLong();
-		return UIDGenerator.makeLUID(UIDGenerator.getUniqueScopingValue(), UIDGenerator.getUID());
+  /*
+   * This method will return the PIN number of a device 
+   * or the default value of 0x2100000a if connected to the simulator.
+   * 
+   * note: You can modify the default value associated with the simulator by using the PIN command line option. 
+   * note2: Formatting the value as in the phone option screen: String uniquePart1 = Integer.toHexString(DeviceInfo.getDeviceId());
+   * 
+   */
+	public static int generateDeviceUUID() {
+		return DeviceInfo.getDeviceId();	 
+		//return UIDGenerator.makeLUID(UIDGenerator.getUniqueScopingValue(), UIDGenerator.getUID());
 	}
 	
 	 public static int decodeInt(Object input){	 

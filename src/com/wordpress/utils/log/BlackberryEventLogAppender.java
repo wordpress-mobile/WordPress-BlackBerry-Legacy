@@ -24,7 +24,6 @@ public class BlackberryEventLogAppender implements Appender {
     public void delete() {
     }
 
-
     public void open() {
     	try {
     		EventLogger.register(guid, appName + " ", EventLogger.VIEWER_STRING);

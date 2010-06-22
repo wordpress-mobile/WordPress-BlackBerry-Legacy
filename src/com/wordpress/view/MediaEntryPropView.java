@@ -74,7 +74,7 @@ public class MediaEntryPropView extends StandardBaseView {
        
        	add(rowFileInfo);
        	
-		 //The box that contains the media object position
+		 //The box that contains the media object Vertical position
         BorderedFieldManager rowMediaObjPosition = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL);
@@ -90,7 +90,40 @@ public class MediaEntryPropView extends StandardBaseView {
 		 mediaVerticalAlignment = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_VERTICAL_ALIGNMENT),optLabels, selectedPosition);
 		 rowMediaObjPosition.add(mediaVerticalAlignment);
 		 add(rowMediaObjPosition);
-		 //-------------
+		 
+		 /*The box that contains the media object Horizontal position		 
+		 BorderedFieldManager rowHorizontalAlignment = new BorderedFieldManager(
+				 Manager.NO_HORIZONTAL_SCROLL
+				 | Manager.NO_VERTICAL_SCROLL);
+		 
+		 LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_HORIZONTAL_ALIGNMENT),
+				 Color.BLACK);
+		 rowHorizontalAlignment.add(lblTitle);
+		 rowHorizontalAlignment.add(GUIFactory.createSepatorField());
+		 RadioButtonGroup rbGroup = new RadioButtonGroup();
+
+		 RadioButtonField alignmentNoneField = new RadioButtonField(_resources.getString(WordPressResource.LABEL_HORIZONTAL_ALIGNMENT), 
+				 rbGroup, 
+				 mediaEntry.getHorizontalAlignment() == MediaEntry.ALIGNMENT_NONE ? true : false);
+		 rowHorizontalAlignment.add(alignmentNoneField);
+		 
+		 RadioButtonField alignmentLeftField = new RadioButtonField(_resources.getString(WordPressResource.LABEL_HORIZONTAL_ALIGNMENT_LEFT), 
+				 rbGroup, 
+				 mediaEntry.getHorizontalAlignment() == MediaEntry.ALIGNMENT_LEFT ? true : false);
+		 rowHorizontalAlignment.add(alignmentLeftField);
+
+		 RadioButtonField alignmentCenterField = new RadioButtonField(_resources.getString(WordPressResource.LABEL_HORIZONTAL_ALIGNMENT_CENTER), 
+				 rbGroup, 
+				 mediaEntry.getHorizontalAlignment() == MediaEntry.ALIGNMENT_CENTER ? true : false);
+		 rowHorizontalAlignment.add(alignmentCenterField);
+		 
+		 RadioButtonField alignmentRightField = new RadioButtonField(_resources.getString(WordPressResource.LABEL_HORIZONTAL_ALIGNMENT_RIGHT), 
+				 rbGroup, 
+				 mediaEntry.getHorizontalAlignment() == MediaEntry.ALIGNMENT_RIGHT ? true : false);
+		 rowHorizontalAlignment.add(alignmentRightField);
+			 
+		 add(rowHorizontalAlignment);*/
+		 //--------------
 		 
 		BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
 		BaseButtonField buttonBACK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);

@@ -1,4 +1,3 @@
-//#preprocess
 package com.wordpress.bb;
 import java.io.IOException;
 import java.util.Timer;
@@ -85,12 +84,8 @@ public class WordPressCore {
 		timer.cancel(); //cancel the timer
 		NotificationHandler.getInstance().shutdown(); //stop the notification handler
 		SharingHelper.getInstance().removeCHAPIListener();
-		
-    	//#ifndef IS_OS47_OR_ABOVE
-			//deregister this app istance into runtime store
-			SharingHelperOldDevices.getInstance().deregisterIstance();
-		//#endif  
-		
+		//deregister this app istance into runtime store
+		SharingHelper.deleteAppIstance();
 		System.exit(0);
 	}
 	
@@ -117,7 +112,7 @@ public class WordPressCore {
 		final AsyncRunner runner = new AsyncRunner(task);
 		runner.start();
 	}
-
+/*
 	public static void clean() {
 		Log.debug("Runner Thread stopped");
 		getInstance().getTasksRunner().quit();
@@ -127,7 +122,7 @@ public class WordPressCore {
 	public void setTasksRunner(final TasksRunner nextRunner) {
 		tasksRunner = nextRunner;
 	}	
-	
+	*/
 	/**
 	 * Screen dimensions
 	 * 

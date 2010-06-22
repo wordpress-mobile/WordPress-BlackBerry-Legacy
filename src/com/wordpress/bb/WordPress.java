@@ -1,7 +1,6 @@
 //#preprocess
 package com.wordpress.bb;
 
-import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -12,6 +11,7 @@ import net.rim.device.api.notification.NotificationsManager;
 import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.Backlight;
 import net.rim.device.api.system.Display;
+import net.rim.device.api.system.RuntimeStore;
 import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.controller.MainController;
@@ -19,7 +19,6 @@ import com.wordpress.io.AppDAO;
 import com.wordpress.io.BaseDAO;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Preferences;
-import com.wordpress.utils.Tools;
 import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Appender;
 import com.wordpress.utils.log.BlackberryEventLogAppender;
@@ -43,11 +42,32 @@ public class WordPress extends UiApplication implements WordPressResource {
         _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
     }
 	
-	public static void main(String[] args) {
-		WordPress app = new WordPress(args);
-	    app.enterEventDispatcher();
-	}
-			
+    public static void main(String[] args) {
+    	try {
+    		//Open the RuntimeStore.
+    		RuntimeStore store = RuntimeStore.getRuntimeStore();
+    		//Obtain the reference of WordPress for BlackBerry.
+    		final Object obj = store.get(WordPressInfo.APPLICATION_ID);
+    		//If obj is null, there is no current reference
+    		//to WordPress for BlackBerry
+    		if (obj == null) {
+    			System.out.println("RecordStore is void, launching new app");
+    			WordPress app = new WordPress(args);
+    			app.enterEventDispatcher();
+    		} else {
+    			System.out.println("RecordStore is NOT void, foreground the app");
+    			((WordPress)obj).requestForeground();
+    			System.exit(0);
+    		}
+    	} catch (Exception e) {
+    		WordPress app = new WordPress(args);
+    		app.enterEventDispatcher();
+    		System.err.println("error reading appstore: " + e.getMessage());
+    	} finally {
+
+    	}
+    }
+
 	 /**
      * Method to execute in autostart mode.
      */
@@ -130,8 +150,8 @@ public class WordPress extends UiApplication implements WordPressResource {
         });
     }
 	
+    //init the log system
 	private void initLog() {
-		//init the log system
 		Appender eventAppender = new BlackberryEventLogAppender("WordPress for BlackBerry");
 		eventAppender.setLogLevel(Log.ERROR);
 		eventAppender.open();
@@ -141,20 +161,16 @@ public class WordPress extends UiApplication implements WordPressResource {
 		Log.addAppender(new ConsoleAppender());
 		//#endif
 		
-		Log.initLog(Log.TRACE);
-		
+		Log.initLog(Log.TRACE);		
 		Log.trace("==== WordPress for BlackBerry Startup ====");
 		
 		//#ifdef IS_OS47_OR_ABOVE
 		Log.trace("==== IS_OS47_OR_ABOVE Edition ====");
 		//#endif
-
 	}
     
 	public WordPress(String[] args){
-				
 		WordPressInfo.initialize(args);
-		
 		//When device is in startup check the startup variable
 		ApplicationManager myApp = ApplicationManager.getApplicationManager();
 		if (myApp.inStartup()) {
@@ -229,12 +245,14 @@ public class WordPress extends UiApplication implements WordPressResource {
 				}
 			}
 			
+			//modified since 1.3, now we are using the real device PIN
 			//check the existence of UUID var.
 			//if UUID does not exists, generate it and put it in the prefs
-			Hashtable opt = appPrefs.getOpt();
+			/*Hashtable opt = appPrefs.getOpt();
 			if(opt.get("device_uuid") == null)
 				opt.put("device_uuid", ""+(Tools.generateDeviceUUID())); 
 			AppDAO.storeApplicationPreferecens(appPrefs); //store app pref, trick for store pref when added new parameters
+			*/
 			
 			//add the file log appender
 			FileAppender fileAppender = new FileAppender(baseDirPath, BaseDAO.LOG_FILE_PREFIX);
@@ -246,11 +264,8 @@ public class WordPress extends UiApplication implements WordPressResource {
 						
 			SharingHelper.getInstance().verifyRegistration(); //probably we can cut of this line
 			
-        	//#ifndef IS_OS47_OR_ABOVE
-				//register this app istance into runtime store
-				SharingHelperOldDevices.getInstance().registerIstance(UiApplication.getUiApplication());
-        	//#endif     
-			
+			//Store this application istance into recordstore
+			SharingHelper.storeAppIstance(UiApplication.getUiApplication());
 			
      		timer.schedule(new CountDown(), 3000); //3sec splash
 			

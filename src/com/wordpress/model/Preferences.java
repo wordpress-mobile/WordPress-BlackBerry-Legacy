@@ -2,6 +2,7 @@ package com.wordpress.model;
 
 import java.util.Hashtable;
 
+import com.wordpress.utils.Tools;
 import com.wordpress.utils.conn.ConnectionUtils;
 
 public class Preferences {
@@ -34,7 +35,7 @@ public class Preferences {
 
 	//we use this hashtable to store opt parameters. 
     //keys - type 
-	//device_uuid - update_check_time
+	//device_uuid - update_check_time  //not used since 1.3
 	//autostartup - boolean
 	//backgroundonclose - boolean
 	//updatetimeindex - Integer
@@ -263,5 +264,24 @@ public class Preferences {
 	public void setGPSSettings(int value) {
 		Integer valore = new Integer(value);
 		opt.put(GPS_SETTINGS, valore);
-	}	
+	}
+	
+	/*
+	 * Since 1.3 we are using the device PIN substituting the random generated device UUID
+	 */
+	public String getDeviceUUID() {
+		if( opt.get("device_uuid") == null ) {
+			return String.valueOf(Tools.generateDeviceUUID());
+		} else {
+			try {
+				String pin = (String)opt.get("device_uuid");
+				if(pin.trim().equals(""))
+					return String.valueOf(Tools.generateDeviceUUID());
+				else
+				return pin;
+			} catch (Exception e) {
+				return String.valueOf(Tools.generateDeviceUUID());
+			}
+		}
+	}
 }

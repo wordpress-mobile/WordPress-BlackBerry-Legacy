@@ -9,28 +9,33 @@ import com.wordpress.utils.log.Log;
 
 public abstract class MediaEntry {
 	
+	/*constants for horizontal alignment
+	public final static int ALIGNMENT_NONE = 0;
+	public final static int ALIGNMENT_LEFT = 1;
+	public final static int ALIGNMENT_CENTER = 2;
+	public final static int ALIGNMENT_RIGHT = 3;
+	*/
 	protected String filePath = null; //path of the file into disk
 	protected String fileName = null; //name of the file into the server
 	protected String title = null;
 	protected String caption = null;
 	protected String description = null;
 	protected String fileURL = null;
-	protected boolean verticalAligment = false; //false = bottom, true = top
+	protected boolean verticalAlignment = false; //false = bottom, true = top
 	protected int width, height;
 	protected String MIMEType = ""; //do not store this value
 	protected String videoPressShortCode = null; 
+	//protected int horizontalAlignment = 0; //applicable on photo only
 	
 	protected String predefinedThumb = "mime_unknown.png";
 
 	public MediaEntry() {}
-	
 	
 	/**
 	 * Return the full html rappresentation of the media obj
 	 * @return
 	 */
 	public abstract String getMediaObjectAsHtml();
-	
 	
 	/**
 	 * Return the Small html rappresentation of the media obj, usefull on preview
@@ -64,7 +69,7 @@ public abstract class MediaEntry {
 		if(videoPressShortCode != null)
 			hash.put("videoPressShortCode", videoPressShortCode);
 		
-		if(verticalAligment)
+		if(verticalAlignment)
 			hash.put("verticalAligment", "1");
 		else
 			hash.put("verticalAligment", "0");
@@ -74,6 +79,8 @@ public abstract class MediaEntry {
 		
 		if(height > 0)
 			hash.put("height", String.valueOf(height));
+		
+	//	hash.put("horizontalAligment", String.valueOf(horizontalAlignment));
 		
 		return hash;
 	}
@@ -131,9 +138,9 @@ public abstract class MediaEntry {
 
 		String verticalAligment = (String)hash.get("verticalAligment");
 		if(verticalAligment!= null && verticalAligment.equalsIgnoreCase("1"))
-			tmpMedia.verticalAligment = true;
+			tmpMedia.verticalAlignment = true;
 		else
-			tmpMedia.verticalAligment = false;
+			tmpMedia.verticalAlignment = false;
 		
 		String width = (String)hash.get("width");
 		if(width!= null)
@@ -142,7 +149,13 @@ public abstract class MediaEntry {
 		String height = (String)hash.get("height");
 		if(height!= null)
 			tmpMedia.height = Integer.parseInt(height);
-	
+		
+	/*	String horizontalAligmentStr = (String)hash.get("horizontalAligment");
+		if(horizontalAligmentStr!= null)
+			tmpMedia.horizontalAlignment = Integer.parseInt(horizontalAligmentStr);
+		else
+			tmpMedia.horizontalAlignment = ALIGNMENT_NONE;
+	*/
 		return tmpMedia;
 	}
 	
@@ -202,11 +215,11 @@ public abstract class MediaEntry {
 	}
 
 	public boolean isVerticalAlignmentOnTop() {
-		return verticalAligment;
+		return verticalAlignment;
 	}
 
 	public void setVerticalAlignmentOnTop(boolean verticalAligment) {
-		this.verticalAligment = verticalAligment;
+		this.verticalAlignment = verticalAligment;
 	}
 
 	public int getWidth() {
@@ -244,7 +257,15 @@ public abstract class MediaEntry {
 	public String getVideoPressShortCode() {
 		return videoPressShortCode;
 	}
+/*
+	public int getHorizontalAlignment() {
+		return horizontalAlignment;
+	}
 
+	public void setHorizontalAlignment(int horizontalAlignment) {
+		this.horizontalAlignment = horizontalAlignment;
+	}
+*/
 	public void setVideoPressShortCode(String videoPressShortCode) {
 		this.videoPressShortCode = videoPressShortCode;
 	}	

@@ -11,7 +11,6 @@ import net.rim.blackberry.api.menuitem.ApplicationMenuItemRepository;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.i18n.ResourceBundleFamily;
 import net.rim.device.api.system.ApplicationDescriptor;
-import net.rim.device.api.system.ControlledAccessException;
 import net.rim.device.api.system.RuntimeStore;
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
@@ -71,62 +70,14 @@ public class SharingHelperOldDevices {
 			ShareToWordPressMenuItem shareToWordPressMenuItem = new ShareToWordPressMenuItem(10000, 
 					_resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS));
 
-			amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_BROWSER, shareToWordPressMenuItem, ApplicationDescriptor.currentApplicationDescriptor(), chapiMimeTypes[i] );
 			amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_FILE_EXPLORER_BROWSE, shareToWordPressMenuItem, ApplicationDescriptor.currentApplicationDescriptor(), chapiMimeTypes[i]);
 			amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_FILE_EXPLORER_ITEM, shareToWordPressMenuItem, ApplicationDescriptor.currentApplicationDescriptor(), chapiMimeTypes[i]);
-			
 		}
-		
-		
+				
+		amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_BROWSER, 
+				 new ShareToWordPressMenuItem(10000, _resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS)),
+				 ApplicationDescriptor.currentApplicationDescriptor());
 	}
-	
-	/**
-	 * Called at startup to store the app references onto runtime store
-	 * @param istance
-	 */
-	void registerIstance(UiApplication istance) {
-		try{
-			//Open the RuntimeStore.
-			RuntimeStore store = RuntimeStore.getRuntimeStore();
-			//Obtain the reference of WordPress for BlackBerry.
-			Object obj = store.get(WordPressInfo.APPLICATION_ID);
-
-			//If obj is null, there is no current reference
-			//to WordPress for BlackBerry.
-			if (obj == null)
-			{    
-				//Store a reference to this instance in the RuntimeStore.
-				store.put(WordPressInfo.APPLICATION_ID, istance);
-				Log.trace("Application References added to the runtimestore");
-			} else
-			{
-				//should never fall here bc the app deregister istance on exit
-				Log.trace("runtimestore not empty, why??");
-				store.replace(WordPressInfo.APPLICATION_ID, UiApplication.getUiApplication());
-			}
-
-		} catch (ControlledAccessException  e) {
-			Log.trace(e, "Error while accessing the runtime store");
-		}
-	}
-	
-	void deregisterIstance() {
-		//Open the RuntimeStore.
-		RuntimeStore store = RuntimeStore.getRuntimeStore();
-		//Obtain the reference of WordPress for BlackBerry.
-		Object obj = store.get(WordPressInfo.APPLICATION_ID);
-
-		if (obj != null)
-		{    
-			store.remove(WordPressInfo.APPLICATION_ID);
-			Log.trace("App removed from RuntimeStore");
-
-		} else
-		{ //never falls here
-			Log.trace("RuntimeStore is already empty!");
-		}
-	}
-	
 	
 	private void newSharing(final Object context) {
 		Screen scr = UiApplication.getUiApplication().getActiveScreen();

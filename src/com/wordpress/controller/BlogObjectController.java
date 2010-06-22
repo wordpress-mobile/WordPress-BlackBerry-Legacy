@@ -258,11 +258,9 @@ public abstract class BlogObjectController extends BaseController {
 				throw new IOException("The file "+completePath+" isn't readable");
 			
 			photoView.addMedia(mediaObj);
-			photoView.setLastAddedMediaObj(mediaObj);
+			//photoView.setLastAddedMediaObj(mediaObj);
 			
 			mediaObjects.addElement(mediaObj);
-			
-			
 		} catch (Exception e) {
 			displayError(e, "Cannot link the media file!");
 		} finally {
