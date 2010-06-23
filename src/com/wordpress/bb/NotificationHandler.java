@@ -415,10 +415,7 @@ public class NotificationHandler {
 					} else {
 						currentBlog.setCommentsDownloadNecessary(false);
 					}
-					
-					
 					currentBlog.setCommentsSummary(respObj);
-					
 				} else {
 					final String respMessage=resp.getResponse();
 					Log.error("errore nel GetCommentsCount "+ respMessage);

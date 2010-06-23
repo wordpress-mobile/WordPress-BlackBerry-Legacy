@@ -90,9 +90,11 @@ public abstract class BaseController {
 	
 	
 	public void dismissDialog(final Dialog dlg) {
+		if(dlg != null && dlg.isDisplayed()) 
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
-				dlg.close();
+				UiApplication.getUiApplication().popScreen(dlg);
+				//dlg.close();
 			}
 		});
 	}

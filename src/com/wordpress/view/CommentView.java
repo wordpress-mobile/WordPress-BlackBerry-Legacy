@@ -1,11 +1,17 @@
 //#preprocess
 package com.wordpress.view;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.Hashtable;
 
 import net.rim.device.api.i18n.SimpleDateFormat;
+import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.Display;
+import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
+import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
@@ -22,10 +28,11 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
-import com.wordpress.controller.BlogObjectController;
-import com.wordpress.controller.CommentsController;
+import com.wordpress.controller.RecentCommentsController;
 import com.wordpress.controller.GravatarController;
 import com.wordpress.model.Comment;
+import com.wordpress.utils.MD5;
+import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.component.HtmlTextField;
@@ -34,10 +41,10 @@ import com.wordpress.view.container.BorderedFocusChangeListenerPatch;
 
 public class CommentView extends StandardBaseView {
 	
-    private CommentsController controller= null;
+    private RecentCommentsController controller= null;
     private final GravatarController gvtCtrl;
-    private VerticalFieldManager fromDataManager;
-	
+    private HorizontalFieldManager rowFrom;
+    private VerticalFieldManager rowFromTextManager;
 	private Comment comment; 
 	private LabelField authorName;
 	private LabelField authorEmail;
@@ -49,7 +56,7 @@ public class CommentView extends StandardBaseView {
 	private HtmlTextField commentContent;
 	private final Hashtable commentStatusList;
 	
-	 public CommentView(CommentsController _controller, Comment comment, Hashtable commentStatusList, GravatarController gvtCtrl) {
+	 public CommentView(RecentCommentsController _controller, Comment comment, Hashtable commentStatusList, GravatarController gvtCtrl) {
 	    	super(_resources.getString(WordPressResource.TITLE_COMMENTVIEW), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 	    	this.controller=_controller;
 			this.comment = comment;
@@ -64,9 +71,11 @@ public class CommentView extends StandardBaseView {
 					Color.BLACK);	
 			outerManagerFrom.add(lblCommentAuthor);
 			outerManagerFrom.add(GUIFactory.createSepatorField());
-	        HorizontalFieldManager rowFrom = new HorizontalFieldManager(Manager.NO_HORIZONTAL_SCROLL | Manager.NO_VERTICAL_SCROLL);
+	        rowFrom = new HorizontalFieldManager(Manager.NO_HORIZONTAL_SCROLL | Manager.NO_VERTICAL_SCROLL);
+	                
 	        gravatarBitmapField = new BitmapField(GravatarController.defaultGravatarBitmap.getBitmap(), BitmapField.NON_FOCUSABLE | Manager.FIELD_VCENTER);
-	        fromDataManager = new VerticalFieldManager(VerticalFieldManager.NO_VERTICAL_SCROLL | VerticalFieldManager.NO_HORIZONTAL_SCROLL 
+
+	        rowFromTextManager = new VerticalFieldManager(VerticalFieldManager.NO_VERTICAL_SCROLL | VerticalFieldManager.NO_HORIZONTAL_SCROLL 
 	        		| Manager.FIELD_VCENTER)
 	        {//add the focus change listener patch
 	        	public void add( Field field ) {
@@ -81,7 +90,7 @@ public class CommentView extends StandardBaseView {
 			authorUrl = new LabelField("", LabelField.FOCUSABLE);
 	        rowFrom.add(gravatarBitmapField);
 	        rowFrom.add(new LabelField("  ", LabelField.NON_FOCUSABLE));
-	        rowFrom.add(fromDataManager);
+	        rowFrom.add(rowFromTextManager);
 	        outerManagerFrom.add(rowFrom);
 	        add(outerManagerFrom);
 	        
@@ -147,22 +156,48 @@ public class CommentView extends StandardBaseView {
 		 this.setTitleText(_resources.getString(WordPressResource.LABEL_COMMENT) + " "
 				 + controller.getCommentIndex(comment)+"/"+controller.getCommentsCount());
 		 
-		 gravatarBitmapField.setImage(gvtCtrl.getLatestGravatar(newComment.getAuthorEmail()));
+		 String authorEmailStr = comment.getAuthorEmail();
+		 String fullScreenGravatarURL = null;
+		 if(gvtCtrl.isGravatarAvailable(authorEmailStr)) {
+			 String hashAuthorEmail = null;
+			 MD5 md5 = new MD5();
+			 try {
+				 md5.Update(authorEmailStr, null);
+				 hashAuthorEmail = md5.asHex();
+				 md5.Final();
+				 int dimension = Math.min(Display.getHeight(),Display.getWidth());
+				 dimension = Math.min(512, dimension); //gvt service image size limit is 512px
+				 fullScreenGravatarURL = "http://www.gravatar.com/avatar/"+hashAuthorEmail+"?s="+dimension+"&d=mm";
+			 } catch (UnsupportedEncodingException e) {
+				 Log.error(e, "Error while hashing email for gravatar services");
+			 }
+		 }
 		 
-		 fromDataManager.deleteAll();
+		 if(fullScreenGravatarURL != null) {
+			 gravatarBitmapField = createClicableBitmapField(gvtCtrl.getLatestGravatar(newComment.getAuthorEmail()).getBitmap(), fullScreenGravatarURL);
+			 gravatarBitmapField.setSpace(2,2);
+		 } else {
+			 gravatarBitmapField = new BitmapField(gvtCtrl.getLatestGravatar(newComment.getAuthorEmail()).getBitmap(), BitmapField.NON_FOCUSABLE | Manager.FIELD_VCENTER);
+		 }
+		 
+		 rowFrom.deleteAll();
+		 rowFrom.add(gravatarBitmapField);
+	     rowFrom.add(new LabelField("  ", LabelField.NON_FOCUSABLE));
+		 
+		 rowFromTextManager.deleteAll();
 		 if(newComment.getAuthor() != null && !newComment.getAuthor().equals("")){
 			 authorName.setText(newComment.getAuthor());
-			 fromDataManager.add(authorName);
+			 rowFromTextManager.add(authorName);
 		 }
 		 		 
 		 if(newComment.getAuthorEmail() != null && !newComment.getAuthorEmail().equals("")) {
 			 authorEmail.setText(newComment.getAuthorEmail());
-			 fromDataManager.add(authorEmail);
+			 rowFromTextManager.add(authorEmail);
 		 }
 
 		 if(newComment.getAuthorUrl() != null && !newComment.getAuthorUrl().equals("")) {
 			 authorUrl = GUIFactory.createURLLabelField(newComment.getAuthorUrl(), newComment.getAuthorUrl(), LabelField.FOCUSABLE);
-			 fromDataManager.add(authorUrl);
+			 rowFromTextManager.add(authorUrl);
 		 }
 		 
 		 if(newComment.getPostTitle() != null) {
@@ -179,7 +214,8 @@ public class CommentView extends StandardBaseView {
 		        date.setText(format); 
  		 } else 
 			 date.setText("");
-		 
+		 rowFrom.add(rowFromTextManager);
+		 		 
 		 //retrive the string of comment state
 		 if(newComment.getStatus() != null) {	 
 			 if(commentStatusList != null && commentStatusList.containsKey(newComment.getStatus())){
@@ -296,28 +332,10 @@ public class CommentView extends StandardBaseView {
 		 }
 	 };
 	 
-	 private MenuItem _openPostCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_OPEN_POST, 105000, 100) {
-		 public void run() {
-			 controller.showPostOrPage(comment);
-		 }
-	 };
-
 	public BaseController getController() {
 		return this.controller;
 	}
 
-/*	
-	 // Handle trackball clicks.
-	protected boolean navigationClick(int status, int time) {
-		Field fieldWithFocus = this.getFieldWithFocus();
-		if(fieldWithFocus == topManager) { //focus on the top buttons, do not open menu on whell click
-			return true;
-		}
-		else 
-		 return super.navigationClick(status,time);
-	}
-*/
-	
 	public boolean onClose()   {
 		controller.backCmd();
 		return true;
@@ -351,6 +369,77 @@ public class CommentView extends StandardBaseView {
         super.makeMenu(menu, instance);
     }  
 
+    
+    private BitmapField createClicableBitmapField(Bitmap bitmap, final String largePhotoURL) {
+
+		BitmapField img = new BitmapField(bitmap, 
+				Field.FIELD_VCENTER | Field.FOCUSABLE) {
+
+			/**
+			 * Overrides default implementation.  Performs default action if the 
+			 * 4ways trackpad was clicked; otherwise, the default action occurs.
+			 * 
+			 * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
+			 */
+			protected boolean navigationClick(int status, int time) {
+				Log.trace(">>> navigationClick");
+
+				if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
+					Log.trace("Input came from the trackwheel");
+					// Input came from the trackwheel
+					return super.navigationClick(status, time);
+
+				} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
+					Log.trace("Input came from a four way navigation input device");
+					Tools.getNativeBrowserSession(largePhotoURL);
+					return true;
+				}
+				return super.navigationClick(status, time);
+			}
+
+			/**
+			 * Overrides default.  Enter key will take default action on selected item.
+			 *  
+			 * @see net.rim.device.api.ui.Screen#keyChar(char,int,int)
+			 * 
+			 */
+			protected boolean keyChar(char c, int status, int time) {
+				Log.trace(">>> keyChar");
+				// Close this screen if escape is selected.
+				if (c == Characters.ENTER) {
+					Tools.getNativeBrowserSession(largePhotoURL);
+					return true;
+				}
+				return super.keyChar(c, status, time);
+			}
+
+			//#ifdef IS_OS47_OR_ABOVE
+			protected boolean touchEvent(TouchEvent message) {
+				Log.trace(">>> touchEvent");
+				int eventCode = message.getEvent();
+
+				// Get the screen coordinates of the touch event
+				if(eventCode == TouchEvent.CLICK) {
+					Log.trace("TouchEvent.CLICK");
+					Tools.getNativeBrowserSession(largePhotoURL);
+					return true;
+				} 
+				return false; 
+			}
+			//#endif
+
+			protected MenuItem myContextMenuItemA = new MenuItem(_resources.getString(WordPressResource.MENUITEM_OPEN), 10, 2) {
+				public void run() {
+					Tools.getNativeBrowserSession(largePhotoURL);
+				}
+			};
+
+			protected void makeContextMenu(ContextMenu contextMenu) {
+				contextMenu.addItem(myContextMenuItemA);
+			}
+		};
+		return img;
+	}
     
     
 	//#ifdef IS_OS47_OR_ABOVE

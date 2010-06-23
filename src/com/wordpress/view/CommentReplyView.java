@@ -17,7 +17,7 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
-import com.wordpress.controller.CommentsController;
+import com.wordpress.controller.RecentCommentsController;
 import com.wordpress.controller.GravatarController;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Comment;
@@ -33,13 +33,13 @@ import com.wordpress.view.dialog.InquiryView;
 public class CommentReplyView extends StandardBaseView {
 	
 	private Blog currentBlog;
-	private CommentsController controller;
+	private RecentCommentsController controller;
 	private Comment comment;
 	
 	private HtmlTextField replyContent;
 	private LabelField wordCountField;
     
-    public CommentReplyView(Blog currentBlog, CommentsController _controller, Comment comment, GravatarController gvtCtrl) {
+    public CommentReplyView(Blog currentBlog, RecentCommentsController _controller, Comment comment, GravatarController gvtCtrl) {
     	super(_resources.getString(WordPressResource.MENUITEM_COMMENTS_REPLY), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 		this.currentBlog = currentBlog;
     	this.controller=_controller;

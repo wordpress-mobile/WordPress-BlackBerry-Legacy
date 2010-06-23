@@ -259,7 +259,7 @@ public class CommentsListField {
 
 	//The menu item added to the screen when the _checkList field has focus.
     //This menu item toggles the checked/unchecked status of the selected row.
-    public MenuItem _toggleItem = new MenuItem("Change Option", 100200, 5)    {
+    public MenuItem _toggleItem = new MenuItem("Change Option", 1000, 50)    {
         public void run()
         {
             //Get the index of the selected row.
@@ -439,9 +439,7 @@ public class CommentsListField {
     				if ( data.comment.getAuthorEmail().equalsIgnoreCase(email) )
     					_innerListField.invalidate(count); //request row repaint
     			}
-    		}
-    		
+    		}	
     	}
-    	
     }
 } 

@@ -134,7 +134,7 @@ public class Tools {
 		// Create the Invocation with the file URL
 		Invocation invoc = new Invocation(url);
 		invoc.setResponseRequired(false); // We don't require a response
-		invoc.setType("text/html");
+		invoc.setType("text/html");   //FIXME: this is not correct
 		invoc.setAction(ContentHandler.ACTION_OPEN);
 		
 		if(!url.startsWith("http")){

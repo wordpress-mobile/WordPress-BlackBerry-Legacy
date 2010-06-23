@@ -53,11 +53,9 @@ src\com\wordpress\controller\BaseController.java
 src\com\wordpress\controller\BlogController.java
 src\com\wordpress\controller\BlogObjectController.java
 src\com\wordpress\controller\BlogOptionsController.java
-src\com\wordpress\controller\CommentsController.java
 src\com\wordpress\controller\ConnectionInProgressListener.java
 src\com\wordpress\controller\DraftPagesController.java
 src\com\wordpress\controller\DraftPostsController.java
-src\com\wordpress\controller\FilteredCommentsController.java
 src\com\wordpress\controller\FrontController.java
 src\com\wordpress\controller\GravatarController.java
 src\com\wordpress\controller\MainController.java

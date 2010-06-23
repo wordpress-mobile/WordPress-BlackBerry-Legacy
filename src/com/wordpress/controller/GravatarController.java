@@ -95,6 +95,20 @@ public class GravatarController extends Observable {
 		});
 	}	
 	
+	
+	public boolean isGravatarAvailable(String authorEmail) {
+		   if (authorEmail == null || authorEmail.length() == 0 || authorEmail.equalsIgnoreCase("")) {
+			   return false;
+		   } else {
+			   Object gvtObj = commentsGravatar.get(authorEmail.toLowerCase());
+			   if(gvtObj != null && gvtObj instanceof EncodedImage) {
+				   return true;
+			   } else {
+				   return false;
+			   }
+		   }
+	   }
+	
 	   public EncodedImage getLatestGravatar(String authorEmail) {
 		   EncodedImage gravatarBitmap = null;
 		   authorEmail = authorEmail.toLowerCase();

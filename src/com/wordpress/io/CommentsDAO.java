@@ -11,13 +11,11 @@ import java.util.Vector;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.EncodedImage;
-import net.rim.device.api.ui.text.UppercaseTextFilter;
 
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Comment;
-import com.wordpress.utils.Queue;
 import com.wordpress.utils.log.Log;
 
 public class CommentsDAO implements BaseDAO {
@@ -92,7 +90,6 @@ public class CommentsDAO implements BaseDAO {
 				blogInfo.setAwaitingModeration(count);
 			}
 		}
-		
 		Log.trace("<<< upgradeMainAppCommentsNumber");
 	}
 	
