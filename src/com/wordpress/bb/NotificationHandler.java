@@ -175,7 +175,7 @@ public class NotificationHandler {
 				//blog is correctly loaded within the app
 				final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
 						Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
-						currentBlog.getPassword(), -1, "", 0, 100);
+						currentBlog.getPassword(), -1, "", 0, WordPressInfo.DEFAULT_DOWNLOADED_COMMENTS);
 
 				connection.addObserver(this);
 				connection.startConnWorkBackground();

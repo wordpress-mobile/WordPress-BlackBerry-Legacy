@@ -1,6 +1,7 @@
 package com.wordpress.view;
 
 
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -27,6 +28,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Post;
+import com.wordpress.utils.CalendarUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ClickableLabelField;
@@ -240,9 +242,16 @@ public class PostView extends StandardBaseView {
     			//post is changed, and the user has saved it as draft
     			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
     		} else {
-    			//post not changed, check if is published 
+    			//post not changed, check if is published or scheduled
     			if ("publish".equalsIgnoreCase(post.getStatus()) ) {
-    				controller.startRemotePreview(post.getLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
+    				Date righNowDate = new Date();//this date is NOT at GMT timezone 
+    				long righNow = CalendarUtils.adjustTimeFromDefaultTimezone(righNowDate.getTime());
+    				Date postDate = post.getAuthoredOn();//this date is GMT date
+    				long postDateLong = postDate.getTime();
+    				if(righNow > postDateLong)
+    					controller.startRemotePreview(post.getLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
+    				else
+    					controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
             	} else {
         			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
             	}

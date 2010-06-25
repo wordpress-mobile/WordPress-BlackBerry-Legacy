@@ -171,7 +171,12 @@ public class PostSettingsView extends StandardBaseView {
         		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
         rowVideoPressOptions.add(videoResizeHeightField);
  		rowVideoPressOptions.add(getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_DEFAULT_VIDEO_VALUE)));
-		add(rowVideoPressOptions);
+ 		rowVideoPressOptions.add(GUIFactory.createSepatorField());
+ 		rowVideoPressOptions.add(
+ 				GUIFactory.createURLLabelField(_resources.getString(WordPressResource.LABEL_LEARN_MORE_VIDEOPRESS),
+ 						"http://videopress.com", LabelField.FOCUSABLE)
+ 				);
+ 		add(rowVideoPressOptions);
 		
         BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
         BaseButtonField buttonBACK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);

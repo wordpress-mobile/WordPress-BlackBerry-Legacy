@@ -6,6 +6,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 
 import javax.microedition.io.HttpConnection;
 
@@ -13,7 +14,11 @@ public class LocalHttpConn implements HttpConnection {
 	private InputStream is = null;
 
 	public LocalHttpConn(String html){
-		is = new ByteArrayInputStream(html.getBytes());
+		try {
+			is = new ByteArrayInputStream(html.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+		
+		}
 	}
 	
 	public LocalHttpConn(byte[] bits){
@@ -33,20 +38,23 @@ public class LocalHttpConn implements HttpConnection {
 	}
 
 	public String getHeaderField(String name) throws IOException {
+		if(name.equalsIgnoreCase("accept-charset")) { 
+			return  "UTF-8";
+		}
 		return null;
 	}
 
 	public String getHeaderField(int n) throws IOException {
-		return null;
+		return "";
 	}
 
 	public long getHeaderFieldDate(String name, long def)
 			throws IOException {
-		return 0;
+		return def;
 	}
 
 	public int getHeaderFieldInt(String name, int def) throws IOException {
-		return 0;
+		return def;
 	}
 
 	public String getHeaderFieldKey(int n) throws IOException {
@@ -54,7 +62,7 @@ public class LocalHttpConn implements HttpConnection {
 	}
 
 	public String getHost() {
-		return null;
+		return "localhost";
 	}
 
 	public long getLastModified() throws IOException {

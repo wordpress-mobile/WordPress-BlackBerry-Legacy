@@ -95,10 +95,8 @@ public class WordPress extends UiApplication implements WordPressResource {
                         //HomeScreen.setRolloverIcon(WordPressInfo.getRolloverIcon(), 0);
                     	initLog();
                     	
-                    	//#ifndef IS_OS47_OR_ABOVE
-	                    	//adds the global menuitems for sharing to WP 
-	                    	SharingHelperOldDevices.getInstance().addGlobalMenuItems(_resources);
-	                    //#endif                    	
+	                    //adds the global menuitems for sharing to WP 
+	                    SharingHelperOldDevices.getInstance().addGlobalMenuItems(_resources);
                     	
                     	//adds the CHAPI sharing to WP 
 	                    SharingHelper.getInstance().unregisterCHAPI();

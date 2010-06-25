@@ -85,6 +85,10 @@ public class RecentCommentsController extends BaseController {
 		}
 	}
 
+	public Comment[] getCommentList() {
+		return commentList;
+	}
+	
 	public void resetViewToAllComments() {
 		setStatusFilter("");
 		loadCommentsFromCache();
@@ -107,69 +111,7 @@ public class RecentCommentsController extends BaseController {
 			displayError(e, "Error while loading comments from memory");
 		}
 	}
-	
-	public Comment[] getCommentList() {
-		return commentList;
-	}
-	
-	public int getCommentsCount() {
-		if(commentList == null) 
-			return 0;
-		else 
-			return commentList.length;
-	}
-	
-	public int  getCommentIndex(Comment currentComment) {
-		int index = -1;
-		for (int i = 0; i < commentList.length; i++) {
-			Comment	comment = commentList[i];
-				if (comment.getID() == currentComment.getID()) {
-					index = i;
-					break;
-				}
-		}
-		return index+1;
-	}
-	
-	public Comment getPreviousComment(Comment currentComment) {
-		int index = -1;
-		for (int i = 0; i < commentList.length; i++) {
-			Comment	comment = commentList[i];
-				if (comment.getID() == currentComment.getID()) {
-					index = i;
-					break;
-				}
-		}
-
-		if(commentList.length > index+1) {
-			return commentList[index+1];
-		} else
 		
-		return null;
-	}
-	
-	/**
-	 * 	
-	 * @param currentComment
-	 * @return the next comment from the comments list.
-	 */
-	public Comment getNextComment(Comment currentComment){		
-		int index = -1;
-		for (int i = 0; i < commentList.length; i++) {
-			Comment	comment = commentList[i];
-				if (comment.getID() == currentComment.getID()) {
-					index = i;
-					break;
-				}
-		}
-		//index = 0 mean that currentComment is the most recent comment
-		if(index > 0) {
-			return commentList[index-1];
-		} else
-		
-		return null;				
-	}
-	
 	public void showCommentView(Comment comment) {	
 		CommentView commentView= new CommentView(this, comment, currentBlog.getCommentStatusList(), gravatarController);
 		UiApplication.getUiApplication().pushScreen(commentView);
@@ -195,7 +137,6 @@ public class RecentCommentsController extends BaseController {
 			connection.stopConnWork(); //stop the connection if the user click on cancel button
 		}
 	}
-	
 	
 	public void updateComments(Comment[] comments, String status, String commentContent) {
 		Queue connectionsQueue = new Queue();		
@@ -260,7 +201,6 @@ public class RecentCommentsController extends BaseController {
 		}
 	}
 	
-	
 	public void refreshComments() {
 		String connMessage = _resources.getString(WordPressResource.CONN_REFRESH_COMMENTS);
 		
@@ -277,7 +217,6 @@ public class RecentCommentsController extends BaseController {
 			connection.stopConnWork(); //stop the connection if the user click on cancel button
 		}
 	}
-	
 	
 	public void loadMoreComments() {
 		String connMessage = _resources.getString(WordPressResource.CONN_REFRESH_COMMENTS);
@@ -301,17 +240,6 @@ public class RecentCommentsController extends BaseController {
 				
 	}
 		
-/*
-	public boolean isLoadMoreMenuItemAvailable() {
-		if(getCommentsCount() == 0)
-			return false;
-		else
-		if((getCommentsCount() % number)  == 0)
-			return true;
-		else
-			return false;
-	}
-	*/
 	protected Comment[] computeDifference(Comment[] originalComments, Comment[] deleteComments) {
 		Vector newComments = new Vector();
 		//update and storage the comments cache
@@ -357,6 +285,10 @@ public class RecentCommentsController extends BaseController {
 	
 	public void setStatusFilter(String statusFilter) {
 		this.statusFilter = statusFilter;
+	}
+	
+	public String getStatusFilter() {
+		return this.statusFilter;
 	}
 
 	protected void storeComment(Comment[] comments) {
@@ -564,7 +496,6 @@ public class RecentCommentsController extends BaseController {
 			} else {
 				displayError(task.getErrorMsg());
 			}
-			
 		}
 		
 		//listener for the adding blogs task

@@ -1,7 +1,5 @@
 //#preprocess
 
-//#ifndef IS_OS47_OR_ABOVE
-
 package com.wordpress.bb;
 
 import java.util.Vector;
@@ -46,6 +44,7 @@ public class SharingHelperOldDevices {
 	private SharingHelperOldDevices() {
 		 //retrieve a reference to the ResourceBundle for localization support
         _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
+         noBlogAvailable = _resources.getString(WordPressResource.MESSAGE_SHARE_TO_WORDPRESS_NO_BLOGS);
 	};
 	
 	/**
@@ -55,30 +54,28 @@ public class SharingHelperOldDevices {
 	public void addGlobalMenuItems(ResourceBundle _resources) {
 		ApplicationMenuItemRepository amir = ApplicationMenuItemRepository.getInstance();
 
-		
-		noBlogAvailable = _resources.getString(WordPressResource.MESSAGE_SHARE_TO_WORDPRESS_NO_BLOGS);
-		
-		
+		//#ifndef IS_OS47_OR_ABOVE
 		String[] chapiMimeTypes = new String[] {
-		    	"video/x-msvideo", "video/quicktime", "video/mp4", "video/mpeg", "video/3gpp", "video/3gpp2",
-		    	"audio/mpeg", "audio/mp4", "audio/wav", "application/ogg",
-		    	"image/jpg", "image/bmp", "image/png", "image/gif"
-		    };
-		
+				"video/x-msvideo", "video/quicktime", "video/mp4", "video/mpeg", "video/3gpp", "video/3gpp2",
+				"audio/mpeg", "audio/mp4", "audio/wav", "application/ogg",
+				"image/jpg", "image/bmp", "image/png", "image/gif"
+		};
+
 		for (int i = 0; i < chapiMimeTypes.length; i++) {
-			
+
 			ShareToWordPressMenuItem shareToWordPressMenuItem = new ShareToWordPressMenuItem(10000, 
 					_resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS));
 
 			amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_FILE_EXPLORER_BROWSE, shareToWordPressMenuItem, ApplicationDescriptor.currentApplicationDescriptor(), chapiMimeTypes[i]);
 			amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_FILE_EXPLORER_ITEM, shareToWordPressMenuItem, ApplicationDescriptor.currentApplicationDescriptor(), chapiMimeTypes[i]);
 		}
-				
+		//#endif                   		
+
 		amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_BROWSER, 
-				 new ShareToWordPressMenuItem(10000, _resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS)),
-				 ApplicationDescriptor.currentApplicationDescriptor());
+				new ShareToWordPressMenuItem(10000, _resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS)),
+				ApplicationDescriptor.currentApplicationDescriptor());
 	}
-	
+
 	private void newSharing(final Object context) {
 		Screen scr = UiApplication.getUiApplication().getActiveScreen();
 		System.out.println("newSharing: "+scr.getClass().getName());
@@ -177,19 +174,15 @@ public class SharingHelperOldDevices {
 						break;
 					}
 				}
-				
-				if(mediaObj == null) {
-					Dialog.alert( _resources.getString(WordPressResource.ERROR_FILETYPE_NOT_SUPPORTED));
-					return;
-				}
-				
+							
 				if(mediaObj != null && decodedURL.startsWith("file://")) {
 					mediaObj.setFilePath(decodedURL);
 					Vector mediaObjs = new Vector();
 					mediaObjs.addElement(mediaObj);
 					post.setMediaObjects(mediaObjs);
 				} else {
-					post.setBody(context.toString());
+					String sharingText = "<a href=\""+context.toString()+"\">"+context.toString()+"</a>";
+					post.setBody(sharingText);
 				}
 				
 				FrontController.getIstance().showPost(post, true);
@@ -251,4 +244,3 @@ public class SharingHelperOldDevices {
 	}
 	
 }
-//#endif

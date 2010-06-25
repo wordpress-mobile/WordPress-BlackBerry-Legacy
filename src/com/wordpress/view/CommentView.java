@@ -4,6 +4,7 @@ package com.wordpress.view;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.system.Bitmap;
@@ -154,7 +155,7 @@ public class CommentView extends StandardBaseView {
 		 this.comment = newComment;
 				 
 		 this.setTitleText(_resources.getString(WordPressResource.LABEL_COMMENT) + " "
-				 + controller.getCommentIndex(comment)+"/"+controller.getCommentsCount());
+				 + getCommentIndex(comment)+"/"+ getCommentsCount());
 		 
 		 String authorEmailStr = comment.getAuthorEmail();
 		 String fullScreenGravatarURL = null;
@@ -277,7 +278,7 @@ public class CommentView extends StandardBaseView {
         public void run() {
         	Comment[] selectedComment =  {comment};
         	controller.updateComments(selectedComment, "hold", commentContent.getText());
-          	status.setText("Holded");
+          	status.setText("Pending");
         }
     };
     
@@ -285,14 +286,13 @@ public class CommentView extends StandardBaseView {
     private MenuItem _deleteCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_DELETE, 103000, 100) {
     	public void run() {
     		Comment[] selectedComment =  {comment};
-    		Comment next = controller.getNextComment(selectedComment[0]);
+    		Comment next = getNextComment(selectedComment[0]);
     		if (next == null)
-    			next = controller.getPreviousComment(selectedComment[0]);
+    			next = getPreviousComment(selectedComment[0]);
     		    		
     		controller.deleteComments(selectedComment);
     		
     		if( next != null ) {
-    			System.out.println("Abbiamo altri commeni da visualizzare");
     			setViewValues(next);
     		} else
     			controller.backCmd();
@@ -303,7 +303,7 @@ public class CommentView extends StandardBaseView {
     private MenuItem _nextCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_NEXT, 100, 5) {
     	public void run() {
     		
-    		Comment next = controller.getNextComment(comment);
+    		Comment next = getNextComment(comment);
     		if (next == null)
     			controller.displayMessage("There arent next comments");   	
     		else {
@@ -316,7 +316,7 @@ public class CommentView extends StandardBaseView {
     private MenuItem _prevCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_PREV, 110, 6) {
     	public void run() {
     		
-    		Comment prev = controller.getPreviousComment(comment);
+    		Comment prev = getPreviousComment(comment);
     		if (prev == null)
     			controller.displayMessage("There arent next comments");
     		else {
@@ -331,6 +331,66 @@ public class CommentView extends StandardBaseView {
 			 controller.showReplyView(comment);
 		 }
 	 };
+
+	 private int getCommentsCount() {
+		 return controller.getCommentList().length;
+	 }
+
+
+	 private int  getCommentIndex(Comment currentComment) {
+		 Comment[] commentList = controller.getCommentList();
+		 int index = -1;
+		 for (int i = 0; i < commentList.length; i++) {
+			 Comment	comment = commentList[i];
+			 if (comment.getID() == currentComment.getID()) {
+				 index = i;
+				 break;
+			 }
+		 }
+		 return index+1;
+	 }
+
+	 private Comment getPreviousComment(Comment currentComment) {
+		 Comment[] commentList = controller.getCommentList();
+		 int index = -1;
+		 for (int i = 0; i < commentList.length; i++) {
+			 Comment	comment = commentList[i];
+			 if (comment.getID() == currentComment.getID()) {
+				 index = i;
+				 break;
+			 }
+		 }
+
+		 if(commentList.length > index+1) {
+			 return commentList[index+1];
+		 } else
+
+			 return null;
+	 }
+
+	 /**
+	  * 	
+	  * @param currentComment
+	  * @return the next comment from the comments list.
+	  */
+	 private Comment getNextComment(Comment currentComment){
+		 Comment[] commentList = controller.getCommentList();
+		 int index = -1;
+		 for (int i = 0; i < commentList.length; i++) {
+			 Comment	comment = commentList[i];
+			 if (comment.getID() == currentComment.getID()) {
+				 index = i;
+				 break;
+			 }
+		 }
+		 //index = 0 mean that currentComment is the most recent comment
+		 if(index > 0) {
+			 return commentList[index-1];
+		 } else
+
+			 return null;				
+	 }
+
 	 
 	public BaseController getController() {
 		return this.controller;
@@ -353,15 +413,14 @@ public class CommentView extends StandardBaseView {
 		return result;
 	}
 
-	
     //Override the makeMenu method so we can add a custom menu item on fly
     protected void makeMenu(Menu menu, int instance)
     {
-		Comment next = controller.getNextComment(comment);
+		Comment next = getNextComment(comment);
 		if (next != null)
 			menu.add(_nextCommentItem);
 		
-		Comment prev = controller.getPreviousComment(comment);
+		Comment prev = getPreviousComment(comment);
 		if (prev != null)
 			menu.add(_prevCommentItem);
                 
@@ -457,14 +516,14 @@ public class CommentView extends StandardBaseView {
     		
 	    		case TouchGesture.SWIPE:
 	    			if(gesture.getSwipeDirection() == TouchGesture.SWIPE_EAST) {
-	    				Comment next = controller.getNextComment(comment);
+	    				Comment next = getNextComment(comment);
 	        			if (next != null) {
 	        				setViewValues(next);
 	        			}
 	    				return true;
 	    			}
 	    			if(gesture.getSwipeDirection() == TouchGesture.SWIPE_WEST) {
-	    				Comment next = controller.getPreviousComment(comment);
+	    				Comment next = getPreviousComment(comment);
 	        			if (next != null) {
 	        				setViewValues(next);
 	        			}

@@ -1,5 +1,7 @@
 package com.wordpress.view;
 
+import java.util.Date;
+
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
@@ -20,6 +22,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PageController;
 import com.wordpress.model.Page;
+import com.wordpress.utils.CalendarUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ClickableLabelField;
@@ -222,9 +225,16 @@ public class PageView extends StandardBaseView {
         		//page is changed, and the user has saved it as draft
     			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
     		} else {
-    			//page not changed, check if is published 
+    			//page not changed, not changed, check if is published or scheduled
     			if ("publish".equalsIgnoreCase(page.getPageStatus()) ) {
-    				controller.startRemotePreview(page.getLink(), title.getText(), bodyTextBox.getText(), "", "");
+    				Date righNowDate = new Date();//this date is NOT at GMT timezone 
+    				long righNow = CalendarUtils.adjustTimeFromDefaultTimezone(righNowDate.getTime());
+    				Date postDate = page.getDateCreatedGMT();
+    				long postDateLong = postDate.getTime();
+    				if(righNow > postDateLong)
+    					controller.startRemotePreview(page.getLink(), title.getText(), bodyTextBox.getText(), "", "");
+    				else
+    					controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
             	} else {
             		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
             	}

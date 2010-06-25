@@ -54,7 +54,10 @@ public class PreviewView  extends BaseView implements RenderingApplication {
         _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ADD_IMAGE_ADDRESS_MENU_ITEM, false);
         _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ADD_LINK_ADDRESS_MENU_ITEM, false);
         _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ALLOW_POPUPS, false);
-                        
+
+     //   _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.OVERWRITE_CHARSET_MODE, true);
+      //  _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.DEFAULT_CHARSET_VALUE, "UTF-8");
+        
         PrimaryResourceFetchThread thread = new PrimaryResourceFetchThread(html, null, this);
         thread.start();       
 	}

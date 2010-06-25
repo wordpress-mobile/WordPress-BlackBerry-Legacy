@@ -176,6 +176,11 @@ public class BlogOptionsView extends StandardBaseView {
             		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
             rowVideoPressOptions.add(videoResizeHeightField);
      		rowVideoPressOptions.add(getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_DEFAULT_VIDEO_VALUE)));
+     		rowVideoPressOptions.add(GUIFactory.createSepatorField());
+     		rowVideoPressOptions.add(
+     				GUIFactory.createURLLabelField(_resources.getString(WordPressResource.LABEL_LEARN_MORE_VIDEOPRESS),
+     						"http://videopress.com", LabelField.FOCUSABLE)
+     				);
 			add(rowVideoPressOptions);
  			
             //row Signature

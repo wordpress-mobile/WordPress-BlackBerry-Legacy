@@ -1,6 +1,7 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import net.rim.blackberry.api.invoke.CameraArguments;
@@ -22,7 +23,6 @@ import com.wordpress.model.Blog;
 import com.wordpress.model.BlogEntry;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.model.PhotoEntry;
-import com.wordpress.model.Post;
 import com.wordpress.model.VideoEntry;
 import com.wordpress.task.SendToBlogTask;
 import com.wordpress.utils.MultimediaUtils;
@@ -431,7 +431,7 @@ public abstract class BlogObjectController extends BaseController {
 		
 		final PreviewHTTPConn connection = new PreviewHTTPConn(objectLink);
 		
-        connection.addObserver(new loadTemplateCallBack(title, content, tags, categories));  
+        connection.addObserver(new RemotePreviewCallBack(title, content, tags, categories));  
         connectionProgressView= new ConnectionInProgressView(connMessage);
        
         connection.startConnWork(); //starts connection
@@ -445,6 +445,7 @@ public abstract class BlogObjectController extends BaseController {
 	
 	public void startLocalPreview(String title, String content, String tags, String categories) {
 
+		
 		//build the body html for preview
 		String bodyContentForPreview = buildBodyHtmlFragment(content);
 
@@ -493,14 +494,14 @@ public abstract class BlogObjectController extends BaseController {
 	}
 	
 	//callback for post loading
-	private class loadTemplateCallBack implements Observer {
+	private class RemotePreviewCallBack implements Observer {
 		
 		private final String title;
 		private final String content;
 		private final String tags;
 		private final String categories;
 
-		public loadTemplateCallBack(String title, String content, String tags, String categories) {
+		public RemotePreviewCallBack(String title, String content, String tags, String categories) {
 			this.title = title;
 			this.content = content;
 			this.tags = tags;
@@ -521,9 +522,12 @@ public abstract class BlogObjectController extends BaseController {
 					}
 					
 					if(!resp.isError()) {
-						
 						try {
-							html = (String)resp.getResponseObject();
+							Hashtable responseHash =  (Hashtable) resp.getResponseObject();
+							byte[] responseContent  = (byte[])responseHash.get("data");
+							//Hashtable responseHeaders = (Hashtable) responseHash.get("headers");
+							//final String contentType= (String) responseHeaders.get("Content-Type");
+							html = new String(responseContent, "UTF-8");
 						} catch (Exception e) {
 							startLocalPreview(title,content,tags, categories);
 							return;
@@ -532,7 +536,6 @@ public abstract class BlogObjectController extends BaseController {
 					} else {
 						startLocalPreview(title,content,tags, categories);
 					}
-					
 				}
 			});
 		}

@@ -18,7 +18,7 @@ public final class WordPressInfo {
 	public final static String BB_APP_STATS_ENDPOINT_URL = "http://api.wordpress.org/bbapp/update-check/1.0/";
 	public final static String BB_APP_SIGNUP_URL = "http://wordpress.com/signup/?ref=wp-blackberry";
 	
-	public static final int DEFAULT_DOWNLOADED_COMMENTS = 100;
+	public static final int DEFAULT_DOWNLOADED_COMMENTS = 10;
 	
     private static Bitmap icon = Bitmap.getBitmapResource("application-icon.png");
     private static Bitmap newCommentsIcon = Bitmap.getBitmapResource("application-icon-new.png");

@@ -32,14 +32,12 @@ public class CommentsView extends BaseView implements ListActionListener {
 	 public CommentsView(RecentCommentsController _controller, Comment[] comments, GravatarController gvtCtrl, String title) {
 	    	super(_resources.getString(WordPressResource.TITLE_COMMENTS)+" > "+ title, MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 	    	this.controller=_controller;
-			gravatarController = gvtCtrl;
-	                
-	        this.setSubTitleText(_resources.getString(WordPressResource.MENUITEM_COMMENTS)+" "+controller.getCommentsCount());
-	    	
+			this.gravatarController = gvtCtrl;
+	        this.setSubTitleText(_resources.getString(WordPressResource.MENUITEM_COMMENTS)+" "
+	        		+ (comments == null ? 0 : comments.length));
 	        //A Vertical FM to hold the comments list
 	        dataScroller = new VerticalFieldManager(VerticalFieldManager.VERTICAL_SCROLL
 	                 | VerticalFieldManager.VERTICAL_SCROLLBAR);
-	        
 			add(dataScroller);
 			buildList(comments);
 	 }
@@ -48,29 +46,29 @@ public class CommentsView extends BaseView implements ListActionListener {
 	private void buildList(Comment[] comments) {
 		removeAllMenuItems();
         
-		Comment elements[]= new Comment[0];
-		boolean[] selectedCom = new boolean[0];
-		
+		boolean[] selectedCom = null;
 		if(comments != null) {
-			elements = comments;
 			selectedCom = new boolean[comments.length];	
+		} else {
+			comments = new Comment[0];
+			selectedCom = new boolean[0];
 		}
+		
 		gravatarController.deleteObservers(); //FIXME non va bene così
-		commentListController= new CommentsListField(elements, selectedCom, gravatarController);
-    	this.commentsList= commentListController.getCommentListField();
+		commentListController= new CommentsListField(comments, selectedCom, gravatarController);
+    	this.commentsList = commentListController.getCommentListField();
     	commentListController.setDefautActionListener(this);
 		dataScroller.add(commentsList);
 		
-		//update comment number
-	    this.setSubTitleText(_resources.getString(WordPressResource.MENUITEM_COMMENTS)+" "+controller.getCommentsCount());
+		updateSubTitle(comments);
 		
 		addMenuItem(_refreshCommentsListItem);
 		
 		//start the gravatar task
 		Vector emails = new Vector(); //email of the comment author
-		int elementLength = elements.length;
+		int elementLength = comments.length;
 		for(int count = 0; count < elementLength; ++count) {
-			String authorEmail = elements[count].getAuthorEmail();
+			String authorEmail = comments[count].getAuthorEmail();
 			if (!authorEmail.equalsIgnoreCase(""))
 				emails.addElement(authorEmail);
 		}	
@@ -80,6 +78,32 @@ public class CommentsView extends BaseView implements ListActionListener {
 		} else {
 			Log.trace("...AAAAAAAAAAAAA...");
 		}
+	}
+	
+	private void updateSubTitle(Comment[] comments) {
+		int count = 0;
+		String postStatusFilter = controller.getStatusFilter();
+    	//this filter on view is necessary when your have a filter applied 
+    	//(such as hold) and changing the status of a post it should not e visible 
+    	//anymore
+    	if(postStatusFilter != null && !postStatusFilter.equals("")) {
+    		for (int i = 0; i < comments.length; i++) {
+    			Comment	comment = comments[i];
+    			if ( comment.getStatus().equalsIgnoreCase(postStatusFilter) )
+    				count++;
+    		}
+    	} else {
+    		count = comments.length;
+    	}
+
+    	String localizedStatusText = "";
+    	if (postStatusFilter.equals("hold")){
+    		localizedStatusText = _resources.getString(WordPressResource.LABEL_PENDINGS)+" ";
+    	} else if (postStatusFilter.equals("spam")) {
+    		localizedStatusText = _resources.getString(WordPressResource.LABEL_SPAM)+" ";
+    	}
+		//update comment number
+	    this.setSubTitleText(localizedStatusText + _resources.getString(WordPressResource.MENUITEM_COMMENTS)+" "+count);
 	}
 	
 	private Comment[] getSelectedComment() {
@@ -132,7 +156,6 @@ public class CommentsView extends BaseView implements ListActionListener {
     	public void run() {
     		Comment[] selectedComment = getSelectedComment();
     		controller.deleteComments(selectedComment);
-    		    		
     	}
     };
     
@@ -149,7 +172,7 @@ public class CommentsView extends BaseView implements ListActionListener {
     	}
     };
 
-    private MenuItem _showOnlyPendingCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_VIEW_PENDING, 240000, 200) {
+    private MenuItem _showOnlyPendingCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_SHOW_PENDINGS, 240000, 200) {
     	public void run() {
     		//showPendingComments();
     		gravatarController.stopGravatarTask(); //stop task if already running
@@ -158,7 +181,7 @@ public class CommentsView extends BaseView implements ListActionListener {
     	}
     };
 
-    private MenuItem _showAllCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_VIEW_ALL, 240000, 200) {
+    private MenuItem _showAllCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_SHOW_ALL, 240000, 200) {
     	public void run() {
     		//showAllComments();
     		gravatarController.stopGravatarTask(); //stop task if already running
@@ -166,7 +189,7 @@ public class CommentsView extends BaseView implements ListActionListener {
     	}
     };
 
-    private MenuItem _showSpamCommentsItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_VIEW_SPAM, 241000, 100) {
+    private MenuItem _showSpamCommentsItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_SHOW_SPAM, 241000, 100) {
     	public void run() {
     		gravatarController.stopGravatarTask(); //stop task if already running
     		controller.setStatusFilter("spam");
@@ -174,14 +197,14 @@ public class CommentsView extends BaseView implements ListActionListener {
     	}
     };
 
-    private MenuItem _loadMoreComments = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_LOADMORE, 242000, 200) {
+    private MenuItem _loadMoreComments = new MenuItem( _resources, WordPressResource.MENUITEM_LOADMORE, 322000, 200) {
     	public void run() {
     		gravatarController.stopGravatarTask(); //stop task if already running
     		controller.loadMoreComments();
     	}
     };
     
-    private MenuItem _refreshCommentsListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 243000, 100) {
+    private MenuItem _refreshCommentsListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 323000, 100) {
     	public void run() {
     		gravatarController.stopGravatarTask(); //stop task if already running
     		controller.refreshComments();
@@ -192,32 +215,25 @@ public class CommentsView extends BaseView implements ListActionListener {
     //called when remote loading is finished
     public void refresh(Comment[] comments){
     	dataScroller.delete(commentsList);
-    /*	if(pendingMode) {
+   /* 	String postStatusFilter = controller.getStatusFilter();
+    	//this filter on view is necessary when your have a filter applied 
+    	//(such as hold) and changing the status of a post it should not e visible 
+    	//anymore
+    	if(postStatusFilter != null && !postStatusFilter.equals("")) {
     		Vector pendingComments = new Vector();
     		for (int i = 0; i < comments.length; i++) {
     			Comment	comment = comments[i];
-    			if ( comment.getStatus().equalsIgnoreCase("hold") )
+    			if ( comment.getStatus().equalsIgnoreCase(postStatusFilter) )
     				pendingComments.addElement(comment);
-    			    			
     		}
-    		Comment[] onlyPending = new Comment[pendingComments.size()];
-    		pendingComments.copyInto(onlyPending);
-    		buildList(onlyPending);
+    		Comment[] filteredComments = new Comment[pendingComments.size()];
+    		pendingComments.copyInto(filteredComments);
+    		buildList(filteredComments);
     	} else {*/
     		buildList(comments);
     	//}
     }
-  /*  
-	private void showPendingComments() {
-		pendingMode = true;
-		refresh(controller.getCommentList());
-	}
-	
-	private void showAllComments() {
-		pendingMode = false;
-		refresh(controller.getCommentList());
-	}
-	*/
+
 	public boolean onClose()   {
 		gravatarController.deleteObservers(); //remove the observers but continue to working
 		gravatarController.stopGravatarTask(); //stop task if already running
@@ -271,17 +287,11 @@ public class CommentsView extends BaseView implements ListActionListener {
         		menu.add(_switchToBulkMode);
         	}
         }
-		
-		//if(pendingMode) {
-			menu.add(_showAllCommentItem);			
-		//} else {
-			menu.add(_showOnlyPendingCommentItem);
-	//	}
-			menu.add(_showSpamCommentsItem);
-		
-		//if(controller.isLoadMoreMenuItemAvailable())
+        
+		menu.add(_showAllCommentItem);			
+		menu.add(_showOnlyPendingCommentItem);
+		menu.add(_showSpamCommentsItem);
 		menu.add(_loadMoreComments);
-		
 		
         //Create the default menu.
         super.makeMenu(menu, instance);

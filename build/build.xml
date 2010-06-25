@@ -137,8 +137,7 @@
 			<property name="module.version" value="${release.major}.${release.minor}.${build.number}" />
 		</ant>
 	</target>
-	
-	
+		
 	<target name="simulatorOS47" depends="init, cleanOS47">
        
 		<property file="build/build.properties" />
