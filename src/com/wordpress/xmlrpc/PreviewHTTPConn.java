@@ -21,18 +21,18 @@ public class PreviewHTTPConn extends BlogConn  {
 	//we have overrided execute method, because there isn't xml-rpc conn, but only a simple http conn 
 	protected Object execute(String aCommand, Vector aArgs){
 		isWorking=true;
-		
+
 		HttpConnection conn = null;
 		byte[] response = null;
-		
+
 		try {
 			conn = (HttpConnection) ConnectionManager.getInstance().open(urlConnessione);
 			int rc = conn.getResponseCode();
 			if( rc == HttpConnection.HTTP_OK ){
-				
+
 				//read the response
 				InputStream in = conn.openInputStream();
-				
+
 				//read headers
 				String key;
 				for (int i = 0; (key = conn.getHeaderFieldKey(i)) != null; ++i) {
@@ -49,7 +49,7 @@ public class PreviewHTTPConn extends BlogConn  {
 						responseHeaders.put(headerName, headerValue);
 					}
 				}
-				
+
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				int c;
 				while ((c = in.read()) >= 0)
@@ -57,23 +57,18 @@ public class PreviewHTTPConn extends BlogConn  {
 					baos.write(c);
 				}
 				response = baos.toByteArray();
-				
+
 			} else {
-			    // deal with errors, warnings, redirections, etc.
+				// deal with errors, warnings, redirections, etc.
 				throw new Exception(""+conn.getResponseCode());
 			}
 
 		} catch (Exception e) {
-			 setErrorMessage(e, "A server communications error occurred:");
+			setErrorMessage(e, "A server communications error occurred:");
 		}
 		Log.trace("termine richiesta HTTP-GET");
 		isWorking=false;
 		return response;
-	}
-	
-
-	public Hashtable getResponseHeaders() {
-		return responseHeaders;
 	}
 
 	public void run() {
@@ -92,14 +87,13 @@ public class PreviewHTTPConn extends BlogConn  {
 			connResponse.setResponseObject(responseHash);
 		}
 		catch (Exception cce) {
-			setErrorMessage(cce, "Get Template error: Invalid server response");
+			setErrorMessage(cce, "Preview Error: Invalid server response");
 		}
 
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			Log.error("Get Template error: Notify error"); 		
+			Log.error("Preview Error: Notify error"); 		
 		}
 	}
 }
-

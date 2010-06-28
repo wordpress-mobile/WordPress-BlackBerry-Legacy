@@ -10,6 +10,8 @@ import java.io.UnsupportedEncodingException;
 
 import javax.microedition.io.HttpConnection;
 
+import com.wordpress.utils.log.Log;
+
 public class LocalHttpConn implements HttpConnection {
 	private InputStream is = null;
 
@@ -17,10 +19,24 @@ public class LocalHttpConn implements HttpConnection {
 		try {
 			is = new ByteArrayInputStream(html.getBytes("UTF-8"));
 		} catch (UnsupportedEncodingException e) {
-		
 		}
 	}
 	
+	public LocalHttpConn(String html, String encoding){
+		try {
+			is = new ByteArrayInputStream(html.getBytes(encoding));
+		} catch (UnsupportedEncodingException e) {
+			Log.trace("Response charset is not supported by LocalHttpConn, switiching to UTF-8");
+			try {
+				is = new ByteArrayInputStream(html.getBytes("UTF-8"));
+			} catch (UnsupportedEncodingException e2) {
+			}
+		}
+	}
+	
+	/*
+	 * Used to load images
+	 */
 	public LocalHttpConn(byte[] bits){
 		is = new ByteArrayInputStream(bits);
 	}

@@ -97,9 +97,9 @@ public class CommentsView extends BaseView implements ListActionListener {
     	}
 
     	String localizedStatusText = "";
-    	if (postStatusFilter.equals("hold")){
+    	if (postStatusFilter.equals(RecentCommentsController.PENDINGS_STATUS)){
     		localizedStatusText = _resources.getString(WordPressResource.LABEL_PENDINGS)+" ";
-    	} else if (postStatusFilter.equals("spam")) {
+    	} else if (postStatusFilter.equals(RecentCommentsController.SPAM_STATUS)) {
     		localizedStatusText = _resources.getString(WordPressResource.LABEL_SPAM)+" ";
     	}
 		//update comment number
@@ -174,43 +174,35 @@ public class CommentsView extends BaseView implements ListActionListener {
 
     private MenuItem _showOnlyPendingCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_SHOW_PENDINGS, 240000, 200) {
     	public void run() {
-    		//showPendingComments();
-    		gravatarController.stopGravatarTask(); //stop task if already running
-    		controller.setStatusFilter("hold");
-    		controller.refreshComments();
+    		controller.showCommentsByType(RecentCommentsController.PENDINGS_STATUS);
     	}
     };
 
     private MenuItem _showAllCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_SHOW_ALL, 240000, 200) {
     	public void run() {
-    		//showAllComments();
-    		gravatarController.stopGravatarTask(); //stop task if already running
     		controller.resetViewToAllComments();
     	}
     };
 
     private MenuItem _showSpamCommentsItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_SHOW_SPAM, 241000, 100) {
     	public void run() {
-    		gravatarController.stopGravatarTask(); //stop task if already running
-    		controller.setStatusFilter("spam");
-    		controller.refreshComments();
+    		controller.showCommentsByType(RecentCommentsController.SPAM_STATUS);    	
     	}
     };
 
-    private MenuItem _loadMoreComments = new MenuItem( _resources, WordPressResource.MENUITEM_LOADMORE, 322000, 200) {
+    private MenuItem _refreshCommentsListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 322000, 100) {
+    	public void run() {
+    		gravatarController.stopGravatarTask(); //stop task if already running
+    		controller.refreshComments();
+    	}
+    };
+    
+    private MenuItem _loadMoreComments = new MenuItem( _resources, WordPressResource.MENUITEM_LOADMORE, 323000, 200) {
     	public void run() {
     		gravatarController.stopGravatarTask(); //stop task if already running
     		controller.loadMoreComments();
     	}
     };
-    
-    private MenuItem _refreshCommentsListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 323000, 100) {
-    	public void run() {
-    		gravatarController.stopGravatarTask(); //stop task if already running
-    		controller.refreshComments();
-    	}
-    };
-            
 
     //called when remote loading is finished
     public void refresh(Comment[] comments){
@@ -288,11 +280,18 @@ public class CommentsView extends BaseView implements ListActionListener {
         	}
         }
         
-		menu.add(_showAllCommentItem);			
-		menu.add(_showOnlyPendingCommentItem);
-		menu.add(_showSpamCommentsItem);
+        if ( controller.getStatusFilter().equals("")) {
+        	menu.add(_showOnlyPendingCommentItem);
+        	menu.add(_showSpamCommentsItem);
+        } else if ( controller.getStatusFilter().equals(RecentCommentsController.PENDINGS_STATUS)) {
+        	menu.add(_showAllCommentItem);			
+        	menu.add(_showSpamCommentsItem);
+        } else {
+        	menu.add(_showAllCommentItem);
+        	menu.add(_showOnlyPendingCommentItem);
+        }
+        
 		menu.add(_loadMoreComments);
-		
         //Create the default menu.
         super.makeMenu(menu, instance);
     }

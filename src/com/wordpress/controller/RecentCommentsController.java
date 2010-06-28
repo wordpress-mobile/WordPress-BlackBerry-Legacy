@@ -39,7 +39,12 @@ public class RecentCommentsController extends BaseController {
 	protected int postID = -1; //no post id
 	protected int offset = 0;
 	protected int number = WordPressInfo.DEFAULT_DOWNLOADED_COMMENTS;
+	
+	public final static String SPAM_STATUS = "spam";
+	public final static String PENDINGS_STATUS = "hold";
+	public final static String NO_FILTER_STATUS = "";
 	protected String statusFilter = ""; //no post status
+	
 	protected GravatarController gravatarController;
 	protected CommentsTask task;
 	
@@ -71,7 +76,7 @@ public class RecentCommentsController extends BaseController {
 					Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
 					currentBlog.getPassword(), postID, statusFilter, offset, number);
 			
-	        connection.addObserver(new RefreshCommentsCallBack());  
+	        connection.addObserver(new LoadCommentsCallBack(statusFilter));  
 	        connectionProgressView= new ConnectionInProgressView(connMessage);
 	        connection.startConnWork(); //starts connection
 			int choice = connectionProgressView.doModal();
@@ -90,9 +95,15 @@ public class RecentCommentsController extends BaseController {
 	}
 	
 	public void resetViewToAllComments() {
-		setStatusFilter("");
-		loadCommentsFromCache();
-		view.refresh(commentList);
+		gravatarController.stopGravatarTask(); //stop task if already running
+		if(this.postID == -1) {
+			this.statusFilter = NO_FILTER_STATUS;
+			loadCommentsFromCache();
+			view.refresh(commentList);			
+		} else {
+			//comments per post
+			showCommentsByType(NO_FILTER_STATUS);
+		}
 	}
 	
 	//load comments from the main device cache
@@ -201,6 +212,24 @@ public class RecentCommentsController extends BaseController {
 		}
 	}
 	
+	public void showCommentsByType(String commentsStatus) {
+		gravatarController.stopGravatarTask(); //stop task if already running
+		String connMessage = _resources.getString(WordPressResource.CONN_LOADING_COMMENTS);
+
+		final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
+				Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
+				currentBlog.getPassword(), postID, commentsStatus, offset, number);
+		
+        connection.addObserver(new LoadCommentsCallBack(commentsStatus));  
+        connectionProgressView= new ConnectionInProgressView(connMessage);
+       
+        connection.startConnWork(); //starts connection
+		int choice = connectionProgressView.doModal();
+		if(choice==Dialog.CANCEL) {
+			connection.stopConnWork(); //stop the connection if the user click on cancel button
+		}
+	}
+	
 	public void refreshComments() {
 		String connMessage = _resources.getString(WordPressResource.CONN_REFRESH_COMMENTS);
 		
@@ -208,7 +237,7 @@ public class RecentCommentsController extends BaseController {
 				Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
 				currentBlog.getPassword(), postID, statusFilter, offset, number);
 		
-        connection.addObserver(new RefreshCommentsCallBack());  
+        connection.addObserver(new LoadCommentsCallBack(statusFilter));  
         connectionProgressView= new ConnectionInProgressView(connMessage);
        
         connection.startConnWork(); //starts connection
@@ -274,7 +303,7 @@ public class RecentCommentsController extends BaseController {
 	//true if we have set some filters (postID, offset, number, status)
 	public boolean isFilterActive() {
 		
-		if (!statusFilter.equalsIgnoreCase(""))
+		if (!statusFilter.equalsIgnoreCase(NO_FILTER_STATUS))
 			return true;
 
 		if(this.postID != -1 )
@@ -283,10 +312,7 @@ public class RecentCommentsController extends BaseController {
 		return false;
 	}
 	
-	public void setStatusFilter(String statusFilter) {
-		this.statusFilter = statusFilter;
-	}
-	
+
 	public String getStatusFilter() {
 		return this.statusFilter;
 	}
@@ -504,7 +530,14 @@ public class RecentCommentsController extends BaseController {
 		}	
 	}
 	
-	private class RefreshCommentsCallBack implements Observer {
+	private class LoadCommentsCallBack implements Observer {
+
+		private final String commentsStatus;
+
+		public LoadCommentsCallBack(String commentsStatus) {
+			super();
+			this.commentsStatus = commentsStatus;
+		}
 
 		public void update(Observable observable, final Object object) {
 
@@ -523,6 +556,7 @@ public class RecentCommentsController extends BaseController {
 			}
 
 			respVector = (Vector) resp.getResponseObject(); // the response from wp server
+			statusFilter = commentsStatus; //update the main status only after succeeded conn
 
 			if(!isFilterActive()) {
 				try{

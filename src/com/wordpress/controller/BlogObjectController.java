@@ -486,7 +486,7 @@ public abstract class BlogObjectController extends BaseController {
 			html = StringUtils.replaceAll(html, "!$categories$!", ""); //The pages have no categories
 		}
 		
-		UiApplication.getUiApplication().pushScreen(new PreviewView(html));	
+		UiApplication.getUiApplication().pushScreen(new PreviewView(html, null));	
 	}
 	
 	protected String getTheSignaturePreview() {
@@ -522,17 +522,37 @@ public abstract class BlogObjectController extends BaseController {
 					}
 					
 					if(!resp.isError()) {
+						String encoding = null;
 						try {
 							Hashtable responseHash =  (Hashtable) resp.getResponseObject();
 							byte[] responseContent  = (byte[])responseHash.get("data");
-							//Hashtable responseHeaders = (Hashtable) responseHash.get("headers");
-							//final String contentType= (String) responseHeaders.get("Content-Type");
-							html = new String(responseContent, "UTF-8");
+							Hashtable responseHeaders =  (Hashtable)responseHash.get("headers");
+
+							Log.trace("Finding respose content type from http header");		
+				    		String contentType = (String) responseHeaders.get("Content-Type");
+				    		if(contentType != null && contentType.indexOf("charset") > -1 ) {
+				    			String[] encodings = StringUtils.split(contentType, "=");
+				    			encoding = encodings[1];
+				    			encoding = StringUtils.replaceAll(encoding, ";", "");
+				    			
+				    			if(!StringUtils.isDeviceSupportEncoding(encoding)){
+				    				//set encoding to UTF-8 if response encoding is not supported
+				    				Log.trace("Response charset is not supported by device");
+				    				encoding = "UTF-8";
+				    			}
+				    		} else {
+				    			Log.debug("Response Content-type without charset");
+				    			encoding = "UTF-8";
+				    		}
+				    		Log.trace("Selected Encoding: "+ encoding);
+							html = new String(responseContent, encoding);
 						} catch (Exception e) {
 							startLocalPreview(title,content,tags, categories);
 							return;
-						}						
-						UiApplication.getUiApplication().pushScreen(new PreviewView(html));							
+						}
+						
+						UiApplication.getUiApplication().pushScreen(new PreviewView(html, encoding));
+						
 					} else {
 						startLocalPreview(title,content,tags, categories);
 					}

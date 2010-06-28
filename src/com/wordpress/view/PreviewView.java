@@ -38,10 +38,9 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 	private InputConnection  _currentConnection;
 	private BrowserContent browserContent = null;
 	
-	public PreviewView(String html) {
+	public PreviewView(String html, String encoding) {
 		super(_resources.getString(WordPressResource.TITLE_PREVIEW));
 				
-        
 		_renderingSession = RenderingSession.getNewInstance();        
         // Enable javascript.
        // _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.JAVASCRIPT_ENABLED, true);
@@ -55,14 +54,18 @@ public class PreviewView  extends BaseView implements RenderingApplication {
         _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ADD_LINK_ADDRESS_MENU_ITEM, false);
         _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ALLOW_POPUPS, false);
 
-     //   _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.OVERWRITE_CHARSET_MODE, true);
-      //  _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.DEFAULT_CHARSET_VALUE, "UTF-8");
-        
         PrimaryResourceFetchThread thread = new PrimaryResourceFetchThread(html, null, this);
+        
+        if (encoding != null) {
+        	_renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.OVERWRITE_CHARSET_MODE, true);
+        	_renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.DEFAULT_CHARSET_VALUE, encoding);
+        	thread.setEncoding(encoding);
+        }
+        
         thread.start();       
 	}
 	
-   
+	
 	  public void processConnection(InputConnection connection, Event e) 
 	    {
 	        // Cancel previous request.
@@ -328,8 +331,10 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 	    private PreviewView _application;
 	    private Event _event;
 		private final String html;
+		private String encoding;
 	    
-	    PrimaryResourceFetchThread(String html, Event event, PreviewView application) 
+
+		PrimaryResourceFetchThread(String html, Event event, PreviewView application) 
 	    {
 	        this.html = html;
 			_application = application;
@@ -338,9 +343,19 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 
 	    public void run() 
 	    {
-	    	HttpConnection connection = new LocalHttpConn(html);
+	    	HttpConnection connection;
+	    	if(encoding != null) {
+	    		connection = new LocalHttpConn(html, encoding);
+	    	} else {
+	    		connection = new LocalHttpConn(html);
+	    	}
 	        _application.processConnection(connection, _event);        
 	    }
+	    
+	    public void setEncoding(String encoding) {
+	    	this.encoding = encoding;
+	    }
+	    
 	}
 		
     //override onClose() to stop all internet activity immediatly 

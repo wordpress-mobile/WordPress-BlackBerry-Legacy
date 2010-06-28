@@ -310,7 +310,7 @@ public class BlogAuthConn extends BlogConn  {
 			for (int i = 0; i < blogs.size(); i++) {
 				blogData = (Hashtable) blogs.elementAt(i);
 			
-				Log.trace("blogId: "+(String) blogData.get("blogid"));
+				Log.trace("blogId: "+String.valueOf(blogData.get("blogid")));
 				Log.trace("blogName: "+(String) blogData.get("blogName"));
 				Log.trace("blogURL: " +(String) blogData.get("url"));
 				Log.trace("blogXMLRPC: " +(String) blogData.get("xmlrpc"));
@@ -327,15 +327,19 @@ public class BlogAuthConn extends BlogConn  {
 				if(url == null || url.equalsIgnoreCase(""))
 					continue; //skip this blog
 				
-				Blog currentBlog= new Blog((String)blogData.get("blogid") , (String)blogData.get("blogName"),
-						(String)blogData.get("url"), url, this.mUsername, this.mPassword);
+				Blog currentBlog= new Blog(String.valueOf(blogData.get("blogid")),
+						(String)blogData.get("blogName"),
+						(String)blogData.get("url"), 
+						url, 
+						this.mUsername, 
+						this.mPassword);
 				
 				myBlogs[i]=currentBlog;		
 			}		
 			
 			connResponse.setResponseObject(myBlogs);
 		} catch (ClassCastException cce) {
-			setErrorMessage(cce, "loadBlogs error");
+			setErrorMessage(cce, "Loading Error");
 		} catch (Exception e) {
 			setErrorMessage(e, "Invalid server response");
 		}
@@ -343,7 +347,7 @@ public class BlogAuthConn extends BlogConn  {
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			System.out.println("Blog Auth Notify Error"); 
+			System.out.println("Loading Error"); 
 		}
 	}
 }

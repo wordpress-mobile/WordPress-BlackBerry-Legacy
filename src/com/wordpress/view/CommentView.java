@@ -4,7 +4,6 @@ package com.wordpress.view;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.Vector;
 
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.system.Bitmap;
@@ -225,13 +224,15 @@ public class CommentView extends StandardBaseView {
 			 } else {
 				 status.setText(newComment.getStatus());
 			 }
-
 			
 			 //remove unused menu Item
 			removeMenuItem(_holdCommentItem);
 			removeMenuItem(_spamCommentItem);
 			removeMenuItem(_approveCommentItem);
-
+			
+			if(commentContent.isDirty())
+				addMenuItem(_updateCommentItem);
+			
 			if(comment.getStatus().equalsIgnoreCase("approve")) {
 				addMenuItem(_holdCommentItem);
 				addMenuItem(_spamCommentItem);	
@@ -257,6 +258,13 @@ public class CommentView extends StandardBaseView {
 		else 
 			 commentContent.setText("");
 	 }
+
+	 private MenuItem _updateCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_UPDATE, 99000, 100) {
+		 public void run() {
+			 Comment[] selectedComment = {comment};
+			 controller.updateComments(selectedComment, comment.getStatus(), commentContent.getText());
+		 }
+	 };
 	 
     private MenuItem _approveCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_APPROVE, 100000, 100) {
         public void run() {
@@ -282,7 +290,6 @@ public class CommentView extends StandardBaseView {
         }
     };
     
-    
     private MenuItem _deleteCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_DELETE, 103000, 100) {
     	public void run() {
     		Comment[] selectedComment =  {comment};
@@ -300,7 +307,7 @@ public class CommentView extends StandardBaseView {
     	}
     };
     
-    private MenuItem _nextCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_NEXT, 100, 5) {
+    private MenuItem _nextCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_NEXT, 1000, 50) {
     	public void run() {
     		
     		Comment next = getNextComment(comment);
@@ -313,7 +320,7 @@ public class CommentView extends StandardBaseView {
     	}
     };
     
-    private MenuItem _prevCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_PREV, 110, 6) {
+    private MenuItem _prevCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_PREV, 1100, 60) {
     	public void run() {
     		
     		Comment prev = getPreviousComment(comment);
