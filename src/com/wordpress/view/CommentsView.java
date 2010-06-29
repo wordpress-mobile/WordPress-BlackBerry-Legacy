@@ -29,23 +29,25 @@ public class CommentsView extends BaseView implements ListActionListener {
 	private ListField commentsList;
 	//private boolean pendingMode = false; //a flag to show only pending comments
 	
-	 public CommentsView(RecentCommentsController _controller, Comment[] comments, GravatarController gvtCtrl, String title) {
+	 public CommentsView(RecentCommentsController _controller, GravatarController gvtCtrl, String title) {
 	    	super(_resources.getString(WordPressResource.TITLE_COMMENTS)+" > "+ title, MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 	    	this.controller=_controller;
 			this.gravatarController = gvtCtrl;
-	        this.setSubTitleText(_resources.getString(WordPressResource.MENUITEM_COMMENTS)+" "
-	        		+ (comments == null ? 0 : comments.length));
+	      //  this.setSubTitleText(_resources.getString(WordPressResource.MENUITEM_COMMENTS)+" "
+	       // 		+ (comments == null ? 0 : comments.length));
 	        //A Vertical FM to hold the comments list
 	        dataScroller = new VerticalFieldManager(VerticalFieldManager.VERTICAL_SCROLL
 	                 | VerticalFieldManager.VERTICAL_SCROLLBAR);
 			add(dataScroller);
-			buildList(comments);
+			buildList();
 	 }
 
 	//create the list. if comments is null you can't manage comments 
-	private void buildList(Comment[] comments) {
+	private void buildList() {
 		removeAllMenuItems();
-        
+		
+		Comment[] comments = getComments();
+		
 		boolean[] selectedCom = null;
 		if(comments != null) {
 			selectedCom = new boolean[comments.length];	
@@ -75,15 +77,35 @@ public class CommentsView extends BaseView implements ListActionListener {
 		
 		if(!gravatarController.isRunning()) {
 			gravatarController.startGravatarTask(emails);
-		} else {
-			Log.trace("...AAAAAAAAAAAAA...");
 		}
 	}
 	
-	private void updateSubTitle(Comment[] comments) {
-		int count = 0;
+	private Comment[] getComments() {
+		Comment[] comments = controller.getCommentList();
 		String postStatusFilter = controller.getStatusFilter();
     	//this filter on view is necessary when your have a filter applied 
+    	//(such as hold) and changing the status of a post it should not e visible 
+    	//anymore
+    	if(postStatusFilter != null && !postStatusFilter.equals("")) {
+    		Vector pendingComments = new Vector();
+    		for (int i = 0; i < comments.length; i++) {
+    			Comment	comment = comments[i];
+    			if ( comment.getStatus().equalsIgnoreCase(postStatusFilter) )
+    				pendingComments.addElement(comment);
+    		}
+    		Comment[] filteredComments = new Comment[pendingComments.size()];
+    		pendingComments.copyInto(filteredComments);
+    		
+    		comments = filteredComments;
+    	} 
+    	
+    	return comments;
+	}
+	
+	private void updateSubTitle(Comment[] comments) {
+		int count = comments.length;;
+		String postStatusFilter = controller.getStatusFilter();
+    /*	//this filter on view is necessary when your have a filter applied 
     	//(such as hold) and changing the status of a post it should not e visible 
     	//anymore
     	if(postStatusFilter != null && !postStatusFilter.equals("")) {
@@ -95,10 +117,10 @@ public class CommentsView extends BaseView implements ListActionListener {
     	} else {
     		count = comments.length;
     	}
-
+*/
     	String localizedStatusText = "";
     	if (postStatusFilter.equals(RecentCommentsController.PENDINGS_STATUS)){
-    		localizedStatusText = _resources.getString(WordPressResource.LABEL_PENDINGS)+" ";
+    		localizedStatusText = _resources.getString(WordPressResource.LABEL_PENDING)+" ";
     	} else if (postStatusFilter.equals(RecentCommentsController.SPAM_STATUS)) {
     		localizedStatusText = _resources.getString(WordPressResource.LABEL_SPAM)+" ";
     	}
@@ -125,7 +147,7 @@ public class CommentsView extends BaseView implements ListActionListener {
     private MenuItem _openCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_OPEN, 1000, 50) {
     	public void run() {
     		Comment selectedComment = getSelectedComment()[0]; //in this case return array with only one comment
-    		controller.showCommentView(selectedComment);
+    		showCommentView(selectedComment);
     	}
     };
             
@@ -205,25 +227,9 @@ public class CommentsView extends BaseView implements ListActionListener {
     };
 
     //called when remote loading is finished
-    public void refresh(Comment[] comments){
+    public void refresh(){
     	dataScroller.delete(commentsList);
-   /* 	String postStatusFilter = controller.getStatusFilter();
-    	//this filter on view is necessary when your have a filter applied 
-    	//(such as hold) and changing the status of a post it should not e visible 
-    	//anymore
-    	if(postStatusFilter != null && !postStatusFilter.equals("")) {
-    		Vector pendingComments = new Vector();
-    		for (int i = 0; i < comments.length; i++) {
-    			Comment	comment = comments[i];
-    			if ( comment.getStatus().equalsIgnoreCase(postStatusFilter) )
-    				pendingComments.addElement(comment);
-    		}
-    		Comment[] filteredComments = new Comment[pendingComments.size()];
-    		pendingComments.copyInto(filteredComments);
-    		buildList(filteredComments);
-    	} else {*/
-    		buildList(comments);
-    	//}
+   		buildList();
     }
 
 	public boolean onClose()   {
@@ -299,8 +305,14 @@ public class CommentsView extends BaseView implements ListActionListener {
 	public void actionPerformed() {
 		if(commentsList != null && commentsList.getSize() > 0) {
 			Comment selectedComment = getSelectedComment()[0]; //in this case return array with only one comment
-			controller.showCommentView(selectedComment);
+			showCommentView(selectedComment);
 		}
+	}
+	
+	private void showCommentView(Comment comment) {	
+		Comment[] comments = getComments();
+		CommentView commentView= new CommentView(controller, comment, comments, gravatarController);
+		UiApplication.getUiApplication().pushScreen(commentView);
 	}
 
 	public BaseController getController() {

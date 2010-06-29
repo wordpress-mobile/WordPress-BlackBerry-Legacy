@@ -46,7 +46,7 @@ public class WordPress extends UiApplication implements WordPressResource {
     	try {
     		//Open the RuntimeStore.
     		RuntimeStore store = RuntimeStore.getRuntimeStore();
-    		//Obtain the reference of WordPress for BlackBerry.
+    		//Obtain the reference to WordPress for BlackBerry.
     		final Object obj = store.get(WordPressInfo.APPLICATION_ID);
     		//If obj is null, there is no current reference
     		//to WordPress for BlackBerry
@@ -265,7 +265,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 			//Store this application istance into recordstore
 			SharingHelper.storeAppIstance(UiApplication.getUiApplication());
 			
-     		timer.schedule(new CountDown(), 3000); //3sec splash
+     		timer.schedule(new CountDown(), 1500); //1,5 sec splash
 			
 			// Initialize the notification handler only if notification interval is != 0
 			if (appPrefs.getUpdateTimeIndex() != 0)

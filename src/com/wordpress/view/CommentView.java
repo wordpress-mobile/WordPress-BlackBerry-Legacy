@@ -55,12 +55,14 @@ public class CommentView extends StandardBaseView {
 	private LabelField status; //this information can change by user interaction
 	private HtmlTextField commentContent;
 	private final Hashtable commentStatusList;
+	private Comment[] comments;
 	
-	 public CommentView(RecentCommentsController _controller, Comment comment, Hashtable commentStatusList, GravatarController gvtCtrl) {
+	 public CommentView(RecentCommentsController _controller, Comment comment, Comment[] comments, GravatarController gvtCtrl) {
 	    	super(_resources.getString(WordPressResource.TITLE_COMMENTVIEW), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 	    	this.controller=_controller;
 			this.comment = comment;
-			this.commentStatusList = commentStatusList;
+			this.comments = comments;
+			this.commentStatusList = controller.getCommentStatusList();
 			this.gvtCtrl = gvtCtrl;
 	   
 	        //row from
@@ -154,7 +156,7 @@ public class CommentView extends StandardBaseView {
 		 this.comment = newComment;
 				 
 		 this.setTitleText(_resources.getString(WordPressResource.LABEL_COMMENT) + " "
-				 + getCommentIndex(comment)+"/"+ getCommentsCount());
+				 + (getCommentIndex(comment)+1)+"/"+ comments.length);
 		 
 		 String authorEmailStr = comment.getAuthorEmail();
 		 String fullScreenGravatarURL = null;
@@ -297,13 +299,25 @@ public class CommentView extends StandardBaseView {
     		if (next == null)
     			next = getPreviousComment(selectedComment[0]);
     		    		
+    		//delete the comment from the main cache
     		controller.deleteComments(selectedComment);
-    		
+
+    		//update the local comments cache
     		if( next != null ) {
+    			int removedElementIndex = getCommentIndex(comment);
+    			Comment[] newCommentList = new Comment[comments.length-1];
+    			int j = 0;
+    			for (int i = 0; i < comments.length; i++) {
+    				if(i != removedElementIndex) {
+    					newCommentList[j] = comments[i];
+    					j++;
+    				}
+				}
+    			comments = newCommentList;
+    		
     			setViewValues(next);
     		} else
     			controller.backCmd();
-    		
     	}
     };
     
@@ -322,7 +336,6 @@ public class CommentView extends StandardBaseView {
     
     private MenuItem _prevCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_PREV, 1100, 60) {
     	public void run() {
-    		
     		Comment prev = getPreviousComment(comment);
     		if (prev == null)
     			controller.displayMessage("There arent next comments");
@@ -339,39 +352,30 @@ public class CommentView extends StandardBaseView {
 		 }
 	 };
 
-	 private int getCommentsCount() {
-		 return controller.getCommentList().length;
-	 }
-
-
 	 private int  getCommentIndex(Comment currentComment) {
-		 Comment[] commentList = controller.getCommentList();
 		 int index = -1;
-		 for (int i = 0; i < commentList.length; i++) {
-			 Comment	comment = commentList[i];
+		 for (int i = 0; i < comments.length; i++) {
+			 Comment	comment = comments[i];
 			 if (comment.getID() == currentComment.getID()) {
 				 index = i;
 				 break;
 			 }
 		 }
-		 return index+1;
+		 return index;
 	 }
 
 	 private Comment getPreviousComment(Comment currentComment) {
-		 Comment[] commentList = controller.getCommentList();
 		 int index = -1;
-		 for (int i = 0; i < commentList.length; i++) {
-			 Comment	comment = commentList[i];
+		 for (int i = 0; i < comments.length; i++) {
+			 Comment	comment = comments[i];
 			 if (comment.getID() == currentComment.getID()) {
 				 index = i;
 				 break;
 			 }
 		 }
-
-		 if(commentList.length > index+1) {
-			 return commentList[index+1];
+		 if(comments.length > index+1) {
+			 return comments[index+1];
 		 } else
-
 			 return null;
 	 }
 
@@ -381,10 +385,9 @@ public class CommentView extends StandardBaseView {
 	  * @return the next comment from the comments list.
 	  */
 	 private Comment getNextComment(Comment currentComment){
-		 Comment[] commentList = controller.getCommentList();
 		 int index = -1;
-		 for (int i = 0; i < commentList.length; i++) {
-			 Comment	comment = commentList[i];
+		 for (int i = 0; i < comments.length; i++) {
+			 Comment	comment = comments[i];
 			 if (comment.getID() == currentComment.getID()) {
 				 index = i;
 				 break;
@@ -392,7 +395,7 @@ public class CommentView extends StandardBaseView {
 		 }
 		 //index = 0 mean that currentComment is the most recent comment
 		 if(index > 0) {
-			 return commentList[index-1];
+			 return comments[index-1];
 		 } else
 
 			 return null;				

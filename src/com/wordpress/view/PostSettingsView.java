@@ -73,7 +73,8 @@ public class PostSettingsView extends StandardBaseView {
 		
 		rowSignature = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
-        		| Manager.NO_VERTICAL_SCROLL);
+        		| Manager.NO_VERTICAL_SCROLL
+        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
 		rowSignature.add(
         		GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_SIGNATURE_OPTIONS),Color.BLACK)
         		);
@@ -83,7 +84,7 @@ public class PostSettingsView extends StandardBaseView {
 		signatureField = new BasicEditField(_resources.getString(WordPressResource.LABEL_SIGNATURE)+": ", signature, 1000, Field.EDITABLE);
 		signatureField.setMargin(5, 0, 5, 0);
 		rowSignature.add(signatureField);
-		insert(rowSignature, 4);
+		insert(rowSignature, 2);
 	}
 	
 	//used from page view
@@ -144,8 +145,7 @@ public class PostSettingsView extends StandardBaseView {
         //row resize Videos
 		BorderedFieldManager rowVideoPressOptions = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
-        		| Manager.NO_VERTICAL_SCROLL
-        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
+        		| Manager.NO_VERTICAL_SCROLL );
 		
 		 LabelField lblTitleVideoPress = GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_VIDEOPRESS_OPTIONS),
 				 Color.BLACK);

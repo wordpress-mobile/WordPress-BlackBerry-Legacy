@@ -23,7 +23,6 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.CommentReplyView;
-import com.wordpress.view.CommentView;
 import com.wordpress.view.CommentsView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConnResponse;
@@ -62,7 +61,7 @@ public class RecentCommentsController extends BaseController {
 		
 		if (isFilterActive()) {
 			//when a filter is applied to the view, comments are loaded from the server and not from cache
-			view= new CommentsView(this, commentList, gravatarController, currentBlog.getName());
+			view= new CommentsView(this, gravatarController, currentBlog.getName());
 			if (postTitle != null) {
 				String viewTitle = _resources.getString(WordPressResource.TITLE_COMMENTS);
 				viewTitle+= " > "+postTitle;
@@ -85,7 +84,7 @@ public class RecentCommentsController extends BaseController {
 			}
 		} else {
 			loadCommentsFromCache();
-			view = new CommentsView(this, commentList, gravatarController, currentBlog.getName());
+			view = new CommentsView(this, gravatarController, currentBlog.getName());
 			UiApplication.getUiApplication().pushScreen(view);
 		}
 	}
@@ -94,12 +93,16 @@ public class RecentCommentsController extends BaseController {
 		return commentList;
 	}
 	
+	public Hashtable getCommentStatusList() {
+		return currentBlog.getCommentStatusList();
+	}
+	
 	public void resetViewToAllComments() {
 		gravatarController.stopGravatarTask(); //stop task if already running
 		if(this.postID == -1) {
 			this.statusFilter = NO_FILTER_STATUS;
 			loadCommentsFromCache();
-			view.refresh(commentList);			
+			view.refresh();			
 		} else {
 			//comments per post
 			showCommentsByType(NO_FILTER_STATUS);
@@ -123,11 +126,6 @@ public class RecentCommentsController extends BaseController {
 		}
 	}
 		
-	public void showCommentView(Comment comment) {	
-		CommentView commentView= new CommentView(this, comment, currentBlog.getCommentStatusList(), gravatarController);
-		UiApplication.getUiApplication().pushScreen(commentView);
-	}
-	
 	public void showReplyView(Comment comment) {	
 		CommentReplyView commentView= new CommentReplyView(currentBlog, this, comment, gravatarController);
 		UiApplication.getUiApplication().pushScreen(commentView);
@@ -465,7 +463,7 @@ public class RecentCommentsController extends BaseController {
 			if(connectionProgressView != null)
 				UiApplication.getUiApplication().invokeLater(new Runnable() {
 					public void run() {
-						view.refresh(commentList);
+						view.refresh();
 					}
 				});		 
 		}
@@ -515,7 +513,7 @@ public class RecentCommentsController extends BaseController {
 				
 				UiApplication.getUiApplication().invokeLater(new Runnable() {
 					public void run() {						
-						view.refresh(commentList);
+						view.refresh();
 					}
 				});
 				
@@ -592,7 +590,7 @@ public class RecentCommentsController extends BaseController {
 
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
-					view.refresh(commentList);
+					view.refresh();
 				}
 			});
 		}
@@ -641,7 +639,7 @@ public class RecentCommentsController extends BaseController {
 
 				UiApplication.getUiApplication().invokeLater(new Runnable() {
 					public void run() {
-						view.refresh(commentList);						
+						view.refresh();						
 					}
 				});
 				backCmd();
@@ -711,7 +709,7 @@ public class RecentCommentsController extends BaseController {
 			
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
-					view.refresh(commentList);
+					view.refresh();
 				}
 			});
 			

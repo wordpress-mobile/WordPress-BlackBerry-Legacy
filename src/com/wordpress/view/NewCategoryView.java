@@ -12,6 +12,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Category;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.container.BorderedFieldManager;
 
 
@@ -62,11 +63,14 @@ public class NewCategoryView extends StandardBaseView {
     
     private MenuItem _newCategoryContextMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_POST_NEWCATEGORY, 10, 2) {
         public void run() {
-        	
         	int parentCatValue= parentCat.getSelectedIndex()-1; //subtract -1 because we add one element at the beginning
         	int id=0;
-        	if(parentCatValue > 0 )
-        		id = Integer.parseInt( blogCategories[parentCatValue].getId() );
+        	try {
+        		if(parentCatValue >= 0 )
+        			id = Integer.parseInt( blogCategories[parentCatValue].getId() );
+			} catch (Exception e) {
+				Log.error(e, "Error while reading parent category ID");
+			}
         	controller.newCategory(catField.getText(), id);       	
         }
     };
