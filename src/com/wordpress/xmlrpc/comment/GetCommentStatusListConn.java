@@ -32,7 +32,7 @@ public class GetCommentStatusListConn extends BlogConn  {
             connResponse.setResponseObject(commentData);
  			}
 			catch (Exception e) {
-				setErrorMessage(e, "GetCommentStatusList error: Invalid server response");
+				setErrorMessage(e, "Error while loading comments status list");
 	        }
 			
 			try {

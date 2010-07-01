@@ -154,7 +154,7 @@ public class CommentsView extends BaseView implements ListActionListener {
     private MenuItem _approveCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_APPROVE, 70000, 100) {
         public void run() {
         	Comment[] selectedComment = getSelectedComment();
-        	controller.updateComments(selectedComment, "approve", null);
+        	controller.updateComments(selectedComment, "approve");
         }
     };
     
@@ -162,14 +162,14 @@ public class CommentsView extends BaseView implements ListActionListener {
     private MenuItem _holdCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_HOLD, 70000, 100) {
         public void run() {
         	Comment[] selectedComment = getSelectedComment();
-        	controller.updateComments(selectedComment, "hold", null);
+        	controller.updateComments(selectedComment, "hold");
         }
     };
     
     private MenuItem _spamCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_SPAM, 70000, 100) {
         public void run() {
         	Comment[] selectedComment = getSelectedComment();
-        	controller.updateComments(selectedComment, "spam", null);
+        	controller.updateComments(selectedComment, "spam");
         }
     };
     

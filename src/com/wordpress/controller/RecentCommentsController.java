@@ -147,33 +147,19 @@ public class RecentCommentsController extends BaseController {
 		}
 	}
 	
-	public void updateComments(Comment[] comments, String status, String commentContent) {
+	/* single comment moderation */
+	public void updateComment(Comment[] comments) {
 		Queue connectionsQueue = new Queue();		
 		boolean isModifiedComments = false; //true if there are comments that needs update
 		
 		for (int i = 0; i < comments.length; i++) {
-
 			Comment comment = comments[i];
-			boolean flag = false;
-			
-			if(commentContent != null && !commentContent.equalsIgnoreCase(comment.getContent()))
-				flag = true;
-				
-			if (!comment.getStatus().equals(status))
-				flag = true;
-			
-			if (flag) {
-				comment.setStatus(status);
-				if(commentContent != null)
-					comment.setContent(commentContent);
-	
-				EditCommentConn conn = new EditCommentConn(currentBlog.getXmlRpcUrl(), currentBlog.getUsername(),
-						currentBlog.getPassword(), currentBlog.getId(), comment);
-				connectionsQueue.push(conn);
-				isModifiedComments = true;
-			}
+			EditCommentConn conn = new EditCommentConn(currentBlog.getXmlRpcUrl(), currentBlog.getUsername(),
+					currentBlog.getPassword(), currentBlog.getId(), comment);
+			connectionsQueue.push(conn);
+			isModifiedComments = true;
 		}
-		
+
 		if(!isModifiedComments) return; //there aren't modified comments
 		
 		task = new CommentsTask(connectionsQueue);
@@ -188,6 +174,43 @@ public class RecentCommentsController extends BaseController {
 		}
 	}
 	
+	/* bulk comment moderations */
+	public void updateComments(Comment[] comments, String status) {
+		Queue connectionsQueue = new Queue();		
+		boolean isModifiedComments = false; //true if there are comments that needs update
+
+		for (int i = 0; i < comments.length; i++) {
+
+			Comment comment = comments[i];
+			boolean flag = false;
+
+			if (!comment.getStatus().equals(status))
+				flag = true;
+
+			if (flag) {
+				comment.setStatus(status);
+
+				EditCommentConn conn = new EditCommentConn(currentBlog.getXmlRpcUrl(), currentBlog.getUsername(),
+						currentBlog.getPassword(), currentBlog.getId(), comment);
+				connectionsQueue.push(conn);
+				isModifiedComments = true;
+			}
+		}
+
+		if(!isModifiedComments) return; //there aren't modified comments
+
+		task = new CommentsTask(connectionsQueue);
+		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
+		task.setProgressListener(new ModifyCommentTaskListener(comments));
+		//push into the Runner
+		WordPressCore.getInstance().getTasksRunner().enqueue(task);
+
+		int choice = connectionProgressView.doModal();
+		if(choice == Dialog.CANCEL) {
+			task.stop();
+		}
+	}
+
 	public void deleteComments(Comment[] deleteComments) {
 		Queue connectionsQueue = new Queue();
 		for (int i = 0; i < deleteComments.length; i++) {

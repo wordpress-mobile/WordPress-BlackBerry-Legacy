@@ -20,8 +20,8 @@ public class ClickableLabelField extends LabelField {
 	
 	protected ResourceBundle _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
 	protected int textColor = Color.GRAY;
+	protected String contextMenuItemLabel = _resources.getString(WordPressResource.MENUITEM_OPEN);
 	
-
 	public ClickableLabelField(String text,  long style) {
 		super(text, style);
 	}
@@ -112,7 +112,10 @@ public class ClickableLabelField extends LabelField {
   	}
   	//#endif
 	 
-      
+  
+  	public void setContextMenuText(String text) {
+  		myContextMenuItemA.setText(text);
+  	}
 	 
   	protected MenuItem myContextMenuItemA = new MenuItem(_resources.getString(WordPressResource.MENUITEM_OPEN), 10, 2) {
           public void run() {

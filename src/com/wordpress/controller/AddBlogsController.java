@@ -144,7 +144,7 @@ public class AddBlogsController extends BaseController{
 				if(e != null && e.getMessage()!= null ) {
 					displayMessage("Error while adding blog: " + "\n" + e.getMessage());
 				} else {
-					displayMessage("Error while adding blog: ");			
+					displayMessage("Error while adding blog ");			
 				}
 			}
 		}

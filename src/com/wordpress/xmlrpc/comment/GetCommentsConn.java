@@ -49,12 +49,12 @@ public class GetCommentsConn extends BlogConn  {
 	        connResponse.setResponseObject(comments);
 		
 		} catch (Exception cce) {
-			setErrorMessage(cce, "loadPosts error");	
+			setErrorMessage(cce, "Error while loading comments");	
 		}
 		try {
 			notifyObservers(connResponse);
 		} catch (Exception e) {
-			Log.error("Recent Post Notify Error");
+			Log.error("Error while loading comments: Notify Error");
 		}
 	}
-	}
+}

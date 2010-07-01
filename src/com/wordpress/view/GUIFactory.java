@@ -96,6 +96,7 @@ public class GUIFactory {
 	 public static synchronized LabelField createURLLabelField(String label, final String url, long style) {
 		 ClickableLabelField clickableLabelField = new ClickableLabelField(label, LabelField.FOCUSABLE | style );
 		 clickableLabelField.setTextColor(Color.BLUE);
+		 clickableLabelField.setContextMenuText(_resources.getString(WordPressResource.LABEL_VISIT_SITE));
 		 
 		 FieldChangeListener listener = new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {

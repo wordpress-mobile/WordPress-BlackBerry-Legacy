@@ -44,7 +44,7 @@ public class DeleteCommentConn extends BlogConn  {
 				connResponse.setResponseObject(response);
 
 			} catch (Exception e) {
-				setErrorMessage(e, "DeleteComment error: Invalid server response");
+				setErrorMessage(e, "Error while deleting comment");
 			}
 			
 			try {

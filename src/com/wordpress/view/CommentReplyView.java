@@ -151,14 +151,12 @@ public class CommentReplyView extends StandardBaseView {
 
 	
 	public boolean onClose()   {
-    	Log.debug("daniloercolipresente");
 		if(!replyContent.isDirty()) {
 			controller.backCmd();
 			return true; //if no change 
 		}
 		
 		InquiryView infoView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_COMMENT_LOST));
-    	
     	int choice=infoView.doModal();  
     	if (choice == Dialog.YES) {
     		controller.backCmd();

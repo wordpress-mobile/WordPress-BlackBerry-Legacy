@@ -13,18 +13,20 @@ import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.TouchGesture;
 import net.rim.device.api.ui.TouchEvent;
 //#endif
+import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.BitmapField;
+import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
-import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
@@ -37,19 +39,18 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.container.BorderedFieldManager;
-import com.wordpress.view.container.BorderedFocusChangeListenerPatch;
 
 public class CommentView extends StandardBaseView {
 	
     private RecentCommentsController controller= null;
     private final GravatarController gvtCtrl;
-    private HorizontalFieldManager rowFrom;
-    private VerticalFieldManager rowFromTextManager;
 	private Comment comment; 
-	private LabelField authorName;
-	private LabelField authorEmail;
-	private LabelField authorUrl;
+	private BorderedFieldManager outerManagerFrom;
+	private BasicEditField authorName;
+	private BasicEditField authorEmail;
+	private BasicEditField authorUrl;
 	private BitmapField gravatarBitmapField;
+	private LabelField visitSiteLabelField;
 	private LabelField title;
 	private LabelField date;
 	private LabelField status; //this information can change by user interaction
@@ -66,35 +67,39 @@ public class CommentView extends StandardBaseView {
 			this.gvtCtrl = gvtCtrl;
 	   
 	        //row from
-	        BorderedFieldManager outerManagerFrom = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
+	        outerManagerFrom = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
 	        
 			LabelField lblCommentAuthor = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_AUTHOR),
 					Color.BLACK);	
 			outerManagerFrom.add(lblCommentAuthor);
 			outerManagerFrom.add(GUIFactory.createSepatorField());
-	        rowFrom = new HorizontalFieldManager(Manager.NO_HORIZONTAL_SCROLL | Manager.NO_VERTICAL_SCROLL);
 	                
 	        gravatarBitmapField = new BitmapField(GravatarController.defaultGravatarBitmap.getBitmap(), BitmapField.NON_FOCUSABLE | Manager.FIELD_VCENTER);
-
-	        rowFromTextManager = new VerticalFieldManager(VerticalFieldManager.NO_VERTICAL_SCROLL | VerticalFieldManager.NO_HORIZONTAL_SCROLL 
-	        		| Manager.FIELD_VCENTER)
-	        {//add the focus change listener patch
-	        	public void add( Field field ) {
-	        		super.add( field );
-	        		field.setFocusListener(null);
-	        		field.setFocusListener(new BorderedFocusChangeListenerPatch()); 
-	        	}
-	        };
+	        outerManagerFrom.add(gravatarBitmapField);
 	        
-			authorName = new LabelField("", LabelField.FOCUSABLE);
-			authorEmail = new LabelField("", LabelField.FOCUSABLE);
-			authorUrl = new LabelField("", LabelField.FOCUSABLE);
-	        rowFrom.add(gravatarBitmapField);
-	        rowFrom.add(new LabelField("  ", LabelField.NON_FOCUSABLE));
-	        rowFrom.add(rowFromTextManager);
-	        outerManagerFrom.add(rowFrom);
-	        add(outerManagerFrom);
+			authorName = new BasicEditField(_resources.getString(WordPressResource.LABEL_NAME)+": ", "", 255, Field.EDITABLE);
+			authorName.setMargin(5, 0, 0, 0);
+			outerManagerFrom.add(authorName);
+
+			authorEmail = new BasicEditField(_resources.getString(WordPressResource.LABEL_EMAIL)+": ", "", 255, Field.EDITABLE | BasicEditField.FILTER_EMAIL);
+			authorEmail.setMargin(5, 0, 0, 0);
+			outerManagerFrom.add(authorEmail);
+			
+			authorUrl = new BasicEditField(_resources.getString(WordPressResource.LABEL_URL)+": ", "", 255, Field.EDITABLE) {
+				protected MenuItem myContextMenuItemA = new MenuItem(_resources.getString(WordPressResource.LABEL_VISIT_SITE), 10, 2) {
+					public void run() {
+						Tools.getNativeBrowserSession(getText());
+					}
+				};
+
+				protected void makeContextMenu(ContextMenu contextMenu) {
+					contextMenu.addItem(myContextMenuItemA);
+				}
+			};
+			authorUrl.setMargin(5, 0, 0, 0);
+			outerManagerFrom.add(authorUrl);
+			add(outerManagerFrom);
 	        
 	        //Informations box
 	        BorderedFieldManager outerManagerInfo = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
@@ -106,7 +111,7 @@ public class CommentView extends StandardBaseView {
 			
 	  		 //post of this comment
 	        HorizontalFieldManager rowOn = new HorizontalFieldManager();
-			LabelField lblTitle = new ColoredLabelField(_resources.getString(WordPressResource.LABEL_COMMENT_ON)+":", Color.BLACK);
+			LabelField lblTitle = new ColoredLabelField(_resources.getString(WordPressResource.LABEL_COMMENT_ON)+": ", Color.BLACK);
 			title = new LabelField("", LabelField.FOCUSABLE);
 	        rowOn.add(lblTitle);
 	        rowOn.add(title);
@@ -115,7 +120,7 @@ public class CommentView extends StandardBaseView {
 	        	        
 	        //date
 	        HorizontalFieldManager rowDate = new HorizontalFieldManager();
-			LabelField lblDate = new ColoredLabelField(_resources.getString(WordPressResource.LABEL_DATE)+":", Color.BLACK);
+			LabelField lblDate = new ColoredLabelField(_resources.getString(WordPressResource.LABEL_DATE)+": ", Color.BLACK);
 			date = new LabelField("", LabelField.FOCUSABLE);
 	        rowDate.add(lblDate);
 	        rowDate.add(date);
@@ -124,7 +129,7 @@ public class CommentView extends StandardBaseView {
 	        
 	  		//status
 	        HorizontalFieldManager rowStatus = new HorizontalFieldManager();
-	        LabelField lblStatus = new ColoredLabelField(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":", Color.BLACK);
+	        LabelField lblStatus = new ColoredLabelField(_resources.getString(WordPressResource.LABEL_POST_STATUS)+": ", Color.BLACK);
 	  		status =new LabelField("", LabelField.FOCUSABLE);
 	  		rowStatus.add(lblStatus);
 	  		rowStatus.add(status); 
@@ -154,10 +159,10 @@ public class CommentView extends StandardBaseView {
 	 //refresh the view with the new comment content
 	 private void setViewValues(Comment newComment){
 		 this.comment = newComment;
-				 
+
 		 this.setTitleText(_resources.getString(WordPressResource.LABEL_COMMENT) + " "
 				 + (getCommentIndex(comment)+1)+"/"+ comments.length);
-		 
+
 		 String authorEmailStr = comment.getAuthorEmail();
 		 String fullScreenGravatarURL = null;
 		 if(gvtCtrl.isGravatarAvailable(authorEmailStr)) {
@@ -174,50 +179,75 @@ public class CommentView extends StandardBaseView {
 				 Log.error(e, "Error while hashing email for gravatar services");
 			 }
 		 }
-		 
+
 		 if(fullScreenGravatarURL != null) {
 			 gravatarBitmapField = createClicableBitmapField(gvtCtrl.getLatestGravatar(newComment.getAuthorEmail()).getBitmap(), fullScreenGravatarURL);
 			 gravatarBitmapField.setSpace(2,2);
 		 } else {
-			 gravatarBitmapField = new BitmapField(gvtCtrl.getLatestGravatar(newComment.getAuthorEmail()).getBitmap(), BitmapField.NON_FOCUSABLE | Manager.FIELD_VCENTER);
-		 }
-		 
-		 rowFrom.deleteAll();
-		 rowFrom.add(gravatarBitmapField);
-	     rowFrom.add(new LabelField("  ", LabelField.NON_FOCUSABLE));
-		 
-		 rowFromTextManager.deleteAll();
-		 if(newComment.getAuthor() != null && !newComment.getAuthor().equals("")){
-			 authorName.setText(newComment.getAuthor());
-			 rowFromTextManager.add(authorName);
-		 }
-		 		 
-		 if(newComment.getAuthorEmail() != null && !newComment.getAuthorEmail().equals("")) {
-			 authorEmail.setText(newComment.getAuthorEmail());
-			 rowFromTextManager.add(authorEmail);
+			 gravatarBitmapField = null; //new BitmapField(gvtCtrl.getLatestGravatar(newComment.getAuthorEmail()).getBitmap(), BitmapField.NON_FOCUSABLE | Field.FIELD_HCENTER);
 		 }
 
-		 if(newComment.getAuthorUrl() != null && !newComment.getAuthorUrl().equals("")) {
-			 authorUrl = GUIFactory.createURLLabelField(newComment.getAuthorUrl(), newComment.getAuthorUrl(), LabelField.FOCUSABLE);
-			 rowFromTextManager.add(authorUrl);
+		outerManagerFrom.deleteAll();
+		LabelField lblCommentAuthor = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_AUTHOR),
+				Color.BLACK);	
+		outerManagerFrom.add(lblCommentAuthor);
+		outerManagerFrom.add(GUIFactory.createSepatorField());
+    	
+		if(gravatarBitmapField != null)
+    		outerManagerFrom.add(gravatarBitmapField);
+
+		 if(newComment.getAuthor() != null){
+			 authorName.setText(newComment.getAuthor());
+		 } else {
+			 authorName.setText("");
 		 }
+		 //authorName.setDirty(false);
+		 outerManagerFrom.add(authorName);
+
+		 if(newComment.getAuthorEmail() != null) {
+			 authorEmail.setText(newComment.getAuthorEmail());
+		 } else {
+			 authorEmail.setText("");
+		 }
+		// authorEmail.setDirty(false);
+		 outerManagerFrom.add(authorEmail);
+
+		 if(newComment.getAuthorUrl() != null) {
+			 authorUrl.setText(newComment.getAuthorUrl());
+		 } else {
+			 authorUrl.setText("");
+		 }
+		// authorUrl.setDirty(false);
+		 outerManagerFrom.add(authorUrl);
 		 
+		 visitSiteLabelField = GUIFactory.createURLLabelField(_resources.getString(WordPressResource.LABEL_VISIT_SITE),
+					"http://", LabelField.FOCUSABLE);
+		 FieldChangeListener listener = new FieldChangeListener() {
+			 public void fieldChanged(Field field, int context) {
+				 Tools.getNativeBrowserSession(authorUrl.getText());
+			 }
+		 };
+		 visitSiteLabelField.setChangeListener(null); //bc the field already have a listener
+		 visitSiteLabelField.setChangeListener(listener);
+		 outerManagerFrom.add(visitSiteLabelField);
+
 		 if(newComment.getPostTitle() != null) {
-			String commentTitleUnescaped = newComment.getPostTitle();
-			title.setText(commentTitleUnescaped);
+			 String commentTitleUnescaped = newComment.getPostTitle();
+			 title.setText(commentTitleUnescaped);
 		 }
-		 else 
-			title.setText("");
-		 
+		 else {
+			 title.setText("");
+		 }
+
 		 if(newComment.getDateCreatedGMT() != null) {
-				Date dateCreated = comment.getDateCreatedGMT();
-		        SimpleDateFormat sdFormat3 = new SimpleDateFormat("yyyy/MM/dd hh:mm");
-		        String format = sdFormat3.format(dateCreated);
-		        date.setText(format); 
- 		 } else 
+			 Date dateCreated = comment.getDateCreatedGMT();
+			 SimpleDateFormat sdFormat3 = new SimpleDateFormat("yyyy/MM/dd hh:mm");
+			 String format = sdFormat3.format(dateCreated);
+			 date.setText(format); 
+		 } else {
 			 date.setText("");
-		 rowFrom.add(rowFromTextManager);
-		 		 
+		 }
+
 		 //retrive the string of comment state
 		 if(newComment.getStatus() != null) {	 
 			 if(commentStatusList != null && commentStatusList.containsKey(newComment.getStatus())){
@@ -226,70 +256,111 @@ public class CommentView extends StandardBaseView {
 			 } else {
 				 status.setText(newComment.getStatus());
 			 }
-			
-			 //remove unused menu Item
-			removeMenuItem(_holdCommentItem);
-			removeMenuItem(_spamCommentItem);
-			removeMenuItem(_approveCommentItem);
-			
-			if(commentContent.isDirty())
-				addMenuItem(_updateCommentItem);
-			
-			if(comment.getStatus().equalsIgnoreCase("approve")) {
-				addMenuItem(_holdCommentItem);
-				addMenuItem(_spamCommentItem);	
-			} else if(comment.getStatus().equalsIgnoreCase("hold")){
-				addMenuItem(_approveCommentItem);
-				addMenuItem(_spamCommentItem);	
-			} else if(comment.getStatus().equalsIgnoreCase("spam")){
-				addMenuItem(_approveCommentItem);
-				addMenuItem(_holdCommentItem);
-			}
-
 		 } else {
 			 status.setText("");
-			 addMenuItem(_approveCommentItem);
-			 addMenuItem(_holdCommentItem);
-			 addMenuItem(_spamCommentItem);
 		 }
-		 
+
 		 if(newComment.getContent() != null) {
 			 String content= newComment.getContent();			 
 			 commentContent.setText(content);
-		 }
-		else 
+		 } else {
 			 commentContent.setText("");
+		 }
+		 //commentContent.setDirty(false);
+
+		 this.setDirty(false);
 	 }
 
+	 /* check if a comment is modified. When changes are made, send it to the server */
+	 private void updateComment(String status) {
+		 boolean isModified = false;
+		 
+		 if (status != null)  {
+			 isModified = true;
+			 comment.setStatus(status); 
+		 }
+		 
+		 if(commentContent.isDirty()) {
+			 if(!commentContent.getText().trim().equals(comment.getContent())) {
+				 comment.setContent(commentContent.getText());
+				 isModified = true;
+			 }
+		 }
+		 
+		 if(authorName.isDirty()) {
+			 if(!authorName.getText().trim().equals(comment.getAuthor())) {
+				 comment.setAuthor(authorName.getText());
+				 isModified = true;
+			 }
+		 }
+
+		 if(authorEmail.isDirty()) {
+			 if(!authorEmail.getText().trim().equals(comment.getAuthorEmail())) {
+				 comment.setAuthorEmail(authorEmail.getText());
+				 isModified = true;
+			 }
+		 }
+		 
+		 if(authorUrl.isDirty()){
+			 if(!authorUrl.getText().trim().equals(comment.getAuthorUrl())) {
+				 comment.setAuthorUrl(authorUrl.getText());
+				 isModified = true;
+			 }			 
+		 }
+		 
+		 if(isModified) {
+			 Comment[] selectedComment = {comment};
+			 controller.updateComment(selectedComment);
+		 }
+		
+		 // avoid dirty when empty characters are at the end of field'content...
+		// authorName.setDirty(false);
+		// authorEmail.setDirty(false);
+		// authorUrl.setDirty(false);
+		// commentContent.setDirty(false);
+		 this.setDirty(false);
+	 }
+	 
 	 private MenuItem _updateCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_UPDATE, 99000, 100) {
 		 public void run() {
-			 Comment[] selectedComment = {comment};
-			 controller.updateComments(selectedComment, comment.getStatus(), commentContent.getText());
+			 updateComment(null);
 		 }
 	 };
 	 
     private MenuItem _approveCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_APPROVE, 100000, 100) {
         public void run() {
-        	Comment[] selectedComment = {comment};
-        	controller.updateComments(selectedComment, "approve", commentContent.getText());
-        	status.setText("Approved");
+        	updateComment("approve");
+    		if(commentStatusList.containsKey("approve")){
+    			String decodedState = (String) commentStatusList.get("approve");
+    			status.setText(decodedState); 
+    		} else {
+    			status.setText("Approved");
+    		}
         }
     };
     
     private MenuItem _spamCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_SPAM, 101000, 100) {
-        public void run() {
-        	Comment[] selectedComment =  {comment};
-        	controller.updateComments(selectedComment, "spam", commentContent.getText());
-        	status.setText("Spam");
-        }
+    	public void run() {
+    		updateComment("spam");
+    		if(commentStatusList.containsKey("spam")){
+    			String decodedState = (String) commentStatusList.get("spam");
+    			status.setText(decodedState); 
+    		} else {
+    			status.setText("Spam");
+    		}
+    	}
     };
     
     private MenuItem _holdCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_HOLD, 102000, 100) {
-        public void run() {
-        	Comment[] selectedComment =  {comment};
-        	controller.updateComments(selectedComment, "hold", commentContent.getText());
-          	status.setText("Pending");
-        }
+    	public void run() {
+    		updateComment("hold");
+    		if(commentStatusList.containsKey("hold")){
+    			String decodedState = (String) commentStatusList.get("hold");
+    			status.setText(decodedState); 
+    		} else {
+    			status.setText("Pending");
+    		}
+    	}
     };
     
     private MenuItem _deleteCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_DELETE, 103000, 100) {
@@ -324,6 +395,11 @@ public class CommentView extends StandardBaseView {
     private MenuItem _nextCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_NEXT, 1000, 50) {
     	public void run() {
     		
+    		boolean flag = discardCommentChanged();
+    		if(!flag) { 
+    			return;
+    		}
+    		
     		Comment next = getNextComment(comment);
     		if (next == null)
     			controller.displayMessage("There arent next comments");   	
@@ -336,6 +412,12 @@ public class CommentView extends StandardBaseView {
     
     private MenuItem _prevCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_PREV, 1100, 60) {
     	public void run() {
+    		
+    		boolean flag = discardCommentChanged();
+    		if(!flag) { 
+    			return;
+    		}
+    		
     		Comment prev = getPreviousComment(comment);
     		if (prev == null)
     			controller.displayMessage("There arent next comments");
@@ -346,11 +428,16 @@ public class CommentView extends StandardBaseView {
     	}
     };
 
-	 private MenuItem _replyCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_REPLY, 104000, 100) {
-		 public void run() {
-			 controller.showReplyView(comment);
-		 }
-	 };
+    private MenuItem _replyCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_REPLY, 104000, 100) {
+    	public void run() {
+    		boolean flag = discardCommentChanged();
+    		if(!flag) { 
+    			return;
+    		} else {
+    			controller.showReplyView(comment);
+    		}
+    	}
+    };
 
 	 private int  getCommentIndex(Comment currentComment) {
 		 int index = -1;
@@ -400,22 +487,44 @@ public class CommentView extends StandardBaseView {
 
 			 return null;				
 	 }
-
 	 
 	public BaseController getController() {
 		return this.controller;
 	}
 
+	
+	
+	private boolean discardCommentChanged() {
+		if(commentContent.isDirty() || authorEmail.isDirty() 
+				|| authorName.isDirty() 
+				|| authorUrl.isDirty()) {
+			int result= controller.askQuestion(_resources.getString(WordPressResource.MESSAGE_UNSAVED_CHANGES_LOST));   
+			if(Dialog.YES==result) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return true;
+		}
+	}
+	
 	public boolean onClose()   {
-		controller.backCmd();
-		return true;
+		boolean flag = discardCommentChanged();
+		if(flag) { 
+			//changes made and do nothing is selected
+			controller.backCmd();
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public boolean onMenu(int instance) {
 		boolean result;
 		// Prevent the context menu from being shown if focus
 		// is on the author url field
-		if (getLeafFieldWithFocus() == authorUrl && instance == Menu.INSTANCE_CONTEXT) {
+		if (getLeafFieldWithFocus() == visitSiteLabelField && instance == Menu.INSTANCE_CONTEXT) {
 			result = false;
 		} else {
 			result = super.onMenu(instance);
@@ -426,6 +535,30 @@ public class CommentView extends StandardBaseView {
     //Override the makeMenu method so we can add a custom menu item on fly
     protected void makeMenu(Menu menu, int instance)
     {
+		if(commentContent.isDirty() || authorEmail.isDirty() 
+				|| authorName.isDirty() 
+				|| authorUrl.isDirty())
+			menu.add(_updateCommentItem);
+    	
+		
+		 //retrive the string of comment state
+		 if(comment.getStatus() != null) {
+			 if(comment.getStatus().equalsIgnoreCase("approve")) {
+				 menu.add(_holdCommentItem);
+				 menu.add(_spamCommentItem);	
+			 } else if(comment.getStatus().equalsIgnoreCase("hold")){
+				 menu.add(_approveCommentItem);
+				 menu.add(_spamCommentItem);	
+			 } else if(comment.getStatus().equalsIgnoreCase("spam")){
+				 menu.add(_approveCommentItem);
+				 menu.add(_holdCommentItem);
+			 }
+		 } else {
+			 menu.add(_approveCommentItem);
+			 menu.add(_holdCommentItem);
+			 menu.add(_spamCommentItem);
+		 }
+		
 		Comment next = getNextComment(comment);
 		if (next != null)
 			menu.add(_nextCommentItem);
@@ -442,7 +575,7 @@ public class CommentView extends StandardBaseView {
     private BitmapField createClicableBitmapField(Bitmap bitmap, final String largePhotoURL) {
 
 		BitmapField img = new BitmapField(bitmap, 
-				Field.FIELD_VCENTER | Field.FOCUSABLE) {
+				Field.USE_ALL_WIDTH | Field.FIELD_HCENTER |  Field.FOCUSABLE) {
 
 			/**
 			 * Overrides default implementation.  Performs default action if the 

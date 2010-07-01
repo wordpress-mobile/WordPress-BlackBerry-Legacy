@@ -72,7 +72,7 @@ public class NewCommentConn extends BlogConn  {
 			connResponse.setResponseObject(response);
 		}
 		catch (Exception cce) {
-			setErrorMessage(cce, "NewComment error: Invalid server response");
+			setErrorMessage(cce, "Error while sending new comment");
 		}
 
 		try {

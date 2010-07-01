@@ -45,7 +45,7 @@ public class GetCommentCountConn extends BlogConn  {
 		*/	
             }
 			catch (Exception e) {
-				setErrorMessage(e, "GetCommentCount error: Invalid server response");
+				setErrorMessage(e, "Error while loading comments summary");
 	        }
 			
 			try {

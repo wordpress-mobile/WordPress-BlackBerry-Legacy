@@ -61,7 +61,7 @@ public class EditCommentConn extends BlogConn  {
 	        connResponse.setResponseObject(response);
 		}
 		catch (Exception e) {
-			setErrorMessage(e, "EditComment error: Invalid server response");
+			setErrorMessage(e, "Error while sending comment");
 		}
 		
 		try {
