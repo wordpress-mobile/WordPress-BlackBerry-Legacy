@@ -110,9 +110,9 @@ public class MainController extends BaseController implements TaskProgressListen
 		UiApplication.getUiApplication().pushScreen(this.view);
 	
 		//chapi "post startup" registration
-		SharingHelper sHelper = SharingHelper.getInstance();
-		sHelper.addCHAPIListener();
-		sHelper.checkPendingRequest();
+		//SharingHelper sHelper = SharingHelper.getInstance();
+		//sHelper.addCHAPIListener();
+		//sHelper.checkPendingRequest();
 	}
 	
 

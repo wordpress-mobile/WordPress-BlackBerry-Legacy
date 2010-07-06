@@ -459,7 +459,7 @@ public class PostController extends BlogObjectController {
 	//user save post as localdraft
 	public void saveDraftPost() {
 		try {
-    	Post post = getPostObj();
+    	 Post post = getPostObj();
 		 draftFolder = DraftDAO.storePost(post, draftFolder);
 		 setObjectAsChanged(false); //set the post as not modified because we have saved it.
 		 //the changes over the clean state for the UI Fields will be done into view-> save-draft menu item

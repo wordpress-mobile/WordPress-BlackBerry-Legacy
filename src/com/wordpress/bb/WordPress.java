@@ -67,7 +67,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 
     	}
     }
-
+    
 	 /**
      * Method to execute in autostart mode.
      */
@@ -100,7 +100,7 @@ public class WordPress extends UiApplication implements WordPressResource {
                     	
                     	//adds the CHAPI sharing to WP 
 	                    SharingHelper.getInstance().unregisterCHAPI();
-                		SharingHelper.getInstance().verifyRegistration();
+                		//SharingHelper.getInstance().verifyRegistration();
                     	
                     	Log.trace("==== Registering WordPress Comments Notification ====");
                     	//Define a dummy object that provides the source for the event.
@@ -260,8 +260,6 @@ public class WordPress extends UiApplication implements WordPressResource {
 			WordPressCore wpCore = WordPressCore.getInstance();
 			wpCore.setFileAppender(fileAppender); // add the file appender to the queue
 						
-			SharingHelper.getInstance().verifyRegistration(); //probably we can cut of this line
-			
 			//Store this application istance into recordstore
 			SharingHelper.storeAppIstance(UiApplication.getUiApplication());
 			

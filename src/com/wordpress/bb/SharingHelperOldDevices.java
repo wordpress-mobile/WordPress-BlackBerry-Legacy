@@ -54,7 +54,6 @@ public class SharingHelperOldDevices {
 	public void addGlobalMenuItems(ResourceBundle _resources) {
 		ApplicationMenuItemRepository amir = ApplicationMenuItemRepository.getInstance();
 
-		//#ifndef IS_OS47_OR_ABOVE
 		String[] chapiMimeTypes = new String[] {
 				"video/x-msvideo", "video/quicktime", "video/mp4", "video/mpeg", "video/3gpp", "video/3gpp2",
 				"audio/mpeg", "audio/mp4", "audio/wav", "application/ogg",
@@ -69,11 +68,16 @@ public class SharingHelperOldDevices {
 			amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_FILE_EXPLORER_BROWSE, shareToWordPressMenuItem, ApplicationDescriptor.currentApplicationDescriptor(), chapiMimeTypes[i]);
 			amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_FILE_EXPLORER_ITEM, shareToWordPressMenuItem, ApplicationDescriptor.currentApplicationDescriptor(), chapiMimeTypes[i]);
 		}
-		//#endif                   		
 
 		amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_BROWSER, 
 				new ShareToWordPressMenuItem(10000, _resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS)),
 				ApplicationDescriptor.currentApplicationDescriptor());
+		
+		//#ifdef IS_OS47_OR_ABOVE
+		amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_CAMERA_PREVIEW,
+				new ShareToWordPressMenuItem(10000, _resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS)), 
+				ApplicationDescriptor.currentApplicationDescriptor());
+		//#endif
 	}
 
 	private void newSharing(final Object context) {

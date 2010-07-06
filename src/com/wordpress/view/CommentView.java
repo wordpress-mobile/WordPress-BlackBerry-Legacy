@@ -86,7 +86,7 @@ public class CommentView extends StandardBaseView {
 			authorEmail.setMargin(5, 0, 0, 0);
 			outerManagerFrom.add(authorEmail);
 			
-			authorUrl = new BasicEditField(_resources.getString(WordPressResource.LABEL_URL)+": ", "", 255, Field.EDITABLE) {
+			authorUrl = new BasicEditField(_resources.getString(WordPressResource.LABEL_URL)+": ", "", 255, Field.EDITABLE | BasicEditField.FILTER_URL) {
 				protected MenuItem myContextMenuItemA = new MenuItem(_resources.getString(WordPressResource.LABEL_VISIT_SITE), 10, 2) {
 					public void run() {
 						Tools.getNativeBrowserSession(getText());
@@ -193,11 +193,12 @@ public class CommentView extends StandardBaseView {
 		outerManagerFrom.add(lblCommentAuthor);
 		outerManagerFrom.add(GUIFactory.createSepatorField());
     	
-		if(gravatarBitmapField != null)
-    		outerManagerFrom.add(gravatarBitmapField);
+		if(gravatarBitmapField != null){
+			outerManagerFrom.add(gravatarBitmapField);
+		}
 
 		 if(newComment.getAuthor() != null){
-			 authorName.setText(newComment.getAuthor());
+			authorName.setText(newComment.getAuthor());
 		 } else {
 			 authorName.setText("");
 		 }
@@ -205,7 +206,7 @@ public class CommentView extends StandardBaseView {
 		 outerManagerFrom.add(authorName);
 
 		 if(newComment.getAuthorEmail() != null) {
-			 authorEmail.setText(newComment.getAuthorEmail());
+			authorEmail.setText(newComment.getAuthorEmail());
 		 } else {
 			 authorEmail.setText("");
 		 }
@@ -213,18 +214,20 @@ public class CommentView extends StandardBaseView {
 		 outerManagerFrom.add(authorEmail);
 
 		 if(newComment.getAuthorUrl() != null) {
-			 authorUrl.setText(newComment.getAuthorUrl());
+			authorUrl.setText(newComment.getAuthorUrl());
 		 } else {
 			 authorUrl.setText("");
 		 }
 		// authorUrl.setDirty(false);
 		 outerManagerFrom.add(authorUrl);
 		 
-		 visitSiteLabelField = GUIFactory.createURLLabelField(_resources.getString(WordPressResource.LABEL_VISIT_SITE),
+		 visitSiteLabelField = GUIFactory.createURLLabelField(_resources.getString(WordPressResource.LABEL_VISIT_SITE).toLowerCase(),
 					"http://", LabelField.FOCUSABLE);
 		 FieldChangeListener listener = new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {
-				 Tools.getNativeBrowserSession(authorUrl.getText());
+				 if(!authorUrl.getText().trim().equals("")) {
+					 Tools.getNativeBrowserSession(authorUrl.getText());
+				 }
 			 }
 		 };
 		 visitSiteLabelField.setChangeListener(null); //bc the field already have a listener
@@ -394,22 +397,23 @@ public class CommentView extends StandardBaseView {
     
     private MenuItem _nextCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_NEXT, 1000, 50) {
     	public void run() {
-    		
+
+    		//check if there are made changes on the current comments
     		boolean flag = discardCommentChanged();
     		if(!flag) { 
     			return;
     		}
-    		
+
     		Comment next = getNextComment(comment);
-    		if (next == null)
+    		if (next == null) {
+    			//never falls here
     			controller.displayMessage("There arent next comments");   	
-    		else {
-    			System.out.println("abbiamo altri commenti");
+    		} else {
     			setViewValues(next);
     		}
     	}
     };
-    
+
     private MenuItem _prevCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_COMMENTS_PREV, 1100, 60) {
     	public void run() {
     		
@@ -419,11 +423,11 @@ public class CommentView extends StandardBaseView {
     		}
     		
     		Comment prev = getPreviousComment(comment);
-    		if (prev == null)
+    		if (prev == null) {
+    			//never falls here
     			controller.displayMessage("There arent next comments");
-    		else {
+    		} else {
     			setViewValues(prev);
-    			System.out.println("abbiamo altri commenti");
     		}   		
     	}
     };
@@ -492,9 +496,8 @@ public class CommentView extends StandardBaseView {
 		return this.controller;
 	}
 
-	
-	
 	private boolean discardCommentChanged() {
+		//we are checking the dirty state not on all fields
 		if(commentContent.isDirty() || authorEmail.isDirty() 
 				|| authorName.isDirty() 
 				|| authorUrl.isDirty()) {
@@ -574,8 +577,7 @@ public class CommentView extends StandardBaseView {
     
     private BitmapField createClicableBitmapField(Bitmap bitmap, final String largePhotoURL) {
 
-		BitmapField img = new BitmapField(bitmap, 
-				Field.USE_ALL_WIDTH | Field.FIELD_HCENTER |  Field.FOCUSABLE) {
+		BitmapField img = new BitmapField(bitmap, Field.FOCUSABLE) {
 
 			/**
 			 * Overrides default implementation.  Performs default action if the 
@@ -661,14 +663,26 @@ public class CommentView extends StandardBaseView {
 	    			if(gesture.getSwipeDirection() == TouchGesture.SWIPE_EAST) {
 	    				Comment next = getNextComment(comment);
 	        			if (next != null) {
-	        				setViewValues(next);
+	        		  		//check if there are made changes on the current comments
+	        	    		boolean flag = discardCommentChanged();
+	        	    		if(!flag) { 
+	        	    			return true;
+	        	    		} else {
+	        	    			setViewValues(next);
+	        	    		}
 	        			}
 	    				return true;
 	    			}
 	    			if(gesture.getSwipeDirection() == TouchGesture.SWIPE_WEST) {
 	    				Comment next = getPreviousComment(comment);
 	        			if (next != null) {
-	        				setViewValues(next);
+	        		  		//check if there are made changes on the current comments
+	        	    		boolean flag = discardCommentChanged();
+	        	    		if(!flag) { 
+	        	    			return true;
+	        	    		} else {
+	        	    			setViewValues(next);
+	        	    		}	        				
 	        			}
 	    				return true;
 	    			}

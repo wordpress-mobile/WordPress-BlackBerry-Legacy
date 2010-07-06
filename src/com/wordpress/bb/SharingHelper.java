@@ -48,8 +48,8 @@ public class SharingHelper implements RequestListener{
 	private final static String CHAPI_ID = "com.wordpress.bb";
 	
 	//The content handler class name
-	private final static String CHAPI_CLASS_NAME = CHAPI_ID + ".WordPress"; 
-
+	public final static String CHAPI_CLASS_NAME = CHAPI_ID + ".WordPress"; 
+	
 	public final static long CHAPI_MENUITEM_ID = 0x4a4f670272a059c3L; //com.wordpress.bb.WordPress.chapiMenuItems
     
     public final static String[] CHAPI_MIME_TYPES = new String[] {
@@ -85,7 +85,7 @@ public class SharingHelper implements RequestListener{
 			server = Registry.getServer(CHAPI_CLASS_NAME);
 			server.setListener(null);           //set the listener 
 		} catch (ContentHandlerException e) {
-			Log.error(e,"Error during SharingHelp init" );
+			Log.error(e,"Error removing  CHAPI listener" );
 		}
 	}
 	
@@ -142,7 +142,7 @@ public class SharingHelper implements RequestListener{
 		Log.trace(">>> invocationRequestNotify");
 		pending = handler.getRequest(false);
 		if(pending != null) {
-				processRequest();
+			processRequest();
 		}
 		Log.trace("<<< invocationRequestNotify");
 	}
@@ -311,7 +311,6 @@ public class SharingHelper implements RequestListener{
 				Log.trace("runtimestore not empty, why??");
 				store.replace(WordPressInfo.APPLICATION_ID, UiApplication.getUiApplication());
 			}
-
 		} catch (ControlledAccessException  e) {
 			Log.trace(e, "Error while accessing the runtime store");
 		}

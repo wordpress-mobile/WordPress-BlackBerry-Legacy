@@ -38,6 +38,7 @@ src\com\wordpress\bb\WordPress.rrc
 src\com\wordpress\bb\WordPress.rrh
 src\com\wordpress\bb\WordPress_de.rrc
 src\com\wordpress\bb\WordPress_es.rrc
+src\com\wordpress\bb\WordPress_es_co.rrc
 src\com\wordpress\bb\WordPress_fi.rrc
 src\com\wordpress\bb\WordPress_fr.rrc
 src\com\wordpress\bb\WordPress_id.rrc
@@ -310,7 +311,6 @@ src\org\kxmlrpc\XmlRpcWriter.java
 src\refresh.png
 src\sound.png
 src\uncheck.png
-src\wplogo.png
 ]
 HaveAlxImports=0
 HaveDefs=0

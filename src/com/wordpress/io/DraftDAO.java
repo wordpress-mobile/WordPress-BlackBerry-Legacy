@@ -203,10 +203,10 @@ public class DraftDAO implements BaseDAO{
 		if(post.isVideoResizing() !=null)
 			content.put("IsVideoResizing", post.isVideoResizing());
 		
-		if(post.getImageResizeWidth() != null)
+		if(post.getVideoResizeWidth() != null)
 			content.put("videoResizeWidth", post.getVideoResizeWidth());
 		
-		if(post.getImageResizeHeight() != null)
+		if(post.getVideoResizeHeight() != null)
 			content.put("videoResizeHeight", post.getVideoResizeHeight());
         
 		//convert media object before save them
