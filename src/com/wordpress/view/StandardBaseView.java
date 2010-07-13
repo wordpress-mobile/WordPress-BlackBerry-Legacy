@@ -23,8 +23,18 @@ public abstract class StandardBaseView extends BaseView {
 
 	protected VerticalFieldManager _container;
 	
+	public StandardBaseView(long style) {
+		super(style);
+		initForegroundManager();
+	}
+	
 	public StandardBaseView(String title, long style) {
 		super(title, style);
+		initForegroundManager();
+	}
+	
+	private void initForegroundManager() {
+		
 	  	VerticalFieldManager internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR ) {
     		public void paintBackground( Graphics g ) {
     		/*	g.clear();
@@ -61,7 +71,7 @@ public abstract class StandardBaseView extends BaseView {
     	internalManager.add( _container );
     	super.add( internalManager );
 	}
-
+	
 	public void add( Field field ) {
 		_container.add( field );
 	}

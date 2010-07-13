@@ -18,14 +18,15 @@ public class MediaViewMediator {
 		public void mediaEntryChanged() {
 			//update the fields
 			fileNameField.setText(mediaEntry.getFileName());
-			titleField.setText(mediaEntry.getTitle());
 			if(mediaEntry.getTitle() == null || mediaEntry.getTitle().trim().equals("")) {
 				//define the italic font
 				Font fnt = Font.getDefault().derive(Font.ITALIC);
 				titleField.setText("None");
 				titleField.setFont(fnt);
-			} else
+			} else {
+				titleField.setText(mediaEntry.getTitle());
 				titleField.setFont( Font.getDefault());
+			}
 			//invalidate the container
 			manager.invalidate();
 		}

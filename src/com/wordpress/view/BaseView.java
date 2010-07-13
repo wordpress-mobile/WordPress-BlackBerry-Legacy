@@ -115,25 +115,20 @@ public abstract class BaseView extends MainScreen {
 		  * during hide/show of  kb, but don't requires another thread or timertask to do that.
 		  */		  
 		
-		//Log.trace("==Layout della classe base view");
 		if (Touchscreen.isSupported() == true && bottomButtonsManager != null
 				&& VirtualKeyboard.isSupported() ) {
-			//Log.trace("A");
+
 			int kbVisibility = this.getVirtualKeyboard().getVisibility();
 			
 			if( kbVisibility == VirtualKeyboard.SHOW || kbVisibility == VirtualKeyboard.SHOW_FORCE ) {
-				//Log.trace("B");
 				if(isBottomBarVisible) {
 					isBottomBarVisible = false;
 					setStatus(null);
-					//Log.trace("C");
 				}
 			} else {
-				//Log.trace("D");
 				if(!isBottomBarVisible) {
 					isBottomBarVisible = true;
 					setStatus(bottomButtonsManager);
-					//Log.trace("E");
 				}
 			}
 		}

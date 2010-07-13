@@ -10,6 +10,7 @@ public class BlogInfo {
 	public static int STATE_LOADED_WITH_ERROR = 3;
 	public static int STATE_ERROR = 4;
 	
+	private boolean isWPCOMBlog = false;
 	private String id;
 	private String name;
 	private String xmlRpcUrl; //real url for publishing on this blog
@@ -33,7 +34,8 @@ public class BlogInfo {
 		this.username = currentBlog.getUsername();
 		this.password = currentBlog.getPassword();
 		this.state = currentBlog.getLoadingState();
-		this.isCommentNotifies =currentBlog.isCommentNotifies();
+		this.isCommentNotifies = currentBlog.isCommentNotifies();
+		this.isWPCOMBlog = currentBlog.isWPCOMBlog();
 	}
 	
 	public String getId() {
@@ -119,18 +121,25 @@ public class BlogInfo {
 		this.isCommentsDownloadNecessary = isNeed;
 	}
 
-	//variable state and isCommentNotifies not considered
+	public boolean isWPCOMBlog() {
+		return isWPCOMBlog;
+	}
+
+	public void setWPCOMBlog(boolean isWPCOMBlog) {
+		this.isWPCOMBlog = isWPCOMBlog;
+	}
+
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + (isWPCOMBlog ? 1231 : 1237);
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result
 				+ ((xmlRpcUrl == null) ? 0 : xmlRpcUrl.hashCode());
 		return result;
 	}
 
-	//variable state and isCommentNotifies not considered
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -143,6 +152,8 @@ public class BlogInfo {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
+			return false;
+		if (isWPCOMBlog != other.isWPCOMBlog)
 			return false;
 		if (name == null) {
 			if (other.name != null)

@@ -1,20 +1,14 @@
 //#preprocess
 package com.wordpress.view;
 
-import net.rim.blackberry.api.invoke.Invoke;
-import net.rim.blackberry.api.invoke.MessageArguments;
-import net.rim.blackberry.api.mail.Address;
-import net.rim.blackberry.api.mail.Message;
-
 import net.rim.device.api.system.ApplicationDescriptor;
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.CodeModuleGroup;
 import net.rim.device.api.system.CodeModuleGroupManager;
-import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.KeypadListener;
-import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
@@ -23,6 +17,7 @@ import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.Ui;
+import net.rim.device.api.ui.UiApplication;
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.TouchEvent;
 //#endif
@@ -30,16 +25,21 @@ import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.Menu;
+import net.rim.device.api.ui.component.RichTextField;
+import net.rim.device.api.ui.container.DialogFieldManager;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.container.PopupScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
+import com.wordpress.controller.PreferenceController;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.DataCollector;
@@ -49,6 +49,7 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BlogsListField;
 import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.component.PillButtonField;
+import com.wordpress.view.component.SelectorPopupScreen;
 
 public class MainView extends BaseView {
 	
@@ -62,7 +63,7 @@ public class MainView extends BaseView {
     private  EncodedImage classicHeaderImg;
     private  BitmapField wpPromoBitmapField;
     private  EncodedImage promoImg;
-
+    
 	public MainView(MainController mainController) {
 		super( MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL | USE_ALL_HEIGHT);
 		
@@ -112,6 +113,7 @@ public class MainView extends BaseView {
         addMenuItem(_aboutItem);
 		addMenuItem(_addBlogItem);
 		addMenuItem(_setupItem);
+		addMenuItem(_accountItem);
 		addMenuItem(_updateItem);
 	}
 		
@@ -180,16 +182,13 @@ public class MainView extends BaseView {
 			 lblField.setMargin( 6, 4, 4, 4 );
 		 
 		 _scrollerManager.add(taglineManager);
-		 		 		 
+
 		 HorizontalFieldManager buttonsManagerOne = new HorizontalFieldManager(Field.FIELD_HCENTER);
-		 HorizontalFieldManager buttonsManagerTwo = new HorizontalFieldManager(Field.FIELD_HCENTER);
-		
-		PillButtonField buttonHaveBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WP_BLOG));
-		buttonHaveBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
-		 
+		 PillButtonField buttonHaveBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPCOM_BLOG));
+		 buttonHaveBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
 		 buttonHaveBlog.setChangeListener(new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {
-				 mainController.addBlogs();
+				 mainController.addWPCOMBlogs();
 			 }
 		 });
 
@@ -197,26 +196,47 @@ public class MainView extends BaseView {
 			 buttonHaveBlog.setMargin( 5, 30, 15, 30 );
 		 else
 			 buttonHaveBlog.setMargin( 4, 4, 4, 4 );
-		 
-		PillButtonField buttonGetFreeBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_NEW_TO_WP_BLOG));
-		buttonGetFreeBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
+
+		 buttonsManagerOne.add(buttonHaveBlog);
+
+		 HorizontalFieldManager buttonsManagerTwo = new HorizontalFieldManager(Field.FIELD_HCENTER);
+		 PillButtonField buttonGetFreeBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_NEW_TO_WP_BLOG));
+		 buttonGetFreeBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
 		 buttonGetFreeBlog.setChangeListener(new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {
 				 Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
 			 }
 		 });
-		 
+
 		 if (width > 320)
 			 buttonGetFreeBlog.setMargin( 5, 30, 15 , 30 );
 		 else
 			 buttonGetFreeBlog.setMargin( 4, 4, 4, 4 );
-		
-		 buttonsManagerOne.add(buttonHaveBlog);
+
 		 buttonsManagerTwo.add(buttonGetFreeBlog);
-		 _scrollerManager.add(buttonsManagerOne);
+
+
+		 HorizontalFieldManager buttonsManagerSelfHosted = new HorizontalFieldManager(Field.FIELD_HCENTER);
+		 PillButtonField buttonSelfHostedBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPORG_BLOG));
+		 buttonSelfHostedBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
+		 buttonSelfHostedBlog.setChangeListener(new FieldChangeListener() {
+			 public void fieldChanged(Field field, int context) {
+				 mainController.addWPORGBlogs();
+			 }
+		 });
+
+		 if (width > 320)
+			 buttonSelfHostedBlog.setMargin( 5, 30, 15 , 30 );
+		 else
+			 buttonSelfHostedBlog.setMargin( 4, 4, 4, 4 );
+
+		 buttonsManagerSelfHosted.add(buttonSelfHostedBlog);
+
 		 _scrollerManager.add(buttonsManagerTwo);
+		 _scrollerManager.add(buttonsManagerOne);
+		 _scrollerManager.add(buttonsManagerSelfHosted);
 	 }
-	 
+
 	 //update the view of blog list entry
 	 public synchronized void setBlogItemViewState(BlogInfo blogInfo) {
 		 if (blogListController == null) return;
@@ -278,7 +298,7 @@ public class MainView extends BaseView {
 			BlogInfo blogSelected = blogListController.getBlogSelected();
 	        mainController.showBlog(blogSelected);
 		} else {
-			mainController.addBlogs();
+			mainController.addWPORGBlogs();
 		}
 		return true;
 	}
@@ -309,7 +329,8 @@ public class MainView extends BaseView {
     //add blog menu item 
     private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 1500, 1000) {
         public void run() {
-        	mainController.addBlogs();
+			 AddBlogPopupScreen inqView= new AddBlogPopupScreen();
+			 UiApplication.getUiApplication().pushScreen(inqView);
         }
     };
 
@@ -342,8 +363,15 @@ public class MainView extends BaseView {
         	FrontController.getIstance().showSetupView();
         }
     };
+    
+    private MenuItem _accountItem = new MenuItem( _resources, WordPressResource.MENUITEM_ACCOUNTS, 11000, 1000) {
+        public void run() {
+        	AccountsController ctrl=new AccountsController();
+    		ctrl.showView();	
+        }
+    };
 
-    private MenuItem _updateItem = new MenuItem( _resources, WordPressResource.MENUITEM_CHECKUPDATE, 11000, 1000) {
+    private MenuItem _updateItem = new MenuItem( _resources, WordPressResource.MENUITEM_CHECKUPDATE, 12000, 1000) {
     	public void run() {
 
     		try {
@@ -382,46 +410,22 @@ public class MainView extends BaseView {
     };
     
     private MenuItem _bugReportItem = new MenuItem( _resources, WordPressResource.MENUITEM_BUG_REPORT, 80300, 1000) {
-        public void run() {
-        	try {
-        		Message m = new Message();
-        		Address a = new Address("support@wordpress.com", "WordPress Support Team");
-        		Address[] addresses = {a};
-        		m.addRecipients(net.rim.blackberry.api.mail.Message.RecipientType.TO, addresses);
-        		
-        		String manufacturer = "Manufacturer: " + 
-        			(DeviceInfo.getManufacturerName() == null ? " n.a." : DeviceInfo.getManufacturerName());
-        		String deviceName =  "Device Name: " + (DeviceInfo.getDeviceName() == null ? " n.a." : DeviceInfo.getDeviceName()); 
-        		String platformVersion = "Platform Version: " + (DeviceInfo.getPlatformVersion() == null ? " n.a." : DeviceInfo.getPlatformVersion()); 
-        		String deviceSoftwareVersion = "Software Version: " + (DeviceInfo.getSoftwareVersion() == null ? " n.a." : DeviceInfo.getSoftwareVersion());
-        		String currentNetworkName = "Network Name: " + (RadioInfo.getCurrentNetworkName() == null ? " n.a." : RadioInfo.getCurrentNetworkName());
-
-        		StringBuffer mailContent = new StringBuffer();
-        		mailContent.append("App Version: "+Tools.getAppVersion()+ "\n");
-        		//#ifdef IS_OS47_OR_ABOVE
-        		mailContent.append("Package: Os4.7 or Higher\n");
-        		//#elseif
-        		mailContent.append("Package: Os4.2 or Higher\n");
-        		//#endif
-        		mailContent.append(manufacturer + "\n");
-        		mailContent.append(deviceName + "\n");
-        		mailContent.append(platformVersion + "\n" );
-        		mailContent.append(deviceSoftwareVersion + "\n");
-        		mailContent.append(currentNetworkName + "\n");
-        		mailContent.append("\n");
-        		mailContent.append("Note: After you send the email, use the Escape Key to return to the application.");
-        		mailContent.append("\n");
-        		mailContent.append("*** Add your comments below. ***");
-        		mailContent.append("\n");
-        		
-        		m.setContent(mailContent.toString());
-        		m.setSubject("WordPress for BlackBerry Bug Report");
-        		Invoke.invokeApplication(Invoke.APP_TYPE_MESSAGES, new MessageArguments(m));
-			} catch (Exception e) {
-				Log.error(e, "Problem invoking BlackBerry Mail App");
-				mainController.displayError("Problem invoking BlackBerry Mail App");
-			}
-        }
+    	public void run() {
+    		int selection = -1;
+    		String[] blogNames = {_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPCOM_BLOG), 
+    				_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPORG_BLOG)};
+    		String title = _resources.getString(WordPressResource.MESSAGE_WORDPRESS_VERSION);
+    		SelectorPopupScreen selScr = new SelectorPopupScreen(title, blogNames);
+    		selScr.pickBlog();
+    		selection = selScr.getSelectedBlog();
+    		if(selection == 0) {
+    			ContactSupportView view = new ContactSupportView(mainController, false);
+    			UiApplication.getUiApplication().pushScreen(view);
+    		} else if(selection == 1) {
+    			ContactSupportView view = new ContactSupportView(mainController, true);
+    			UiApplication.getUiApplication().pushScreen(view);
+    		}
+    	}
     };
 
     private MenuItem _aboutItem = new MenuItem( _resources, WordPressResource.MENUITEM_ABOUT, 80400, 1000) {
@@ -429,8 +433,7 @@ public class MainView extends BaseView {
         	FrontController.getIstance().showAboutView();
         }
     };
-    
-    
+        
     /*
      * used when background on close is activated
      */
@@ -439,7 +442,63 @@ public class MainView extends BaseView {
         	WordPressCore.getInstance().exitWordPress();
         }
     };
-   
+       
+    private class AddBlogPopupScreen extends PopupScreen {
+
+    	public AddBlogPopupScreen() {
+    		
+    		super(new DialogFieldManager());
+    		DialogFieldManager dfm = (DialogFieldManager) getDelegate();
+    		dfm.setIcon(new BitmapField(Bitmap.getPredefinedBitmap(Bitmap.QUESTION)));
+    		dfm.setMessage(new RichTextField(_resources.getString(WordPressResource.MESSAGE_WORDPRESS_VERSION), Field.NON_FOCUSABLE ));
+    		
+    		PillButtonField buttonHaveBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPCOM_BLOG));
+    		buttonHaveBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
+    		buttonHaveBlog.setChangeListener(new FieldChangeListener() {
+    			public void fieldChanged(Field field, int context) {
+    				mainController.addWPCOMBlogs();
+    				close();
+    			}
+    		});
+    		buttonHaveBlog.setMargin( 4, 0, 4, 0 );
+
+    		PillButtonField buttonGetFreeBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_NEW_TO_WP_BLOG));
+    		buttonGetFreeBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
+    		buttonGetFreeBlog.setChangeListener(new FieldChangeListener() {
+    			public void fieldChanged(Field field, int context) {
+    				Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
+    				close();
+    			}
+    		});
+    		buttonGetFreeBlog.setMargin( 4, 0, 4, 0 );
+    	
+    		PillButtonField buttonSelfHostedBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPORG_BLOG));
+    		buttonSelfHostedBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
+    		buttonSelfHostedBlog.setChangeListener(new FieldChangeListener() {
+    			public void fieldChanged(Field field, int context) {
+    				mainController.addWPORGBlogs();
+    				close();
+    			}
+    		});
+    		buttonSelfHostedBlog.setMargin( 4, 0, 4, 0 );
+    		//buttonsManagerSelfHostedBlog.add(buttonSelfHostedBlog);
+
+    		dfm.addCustomField(buttonHaveBlog);
+    		dfm.addCustomField(buttonSelfHostedBlog);
+    		dfm.addCustomField(buttonGetFreeBlog);
+    	}
+
+    	protected boolean keyChar(char c, int status, int time) {
+    		// Close this screen if escape is selected.
+    		if (c == Characters.ESCAPE) {
+    			this.close();
+    			return true;
+    		} else {
+    			return super.keyChar(c, status, time);
+    		}
+    	}
+    }
+
     
     //Override the makeMenu method so we can add a custom menu item
     protected void makeMenu(Menu menu, int instance)

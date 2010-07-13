@@ -1,11 +1,12 @@
 package com.wordpress.controller;
 
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.rms.RecordStoreException;
+
 import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
@@ -19,6 +20,7 @@ import org.kxmlrpc.XmlRpcException;
 
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.io.AccountsDAO;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
@@ -30,75 +32,68 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.AddBlogsView;
+import com.wordpress.view.AddWPCOMBlogsView;
+import com.wordpress.view.StandardBaseView;
+import com.wordpress.view.component.CheckBoxPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogAuthConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.BlogUpdateConn;
 
 
-public class AddBlogsController extends BaseController{
+public class AddBlogsController extends BaseController {
 	
-	private AddBlogsView view = null;
+	private StandardBaseView view = null;
 	private final TaskProgressListener listener; //listener on add a blog task
 	ConnectionInProgressView connectionProgressView=null;
+	private boolean isWPCOMCall = false; //true when adding a wp.com account 
 	
-	private int maxPostIndex= -1;
-	private boolean isResPhotos= false;
-	private Integer imageResizeWidth = null;
-	private Integer imageResizeHeight = null;
-	public static final int[] recentsPostValues={10,20,30,40,50};
-	public static final String[] recentsPostValuesLabel={"10","20","30","40","50"};
-	private Hashtable guiValues= new Hashtable();
-	
-	public AddBlogsController(TaskProgressListener listener) {
+	public AddBlogsController(TaskProgressListener listener, boolean isWPCOMBlog) {
 		super();
 		this.listener = listener;
-		guiValues.put("user", "");
-		guiValues.put("pass", "");
-		guiValues.put("url", "http://");
-		guiValues.put("recentpost", recentsPostValuesLabel);
-		guiValues.put("recentpostselected", new Integer(0));
-		guiValues.put("isresphotos", new Boolean(false));
-		guiValues.put("imageResizeWidth", new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
-		guiValues.put("imageResizeHeight", new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
-		this.view= new AddBlogsView(this,guiValues);
+		
+		if(isWPCOMBlog) {
+			this.view= new AddWPCOMBlogsView(this);
+		} else {
+			this.view= new AddBlogsView(this);
+		}
+		
 	}
-	
+		
 	public void showView(){
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 
+	/*
+	 * used when adding WP.COM blogs
+	 */
+	public void addWPCOMBlogs(String user, String passwd){
+		isWPCOMCall = true;
+        if (user != null && user != null && user.length() > 0) {
+            BlogAuthConn connection = new BlogAuthConn ("http://wordpress.com",user,passwd);
+            connection.addObserver(new AddBlogCallBack(1, user, passwd)); 
+             connectionProgressView= new ConnectionInProgressView(
+            		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
+                        
+            connection.setDiscoveryApiLink(true);
+             
+            connection.startConnWork(); //starts connection
+            int choice = connectionProgressView.doModal();
+    		if(choice==Dialog.CANCEL) {
+    			connection.stopConnWork(); //stop the connection if the user click on cancel button
+    		}
+        } else {
+        	displayError("Please enter an address and username");
+        }
+	}
+	
+	
 	//0 = user has inserted the url into the main screen
 	//1 = user has inserted the url into popup dialog   
-	public void addBlogs(int source){
-		
-		//Before saving we should do an additional check over img resize width and height.
-		//it is necessary when user put a value into width/height field and then press backbutton;
-		//the focus lost on those fields is never fired....
-		imageResizeWidth = view.getImageResizeWidth();
-		imageResizeHeight = view.getImageResizeHeight();
-		int[] keepAspectRatio = ImageUtils.keepAspectRatio(imageResizeWidth.intValue(), imageResizeHeight.intValue());
-		imageResizeWidth = new Integer(keepAspectRatio[0]);
-		imageResizeHeight = new Integer(keepAspectRatio[1]);
-		
-		String pass= view.getBlogPass().trim();
-		String url= view.getBlogUrl().trim();
-		//url=Tools.checkURL(url); //check te presence of xmlrpc file
-		String user= view.getBlogUser().trim();
-		maxPostIndex=view.getMaxRecentPostIndex();
-		Log.trace("Max Show posts index: "+maxPostIndex);
-		if(maxPostIndex < 0){
-			maxPostIndex=0;			
-			displayError("Please enter a correct number");
-	       return;
-		}
-		
-		isResPhotos= view.isResizePhoto();
-		Log.trace("Resize photos : "+isResPhotos+" Width : "+imageResizeWidth+" Height : "+imageResizeHeight);
-
-        if (url != null && user != null && url.length() > 0 && user != null && user.length() > 0) {
-            BlogAuthConn connection = new BlogAuthConn (url,user,pass);
-            connection.addObserver(new AddBlogCallBack(source)); 
+	public void addBlogs(int source, String URL, String user, String passwd){	
+        if (URL != null && user != null && URL.length() > 0 && user != null && user.length() > 0) {
+            BlogAuthConn connection = new BlogAuthConn (URL,user,passwd);
+            connection.addObserver(new AddBlogCallBack(source, user, passwd)); 
              connectionProgressView= new ConnectionInProgressView(
             		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
            
@@ -116,37 +111,103 @@ public class AddBlogsController extends BaseController{
         	displayError("Please enter an address and username");
         }
 	}
+		
 	
+	private void storeWPCOMAccount(Blog[] serverBlogs) {
+		if (!isWPCOMCall) {
+			return;
+		}
+		if (serverBlogs.length == 0) return;
+	
+		try {
+			Hashtable loadAccounts = AccountsDAO.loadAccounts();
+				
+			Blog tmpBlog = serverBlogs[0];
+			String username = tmpBlog.getUsername();
+			String passwd = tmpBlog.getPassword();
+			Hashtable accountInfo = new Hashtable();
+			accountInfo.put("username", username);
+			accountInfo.put("passwd", passwd);
+			accountInfo.put("blogs_number", ""+serverBlogs.length);
+			
+			Object object = loadAccounts.get(username);
+			if(object == null) {
+				//new account detected
+				loadAccounts.put(username, accountInfo);
+				AccountsDAO.storeAccounts(loadAccounts);
+			} else {
+				//account already available inside the app
+				//TODO update all blogs info associated with this account
+			}
+		} catch (IOException e) {
+			Log.error(e, "Error while storing account info");
+		} catch (RecordStoreException e) {
+			Log.error(e, "Error while storing account info");
+		}
+	}
 	
 	private void parseResponse(BlogConnResponse resp) {
-		
+						
 		Log.debug("found blogs: "+((Blog[])resp.getResponseObject()).length);	
 		Blog[] serverBlogs = (Blog[]) resp.getResponseObject();
-		Queue connectionsQueue = new Queue(serverBlogs.length);
-		Vector addedBlog = new Vector();
+
+		if (isWPCOMCall) {
+			storeWPCOMAccount(serverBlogs);
+		}
+				
+		//show the blog selector popup
+		String title = _resources.getString(WordPressResource.TITLE_ADDBLOGS_SELECTOR_POPUP);
+		String[] blogNames = new String[serverBlogs.length];
+		for (int i = 0; i < blogNames.length; i++) {
+			blogNames[i] = serverBlogs[i].getName();
+		}
+		final CheckBoxPopupScreen selScr = new CheckBoxPopupScreen(title, blogNames);
 		
+		UiApplication.getUiApplication().invokeAndWait(new Runnable() {
+			public void run() {
+				selScr.pickBlogs();
+			}
+		});
+		
+		Vector addedBlog = new Vector();
+		boolean selection[] = selScr.getSelectedBlogs();
+		for (int i = 0; i < selection.length; i++) {
+			if(selection[i]){
+				addedBlog.addElement(serverBlogs[i]);
+			}
+		}
+		serverBlogs = new Blog[addedBlog.size()];
+		addedBlog.copyInto(serverBlogs);
+		addedBlog = new Vector();
+		
+		Queue connectionsQueue = new Queue(serverBlogs.length);
 		for (int i = 0; i < serverBlogs.length; i++) {
-			serverBlogs[i].setMaxPostCount(recentsPostValues[maxPostIndex]);
-			serverBlogs[i].setResizePhotos(isResPhotos);	
-			serverBlogs[i].setImageResizeWidth(imageResizeWidth);
-			serverBlogs[i].setImageResizeHeight(imageResizeHeight);
+			serverBlogs[i].setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
+			serverBlogs[i].setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
 			serverBlogs[i].setLoadingState(BlogInfo.STATE_ADDED_TO_QUEUE);
+			if (isWPCOMCall) {
+				serverBlogs[i].setWPCOMBlog(true);
+			}
 			
 			try { //if a blog with same name and xmlrpc url exist
 				BlogDAO.newBlog(serverBlogs[i], true);
 				//add this blog to the queue	
 				final BlogUpdateConn connection = new BlogUpdateConn (serverBlogs[i]);       
 				connectionsQueue.push(connection); 
-				
 				addedBlog.addElement(serverBlogs[i]); //add this blog to the list of just added blog
-				
 			} catch (Exception e) {
 				if(e != null && e.getMessage()!= null ) {
-					displayMessage("Error while adding blog: " + "\n" + e.getMessage());
+					displayMessage(e.getMessage());
 				} else {
-					displayMessage("Error while adding blog ");			
+					displayMessage("Error while adding blog");			
 				}
 			}
+		}
+		
+		//no blogs added
+		if (connectionsQueue.isEmpty()) {
+			FrontController.getIstance().backAndRefreshView(false);			
+			return;
 		}
 		
 		Vector applicationBlogs = WordPressCore.getInstance().getApplicationBlogs();
@@ -171,12 +232,16 @@ public class AddBlogsController extends BaseController{
 	}
 
 	//callback for send post to the blog
-	private class AddBlogCallBack implements Observer{
+	private class AddBlogCallBack implements Observer {
 		private int source = 0; //0 = base screen;  1 = popup prompted for detailed xmlrpc endpoint;
+		private final String user;
+		private final String passwd;
 		
-		public AddBlogCallBack(int source) {
+		public AddBlogCallBack(int source, String user, String passwd) {
 			super();
 			this.source = source;
+			this.user = user;
+			this.passwd = passwd;
 		}
 		
 		public void update(Observable observable, final Object object) {
@@ -200,16 +265,11 @@ public class AddBlogsController extends BaseController{
 					Log.error(respMessage);
 					if(resp.getResponseObject() instanceof XmlRpcException) { //response from xmlrpc server
 						displayError(respMessage);
-					//} else if(resp.getResponseObject() instanceof XmlPullParserException) {
 					} else if(source == 0) {
-						//xmlrpc url error
-						/*if (source == 1) //popupscreen source
-							displayError(_resources.getString(WordPressResource.MESSAGE_XMLRPC_ENDPOINT_FAILED));
-							else*/
 						UiApplication.getUiApplication().invokeLater(new Runnable() {
 							public void run() {
 								XmlRpcEndpointDialog pw = new XmlRpcEndpointDialog();
-								pw.setDialogClosedListener(new XmlRpcEndpointDialogClosedListener());
+								pw.setDialogClosedListener(new XmlRpcEndpointDialogClosedListener(user, passwd));
 								pw.show();
 							}
 						});
@@ -226,12 +286,19 @@ public class AddBlogsController extends BaseController{
 	
 	
 	private class XmlRpcEndpointDialogClosedListener implements DialogClosedListener {
-		
+		private final String user;
+		private final String passwd;
+
+		public XmlRpcEndpointDialogClosedListener(String user, String passwd) {
+			super();
+			this.user = user;
+			this.passwd = passwd;
+		}
+
 		public void dialogClosed(Dialog dialog, int choice) {
 			if (choice == Dialog.YES) {
 				XmlRpcEndpointDialog pw = (XmlRpcEndpointDialog) dialog;
-				view.setBlogUrl(pw.getUrlFromField());
-				addBlogs(1);
+				addBlogs(1, pw.getUrlFromField(), this.user, this.passwd);
 			}
 		}
 	}
@@ -266,105 +333,6 @@ public class AddBlogsController extends BaseController{
         }
         
     }
-	
-	/*
-	public void update(Observable observable, Object object) {
-		try{
-			
-		dismissDialog(connectionProgressView);
-
-		BlogConnResponse resp=(BlogConnResponse)object;
-		
-		if(resp.isStopped()){
-			return;
-		}
-		
-		if(!resp.isError()) {
-			
-			Log.debug("found blogs: "+((Blog[])resp.getResponseObject()).length);	
-		 	Blog[]blogs=(Blog[])resp.getResponseObject();
-		 	Queue connectionsQueue = new Queue(blogs.length);
-			
-		 	for (int i = 0; i < blogs.length; i++) {
-		 		blogs[i].setMaxPostCount(recentsPostValues[maxPostIndex]);
-		 		blogs[i].setResizePhotos(isResPhotos);	
-		 		blogs[i].setLoadingState(BlogInfo.STATE_ADDED_TO_QUEUE);
-		 		
-		    	String url = null;
-		    	if ( blogs[i].getXmlRpcUrl() != null ) {
-		    		url = blogs[i].getXmlRpcUrl();
-		    	} else {
-		    		Log.trace("blog xmlrpc url was null");
-		    		Log.trace("blog xmlrpc was set to blog url");
-		    		url = blogs[i].getUrl();
-		    	}
-		    	//check the url string
-		    	url = Tools.checkURL(url);
-		    	blogs[i].setXmlRpcUrl(url); //set the blog xmlrpc url
-		    	
-		    	if(url == null || url.equalsIgnoreCase(""))
-		    		continue; //skip this blog
-		    		 		
-				try { //if a blog with same name and xmlrpc url exist
-					BlogDAO.newBlog(blogs[i], true);
-					//add this blog to the queue	
-					final BlogUpdateConn connection = new BlogUpdateConn (blogs[i]);       
-					connectionsQueue.push(connection); 
-				} catch (Exception e) {
-					if(e != null && e.getMessage()!= null ) {
-						displayMessage("Error while adding blog: " + "\n" + e.getMessage());
-					} else {
-						displayMessage("Error while adding blog: ");			
-					}
-				}
-		    }
-		 	
-		 	FrontController.getIstance().backAndRefreshView(true); //update the main view with new blogs
-		 	LoadBlogsDataTask loadBlogsTask = new LoadBlogsDataTask(connectionsQueue);
-			loadBlogsTask.setProgressListener(this.listener);
-			//push into the Runner
-			runner.enqueue(loadBlogsTask);
-		 	
-		} else {
-			final String respMessage=resp.getResponse();
-			Log.error(respMessage);
-			if(resp.getResponseObject() instanceof XmlRpcException) {
-				//pass/username errata
-				displayError(respMessage);
-			} else if(resp.getResponseObject() instanceof XmlPullParserException) {
-				//xmlrpc url error
-				displayError(_resources.getString(WordPressResource.MESSAGE_COMUNICATION_ERR));
-			} else {
-				//IO Exception ad others
-				displayError(respMessage);
-			}
-		}		
-	
-		} catch (final Exception e) {
-		 	displayError(e,"Error while adding blogs");	
-		} 
-	}
-	*/
-	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
-	    public void fieldChanged(Field field, int context) {
-	    	addBlogs(0); 
-	   }
-	};
-
-
-	private FieldChangeListener listenerBackButton = new FieldChangeListener() {
-	    public void fieldChanged(Field field, int context) {
-	        backCmd();
-	   }
-	};
-
-	public FieldChangeListener getOkButtonListener() {
-		return listenerOkButton;
-	}
-	   
-	public FieldChangeListener getBackButtonListener() {
-		return listenerBackButton;
-	}
 	
 	// Utility routine to by-pass the standard dialog box when the screen is closed  
 	public boolean discardChange() {

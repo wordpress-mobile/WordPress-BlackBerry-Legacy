@@ -197,7 +197,7 @@ public class MediaEntryPropView extends StandardBaseView {
         
 	public boolean onClose()   {
 			
-		boolean isModified=isDirty();
+		boolean isModified = isDirty();
 		
 		if(!isModified) {
 			controller.backCmd();

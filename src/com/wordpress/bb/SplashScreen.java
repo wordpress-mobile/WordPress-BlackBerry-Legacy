@@ -1,4 +1,3 @@
-//#preprocess
 package com.wordpress.bb;
 
 import net.rim.device.api.i18n.ResourceBundle;

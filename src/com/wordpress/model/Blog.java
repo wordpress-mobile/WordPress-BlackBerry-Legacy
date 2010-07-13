@@ -7,6 +7,8 @@ public class Blog {
 
 	private int loadingState=-1; //loading state of this blog. see BlogInfo constants
 	
+	private boolean isWPCOMBlog = false;
+	
 	private String id;
 	private String name;
 	private String url; //user inserted blogs url
@@ -29,7 +31,7 @@ public class Blog {
 	private boolean isSignatureEnabled=false; //true add a signature at the end of each post
 	private String signature=null;
 
-	private int maxPostCount=-1;
+	private int maxPostCount = 50 ;
 
 	private Category[] categories = null;
 	private Hashtable postStatusList=null; 	
@@ -281,5 +283,13 @@ public class Blog {
 
 	public void setSignature(String signature) {
 		this.signature = signature;
+	}
+
+	public boolean isWPCOMBlog() {
+		return isWPCOMBlog;
+	}
+
+	public void setWPCOMBlog(boolean isWPCOMBlog) {
+		this.isWPCOMBlog = isWPCOMBlog;
 	}	
 }

@@ -643,11 +643,14 @@ public class MediaView extends StandardBaseView {
         fromDataManager.add( fileNameLbl );
         String fileName =  mediaEntry.getFileName() != null ? mediaEntry.getFileName() : "";
         ClickableLabelField filenameField = new ClickableLabelField(fileName, LabelField.FOCUSABLE | LabelField.ELLIPSIS);
-		 FieldChangeListener listener = new FieldChangeListener() {
-			 public void fieldChanged(Field field, int context) {
-				 showMediaItemProperties();
-			 }
-		 };
+        FieldChangeListener listener = new FieldChangeListener() {
+        	public void fieldChanged(Field field, int context) {
+        		//user clicks on the field (not a change that comes from prop view)
+        		if(context == 0){
+        			showMediaItemProperties();
+        		}
+        	}
+        };
  		filenameField.setChangeListener(listener);
 		fromDataManager.add( filenameField );
         

@@ -43,12 +43,12 @@ src\com\wordpress\bb\WordPress_fi.rrc
 src\com\wordpress\bb\WordPress_fr.rrc
 src\com\wordpress\bb\WordPress_id.rrc
 src\com\wordpress\bb\WordPress_it.rrc
-src\com\wordpress\bb\WordPress_ja.rrc
 src\com\wordpress\bb\WordPress_pt.rrc
 src\com\wordpress\bb\WordPressApplicationPermissions.java
 src\com\wordpress\bb\WordPressCore.java
 src\com\wordpress\bb\WordPressInfo.java
 src\com\wordpress\controller\AboutController.java
+src\com\wordpress\controller\AccountsController.java
 src\com\wordpress\controller\AddBlogsController.java
 src\com\wordpress\controller\BaseController.java
 src\com\wordpress\controller\BlogController.java
@@ -71,6 +71,7 @@ src\com\wordpress\controller\PreferenceController.java
 src\com\wordpress\controller\RecentCommentsController.java
 src\com\wordpress\controller\RefreshBlogController.java
 src\com\wordpress\controller\StatsController.java
+src\com\wordpress\io\AccountsDAO.java
 src\com\wordpress\io\AppDAO.java
 src\com\wordpress\io\BaseDAO.java
 src\com\wordpress\io\BlogDAO.java
@@ -142,7 +143,10 @@ src\com\wordpress\utils\StringUtils.java
 src\com\wordpress\utils\Tools.java
 src\com\wordpress\utils\UnicodeNormalizer.java
 src\com\wordpress\view\AboutView.java
+src\com\wordpress\view\AccountDetailView.java
+src\com\wordpress\view\AccountsView.java
 src\com\wordpress\view\AddBlogsView.java
+src\com\wordpress\view\AddWPCOMBlogsView.java
 src\com\wordpress\view\BaseView.java
 src\com\wordpress\view\BlogOptionsView.java
 src\com\wordpress\view\BlogView.java
@@ -155,6 +159,7 @@ src\com\wordpress\view\component\BasicListFieldCallBack.java
 src\com\wordpress\view\component\BlogsListField.java
 src\com\wordpress\view\component\CategoriesListField.java
 src\com\wordpress\view\component\CheckBoxListField.java
+src\com\wordpress\view\component\CheckBoxPopupScreen.java
 src\com\wordpress\view\component\ClickableLabelField.java
 src\com\wordpress\view\component\ColoredLabelField.java
 src\com\wordpress\view\component\CommentsListField.java
@@ -162,6 +167,7 @@ src\com\wordpress\view\component\EmbossedButtonField.java
 src\com\wordpress\view\component\HeaderField.java
 src\com\wordpress\view\component\HtmlTextField.java
 src\com\wordpress\view\component\ListActionListener.java
+src\com\wordpress\view\component\ListStyleButtonField.java
 src\com\wordpress\view\component\MarkupToolBar.java
 src\com\wordpress\view\component\MarkupToolBarTextFieldMediator.java
 src\com\wordpress\view\component\PillButtonField.java
@@ -171,9 +177,11 @@ src\com\wordpress\view\component\RimFileBrowserListener.java
 src\com\wordpress\view\component\SelectorPopupScreen.java
 src\com\wordpress\view\component\ThrobberRenderer.java
 src\com\wordpress\view\component\WebBitmapField.java
+src\com\wordpress\view\ContactSupportView.java
 src\com\wordpress\view\container\BorderedFieldManager.java
 src\com\wordpress\view\container\BorderedFocusChangeListenerPatch.java
 src\com\wordpress\view\container\JustifiedEvenlySpacedHorizontalFieldManager.java
+src\com\wordpress\view\container\ListStyleButtonSet.java
 src\com\wordpress\view\container\TableLayoutManager.java
 src\com\wordpress\view\CustomFieldsView.java
 src\com\wordpress\view\dialog\AddLinkDialog.java
@@ -257,6 +265,7 @@ src\icons\bottombar_disabled.png
 src\icons\bottombar_image.png
 src\icons\bottombar_refresh.png
 src\icons\bottombar_video.png
+src\icons\chevron_right_black_15x22.png
 src\icons\comments.png
 src\icons\enqueued.png
 src\icons\file_temporary_48.png
@@ -265,6 +274,8 @@ src\icons\folder_yellow_open_32.png
 src\icons\folder_yellow_open_48.png
 src\icons\gravatar.png
 src\icons\loading-gif.bin
+src\icons\logo-wpcom-login.png
+src\icons\logo-wporg-login.png
 src\icons\media_library.png
 src\icons\mime_unknown.png
 src\icons\mime_unknown_48.png
@@ -337,4 +348,4 @@ Title=WordPress
 Type=0
 UserData=|src
 Vendor=Research In Motion Limited
-Version=1.2.1
+Version=1.3.1

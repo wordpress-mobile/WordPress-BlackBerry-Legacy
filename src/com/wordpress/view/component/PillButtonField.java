@@ -43,6 +43,7 @@ public class PillButtonField extends BaseButtonField
     {
         super( Field.FOCUSABLE | ButtonField.CONSUME_CLICK );
         _text = text;
+        _buttonFont = getFont();
     }
     
     /**

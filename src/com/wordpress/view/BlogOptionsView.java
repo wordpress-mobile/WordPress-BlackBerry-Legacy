@@ -17,7 +17,6 @@ import net.rim.device.api.ui.component.PasswordEditField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
-import com.wordpress.controller.AddBlogsController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogOptionsController;
 import com.wordpress.io.BlogDAO;
@@ -89,8 +88,7 @@ public class BlogOptionsView extends StandardBaseView {
 			Integer videoResizeWidth = (Integer)values.get("videoResizeWidth");
 			Integer videoResizeHeight = (Integer)values.get("videoResizeHeight");
 	        //end loading
-			
-			
+						
             BorderedFieldManager credentialOptionsRow = new BorderedFieldManager(
 	        		Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL
@@ -264,7 +262,7 @@ public class BlogOptionsView extends StandardBaseView {
 		String pass = passwordField.getText();
 		String user= userNameField.getText();
 		int maxPostIndex = maxRecentPost.getSelectedIndex();
-		int valueMaxPostCount = AddBlogsController.recentsPostValues[maxPostIndex];
+		int valueMaxPostCount = BlogOptionsController.recentsPostValues[maxPostIndex];
 		boolean isResPhotos = resizePhoto.getChecked();
 		Integer imageResizeWidth = getImageResizeWidth();
 		Integer imageResizeHeight = getImageResizeHeight();
@@ -309,7 +307,7 @@ public class BlogOptionsView extends StandardBaseView {
 			String pass = passwordField.getText();
 			String user= userNameField.getText();
 			int maxPostIndex = maxRecentPost.getSelectedIndex();
-			int valueMaxPostCount = AddBlogsController.recentsPostValues[maxPostIndex];
+			int valueMaxPostCount = BlogOptionsController.recentsPostValues[maxPostIndex];
 			boolean isResPhotos = resizePhoto.getChecked();
 			blog.setPassword(pass);
 			blog.setUsername(user);

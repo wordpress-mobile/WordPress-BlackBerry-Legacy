@@ -36,6 +36,10 @@ public class AppDAO implements BaseDAO {
 		return getBaseDirPath() + APP_PREFS_FILE;
 	}
 	
+	public static String getAccountsFilePath() throws RecordStoreException, IOException {	
+		return getBaseDirPath() + ACCOUNTS_FILE;
+	}
+	
 	public static String getXmlRpcTempFilePath() throws RecordStoreException, IOException {	
 		return getBaseDirPath() + APP_TMP_XMLRPC_FILE;
 	}

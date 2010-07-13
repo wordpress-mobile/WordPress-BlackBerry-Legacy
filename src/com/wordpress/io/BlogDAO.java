@@ -24,8 +24,7 @@ public class BlogDAO implements BaseDAO {
 	//You might wonder what happens when a static synchronized method is invoked, since a static method is 
 	//associated with a class, not an object. 
 	//In this case, the thread acquires the intrinsic lock for the Class object associated with the class. 
-		
-	
+			
 	/**
      * add One  blog to the storage!
      * @param blog
@@ -39,7 +38,7 @@ public class BlogDAO implements BaseDAO {
     	String filePath=AppDAO.getBaseDirPath()+nameMD5;
     
     	if (JSR75FileSystem.isFileExist(filePath)){
-    		throw new Exception("Cannot add this blog: " + name + " because another blog with same name already exist!");
+    		throw new Exception("Cannot add '" + name + "' because that blog already exists in the App");
     	} else {
     		JSR75FileSystem.createDir(AppDAO.getBaseDirPath()); 
     		JSR75FileSystem.createDir(filePath);
@@ -309,6 +308,8 @@ public class BlogDAO implements BaseDAO {
         ser.serialize(blog.getVideoResizeWidth()); //if it is null no problem, the serializer handles null value
         ser.serialize(blog.getVideoResizeHeight()); //if it is null no problem, the serializer handles null value
         
+        ser.serialize(new Boolean(blog.isWPCOMBlog()));
+        
         out.close();
 
 		if(isError) {
@@ -541,6 +542,16 @@ public class BlogDAO implements BaseDAO {
 			Log.error("No video resize height found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
         
+		//since version 1.4
+		try {
+			boolean isWPCOMBlog=((Boolean)ser.deserialize()).booleanValue();
+			blog.setWPCOMBlog( isWPCOMBlog );
+		} catch (Exception  e) {
+			Log.error("No isWPCOM flag found - End of file was reached. Probably a previous blog data file is loaded" );
+		} catch (Throwable  t) {
+			Log.error("No isWPCOM flag found  - End of file was reached. Probably a previous blog data file is loaded" );
+		}
+				
         in.close();
         return blog;     
      } 

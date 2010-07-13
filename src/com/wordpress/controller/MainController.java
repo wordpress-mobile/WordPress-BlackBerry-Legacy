@@ -10,7 +10,6 @@ import javax.microedition.rms.RecordStoreException;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
-import com.wordpress.bb.SharingHelper;
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
@@ -167,8 +166,14 @@ public class MainController extends BaseController implements TaskProgressListen
 		}
 	}
 
-	public void addBlogs() {
-		AddBlogsController ctrl=new AddBlogsController(this);
+	public void addWPORGBlogs() {
+		AddBlogsController ctrl = new AddBlogsController(this, false);
+		ctrl.showView();
+	}
+	
+	
+	public void addWPCOMBlogs() {
+		AddBlogsController ctrl = new AddBlogsController(this, true);
 		ctrl.showView();
 	}
 		

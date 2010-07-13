@@ -25,11 +25,9 @@ public class BlogAuthConn extends BlogConn  {
 		this.discoveryApiLink = discoveryApiLink;
 	}
 
-
 	public BlogAuthConn(String hint,String userHint, String passwordHint) {
 		super(hint, userHint, passwordHint);
 	}
-
 	
 	private void resetConnectionResponse() {
 		connResponse.setError(false);
@@ -37,7 +35,7 @@ public class BlogAuthConn extends BlogConn  {
 		connResponse.setResponse("");
 		connResponse.setResponseObject(null);
 	}
-	
+
 	
 	private Object guessUrl(){
 		Vector args;
@@ -63,7 +61,7 @@ public class BlogAuthConn extends BlogConn  {
 	}
  
 	/**
-	 * Return the content of the url as string. Follow ONLY 1 redirection
+	 * Return the content of the url as string. Follow ONLY 3 redirections
 	 * 
 	 * @param URL
 	 * @return

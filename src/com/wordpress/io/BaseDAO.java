@@ -10,6 +10,7 @@ public interface BaseDAO {
 	public static final String APP_TMP_XMLRPC_FILE = "tmp_xmlrpc"; //used in xmlrpc calls
 	public static final String APP_TMP_IMG_FILE = "tmp_image"; //used when resize opt is active
 	public static final String APP_PREFS_FILE= "prefs";
+	public static final String ACCOUNTS_FILE= "accounts";
 	public static final String DRAFT_FOLDER_PREFIX = "d/";
 	public static final String PAGE_FOLDER_PREFIX = "p/";
 	public static final String COMMENTS_FILE = "comments";
