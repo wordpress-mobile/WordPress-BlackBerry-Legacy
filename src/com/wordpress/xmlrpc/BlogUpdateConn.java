@@ -92,7 +92,7 @@ public class BlogUpdateConn extends BlogConn  {
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				blog.setPages(blogPages);
-			checkConnectionResponse("Error while loading Page");
+			checkConnectionResponse("Error while loading Pages");
 		
 			Vector comments = getComments(Integer.parseInt(blog.getId()), -1, "", 0, 100);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
@@ -107,7 +107,7 @@ public class BlogUpdateConn extends BlogConn  {
 					Log.error(e, "Error while storing comments");
 				} 
 			}
-			checkConnectionResponse("Load Comment");
+			checkConnectionResponse("Error while loading comments");
 
 			//if there was an errors
 			if(!isError) {

@@ -120,7 +120,7 @@ public class AddBlogsController extends BaseController {
 		if (serverBlogs.length == 0) return;
 	
 		try {
-			Hashtable loadAccounts = AccountsDAO.loadAccounts();
+			Hashtable loadAccounts = MainController.getIstance().getApplicationAccounts();
 				
 			Blog tmpBlog = serverBlogs[0];
 			String username = tmpBlog.getUsername();

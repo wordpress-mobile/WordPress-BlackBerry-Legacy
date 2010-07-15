@@ -17,15 +17,15 @@ import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.MainController;
 import com.wordpress.io.AccountsDAO;
+import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ListActionListener;
 import com.wordpress.view.component.PostsListField;
-
-//#ifdef IS_OS47_OR_ABOVE
-import net.rim.device.api.ui.Touchscreen;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.Menu;
 
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.Touchscreen;
 import com.wordpress.view.touch.BottomBarItem;
 //#endif
 
@@ -38,15 +38,7 @@ public class AccountsView extends BaseView  implements ListActionListener {
 	 public AccountsView(AccountsController  _controller) {
 			super(_resources.getString(WordPressResource.TITLE_VIEW_ACCOUNTS), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
 	    	this.controller=_controller;
-	    	try {
-	    		accounts = AccountsDAO.loadAccounts();
-			} catch (IOException e) {
-				accounts = null;
-				controller.displayError(e, "Error while reading accounts info");
-			} catch (RecordStoreException e) {
-				accounts = null;
-				controller.displayError(e, "Error while reading accounts info");
-			}
+    		this.accounts = MainController.getIstance().getApplicationAccounts();
 			addMenuItem(_newPostItem);
 	    	buildList();
 	 }
@@ -156,30 +148,42 @@ public class AccountsView extends BaseView  implements ListActionListener {
 			return;
 		}
 		int result = controller.askQuestion(_resources.getString(WordPressResource.MESSAGE_DELETE_ACCOUNT));   
-    	if(Dialog.YES != result) {
-    		return;
-    	}
-    	
-		result = controller.askQuestion(_resources.getString(WordPressResource.MESSAGE_DELETE_ACCOUNT_2));   
-    	if(Dialog.YES != result) {
-    		return;
-    	}		
+		if(Dialog.YES != result) {
+			return;
+		}
 
-    	
+		result = controller.askQuestion(_resources.getString(WordPressResource.MESSAGE_DELETE_ACCOUNT_2));   
+		if(Dialog.YES != result) {
+			return;
+		}		
+
+		//check if there are blogs in loading right now
+		MainController mainController = MainController.getIstance();
+		BlogInfo[] applicationBlogs = mainController.getApplicationBlogs();
+		for (int i = 0; i < applicationBlogs.length; i++) {
+			BlogInfo selectedBlog = applicationBlogs[i];
+			if (selectedBlog.getState() == BlogInfo.STATE_LOADING || selectedBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
+				controller.displayMessage(_resources.getString(WordPressResource.MESSAGE_LOADING_BLOGS));
+				return;
+			}
+		}
+
 		Log.trace("selected account " + selectedAccount);
 		Hashtable accountHashtable = getAccountHashtable(selectedAccount);
-		accounts.remove( accountHashtable.get("username"));
-    	try {
-    		AccountsDAO.storeAccounts(accounts);
+		String username =  (String)accountHashtable.get("username");
+		accounts.remove(username);
+		try {
+			AccountsDAO.storeAccounts(accounts);
 		} catch (IOException e) {
 			controller.displayError(e, "Error while removing accounts info");
 		} catch (RecordStoreException e) {
 			controller.displayError(e, "Error while removing accounts info");
 		}
-		//todo removing all associated blog
-		
+
+		//removing all associated blog
+		mainController.deleteBlogsByAccount(username);
 		this.delete(listaPost);
-    	buildList();
+		buildList();
 	}
 	
 	private void editAccount(int selectedAccount) {
@@ -191,7 +195,6 @@ public class AccountsView extends BaseView  implements ListActionListener {
         AccountDetailView accountView = new AccountDetailView(controller, accountHashtable);
   		UiApplication.getUiApplication().pushScreen(accountView);
 	}
-	
 	
     private MenuItem _deletePostItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE, 220, 10) {
         public void run() {

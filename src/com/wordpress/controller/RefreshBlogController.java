@@ -52,7 +52,7 @@ public class RefreshBlogController extends BaseController implements Observer{
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
 				
-				Log.trace(">>>loadPostsResponse");
+				Log.trace(">>>Refreshing Blog Response");
 
 				dismissDialog(connectionProgressView);
 				BlogConnResponse resp= (BlogConnResponse) object;

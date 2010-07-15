@@ -12,6 +12,7 @@ import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.io.AccountsDAO;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
@@ -28,6 +29,7 @@ public class MainController extends BaseController implements TaskProgressListen
 	
 	private MainView view = null;
 	private Vector applicationBlogs = null;
+	private Hashtable applicationAccounts = new Hashtable();
 	
 	private static MainController singletonObject;
 	
@@ -112,6 +114,14 @@ public class MainController extends BaseController implements TaskProgressListen
 		//SharingHelper sHelper = SharingHelper.getInstance();
 		//sHelper.addCHAPIListener();
 		//sHelper.checkPendingRequest();
+		
+		try {
+			applicationAccounts = AccountsDAO.loadAccounts();
+		} catch (IOException e) {
+			this.displayError(e, "Error while reading accounts info");
+		} catch (RecordStoreException e) {
+			this.displayError(e, "Error while reading accounts info");
+		}
 	}
 	
 
@@ -136,7 +146,7 @@ public class MainController extends BaseController implements TaskProgressListen
 		
 	public void deleteBlog(BlogInfo selectedBlog) {
 		if (selectedBlog.getState() == BlogInfo.STATE_LOADING || selectedBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
-			displayMessage("Loading blog. Try later..");
+			displayMessage(_resources.getString(WordPressResource.MESSAGE_LOADING_BLOGS));
 		} else {
 			try {
 				
@@ -165,6 +175,45 @@ public class MainController extends BaseController implements TaskProgressListen
 			}
 		}
 	}
+	
+	public void deleteBlogsByAccount(String username) {
+			try {
+
+				Vector removedBlog = new Vector();
+				for (int i = 0; i < applicationBlogs.size(); i++) {
+					BlogInfo currentBlogInfo = (BlogInfo) applicationBlogs.elementAt(i);
+					if(currentBlogInfo.isWPCOMBlog() && 
+							currentBlogInfo.getUsername().equalsIgnoreCase(username)) {
+						BlogDAO.removeBlog(currentBlogInfo);
+						removedBlog.addElement(currentBlogInfo);
+					}
+				}
+
+				//rebuilding the app blogs list
+	    		for (int i = 0; i < removedBlog.size(); i++) {
+	    			BlogInfo currentBlog = (BlogInfo) removedBlog.elementAt(i);	 
+	    			for (int j = 0; j < applicationBlogs.size(); j++) {
+	    				BlogInfo selectedBlog = (BlogInfo) applicationBlogs.elementAt(j);
+	    				if (selectedBlog.equals(currentBlog) ) {
+	    					applicationBlogs.removeElementAt(j);
+	    					break;
+	    				}
+	    			}
+	    		}
+
+	    		//ping the stats endpoint with new blog #s
+	    		DataCollector dtc = new DataCollector();
+	    		dtc.pingStatsEndpoint(applicationBlogs.size());
+
+	    		//update the view
+	    		this.view.refreshBlogList();
+			} catch (IOException e) {
+				displayError(e, "Error while deleting the blog");
+			} catch (RecordStoreException e) {
+				displayError(e, "Error while deleting the blog");
+			}
+		}
+	
 
 	public void addWPORGBlogs() {
 		AddBlogsController ctrl = new AddBlogsController(this, false);
@@ -176,7 +225,11 @@ public class MainController extends BaseController implements TaskProgressListen
 		AddBlogsController ctrl = new AddBlogsController(this, true);
 		ctrl.showView();
 	}
-		
+	
+	public Hashtable getApplicationAccounts() {
+		return applicationAccounts;
+	}
+	
 	public BlogInfo[] getApplicationBlogs() {
 		BlogInfo[] blogCaricati = new BlogInfo[applicationBlogs.size()];
 		for (int i = 0; i < blogCaricati.length; i++) {
@@ -189,7 +242,7 @@ public class MainController extends BaseController implements TaskProgressListen
 
 		if (selectedBlog.getState() == BlogInfo.STATE_LOADING || selectedBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
 			//blog in caricamento
-			displayMessage("Loading blog. Try later..");
+			displayMessage(_resources.getString(WordPressResource.MESSAGE_LOADING_BLOGS));
 		} else {
 			FrontController.getIstance().showBlog(selectedBlog);
 		}

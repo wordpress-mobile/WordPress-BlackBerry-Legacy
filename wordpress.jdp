@@ -43,6 +43,7 @@ src\com\wordpress\bb\WordPress_fi.rrc
 src\com\wordpress\bb\WordPress_fr.rrc
 src\com\wordpress\bb\WordPress_id.rrc
 src\com\wordpress\bb\WordPress_it.rrc
+src\com\wordpress\bb\WordPress_ja.rrc
 src\com\wordpress\bb\WordPress_pt.rrc
 src\com\wordpress\bb\WordPressApplicationPermissions.java
 src\com\wordpress\bb\WordPressCore.java
@@ -167,7 +168,6 @@ src\com\wordpress\view\component\EmbossedButtonField.java
 src\com\wordpress\view\component\HeaderField.java
 src\com\wordpress\view\component\HtmlTextField.java
 src\com\wordpress\view\component\ListActionListener.java
-src\com\wordpress\view\component\ListStyleButtonField.java
 src\com\wordpress\view\component\MarkupToolBar.java
 src\com\wordpress\view\component\MarkupToolBarTextFieldMediator.java
 src\com\wordpress\view\component\PillButtonField.java
@@ -181,7 +181,6 @@ src\com\wordpress\view\ContactSupportView.java
 src\com\wordpress\view\container\BorderedFieldManager.java
 src\com\wordpress\view\container\BorderedFocusChangeListenerPatch.java
 src\com\wordpress\view\container\JustifiedEvenlySpacedHorizontalFieldManager.java
-src\com\wordpress\view\container\ListStyleButtonSet.java
 src\com\wordpress\view\container\TableLayoutManager.java
 src\com\wordpress\view\CustomFieldsView.java
 src\com\wordpress\view\dialog\AddLinkDialog.java
@@ -265,7 +264,6 @@ src\icons\bottombar_disabled.png
 src\icons\bottombar_image.png
 src\icons\bottombar_refresh.png
 src\icons\bottombar_video.png
-src\icons\chevron_right_black_15x22.png
 src\icons\comments.png
 src\icons\enqueued.png
 src\icons\file_temporary_48.png

@@ -12,6 +12,7 @@ import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
+import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.PasswordEditField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
@@ -19,9 +20,13 @@ import net.rim.device.api.ui.container.HorizontalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.BaseController;
+import com.wordpress.controller.MainController;
+import com.wordpress.io.AccountsDAO;
 import com.wordpress.utils.ImageUtils;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.container.BorderedFieldManager;
+import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
 
 public class AccountDetailView extends StandardBaseView {
@@ -49,13 +54,11 @@ public class AccountDetailView extends StandardBaseView {
 	        BitmapField wpClassicHeaderBitmapField =  new BitmapField(classicHeaderImg.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
 	        add(wpClassicHeaderBitmapField);
 
-	        
 	        String user = (String)accountData.get("username");
 	        String pass = (String)accountData.get("passwd");
 	        BorderedFieldManager credentialOptionsRow = new BorderedFieldManager(
 	        		Manager.NO_HORIZONTAL_SCROLL
-	        		| Manager.NO_VERTICAL_SCROLL
-	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
+	        		| Manager.NO_VERTICAL_SCROLL);
 
 	        credentialOptionsRow.add(
 	        		GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_CREDENTIALS), Color.BLACK)
@@ -79,7 +82,7 @@ public class AccountDetailView extends StandardBaseView {
             buttonsManager.add(buttonBACK);
     		add(buttonsManager); 
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
-    		addMenuItem(_addBlogItem);
+    	//	addMenuItem(_addBlogItem);
 	}
 	 		
 	private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 140, 10) {
@@ -87,20 +90,57 @@ public class AccountDetailView extends StandardBaseView {
 			
 		}
 	};
-	
-	
 
 	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
+	    	saveAndBack();
 	   }
 	};
-
 
 	private FieldChangeListener listenerBackButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
-	    	controller.backCmd();
+	    	dismissView();
 	   }
 	};
+
+	//called when user click the OK button
+	private void  saveAndBack(){
+		try {
+			if(isDirty()){
+				String pass = passwordField.getText();
+				String user = userNameField.getText();
+				accountData.put("username", user);
+				accountData.put("passwd", pass);
+				AccountsDAO.storeAccounts(MainController.getIstance().getApplicationAccounts());
+			} 
+			controller.backCmd();
+		} catch (Exception e) {
+			controller.displayErrorAndWait("Error while saving blog options");
+		}
+	}
+	
+	private boolean dismissView() {
+		if(!this.isDirty()) {
+			controller.backCmd();
+			return true;
+		}
+
+		String quest=_resources.getString(WordPressResource.MESSAGE_INQUIRY_DIALOG_BOX);
+		DiscardChangeInquiryView infoView= new DiscardChangeInquiryView(quest);
+		int choice=infoView.doModal();    	 
+		if(Dialog.DISCARD == choice) {
+			Log.trace("user has selected discard");
+			controller.backCmd();
+			return true;
+		}else if(Dialog.SAVE == choice) {
+			Log.trace("user has selected save");
+			saveAndBack();
+			return true;
+		} else {
+			Log.trace("user has selected cancel");
+			return false;
+		}
+	}
 
 	
 	public boolean onClose()   {

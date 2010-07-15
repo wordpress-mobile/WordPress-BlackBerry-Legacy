@@ -2,6 +2,7 @@ package com.wordpress.controller;
 
 import java.util.Hashtable;
 
+import net.rim.device.api.system.GlobalEventListener;
 import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.bb.WordPressResource;
@@ -30,8 +31,11 @@ public class BlogOptionsController extends BaseController {
 	 			break;
 	 		}
 	    }
-		guiValues.put("user", blog.getUsername());
-		guiValues.put("pass", blog.getPassword());
+
+	 	if(blog.isWPCOMBlog() == false) {
+			guiValues.put("user", blog.getUsername());
+			guiValues.put("pass", blog.getPassword());
+		}
 		guiValues.put("recentpost", recentsPostValuesLabel);
 		guiValues.put("recentpostselected", new Integer(indexRecPost));
 		guiValues.put("isresphotos", new Boolean(blog.isResizePhotos()));

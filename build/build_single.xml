@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project basedir=".." default="all" name="WordPress for BlackBerry">
-    <taskdef name="rapc"    classpath="build/bb-ant-tools-1.2.1.jar" classname="ca.slashdev.bb.tasks.RapcTask" />
-    <taskdef name="jadtool" classpath="build/bb-ant-tools-1.2.1.jar" classname="ca.slashdev.bb.tasks.JadtoolTask" />
-    <taskdef name="alx"     classpath="build/bb-ant-tools-1.2.1.jar" classname="ca.slashdev.bb.tasks.AlxTask" />
+    <taskdef name="rapc"    classpath="build/bb-ant-tools-1.2.8.jar" classname="ca.slashdev.bb.tasks.RapcTask" />
+    <taskdef name="jadtool" classpath="build/bb-ant-tools-1.2.8.jar" classname="ca.slashdev.bb.tasks.JadtoolTask" />
+    <taskdef name="alx"     classpath="build/bb-ant-tools-1.2.8.jar" classname="ca.slashdev.bb.tasks.AlxTask" />
 	
     <target name="init">
         <property file="build/build.properties" />

@@ -49,24 +49,6 @@ public class BlogOptionsView extends StandardBaseView {
 	private BasicEditField videoResizeHeightField;
 	
 	HorizontalFieldManager buttonsManager;
-
-	public Integer getImageResizeWidth() {
-		if(imageResizeWidthField != null) {
-			return Integer.valueOf(imageResizeWidthField.getText());
-		}
-		else {
-			return new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH);
-		}
-	}
-	
-	public Integer getImageResizeHeight() {
-		if(imageResizeHeightField != null) {
-			return Integer.valueOf(imageResizeHeightField.getText());
-		}
-		else {
-			return new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT);
-		}
-	}
 		
 	 public BlogOptionsView(BlogOptionsController blogsController, Hashtable values) {
 	    	super(_resources.getString(WordPressResource.TITLE_BLOG_OPTION_VIEW)+" > "+ blogsController.getBlogName(), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
@@ -88,23 +70,26 @@ public class BlogOptionsView extends StandardBaseView {
 			Integer videoResizeWidth = (Integer)values.get("videoResizeWidth");
 			Integer videoResizeHeight = (Integer)values.get("videoResizeHeight");
 	        //end loading
-						
-            BorderedFieldManager credentialOptionsRow = new BorderedFieldManager(
-	        		Manager.NO_HORIZONTAL_SCROLL
-	        		| Manager.NO_VERTICAL_SCROLL
-	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-            
-            credentialOptionsRow.add(
-   				 GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_CREDENTIALS), Color.BLACK)
-   				 );
-            credentialOptionsRow.add(GUIFactory.createSepatorField());
-            userNameField = new BasicEditField(_resources.getString(WordPressResource.LABEL_USERNAME)+": ", user, 60, Field.EDITABLE);
-            userNameField.setMargin(5, 0, 5, 0);
-            credentialOptionsRow.add(userNameField);
-            passwordField = new PasswordEditField(_resources.getString(WordPressResource.LABEL_PASSWD)+": ", pass, 64, Field.EDITABLE);
-            passwordField.setMargin(5, 0, 5, 0);
-            credentialOptionsRow.add(passwordField);
-            add(credentialOptionsRow);
+			
+			//not a WP.COM blog
+			if(user != null) {
+	            BorderedFieldManager credentialOptionsRow = new BorderedFieldManager(
+		        		Manager.NO_HORIZONTAL_SCROLL
+		        		| Manager.NO_VERTICAL_SCROLL
+		        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
+	            
+	            credentialOptionsRow.add(
+	   				 GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_CREDENTIALS), Color.BLACK)
+	   				 );
+	            credentialOptionsRow.add(GUIFactory.createSepatorField());
+	            userNameField = new BasicEditField(_resources.getString(WordPressResource.LABEL_USERNAME)+": ", user, 60, Field.EDITABLE);
+	            userNameField.setMargin(5, 0, 5, 0);
+	            credentialOptionsRow.add(userNameField);
+	            passwordField = new PasswordEditField(_resources.getString(WordPressResource.LABEL_PASSWD)+": ", pass, 64, Field.EDITABLE);
+	            passwordField.setMargin(5, 0, 5, 0);
+	            credentialOptionsRow.add(passwordField);
+	            add(credentialOptionsRow);
+			}
 			
 	        //row max number of post/page
             BorderedFieldManager mainOptionsRow = new BorderedFieldManager(
@@ -257,7 +242,7 @@ public class BlogOptionsView extends StandardBaseView {
 	 }
 
 	private boolean isModified() {
-		boolean isModified=false;
+		/*boolean isModified=false;
 		Blog blog = controller.getBlog();
 		String pass = passwordField.getText();
 		String user= userNameField.getText();
@@ -268,7 +253,7 @@ public class BlogOptionsView extends StandardBaseView {
 		Integer imageResizeHeight = getImageResizeHeight();
 		boolean isCommentNotifications = commentNotifications.getChecked();
 		boolean isLocation = enableLocation.getChecked();
-		//can we use isDirty on all view...?
+		can we use isDirty on all view...?
 		if(!blog.getUsername().equals(user) || !blog.getPassword().equals(pass)
 			|| blog.getMaxPostCount() != valueMaxPostCount 
 			|| isResPhotos != blog.isResizePhotos()			
@@ -284,8 +269,8 @@ public class BlogOptionsView extends StandardBaseView {
 		) {
 			isModified=true;
 		}
-		
-		return isModified;
+		*/
+		return this.isDirty();
 	}
 	
 	
@@ -304,13 +289,16 @@ public class BlogOptionsView extends StandardBaseView {
 			imageResizeWidth = new Integer(keepAspectRatio[0]);
 			imageResizeHeight = new Integer(keepAspectRatio[1]);
 
-			String pass = passwordField.getText();
-			String user= userNameField.getText();
+			if(passwordField != null && userNameField != null) {
+				String pass = passwordField.getText();
+				String user= userNameField.getText();
+				blog.setPassword(pass);
+				blog.setUsername(user);
+			}
+			
 			int maxPostIndex = maxRecentPost.getSelectedIndex();
 			int valueMaxPostCount = BlogOptionsController.recentsPostValues[maxPostIndex];
 			boolean isResPhotos = resizePhoto.getChecked();
-			blog.setPassword(pass);
-			blog.setUsername(user);
 			blog.setResizePhotos(isResPhotos);
 			blog.setImageResizeWidth(imageResizeWidth);
 			blog.setImageResizeHeight(imageResizeHeight);
@@ -346,7 +334,6 @@ public class BlogOptionsView extends StandardBaseView {
 			BlogDAO.updateBlog(blog);
 			controller.backCmd();
 		} catch (Exception e) {
-			Log.error(e, "Error while saving blog options");
 			controller.displayErrorAndWait("Error while saving blog options");
 		}
 	}
@@ -400,6 +387,24 @@ public class BlogOptionsView extends StandardBaseView {
 	    	}
 	   }
 	};
+	
+	public Integer getImageResizeWidth() {
+		if(imageResizeWidthField != null) {
+			return Integer.valueOf(imageResizeWidthField.getText());
+		}
+		else {
+			return new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH);
+		}
+	}
+	
+	public Integer getImageResizeHeight() {
+		if(imageResizeHeightField != null) {
+			return Integer.valueOf(imageResizeHeightField.getText());
+		}
+		else {
+			return new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT);
+		}
+	}
 	
 	private void addImageResizeWidthField() {
         imageResizeWidthField = new BasicEditField(
