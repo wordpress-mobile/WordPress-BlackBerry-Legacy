@@ -11,6 +11,10 @@ import com.wordpress.utils.log.Log;
 
 public class AccountsDAO implements BaseDAO {
 	
+	public final static String USERNAME_KEY = "username";
+	public final static String PASSWORD_KEY = "passwd";
+	public final static String BLOGNUMBER_KEY = "blogs_number";
+	
 	public static synchronized Hashtable loadAccounts() throws IOException, RecordStoreException {
 		Log.debug(">>> loadAccounts");
 

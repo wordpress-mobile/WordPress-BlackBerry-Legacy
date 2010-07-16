@@ -444,6 +444,9 @@ public class PreferencesView extends StandardBaseView {
 					fileAppender.open(); //reopen the log file
 					Log.addAppender(fileAppender);
 					
+					Vector applicationBlogs = WordPressCore.getInstance().getApplicationBlogs();
+		   		 	applicationBlogs.removeAllElements();
+					
 					updateDataModel();
 		    		controller.savePref();
 		    		FrontController.getIstance().backToMainView();

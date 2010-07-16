@@ -64,7 +64,7 @@ public class AccountDetailView extends StandardBaseView {
 	        		GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_CREDENTIALS), Color.BLACK)
 	        );
 	        credentialOptionsRow.add(GUIFactory.createSepatorField());
-	        userNameField = new BasicEditField(_resources.getString(WordPressResource.LABEL_USERNAME)+": ", user, 60, Field.EDITABLE);
+	        userNameField = new BasicEditField(_resources.getString(WordPressResource.LABEL_USERNAME)+": ", user, 60, Field.READONLY);
 	        userNameField.setMargin(5, 0, 5, 0);
 	        credentialOptionsRow.add(userNameField);
 	        passwordField = new PasswordEditField(_resources.getString(WordPressResource.LABEL_PASSWD)+": ", pass, 64, Field.EDITABLE);
@@ -108,9 +108,9 @@ public class AccountDetailView extends StandardBaseView {
 		try {
 			if(isDirty()){
 				String pass = passwordField.getText();
-				String user = userNameField.getText();
-				accountData.put("username", user);
-				accountData.put("passwd", pass);
+				//String user = userNameField.getText();
+				//accountData.put(AccountsDAO.USERNAME_KEY, user);
+				accountData.put(AccountsDAO.PASSWORD_KEY, pass);
 				AccountsDAO.storeAccounts(MainController.getIstance().getApplicationAccounts());
 			} 
 			controller.backCmd();

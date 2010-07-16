@@ -50,6 +50,7 @@ LABEL_ALLTIME#0="All Time";
 LABEL_AUDIOENCODING#0="Audio Encoding";
 LABEL_AUDIORECORDING_NOTSUPPORTED#0="Sorry, audio recording is not supported!";
 LABEL_AUTHOR#0="Author";
+LABEL_BLOGS#0="Blogs";
 LABEL_CAPTION#0="Caption";
 LABEL_CATEGORY_NAME#0="Category name";
 LABEL_CATEGORY_PARENT#0="Parent Category";

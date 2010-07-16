@@ -48,7 +48,16 @@ public class MainController extends BaseController implements TaskProgressListen
     }
 	
 	public void showView(){
-				
+		
+		//loading accounts data.
+		try {
+			applicationAccounts = AccountsDAO.loadAccounts();
+		} catch (IOException e) {
+			this.displayError(e, "Error while reading accounts info");
+		} catch (RecordStoreException e) {
+			this.displayError(e, "Error while reading accounts info");
+		}
+		
 		int numberOfBlog = 0; 
 				
 		Log.trace(">>> Checking blogs data");
@@ -115,13 +124,6 @@ public class MainController extends BaseController implements TaskProgressListen
 		//sHelper.addCHAPIListener();
 		//sHelper.checkPendingRequest();
 		
-		try {
-			applicationAccounts = AccountsDAO.loadAccounts();
-		} catch (IOException e) {
-			this.displayError(e, "Error while reading accounts info");
-		} catch (RecordStoreException e) {
-			this.displayError(e, "Error while reading accounts info");
-		}
 	}
 	
 

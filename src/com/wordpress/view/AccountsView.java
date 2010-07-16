@@ -83,11 +83,12 @@ public class AccountsView extends BaseView  implements ListActionListener {
 		 while (k.hasMoreElements()) {
 			 String key = (String) k.nextElement();
 			 Hashtable currentAccount = (Hashtable)accounts.get(key);
-			 String blogsNo = (String)currentAccount.get("blogs_number");
+			 String blogsNo = (String)currentAccount.get(AccountsDAO.BLOGNUMBER_KEY);
 
 			 Hashtable currentListItem = new Hashtable();
 			 currentListItem.put("title", key);
-			 currentListItem.put("images_number", (blogsNo == null ? "" : blogsNo) );
+			 currentListItem.put("images_number", 
+					 (blogsNo == null ? "" : blogsNo+ " " + _resources.getString(WordPressResource.LABEL_BLOGS)) );
 
 			 listFieldItems[i] = currentListItem;
 			 i++;

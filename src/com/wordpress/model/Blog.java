@@ -3,6 +3,10 @@ package com.wordpress.model;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import com.wordpress.controller.MainController;
+import com.wordpress.io.AccountsDAO;
+import com.wordpress.utils.log.Log;
+
 public class Blog {
 
 	private int loadingState=-1; //loading state of this blog. see BlogInfo constants
@@ -93,7 +97,18 @@ public class Blog {
 	}
 
 	public String getUsername() {
-		return username;
+		if(!isWPCOMBlog) {
+			return username;
+		} else {
+			try {
+				Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
+				Hashtable account = (Hashtable)applicationAccounts.get(username);
+				return (String) account.get(AccountsDAO.USERNAME_KEY);
+			} catch (Exception e) {
+				Log.trace(e, "Error while reading the account username");
+				return username;
+			}
+		}
 	}
 
 	public void setUsername(String username) {
@@ -101,7 +116,19 @@ public class Blog {
 	}
 
 	public String getPassword() {
-		return password;
+		if(!isWPCOMBlog) {
+			return password;
+		} else {
+		
+			try {
+				Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
+				Hashtable account = (Hashtable)applicationAccounts.get(username);
+				return (String) account.get(AccountsDAO.PASSWORD_KEY);
+			} catch (Exception e) {
+				Log.trace(e, "Error while reading the account password");
+				return password;
+			}
+		}
 	}
 
 	public void setPassword(String password) {

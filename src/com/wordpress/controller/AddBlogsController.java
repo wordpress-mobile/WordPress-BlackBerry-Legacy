@@ -126,9 +126,9 @@ public class AddBlogsController extends BaseController {
 			String username = tmpBlog.getUsername();
 			String passwd = tmpBlog.getPassword();
 			Hashtable accountInfo = new Hashtable();
-			accountInfo.put("username", username);
-			accountInfo.put("passwd", passwd);
-			accountInfo.put("blogs_number", ""+serverBlogs.length);
+			accountInfo.put(AccountsDAO.USERNAME_KEY, username);
+			accountInfo.put(AccountsDAO.PASSWORD_KEY, passwd);
+			accountInfo.put(AccountsDAO.BLOGNUMBER_KEY, ""+serverBlogs.length);
 			
 			Object object = loadAccounts.get(username);
 			if(object == null) {

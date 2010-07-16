@@ -254,7 +254,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	}
 	
 	protected synchronized void getBlogCategories(Blog blog) throws Exception {
-		Log.debug("Reperisco le categorie del blog : "+ blog.getName());
+		Log.debug("Loading categories for the blog: "+ blog.getName());
 		Vector args;
 		Object response;
 		Vector categoryStructs;
@@ -294,7 +294,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 		    } else {
 		        blog.setCategories(null);
 		    }
-		    Log.debug("Terminato reperimento delle categorie del blog : "+ blog.getName());
+		    Log.debug("categories loaded succesfull : "+ blog.getName());
 		} catch (ClassCastException cce) {
 		    throw new Exception("Error while reading Categories");
 		}
