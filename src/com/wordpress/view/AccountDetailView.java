@@ -8,7 +8,6 @@ import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
-import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
@@ -56,22 +55,22 @@ public class AccountDetailView extends StandardBaseView {
 
 	        String user = (String)accountData.get("username");
 	        String pass = (String)accountData.get("passwd");
-	        BorderedFieldManager credentialOptionsRow = new BorderedFieldManager(
-	        		Manager.NO_HORIZONTAL_SCROLL
-	        		| Manager.NO_VERTICAL_SCROLL);
-
-	        credentialOptionsRow.add(
-	        		GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_CREDENTIALS), Color.BLACK)
-	        );
-	        credentialOptionsRow.add(GUIFactory.createSepatorField());
+	        
 	        userNameField = new BasicEditField(_resources.getString(WordPressResource.LABEL_USERNAME)+": ", user, 60, Field.READONLY);
-	        userNameField.setMargin(5, 0, 5, 0);
-	        credentialOptionsRow.add(userNameField);
-	        passwordField = new PasswordEditField(_resources.getString(WordPressResource.LABEL_PASSWD)+": ", pass, 64, Field.EDITABLE);
-	        passwordField.setMargin(5, 0, 5, 0);
-	        credentialOptionsRow.add(passwordField);
-	        add(credentialOptionsRow); 
-            
+	        userNameField.setMargin(0, 0, 0, 10);
+	        add(userNameField);
+	        
+            BorderedFieldManager rowPassword = new BorderedFieldManager(
+            		Manager.NO_HORIZONTAL_SCROLL
+            		| Manager.NO_VERTICAL_SCROLL);
+            rowPassword.add(
+            		GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_PASSWD), Color.BLACK)
+            );
+            rowPassword.add(GUIFactory.createSepatorField());
+            passwordField = new PasswordEditField("", pass, 64, Field.EDITABLE);
+            rowPassword.add(passwordField);
+            add(rowPassword);
+	        
             BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
             BaseButtonField buttonBACK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
     		buttonBACK.setChangeListener(listenerBackButton);
@@ -85,12 +84,6 @@ public class AccountDetailView extends StandardBaseView {
     	//	addMenuItem(_addBlogItem);
 	}
 	 		
-	private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 140, 10) {
-		public void run() {
-			
-		}
-	};
-
 	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
 	    	saveAndBack();

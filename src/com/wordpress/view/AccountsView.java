@@ -33,13 +33,13 @@ public class AccountsView extends BaseView  implements ListActionListener {
 	
     private AccountsController controller= null;
 	private Hashtable accounts = null;
-	private PostsListField listaPost;
+	private PostsListField listaAccounts;
 	
 	 public AccountsView(AccountsController  _controller) {
 			super(_resources.getString(WordPressResource.TITLE_VIEW_ACCOUNTS), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
 	    	this.controller=_controller;
     		this.accounts = MainController.getIstance().getApplicationAccounts();
-			addMenuItem(_newPostItem);
+			addMenuItem(_newAccountItem);
 	    	buildList();
 	 }
 	 
@@ -65,7 +65,7 @@ public class AccountsView extends BaseView  implements ListActionListener {
 			 newAccount();
 			 break;
 		 case 1:
-			 int selectedPost = listaPost.getSelectedIndex();
+			 int selectedPost = listaAccounts.getSelectedIndex();
 			 deleteAccount(selectedPost); 
 			 break;
 		 default:
@@ -102,8 +102,8 @@ public class AccountsView extends BaseView  implements ListActionListener {
 		 Hashtable tmp =null;
 		 int i = 0;
 		 while (k.hasMoreElements()) {
+			 String key = (String) k.nextElement();
 			 if(selected == i) {
-				 String key = (String) k.nextElement();
 				 tmp = (Hashtable) accounts.get(key);
 			 }
 			 i++;
@@ -113,12 +113,12 @@ public class AccountsView extends BaseView  implements ListActionListener {
 	 
 	private void buildList() {
 		
-		listaPost = new PostsListField(); 	        
-		listaPost.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_ACCOUNTS), DrawStyle.LEADING);
-		listaPost.setDefautActionListener(this);
+		listaAccounts = new PostsListField(); 	        
+		listaAccounts.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_ACCOUNTS), DrawStyle.LEADING);
+		listaAccounts.setDefautActionListener(this);
 		
         if( (accounts != null) && accounts.size() > 0 ){
-        	listaPost.set(adaptAccountHashtableToList());
+        	listaAccounts.set(adaptAccountHashtableToList());
         } else {
         	//listaPost.set(new Object[0]);
         }
@@ -130,7 +130,7 @@ public class AccountsView extends BaseView  implements ListActionListener {
     	initUpBottomBar(size);
     	//#endif
 		
-		add(listaPost);
+		add(listaAccounts);
 	}
 
      
@@ -183,7 +183,7 @@ public class AccountsView extends BaseView  implements ListActionListener {
 
 		//removing all associated blog
 		mainController.deleteBlogsByAccount(username);
-		this.delete(listaPost);
+		this.delete(listaAccounts);
 		buildList();
 	}
 	
@@ -197,21 +197,21 @@ public class AccountsView extends BaseView  implements ListActionListener {
   		UiApplication.getUiApplication().pushScreen(accountView);
 	}
 	
-    private MenuItem _deletePostItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE, 220, 10) {
+    private MenuItem _deleteAccountItem = new MenuItem( _resources, WordPressResource.MENUITEM_DELETE, 220, 10) {
         public void run() {
-           int selectedPost = listaPost.getSelectedIndex();
+           int selectedPost = listaAccounts.getSelectedIndex();
            deleteAccount(selectedPost);    
         }
     };
     
-    private MenuItem _editPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDIT, 200, 10) {
+    private MenuItem _editAccountItem = new MenuItem( _resources, WordPressResource.MENUITEM_EDIT, 200, 10) {
         public void run() {
-            int selectedPost = listaPost.getSelectedIndex();
+            int selectedPost = listaAccounts.getSelectedIndex();
             editAccount(selectedPost);
         }
     };
     
-    private MenuItem _newPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_NEW, 210, 10) {
+    private MenuItem _newAccountItem = new MenuItem( _resources, WordPressResource.MENUITEM_NEW, 210, 10) {
         public void run() {
         	newAccount();    
         }
@@ -221,8 +221,8 @@ public class AccountsView extends BaseView  implements ListActionListener {
     protected void makeMenu(Menu menu, int instance)
     {
     	if( (accounts != null) && accounts.size() > 0 ){
-    		menu.add(_editPostItem);
-    		menu.add(_deletePostItem);
+    		menu.add(_editAccountItem);
+    		menu.add(_deleteAccountItem);
     	}
     	//Create the default menu.
     	super.makeMenu(menu, instance);
@@ -233,7 +233,7 @@ public class AccountsView extends BaseView  implements ListActionListener {
 	}
 
 	public void actionPerformed() {
-		int selectedPost = listaPost.getSelectedIndex();
+		int selectedPost = listaAccounts.getSelectedIndex();
 		if (selectedPost == -1) {
 			return;
 		}

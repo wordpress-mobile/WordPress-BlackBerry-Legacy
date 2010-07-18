@@ -1,5 +1,8 @@
 package com.wordpress.view;
 
+import java.util.Enumeration;
+import java.util.Hashtable;
+
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Color;
@@ -20,10 +23,12 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.AddBlogsController;
 import com.wordpress.controller.BaseController;
+import com.wordpress.controller.MainController;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.ClickableLabelField;
+import com.wordpress.view.component.SelectorPopupScreen;
 import com.wordpress.view.container.BorderedFieldManager;
 
 
@@ -51,7 +56,6 @@ public class AddWPCOMBlogsView extends StandardBaseView {
 	        BitmapField wpClassicHeaderBitmapField =  new BitmapField(classicHeaderImg.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
 	        add(wpClassicHeaderBitmapField);
 
-	    	
             BorderedFieldManager rowUserName = new BorderedFieldManager(
 	        		Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL 
@@ -76,23 +80,37 @@ public class AddWPCOMBlogsView extends StandardBaseView {
             rowPassword.add(passwordField);
             add(rowPassword);
      		
-            ClickableLabelField lblMyAccounts = new ClickableLabelField(_resources.getString(WordPressResource.LABEL_MYACCOUNTS),
-            		LabelField.FOCUSABLE | LabelField.ELLIPSIS);
-            lblMyAccounts.setTextColor(Color.BLUE);
-            lblMyAccounts.setMargin(2, 5, 5, 5);
-            FieldChangeListener listenerPhotoNumber = new FieldChangeListener() {
-            	public void fieldChanged(Field field, int context) {
-            		if(context == 0) {
-                    	AccountsController ctrl=new AccountsController();
-                		ctrl.showView();
-                		UiApplication.getUiApplication().popScreen(AddWPCOMBlogsView.this);
+            final Hashtable accounts = MainController.getIstance().getApplicationAccounts();
+            if(accounts.size() > 0 ) {
+            	ClickableLabelField lblMyAccounts = new ClickableLabelField(_resources.getString(WordPressResource.LABEL_EXISTING_WPCOM_ACCOUNTS),
+            			LabelField.FOCUSABLE | LabelField.ELLIPSIS);
+            	lblMyAccounts.setTextColor(Color.BLUE);
+            	lblMyAccounts.setMargin(2, 5, 5, 5);
+            	FieldChangeListener existingAccountListener = new FieldChangeListener() {
+            		public void fieldChanged(Field field, int context) {
+            			if(context == 0) {
+            				Enumeration k = accounts.keys();
+            				String[] accountsList = new String[accounts.size()];
+            				int i = 0;
+            				while (k.hasMoreElements()) {
+            					String key = (String) k.nextElement();
+            					accountsList[i] = key;
+            					i++;
+            				}
+
+            				String title = _resources.getString(WordPressResource.TITLE_BLOG_SELECTOR_POPUP);
+            				SelectorPopupScreen selScr = new SelectorPopupScreen(title, accountsList);
+            				selScr.pickBlog();
+            				int selection = selScr.getSelectedBlog();
+            				if(selection != -1) {
+
+            				}
+            			}
             		}
-            	}
-            };
-            lblMyAccounts.setChangeListener(listenerPhotoNumber);
-            add(lblMyAccounts);
- 
-            
+            	};
+            	lblMyAccounts.setChangeListener(existingAccountListener);
+            	add(lblMyAccounts);
+            }
             BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
             BaseButtonField buttonBACK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
     		buttonBACK.setChangeListener(listenerBackButton);

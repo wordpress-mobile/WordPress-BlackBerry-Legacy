@@ -328,10 +328,20 @@ public class MainView extends BaseView {
    
     //add blog menu item 
     private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 1500, 1000) {
-        public void run() {
-			 AddBlogPopupScreen inqView= new AddBlogPopupScreen();
-			 UiApplication.getUiApplication().pushScreen(inqView);
-        }
+    	public void run() {
+    		//check if there are blogs in loading state
+    		BlogInfo[] applicationBlogs = mainController.getApplicationBlogs();
+    		for (int i = 0; i < applicationBlogs.length; i++) {
+    			BlogInfo selectedBlog = applicationBlogs[i];
+    			if (selectedBlog.getState() == BlogInfo.STATE_LOADING || selectedBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
+    				mainController.displayMessage(_resources.getString(WordPressResource.MESSAGE_LOADING_BLOGS));
+    				return;
+    			}
+    		}
+
+    		AddBlogPopupScreen inqView= new AddBlogPopupScreen();
+    		UiApplication.getUiApplication().pushScreen(inqView);
+    	}
     };
 
         

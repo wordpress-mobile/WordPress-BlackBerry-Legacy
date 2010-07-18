@@ -68,6 +68,8 @@ public class AddBlogsController extends BaseController {
 	 * used when adding WP.COM blogs
 	 */
 	public void addWPCOMBlogs(String user, String passwd){
+		user = user.trim();
+		passwd = passwd.trim();
 		isWPCOMCall = true;
         if (user != null && user != null && user.length() > 0) {
             BlogAuthConn connection = new BlogAuthConn ("http://wordpress.com",user,passwd);
@@ -90,7 +92,9 @@ public class AddBlogsController extends BaseController {
 	
 	//0 = user has inserted the url into the main screen
 	//1 = user has inserted the url into popup dialog   
-	public void addBlogs(int source, String URL, String user, String passwd){	
+	public void addBlogs(int source, String URL, String user, String passwd){
+		user = user.trim();
+		passwd = passwd.trim();
         if (URL != null && user != null && URL.length() > 0 && user != null && user.length() > 0) {
             BlogAuthConn connection = new BlogAuthConn (URL,user,passwd);
             connection.addObserver(new AddBlogCallBack(source, user, passwd)); 
@@ -147,32 +151,18 @@ public class AddBlogsController extends BaseController {
 	}
 	
 	private void parseResponse(BlogConnResponse resp) {
-						
 		Log.debug("found blogs: "+((Blog[])resp.getResponseObject()).length);	
 		Blog[] serverBlogs = (Blog[]) resp.getResponseObject();
-
+		
 		if (isWPCOMCall) {
 			storeWPCOMAccount(serverBlogs);
 		}
-				
-		//show the blog selector popup
-		String title = _resources.getString(WordPressResource.TITLE_ADDBLOGS_SELECTOR_POPUP);
-		String[] blogNames = new String[serverBlogs.length];
-		for (int i = 0; i < blogNames.length; i++) {
-			blogNames[i] = serverBlogs[i].getName();
-		}
-		final CheckBoxPopupScreen selScr = new CheckBoxPopupScreen(title, blogNames);
-		
-		UiApplication.getUiApplication().invokeAndWait(new Runnable() {
-			public void run() {
-				selScr.pickBlogs();
-			}
-		});
-		
+
 		Vector addedBlog = new Vector();
-		boolean selection[] = selScr.getSelectedBlogs();
-		for (int i = 0; i < selection.length; i++) {
-			if(selection[i]){
+
+		//skip the blog already available in the app
+		for (int i = 0; i < serverBlogs.length; i++) {
+			if(!BlogDAO.isBlogExist(serverBlogs[i])) {
 				addedBlog.addElement(serverBlogs[i]);
 			}
 		}
@@ -180,6 +170,32 @@ public class AddBlogsController extends BaseController {
 		addedBlog.copyInto(serverBlogs);
 		addedBlog = new Vector();
 		
+		//show the blog selector popup when there are more blogs associated with the account
+		if(serverBlogs.length > 1) {
+			String title = _resources.getString(WordPressResource.TITLE_ADDBLOGS_SELECTOR_POPUP);
+			String[] blogNames = new String[serverBlogs.length];
+			for (int i = 0; i < blogNames.length; i++) {
+				blogNames[i] = serverBlogs[i].getName();
+			}
+			final CheckBoxPopupScreen selScr = new CheckBoxPopupScreen(title, blogNames);
+
+			UiApplication.getUiApplication().invokeAndWait(new Runnable() {
+				public void run() {
+					selScr.pickBlogs();
+				}
+			});
+
+			boolean selection[] = selScr.getSelectedBlogs();
+			for (int i = 0; i < selection.length; i++) {
+				if(selection[i]){
+					addedBlog.addElement(serverBlogs[i]);
+				}
+			}
+			serverBlogs = new Blog[addedBlog.size()];
+			addedBlog.copyInto(serverBlogs);
+			addedBlog = new Vector();
+		}
+				
 		Queue connectionsQueue = new Queue(serverBlogs.length);
 		for (int i = 0; i < serverBlogs.length; i++) {
 			serverBlogs[i].setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
@@ -264,7 +280,12 @@ public class AddBlogsController extends BaseController {
 					final String respMessage=resp.getResponse();
 					Log.error(respMessage);
 					if(resp.getResponseObject() instanceof XmlRpcException) { //response from xmlrpc server
-						displayError(respMessage);
+						XmlRpcException responseObject = (XmlRpcException) resp.getResponseObject();
+						if(responseObject.code == 403) { //bad login 
+							displayError( _resources.getString(WordPressResource.MESSAGE_BAD_USERNAME_PASSWORD));
+						} else {
+							displayError(respMessage);
+						}
 					} else if(source == 0) {
 						UiApplication.getUiApplication().invokeLater(new Runnable() {
 							public void run() {

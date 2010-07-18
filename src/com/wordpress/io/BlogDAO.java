@@ -133,6 +133,22 @@ public class BlogDAO implements BaseDAO {
 	}
     
     
+	public static synchronized boolean isBlogExist(Blog blogInfo) {
+		try {
+			String nameMD5=getBlogFolderName(blogInfo);
+			String filePath=AppDAO.getBaseDirPath()+nameMD5;
+			if (JSR75FileSystem.isFileExist(filePath)){
+				return true;
+			}
+		} catch (Exception e) {
+			Log.error(e, "Failed to check the existence for the blog: " + blogInfo.getName()); 
+			return false;
+		}
+		
+		return false;
+	}
+	        
+	
     //TODO refactor blog and blogInfo. with a common base class
     //reload this blog form disk to memory
     public static synchronized Blog getBlog(Blog blogInfo) throws Exception {
@@ -172,7 +188,7 @@ public class BlogDAO implements BaseDAO {
      * @return
      * @throws Exception
      */
-    public static synchronized BlogInfo getBlogInfo(String blogPath) throws Exception{
+    private static synchronized BlogInfo getBlogInfo(String blogPath) throws Exception{
 		Blog loadedBlog = loadBlog(blogPath);
 		BlogInfo blogI = new BlogInfo(loadedBlog);
    		return blogI;
