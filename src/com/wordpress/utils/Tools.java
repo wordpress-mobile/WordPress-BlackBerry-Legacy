@@ -58,8 +58,8 @@ public class Tools {
 			}
 			String title = resourceBundle.getString(WordPressResource.MENUITEM_OPEN_IN);
 			SelectorPopupScreen selScr = new SelectorPopupScreen(title, appNames);
-			selScr.pickBlog();
-			int selection = selScr.getSelectedBlog();
+			selScr.pickItem();
+			int selection = selScr.getSelectedItem();
 			if(selection != -1) {
 				invoc.setID(candidates[selection].getID());
 				registry.invoke(invoc);                
@@ -181,8 +181,8 @@ public class Tools {
 				
 			String title = resourceBundle.getString(WordPressResource.MENUITEM_OPEN_IN);
 			SelectorPopupScreen selScr = new SelectorPopupScreen(title, appNames);
-			selScr.pickBlog();
-			int selection = selScr.getSelectedBlog();
+			selScr.pickItem();
+			int selection = selScr.getSelectedItem();
 			if(selection != -1) {
 				if(selection < appNames.length-1) {
 					invoc.setID(candidates[selection].getID());

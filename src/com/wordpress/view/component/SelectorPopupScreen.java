@@ -42,12 +42,12 @@ public class SelectorPopupScreen extends PopupScreen {
 		_olf.set(items);
 	}
 
-	public void pickBlog() {
+	public void pickItem() {
 		UiApplication.getUiApplication().pushModalScreen(this);
 	}
 
 
-	public int getSelectedBlog() {
+	public int getSelectedItem() {
 		return selectedItem;
 	}
 	

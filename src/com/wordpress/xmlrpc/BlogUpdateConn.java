@@ -7,6 +7,7 @@ import javax.microedition.rms.RecordStoreException;
 
 import org.kxmlrpc.XmlRpcException;
 
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.utils.log.Log;
@@ -27,7 +28,13 @@ public class BlogUpdateConn extends BlogConn  {
 		if(connResponse.isError()) {
 			if ( connResponse.getResponseObject() instanceof XmlRpcException) {
 				//do nothing. here we capturing all permission denied for blog...
-				//or xmlrpc method missing (old wp)
+				//or xmlrpc method missing (old wp)"
+				XmlRpcException responseObject = (XmlRpcException) connResponse.getResponseObject();
+				if(responseObject.code == 403) { //bad login 
+					connResponse.setResponseObject(new Exception(_resources.getString(WordPressResource.MESSAGE_BAD_USERNAME_PASSWORD)));
+					connResponse.setResponse("");
+					throw new Exception(_resources.getString(WordPressResource.MESSAGE_BAD_USERNAME_PASSWORD));
+				}
 			} /*else if ( connResponse.getResponseObject() instanceof IOException) {
 				//if IO exception occurred we should exit immediately 
 				throw (Exception) connResponse.getResponseObject();
@@ -117,10 +124,10 @@ public class BlogUpdateConn extends BlogConn  {
 			}
 			
 		} catch (ClassCastException cce) {
-			setErrorMessage(cce, "Error while loading blog");
+			setErrorMessage(cce, "Error while loading blog:");
 		}
 		catch (Exception e) {
-			setErrorMessage(e, "Error while loading blog");
+			setErrorMessage(e, "Error while loading blog:");
 		}
 		try {
 			notifyObservers(connResponse);

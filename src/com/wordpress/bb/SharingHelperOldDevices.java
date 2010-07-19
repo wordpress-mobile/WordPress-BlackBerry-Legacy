@@ -127,8 +127,8 @@ public class SharingHelperOldDevices {
 			tmpBlogs.copyInto(blogNames);
 			String title = _resources.getString(WordPressResource.TITLE_BLOG_SELECTOR_POPUP);
 			SelectorPopupScreen selScr = new SelectorPopupScreen(title, blogNames);
-			selScr.pickBlog();
-			selection = selScr.getSelectedBlog();
+			selScr.pickItem();
+			selection = selScr.getSelectedItem();
 		}
 
 		if(selection != -1) {
@@ -246,5 +246,4 @@ public class SharingHelperOldDevices {
 			return text;
 		}
 	}
-	
 }

@@ -426,8 +426,8 @@ public class MainView extends BaseView {
     				_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPORG_BLOG)};
     		String title = _resources.getString(WordPressResource.MESSAGE_WORDPRESS_VERSION);
     		SelectorPopupScreen selScr = new SelectorPopupScreen(title, blogNames);
-    		selScr.pickBlog();
-    		selection = selScr.getSelectedBlog();
+    		selScr.pickItem();
+    		selection = selScr.getSelectedItem();
     		if(selection == 0) {
     			ContactSupportView view = new ContactSupportView(mainController, false);
     			UiApplication.getUiApplication().pushScreen(view);

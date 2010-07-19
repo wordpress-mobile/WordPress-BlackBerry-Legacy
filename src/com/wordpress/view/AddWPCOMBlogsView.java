@@ -10,7 +10,6 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
@@ -20,10 +19,10 @@ import net.rim.device.api.ui.container.HorizontalFieldManager;
 
 import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
-import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.AddBlogsController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.MainController;
+import com.wordpress.io.AccountsDAO;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.view.component.BaseButtonField;
@@ -97,13 +96,16 @@ public class AddWPCOMBlogsView extends StandardBaseView {
             					accountsList[i] = key;
             					i++;
             				}
-
-            				String title = _resources.getString(WordPressResource.TITLE_BLOG_SELECTOR_POPUP);
+            				String title = _resources.getString(WordPressResource.TITLE_WPCOM_ACCOUNTS_SELECTOR_POPUP);
             				SelectorPopupScreen selScr = new SelectorPopupScreen(title, accountsList);
-            				selScr.pickBlog();
-            				int selection = selScr.getSelectedBlog();
+            				selScr.pickItem();
+            				int selection = selScr.getSelectedItem();
             				if(selection != -1) {
-
+            					String selectedUserName = accountsList[selection];
+            					Hashtable selectedAccount = (Hashtable) accounts.get(selectedUserName); 
+            					String passwd = (String) selectedAccount.get(AccountsDAO.PASSWORD_KEY);
+            					userNameField.setFocus(); //trick to avoid issue with clickableLabel focus 
+            					controller.addWPCOMBlogs(selectedUserName, passwd);
             				}
             			}
             		}

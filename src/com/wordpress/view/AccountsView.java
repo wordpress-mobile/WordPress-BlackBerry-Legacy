@@ -132,7 +132,6 @@ public class AccountsView extends BaseView  implements ListActionListener {
 		
 		add(listaAccounts);
 	}
-
      
 	public boolean onClose()   {
 		controller.backCmd();

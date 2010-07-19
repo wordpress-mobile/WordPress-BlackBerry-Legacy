@@ -59,11 +59,11 @@ public class CheckBoxPopupScreen extends PopupScreen {
 		dfm.addCustomField(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
 	}
 
-	public void pickBlogs() {
+	public void pickItems() {
 		UiApplication.getUiApplication().pushModalScreen(this);
 	}
 
-	public boolean[] getSelectedBlogs() {
+	public boolean[] getSelectedItems() {
 		if (isSelectionSkipped) {
 			return new boolean[chkField.getSize()];
 		} else {

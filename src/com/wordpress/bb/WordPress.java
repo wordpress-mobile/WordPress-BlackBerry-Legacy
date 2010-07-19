@@ -263,7 +263,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 			//Store this application istance into recordstore
 			SharingHelper.storeAppIstance(UiApplication.getUiApplication());
 			
-     		timer.schedule(new CountDown(), 1500); //1,5 sec splash
+     		timer.schedule(new CountDown(), 800); //splash
 			
 			// Initialize the notification handler only if notification interval is != 0
 			if (appPrefs.getUpdateTimeIndex() != 0)
@@ -281,7 +281,14 @@ public class WordPress extends UiApplication implements WordPressResource {
 				public void run() {
 					ErrorView errView = new ErrorView("Startup Error:"+excMsg);
 					errView.doModal();
-					if (loadingScreen != null) popScreen(loadingScreen);
+				 
+					try {
+				    	if (loadingScreen != null) 
+				    		popScreen(loadingScreen);
+					} catch (Exception e) {
+						Log.error(e, "Splash Screen is not on the stack!");
+					}
+					
 					mainScreen = MainController.getIstance();
 					mainScreen.showView();
 				}
@@ -302,7 +309,11 @@ public class WordPress extends UiApplication implements WordPressResource {
 					errView.doModal();
 				}
 				
-			    popScreen(loadingScreen);
+			    try {
+					popScreen(loadingScreen);
+				} catch (Exception e) {
+					Log.error(e, "Splash Screen is not on the stack!");
+				}
 				mainScreen = MainController.getIstance();
 			    mainScreen.showView();
 			}

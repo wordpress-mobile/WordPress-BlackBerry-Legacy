@@ -60,11 +60,9 @@ public class SplashScreen extends MainScreen {
 		versionLabel.setFont(fnt);
 		this.add(versionLabel);
 
-		SplashScreenListener listener = new SplashScreenListener(this);
+		SplashScreenListener listener = new SplashScreenListener();
 		this.addKeyListener(listener);
 	}
-
-
 
 	private void getSplashImg(int width) {
 		try {
@@ -122,11 +120,27 @@ public class SplashScreen extends MainScreen {
 	   setPosition(0,0);
 	   Log.trace("getHeight() " +getHeight());
 	  }
-   
-   protected boolean navigationClick(int status, int time) {
-	   return false;
-   }
-   
+      
+   /**
+    * Overrides default implementation.  Performs default action if the 
+    * 4ways trackpad was clicked; otherwise, the default action occurs.
+    * 
+    * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
+    */
+	protected boolean navigationClick(int status, int time) {
+		Log.trace(">>> navigationClick");
+		
+	/*	if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
+			Log.trace("Input came from the trackwheel");
+			// Input came from the trackwheel
+			return true;
+		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
+			Log.trace("Input came from a four way navigation input device");
+			 return true;
+		}*/
+		return true;
+	}
+      
    protected boolean navigationUnclick(int status, int time) {
       return false;
    }
@@ -135,19 +149,19 @@ public class SplashScreen extends MainScreen {
       return false;
    }
    
-   public static class SplashScreenListener implements KeyListener {
-      private SplashScreen screen;
+   private class SplashScreenListener implements KeyListener {
       public boolean keyChar(char key, int status, int time) {
          //intercept the ESC and MENU key - exit the splash screen
-         boolean retval = false;
-         /*switch (key) {
+        /* boolean retval = false;
+         switch (key) {
             case Characters.CONTROL_MENU:
             case Characters.ESCAPE:
-            screen.dismiss();
+         //this.dismiss   
             retval = true;
             break;
-         }*/
-         return retval;
+         }
+         return retval;*/
+    	  return true;
       }
       public boolean keyDown(int keycode, int time) {
          return false;
@@ -161,10 +175,5 @@ public class SplashScreen extends MainScreen {
       public boolean keyUp(int keycode, int time) {
          return false;
       }
-      public SplashScreenListener(SplashScreen splash) {
-         screen = splash;
-      }
    }
-
-
 } 

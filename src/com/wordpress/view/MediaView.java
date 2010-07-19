@@ -293,8 +293,8 @@ public class MediaView extends StandardBaseView {
     			}
     			String title = _resources.getString(WordPressResource.MENUITEM_OPEN_IN);
     			SelectorPopupScreen selScr = new SelectorPopupScreen(title, appNames);
-    			selScr.pickBlog();
-    			int selection = selScr.getSelectedBlog();
+    			selScr.pickItem();
+    			int selection = selScr.getSelectedItem();
     			if(selection != -1) {
     				invoc.setID(candidates[selection].getID());
     				registry.invoke(invoc);                
