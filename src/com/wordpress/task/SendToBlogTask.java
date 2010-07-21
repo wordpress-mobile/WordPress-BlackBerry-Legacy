@@ -63,7 +63,11 @@ public class SendToBlogTask extends TaskImpl {
 		for (int i =0; i < mediaObjects.size(); i++ ) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			NewMediaObjectConn mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
-					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);				
+					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
+			if(blog.isHTTPBasicAuthRequired()) {
+				mediaConnection.setHttp401Password(blog.getHTTPAuthPassword());
+				mediaConnection.setHttp401Username(blog.getHTTPAuthUsername());
+			}
 			executionQueue.push(mediaConnection);
 		}
 	}
@@ -79,7 +83,11 @@ public class SendToBlogTask extends TaskImpl {
 		for (int i =0; i < mediaObjects.size(); i++ ) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			NewMediaObjectConn mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
-					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);				
+					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
+			if(blog.isHTTPBasicAuthRequired()) {
+				mediaConnection.setHttp401Password(blog.getHTTPAuthPassword());
+				mediaConnection.setHttp401Username(blog.getHTTPAuthUsername());
+			}
 			executionQueue.push(mediaConnection);
 		}
 		//adding the post conn
@@ -97,7 +105,11 @@ public class SendToBlogTask extends TaskImpl {
 		for (int i =0; i < mediaObjects.size(); i++ ) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			NewMediaObjectConn mediaConnection = new NewMediaObjectConn (post.getBlog().getXmlRpcUrl(), 
-					post.getBlog().getUsername(), post.getBlog().getPassword(), post.getBlog().getId(), tmp);				
+					post.getBlog().getUsername(), post.getBlog().getPassword(), post.getBlog().getId(), tmp);
+			if(blog.isHTTPBasicAuthRequired()) {
+				mediaConnection.setHttp401Password(blog.getHTTPAuthPassword());
+				mediaConnection.setHttp401Username(blog.getHTTPAuthUsername());
+			}
 			executionQueue.push(mediaConnection);
 		}
 		//adding the post conn

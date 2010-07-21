@@ -22,6 +22,10 @@ public class BlogUpdateConn extends BlogConn  {
 	public BlogUpdateConn(Blog blog) {
 		super(blog.getXmlRpcUrl(), blog.getUsername(), blog.getPassword());
 		this.blog=blog;
+		if(blog.isHTTPBasicAuthRequired()) {
+			this.setHttp401Password(blog.getHTTPAuthPassword());
+			this.setHttp401Username(blog.getHTTPAuthUsername());
+		}
 	}
 
 	private void checkConnectionResponse(String errorTitle) throws Exception {

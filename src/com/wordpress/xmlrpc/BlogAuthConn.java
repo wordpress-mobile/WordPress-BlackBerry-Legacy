@@ -2,11 +2,14 @@ package com.wordpress.xmlrpc;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.io.HttpConnection;
+
+import net.rim.device.api.io.Base64OutputStream;
 
 import org.kxml2.io.KXmlParser;
 import org.kxmlrpc.XmlRpcClient;
@@ -35,7 +38,6 @@ public class BlogAuthConn extends BlogConn  {
 		connResponse.setResponse("");
 		connResponse.setResponseObject(null);
 	}
-
 	
 	private Object guessUrl(){
 		Vector args;
@@ -61,7 +63,7 @@ public class BlogAuthConn extends BlogConn  {
 	}
  
 	/**
-	 * Return the content of the url as string. Follow ONLY 3 redirections
+	 * Return the content of the url as string. 
 	 * 
 	 * @param URL
 	 * @return
@@ -72,61 +74,78 @@ public class BlogAuthConn extends BlogConn  {
 		HttpConnection conn = null;
 		String response = null;
 		int numberOfRedirection = 0;
+		byte[] encodedAuthCredential = null;
 		
+		if(http401Password != null) {
+			String login = this.http401Username+ ":"+this.http401Password;
+			//Encode the login information in Base64 format.
+			try {
+				encodedAuthCredential = Base64OutputStream.encode(login.getBytes(), 0, login.length(), false, false);
+			} catch (IOException e) {
+				Log.error(e, "Error while encoding auth credentials");
+			}
+		} 
+
 		try {
-			//set max num of redirect to 3
-  		 while( URL != null  && numberOfRedirection < 3 ){
-  			numberOfRedirection++;
-  			
-			conn = (HttpConnection) ConnectionManager.getInstance().open(URL);
-			
-            // List all the response headers from the server.
-            // Note: The first call to getHeaderFieldKey() will implicit send
-            // the HTTP request to the server.
-            Log.trace("==== Response headers from the server");
-            String   key;
-            for( int i = 0;( key = conn.getHeaderFieldKey( i ) )!= null; ++i ){
-            	String headerName = conn.getHeaderFieldKey(i);
-            	String headerValue = conn.getHeaderField(i);
-            	
-            	if (headerName == null && headerValue == null) {
-            		// No more headers
-            		break;
-            	}
-            	if (headerName == null) {
-            		// The header value contains the server's HTTP version
-            	} else {
-            		//set the x-pingback url
-            		if(headerName.equalsIgnoreCase("X-Pingback") && headerValue != null) {
-            			xPingbackString = (String)headerValue;
-            		}
-            		Log.trace(headerName + " " + headerValue); 
-            	}
-            }
-            Log.trace("=== End Response headers from the server");
-			
-			int rc = conn.getResponseCode();
-			Log.trace("Html server response  code: "+rc);
-			switch( rc ){			  
-	            case HttpConnection.HTTP_MOVED_PERM:
-	            case HttpConnection.HTTP_MOVED_TEMP:
-	            case HttpConnection.HTTP_SEE_OTHER:
-	            case HttpConnection.HTTP_TEMP_REDIRECT:
-	              URL = conn.getHeaderField( "Location" );
-	              if( URL != null && URL.startsWith( 
-	                                            "/*" ) ){
-	                StringBuffer b = new StringBuffer();
-	                b.append( conn.getProtocol()+"//" );
-	                b.append( conn.getHost() );
-	                b.append( ':' );
-	                b.append( conn.getPort() );
-	                b.append( URL );
-	                URL = b.toString();
-	              }
-	              conn.close();
-	              break;
-	            case HttpConnection.HTTP_OK:
-	            	//read the response
+			keepGoing = true;
+			while( URL != null && keepGoing && numberOfRedirection < BlogConn.MAX_NUMBER_OF_REDIRECTIONS ){
+
+				conn = (HttpConnection) ConnectionManager.getInstance().open(URL);
+				
+				if(encodedAuthCredential != null) {
+                    //Add the authorized header.
+					Log.trace("Added the authorized header");
+                    conn.setRequestProperty("Authorization", "Basic " + new String(encodedAuthCredential));
+				}
+
+				// List all the response headers from the server.
+				// Note: The first call to getHeaderFieldKey() will implicit send
+				// the HTTP request to the server.
+				Log.trace("==== Response headers from the server");
+				String   key;
+				for( int i = 0;( key = conn.getHeaderFieldKey( i ) )!= null; ++i ){
+					String headerName = conn.getHeaderFieldKey(i);
+					String headerValue = conn.getHeaderField(i);
+
+					if (headerName == null && headerValue == null) {
+						// No more headers
+						break;
+					}
+					if (headerName == null) {
+						// The header value contains the server's HTTP version
+					} else {
+						//set the x-pingback url
+						if(headerName.equalsIgnoreCase("X-Pingback") && headerValue != null) {
+							xPingbackString = (String)headerValue;
+						}
+						Log.trace(headerName + " " + headerValue); 
+					}
+				}
+				Log.trace("=== End Response headers from the server");
+
+				int rc = conn.getResponseCode();
+				Log.trace("Html server response  code: "+rc);
+				switch( rc ){			  
+				case HttpConnection.HTTP_MOVED_PERM:
+				case HttpConnection.HTTP_MOVED_TEMP:
+				case HttpConnection.HTTP_SEE_OTHER:
+				case HttpConnection.HTTP_TEMP_REDIRECT:
+					numberOfRedirection++;
+					URL = conn.getHeaderField( "Location" );
+					if( URL != null && URL.startsWith( 
+					"/*" ) ){
+						StringBuffer b = new StringBuffer();
+						b.append( conn.getProtocol()+"//" );
+						b.append( conn.getHost() );
+						b.append( ':' );
+						b.append( conn.getPort() );
+						b.append( URL );
+						URL = b.toString();
+					}
+					conn.close();
+					break;
+				case HttpConnection.HTTP_OK:
+					//read the response
 					InputStream in = conn.openInputStream();
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					int c;
@@ -136,12 +155,21 @@ public class BlogAuthConn extends BlogConn  {
 					}
 					response = new String (baos.toByteArray());
 					URL = null; //exit the while
-	            	break;
-	            default:
-	              URL = null;
-	              break;
-	        }
-  		 }//end while
+					break;
+				case (HttpConnection.HTTP_UNAUTHORIZED):
+					//Connection is 401 UnAuthorized.
+					showHTTPAuthDialog();
+					if(http401Password != null) {
+						String login = this.http401Username+ ":"+this.http401Password;
+						//Encode the login information in Base64 format.
+						encodedAuthCredential = Base64OutputStream.encode(login.getBytes(), 0, login.length(), false, false);
+					} 
+				break;
+				default:
+					URL = null;
+				break;
+				}
+			}//end while
 		} catch (Exception e) {
 			Log.error("Html server connetion error: "+e.getMessage());
 		}
@@ -332,6 +360,15 @@ public class BlogAuthConn extends BlogConn  {
 						this.mUsername, 
 						this.mPassword);
 				
+				if(http401Password != null && http401Username != null) {
+					if(!http401Password.trim().equalsIgnoreCase("") 
+							&& !http401Username.trim().equalsIgnoreCase("")) {
+						currentBlog.setHTTPAuthPassword(http401Password);
+						currentBlog.setHTTPAuthUsername(http401Username);
+						currentBlog.setHTTPBasicAuthRequired(true);
+						Log.trace("HTTP stored in the Blog data");
+					}
+				}
 				myBlogs[i]=currentBlog;		
 			}		
 			

@@ -120,7 +120,6 @@ public class PostsController extends BaseController{
 	        
 			final GetPostConn connection = new GetPostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
 	        		currentBlog.getPassword(), currentBlog, (String) postData.get("postid"));
-	        
 	        connection.addObserver(new loadPostCallBack());  
 	        connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONN_LOADING_POST));
 	       
@@ -148,7 +147,10 @@ public class PostsController extends BaseController{
 				 
 			DeletePostConn connection = new DeletePostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
 					 currentBlog.getPassword(), postid);
-		     
+	   		if(currentBlog.isHTTPBasicAuthRequired()) {
+				connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
+				connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
+			}
 			 connection.addObserver(new deletePostCallBack());
 		     
 		     connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONN_DELETE_POST));
@@ -199,7 +201,6 @@ public class PostsController extends BaseController{
 		System.out.println(">>>refreshPosts");
         final RecentPostConn connection = new RecentPostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
         		currentBlog.getPassword(), currentBlog);
-        
         connection.addObserver(new refreshRecentPostCallBack()); 
         String connMsg=_resources.getString(WordPressResource.CONN_REFRESH_POSTLIST);
         connectionProgressView= new ConnectionInProgressView(connMsg);

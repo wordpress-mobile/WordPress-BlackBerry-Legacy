@@ -24,8 +24,8 @@ public class CredentialDialog extends Dialog {
 
 	public CredentialDialog(String msg){
 		super(Dialog.D_OK_CANCEL, msg, Dialog.CANCEL, Bitmap.getPredefinedBitmap(Bitmap.INFORMATION), Dialog.GLOBAL_STATUS);
-		userNameField = new EditField(_resources.getString(WordPressResource.LABEL_USERNAME)+ " ", "", 100, EditField.EDITABLE);
-		passWordField = new PasswordEditField(_resources.getString(WordPressResource.LABEL_PASSWD)+ " ", "", 100, EditField.EDITABLE);
+		userNameField = new EditField(_resources.getString(WordPressResource.LABEL_USERNAME)+ ": ", "", 100, EditField.EDITABLE);
+		passWordField = new PasswordEditField(_resources.getString(WordPressResource.LABEL_PASSWD)+ ": ", "", 100, EditField.EDITABLE);
 
 		net.rim.device.api.ui.Manager delegate = getDelegate();
 		if( delegate instanceof DialogFieldManager){
@@ -43,10 +43,10 @@ public class CredentialDialog extends Dialog {
 	}    
 
 	public String getUserName(){
-		return userNameField.getText();
+		return userNameField.getText().trim();
 	}
 
 	public String getPassWord(){
-		return passWordField.getText();
+		return passWordField.getText().trim();
 	}    
 }

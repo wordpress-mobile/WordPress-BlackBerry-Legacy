@@ -74,7 +74,10 @@ public class RecentCommentsController extends BaseController {
 			final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
 					Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
 					currentBlog.getPassword(), postID, statusFilter, offset, number);
-			
+			if(currentBlog.isHTTPBasicAuthRequired()) {
+				connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
+				connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
+			}
 	        connection.addObserver(new LoadCommentsCallBack(statusFilter));  
 	        connectionProgressView= new ConnectionInProgressView(connMessage);
 	        connection.startConnWork(); //starts connection
@@ -135,7 +138,10 @@ public class RecentCommentsController extends BaseController {
 		
 		final NewCommentConn connection = new NewCommentConn(currentBlog.getXmlRpcUrl(), 
 				 currentBlog.getUsername(),	currentBlog.getPassword(), currentBlog.getId(), comment);
-		
+		if(currentBlog.isHTTPBasicAuthRequired()) {
+			connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
+			connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
+		}
         connection.addObserver(new ReplyCommentCallBack());  
         connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
        
@@ -157,6 +163,10 @@ public class RecentCommentsController extends BaseController {
 			EditCommentConn conn = new EditCommentConn(currentBlog.getXmlRpcUrl(), currentBlog.getUsername(),
 					currentBlog.getPassword(), currentBlog.getId(), comment);
 			connectionsQueue.push(conn);
+			if(currentBlog.isHTTPBasicAuthRequired()) {
+				conn.setHttp401Password(currentBlog.getHTTPAuthPassword());
+				conn.setHttp401Username(currentBlog.getHTTPAuthUsername());
+			}
 			isModifiedComments = true;
 		}
 
@@ -193,6 +203,10 @@ public class RecentCommentsController extends BaseController {
 				EditCommentConn conn = new EditCommentConn(currentBlog.getXmlRpcUrl(), currentBlog.getUsername(),
 						currentBlog.getPassword(), currentBlog.getId(), comment);
 				connectionsQueue.push(conn);
+				if(currentBlog.isHTTPBasicAuthRequired()) {
+					conn.setHttp401Password(currentBlog.getHTTPAuthPassword());
+					conn.setHttp401Username(currentBlog.getHTTPAuthUsername());
+				}
 				isModifiedComments = true;
 			}
 		}
@@ -217,6 +231,10 @@ public class RecentCommentsController extends BaseController {
 			Comment comment = deleteComments[i];
 			DeleteCommentConn conn = new DeleteCommentConn(currentBlog.getXmlRpcUrl(), currentBlog.getUsername(),
 					currentBlog.getPassword(), currentBlog.getId(), comment.getID());
+			if(currentBlog.isHTTPBasicAuthRequired()) {
+				conn.setHttp401Password(currentBlog.getHTTPAuthPassword());
+				conn.setHttp401Username(currentBlog.getHTTPAuthUsername());
+			}
 			connectionsQueue.push(conn);
 		}
 		
@@ -240,7 +258,10 @@ public class RecentCommentsController extends BaseController {
 		final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
 				Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
 				currentBlog.getPassword(), postID, commentsStatus, offset, number);
-		
+		if(currentBlog.isHTTPBasicAuthRequired()) {
+			connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
+			connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
+		}
         connection.addObserver(new LoadCommentsCallBack(commentsStatus));  
         connectionProgressView= new ConnectionInProgressView(connMessage);
        
@@ -257,7 +278,10 @@ public class RecentCommentsController extends BaseController {
 		final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
 				Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
 				currentBlog.getPassword(), postID, statusFilter, offset, number);
-		
+		if(currentBlog.isHTTPBasicAuthRequired()) {
+			connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
+			connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
+		}
         connection.addObserver(new LoadCommentsCallBack(statusFilter));  
         connectionProgressView= new ConnectionInProgressView(connMessage);
        
@@ -274,7 +298,10 @@ public class RecentCommentsController extends BaseController {
 		final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
 				Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
 				currentBlog.getPassword(), postID, statusFilter, commentList.length, number);
-		
+		if(currentBlog.isHTTPBasicAuthRequired()) {
+			connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
+			connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
+		}
         connection.addObserver(new LoadMoreCommentsCallBack());  
         connectionProgressView= new ConnectionInProgressView(connMessage);
        

@@ -14,6 +14,10 @@ public class RecentPostConn extends BlogConn  {
 	public RecentPostConn(String hint,String userHint, String passwordHint, Blog aBlog) {
 		super(hint, userHint, passwordHint);
 		this.blog=aBlog;
+		if(aBlog.isHTTPBasicAuthRequired()) {
+			this.setHttp401Password(aBlog.getHTTPAuthPassword());
+			this.setHttp401Username(aBlog.getHTTPAuthUsername());
+		}
 	}
 
 	/**

@@ -96,7 +96,10 @@ public class PagesController extends BaseController{
     		    						 
 			DeletePageConn connection = new DeletePageConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
 					 currentBlog.getPassword(), Integer.parseInt(currentBlog.getId()), pageID);
-		     
+			if(currentBlog.isHTTPBasicAuthRequired()) {
+				connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
+				connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
+			}
 			 connection.addObserver(new deletePageCallBack(selectedIndex)); //not page id, selectedID
 		     
 		     connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONN_DELETE_PAGE));
@@ -136,7 +139,10 @@ public class PagesController extends BaseController{
 		System.out.println(">>>refreshPosts");
         final GetPagesConn connection = new GetPagesConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
         		currentBlog.getPassword(),  Integer.parseInt(currentBlog.getId()), currentBlog.getMaxPostCount());
-        
+		if(currentBlog.isHTTPBasicAuthRequired()) {
+			connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
+			connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
+		}
         connection.addObserver(new refreshPageCallBack()); 
         String connMsg=_resources.getString(WordPressResource.CONN_LOADING_PAGES);
         connectionProgressView= new ConnectionInProgressView(connMsg);

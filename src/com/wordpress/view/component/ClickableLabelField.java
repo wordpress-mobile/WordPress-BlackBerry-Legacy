@@ -74,7 +74,7 @@ public class ClickableLabelField extends LabelField {
   		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
   			Log.trace("Input came from a four way navigation input device");
   			performDefaultActionOnItem();
-  			 return true;
+  			return true;
   		}
   		return super.navigationClick(status, time);
   	}
@@ -99,16 +99,23 @@ public class ClickableLabelField extends LabelField {
       
   	//#ifdef IS_OS47_OR_ABOVE
   	protected boolean touchEvent(TouchEvent message) {
-  		Log.trace(">>> touchEvent");
   		int eventCode = message.getEvent();
-  		
+  		Log.trace(">>> touchEvent - "+ eventCode);
   		// Get the screen coordinates of the touch event
+        int x = message.getX(1);
+        int y = message.getY(1);
+        // Check to ensure point is within this field
+        if(x < 0 || y < 0 || x > getExtent().width || y > getExtent().height) {
+            return false;
+        }
   		if(eventCode == TouchEvent.CLICK) {
   			Log.trace("TouchEvent.CLICK");
   			performDefaultActionOnItem();
   			return true;
-			} 
-			return false; 
+  		}
+
+  		//return false;
+  		return super.touchEvent(message);
   	}
   	//#endif
 	 

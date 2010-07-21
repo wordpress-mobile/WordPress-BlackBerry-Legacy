@@ -433,9 +433,11 @@ public abstract class BlogObjectController extends BaseController {
 		
         connection.addObserver(new RemotePreviewCallBack(title, content, tags, categories));  
         connectionProgressView= new ConnectionInProgressView(connMessage);
-       
+		if(blog.isHTTPBasicAuthRequired()) {
+			connection.setHttp401Password(blog.getHTTPAuthPassword());
+			connection.setHttp401Username(blog.getHTTPAuthUsername());
+		}
         connection.startConnWork(); //starts connection
-				
 		int choice = connectionProgressView.doModal();
 		if(choice==Dialog.CANCEL) {
 			connection.stopConnWork(); //stop the connection if the user click on cancel button

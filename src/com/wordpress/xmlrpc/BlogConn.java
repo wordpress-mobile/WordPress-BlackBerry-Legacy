@@ -9,6 +9,8 @@ import java.util.Vector;
 import javax.microedition.io.ConnectionNotFoundException;
 
 import net.rim.device.api.i18n.ResourceBundle;
+import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.Dialog;
 
 import org.kxmlrpc.XmlRpcClient;
 import org.kxmlrpc.XmlRpcException;
@@ -20,11 +22,14 @@ import com.wordpress.model.Category;
 import com.wordpress.model.Tag;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
+import com.wordpress.view.dialog.CredentialDialog;
 
 public abstract class BlogConn extends Observable implements Runnable {
 	
 	protected final Boolean TRUE = new Boolean(true);
     protected final Boolean FALSE = new Boolean(false);
+    protected static final int MAX_NUMBER_OF_REDIRECTIONS = 5;
+    
 	protected String urlConnessione;
     protected String mUsername;
     protected String mPassword;
@@ -34,9 +39,11 @@ public abstract class BlogConn extends Observable implements Runnable {
 	protected boolean isWorking = false;
 	protected Thread t = null;
 	protected int threadPriority = Thread.NORM_PRIORITY;
-	protected int minThreadPriority = Thread.MIN_PRIORITY;
+	protected static final int minThreadPriority = Thread.MIN_PRIORITY;
 	
 	//401 HTTP Auth data
+	protected int dialogResponse = Dialog.CANCEL;
+	protected boolean keepGoing = true;
 	protected String authMessage = null;
 	protected String http401Username = null;
 	protected String http401Password = null;
@@ -117,8 +124,18 @@ public abstract class BlogConn extends Observable implements Runnable {
 		isWorking=true;
 		
 		Object response = null;
-		if(mConnection == null)
+		if(mConnection == null) {
 			mConnection = new XmlRpcClient(urlConnessione);
+		}
+		//set HTTP auth if available
+		if(http401Password != null && http401Username != null) {
+			if(!http401Password.trim().equalsIgnoreCase("") 
+					&& !http401Username.trim().equalsIgnoreCase("")) {
+				mConnection.setHttp401Password(http401Password);
+				mConnection.setHttp401Username(http401Username);
+				Log.trace("HTTP auth are available to the XML-RPC client");
+			}
+		}
 		try {
 			response = mConnection.execute(aCommand, aArgs);
 		} catch (ConnectionNotFoundException cnfe) {
@@ -140,6 +157,36 @@ public abstract class BlogConn extends Observable implements Runnable {
 		return response;
 	}
 	
+	protected void showHTTPAuthDialog() {
+		//this check is necessary to ensure the user has not clicked cancel meanwhile
+		if (!isWorking)
+			return;
+		
+		final CredentialDialog dlg;
+		
+		if (authMessage == null) 
+			dlg = new CredentialDialog();
+		else
+			dlg = new CredentialDialog(authMessage);
+		
+		UiApplication.getUiApplication().invokeAndWait(new Runnable()
+           {
+              public void run()
+              {
+              	 dialogResponse = dlg.doModal();
+              }
+           });
+		
+		if(dialogResponse == Dialog.D_OK) {
+			http401Password = dlg.getPassWord();
+			http401Username = dlg.getUserName();
+      	} else {
+      		http401Password  = null;
+      		http401Username = null;
+      		keepGoing = false;
+      	}
+	}
+	
 	public void setAuthMessage(String authMessage) {
 		this.authMessage = authMessage;
 	}
@@ -159,8 +206,6 @@ public abstract class BlogConn extends Observable implements Runnable {
 	public String getHttp401Username() {
 		return http401Username;
 	}
-
-	
 	
 	protected void setPostCategories(int[] categories, String postID) throws Exception {
 		Log.debug(">>> Set Post categories ");

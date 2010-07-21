@@ -326,6 +326,10 @@ public class BlogDAO implements BaseDAO {
         
         ser.serialize(new Boolean(blog.isWPCOMBlog()));
         
+        ser.serialize(new Boolean(blog.isHTTPBasicAuthRequired()));
+        ser.serialize(blog.getHTTPAuthUsername());
+        ser.serialize(blog.getHTTPAuthPassword());
+        
         out.close();
 
 		if(isError) {
@@ -511,7 +515,7 @@ public class BlogDAO implements BaseDAO {
         	Log.error("No signature info found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
         
-        //reading stats data
+        //reading stats auth data
         try {
         	Object statsUsr = ser.deserialize();
         	Object statsPasswd = ser.deserialize();
@@ -522,8 +526,6 @@ public class BlogDAO implements BaseDAO {
 		} catch (Throwable  t) {
         	Log.error("No stats auth data found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
-        
-		
 		
 		//since version 1.3
 		//reading VideoPress resize opt
@@ -566,6 +568,20 @@ public class BlogDAO implements BaseDAO {
 			Log.error("No isWPCOM flag found - End of file was reached. Probably a previous blog data file is loaded" );
 		} catch (Throwable  t) {
 			Log.error("No isWPCOM flag found  - End of file was reached. Probably a previous blog data file is loaded" );
+		}
+		
+        //reading HTTP auth data
+        try {
+        	boolean isHttpAuth=((Boolean)ser.deserialize()).booleanValue();
+        	Object statsUsr = ser.deserialize();
+        	Object statsPasswd = ser.deserialize();
+        	blog.setHTTPBasicAuthRequired(isHttpAuth);
+        	blog.setHTTPAuthUsername((String)statsUsr);
+        	blog.setHTTPAuthPassword((String)statsPasswd);
+        } catch (Exception  e) {
+        	Log.error("No http auth data found - End of file was reached. Probably a previous blog data file is loaded" );
+		} catch (Throwable  t) {
+        	Log.error("No http auth data found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
 				
         in.close();

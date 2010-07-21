@@ -1,10 +1,6 @@
 package com.wordpress.controller;
 
-import java.io.IOException;
-import java.util.Hashtable;
 import java.util.Vector;
-
-import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.Font;
@@ -20,7 +16,6 @@ import org.kxmlrpc.XmlRpcException;
 
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
-import com.wordpress.io.AccountsDAO;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
@@ -47,6 +42,7 @@ public class AddBlogsController extends BaseController {
 	private final TaskProgressListener listener; //listener on add a blog task
 	ConnectionInProgressView connectionProgressView=null;
 	private boolean isWPCOMCall = false; //true when adding a wp.com account 
+	private BlogAuthConn connection;
 	
 	public AddBlogsController(TaskProgressListener listener, boolean isWPCOMBlog) {
 		super();
@@ -72,7 +68,7 @@ public class AddBlogsController extends BaseController {
 		passwd = passwd.trim();
 		isWPCOMCall = true;
         if (user != null && user != null && user.length() > 0) {
-            BlogAuthConn connection = new BlogAuthConn ("http://wordpress.com",user,passwd);
+        	connection = new BlogAuthConn ("http://wordpress.com",user,passwd);
             connection.addObserver(new AddBlogCallBack(1, user, passwd)); 
              connectionProgressView= new ConnectionInProgressView(
             		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
@@ -96,7 +92,7 @@ public class AddBlogsController extends BaseController {
 		user = user.trim();
 		passwd = passwd.trim();
         if (URL != null && user != null && URL.length() > 0 && user != null && user.length() > 0) {
-            BlogAuthConn connection = new BlogAuthConn (URL,user,passwd);
+            connection = new BlogAuthConn (URL,user,passwd);
             connection.addObserver(new AddBlogCallBack(source, user, passwd)); 
              connectionProgressView= new ConnectionInProgressView(
             		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
@@ -117,44 +113,11 @@ public class AddBlogsController extends BaseController {
 	}
 		
 	
-	private void storeWPCOMAccount(Blog[] serverBlogs) {
-		if (!isWPCOMCall) {
-			return;
-		}
-		if (serverBlogs.length == 0) return;
-	
-		try {
-			Hashtable loadAccounts = MainController.getIstance().getApplicationAccounts();
-				
-			Blog tmpBlog = serverBlogs[0];
-			String username = tmpBlog.getUsername();
-			String passwd = tmpBlog.getPassword();
-			Hashtable accountInfo = new Hashtable();
-			accountInfo.put(AccountsDAO.USERNAME_KEY, username);
-			accountInfo.put(AccountsDAO.PASSWORD_KEY, passwd);
-			accountInfo.put(AccountsDAO.BLOGNUMBER_KEY, ""+serverBlogs.length);
-			
-			Object object = loadAccounts.get(username);
-			if(object == null) {
-				//new account detected
-				loadAccounts.put(username, accountInfo);
-				AccountsDAO.storeAccounts(loadAccounts);
-			} else {
-				//account already available inside the app
-				//TODO update all blogs info associated with this account
-			}
-		} catch (IOException e) {
-			Log.error(e, "Error while storing account info");
-		} catch (RecordStoreException e) {
-			Log.error(e, "Error while storing account info");
-		}
-	}
-	
 	private void parseResponse(BlogConnResponse resp) {
 		Log.debug("found blogs: "+((Blog[])resp.getResponseObject()).length);	
 		Blog[] serverBlogs = (Blog[]) resp.getResponseObject();
 		if (isWPCOMCall) {
-			storeWPCOMAccount(serverBlogs);
+			AccountsController.storeWPCOMAccount(serverBlogs);
 		}
 
 		Vector addedBlog = new Vector();

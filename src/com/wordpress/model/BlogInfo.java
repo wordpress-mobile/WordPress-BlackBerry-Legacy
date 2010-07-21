@@ -17,6 +17,10 @@ public class BlogInfo {
 	private String username;
 	private String password;
 	private int state = -1;
+
+	private boolean isHTTPBasicAuthRequired = false;
+	private String HTTPAuthUsername = null; //could be used only for self-hosted blog - this data could be different from stats auth
+	private String HTTPAuthPassword = null; //could be used used for self-hosted blog - this data could be different from stats auth 
 	
 	private boolean isCommentNotifies = false; //true when comment notifies is active
 	
@@ -36,6 +40,9 @@ public class BlogInfo {
 		this.state = currentBlog.getLoadingState();
 		this.isCommentNotifies = currentBlog.isCommentNotifies();
 		this.isWPCOMBlog = currentBlog.isWPCOMBlog();
+		this.isHTTPBasicAuthRequired = currentBlog.isHTTPBasicAuthRequired();
+		this.HTTPAuthUsername= currentBlog.getHTTPAuthUsername();
+		this.HTTPAuthPassword = currentBlog.getHTTPAuthPassword();
 	}
 	
 	public String getId() {
@@ -127,6 +134,30 @@ public class BlogInfo {
 
 	public void setWPCOMBlog(boolean isWPCOMBlog) {
 		this.isWPCOMBlog = isWPCOMBlog;
+	}
+	
+	public boolean isHTTPBasicAuthRequired() {
+		return isHTTPBasicAuthRequired;
+	}
+
+	public void setHTTPBasicAuthRequired(boolean isHTTPBasicAuthRequired) {
+		this.isHTTPBasicAuthRequired = isHTTPBasicAuthRequired;
+	}
+	
+	public String getHTTPAuthUsername() {
+		return HTTPAuthUsername;
+	}
+
+	public void setHTTPAuthUsername(String httpAuthUsername) {
+		this.HTTPAuthUsername = httpAuthUsername;
+	}
+
+	public String getHTTPAuthPassword() {
+		return HTTPAuthPassword;
+	}
+
+	public void setHTTPAuthPassword(String httpAuthPassword) {
+		this.HTTPAuthPassword = httpAuthPassword;
 	}
 
 	public int hashCode() {

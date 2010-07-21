@@ -52,7 +52,7 @@ public class PostController extends BlogObjectController {
 		try {
 			draftFolder = DraftDAO.storePost(post, draftFolder);
 		} catch (Exception e) {
-			displayError(e, _resources.getString(WordPress.ERROR_NOT_ENOUGHT_SPACE));
+			displayError(e, _resources.getString(WordPress.ERROR_NOT_ENOUGH_SPACE));
 		}
 		checkMediaObjectLinks();
 	}
@@ -312,7 +312,10 @@ public class PostController extends BlogObjectController {
 		NewCategoryConn connection = new NewCategoryConn (post.getBlog().getXmlRpcUrl(), 
 				Integer.parseInt(post.getBlog().getId()), post.getBlog().getUsername(),
 				post.getBlog().getPassword(), label, parentCatID);
-		
+		if(blog.isHTTPBasicAuthRequired()) {
+			connection.setHttp401Password(blog.getHTTPAuthPassword());
+			connection.setHttp401Username(blog.getHTTPAuthUsername());
+		}
 		connection.addObserver(new SendNewCatCallBack(label,parentCatID)); 
         
 		connectionProgressView= new ConnectionInProgressView(
@@ -413,7 +416,6 @@ public class PostController extends BlogObjectController {
 		}
 				
 		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
-		
 		sendTask = new SendToBlogTask(post, draftFolder, connection);
 		sendTask.setProgressListener(new SubmitPostTaskListener());
 		//push into the Runner
@@ -484,7 +486,8 @@ public class PostController extends BlogObjectController {
 	    				DraftDAO.removePost(post.getBlog(), draftFolder);
 	    			}
 				} catch (Exception e) {
-					displayError(e, "Cannot remove temporary files from disk!");
+					Log.error(e, "Cannot remove temporary files from disk!");
+					displayErrorAndWait("Cannot remove temporary files from disk!");
 				}
 	    		FrontController.getIstance().backAndRefreshView(false);
 	    		return true;

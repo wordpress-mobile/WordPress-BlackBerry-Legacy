@@ -14,6 +14,8 @@ import java.util.Vector;
 
 import javax.microedition.io.HttpConnection;
 
+import net.rim.device.api.io.Base64OutputStream;
+
 import org.kxml2.io.KXmlParser;
 import org.kxml2.io.KXmlSerializer;
 
@@ -41,6 +43,11 @@ public class XmlRpcClient {
      * Turns debugging on/off
      */
     boolean debug = true;
+    
+	//401 HTTP Auth data
+    private String http401Username = null;
+	private String http401Password = null;
+    
     //contains all response headers
     private Hashtable responseHeaders = new Hashtable();
 	private HttpConnection con;
@@ -77,12 +84,19 @@ public class XmlRpcClient {
     
     public String getURL() {
         return url;
-    }//end getURL()
+    }
     
     public void setURL( String newUrl ) {
         url = newUrl;
-    }//end setURL( String )
-      
+    }
+     
+	public void setHttp401Username(String http401Username) {
+		this.http401Username = http401Username;
+	}
+	
+	public void setHttp401Password(String http401Password) {
+		this.http401Password = http401Password;
+	}
   
     /**
      * This method is the brains of the XmlRpcClient class. It opens an
@@ -120,14 +134,27 @@ public class XmlRpcClient {
     		return null; //if the user has stopped the thread
     	}
 
-    	
     	Log.trace("grandezza del file da inviare "+ Long.toString(os.getMessageLength()));
+
+    	byte[] encodedAuthCredential = null;
+		if(http401Password != null) {
+			String login = this.http401Username+ ":"+this.http401Password;
+			//Encode the login information in Base64 format.
+			encodedAuthCredential = Base64OutputStream.encode(login.getBytes(), 0, login.length(), false, false);
+		} 
+    	
     	con = (HttpConnection) ConnectionManager.getInstance().open(url);
     	try {
     		
     		con.setRequestMethod(HttpConnection.POST);
     		con.setRequestProperty("Content-Length", Long.toString(os.getMessageLength()));
      	    con.setRequestProperty("Content-Type", "text/xml");
+     		if(encodedAuthCredential != null) {
+                //Add the authorized header.
+				Log.trace("Added the authorized header");
+				con.setRequestProperty("Authorization", "Basic " + new String(encodedAuthCredential));
+			}
+     	    
     		// Obtain an output stream
     		out = con.openOutputStream();
     		os.sendRequest(out);
@@ -204,8 +231,6 @@ public class XmlRpcClient {
 //    		} else {
   //  			xp.setInput(in, "ISO-8859-1"); //never change!
     //		}
-    		
-    		
     		
     		parser = new XmlRpcParser(xp, encoding); //pass the rim encoding
     		result = parser.parseResponse();

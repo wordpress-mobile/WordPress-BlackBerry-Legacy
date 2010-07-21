@@ -39,7 +39,6 @@ import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
-import com.wordpress.controller.PreferenceController;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.DataCollector;
@@ -307,14 +306,11 @@ public class MainView extends BaseView {
 	protected boolean touchEvent(TouchEvent message) {
 		Log.trace(">>> touchEvent");
 		int eventCode = message.getEvent();
-		// Get the screen coordinates of the touch event
-		int touchX = message.getX(1);
-		int touchY = message.getY(1);
-		
+        
 		if(eventCode == TouchEvent.CLICK) {
 			return defaultAction();
 		}
-	return super.touchEvent(message);	
+		return super.touchEvent(message);	
 	}
 	//#endif
 	
@@ -376,7 +372,7 @@ public class MainView extends BaseView {
     
     private MenuItem _accountItem = new MenuItem( _resources, WordPressResource.MENUITEM_ACCOUNTS, 11000, 1000) {
         public void run() {
-        	AccountsController ctrl=new AccountsController();
+        	AccountsController ctrl = new AccountsController();
     		ctrl.showView();	
         }
     };

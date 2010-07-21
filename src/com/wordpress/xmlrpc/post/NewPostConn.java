@@ -16,10 +16,18 @@ public class NewPostConn extends BlogConn  {
 		super(hint, userHint, passwordHint);
 		this.post=mPost;
 		this.isPublished=isPublished;
+   		if(post.getBlog().isHTTPBasicAuthRequired()) {
+			this.setHttp401Password(post.getBlog().getHTTPAuthPassword());
+			this.setHttp401Username(post.getBlog().getHTTPAuthUsername());
+		}
 	}
 
 	public void setPost(Post post) {
 		this.post = post;
+   		if(post.getBlog().isHTTPBasicAuthRequired()) {
+			this.setHttp401Password(post.getBlog().getHTTPAuthPassword());
+			this.setHttp401Username(post.getBlog().getHTTPAuthUsername());
+		}
 	}
 
 	/**

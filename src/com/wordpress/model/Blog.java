@@ -3,8 +3,7 @@ package com.wordpress.model;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import com.wordpress.controller.MainController;
-import com.wordpress.io.AccountsDAO;
+import com.wordpress.controller.AccountsController;
 import com.wordpress.utils.log.Log;
 
 public class Blog {
@@ -53,6 +52,10 @@ public class Blog {
 	private String statsUsername = null; //this data could be different from http auth
 	private String statsPassword = null; //this data could be different from http auth 
 	
+	private boolean isHTTPBasicAuthRequired = false;
+	private String HTTPAuthUsername = null; //could be used only for self-hosted blog - this data could be different from stats auth
+	private String HTTPAuthPassword = null; //could be used used for self-hosted blog - this data could be different from stats auth 
+	
 	public Vector getViewedPost() {
 		return viewedPost;
 	}
@@ -97,18 +100,7 @@ public class Blog {
 	}
 
 	public String getUsername() {
-		if(!isWPCOMBlog) {
-			return username;
-		} else {
-			try {
-				Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
-				Hashtable account = (Hashtable)applicationAccounts.get(username);
-				return (String) account.get(AccountsDAO.USERNAME_KEY);
-			} catch (Exception e) {
-				Log.trace(e, "Error while reading the account username");
-				return username;
-			}
-		}
+		return username;
 	}
 
 	public void setUsername(String username) {
@@ -119,11 +111,8 @@ public class Blog {
 		if(!isWPCOMBlog) {
 			return password;
 		} else {
-		
 			try {
-				Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
-				Hashtable account = (Hashtable)applicationAccounts.get(username);
-				return (String) account.get(AccountsDAO.PASSWORD_KEY);
+				return AccountsController.getAccountPassword(username);
 			} catch (Exception e) {
 				Log.trace(e, "Error while reading the account password");
 				return password;
@@ -295,6 +284,22 @@ public class Blog {
 		this.statsUsername = statsUsername;
 	}
 	
+	public String getHTTPAuthUsername() {
+		return HTTPAuthUsername;
+	}
+
+	public void setHTTPAuthUsername(String httpAuthUsername) {
+		this.HTTPAuthUsername = httpAuthUsername;
+	}
+
+	public String getHTTPAuthPassword() {
+		return HTTPAuthPassword;
+	}
+
+	public void setHTTPAuthPassword(String httpAuthPassword) {
+		this.HTTPAuthPassword = httpAuthPassword;
+	}
+
 	public boolean isSignatureEnabled() {
 		return isSignatureEnabled;
 	}
@@ -318,5 +323,13 @@ public class Blog {
 
 	public void setWPCOMBlog(boolean isWPCOMBlog) {
 		this.isWPCOMBlog = isWPCOMBlog;
+	}
+
+	public boolean isHTTPBasicAuthRequired() {
+		return isHTTPBasicAuthRequired;
+	}
+
+	public void setHTTPBasicAuthRequired(boolean isHTTPBasicAuthRequired) {
+		this.isHTTPBasicAuthRequired = isHTTPBasicAuthRequired;
 	}	
 }

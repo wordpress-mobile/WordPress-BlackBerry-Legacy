@@ -8,18 +8,12 @@ import java.util.Vector;
 import javax.microedition.io.HttpConnection;
 
 import net.rim.device.api.io.Base64OutputStream;
-import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Log;
-import com.wordpress.view.dialog.CredentialDialog;
 
 public class HTTPGetConn extends BlogConn  {
 
-	private boolean keepGoing;
-	
-	private int dialogResponse = Dialog.CANCEL;
 	private Hashtable responseHeaders = new Hashtable();
 	
 	public HTTPGetConn(String url, String username, String password) {
@@ -43,9 +37,8 @@ public class HTTPGetConn extends BlogConn  {
 			int numberOfRedirection = 0;
 			keepGoing = true;
 			boolean askToUser = false;
-
 			
-	  		 while( keepGoing && numberOfRedirection < 3 ){
+	  		 while( keepGoing && numberOfRedirection < BlogConn.MAX_NUMBER_OF_REDIRECTIONS ){
 	  		
 				conn = (HttpConnection) ConnectionManager.getInstance().open(urlConnessione);
 
@@ -54,7 +47,6 @@ public class HTTPGetConn extends BlogConn  {
 					Log.trace("Added the authorized header");
                     conn.setRequestProperty("Authorization", "Basic " + new String(encodedAuthCredential));
 				}
-				
 				
 				// List all the response headers from the server.
 	    		// Note: The first call to getHeaderFieldKey() will implicit send
@@ -126,7 +118,7 @@ public class HTTPGetConn extends BlogConn  {
 		            			http401Username = this.mUsername;
 		            		}
 		            	} else {
-		            		askToUser();
+		            		showHTTPAuthDialog();
 		            	}
 		             	
 		            	if(http401Password != null) {
@@ -158,35 +150,6 @@ public class HTTPGetConn extends BlogConn  {
 		return response;
 	}
 	
-	protected void askToUser() {
-		//this check is necessary to ensure the user has not clicked cancel meanwhile
-		if (!isWorking)
-			return;
-		
-		final CredentialDialog dlg;
-		
-		if (authMessage == null) 
-			dlg = new CredentialDialog();
-		else
-			dlg = new CredentialDialog(authMessage);
-		
-		UiApplication.getUiApplication().invokeAndWait(new Runnable()
-           {
-              public void run()
-              {
-              	 dialogResponse = dlg.doModal();
-              }
-           });
-		
-		if(dialogResponse == Dialog.D_OK) {
-			http401Password = dlg.getPassWord();
-			http401Username = dlg.getUserName();
-      	} else {
-      		http401Password  = null;
-      		http401Username = null;
-      		keepGoing = false;
-      	}
-	}
 
 	public void run() {
 		try {

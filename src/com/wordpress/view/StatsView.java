@@ -21,7 +21,6 @@ import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.StatsController;
-import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.csv.StatsParser;
 import com.wordpress.utils.log.Log;

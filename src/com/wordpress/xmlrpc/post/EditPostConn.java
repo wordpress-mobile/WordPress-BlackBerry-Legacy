@@ -16,6 +16,10 @@ public class EditPostConn extends BlogConn  {
 		super(hint, userHint, passwordHint);
 		this.post=mPost;
 		this.isPublished=isPublished;
+		if(mPost.getBlog().isHTTPBasicAuthRequired()) {
+			this.setHttp401Password(mPost.getBlog().getHTTPAuthPassword());
+			this.setHttp401Username(mPost.getBlog().getHTTPAuthUsername());
+		}
 	}
 
 	public void setPost(Post post) {

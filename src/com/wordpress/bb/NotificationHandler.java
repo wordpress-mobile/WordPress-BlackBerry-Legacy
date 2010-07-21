@@ -176,7 +176,10 @@ public class NotificationHandler {
 				final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
 						Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
 						currentBlog.getPassword(), -1, "", 0, WordPressInfo.DEFAULT_DOWNLOADED_COMMENTS);
-
+				if(currentBlog.isHTTPBasicAuthRequired()) {
+					connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
+					connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
+				}				
 				connection.addObserver(this);
 				connection.startConnWorkBackground();
 				
@@ -371,7 +374,10 @@ public class NotificationHandler {
 				//blog is correctly loaded within the app
 				GetCommentCountConn connection = new GetCommentCountConn(blogInfo.getXmlRpcUrl(), 
 						blogInfo.getUsername(), blogInfo.getPassword(), -1);
-				
+				if(currentBlog.isHTTPBasicAuthRequired()) {
+					connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
+					connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
+				}
 				connection.addObserver(this);
 				connection.startConnWorkBackground();
 				

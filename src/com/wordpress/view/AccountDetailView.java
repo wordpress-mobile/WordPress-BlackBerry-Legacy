@@ -73,7 +73,7 @@ public class AccountDetailView extends StandardBaseView {
 	        
             BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
             BaseButtonField buttonBACK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
-    		buttonBACK.setChangeListener(listenerBackButton);
+            buttonBACK.setChangeListener(listenerBackButton);
             buttonOK.setChangeListener(listenerOkButton);
             
             HorizontalFieldManager buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
@@ -101,14 +101,12 @@ public class AccountDetailView extends StandardBaseView {
 		try {
 			if(isDirty()){
 				String pass = passwordField.getText();
-				//String user = userNameField.getText();
-				//accountData.put(AccountsDAO.USERNAME_KEY, user);
 				accountData.put(AccountsDAO.PASSWORD_KEY, pass);
 				AccountsDAO.storeAccounts(MainController.getIstance().getApplicationAccounts());
 			} 
 			controller.backCmd();
 		} catch (Exception e) {
-			controller.displayErrorAndWait("Error while saving blog options");
+			controller.displayErrorAndWait("Error while saving Account Informations.");
 		}
 	}
 	

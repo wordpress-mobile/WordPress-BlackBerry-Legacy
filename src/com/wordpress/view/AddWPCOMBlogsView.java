@@ -19,6 +19,7 @@ import net.rim.device.api.ui.container.HorizontalFieldManager;
 
 import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.AddBlogsController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.MainController;
@@ -78,9 +79,8 @@ public class AddWPCOMBlogsView extends StandardBaseView {
             passwordField = new PasswordEditField("", "", 64, Field.EDITABLE);
             rowPassword.add(passwordField);
             add(rowPassword);
-     		
-            final Hashtable accounts = MainController.getIstance().getApplicationAccounts();
-            if(accounts.size() > 0 ) {
+           
+            if(AccountsController.getAccountsNumber() > 0 ) {
             	ClickableLabelField lblMyAccounts = new ClickableLabelField(_resources.getString(WordPressResource.LABEL_EXISTING_WPCOM_ACCOUNTS),
             			LabelField.FOCUSABLE | LabelField.ELLIPSIS);
             	lblMyAccounts.setTextColor(Color.BLUE);
@@ -88,23 +88,15 @@ public class AddWPCOMBlogsView extends StandardBaseView {
             	FieldChangeListener existingAccountListener = new FieldChangeListener() {
             		public void fieldChanged(Field field, int context) {
             			if(context == 0) {
-            				Enumeration k = accounts.keys();
-            				String[] accountsList = new String[accounts.size()];
-            				int i = 0;
-            				while (k.hasMoreElements()) {
-            					String key = (String) k.nextElement();
-            					accountsList[i] = key;
-            					i++;
-            				}
+            				String[] accountsList = AccountsController.getAccountsName();
             				String title = _resources.getString(WordPressResource.TITLE_WPCOM_ACCOUNTS_SELECTOR_POPUP);
             				SelectorPopupScreen selScr = new SelectorPopupScreen(title, accountsList);
             				selScr.pickItem();
             				int selection = selScr.getSelectedItem();
             				if(selection != -1) {
             					String selectedUserName = accountsList[selection];
-            					Hashtable selectedAccount = (Hashtable) accounts.get(selectedUserName); 
-            					String passwd = (String) selectedAccount.get(AccountsDAO.PASSWORD_KEY);
-            					userNameField.setFocus(); //trick to avoid issue with clickableLabel focus 
+            					String passwd = AccountsController.getAccountPassword(selectedUserName);
+            					userNameField.setFocus(); //XXX: trick to avoid issue with embossedbutton field 
             					controller.addWPCOMBlogs(selectedUserName, passwd);
             				}
             			}

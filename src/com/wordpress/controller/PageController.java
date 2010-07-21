@@ -41,7 +41,7 @@ public class PageController extends BlogObjectController {
 		try {
 			draftFolder = PageDAO.storePage(blog, page, draftFolder);
 		} catch (Exception e) {
-			displayError(e, _resources.getString(WordPress.ERROR_NOT_ENOUGHT_SPACE));
+			displayError(e, _resources.getString(WordPress.ERROR_NOT_ENOUGH_SPACE));
 		}
 		remotePages = PageDAO.buildPagesArray(blog.getPages());
 		checkMediaObjectLinks();
@@ -209,11 +209,13 @@ public class PageController extends BlogObjectController {
 		if( getPageObj().getID()== -1 ) { //new page
 	           connection = new NewPageConn (blog.getXmlRpcUrl(), blog.getUsername(), 
 	        		   blog.getPassword(), Integer.parseInt(blog.getId()), getPageObj() ,publish);
-		
 		} else { //edit post
 			 connection = new EditPageConn (blog.getXmlRpcUrl(), blog.getUsername(), 
 	        		   blog.getPassword(), Integer.parseInt(blog.getId()), getPageObj() ,publish);
-		
+		}
+		if(blog.isHTTPBasicAuthRequired()) {
+			connection.setHttp401Password(blog.getHTTPAuthPassword());
+			connection.setHttp401Username(blog.getHTTPAuthUsername());
 		}
 		connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
 		sendTask = new SendToBlogTask(blog, getPageObj(), draftFolder, connection);
@@ -283,7 +285,8 @@ public class PageController extends BlogObjectController {
 	    				PageDAO.removePage(blog, draftFolder);
 	    			}
 				} catch (Exception e) {
-					displayError(e, "Cannot remove temporary files from disk!");
+					Log.error(e, "Cannot remove temporary files from disk!");
+					displayErrorAndWait("Cannot remove temporary files from disk!");
 				}
 	    		FrontController.getIstance().backAndRefreshView(false);
 	    		return true;

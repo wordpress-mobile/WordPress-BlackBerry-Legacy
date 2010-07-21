@@ -19,6 +19,10 @@ public class GetPostConn extends BlogConn  {
 		super(hint, userHint, passwordHint);
 		this.blog = blog;
 		this.postID = postID;
+		if(blog.isHTTPBasicAuthRequired()) {
+			this.setHttp401Password(blog.getHTTPAuthPassword());
+			this.setHttp401Username(blog.getHTTPAuthUsername());
+		}
 	}
 
 	/**
@@ -69,7 +73,7 @@ public class GetPostConn extends BlogConn  {
         
         	connResponse.setResponseObject(aPost);
 		} catch (Exception cce) {
-			setErrorMessage(cce, "getPost error");
+			setErrorMessage(cce, "Error while reading the post content.");
 		}
 		
 		try {

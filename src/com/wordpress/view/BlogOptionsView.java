@@ -17,6 +17,7 @@ import net.rim.device.api.ui.component.PasswordEditField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogOptionsController;
 import com.wordpress.io.BlogDAO;
@@ -24,6 +25,7 @@ import com.wordpress.model.Blog;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
+import com.wordpress.view.component.ClickableLabelField;
 import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
@@ -47,32 +49,58 @@ public class BlogOptionsView extends StandardBaseView {
 	private CheckboxField resizeVideo;
 	private BasicEditField videoResizeWidthField;
 	private BasicEditField videoResizeHeightField;
+	private CheckboxField enableAuth;
+	private BasicEditField authUserNameField;
+	private PasswordEditField authPasswordField;
+
+	
+	public static final int[] recentsPostValues={10,20,30,40,50};
+	public static final String[] recentsPostValuesLabel={"10","20","30","40","50"};
 	
 	HorizontalFieldManager buttonsManager;
 		
-	 public BlogOptionsView(BlogOptionsController blogsController, Hashtable values) {
+	 public BlogOptionsView(BlogOptionsController blogsController, Blog blog) {
 	    	super(_resources.getString(WordPressResource.TITLE_BLOG_OPTION_VIEW)+" > "+ blogsController.getBlogName(), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
 	    	this.controller=blogsController;
 	    	
-	        //loading input data
-	        String user = (String)values.get("user");
-	        String pass= (String)values.get("pass");
-	        String[] recentPost=(String[])values.get("recentpost");
-	        int recentPostSelect = ((Integer)values.get("recentpostselected")).intValue();
-			boolean isResImg = ((Boolean)values.get("isresphotos")).booleanValue();
-			imageResizeWidth = (Integer)values.get("imageResizeWidth");
-			imageResizeHeight = (Integer)values.get("imageResizeHeight");
-			boolean isLocation = ((Boolean)values.get("islocation")).booleanValue();
-			boolean isCommentNotifications = ((Boolean)values.get("iscommentnotifications")).booleanValue();
-			boolean isSignatureActive = ((Boolean)values.get("isSignatureActive")).booleanValue();
-			String signature = (String)values.get("signature");
-			boolean isResVideo = ((Boolean)values.get("isresvideos")).booleanValue();
-			Integer videoResizeWidth = (Integer)values.get("videoResizeWidth");
-			Integer videoResizeHeight = (Integer)values.get("videoResizeHeight");
+	    	//read the int value for maxPost showed
+	    	int recentPostSelected= blog.getMaxPostCount();
+	    	//find the index of the value in the predefined array
+	    	int indexRecPost=0;
+	    	for (int i = 0; i < recentsPostValues.length; i++) {
+	    		if (recentsPostValues[i] == recentPostSelected ) {
+	    			indexRecPost=i;
+	    			break;
+	    		}
+	    	}
+
+	    	//loading input data	    
+			String signature = blog.getSignature();
+			if(signature == null) 
+				signature = _resources.getString(WordPressResource.DEFAULT_SIGNATURE);
+			
+			String user =  blog.getUsername();
+			String pass =  blog.getPassword();
+			final String accountName = blog.getUsername();
+			
+	        String[] recentPost = recentsPostValuesLabel;
+	        int recentPostSelect = indexRecPost;
+			boolean isResImg = blog.isResizePhotos();
+			imageResizeWidth = blog.getImageResizeWidth();
+			imageResizeHeight = blog.getImageResizeHeight();
+			boolean isLocation = blog.isLocation();
+			
+			boolean isCommentNotifications =blog.isCommentNotifies();
+			boolean isSignatureActive = blog.isSignatureEnabled();
+			boolean isResVideo = blog.isResizeVideos();
+			Integer videoResizeWidth = blog.getVideoResizeWidth() == null ? new Integer(0) : blog.getVideoResizeWidth();
+			Integer videoResizeHeight = blog.getVideoResizeHeight() == null ? new Integer(0) : blog.getVideoResizeHeight();
 	        //end loading
 			
-			//not a WP.COM blog
-			if(user != null) {
+			
+			//init GUI code
+			//not a WP.COM blog - shows the credentials box
+			if(blog.isWPCOMBlog() == false) {
 	            BorderedFieldManager credentialOptionsRow = new BorderedFieldManager(
 		        		Manager.NO_HORIZONTAL_SCROLL
 		        		| Manager.NO_VERTICAL_SCROLL
@@ -89,8 +117,7 @@ public class BlogOptionsView extends StandardBaseView {
 	            passwordField.setMargin(5, 0, 5, 0);
 	            credentialOptionsRow.add(passwordField);
 	            add(credentialOptionsRow);
-			}
-			
+			} 
 	        //row max number of post/page
             BorderedFieldManager mainOptionsRow = new BorderedFieldManager(
 	        		Manager.NO_HORIZONTAL_SCROLL
@@ -169,7 +196,8 @@ public class BlogOptionsView extends StandardBaseView {
             //row Signature
             BorderedFieldManager signatureManager = new BorderedFieldManager(
 	        		Manager.NO_HORIZONTAL_SCROLL
-	        		| Manager.NO_VERTICAL_SCROLL);
+	        		| Manager.NO_VERTICAL_SCROLL
+	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
             signatureManager.add(
             		GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_SIGNATURE_OPTIONS),Color.BLACK)
             		);
@@ -180,6 +208,56 @@ public class BlogOptionsView extends StandardBaseView {
     		signatureField.setMargin(5, 0, 5, 0);
     		signatureManager.add(signatureField);
 			add(signatureManager);
+			
+			if(blog.isWPCOMBlog() == false) {
+				//not a WP.COM blog - shows the HTTP auth box
+				BorderedFieldManager authOptionsRow = new BorderedFieldManager(
+						Manager.NO_HORIZONTAL_SCROLL
+						| Manager.NO_VERTICAL_SCROLL);
+
+				authOptionsRow.add(
+						GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_HTTP_AUTH_OPTIONS), Color.BLACK)
+				);
+				authOptionsRow.add(GUIFactory.createSepatorField());
+				enableAuth = new CheckboxField(_resources.getString(WordPressResource.LABEL_ENABLE_HTTP_AUTH), blog.isHTTPBasicAuthRequired());
+				authOptionsRow.add(enableAuth);
+				authUserNameField = new BasicEditField(_resources.getString(WordPressResource.LABEL_USERNAME)+": ", 
+						( blog.getHTTPAuthUsername() == null ? "" : blog.getHTTPAuthUsername() ), 60, Field.EDITABLE);
+				authUserNameField.setMargin(5, 0, 5, 0);
+				authOptionsRow.add(authUserNameField);
+				authPasswordField = new PasswordEditField(_resources.getString(WordPressResource.LABEL_PASSWD)+": ", 
+						( blog.getHTTPAuthPassword() == null ? "" : blog.getHTTPAuthPassword() ), 64, Field.EDITABLE);
+				authPasswordField.setMargin(5, 0, 5, 0);
+				authOptionsRow.add(authPasswordField);
+				add(authOptionsRow);
+			} else {
+				//WP.COM account detected - shows the Account box
+				BorderedFieldManager credentialOptionsRow = new BorderedFieldManager(
+						Manager.NO_HORIZONTAL_SCROLL
+						| Manager.NO_VERTICAL_SCROLL);
+
+				credentialOptionsRow.add(
+						GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_VIEW_ACCOUNT), Color.BLACK)
+				);
+				credentialOptionsRow.add(GUIFactory.createSepatorField());
+
+				ClickableLabelField lblMyAccounts = new ClickableLabelField(_resources.getString(WordPressResource.LABEL_USERNAME)+": " + accountName,
+						LabelField.FOCUSABLE | LabelField.ELLIPSIS);
+				lblMyAccounts.setTextColor(Color.BLUE);
+				//lblMyAccounts.setMargin(2, 5, 5, 5);
+				FieldChangeListener existingAccountListener = new FieldChangeListener() {
+					public void fieldChanged(Field field, int context) {
+						if(context == 0) {
+							AccountsController ctrl = new AccountsController(accountName);
+							ctrl.showView();
+							maxRecentPost.setFocus(); //XXX: trick to avoid issue with ourbuttons
+						}
+					}
+				};
+				lblMyAccounts.setChangeListener(existingAccountListener);
+				credentialOptionsRow.add(lblMyAccounts);
+				add(credentialOptionsRow);
+			}
 			
             BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
             BaseButtonField buttonBACK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
@@ -289,15 +367,20 @@ public class BlogOptionsView extends StandardBaseView {
 			imageResizeWidth = new Integer(keepAspectRatio[0]);
 			imageResizeHeight = new Integer(keepAspectRatio[1]);
 
-			if(passwordField != null && userNameField != null) {
+			//self-hosted blog
+			if(blog.isWPCOMBlog() == false) {
 				String pass = passwordField.getText();
 				String user= userNameField.getText();
 				blog.setPassword(pass);
 				blog.setUsername(user);
+				//http auth opts
+				blog.setHTTPBasicAuthRequired(enableAuth.getChecked());
+				blog.setHTTPAuthPassword(authPasswordField.getText().trim());
+				blog.setHTTPAuthUsername(authUserNameField.getText().trim());
 			}
 			
 			int maxPostIndex = maxRecentPost.getSelectedIndex();
-			int valueMaxPostCount = BlogOptionsController.recentsPostValues[maxPostIndex];
+			int valueMaxPostCount = BlogOptionsView.recentsPostValues[maxPostIndex];
 			boolean isResPhotos = resizePhoto.getChecked();
 			blog.setResizePhotos(isResPhotos);
 			blog.setImageResizeWidth(imageResizeWidth);

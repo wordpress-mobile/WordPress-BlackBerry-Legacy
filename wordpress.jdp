@@ -249,7 +249,6 @@ src\com\wordpress\xmlrpc\post\DeletePostConn.java
 src\com\wordpress\xmlrpc\post\EditPostConn.java
 src\com\wordpress\xmlrpc\post\GetPostConn.java
 src\com\wordpress\xmlrpc\post\NewPostConn.java
-src\com\wordpress\xmlrpc\post\PostConn.java
 src\com\wordpress\xmlrpc\post\RecentPostConn.java
 src\com\wordpress\xmlrpc\PreviewHTTPConn.java
 src\defaultPostTemplate.html

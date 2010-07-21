@@ -34,7 +34,7 @@ public class DraftDAO implements BaseDAO{
     	ser.serialize(post2Hashtable);
     	ser.serialize(draftPost.getCategories());
     	out.close();
-		System.out.println("writing draft post ok");
+		Log.trace("writing draft post: ok");
 		return newPostID;
 	}
 	
