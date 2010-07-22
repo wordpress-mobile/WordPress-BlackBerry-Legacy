@@ -70,6 +70,8 @@ public class BlogAuthConn extends BlogConn  {
 	 */
 	
 	private String getHtml(String URL) {
+		if (keepGoing == false) return null; //cancel btn pressed prev.
+		
 		isWorking=true;
 		HttpConnection conn = null;
 		String response = null;
@@ -175,7 +177,6 @@ public class BlogAuthConn extends BlogConn  {
 		}
 		return response;
 	}
-
 
 	private String getRSDMetaTagHref(String urlConnessione) {
 		//get the html code
@@ -286,7 +287,7 @@ public class BlogAuthConn extends BlogConn  {
 		args.addElement(this.mPassword);
 		
 		if(discoveryApiLink == true) {
-			Log.trace("Started the ApiLink discovery process");
+			Log.trace(">>>ApiLink discovery process");
 			/*
 			 * 0. try to locate the RSD meta tag
 			 * 1. try the X-ping back header as xmlrpc endpoint if fails
@@ -318,7 +319,7 @@ public class BlogAuthConn extends BlogConn  {
 				Log.trace("ApiLink NOT found");
 			}
 			
-			Log.trace("Ended the ApiLink discovery process");
+			Log.trace("<<<ApiLink discovery process");
 		}
 		
 		if(connResponse.isStopped()) return ; //if the user has stopped the connection

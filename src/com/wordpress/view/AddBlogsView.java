@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.view;
 
 import net.rim.device.api.system.Display;
@@ -7,6 +8,9 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.VirtualKeyboard;
+//#endif
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
@@ -15,12 +19,10 @@ import net.rim.device.api.ui.component.PasswordEditField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.text.URLTextFilter;
 
-import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AddBlogsController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.utils.ImageUtils;
-import com.wordpress.utils.Tools;
 import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.container.BorderedFieldManager;
 
@@ -89,46 +91,40 @@ public class AddBlogsView extends StandardBaseView {
             rowPassword.add(passwordField);
             add(rowPassword);
             
-            BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
-            BaseButtonField buttonBACK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
-    		buttonBACK.setChangeListener(listenerBackButton);
+            BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_SIGN_IN), ButtonField.CONSUME_CLICK);
             buttonOK.setChangeListener(listenerOkButton);
-            
             HorizontalFieldManager buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
             buttonsManager.add(buttonOK);
-            buttonsManager.add(buttonBACK);
     		add(buttonsManager); 
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
 
     		addMenuItem(_addBlogItem);
-    		addMenuItem(_getFreeBlogItem);
 	}
-	 	
-	//add blog menu item 
-	private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 140, 10) {
+
+	private void addBlog() {
+		if (userNameField.getText().trim().length() == 0
+				||  passwordField.getText().trim().length() == 0
+				||  blogUrlField.getText().trim().length() == 0
+		) {
+			return;
+		}
+		//#ifdef IS_OS47_OR_ABOVE
+		VirtualKeyboard virtKbd = getVirtualKeyboard();
+		if(virtKbd != null)
+			virtKbd.setVisibility(VirtualKeyboard.HIDE);
+		//#endif
+		controller.addBlogs(0, blogUrlField.getText(), userNameField.getText(), passwordField.getText()); 
+	}
+	
+	private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.BUTTON_SIGN_IN, 140, 10) {
 		public void run() {
-			controller.addBlogs(0, blogUrlField.getText(), userNameField.getText(), passwordField.getText());
+			addBlog();
 		}
 	};
-	
-	//add blog menu item 
-	private MenuItem _getFreeBlogItem = new MenuItem( _resources, WordPressResource.GET_FREE_BLOG_MENU_ITEM, 150, 20) {
-		public void run() {
-			Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
-		}
-	};
-	
 	
 	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
-	    	controller.addBlogs(0, blogUrlField.getText(), userNameField.getText(), passwordField.getText()); 
-	   }
-	};
-
-
-	private FieldChangeListener listenerBackButton = new FieldChangeListener() {
-	    public void fieldChanged(Field field, int context) {
-	    	controller.backCmd();
+	    	addBlog();
 	   }
 	};
 

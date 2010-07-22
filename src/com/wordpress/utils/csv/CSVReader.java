@@ -391,37 +391,38 @@ class CSVParser {
        	inQuotes = true;
        }
        for (int i = 0; i < nextLine.length(); i++) {
-       	
-       	char c = nextLine.charAt(i);
-       	if (c == this.escape) {
-       		if( isNextCharacterEscapable(nextLine, inQuotes, i) ){
-       			sb.append(nextLine.charAt(i+1));
-       			i++;
-       		} 
-       	} else if (c == quotechar) {
-       		if( isNextCharacterEscapedQuote(nextLine, inQuotes, i) ){
-       			sb.append(nextLine.charAt(i+1));
-       			i++;
-       		}else{
-       			inQuotes = !inQuotes;
-       			// the tricky case of an embedded quote in the middle: a,bc"d"ef,g
-                   if (!strictQuotes) {
-                       if(i>2 //not on the beginning of the line
-                               && nextLine.charAt(i-1) != this.separator //not at the beginning of an escape sequence
-                               && nextLine.length()>(i+1) &&
-                               nextLine.charAt(i+1) != this.separator //not at the	end of an escape sequence
-                       ){
-                           sb.append(c);
-                       }
-                   }
-       		}
-       	} else if (c == separator && !inQuotes) {
-       		tokensOnThisLine.addElement(sb.toString());
-       		sb = new StringBuffer(INITIAL_READ_SIZE); // start work on next token
-       	} else {
-               if (!strictQuotes || inQuotes)
-                   sb.append(c);
-       	}
+
+    	   char c = nextLine.charAt(i);
+    	   if (c == quotechar) { //XXX: changed the order of the if - see http://sourceforge.net/tracker/?func=detail&aid=3030747&group_id=148905&atid=773541 
+    		   if( isNextCharacterEscapedQuote(nextLine, inQuotes, i) ){
+    			   sb.append(nextLine.charAt(i+1));
+    			   i++;
+    		   }else{
+    			   inQuotes = !inQuotes;
+    			   // the tricky case of an embedded quote in the middle: a,bc"d"ef,g
+    			   if (!strictQuotes) {
+    				   if(i>2 //not on the beginning of the line
+    						   && nextLine.charAt(i-1) != this.separator //not at the beginning of an escape sequence
+    						   && nextLine.length()>(i+1) &&
+    						   nextLine.charAt(i+1) != this.separator //not at the	end of an escape sequence
+    				   ){
+    					   sb.append(c);
+    				   }
+    			   }
+    		   }
+    	   } else  if (c == this.escape) {
+    		   if( isNextCharacterEscapable(nextLine, inQuotes, i) ){
+    			   sb.append(nextLine.charAt(i+1));
+    			   i++;
+    		   } 
+    	   }
+    	   else if (c == separator && !inQuotes) {
+    		   tokensOnThisLine.addElement(sb.toString());
+    		   sb = new StringBuffer(INITIAL_READ_SIZE); // start work on next token
+    	   } else {
+    		   if (!strictQuotes || inQuotes)
+    			   sb.append(c);
+    	   }
        }
        // line is done - check status
        if (inQuotes) {

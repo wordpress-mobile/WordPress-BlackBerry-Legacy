@@ -1,6 +1,7 @@
 package com.wordpress.view;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -28,7 +29,9 @@ import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
+import com.wordpress.controller.MainController;
 import com.wordpress.controller.PreferenceController;
+import com.wordpress.io.AccountsDAO;
 import com.wordpress.io.AppDAO;
 import com.wordpress.io.BaseDAO;
 import com.wordpress.io.BlogDAO;
@@ -159,6 +162,7 @@ public class PreferencesView extends StandardBaseView {
 	 }
 	 	 	 
 	 private void addStorageOptionFields(){
+		 boolean isLoadingInProgress = MainController.getIstance().isLoadingBlogs();
 		 
 		 BorderedFieldManager storageManager = new BorderedFieldManager(
 				 Manager.NO_HORIZONTAL_SCROLL
@@ -192,14 +196,21 @@ public class PreferencesView extends StandardBaseView {
 			 storageOpt = new ObjectChoiceField(_resources.getString(WordPressResource.OPTIONSSCREEN_STORAGE_LOCATION_LABEL),storageOptLabels, selectedStorage);
 			 storageManager.add(storageOpt); 
 
+			 //do not let user changes the storage folder while loading blogs in backgorund
+			if(isLoadingInProgress) {
+				storageOpt.setEditable(false);
+			}
+			 
 			 storageManager.add(new LabelField("", Field.NON_FOCUSABLE));
 		 }
-		 
-		 BaseButtonField buttonReset = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_REMOVE), ButtonField.CONSUME_CLICK);
-		 buttonReset.setChangeListener(listenerResetButton);
-		 storageManager.add(buttonReset);
-		 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_REMOVE_TEMPFILE)); 
-		 storageManager.add(lblDesc);
+
+		 if(!isLoadingInProgress) {
+			 BaseButtonField buttonReset = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_REMOVE), ButtonField.CONSUME_CLICK);
+			 buttonReset.setChangeListener(listenerResetButton);
+			 storageManager.add(buttonReset);
+			 BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_REMOVE_TEMPFILE)); 
+			 storageManager.add(lblDesc);
+		 }
 		 add(storageManager);
 	 }
 	 
@@ -676,6 +687,23 @@ public class PreferencesView extends StandardBaseView {
 								
 							} catch (Exception e) {
 								Log.error(e, "Error while reading stored blog");
+							}
+							//reload the applications accounts
+							try {
+								Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
+								applicationAccounts.clear();
+								Hashtable applicationAccountsNew = AccountsDAO.loadAccounts();
+								
+								Enumeration k = applicationAccountsNew.keys();
+								while (k.hasMoreElements()) {
+									String key = (String) k.nextElement();
+									Object value = applicationAccountsNew.get(key);
+									applicationAccounts.put(key, value);
+								}
+							} catch (IOException e) {
+								Log.error(e, "Error while reading accounts info");
+							} catch (RecordStoreException e) {
+								Log.error(e, "Error while reading accounts info");
 							}
 					}	
 				} catch (RecordStoreException e) {

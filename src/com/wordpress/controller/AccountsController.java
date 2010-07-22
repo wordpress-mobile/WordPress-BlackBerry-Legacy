@@ -61,25 +61,25 @@ public class AccountsController extends BaseController {
 	}
 	
 	public static synchronized String[] getAccountsName() throws  NullPointerException{
-		 final Hashtable accounts = MainController.getIstance().getApplicationAccounts();
-		 Enumeration k = accounts.keys();
-			String[] accountsList = new String[accounts.size()];
-			int i = 0;
-			while (k.hasMoreElements()) {
-				String key = (String) k.nextElement();
-				accountsList[i] = key;
-				i++;
-			}
-			return accountsList;
+		final Hashtable accounts = MainController.getIstance().getApplicationAccounts();
+		Enumeration k = accounts.keys();
+		String[] accountsList = new String[accounts.size()];
+		int i = 0;
+		while (k.hasMoreElements()) {
+			String key = (String) k.nextElement();
+			accountsList[i] = key;
+			i++;
+		}
+		return accountsList;
 	}
 	
 	public static synchronized void storeWPCOMAccount(Blog[] serverBlogs) {
 
 		if (serverBlogs.length == 0) return;
-	
+
 		try {
 			Hashtable loadAccounts = MainController.getIstance().getApplicationAccounts();
-				
+
 			Blog tmpBlog = serverBlogs[0];
 			String username = tmpBlog.getUsername();
 			String passwd = tmpBlog.getPassword();
@@ -87,7 +87,7 @@ public class AccountsController extends BaseController {
 			accountInfo.put(AccountsDAO.USERNAME_KEY, username);
 			accountInfo.put(AccountsDAO.PASSWORD_KEY, passwd);
 			accountInfo.put(AccountsDAO.BLOGNUMBER_KEY, ""+serverBlogs.length);
-			
+
 			Object object = loadAccounts.get(username);
 			if(object == null) {
 				//new account detected

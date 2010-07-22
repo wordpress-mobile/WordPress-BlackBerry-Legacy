@@ -157,15 +157,9 @@ public class AccountsView extends BaseView  implements ListActionListener {
 			return;
 		}		
 
-		//check if there are blogs in loading right now
-		MainController mainController = MainController.getIstance();
-		BlogInfo[] applicationBlogs = mainController.getApplicationBlogs();
-		for (int i = 0; i < applicationBlogs.length; i++) {
-			BlogInfo selectedBlog = applicationBlogs[i];
-			if (selectedBlog.getState() == BlogInfo.STATE_LOADING || selectedBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
-				controller.displayMessage(_resources.getString(WordPressResource.MESSAGE_LOADING_BLOGS));
-				return;
-			}
+		if(MainController.getIstance().isLoadingBlogs()) {
+			controller.displayMessage(_resources.getString(WordPressResource.MESSAGE_LOADING_BLOGS));
+			return;
 		}
 
 		Log.trace("selected account " + selectedAccount);
@@ -181,7 +175,7 @@ public class AccountsView extends BaseView  implements ListActionListener {
 		}
 
 		//removing all associated blog
-		mainController.deleteBlogsByAccount(username);
+		MainController.getIstance().deleteBlogsByAccount(username);
 		this.delete(listaAccounts);
 		buildList();
 	}

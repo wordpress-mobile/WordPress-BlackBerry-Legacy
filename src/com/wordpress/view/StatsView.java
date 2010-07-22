@@ -321,7 +321,7 @@ public class StatsView extends BaseView {
 		
 
 		} catch (Exception e) {
-			controller.displayError(e, "Error while building stats chart");
+			controller.displayError(e, "Error while building stats chart.");
 		}
 	}
 

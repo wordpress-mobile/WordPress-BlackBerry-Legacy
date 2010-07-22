@@ -43,7 +43,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 	
 	//401 HTTP Auth data
 	protected int dialogResponse = Dialog.CANCEL;
-	protected boolean keepGoing = true;
+	public boolean keepGoing = true;
 	protected String authMessage = null;
 	protected String http401Username = null;
 	protected String http401Password = null;

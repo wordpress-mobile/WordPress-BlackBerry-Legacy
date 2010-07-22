@@ -232,7 +232,20 @@ public class MainController extends BaseController implements TaskProgressListen
 		return applicationAccounts;
 	}
 	
-	public BlogInfo[] getApplicationBlogs() {
+	
+	//check if there are blogs in loading right now
+	public synchronized boolean isLoadingBlogs() {
+		BlogInfo[] applicationBlogs = getApplicationBlogs();
+		for (int i = 0; i < applicationBlogs.length; i++) {
+			BlogInfo selectedBlog = applicationBlogs[i];
+			if (selectedBlog.getState() == BlogInfo.STATE_LOADING || selectedBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public synchronized BlogInfo[] getApplicationBlogs() {
 		BlogInfo[] blogCaricati = new BlogInfo[applicationBlogs.size()];
 		for (int i = 0; i < blogCaricati.length; i++) {
 			blogCaricati[i] = (BlogInfo) applicationBlogs.elementAt(i);

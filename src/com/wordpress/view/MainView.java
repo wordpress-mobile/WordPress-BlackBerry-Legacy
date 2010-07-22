@@ -325,16 +325,10 @@ public class MainView extends BaseView {
     //add blog menu item 
     private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 1500, 1000) {
     	public void run() {
-    		//check if there are blogs in loading state
-    		BlogInfo[] applicationBlogs = mainController.getApplicationBlogs();
-    		for (int i = 0; i < applicationBlogs.length; i++) {
-    			BlogInfo selectedBlog = applicationBlogs[i];
-    			if (selectedBlog.getState() == BlogInfo.STATE_LOADING || selectedBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
-    				mainController.displayMessage(_resources.getString(WordPressResource.MESSAGE_LOADING_BLOGS));
-    				return;
-    			}
+    		if(mainController.isLoadingBlogs()) {
+    			mainController.displayMessage(_resources.getString(WordPressResource.MESSAGE_LOADING_BLOGS));
+				return;
     		}
-
     		AddBlogPopupScreen inqView= new AddBlogPopupScreen();
     		UiApplication.getUiApplication().pushScreen(inqView);
     	}
@@ -418,8 +412,7 @@ public class MainView extends BaseView {
     private MenuItem _bugReportItem = new MenuItem( _resources, WordPressResource.MENUITEM_BUG_REPORT, 80300, 1000) {
     	public void run() {
     		int selection = -1;
-    		String[] blogNames = {_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPCOM_BLOG), 
-    				_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPORG_BLOG)};
+    		String[] blogNames = {"WordPress.com blog", "WordPress.org site"};
     		String title = _resources.getString(WordPressResource.MESSAGE_WORDPRESS_VERSION);
     		SelectorPopupScreen selScr = new SelectorPopupScreen(title, blogNames);
     		selScr.pickItem();
@@ -456,7 +449,7 @@ public class MainView extends BaseView {
     		super(new DialogFieldManager());
     		DialogFieldManager dfm = (DialogFieldManager) getDelegate();
     		dfm.setIcon(new BitmapField(Bitmap.getPredefinedBitmap(Bitmap.QUESTION)));
-    		dfm.setMessage(new RichTextField(_resources.getString(WordPressResource.MESSAGE_WORDPRESS_VERSION), Field.NON_FOCUSABLE ));
+    		dfm.setMessage(new RichTextField(_resources.getString(WordPressResource.PROMOSCREEN_TAGLINE), Field.NON_FOCUSABLE ));
     		
     		PillButtonField buttonHaveBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPCOM_BLOG));
     		buttonHaveBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
@@ -489,9 +482,9 @@ public class MainView extends BaseView {
     		buttonSelfHostedBlog.setMargin( 4, 0, 4, 0 );
     		//buttonsManagerSelfHostedBlog.add(buttonSelfHostedBlog);
 
+    		dfm.addCustomField(buttonGetFreeBlog);
     		dfm.addCustomField(buttonHaveBlog);
     		dfm.addCustomField(buttonSelfHostedBlog);
-    		dfm.addCustomField(buttonGetFreeBlog);
     	}
 
     	protected boolean keyChar(char c, int status, int time) {

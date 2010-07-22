@@ -80,18 +80,16 @@ public class AddBlogsController extends BaseController {
     		if(choice==Dialog.CANCEL) {
     			connection.stopConnWork(); //stop the connection if the user click on cancel button
     		}
-        } else {
-        	displayError("Please enter an address and username");
         }
 	}
-	
-	
+		
 	//0 = user has inserted the url into the main screen
 	//1 = user has inserted the url into popup dialog   
 	public void addBlogs(int source, String URL, String user, String passwd){
 		user = user.trim();
 		passwd = passwd.trim();
-        if (URL != null && user != null && URL.length() > 0 && user != null && user.length() > 0) {
+        if (URL != null && user != null
+        		&& URL.length() > 0  && user.length() > 0) {
             connection = new BlogAuthConn (URL,user,passwd);
             connection.addObserver(new AddBlogCallBack(source, user, passwd)); 
              connectionProgressView= new ConnectionInProgressView(
@@ -107,8 +105,6 @@ public class AddBlogsController extends BaseController {
     		if(choice==Dialog.CANCEL) {
     			connection.stopConnWork(); //stop the connection if the user click on cancel button
     		}
-        } else {
-        	displayError("Please enter an address and username");
         }
 	}
 		
@@ -241,9 +237,7 @@ public class AddBlogsController extends BaseController {
 					parseResponse(resp);				
 					
 				} else {
-					
 					final String respMessage=resp.getResponse();
-					Log.error(respMessage);
 					if(resp.getResponseObject() instanceof XmlRpcException) { //response from xmlrpc server
 						XmlRpcException responseObject = (XmlRpcException) resp.getResponseObject();
 						if(responseObject.code == 403) { //bad login 
@@ -252,6 +246,8 @@ public class AddBlogsController extends BaseController {
 							displayError(respMessage);
 						}
 					} else if(source == 0) {
+						
+						if(connection.keepGoing) //HTTP Auth btn cancel NOT pressed
 						UiApplication.getUiApplication().invokeLater(new Runnable() {
 							public void run() {
 								XmlRpcEndpointDialog pw = new XmlRpcEndpointDialog();
@@ -259,6 +255,7 @@ public class AddBlogsController extends BaseController {
 								pw.show();
 							}
 						});
+						
 					} else {
 						//IO Exception ad others
 						displayError(respMessage);
