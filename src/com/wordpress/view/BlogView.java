@@ -62,9 +62,9 @@ public class BlogView extends BaseView {
 		super( MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 		this.controller=_controller;
 		
-		EncodedImage _theImage= EncodedImage.getEncodedImageResource("wpicon.png");
+		EncodedImage _theImage = controller.getBlogIcon();
 		LabelField  blogTitleField = new ColoredLabelField(controller.getBlogName(), 0x464646, Field.USE_ALL_HEIGHT | Field.FIELD_VCENTER | DrawStyle.ELLIPSIS);
-		Font fnt = Font.getDefault().derive(Font.BOLD, _theImage.getHeight() - 10);
+		Font fnt = Font.getDefault().derive(Font.BOLD, 30);
 		blogTitleField.setFont(fnt);
 		blogTitleField.setMargin(5, 5, 5, 5);
 		

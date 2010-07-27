@@ -1,5 +1,6 @@
 package com.wordpress.controller;
 
+import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.io.BlogDAO;
@@ -25,7 +26,17 @@ public class BlogController extends BaseController {
 	public String getBlogName() {
 		return currentBlogInfo.getName();
 	}
-	
+
+	public EncodedImage getBlogIcon() {
+		EncodedImage _theImage = null;
+		if(currentBlog.isWPCOMBlog()) {
+			_theImage = EncodedImage.getEncodedImageResource("wp_blue-s.png");
+		} else {
+			_theImage = EncodedImage.getEncodedImageResource("wp_grey-s.png");
+		}
+		return _theImage;
+	}
+
 	public void showView(){
 		try {
 			this.currentBlog = BlogDAO.getBlog(currentBlogInfo);
