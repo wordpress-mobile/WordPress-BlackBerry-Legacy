@@ -166,7 +166,10 @@ public class BlogsListField {
     
     private class ListCallBack extends BasicListFieldCallBack {
 		private Bitmap imgImportant = Bitmap.getBitmapResource("important.png");
-		private Bitmap imgQueue = Bitmap.getBitmapResource("enqueued.png");  
+		private Bitmap imgQueue = Bitmap.getBitmapResource("enqueued.png");
+		private Bitmap wp_blue = Bitmap.getBitmapResource("wp_blue-s.png");
+		private Bitmap wp_grey = Bitmap.getBitmapResource("wp_grey-s.png");
+		
 		
         // Draws the list row.
     	public void drawListRow(ListField list, Graphics graphics, int index, int y, int w) {
@@ -181,13 +184,19 @@ public class BlogsListField {
     		
     		int stato = currentRow.getState();
 
-    		if (stato == BlogInfo.STATE_LOADING || stato == BlogInfo.STATE_LOADED) { 
+    		if (stato == BlogInfo.STATE_LOADING) { 
     			icon = null;
     		} else if (stato == BlogInfo.STATE_ADDED_TO_QUEUE) {
     			icon = imgQueue; 
     		} else if (stato == BlogInfo.STATE_LOADED_WITH_ERROR ||  stato == BlogInfo.STATE_ERROR) {
     			icon = imgImportant;
-    		} else 
+    		} else if( stato == BlogInfo.STATE_LOADED ) {
+    			if(currentRow.isWPCOMBlog()) {
+    				icon = wp_blue;
+    			} else {
+    				icon = wp_grey;
+    			}
+    		} else
     			icon = null;
     		
 			/*
@@ -209,7 +218,7 @@ public class BlogsListField {
 	    			throbberRenderer.paint(graphics);
 	    			graphics.popContext();
 	    			leftImageWidth = height;
-    			}
+    			} 
     		}
     		
     		String blogName = currentRow.getName();

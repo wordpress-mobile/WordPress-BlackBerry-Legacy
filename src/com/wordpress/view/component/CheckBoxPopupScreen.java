@@ -27,6 +27,7 @@ public class CheckBoxPopupScreen extends PopupScreen {
 	private CheckBoxListField checkBoxController = null;
     private ListField chkField;
     private boolean isSelectionSkipped = false;
+    private boolean isSelectedAll = false;
     
 	//create a variable to store the ResourceBundle for localization support
     protected static ResourceBundle _resources;
@@ -48,13 +49,13 @@ public class CheckBoxPopupScreen extends PopupScreen {
 		
 		dfm.addCustomField(new LabelField("", Field.NON_FOCUSABLE)); //space after list
 	      
-        BaseButtonField buttonOK = GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_OK), ButtonField.CONSUME_CLICK);
-        BaseButtonField buttonBACK= GUIFactory.createButton(_resources.getString(WordPressResource.BUTTON_BACK), ButtonField.CONSUME_CLICK);
-        buttonBACK.setChangeListener(listenerBackButton);
-        buttonOK.setChangeListener(listenerOkButton);        
+        BaseButtonField buttonAddAll = GUIFactory.createButton(_resources.getString(WordPressResource.LABEL_ADD_ALL), ButtonField.CONSUME_CLICK);
+        BaseButtonField buttonAddSelected= GUIFactory.createButton(_resources.getString(WordPressResource.LABEL_ADD_SELECTED), ButtonField.CONSUME_CLICK);
+        buttonAddSelected.setChangeListener(listenerAddSelected);
+        buttonAddAll.setChangeListener(listenerAddAll);        
         HorizontalFieldManager buttonsManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
-        buttonsManager.add(buttonOK);
-		buttonsManager.add(buttonBACK);
+        buttonsManager.add(buttonAddAll);
+		buttonsManager.add(buttonAddSelected);
 		dfm.addCustomField(buttonsManager);
 		dfm.addCustomField(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
 	}
@@ -66,21 +67,27 @@ public class CheckBoxPopupScreen extends PopupScreen {
 	public boolean[] getSelectedItems() {
 		if (isSelectionSkipped) {
 			return new boolean[chkField.getSize()];
-		} else {
+		} else if (isSelectedAll) {
+			boolean[] tmpTrueArray = new boolean[chkField.getSize()];
+			for (int i = 0; i < tmpTrueArray.length; i++) {
+				tmpTrueArray[i] = true;
+			}
+			return tmpTrueArray;
+		}else {
 			boolean[] selected = checkBoxController.getSelected();
 			return selected;
 		}
 	}
 
-	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
+	private FieldChangeListener listenerAddAll = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
+	    	isSelectedAll = true;
 	    	close();
 	   }
 	};
 
-	private FieldChangeListener listenerBackButton = new FieldChangeListener() {
+	private FieldChangeListener listenerAddSelected = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
-	    	isSelectionSkipped = true;
 	    	close();
 	   }
 	};

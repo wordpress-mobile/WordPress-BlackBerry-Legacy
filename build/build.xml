@@ -6,11 +6,11 @@
 		<property file="build/build.properties" />
 	</target>
 
-	<!-- taskdef resource="org/tigris/subversion/svnant/svnantlib.xml">
+	<taskdef resource="org/tigris/subversion/svnant/svnantlib.xml">
 		<classpath>
 			<fileset dir="build/svnant-1.3.0" includes="svn*.jar" />
 		</classpath>
-	</taskdef -->
+	</taskdef>
 	
 	  <taskdef resource="net/sf/antcontrib/antcontrib.properties">
 	    <classpath>
