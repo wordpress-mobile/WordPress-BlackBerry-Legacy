@@ -69,6 +69,8 @@ public class RimFileBrowser extends PopupScreen {
 
     private Thread t = null;
     private boolean isThumbRunning = false;
+    
+    private WordPressCore wpCore = null;
 
     
 	public RimFileBrowser(String[] extensions, boolean isThumbEnabled) {
@@ -86,6 +88,9 @@ public class RimFileBrowser extends PopupScreen {
     	this.isThumbEnabled = isThumbEnabled;
     	
         initialize();
+        wpCore = WordPressCore.getInstance(); 
+        if(wpCore.getLastFileBrowserPath() != null)
+        	this.setPath(wpCore.getLastFileBrowserPath());
     }
     
     
@@ -262,6 +267,9 @@ public class RimFileBrowser extends PopupScreen {
             // If this a directory then we change into it
             currDirName = currDirName + entryName;
             listField.changeDirectory(0);
+            
+            wpCore.setLastFileBrowserPath(currDirName);
+            	
         }
     }
     
@@ -298,6 +306,9 @@ public class RimFileBrowser extends PopupScreen {
             return;
         }
         currDirName = dirInfo.getPath();
+        
+        wpCore.setLastFileBrowserPath(currDirName);
+        
         int previousSelection = dirInfo.getSelected();
         if (previousSelection == -1) {
             listField.changeDirectory(0);

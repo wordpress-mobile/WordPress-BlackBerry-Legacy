@@ -329,8 +329,21 @@ public class MainView extends BaseView {
     			mainController.displayMessage(_resources.getString(WordPressResource.MESSAGE_LOADING_BLOGS));
 				return;
     		}
-    		AddBlogPopupScreen inqView= new AddBlogPopupScreen();
-    		UiApplication.getUiApplication().pushScreen(inqView);
+    		
+    		//AddBlogPopupScreen inqView= new AddBlogPopupScreen();
+    		//UiApplication.getUiApplication().pushScreen(inqView);
+    		
+    		int selection = -1;
+    		String[] messages = _resources.getStringArray(WordPressResource.MESSAGES_ADD_BLOG);
+    		String title = messages[0];
+    		SelectorPopupScreen selScr = new SelectorPopupScreen(title, new String[]{messages[1], messages[2]});
+    		selScr.pickItem();
+    		selection = selScr.getSelectedItem();
+    		if(selection == 0) {
+				mainController.addWPCOMBlogs();
+    		} else if(selection == 1) {
+				mainController.addWPORGBlogs();
+    		}
     	}
     };
 
@@ -412,7 +425,8 @@ public class MainView extends BaseView {
     private MenuItem _bugReportItem = new MenuItem( _resources, WordPressResource.MENUITEM_BUG_REPORT, 80300, 1000) {
     	public void run() {
     		int selection = -1;
-    		String[] blogNames = {"WordPress.com blog", "WordPress.org site"};
+    		String[] messages = _resources.getStringArray(WordPressResource.MESSAGES_ADD_BLOG);
+    		String[] blogNames = new String[]{messages[1], messages[2]};
     		String title = _resources.getString(WordPressResource.MESSAGE_WORDPRESS_VERSION);
     		SelectorPopupScreen selScr = new SelectorPopupScreen(title, blogNames);
     		selScr.pickItem();
@@ -486,6 +500,7 @@ public class MainView extends BaseView {
     		dfm.addCustomField(buttonHaveBlog);
     		dfm.addCustomField(buttonSelfHostedBlog);
     	}
+    	
 
     	protected boolean keyChar(char c, int status, int time) {
     		// Close this screen if escape is selected.

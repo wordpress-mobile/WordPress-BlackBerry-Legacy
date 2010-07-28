@@ -39,8 +39,6 @@ ERROR_SDCARD_NOT_FOUND#0="Desculpe mas não foi encontrado o cartão SD, mudando p
 ERROR_WHILE_SAVING_PAGE#0="Erro ao guardar dados da página";
 ERROR_WHILE_SAVING_POST#0="Erro ai guardar dados do post";
 ERROR_YOU_CANNOT_MANAGEPOST#0="Não pode gerir o post do seu blog";
-GET_FREE_BLOG#0="Crie um blog gratuito em WordPress.com";
-GET_FREE_BLOG_MENU_ITEM#0="Crie um blog gratuito";
 LABEL_ADDLINK_CLEAR#0="Limpar URL";
 LABEL_ADDLINK_PASTE#0="Colar URL";
 LABEL_ADDLINK_TITLE#0="Inserir Informação do Link";
@@ -200,6 +198,8 @@ MENUITEM_UP#0="Cima";
 MENUITEM_VIDEO_ADD#0="Adicionar Vídeo";
 MENUITEM_VIEW_THUMBNAILS#0="View Thumbnails";
 MENUITEM_VIEW_TITLES#0="View Titles";
+MESSAGES_ADD_BLOG#0={
+};
 MESSAGE_APP_RESTART#0="A aplicação reinicia automaticamente. Se não funcionar, deverá reiniciá-la manualmente.";
 MESSAGE_AUTH_REQUIRED#0="Authorization Required, please insert your Username and Password";
 MESSAGE_CANNOT_FIND_STATS#0="We are unable to retrieve stats data for your site. Please have a look at FAQ available here: http://blackberry.wordpress.org/faq/";

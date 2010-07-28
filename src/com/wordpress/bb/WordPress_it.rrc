@@ -39,8 +39,6 @@ ERROR_SDCARD_NOT_FOUND#0="SD card non trovata. Stai utilizzando la memoria del d
 ERROR_WHILE_SAVING_PAGE#0="Errore durante il salvataggio della pagina";
 ERROR_WHILE_SAVING_POST#0="Errore durante il salvataggio dell'articolo";
 ERROR_YOU_CANNOT_MANAGEPOST#0="Non è possibile gestire i post del tuo blog";
-GET_FREE_BLOG#0="Apri un blog con WordPress.com";
-GET_FREE_BLOG_MENU_ITEM#0="Apri un blog";
 LABEL_ADDLINK_CLEAR#0="Cancellare l'URL";
 LABEL_ADDLINK_PASTE#0="Incolla l'URL";
 LABEL_ADDLINK_TITLE#0="Inserire le informazioni dell'URL";
@@ -200,6 +198,8 @@ MENUITEM_UP#0="Su";
 MENUITEM_VIDEO_ADD#0="Aggiungi un Video";
 MENUITEM_VIEW_THUMBNAILS#0="Visualizza Anteprima";
 MENUITEM_VIEW_TITLES#0="Visualizza Titoli";
+MESSAGES_ADD_BLOG#0={
+};
 MESSAGE_APP_RESTART#0="L'applicazione si riavvia automaticamente, attendere circa 1 minuto.";
 MESSAGE_AUTH_REQUIRED#0="Autorizzazione Richiesta. Per favore, inserisci la tua Username a la tua Password";
 MESSAGE_CANNOT_FIND_STATS#0="Non siamo in grado di recuperare le statistiche per il tuo sito. Si prega di dare un'occhiata alle FAQ disponibili qui: http://blackberry.wordpress.org/faq/";

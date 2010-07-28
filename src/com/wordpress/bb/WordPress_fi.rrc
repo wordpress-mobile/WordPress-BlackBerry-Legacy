@@ -39,8 +39,6 @@ ERROR_SDCARD_NOT_FOUND#0="Valitettavasti SD-muistikorttia ei löytynyt, sovellus 
 ERROR_WHILE_SAVING_PAGE#0="Ilmeni virhe tallentaessa sivudataa.";
 ERROR_WHILE_SAVING_POST#0="Ilmeni virhe tallentaessa artikkelin dataa.";
 ERROR_YOU_CANNOT_MANAGEPOST#0="Et voi hallita blogisi artikkelia.";
-GET_FREE_BLOG#0="Hanki ilmainen blogi WordPress.comissa.";
-GET_FREE_BLOG_MENU_ITEM#0="Hanki ilmainen blogi";
 LABEL_ADDLINK_CLEAR#0="Siisti URL-osoite";
 LABEL_ADDLINK_PASTE#0="Liitä URL-osoite";
 LABEL_ADDLINK_TITLE#0="Tuo linkin tiedot";
@@ -200,6 +198,8 @@ MENUITEM_UP#0="Ylös";
 MENUITEM_VIDEO_ADD#0="Lisää video";
 MENUITEM_VIEW_THUMBNAILS#0="Näytä pikkukuvat";
 MENUITEM_VIEW_TITLES#0="Näytä otsikot";
+MESSAGES_ADD_BLOG#0={
+};
 MESSAGE_APP_RESTART#0="Sovellus käynnistetään uudelleen automaattisesti. Jos se ei toimi, sinun täytyy käynnistää se uudelleen manuaalisesti.";
 MESSAGE_AUTH_REQUIRED#0="Tunnistautuminen vaaditaan, ole hyvä ja syötä käyttäjänimesi ja salasanasi.";
 MESSAGE_CANNOT_FIND_STATS#0="We are unable to retrieve stats data for your site. Please have a look at FAQ available here: http://blackberry.wordpress.org/faq/";

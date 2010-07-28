@@ -39,8 +39,6 @@ ERROR_SDCARD_NOT_FOUND#0="Lo sentimos, tarjeta SD no encontrada, cambiado a memo
 ERROR_WHILE_SAVING_PAGE#0="Error al guardar los datos de la página";
 ERROR_WHILE_SAVING_POST#0="Error al guardar los datos de la entrada";
 ERROR_YOU_CANNOT_MANAGEPOST#0="No puedes gestionar las entradas de tu blog";
-GET_FREE_BLOG#0="Consigue un blog gratuito en WordPress.com";
-GET_FREE_BLOG_MENU_ITEM#0="Consigue un blog gratuito";
 LABEL_ADDLINK_CLEAR#0="Borrar URL";
 LABEL_ADDLINK_PASTE#0="Pegar URL";
 LABEL_ADDLINK_TITLE#0="Insertar información del enlace";
@@ -200,6 +198,8 @@ MENUITEM_UP#0="Up";
 MENUITEM_VIDEO_ADD#0="Añadir vídeo";
 MENUITEM_VIEW_THUMBNAILS#0="Ver miniaturas";
 MENUITEM_VIEW_TITLES#0="Ver títulos";
+MESSAGES_ADD_BLOG#0={
+};
 MESSAGE_APP_RESTART#0="La aplicación se reinicia automáticamente. Si no funciona, debes reiniciar la aplicación manualmente.";
 MESSAGE_AUTH_REQUIRED#0="Autorización necesaria. Por favor, introduce tu usuario y contraseña";
 MESSAGE_CANNOT_FIND_STATS#0="No podemos recuperar los datos estadísticos de tu sitio. Por favor, echa un vistazo a las preguntas frecuentes disponibles aquí: http://blackberry.wordpress.org/faq/";

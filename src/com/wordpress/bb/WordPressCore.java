@@ -25,7 +25,9 @@ public class WordPressCore {
 	private MySDListener sdCardListener = null;
 	private Timer timer = null;
 	private Vector applicationBlogs = new Vector();
-
+	
+	private String lastFileBrowserPath = null; //store the last path opened in the file browser
+		
 	//create a variable to store the ResourceBundle for localization support
     private final ResourceBundle _resources;
 
@@ -163,6 +165,14 @@ public class WordPressCore {
 
 	public Vector getApplicationBlogs() {
 		return applicationBlogs;
+	}
+
+	public String getLastFileBrowserPath() {
+		return lastFileBrowserPath;
+	}
+
+	public void setLastFileBrowserPath(String lastFileBrowserPath) {
+		this.lastFileBrowserPath = lastFileBrowserPath;
 	}	
 
 }

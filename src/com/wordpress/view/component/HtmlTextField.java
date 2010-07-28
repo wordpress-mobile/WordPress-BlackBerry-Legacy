@@ -15,6 +15,7 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.FocusChangeListener;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.AutoTextEditField;
 import net.rim.device.api.ui.component.ButtonField;
@@ -117,7 +118,7 @@ public class HtmlTextField extends AutoTextEditField {
 	}
 		
     public void insertTextFromExt(String text, boolean shouldIgnore) {
-    	ignore = true; //skip the http link dialog in this casw
+    	ignore = true; //skip the http link dialog in this case
     	insert(text,1); //inser the text at the current carret pos
     }
     
@@ -192,8 +193,12 @@ public class HtmlTextField extends AutoTextEditField {
 			int pos = campoIntelligente.getCursorPosition();
 			if(pos >= 1) {
 				if(campoIntelligente.charAt(pos-1) == '<' ) {
-					TagPopupScreen inqView= new TagPopupScreen();
-					UiApplication.getUiApplication().pushScreen(inqView);
+					Screen currentScr = UiApplication.getUiApplication().getActiveScreen();
+					if(currentScr == null ) return;
+					if(!(currentScr instanceof TagPopupScreen)) {
+						TagPopupScreen inqView= new TagPopupScreen();
+						UiApplication.getUiApplication().pushScreen(inqView);
+					}
 				}
 			}
     	}

@@ -227,9 +227,15 @@ public class SendToBlogTask extends TaskImpl {
 		
 		if(needSig && signature != null) {
 			Log.trace("adding signature to the post body");
-			String bodyWithoutSign = post.getBody();
-			bodyWithoutSign += " <p>"+signature+"</p>";
-			post.setBody(bodyWithoutSign);
+			String extendedBody = post.getExtendedBody();
+			if(extendedBody != null && !extendedBody.trim().equals("")) {
+				extendedBody+= " <p>"+signature+"</p>";
+				post.setExtendedBody(extendedBody);
+			} else {
+				String bodyWithoutSign = post.getBody();
+				bodyWithoutSign += " <p>"+signature+"</p>";
+				post.setBody(bodyWithoutSign);
+			}
 		}
 	}
 

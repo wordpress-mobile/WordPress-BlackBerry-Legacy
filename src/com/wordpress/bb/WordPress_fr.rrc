@@ -39,8 +39,6 @@ ERROR_SDCARD_NOT_FOUND#0="Carte mémoire introuvable. Utilisation de la mémoire i
 ERROR_WHILE_SAVING_PAGE#0="Erreur durant la sauvegarde de la page";
 ERROR_WHILE_SAVING_POST#0="Erreur durant la sauvegarde de l'article";
 ERROR_YOU_CANNOT_MANAGEPOST#0="You can't manage your blog's post";
-GET_FREE_BLOG#0="Créer un Blog";
-GET_FREE_BLOG_MENU_ITEM#0="Créer un Blog";
 LABEL_ADDLINK_CLEAR#0="Supprimer l'URL";
 LABEL_ADDLINK_PASTE#0="Coller l'URL";
 LABEL_ADDLINK_TITLE#0="Informations du lien";
@@ -200,6 +198,8 @@ MENUITEM_UP#0="en haut";
 MENUITEM_VIDEO_ADD#0="Ajouter une vidéo";
 MENUITEM_VIEW_THUMBNAILS#0="View Thumbnails";
 MENUITEM_VIEW_TITLES#0="View Titles";
+MESSAGES_ADD_BLOG#0={
+};
 MESSAGE_APP_RESTART#0="L'application redémarre automatiquement. Si celà ne fonctionne pas relancer l'application manuellement.";
 MESSAGE_AUTH_REQUIRED#0="Authorization Required, please insert your Username and Password";
 MESSAGE_CANNOT_FIND_STATS#0="We are unable to retrieve stats data for your site. Please have a look at FAQ available here: http://blackberry.wordpress.org/faq/";

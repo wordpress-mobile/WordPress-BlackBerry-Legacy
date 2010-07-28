@@ -39,8 +39,6 @@ ERROR_SDCARD_NOT_FOUND#0="Leider keine SD Karte gefunden, schalte auf Gerätespei
 ERROR_WHILE_SAVING_PAGE#0="Fehler beim Speichern der Seite";
 ERROR_WHILE_SAVING_POST#0="Fehler beim Speichern des Artikels";
 ERROR_YOU_CANNOT_MANAGEPOST#0="Keine möglichkeit zum Verwalten der Artikel.";
-GET_FREE_BLOG#0="Get a free blog at WordPress.com";
-GET_FREE_BLOG_MENU_ITEM#0="Get a free blog";
 LABEL_ADDLINK_CLEAR#0="Lösche URL";
 LABEL_ADDLINK_PASTE#0="Einfügen URL";
 LABEL_ADDLINK_TITLE#0="Einfügen der  Link Information";
@@ -205,6 +203,8 @@ MENUITEM_UP#0="hinauf";
 MENUITEM_VIDEO_ADD#0="Hinzufügen Video";
 MENUITEM_VIEW_THUMBNAILS#0="View Thumbnails";
 MENUITEM_VIEW_TITLES#0="View Titles";
+MESSAGES_ADD_BLOG#0={
+};
 MESSAGE_APP_RESTART#0="Die Applikation startet automatisch neu. Sollte das nicht funktionieren, dann bitte das Programm manuell neustarten.";
 MESSAGE_AUTH_REQUIRED#0="Authorization Required, please insert your Username and Password";
 MESSAGE_CANNOT_FIND_STATS#0="We are unable to retrieve stats data for your site. Please have a look at FAQ available here: http://blackberry.wordpress.org/faq/";

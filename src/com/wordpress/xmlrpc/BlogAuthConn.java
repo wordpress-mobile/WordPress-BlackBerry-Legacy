@@ -371,9 +371,8 @@ public class BlogAuthConn extends BlogConn  {
 					}
 				}
 				myBlogs[i]=currentBlog;		
+				//read the blog icon if wp.com blogs here
 			}
-			
-			//read the blog icon if wp.com blogs
 			
 			connResponse.setResponseObject(myBlogs);
 		} catch (ClassCastException cce) {
