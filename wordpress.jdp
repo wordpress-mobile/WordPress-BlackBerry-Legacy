@@ -44,6 +44,7 @@ src\com\wordpress\bb\WordPress_fr.rrc
 src\com\wordpress\bb\WordPress_id.rrc
 src\com\wordpress\bb\WordPress_it.rrc
 src\com\wordpress\bb\WordPress_ja.rrc
+src\com\wordpress\bb\WordPress_pl.rrc
 src\com\wordpress\bb\WordPress_pt.rrc
 src\com\wordpress\bb\WordPressApplicationPermissions.java
 src\com\wordpress\bb\WordPressCore.java

@@ -115,7 +115,7 @@ public class AddBlogsController extends BaseController {
 		if (isWPCOMCall) {
 			AccountsController.storeWPCOMAccount(serverBlogs);
 		}
-
+	
 		Vector addedBlog = new Vector();
 
 		//skip the blog already available in the app
@@ -143,13 +143,16 @@ public class AddBlogsController extends BaseController {
 				}
 			});
 			
-
 			boolean selection[] = selScr.getSelectedItems();
 			for (int i = 0; i < selection.length; i++) {
 				if(selection[i]){
 					addedBlog.addElement(serverBlogs[i]);
 				}
 			}
+			
+			//check if no blogs selected
+			if (addedBlog.size() == 0 ) return;
+			
 			serverBlogs = new Blog[addedBlog.size()];
 			addedBlog.copyInto(serverBlogs);
 			addedBlog = new Vector();

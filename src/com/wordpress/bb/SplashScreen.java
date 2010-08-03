@@ -142,11 +142,11 @@ public class SplashScreen extends MainScreen {
 	}
       
    protected boolean navigationUnclick(int status, int time) {
-      return false;
+      return true;
    }
    
    protected boolean navigationMovement(int dx, int dy, int status, int time) {
-      return false;
+      return true;
    }
    
    private class SplashScreenListener implements KeyListener {
@@ -164,16 +164,16 @@ public class SplashScreen extends MainScreen {
     	  return true;
       }
       public boolean keyDown(int keycode, int time) {
-         return false;
+         return true;
       }
       public boolean keyRepeat(int keycode, int time) {
-         return false;
+         return true;
       }
       public boolean keyStatus(int keycode, int time) {
-         return false;
+         return true;
       }
       public boolean keyUp(int keycode, int time) {
-         return false;
+         return true;
       }
    }
 } 
