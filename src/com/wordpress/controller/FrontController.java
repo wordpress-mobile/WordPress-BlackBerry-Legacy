@@ -93,15 +93,7 @@ public class FrontController {
 		DraftPostsController ctrl=new DraftPostsController(currentBlog);
 		ctrl.showView();
 	}
-	
-	/**
-	 * refresh all the blog local informations
-	 */
-	public void refreshBlog(Blog currentBlog){
-		RefreshBlogController ctrl=new RefreshBlogController(currentBlog);
-		ctrl.refreshBlog();
-	}
-		
+
 	public void showPost(Post post){
 		this.showPost(post, false);
 	}

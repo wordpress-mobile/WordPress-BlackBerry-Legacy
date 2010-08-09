@@ -165,7 +165,6 @@ public class BlogInfo {
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + (isWPCOMBlog ? 1231 : 1237);
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result
 				+ ((xmlRpcUrl == null) ? 0 : xmlRpcUrl.hashCode());
 		return result;
@@ -185,11 +184,6 @@ public class BlogInfo {
 		} else if (!id.equals(other.id))
 			return false;
 		if (isWPCOMBlog != other.isWPCOMBlog)
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
 			return false;
 		if (xmlRpcUrl == null) {
 			if (other.xmlRpcUrl != null)

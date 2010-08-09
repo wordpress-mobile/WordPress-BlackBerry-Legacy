@@ -423,13 +423,13 @@ public abstract class BlogConn extends Observable implements Runnable {
 			Enumeration elements = statusList.keys();
 			for (; elements.hasMoreElements();) {
 				String key = (String) elements.nextElement();
-				System.out.println("key: " + key);
+				Log.trace("key: " + key);
 				System.out.println("value: " + statusList.get(key));
 			}
 
 			blog.setPageStatusList(statusList);
 			
-			Log.debug("End reading page status list for the blog : : "	+ blog.getName());
+			Log.debug("End reading page status list for the blog : "	+ blog.getName());
 		} catch (ClassCastException cce) {
 			throw new Exception("Error while reading post status list");
 		}
@@ -538,43 +538,6 @@ public abstract class BlogConn extends Observable implements Runnable {
 			
 			Log.debug("End reading tag list for the blog : "
 					+ blog.getName());
-		} catch (ClassCastException cce) {
-			throw new Exception("Error while reading post status list");
-		}
-	}
-	
-	
-	//retrive the blog "tag list"
-	protected synchronized void getOptions(Blog blog) throws Exception {
-		try {
-			Log.debug("reading option list for the blog : "
-					+ blog.getName());
-
-			Vector args = new Vector(3);
-			args.addElement(String.valueOf(blog.getId()));
-			args.addElement(mUsername);
-			args.addElement(mPassword);
-
-			Object response = execute("wp.getOptions", args);
-			if(connResponse.isError()) {
-				 blog.setTags(null);
-				 return;
-				//throw new Exception("cannot read tag list");
-			}
-
-			
-			Hashtable tagData = (Hashtable) response;
-
-			Enumeration elements = tagData.keys();
-			for (; elements.hasMoreElements();) {
-				String key = (String) elements.nextElement();
-				Log.debug("key: " + key);
-				Log.debug("value: " + tagData.get(key));
-			}
-			
-				
-//			blog.setTags(mytags);
-			
 		} catch (ClassCastException cce) {
 			throw new Exception("Error while reading post status list");
 		}

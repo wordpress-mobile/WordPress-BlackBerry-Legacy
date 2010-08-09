@@ -361,7 +361,7 @@ public class BlogAuthConn extends BlogConn  {
 								
 				String blogName = (String)blogData.get("blogName");
 				if(blogName == null || blogName.equalsIgnoreCase("")) {
-					blogName = (String) blogData.get("url");
+					blogName = blogURL;
 				}
 				
 				Blog currentBlog= new Blog(String.valueOf(blogData.get("blogid")),

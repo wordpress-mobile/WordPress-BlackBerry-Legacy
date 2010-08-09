@@ -1,13 +1,24 @@
 package com.wordpress.controller;
 
+import java.util.Vector;
+
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.Dialog;
 
+import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
+import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
+import com.wordpress.utils.log.Log;
+import com.wordpress.utils.observer.Observable;
+import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.BlogView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.xmlrpc.BlogConnResponse;
+import com.wordpress.xmlrpc.BlogUpdateConn;
 
 
 public class BlogController extends BaseController {
@@ -84,10 +95,89 @@ public class BlogController extends BaseController {
 	/** refresh all blog information */
 	public void refreshBlog(){
 		if(currentBlog != null) {
-			FrontController.getIstance().refreshBlog(currentBlog);
+			
+			final BlogUpdateConn connection = new BlogUpdateConn (currentBlog);       
+	        connection.addObserver(new RefreshBlogCallBack()); 
+	         connectionProgressView= new ConnectionInProgressView(
+	        		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
+	       
+	        connection.startConnWork(); //starts connection
+					
+			int choice = connectionProgressView.doModal();
+			if(choice==Dialog.CANCEL) {
+				connection.stopConnWork(); //stop the connection if the user click on cancel button
+			}
+			
 		}
 	 }
 	
+	private class RefreshBlogCallBack implements Observer {
+
+		public void update(Observable observable, final Object object) {
+
+			Log.trace(">>>Refreshing Blog Response");
+			
+			dismissDialog(connectionProgressView);
+
+			BlogConnResponse resp= (BlogConnResponse) object;
+
+			if(resp.isStopped()){
+				return;
+			}
+			if(!resp.isError()) {
+				try{
+					currentBlog = (Blog) resp.getResponseObject(); 	//update blogs obj	
+					currentBlog.setLoadingState(BlogInfo.STATE_LOADED);
+					BlogDAO.updateBlog(currentBlog);							
+					CommentsDAO.cleanGravatarCache(currentBlog);
+				} catch (final Exception e) {
+					displayError(e,"Error while storing the blog data");	
+				}
+
+			} else {
+
+				currentBlog.setLoadingState(BlogInfo.STATE_ERROR);
+				final String respMessage=resp.getResponse();
+				displayError(respMessage);
+
+				try {
+					BlogDAO.updateBlog(currentBlog);
+				} catch (Exception e) {
+					displayError(e,"Error while storing the blog data");	
+				}
+			}//end else
+
+			//update app blog
+			WordPressCore wpCore = WordPressCore.getInstance();
+			Vector applicationBlogs = wpCore.getApplicationBlogs();
+			
+			//update application blogs
+			final BlogInfo currentBlogI = new BlogInfo(currentBlog);
+			for(int count = 0; count < applicationBlogs.size(); ++count)
+			{
+				BlogInfo applicationBlogTmp = (BlogInfo)applicationBlogs.elementAt(count);
+				if (applicationBlogTmp.equals(currentBlogI) )		
+				{
+					applicationBlogs.setElementAt(currentBlogI, count);
+					//update the main blogs view
+					UiApplication.getUiApplication().invokeLater(new Runnable() {
+						public void run() {
+							MainController.getIstance().updateBlogListEntry(currentBlogI);
+						}
+					});
+					break;
+				}
+			}
+			
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					view.setBlogTitle(currentBlogI.getName());
+				}
+			});
+
+		}//end update
+	}
+
 		
 	public void showBlogOptions() {
 		if (currentBlog != null) {

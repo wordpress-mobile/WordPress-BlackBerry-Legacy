@@ -90,6 +90,9 @@ public class Blog {
 		return name;
 	}
 
+	public void setName(String blogTitle) {
+		this.name = blogTitle;
+	}
 
 	public String getUrl() {
 		return url;

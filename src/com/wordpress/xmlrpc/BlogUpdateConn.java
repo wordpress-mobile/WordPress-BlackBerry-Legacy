@@ -123,6 +123,21 @@ public class BlogUpdateConn extends BlogConn  {
 			}
 			checkConnectionResponse("Error while loading comments");
 
+			Hashtable options = getOptions(blog);
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			if(connResponse.isError() == false) {
+				if(options != null && options.get("blog_title") != null) {
+					Hashtable currentOption = (Hashtable) options.get("blog_title");
+					String blogTitle = (String)currentOption.get("value");
+					if(blogTitle == null || blogTitle.equalsIgnoreCase("")) {
+						blog.setName(blog.getUrl());
+					} else {
+						blog.setName(blogTitle);
+					}
+				}
+			}
+			checkConnectionResponse("Error while loading Blog options");
+			
 			//if there was an errors
 			if(!isError) {
 				connResponse.setResponseObject(blog);
@@ -143,10 +158,9 @@ public class BlogUpdateConn extends BlogConn  {
 		}
 	}
 	
-	//read the blog options - this is a prototype 
-	protected synchronized void getOptions(Blog blog) {
+	protected synchronized Hashtable getOptions(Blog blog) throws Exception {
 		try {
-			Log.debug("reading page status list for the blog : " + blog.getName());
+			Log.debug("reading Blog options for the blog : " + blog.getName());
 
 			Vector args = new Vector(3);
 			args.addElement(String.valueOf(blog.getId()));
@@ -155,11 +169,11 @@ public class BlogUpdateConn extends BlogConn  {
 
 			Object response = execute("wp.getOptions", args);
 			if (connResponse.isError()) {
-				return;
+				return null;
 			}
 			
-			Hashtable optionsStruct = (Hashtable) response;
-			
+			Hashtable optionsStructs = (Hashtable) response;
+			/*
 			Enumeration k = optionsStruct.keys();
 			while (k.hasMoreElements()) {
 				String key = (String) k.nextElement();
@@ -171,12 +185,14 @@ public class BlogUpdateConn extends BlogConn  {
 					Log.trace("innerkey " + innerkey + "; ");
 					Log.trace("innervalue " + String.valueOf( currentOption.get(innerkey) )+ "; "); 
 				}
-			}			
+			}
+			*/
+			Log.debug("End reading Blog options for the blog : "	+ blog.getName());
+			return optionsStructs;
 		} catch (ClassCastException cce) {
-			Log.error(cce, "Error while reading blog options");
+			throw new Exception ("Error while reading blog options");
 		}
 	}
-	
 	
 	//return the blogs associated with this connection
 	public Blog getBlog() {

@@ -34,6 +34,7 @@ public class BlogView extends BaseView {
     private BlogController controller=null;
     private VerticalFieldManager _scrollerManager;
     VerticalFieldManager internalManager;
+    private LabelField  blogTitleField;
 	private static final int mnuPosts = 100;
 	private static final int mnuPages = 110;
 	private static final int mnuComments = 120;
@@ -63,7 +64,7 @@ public class BlogView extends BaseView {
 		this.controller=_controller;
 		
 		EncodedImage _theImage = controller.getBlogIcon();
-		LabelField  blogTitleField = new ColoredLabelField(controller.getBlogName(), 0x464646, Field.USE_ALL_HEIGHT | Field.FIELD_VCENTER | DrawStyle.ELLIPSIS);
+		blogTitleField = new ColoredLabelField(controller.getBlogName(), 0x464646, Field.USE_ALL_HEIGHT | Field.FIELD_VCENTER | DrawStyle.ELLIPSIS);
 		Font fnt = Font.getDefault().derive(Font.BOLD, 30);
 		blogTitleField.setFont(fnt);
 		blogTitleField.setMargin(5, 5, 5, 5);
@@ -132,6 +133,11 @@ public class BlogView extends BaseView {
         	list.invalidate();
     }
     
+    
+    public void setBlogTitle(String title)  {
+    	blogTitleField.setText(title);
+    }
+        
     private void doSelection() {
 
 		int i = mainMenuItems[list.getSelectedIndex()];

@@ -71,7 +71,6 @@ src\com\wordpress\controller\PostController.java
 src\com\wordpress\controller\PostsController.java
 src\com\wordpress\controller\PreferenceController.java
 src\com\wordpress\controller\RecentCommentsController.java
-src\com\wordpress\controller\RefreshBlogController.java
 src\com\wordpress\controller\StatsController.java
 src\com\wordpress\io\AccountsDAO.java
 src\com\wordpress\io\AppDAO.java
