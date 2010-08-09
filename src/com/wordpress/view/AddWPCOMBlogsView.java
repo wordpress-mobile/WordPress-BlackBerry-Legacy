@@ -61,7 +61,7 @@ public class AddWPCOMBlogsView extends StandardBaseView {
       				 GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_USERNAME), Color.BLACK)
       				 );
             rowUserName.add(GUIFactory.createSepatorField());
-            userNameField = new BasicEditField("", "", 60, Field.EDITABLE);
+            userNameField = new BasicEditField("", "", 60, Field.EDITABLE | BasicEditField.NO_COMPLEX_INPUT);
             rowUserName.add(userNameField);
             add(rowUserName);
 
@@ -73,7 +73,7 @@ public class AddWPCOMBlogsView extends StandardBaseView {
             		GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_PASSWD), Color.BLACK)
             );
             rowPassword.add(GUIFactory.createSepatorField());
-            passwordField = new PasswordEditField("", "", 64, Field.EDITABLE);
+            passwordField = new PasswordEditField("", "", 64, Field.EDITABLE | BasicEditField.NO_COMPLEX_INPUT);
             rowPassword.add(passwordField);
             add(rowPassword);
            

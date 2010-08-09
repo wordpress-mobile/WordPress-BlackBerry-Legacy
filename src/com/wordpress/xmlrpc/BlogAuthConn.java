@@ -337,27 +337,37 @@ public class BlogAuthConn extends BlogConn  {
 			for (int i = 0; i < blogs.size(); i++) {
 				blogData = (Hashtable) blogs.elementAt(i);
 			
-				Log.trace("blogId: "+String.valueOf(blogData.get("blogid")));
+				/*
+				 * Log.trace("blogId: "+String.valueOf(blogData.get("blogid")));
 				Log.trace("blogName: "+(String) blogData.get("blogName"));
 				Log.trace("blogURL: " +(String) blogData.get("url"));
 				Log.trace("blogXMLRPC: " +(String) blogData.get("xmlrpc"));
+				*/
 			
-				String url = null;
+				String xmlrpcBlogURL = null;
 				if ( blogData.get("xmlrpc") != null ) {
-					url = (String)blogData.get("xmlrpc");
+					xmlrpcBlogURL = (String)blogData.get("xmlrpc");
 				} else {
 					Log.trace("blog xmlrpc response url was null");
 					Log.trace("blog xmlrpc url was set to connection url: "+urlConnessione);
-					url = urlConnessione; 
+					xmlrpcBlogURL = urlConnessione; 
 				}
-				
-				if(url == null || url.equalsIgnoreCase(""))
+				if(xmlrpcBlogURL == null || xmlrpcBlogURL.equalsIgnoreCase(""))
 					continue; //skip this blog
 				
+				String blogURL = (String)blogData.get("url");
+				if(blogURL == null || blogURL.equalsIgnoreCase(""))
+					blogURL = xmlrpcBlogURL;
+								
+				String blogName = (String)blogData.get("blogName");
+				if(blogName == null || blogName.equalsIgnoreCase("")) {
+					blogName = (String) blogData.get("url");
+				}
+				
 				Blog currentBlog= new Blog(String.valueOf(blogData.get("blogid")),
-						(String)blogData.get("blogName"),
-						(String)blogData.get("url"), 
-						url, 
+						blogName,
+						blogURL, 
+						xmlrpcBlogURL, 
 						this.mUsername, 
 						this.mPassword);
 				
