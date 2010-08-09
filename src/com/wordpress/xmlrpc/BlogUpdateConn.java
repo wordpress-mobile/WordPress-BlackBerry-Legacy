@@ -1,6 +1,8 @@
 package com.wordpress.xmlrpc;
 
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
@@ -65,6 +67,7 @@ public class BlogUpdateConn extends BlogConn  {
 	 */
 	public void run() {
 		try {
+			
 			connResponse = new BlogConnResponse();
 			//the following calls uses the same connection 
 			//These calls can modify the state of the connection to isError=true;
@@ -138,8 +141,42 @@ public class BlogUpdateConn extends BlogConn  {
 		} catch (Exception e) {
 			Log.trace("Blog Update Notify Error");
 		}
-		
 	}
+	
+	//read the blog options - this is a prototype 
+	protected synchronized void getOptions(Blog blog) {
+		try {
+			Log.debug("reading page status list for the blog : " + blog.getName());
+
+			Vector args = new Vector(3);
+			args.addElement(String.valueOf(blog.getId()));
+			args.addElement(mUsername);
+			args.addElement(mPassword);
+
+			Object response = execute("wp.getOptions", args);
+			if (connResponse.isError()) {
+				return;
+			}
+			
+			Hashtable optionsStruct = (Hashtable) response;
+			
+			Enumeration k = optionsStruct.keys();
+			while (k.hasMoreElements()) {
+				String key = (String) k.nextElement();
+				Log.trace("==== " + key + " ==== ");
+				Hashtable currentOption = (Hashtable) optionsStruct.get(key);
+				Enumeration innerkeys = currentOption.keys();
+				while (innerkeys.hasMoreElements()) {
+					String innerkey = (String) innerkeys.nextElement();
+					Log.trace("innerkey " + innerkey + "; ");
+					Log.trace("innervalue " + String.valueOf( currentOption.get(innerkey) )+ "; "); 
+				}
+			}			
+		} catch (ClassCastException cce) {
+			Log.error(cce, "Error while reading blog options");
+		}
+	}
+	
 	
 	//return the blogs associated with this connection
 	public Blog getBlog() {

@@ -94,7 +94,6 @@ src\com\wordpress\model\Category.java
 src\com\wordpress\model\Comment.java
 src\com\wordpress\model\MediaEntry.java
 src\com\wordpress\model\MediaLibrary.java
-src\com\wordpress\model\Option.java
 src\com\wordpress\model\Page.java
 src\com\wordpress\model\PhotoEntry.java
 src\com\wordpress\model\Post.java
@@ -239,8 +238,6 @@ src\com\wordpress\xmlrpc\HTTPPostConn.java
 src\com\wordpress\xmlrpc\NewCategory.java
 src\com\wordpress\xmlrpc\NewCategoryConn.java
 src\com\wordpress\xmlrpc\NewMediaObjectConn.java
-src\com\wordpress\xmlrpc\option\GetOptionsConn.java
-src\com\wordpress\xmlrpc\option\SetOptionsConn.java
 src\com\wordpress\xmlrpc\page\DeletePageConn.java
 src\com\wordpress\xmlrpc\page\EditPageConn.java
 src\com\wordpress\xmlrpc\page\GetPageListConn.java
