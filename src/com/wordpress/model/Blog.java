@@ -42,7 +42,8 @@ public class Blog {
 	private Hashtable pageTemplates=null;
 	private Hashtable commentStatusList=null; 
 	private Tag[] tags=null;
-	
+	private Hashtable blogOptions=null; 
+
 	private Vector recentPostTitles = null; //response of mt.getRecentPostTitles
 	private Vector viewedPost = new Vector(); //the viewed post (similar to response of previous mt.getRecentPostTitles) 
 		
@@ -55,6 +56,7 @@ public class Blog {
 	private boolean isHTTPBasicAuthRequired = false;
 	private String HTTPAuthUsername = null; //could be used only for self-hosted blog - this data could be different from stats auth
 	private String HTTPAuthPassword = null; //could be used used for self-hosted blog - this data could be different from stats auth 
+	
 	
 	public Vector getViewedPost() {
 		return viewedPost;
@@ -87,11 +89,23 @@ public class Blog {
 	}
 
 	public String getName() {
-		return name;
-	}
-
-	public void setName(String blogTitle) {
-		this.name = blogTitle;
+		if(blogOptions != null && blogOptions.get("blog_title") != null) {
+			try {
+				Hashtable currentOption = (Hashtable) blogOptions.get("blog_title");
+				String blogTitle = (String)currentOption.get("value");
+				if(blogTitle == null || blogTitle.equalsIgnoreCase("")) {
+					//not found the blog name within the options
+					return name;
+				} else {
+					return blogTitle;
+				}
+			} catch (Exception e) {
+				return name;
+			}
+		} else {
+			//return the previously stored blog name (stored during blog init)			
+			return name;
+		}
 	}
 
 	public String getUrl() {
@@ -335,4 +349,13 @@ public class Blog {
 	public void setHTTPBasicAuthRequired(boolean isHTTPBasicAuthRequired) {
 		this.isHTTPBasicAuthRequired = isHTTPBasicAuthRequired;
 	}	
+	
+	public Hashtable getBlogOptions() {
+		return blogOptions;
+	}
+
+	public void setBlogOptions(Hashtable blogOptions) {
+		this.blogOptions = blogOptions;
+	}
+	
 }

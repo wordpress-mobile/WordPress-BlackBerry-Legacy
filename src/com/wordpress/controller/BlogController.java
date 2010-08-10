@@ -131,7 +131,7 @@ public class BlogController extends BaseController {
 					BlogDAO.updateBlog(currentBlog);							
 					CommentsDAO.cleanGravatarCache(currentBlog);
 				} catch (final Exception e) {
-					displayError(e,"Error while storing the blog data");	
+					displayError(e,"Error while storing the blog data");
 				}
 
 			} else {

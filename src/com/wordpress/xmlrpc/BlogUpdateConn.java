@@ -125,17 +125,8 @@ public class BlogUpdateConn extends BlogConn  {
 
 			Hashtable options = getOptions(blog);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
-			if(connResponse.isError() == false) {
-				if(options != null && options.get("blog_title") != null) {
-					Hashtable currentOption = (Hashtable) options.get("blog_title");
-					String blogTitle = (String)currentOption.get("value");
-					if(blogTitle == null || blogTitle.equalsIgnoreCase("")) {
-						blog.setName(blog.getUrl());
-					} else {
-						blog.setName(blogTitle);
-					}
-				}
-			}
+			if(connResponse.isError() == false )
+				blog.setBlogOptions(options);
 			checkConnectionResponse("Error while loading Blog options");
 			
 			//if there was an errors

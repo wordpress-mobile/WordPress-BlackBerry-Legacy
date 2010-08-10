@@ -358,7 +358,9 @@ public class BlogAuthConn extends BlogConn  {
 				String blogURL = (String)blogData.get("url");
 				if(blogURL == null || blogURL.equalsIgnoreCase(""))
 					blogURL = xmlrpcBlogURL;
-								
+				
+				//For secure reason, the blog name is immediately set. When a blog is fully loaded the 
+				//blog name will be readed from options.
 				String blogName = (String)blogData.get("blogName");
 				if(blogName == null || blogName.equalsIgnoreCase("")) {
 					blogName = blogURL;

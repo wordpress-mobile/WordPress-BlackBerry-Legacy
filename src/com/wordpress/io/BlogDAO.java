@@ -329,6 +329,7 @@ public class BlogDAO implements BaseDAO {
         ser.serialize(new Boolean(blog.isHTTPBasicAuthRequired()));
         ser.serialize(blog.getHTTPAuthUsername());
         ser.serialize(blog.getHTTPAuthPassword());
+        ser.serialize(blog.getBlogOptions());
         
         out.close();
 
@@ -583,7 +584,19 @@ public class BlogDAO implements BaseDAO {
 		} catch (Throwable  t) {
         	Log.error("No http auth data found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
-				
+		
+		
+		//since version 1.4.X
+        //reading blog options
+		try {
+            Hashtable options= (Hashtable)ser.deserialize();
+            blog.setBlogOptions(options);
+        } catch (Exception  e) {
+        	Log.error("No blog options found - End of file was reached. Probably a previous blog data file is loaded" );
+		} catch (Throwable  t) {
+        	Log.error("No blog options found - End of file was reached. Probably a previous blog data file is loaded" );
+		}
+		
         in.close();
         return blog;     
      } 
