@@ -7,6 +7,8 @@ import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
+import org.kxmlrpc.XmlRpcException;
+
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.EncodedImage;
 
@@ -442,7 +444,7 @@ public class SendToBlogTask extends TaskImpl {
 	
 	//callback for send post to the blog
 	private class SendMediaCallBack implements Observer{
-		
+
 		private MediaEntry mediaObj;
 		private String oldFilePath = null;
 
@@ -453,13 +455,12 @@ public class SendToBlogTask extends TaskImpl {
 		SendMediaCallBack(MediaEntry mediaObj){
 			this.mediaObj = mediaObj;
 		}
-		
+
 		public void update(Observable observable, final Object object) {
-			
+
 			try {
 				BlogConnResponse resp= (BlogConnResponse) object;
 
-				//if(resp.isStopped()){ 
 				if(stopping){ //stopping on task not on connection
 
 				} else if(!resp.isError()) {				
@@ -472,17 +473,32 @@ public class SendToBlogTask extends TaskImpl {
 					String videoPressShortCode = (String)content.get("videopress_shortcode");
 					if(videoPressShortCode != null && !videoPressShortCode.trim().equals(""))
 						mediaObj.setVideoPressShortCode(videoPressShortCode);
-					
-				} else {
-					final String respMessage=resp.getResponse();
-					errorMsg.append(respMessage+"\n");
-					isError=true;
+
+				} else { //there was an error
+
+					/*check for error code and videopress upgrade
+					if ((mediaObj instanceof VideoEntry) &&
+							(resp.getResponseObject() instanceof XmlRpcException) ) {
+						XmlRpcException responseObject = (XmlRpcException) resp.getResponseObject();
+						if(responseObject.code == 500) { //invalid file type
+							errorMsg.append("Invalid File Type!\nYou can upload mp3, m4a, wav, ogg audio files and increase your available space with a Space Upgrade. You can upload videos and embed them directly on your blog with a Video Upgrade.");
+							isError=true;
+						} else {
+							final String respMessage = resp.getResponse();
+							errorMsg.append(respMessage+"\n");
+							isError=true;
+						}
+					} else {*/
+						final String respMessage=resp.getResponse();
+						errorMsg.append(respMessage+"\n");
+						isError=true;
+					//}
 				}
 			} catch (Exception e) {
 				errorMsg.append("Server Response Error on media upload");
 				isError=true;
 			}
-			
+
 			//set the path of the media to the real path, not to the tmp path used for resize
 			if(this.oldFilePath != null)
 				mediaObj.setFilePath(oldFilePath);
@@ -495,7 +511,7 @@ public class SendToBlogTask extends TaskImpl {
 				}
 			} catch (Exception e) {
 			}
-			
+
 			next(); // call to next
 		}
 	}

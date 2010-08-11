@@ -330,6 +330,7 @@ public class BlogDAO implements BaseDAO {
         ser.serialize(blog.getHTTPAuthUsername());
         ser.serialize(blog.getHTTPAuthPassword());
         ser.serialize(blog.getBlogOptions());
+        ser.serialize(blog.getShortcutIcon());
         
         out.close();
 
@@ -595,6 +596,15 @@ public class BlogDAO implements BaseDAO {
         	Log.error("No blog options found - End of file was reached. Probably a previous blog data file is loaded" );
 		} catch (Throwable  t) {
         	Log.error("No blog options found - End of file was reached. Probably a previous blog data file is loaded" );
+		}
+        //reading shortcut icon
+		try {
+            byte[] shortcutIcon = (byte[])ser.deserialize();
+            blog.setShortcutIcon(shortcutIcon);
+        } catch (Exception  e) {
+        	Log.error("No blog shorcut icon found - End of file was reached. Probably a previous blog data file is loaded" );
+		} catch (Throwable  t) {
+        	Log.error("No blog shorcut icon found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
 		
         in.close();

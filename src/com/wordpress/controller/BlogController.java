@@ -40,11 +40,23 @@ public class BlogController extends BaseController {
 
 	public EncodedImage getBlogIcon() {
 		EncodedImage _theImage = null;
-		if(currentBlog.isWPCOMBlog()) {
-			_theImage = EncodedImage.getEncodedImageResource("wp_blue-s.png");
-		} else {
-			_theImage = EncodedImage.getEncodedImageResource("wp_grey-s.png");
+		if(currentBlog.getShortcutIcon() != null) {
+			try {
+				_theImage = EncodedImage.createEncodedImage(currentBlog.getShortcutIcon(), 0, -1);
+			} catch (Exception e) {
+				Log.error("no valid shortcut ico found in the blog obj");
+				_theImage = null;
+			}
 		}
+
+		if (_theImage == null ) {
+			if(currentBlog.isWPCOMBlog()) {
+				_theImage = EncodedImage.getEncodedImageResource("wp_blue-s.png");
+			} else {
+				_theImage = EncodedImage.getEncodedImageResource("wp_grey-s.png");
+			}
+		}
+		
 		return _theImage;
 	}
 
@@ -137,7 +149,7 @@ public class BlogController extends BaseController {
 			} else {
 
 				currentBlog.setLoadingState(BlogInfo.STATE_ERROR);
-				final String respMessage=resp.getResponse();
+				final String respMessage = resp.getResponse();
 				displayError(respMessage);
 
 				try {
@@ -169,11 +181,13 @@ public class BlogController extends BaseController {
 				}
 			}
 			
+			//update the title
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
-					view.setBlogTitle(currentBlogI.getName());
+					view.setBlogHeader(currentBlogI.getName(), getBlogIcon());
 				}
 			});
+			
 
 		}//end update
 	}

@@ -35,6 +35,8 @@ public class BlogView extends BaseView {
     private VerticalFieldManager _scrollerManager;
     VerticalFieldManager internalManager;
     private LabelField  blogTitleField;
+    private final BitmapField wpLogoBitmapField;
+    
 	private static final int mnuPosts = 100;
 	private static final int mnuPages = 110;
 	private static final int mnuComments = 120;
@@ -69,7 +71,7 @@ public class BlogView extends BaseView {
 		blogTitleField.setFont(fnt);
 		blogTitleField.setMargin(5, 5, 5, 5);
 		
-        final BitmapField wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
+        wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
         wpLogoBitmapField.setMargin(5, 5, 5, 5);
     	internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR | USE_ALL_HEIGHT) {
     		public void paintBackground( Graphics g ) {
@@ -133,9 +135,9 @@ public class BlogView extends BaseView {
         	list.invalidate();
     }
     
-    
-    public void setBlogTitle(String title)  {
+    public void setBlogHeader(String title, EncodedImage blogIcon)  {
     	blogTitleField.setText(title);
+    	wpLogoBitmapField.setImage(blogIcon);
     }
         
     private void doSelection() {

@@ -27,11 +27,10 @@ public interface BaseDAO {
 	file:///store/home/user/wordpress/md5(blogname)/comments (comments of the blog)
 	
 	file:///store/home/user/wordpress/md5(blogname)/d/id (post file)
-	file:///store/home/user/wordpress/md5(blogname)/d/id-p-imgName (post imgs file)
-	
 	file:///store/home/user/wordpress/md5(blogname)/p/id (page file)
-	file:///store/home/user/wordpress/md5(blogname)/p/id-p-imgName (page imgs file)
 	
+	
+	blogname =  getBlogFolderName(blog.getId(), blog.getXmlRpcUrl());
 */
 	
 }

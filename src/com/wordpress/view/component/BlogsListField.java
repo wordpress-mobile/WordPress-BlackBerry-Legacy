@@ -176,7 +176,7 @@ public class BlogsListField {
     		// Get the blog info for the current row.
     		BlogInfo currentRow = (BlogInfo) this.get(list, index);
     		
-    		Bitmap icon;
+    		Bitmap icon = null;
     		
     		Font originalFont = graphics.getFont();
     		int originalColor = graphics.getColor();
@@ -191,13 +191,23 @@ public class BlogsListField {
     		} else if (stato == BlogInfo.STATE_LOADED_WITH_ERROR ||  stato == BlogInfo.STATE_ERROR) {
     			icon = imgImportant;
     		} else if( stato == BlogInfo.STATE_LOADED ) {
-    			if(currentRow.isWPCOMBlog()) {
-    				icon = wp_blue;
-    			} else {
-    				icon = wp_grey;
+
+    			if(currentRow.getShortcutIcon() != null) {
+    				try {
+						icon = Bitmap.createBitmapFromBytes(currentRow.getShortcutIcon(), 0, -1, 1);
+					} catch (Exception e) {
+						Log.error("no valid shortcut ico found in the blog obj");
+					}
     			}
-    		} else
-    			icon = null;
+    			//still null there was an error during img generation process
+    			if(icon == null) {
+    				if(currentRow.isWPCOMBlog()) {
+    					icon = wp_blue;
+    				} else {
+    					icon = wp_grey;
+    				}
+    			}
+    		} 
     		
 			/*
 			 * 42px of row

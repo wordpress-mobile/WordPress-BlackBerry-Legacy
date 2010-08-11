@@ -46,5 +46,4 @@ public class AccountsDAO implements BaseDAO {
 		Log.debug("Account stored succesfully!");
 		Log.debug("<<< store accounts");
 	}
-    
 }

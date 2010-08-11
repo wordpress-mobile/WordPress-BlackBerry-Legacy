@@ -1,17 +1,22 @@
 package com.wordpress.xmlrpc;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
+import net.rim.device.api.system.Bitmap;
+
+import org.kxml2.io.KXmlParser;
 import org.kxmlrpc.XmlRpcException;
+import org.xmlpull.v1.XmlPullParser;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 
 public class BlogUpdateConn extends BlogConn  {
@@ -129,6 +134,10 @@ public class BlogUpdateConn extends BlogConn  {
 				blog.setBlogOptions(options);
 			checkConnectionResponse("Error while loading Blog options");
 			
+			blog.setShortcutIcon(null);
+			downloadIcoFile(); 	//downloading the blog ico file
+			
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			//if there was an errors
 			if(!isError) {
 				connResponse.setResponseObject(blog);
@@ -149,6 +158,103 @@ public class BlogUpdateConn extends BlogConn  {
 		}
 	}
 	
+	private void downloadIcoFile() {
+		Log.trace(">>> Retrieving Blog Shortcut image file");
+		try {
+			HTTPGetConn imageConnection = new HTTPGetConn(blog.getUrl(), "", "");
+			if(blog.isHTTPBasicAuthRequired()) {
+				imageConnection.setHttp401Password(blog.getHTTPAuthPassword());
+				imageConnection.setHttp401Username(blog.getHTTPAuthUsername());
+			}  
+			Object responseImg = imageConnection.execute("", null); //starts connection 
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			if(responseImg == null) {
+				Log.trace("no response while retriving the blog hml");
+				return;
+			}
+			if((responseImg instanceof byte[]) == false){
+				Log.trace("invalid response while retriving the blog hml");
+				return;
+			}
+
+			String icoFullURL = null;
+
+			byte[] response = (byte[])responseImg;
+			Log.trace("RESPONSE received - " + new String(response));
+
+
+			KXmlParser parser = new KXmlParser();
+			parser.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true); //relaxed parser
+			ByteArrayInputStream bais = new ByteArrayInputStream(response);
+			parser.setInput(bais, "ISO-8859-1");
+
+			while (parser.next() != XmlPullParser.END_DOCUMENT) {
+				if (parser.getEventType() == XmlPullParser.START_TAG) {
+					String rel="";
+					String href="";
+					//link tag
+					if(parser.getName()!=null && parser.getName().trim().equalsIgnoreCase("link")){
+						//unfold all attribute
+						for (int i = 0; i < parser.getAttributeCount(); i++) {
+							String attrName = parser.getAttributeName(i);
+							String attrValue = parser.getAttributeValue(i);
+							if("rel".equals(attrName))
+								rel = attrValue;
+							else if("href".equals(attrName))
+								href = attrValue;
+
+						}
+						if(rel.equals("apple-touch-icon")){
+							icoFullURL = href;
+						}
+
+					}//end link tag
+				}
+			}				
+
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
+
+			if(icoFullURL == null) {
+				Log.trace("no icon url was Found");
+				return;
+			}
+
+			String[] tokens = StringUtils.split(icoFullURL, "?");
+			if(tokens.length < 2) {
+				//not a valid url
+				Log.trace("No valid icon url was Found");
+				return;
+			}
+			String icoURL = tokens[0] + "?s=32";
+			Log.trace("The icon url - " + icoURL);
+
+			imageConnection = new HTTPGetConn(icoURL, "", "");
+			if(blog.isHTTPBasicAuthRequired()) {
+				imageConnection.setHttp401Password(blog.getHTTPAuthPassword());
+				imageConnection.setHttp401Username(blog.getHTTPAuthUsername());
+			}  
+			responseImg = imageConnection.execute("", null); //starts connection without make another thread
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
+
+			if(responseImg == null) {
+				Log.trace("no response while retriving image file");
+				return;
+			}
+			if((responseImg instanceof byte[]) == false){
+				Log.trace("no valid image file found");
+				return;
+			} else {
+				Bitmap.createBitmapFromBytes((byte[])responseImg, 0, -1, 1); //try to build an image immediately
+				blog.setShortcutIcon((byte[])responseImg);
+			}
+			
+		} catch (Exception e) {
+			Log.error(e, "error while retrieving shorcut ico");
+		} finally {
+			Log.trace("<<< Retrieving Blog Shortcut image file");
+		}
+	}
+		
 	protected synchronized Hashtable getOptions(Blog blog) throws Exception {
 		try {
 			Log.debug("reading Blog options for the blog : " + blog.getName());

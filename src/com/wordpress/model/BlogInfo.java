@@ -18,6 +18,8 @@ public class BlogInfo {
 	private String password;
 	private int state = -1;
 
+	private byte[] shortcutIcon = null;
+	
 	private boolean isHTTPBasicAuthRequired = false;
 	private String HTTPAuthUsername = null; //could be used only for self-hosted blog - this data could be different from stats auth
 	private String HTTPAuthPassword = null; //could be used used for self-hosted blog - this data could be different from stats auth 
@@ -43,6 +45,7 @@ public class BlogInfo {
 		this.isHTTPBasicAuthRequired = currentBlog.isHTTPBasicAuthRequired();
 		this.HTTPAuthUsername= currentBlog.getHTTPAuthUsername();
 		this.HTTPAuthPassword = currentBlog.getHTTPAuthPassword();
+		this.shortcutIcon = currentBlog.getShortcutIcon();
 	}
 	
 	public String getId() {
@@ -132,10 +135,6 @@ public class BlogInfo {
 		return isWPCOMBlog;
 	}
 
-	public void setWPCOMBlog(boolean isWPCOMBlog) {
-		this.isWPCOMBlog = isWPCOMBlog;
-	}
-	
 	public boolean isHTTPBasicAuthRequired() {
 		return isHTTPBasicAuthRequired;
 	}
@@ -148,16 +147,12 @@ public class BlogInfo {
 		return HTTPAuthUsername;
 	}
 
-	public void setHTTPAuthUsername(String httpAuthUsername) {
-		this.HTTPAuthUsername = httpAuthUsername;
-	}
-
 	public String getHTTPAuthPassword() {
 		return HTTPAuthPassword;
 	}
-
-	public void setHTTPAuthPassword(String httpAuthPassword) {
-		this.HTTPAuthPassword = httpAuthPassword;
+	
+	public byte[] getShortcutIcon() {
+		return shortcutIcon;
 	}
 
 	public int hashCode() {

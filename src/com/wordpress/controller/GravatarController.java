@@ -21,8 +21,8 @@ import com.wordpress.utils.observer.Observable;
 /**
  * Load the comment gravatar imgs from a list of email.
  * 
- * - notify aboserver with null, when gravatar are loaded from disk
- * - notify aboserver with String (email) the gravatar of that email are ready 
+ * - notify observer with null when gravatar are loaded from disk
+ * - notify observer with a String (email) of the new available gravatar img 
  * 
  * @author dercoli
  *
