@@ -149,7 +149,7 @@ public class XmlRpcWriter {
 			writer.text( Base64.encode( (byte[]) value ) );			
 			writer.endTag(null, "base64");
 		} 
-		//video content must be encoded parted, we cannot used byte array
+		//media content must be encoded parted, we cannot used byte array
 		else if( value instanceof MediaEntry ) {
 			writer.startTag( null, "base64" );
 			MediaEntry videoFile = (MediaEntry) value;

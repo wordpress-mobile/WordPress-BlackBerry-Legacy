@@ -35,6 +35,11 @@ public abstract class BaseController {
 		}
 	}
 	
+	// Utility routine to display errors
+	public synchronized void displayError(final String msg) {
+		Log.error(msg);
+		_displayError(msg);
+	}
 	
 	private void _displayError(final String msg) {
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
@@ -45,15 +50,23 @@ public abstract class BaseController {
 		});
 	}
 	
-	// Utility routine to display errors
-	public synchronized void displayError(final String msg) {
-		Log.error(msg);
-		_displayError(msg);
-	}
 
 	// Utility routine to display errors
 	public synchronized void displayErrorAndWait(final String msg) {
 		Log.error(msg);
+		_displayErrorAndWait(msg);
+	}
+
+	public synchronized void displayErrorAndWait(final Exception e, String message) {
+		if(e != null && e.getMessage()!= null ) {
+			Log.error(e, message);
+			_displayErrorAndWait(message + "\n" + e.getMessage());
+		} else {
+			_displayErrorAndWait(message);			
+		}
+	}
+	
+	private void _displayErrorAndWait(final String msg) {
 		UiApplication.getUiApplication().invokeAndWait(new Runnable() {
 			public void run() {
 				ErrorView errView = new ErrorView(msg);
@@ -61,7 +74,7 @@ public abstract class BaseController {
 			}
 		});
 	}
-
+	
 	
 	// Utility routine to display msg
 	public synchronized void displayMessage(final String msg) {

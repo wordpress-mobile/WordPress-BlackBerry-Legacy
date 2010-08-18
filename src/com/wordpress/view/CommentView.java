@@ -78,15 +78,15 @@ public class CommentView extends StandardBaseView {
 	        gravatarBitmapField = new BitmapField(GravatarController.defaultGravatarBitmap.getBitmap(), BitmapField.NON_FOCUSABLE | Manager.FIELD_VCENTER);
 	        outerManagerFrom.add(gravatarBitmapField);
 	        
-			authorName = new BasicEditField(_resources.getString(WordPressResource.LABEL_NAME)+": ", "", 255, Field.EDITABLE);
+			authorName = new BasicEditField(_resources.getString(WordPressResource.LABEL_NAME)+": ", "", 1024, Field.EDITABLE);
 			authorName.setMargin(5, 0, 0, 0);
 			outerManagerFrom.add(authorName);
 
-			authorEmail = new BasicEditField(_resources.getString(WordPressResource.LABEL_EMAIL)+": ", "", 255, Field.EDITABLE | BasicEditField.FILTER_EMAIL);
+			authorEmail = new BasicEditField(_resources.getString(WordPressResource.LABEL_EMAIL)+": ", "", 1024, Field.EDITABLE);
 			authorEmail.setMargin(5, 0, 0, 0);
 			outerManagerFrom.add(authorEmail);
 			
-			authorUrl = new BasicEditField(_resources.getString(WordPressResource.LABEL_URL)+": ", "", 255, Field.EDITABLE | BasicEditField.FILTER_URL) {
+			authorUrl = new BasicEditField(_resources.getString(WordPressResource.LABEL_URL)+": ", "", 1024, Field.EDITABLE) {
 				protected MenuItem myContextMenuItemA = new MenuItem(_resources.getString(WordPressResource.LABEL_VISIT_SITE), 10, 2) {
 					public void run() {
 						Tools.getNativeBrowserSession(getText());
@@ -198,7 +198,12 @@ public class CommentView extends StandardBaseView {
 		}
 
 		 if(newComment.getAuthor() != null){
-			authorName.setText(newComment.getAuthor());
+			try {
+				authorName.setText(newComment.getAuthor());
+			} catch (IllegalArgumentException e) {
+				controller.displayErrorAndWait("The Name field contains invalid value");
+				authorName.setText("");
+			}
 		 } else {
 			 authorName.setText("");
 		 }
@@ -206,7 +211,12 @@ public class CommentView extends StandardBaseView {
 		 outerManagerFrom.add(authorName);
 
 		 if(newComment.getAuthorEmail() != null) {
-			authorEmail.setText(newComment.getAuthorEmail());
+			try {
+				authorEmail.setText(newComment.getAuthorEmail());
+			} catch (IllegalArgumentException e) {
+				controller.displayErrorAndWait("The E-mail field contains invalid value");
+				authorEmail.setText("");
+			}
 		 } else {
 			 authorEmail.setText("");
 		 }
@@ -214,7 +224,12 @@ public class CommentView extends StandardBaseView {
 		 outerManagerFrom.add(authorEmail);
 
 		 if(newComment.getAuthorUrl() != null) {
-			authorUrl.setText(newComment.getAuthorUrl());
+			try {
+				authorUrl.setText(newComment.getAuthorUrl());
+			} catch (IllegalArgumentException e) {
+				controller.displayErrorAndWait("The URL field contains invalid value");
+				authorUrl.setText("");
+			}
 		 } else {
 			 authorUrl.setText("");
 		 }
@@ -236,17 +251,27 @@ public class CommentView extends StandardBaseView {
 
 		 if(newComment.getPostTitle() != null) {
 			 String commentTitleUnescaped = newComment.getPostTitle();
-			 title.setText(commentTitleUnescaped);
+			 try {
+				title.setText(commentTitleUnescaped);
+			} catch (Exception e) {
+				controller.displayErrorAndWait("The post title field contains invalid value");
+				title.setText("");
+			}
 		 }
 		 else {
 			 title.setText("");
 		 }
 
 		 if(newComment.getDateCreatedGMT() != null) {
-			 Date dateCreated = comment.getDateCreatedGMT();
-			 SimpleDateFormat sdFormat3 = new SimpleDateFormat("yyyy/MM/dd hh:mm");
-			 String format = sdFormat3.format(dateCreated);
-			 date.setText(format); 
+			 try {
+				Date dateCreated = comment.getDateCreatedGMT();
+				 SimpleDateFormat sdFormat3 = new SimpleDateFormat("yyyy/MM/dd hh:mm");
+				 String format = sdFormat3.format(dateCreated);
+				 date.setText(format);
+			} catch (Exception e) {
+				controller.displayErrorAndWait("The Date field contains invalid value");
+				date.setText("");
+			} 
 		 } else {
 			 date.setText("");
 		 }
@@ -265,7 +290,12 @@ public class CommentView extends StandardBaseView {
 
 		 if(newComment.getContent() != null) {
 			 String content= newComment.getContent();			 
-			 commentContent.setText(content);
+			 try {
+				commentContent.setText(content);
+			} catch (IllegalArgumentException e) {
+				controller.displayErrorAndWait("The content field contains invalid value");
+				commentContent.setText("");
+			}
 		 } else {
 			 commentContent.setText("");
 		 }

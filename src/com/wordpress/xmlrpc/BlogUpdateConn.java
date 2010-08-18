@@ -2,6 +2,7 @@ package com.wordpress.xmlrpc;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -134,6 +135,14 @@ public class BlogUpdateConn extends BlogConn  {
 				blog.setBlogOptions(options);
 			checkConnectionResponse("Error while loading Blog options");
 			
+			if(blog.isWPCOMBlog()) {
+				Hashtable features = getFeatures(blog);
+				if(connResponse.isStopped()) return; //if the user has stopped the connection
+			//	if(connResponse.isError() == false )
+			//		blog.setBlogOptions(options);
+				checkConnectionResponse("Error while loading Blog features");
+			}
+			
 			blog.setShortcutIcon(null);
 			downloadIcoFile(); 	//downloading the blog ico file
 			
@@ -225,7 +234,7 @@ public class BlogUpdateConn extends BlogConn  {
 				Log.trace("No valid icon url was Found");
 				return;
 			}
-			String icoURL = tokens[0] + "?s=32";
+			String icoURL = tokens[0] + "?s=32&d=404";
 			Log.trace("The icon url - " + icoURL);
 
 			imageConnection = new HTTPGetConn(icoURL, "", "");
@@ -257,7 +266,7 @@ public class BlogUpdateConn extends BlogConn  {
 		
 	protected synchronized Hashtable getOptions(Blog blog) throws Exception {
 		try {
-			Log.debug("reading Blog options for the blog : " + blog.getName());
+			Log.debug(">>> reading Blog options for the blog : " + blog.getName());
 
 			Vector args = new Vector(3);
 			args.addElement(String.valueOf(blog.getId()));
@@ -284,12 +293,48 @@ public class BlogUpdateConn extends BlogConn  {
 				}
 			}
 			*/
-			Log.debug("End reading Blog options for the blog : "	+ blog.getName());
+			Log.debug("<<< End reading Blog options for the blog : "	+ blog.getName());
 			return optionsStructs;
 		} catch (ClassCastException cce) {
 			throw new Exception ("Error while reading blog options");
 		}
 	}
+	
+	/* 
+	 * simple wpcom.getFeatures method ( blog_id, username, password ) which returns a struct.
+	 * Just a simple way to expose data on WPCOM specific features (VideoPress or space upgrade for istance).
+	 * 
+	 * Right now the only field in the struct is "videopress_enabled", with a boolean value.
+	 * 
+	 */
+	protected synchronized Hashtable getFeatures(Blog blog) throws Exception {
+		try {
+			Log.debug(">>> reading WP.COM Blog Features : " + blog.getName());
+
+			Vector args = new Vector(3);
+			args.addElement(String.valueOf(blog.getId()));
+			args.addElement(mUsername);
+			args.addElement(mPassword);
+
+			Object response = execute("wpcom.getFeatures", args);
+			if (connResponse.isError()) {
+				return null;
+			}
+			
+			Hashtable features = (Hashtable) response;
+			Enumeration elements = features.keys();
+			for (; elements.hasMoreElements();) {
+				String key = (String) elements.nextElement();
+				Log.trace("key: " + key);
+				Log.trace("value: " + features.get(key));
+			}
+			Log.debug("<<< reading WP.COM Blog Features : "	+ blog.getName());
+			return features;
+		} catch (ClassCastException cce) {
+			throw new Exception ("Error while reading blog Features");
+		}
+	}
+	
 	
 	//return the blogs associated with this connection
 	public Blog getBlog() {
