@@ -8,7 +8,7 @@ import com.wordpress.utils.log.Log;
 
 public class Blog {
 
-	private int loadingState=-1; //loading state of this blog. see BlogInfo constants
+	private int loadingState = -1; //loading state of this blog. see BlogInfo constants
 	
 	private boolean isWPCOMBlog = false;
 	
@@ -44,6 +44,7 @@ public class Blog {
 	private Tag[] tags=null;
 	private Hashtable blogOptions=null; 
 	private byte[] shortcutIcon = null;
+	private Hashtable wpcomFeatures=null; 
 
 	private Vector recentPostTitles = null; //response of mt.getRecentPostTitles
 	private Vector viewedPost = new Vector(); //the viewed post (similar to response of previous mt.getRecentPostTitles) 
@@ -357,6 +358,28 @@ public class Blog {
 
 	public void setBlogOptions(Hashtable blogOptions) {
 		this.blogOptions = blogOptions;
+	}
+
+	public Hashtable getWpcomFeatures() {
+		return wpcomFeatures;
+	}
+
+	public void setWpcomFeatures(Hashtable wpcomFeatures) {
+		this.wpcomFeatures = wpcomFeatures;
+	}
+	
+	public boolean isVideoPressUpgradeAvailable() {
+		//for backward compatibility we return true when this info is missing in the blog object.
+		//So, a second check is done on the SendToBlogTask media-callback when the server
+		//returns XML-RPC exception with error code 500
+		boolean predefinedResponse = true;
+		if(wpcomFeatures != null) {
+			if (wpcomFeatures.get("videopress_enabled") == null) return predefinedResponse; 
+			boolean value = ((Boolean)wpcomFeatures.get("videopress_enabled")).booleanValue();
+			return value;
+		} else {
+			return predefinedResponse; 
+		}
 	}
 
 	public byte[] getShortcutIcon() {

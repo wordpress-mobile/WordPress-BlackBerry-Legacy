@@ -262,6 +262,8 @@ MESSAGE_STATS_VIEWS_DAY#0="Views per day";
 MESSAGE_STATS_VIEWS_MONTH#0="View per month";
 MESSAGE_STATS_VIEWS_WEEK#0="Views per week";
 MESSAGE_UNSAVED_CHANGES_LOST#0="Unsaved changes will be lost, are you sure?";
+MESSAGE_VIDEOPRESS_UPGRADE#0={
+};
 MESSAGE_WORDPRESS_VERSION#0="Which version of WordPress are you using?";
 MESSAGE_XMLRPC_ENDPOINT#0="We could not find the XMLRPC endpoint of your blog,  please insert the complete URL below";
 MESSAGE_XMLRPC_ENDPOINT_FAILED#0="We could not find the XMLRPC endpoint of your blog. Please have a look at FAQ available here: http://blackberry.wordpress.org/faq/";

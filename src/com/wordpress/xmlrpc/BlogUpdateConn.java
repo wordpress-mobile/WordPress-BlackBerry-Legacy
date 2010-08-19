@@ -138,8 +138,8 @@ public class BlogUpdateConn extends BlogConn  {
 			if(blog.isWPCOMBlog()) {
 				Hashtable features = getFeatures(blog);
 				if(connResponse.isStopped()) return; //if the user has stopped the connection
-			//	if(connResponse.isError() == false )
-			//		blog.setBlogOptions(options);
+				if(connResponse.isError() == false )
+					blog.setWpcomFeatures(features);
 				checkConnectionResponse("Error while loading Blog features");
 			}
 			
@@ -301,7 +301,7 @@ public class BlogUpdateConn extends BlogConn  {
 	}
 	
 	/* 
-	 * simple wpcom.getFeatures method ( blog_id, username, password ) which returns a struct.
+	 * The method call  wpcom.getFeatures  ( blog_id, username, password ) which returns a struct.
 	 * Just a simple way to expose data on WPCOM specific features (VideoPress or space upgrade for istance).
 	 * 
 	 * Right now the only field in the struct is "videopress_enabled", with a boolean value.
@@ -322,12 +322,12 @@ public class BlogUpdateConn extends BlogConn  {
 			}
 			
 			Hashtable features = (Hashtable) response;
-			Enumeration elements = features.keys();
+			/*Enumeration elements = features.keys();
 			for (; elements.hasMoreElements();) {
 				String key = (String) elements.nextElement();
 				Log.trace("key: " + key);
 				Log.trace("value: " + features.get(key));
-			}
+			}*/
 			Log.debug("<<< reading WP.COM Blog Features : "	+ blog.getName());
 			return features;
 		} catch (ClassCastException cce) {

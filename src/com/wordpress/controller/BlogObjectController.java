@@ -38,6 +38,7 @@ import com.wordpress.view.PreviewView;
 import com.wordpress.view.component.RimFileBrowser;
 import com.wordpress.view.component.RimFileBrowserListener;
 import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.view.dialog.VideoPressInfoPopupScreen;
 import com.wordpress.view.mm.MediaObjFileJournalListener;
 import com.wordpress.view.mm.MediaViewMediator;
 import com.wordpress.view.mm.MultimediaPopupScreen;
@@ -314,7 +315,13 @@ public abstract class BlogObjectController extends BaseController {
 	
 	/** show up multimedia type selection */
 	public void showAddMediaPopUp(int mediaType) {
-		int response= BROWSER_PHOTO;
+		int response = BROWSER_PHOTO;
+		
+		if(mediaType == VIDEO && blog.isWPCOMBlog() && !blog.isVideoPressUpgradeAvailable()) {
+			VideoPressInfoPopupScreen popup = new VideoPressInfoPopupScreen();
+			UiApplication.getUiApplication().pushModalScreen(popup);
+			return;
+		} 
 		
 		//when user want to add an audio the app doesn't show the rec-or-library popup
 		if(mediaType != AUDIO) {		

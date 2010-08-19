@@ -10,6 +10,7 @@ import javax.microedition.rms.RecordStoreException;
 import org.kxmlrpc.XmlRpcException;
 
 import net.rim.device.api.i18n.ResourceBundle;
+import net.rim.device.api.i18n.ResourceBundleFamily;
 import net.rim.device.api.system.EncodedImage;
 
 import com.wordpress.bb.WordPressCore;
@@ -19,6 +20,7 @@ import com.wordpress.io.BlogDAO;
 import com.wordpress.io.DraftDAO;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.io.PageDAO;
+import com.wordpress.model.AudioEntry;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogEntry;
 import com.wordpress.model.MediaEntry;
@@ -53,8 +55,7 @@ public class SendToBlogTask extends TaskImpl {
 	private Post post;
 	private MediaLibrary library;
 	private int draftFolder; 
-	
-	
+		
 	public SendToBlogTask(Blog blog, MediaLibrary library) {
 		this.blog = blog;
 		this.blogEntry = library;
@@ -476,23 +477,27 @@ public class SendToBlogTask extends TaskImpl {
 
 				} else { //there was an error
 
-					/*check for error code and videopress upgrade
-					if ((mediaObj instanceof VideoEntry) &&
-							(resp.getResponseObject() instanceof XmlRpcException) ) {
-						XmlRpcException responseObject = (XmlRpcException) resp.getResponseObject();
-						if(responseObject.code == 500) { //invalid file type
-							errorMsg.append("Invalid File Type!\nYou can upload mp3, m4a, wav, ogg audio files and increase your available space with a Space Upgrade. You can upload videos and embed them directly on your blog with a Video Upgrade.");
-							isError=true;
+					/*check for error code and videopress/space upgrade*/
+					if (resp.getResponseObject() instanceof XmlRpcException && 
+							((XmlRpcException) resp.getResponseObject()).code == 500) {
+						
+						ResourceBundleFamily _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
+
+						String respMessage = null;
+						if (mediaObj instanceof VideoEntry){
+							respMessage = _resources.getString(WordPressResource.ERROR_VP_UPGRADE);
+						} else if (mediaObj instanceof AudioEntry && blog.isWPCOMBlog()){ 
+							respMessage = _resources.getString(WordPressResource.ERROR_SPACE_UPGRADE);
 						} else {
-							final String respMessage = resp.getResponse();
-							errorMsg.append(respMessage+"\n");
-							isError=true;
+							respMessage = resp.getResponse();
 						}
-					} else {*/
+						errorMsg.append(respMessage+"\n");
+						isError=true;
+					} else {
 						final String respMessage=resp.getResponse();
 						errorMsg.append(respMessage+"\n");
 						isError=true;
-					//}
+					}
 				}
 			} catch (Exception e) {
 				errorMsg.append("Server Response Error on media upload");

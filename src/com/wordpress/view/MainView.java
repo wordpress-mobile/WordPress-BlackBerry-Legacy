@@ -2,7 +2,6 @@
 package com.wordpress.view;
 
 import net.rim.device.api.system.ApplicationDescriptor;
-import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.CodeModuleGroup;
 import net.rim.device.api.system.CodeModuleGroupManager;
@@ -25,11 +24,8 @@ import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.Menu;
-import net.rim.device.api.ui.component.RichTextField;
-import net.rim.device.api.ui.container.DialogFieldManager;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
-import net.rim.device.api.ui.container.PopupScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressCore;
@@ -330,9 +326,6 @@ public class MainView extends BaseView {
 				return;
     		}
     		
-    		//AddBlogPopupScreen inqView= new AddBlogPopupScreen();
-    		//UiApplication.getUiApplication().pushScreen(inqView);
-    		
     		int selection = -1;
     		String[] messages = _resources.getStringArray(WordPressResource.MESSAGES_ADD_BLOG);
     		String title = messages[0];
@@ -456,64 +449,6 @@ public class MainView extends BaseView {
         }
     };
        
-    private class AddBlogPopupScreen extends PopupScreen {
-
-    	public AddBlogPopupScreen() {
-    		
-    		super(new DialogFieldManager());
-    		DialogFieldManager dfm = (DialogFieldManager) getDelegate();
-    		dfm.setIcon(new BitmapField(Bitmap.getPredefinedBitmap(Bitmap.QUESTION)));
-    		dfm.setMessage(new RichTextField(_resources.getString(WordPressResource.PROMOSCREEN_TAGLINE), Field.NON_FOCUSABLE ));
-    		
-    		PillButtonField buttonHaveBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPCOM_BLOG));
-    		buttonHaveBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
-    		buttonHaveBlog.setChangeListener(new FieldChangeListener() {
-    			public void fieldChanged(Field field, int context) {
-    				mainController.addWPCOMBlogs();
-    				close();
-    			}
-    		});
-    		buttonHaveBlog.setMargin( 4, 0, 4, 0 );
-
-    		PillButtonField buttonGetFreeBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_NEW_TO_WP_BLOG));
-    		buttonGetFreeBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
-    		buttonGetFreeBlog.setChangeListener(new FieldChangeListener() {
-    			public void fieldChanged(Field field, int context) {
-    				Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
-    				close();
-    			}
-    		});
-    		buttonGetFreeBlog.setMargin( 4, 0, 4, 0 );
-    	
-    		PillButtonField buttonSelfHostedBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPORG_BLOG));
-    		buttonSelfHostedBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
-    		buttonSelfHostedBlog.setChangeListener(new FieldChangeListener() {
-    			public void fieldChanged(Field field, int context) {
-    				mainController.addWPORGBlogs();
-    				close();
-    			}
-    		});
-    		buttonSelfHostedBlog.setMargin( 4, 0, 4, 0 );
-    		//buttonsManagerSelfHostedBlog.add(buttonSelfHostedBlog);
-
-    		dfm.addCustomField(buttonGetFreeBlog);
-    		dfm.addCustomField(buttonHaveBlog);
-    		dfm.addCustomField(buttonSelfHostedBlog);
-    	}
-    	
-
-    	protected boolean keyChar(char c, int status, int time) {
-    		// Close this screen if escape is selected.
-    		if (c == Characters.ESCAPE) {
-    			this.close();
-    			return true;
-    		} else {
-    			return super.keyChar(c, status, time);
-    		}
-    	}
-    }
-
-    
     //Override the makeMenu method so we can add a custom menu item
     protected void makeMenu(Menu menu, int instance)
     {

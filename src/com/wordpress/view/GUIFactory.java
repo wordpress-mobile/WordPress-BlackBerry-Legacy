@@ -71,10 +71,6 @@ public class GUIFactory {
 		 return sep;
 	 }
 	 
-	 protected static synchronized LabelField getLabel(String label) {
-		 return getLabel(label, Color.GRAY);
-	 }
-	 
 	 protected static synchronized LabelField getLabel(String label, long style) {
 		 return getLabel(label, Color.GRAY, style);
 	 }	

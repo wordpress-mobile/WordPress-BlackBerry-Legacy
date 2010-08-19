@@ -262,6 +262,8 @@ MESSAGE_STATS_VIEWS_DAY#0="Voir par jour";
 MESSAGE_STATS_VIEWS_MONTH#0="Voir par mois";
 MESSAGE_STATS_VIEWS_WEEK#0="Voir par semaine";
 MESSAGE_UNSAVED_CHANGES_LOST#0="Les changements non sauvegardés seront perdus, êtes vous sûre ?";
+MESSAGE_VIDEOPRESS_UPGRADE#0={
+};
 MESSAGE_WORDPRESS_VERSION#0="Quelle version de WordPress utilisez vous ?";
 MESSAGE_XMLRPC_ENDPOINT#0="Impossible de trouver le service XmlRpc, veuillez mettre l'url complète.";
 MESSAGE_XMLRPC_ENDPOINT_FAILED#0="Impossible de trouver le service XmlRpc de votre blog. Veuillez consulter la FAQ (http://blackberry.wordpress.org/faq/)";

@@ -189,6 +189,7 @@ src\com\wordpress\view\dialog\DiscardChangeInquiryView.java
 src\com\wordpress\view\dialog\ErrorView.java
 src\com\wordpress\view\dialog\InfoView.java
 src\com\wordpress\view\dialog\InquiryView.java
+src\com\wordpress\view\dialog\VideoPressInfoPopupScreen.java
 src\com\wordpress\view\dialog\WaitScreen.java
 src\com\wordpress\view\DraftPagesView.java
 src\com\wordpress\view\DraftPostsView.java

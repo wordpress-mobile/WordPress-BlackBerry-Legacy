@@ -331,6 +331,7 @@ public class BlogDAO implements BaseDAO {
         ser.serialize(blog.getHTTPAuthPassword());
         ser.serialize(blog.getBlogOptions());
         ser.serialize(blog.getShortcutIcon());
+        ser.serialize(blog.getWpcomFeatures());
         
         out.close();
 
@@ -605,6 +606,15 @@ public class BlogDAO implements BaseDAO {
         	Log.error("No blog shorcut icon found - End of file was reached. Probably a previous blog data file is loaded" );
 		} catch (Throwable  t) {
         	Log.error("No blog shorcut icon found - End of file was reached. Probably a previous blog data file is loaded" );
+		}
+        //reading WP.COM blog features
+		try {
+            Hashtable options= (Hashtable)ser.deserialize();
+            blog.setWpcomFeatures(options);
+        } catch (Exception  e) {
+        	Log.error("No WP.COM features found - End of file was reached. Probably a previous blog data file is loaded" );
+		} catch (Throwable  t) {
+        	Log.error("No WP.COM features found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
 		
         in.close();
