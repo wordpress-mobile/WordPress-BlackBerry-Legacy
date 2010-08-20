@@ -1,7 +1,5 @@
 package com.wordpress.view.component;
 
-import com.wordpress.utils.log.Log;
-
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.system.GIFEncodedImage;
 import net.rim.device.api.ui.Graphics;
@@ -129,4 +127,13 @@ public class AnimatedGIFField extends BitmapField
             }
         }
     }
+
+
+	public int getAnimatedImageWidth() {
+		return _width;
+	}
+
+	public int getAnimatedImageHeight() {
+		return _height;
+	}
 }

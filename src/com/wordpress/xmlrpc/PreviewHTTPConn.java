@@ -34,8 +34,7 @@ public class PreviewHTTPConn extends BlogConn  {
 				InputStream in = conn.openInputStream();
 
 				//read headers
-				String key;
-				for (int i = 0; (key = conn.getHeaderFieldKey(i)) != null; ++i) {
+				for (int i = 0; conn.getHeaderFieldKey(i) != null; ++i) {
 					String headerName = conn.getHeaderFieldKey(i);
 					String headerValue = conn.getHeaderField(i);
 

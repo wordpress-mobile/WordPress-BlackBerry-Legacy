@@ -58,7 +58,6 @@ package org.apache.regexp;
  */ 
 
 import org.apache.regexp.RE;
-import java.util.Hashtable;
 
 /**
  * A class that holds compiled regular expressions.  This is exposed mainly

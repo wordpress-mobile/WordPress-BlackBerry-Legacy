@@ -14,7 +14,6 @@ import net.rim.device.api.browser.field.RenderingException;
 import net.rim.device.api.browser.field.RenderingOptions;
 import net.rim.device.api.browser.field.RenderingSession;
 import net.rim.device.api.browser.field.RequestedResource;
-import net.rim.device.api.browser.field.UrlRequestedEvent;
 import net.rim.device.api.io.http.HttpHeaders;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.Display;
@@ -127,11 +126,10 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 	        {
 	            case Event.EVENT_URL_REQUESTED : 
 	            {
-	                UrlRequestedEvent urlRequestedEvent = (UrlRequestedEvent) event;    
+	               /* UrlRequestedEvent urlRequestedEvent = (UrlRequestedEvent) event;    
 	                String absoluteUrl = urlRequestedEvent.getURL();
 	    
-	                HttpConnection conn = null;
-	             /*   PrimaryResourceFetchThread thread = new PrimaryResourceFetchThread(urlRequestedEvent.getURL(),
+	                PrimaryResourceFetchThread thread = new PrimaryResourceFetchThread(urlRequestedEvent.getURL(),
 	                                                                                         urlRequestedEvent.getHeaders(), 
 	                                                                                         urlRequestedEvent.getPostData(),
 	                                                                                         event, this);

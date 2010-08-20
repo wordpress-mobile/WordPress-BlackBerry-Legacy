@@ -92,7 +92,7 @@ public class WordPressApplicationPermissions{
         }
     }
 	
-    private boolean isAllowed(int permission) {
+    public boolean isAllowed(int permission) {
         ApplicationPermissions original = ApplicationPermissionsManager.getInstance().getApplicationPermissions();
         return original.getPermission(permission) == ApplicationPermissions.VALUE_ALLOW;
     }

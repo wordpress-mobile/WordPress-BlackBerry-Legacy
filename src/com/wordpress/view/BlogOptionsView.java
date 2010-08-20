@@ -1,7 +1,5 @@
 package com.wordpress.view;
 
-import java.util.Hashtable;
-
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;

@@ -96,7 +96,7 @@
 		</ant>
 	</target>
 	
-	
+	<!--
 	<target name="nightlyOS45" depends="init, cleanOS45">
 	        <property file="build/build.properties" />
 	        <property file="build/release.properties" />
@@ -124,8 +124,7 @@
 	        <property name="module.version" value="${release.major}.${release.minor}.${svn.info.lastRev}" />
 		</ant>		
 	</target>
-
-	
+	-->
 	<target name="simulator" depends="init, cleanOS45">
         <property file="build/build.properties" />
         <property file="build/release.properties" />

@@ -11,14 +11,14 @@ public class ThrobberRenderer {
     private GIFEncodedImage _image;     //The image to draw.
     private int _currentFrame;          //The current frame in  the animation sequence.
     private int _totalFrames;
-    private int _width;                 //The width of the image (background frame).
-    private int _height;                //The height of the image (background frame).	
+    private int imageWidth;                 //The width of the image (background frame).
+    private int imageHeight;                //The height of the image (background frame).	
 
 	public ThrobberRenderer(GIFEncodedImage image) {
         //Store the image and it's dimensions.
         _image = image;
-        _width = image.getWidth();
-        _height = image.getHeight();
+        imageWidth = image.getWidth();
+        imageHeight = image.getHeight();
         _totalFrames = _image.getFrameCount();
 	}
 	
@@ -49,5 +49,13 @@ public class ThrobberRenderer {
             //Reset back to frame 0 if we have reached the end.
         	resetPosition();
         }
+	}
+
+	public int getWidth() {
+		return imageWidth;
+	}
+
+	public int getHeight() {
+		return imageHeight;
 	}
 }

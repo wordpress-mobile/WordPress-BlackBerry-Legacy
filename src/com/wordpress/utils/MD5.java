@@ -1,6 +1,5 @@
 package com.wordpress.utils;
 
-import java.io.*;
 
 /**
  * Fast implementation of RSA's MD5 hash generator in Java JDK Beta-2 or higher.

@@ -21,8 +21,6 @@ public class MultimediaPopupScreen extends PopupScreen {
     
     private int response=-1;
 	private BitmapField bitmapFieldCamera;
-	private BitmapField bitmapFieldSound;
-	private BitmapField bitmapVideo;
 	private BitmapField bitmapBrowser;
 	private ButtonField buttonCamera;
 	private ButtonField buttonBrowser;

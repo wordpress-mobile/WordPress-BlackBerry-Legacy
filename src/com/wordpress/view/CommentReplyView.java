@@ -21,7 +21,6 @@ import com.wordpress.controller.RecentCommentsController;
 import com.wordpress.controller.GravatarController;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Comment;
-import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.component.MarkupToolBar;
 import com.wordpress.view.component.MarkupToolBarTextFieldMediator;

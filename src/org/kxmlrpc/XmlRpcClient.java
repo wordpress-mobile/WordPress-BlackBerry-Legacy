@@ -163,8 +163,8 @@ public class XmlRpcClient {
     		// Note: The first call to getHeaderFieldKey() will implicit send
     		// the HTTP request to the server.
     		Log.trace("==== Response headers from the server");
-    		String   key;
-    		for( int i = 0;( key = con.getHeaderFieldKey( i ) )!= null; ++i ){
+    		
+    		for( int i = 0; con.getHeaderFieldKey(i)!= null; ++i ){
     			String headerName = con.getHeaderFieldKey(i);
     			String headerValue = con.getHeaderField(i);
     			

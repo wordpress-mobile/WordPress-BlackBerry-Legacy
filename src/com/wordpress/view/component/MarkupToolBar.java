@@ -13,11 +13,9 @@ import net.rim.device.api.ui.component.ButtonField;
 public class MarkupToolBar {
 		
 	private MarkupToolBarTextFieldMediator mediator;
-	private int mMark = -1;
 	private JustifiedEvenlySpacedHorizontalFieldManager toolbarOne;
 	private ButtonState[] buttonStateList = null;
 
-	
 	public MarkupToolBar(MarkupToolBarTextFieldMediator mediator) {
 
 		toolbarOne = new JustifiedEvenlySpacedHorizontalFieldManager();	
@@ -46,39 +44,9 @@ public class MarkupToolBar {
 			field.getManager().invalidate();
 		}
 	}
-
-		/*    
-    protected void insertTag(String aStart, String aEnd) {
-      
-    	  int caret = this.textField.getCursorPosition();
-        if (mMark  == -1 || mMark == caret) {
-            this.textField.insertTextFromExt('<' + aStart + "></" + aEnd + '>', true);
-        } else {
-            String start = '<' + aStart + '>';
-            String end = "</" + aEnd + '>';
-            int open;
-            int close;
-            
-            if (mMark < caret) {
-                open = mMark;
-                close = caret;
-            } else {
-                open = caret;
-                close = mMark;
-            }
-
-         //   insert(start, open);
-          //  insert(end, close + start.length());
-        }
-
-        mMark = -1;
-    }
-    */
-      
 	
 	public void attachTo(Manager screen) {
 		screen.add(toolbarOne);
 	}
-	
 
 }

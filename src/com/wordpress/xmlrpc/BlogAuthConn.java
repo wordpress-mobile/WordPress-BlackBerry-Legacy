@@ -104,8 +104,7 @@ public class BlogAuthConn extends BlogConn  {
 				// Note: The first call to getHeaderFieldKey() will implicit send
 				// the HTTP request to the server.
 				Log.trace("==== Response headers from the server");
-				String   key;
-				for( int i = 0;( key = conn.getHeaderFieldKey( i ) )!= null; ++i ){
+				for( int i = 0; conn.getHeaderFieldKey(i)!= null; ++i ){
 					String headerName = conn.getHeaderFieldKey(i);
 					String headerValue = conn.getHeaderField(i);
 

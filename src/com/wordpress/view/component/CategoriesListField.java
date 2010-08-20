@@ -412,11 +412,11 @@ public class CategoriesListField {
             return _checked;
         }
                 
-        private void setChecked(boolean checked)
+       /* private void setChecked(boolean checked)
         {
             _checked = checked;
         }
-        
+        */
         //Toggle the checked status.
         private void toggleChecked()
         {

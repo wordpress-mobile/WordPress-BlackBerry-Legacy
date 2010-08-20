@@ -393,7 +393,7 @@ public class CheckBoxListField {
             return _checked;
         }
         
-        private void setStringVal(String stringVal)
+   /*     private void setStringVal(String stringVal)
         {
             _stringVal = stringVal;
         }
@@ -402,7 +402,7 @@ public class CheckBoxListField {
         {
             _checked = checked;
         }
-        
+       */ 
         private void setSelected(boolean flag){
         	isSelected = flag;
         }

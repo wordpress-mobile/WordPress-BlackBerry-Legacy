@@ -17,7 +17,6 @@ import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.MainController;
 import com.wordpress.io.AccountsDAO;
-import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ListActionListener;
 import com.wordpress.view.component.PostsListField;
