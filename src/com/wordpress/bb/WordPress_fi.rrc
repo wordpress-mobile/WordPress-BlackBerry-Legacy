@@ -37,6 +37,8 @@ ERROR_NOT_ENOUGH_SPACE#0="There is not enough memory space to complete the opera
 ERROR_RESIZE_HEIGHT#0="Kuvan korkeus on vähintään oltava yksi pikseli.";
 ERROR_RESIZE_WIDTH#0="Kuvan leveys on vähintään oltava yksi pikseli.";
 ERROR_SDCARD_NOT_FOUND#0="Valitettavasti SD-muistikorttia ei löytynyt, sovellus siirtyi käyttämään laitteen sisäistä muistia.";
+ERROR_SPACE_UPGRADE#0="The audio was not uploaded due to invalid file type. You can upload mp3, m4a, wav, ogg audio files and increase your available space with a Space Upgrade. Please visit http://support.wordpress.com/space-upgrade";
+ERROR_VP_UPGRADE#0="The video was not uploaded due to invalid file type.You can upload videos and embed them directly on your blog with a Video Upgrade. Please visit http://videopress.com";
 ERROR_WHILE_SAVING_PAGE#0="Ilmeni virhe tallentaessa sivudataa.";
 ERROR_WHILE_SAVING_POST#0="Ilmeni virhe tallentaessa artikkelin dataa.";
 ERROR_YOU_CANNOT_MANAGEPOST#0="Et voi hallita blogisi artikkelia.";
@@ -212,8 +214,8 @@ MENUITEM_VIDEO_ADD#0="Lisää video";
 MENUITEM_VIEW_THUMBNAILS#0="Näytä pikkukuvat";
 MENUITEM_VIEW_TITLES#0="Näytä otsikot";
 MESSAGES_ADD_BLOG#0={
-    "WordPress.com blogs",
     "Add existing",
+    "WordPress.com blogs",
     "WordPress.org site",
 };
 MESSAGE_APP_RESTART#0="Sovellus käynnistetään uudelleen automaattisesti. Jos se ei toimi, sinun täytyy käynnistää se uudelleen manuaalisesti.";
@@ -262,8 +264,6 @@ MESSAGE_STATS_VIEWS_DAY#0="Näyttökerrat per päivä";
 MESSAGE_STATS_VIEWS_MONTH#0="Näyttökerrat per kuukausi";
 MESSAGE_STATS_VIEWS_WEEK#0="Näyttökerrat per viikko";
 MESSAGE_UNSAVED_CHANGES_LOST#0="Talenntamattomat muutokset katoavat, oletko varma?";
-MESSAGE_VIDEOPRESS_UPGRADE#0={
-};
 MESSAGE_WORDPRESS_VERSION#0="Mitä WordPressin versiota käytät?";
 MESSAGE_XMLRPC_ENDPOINT#0="XMLRPC-päätepistettä blogistasi, syötä täydellinen URL-osoitteen alle.";
 MESSAGE_XMLRPC_ENDPOINT_FAILED#0="We could not find the XMLRPC endpoint of your blog. Please have a look at FAQ available here: http://blackberry.wordpress.org/faq/";
@@ -344,3 +344,7 @@ TITLE_VIDEOPRESS_OPTIONS#0="VideoPressin asetukset";
 TITLE_VIEW_ACCOUNT#0="WordPress.com-tilin tiedot";
 TITLE_VIEW_ACCOUNTS#0="WordPress.com Accounts";
 TITLE_WPCOM_ACCOUNTS_SELECTOR_POPUP#0="Valitse WordPress.com-tili";
+MESSAGE_VIDEOPRESS_UPGRADE#0={
+    "You can upload videos to your blog using the VideoPress upgrade.",
+    "Would you like to learn more about VideoPress?",
+};

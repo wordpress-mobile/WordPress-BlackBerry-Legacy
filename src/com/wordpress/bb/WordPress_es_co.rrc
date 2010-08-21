@@ -37,6 +37,8 @@ ERROR_NOT_ENOUGH_SPACE#0="There is not enough memory space to complete the opera
 ERROR_RESIZE_HEIGHT#0="La altura de la imagen deber ser mínimo de un pixel.";
 ERROR_RESIZE_WIDTH#0="La anchura de la imagen debe ser mínimo de un pixel.";
 ERROR_SDCARD_NOT_FOUND#0="Lamentablemente no se encuentra la carta SD. Cambiando a la memoria del dispositivo.";
+ERROR_SPACE_UPGRADE#0="The audio was not uploaded due to invalid file type. You can upload mp3, m4a, wav, ogg audio files and increase your available space with a Space Upgrade. Please visit http://support.wordpress.com/space-upgrade";
+ERROR_VP_UPGRADE#0="The video was not uploaded due to invalid file type.You can upload videos and embed them directly on your blog with a Video Upgrade. Please visit http://videopress.com";
 ERROR_WHILE_SAVING_PAGE#0="Hubo un error cuando se salvaba la página";
 ERROR_WHILE_SAVING_POST#0="Hubo un error cuando se salvaba el anuncio";
 ERROR_YOU_CANNOT_MANAGEPOST#0="No puede administrar el anuncio de su blog";
@@ -212,8 +214,8 @@ MENUITEM_VIDEO_ADD#0="Añadir video";
 MENUITEM_VIEW_THUMBNAILS#0="Ver las viñetas";
 MENUITEM_VIEW_TITLES#0="Ver los títulos";
 MESSAGES_ADD_BLOG#0={
-    "WordPress.com blogs",
     "Add existing",
+    "WordPress.com blogs",
     "WordPress.org site",
 };
 MESSAGE_APP_RESTART#0="La aplicación comienza automáticamente. Si no funciona, debe empezarla manualmente. ";
@@ -262,8 +264,6 @@ MESSAGE_STATS_VIEWS_DAY#0="Views per day";
 MESSAGE_STATS_VIEWS_MONTH#0="View per month";
 MESSAGE_STATS_VIEWS_WEEK#0="Views per week";
 MESSAGE_UNSAVED_CHANGES_LOST#0="Unsaved changes will be lost, are you sure?";
-MESSAGE_VIDEOPRESS_UPGRADE#0={
-};
 MESSAGE_WORDPRESS_VERSION#0="Which version of WordPress are you using?";
 MESSAGE_XMLRPC_ENDPOINT#0="No pudimos encontrar el punto final XMLRPC de su blog, por favor inserte abajo el URL completo";
 MESSAGE_XMLRPC_ENDPOINT_FAILED#0="No pudimos encontrar el punto final XMLRPC de su blog, Por favor lea las FAQ dispobibles aquí: http://blackberry.wordpress.org/faq/";
@@ -344,3 +344,7 @@ TITLE_VIDEOPRESS_OPTIONS#0="VideoPress Options";
 TITLE_VIEW_ACCOUNT#0="WordPress.com Account Details";
 TITLE_VIEW_ACCOUNTS#0="WordPress.com Accounts";
 TITLE_WPCOM_ACCOUNTS_SELECTOR_POPUP#0="Select a WordPress.com Account";
+MESSAGE_VIDEOPRESS_UPGRADE#0={
+    "You can upload videos to your blog using the VideoPress upgrade.",
+    "Would you like to learn more about VideoPress?",
+};
