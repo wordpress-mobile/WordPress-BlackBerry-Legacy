@@ -32,14 +32,16 @@
 		<echo message=" usage                --> Print this usage listing"/>
 		<echo message=" cleanOS42            --> Clean OS 4.5 version"/>
 		<echo message=" cleanOS47            --> Clean OS 4.7 version"/>
+		<echo message=" cleanOS50            --> Clean OS 5.0 version"/>
 		<echo message=" clean                --> Clean all versions"/>
 		<echo message=" releaseOS42          --> "/>
 		<echo message=" releaseOS47          --> "/>
+		<echo message=" releaseOS50          --> "/>
 		<echo message=""/>
 	</target>
 
 
-	<target name="clean" depends="cleanOS45, cleanOS47" />
+	<target name="clean" depends="cleanOS45, cleanOS47, cleanOS50" />
 	
 	<target name="cleanOS45" depends="init">
 		<ant antfile="build/build_single.xml" target="clean">
@@ -50,6 +52,12 @@
 	<target name="cleanOS47" depends="init">
 		<ant antfile="build/build_single.xml" target="clean">
 			<property name="platform"         value="os47"/>
+		</ant>
+	</target>
+	
+	<target name="cleanOS50" depends="init">
+		<ant antfile="build/build_single.xml" target="clean">
+			<property name="platform"         value="os50"/>
 		</ant>
 	</target>
 
@@ -147,6 +155,21 @@
 			<property name="rim.home" value="${rim.home.os47}" />
 			<property name="log_console" value="true" />
 			<property name="is_os47_or_above"   value="true" />
+			<property name="module.version" value="${release.major}.${release.minor}.${build.number}" />
+		</ant>
+	</target>
+	
+	<target name="simulatorOS50" depends="init, cleanOS50">
+       
+		<property file="build/build.properties" />
+        <property file="build/release.properties" />
+		
+		<ant antfile="build/build_single.xml" target="rapc">
+			<property name="platform" value="os50" />
+			<property name="rim.home" value="${rim.home.os50}" />
+			<property name="log_console" value="true" />
+			<property name="is_os47_or_above"   value="true" />
+			<property name="is_os50_or_above"   value="true" />
 			<property name="module.version" value="${release.major}.${release.minor}.${build.number}" />
 		</ant>
 	</target>

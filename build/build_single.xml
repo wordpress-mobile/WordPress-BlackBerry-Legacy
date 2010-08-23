@@ -66,6 +66,7 @@
         	<!-- define tag="DEBUG" if="debug"/ --> 
         	<define tag="LOG_CONSOLE" if="log_console" />
         	<define tag="IS_OS47_OR_ABOVE" if="is_os47_or_above" />
+        	<define tag="IS_OS50_OR_ABOVE" if="is_os50_or_above" />
         	
             <jdp
                 type="cldc"

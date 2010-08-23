@@ -1,5 +1,5 @@
 //#preprocess
-package com.wordpress.view.component;
+package com.wordpress.view.component.FileBrowser;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -284,15 +284,12 @@ public class RimFileBrowser extends PopupScreen {
         	return;
         }
         
-        boolean accepted = true;
         if (listener != null) {
-            accepted = listener.chosen(currDirName + entryName);
+            listener.selectionDone(currDirName + entryName);
         }
 
-        if (accepted) {
-            quit = true;
-            onClose();
-        }
+        quit = true;
+        onClose();
     }
 
     protected void quit() {
@@ -1080,5 +1077,3 @@ public class RimFileBrowser extends PopupScreen {
         }
     }
 }
-
-

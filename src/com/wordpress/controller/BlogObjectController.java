@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.controller;
 
 import java.io.IOException;
@@ -35,8 +36,7 @@ import com.wordpress.view.MediaEntryPropView;
 import com.wordpress.view.MediaView;
 import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PreviewView;
-import com.wordpress.view.component.RimFileBrowser;
-import com.wordpress.view.component.RimFileBrowserListener;
+import com.wordpress.view.component.FileBrowser.RimFileBrowserListener;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.view.dialog.VideoPressInfoPopupScreen;
 import com.wordpress.view.mm.MediaObjFileJournalListener;
@@ -45,6 +45,14 @@ import com.wordpress.view.mm.MultimediaPopupScreen;
 import com.wordpress.view.mm.VideoFileJournalListener;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.PreviewHTTPConn;
+
+//#ifdef IS_OS50_OR_ABOVE
+import com.wordpress.view.component.FileBrowser.RimFileBrowser;
+//#else
+import com.wordpress.view.component.FileBrowser.RimFileBrowser;
+//#endif
+
+
 
 /**
  * @author dercoli
@@ -335,24 +343,20 @@ public abstract class BlogObjectController extends BaseController {
 		switch (response) {
 		case BROWSER_PHOTO:
            	String imageExtensions[] = MultimediaUtils.getSupportedWordPressImageFormat();
-           	RimFileBrowser photoFileBrowser = new RimFileBrowser(imageExtensions, false);
-           	photoFileBrowser.setListener(new MultimediaFileBrowserListener(PHOTO));
-           	UiApplication.getUiApplication().pushScreen(photoFileBrowser);
+           	displayFileBrowser(PHOTO, imageExtensions, false);
+           	//photoFileBrowser.setListener(new MultimediaFileBrowserListener(PHOTO));
 			break;
 			
 		case BROWSER_VIDEO:
           	String videoExtensions[] = MultimediaUtils.getSupportedWordPressVideoFormat();// "mp4", "m4a","3gp", "3gp2", "avi", "wmv", "asf", "avi"};
-         	RimFileBrowser videoFileBrowser = new RimFileBrowser(videoExtensions, false);
-         	videoFileBrowser.setPredefinedThumb(Bitmap.getBitmapResource("video_thumb_48.png"));
-         	videoFileBrowser.setListener(new MultimediaFileBrowserListener(VIDEO));
-           	UiApplication.getUiApplication().pushScreen(videoFileBrowser);			
+          	displayFileBrowser(VIDEO, videoExtensions, false);
+         	//videoFileBrowser.setListener(new MultimediaFileBrowserListener(VIDEO));
            	break;
            	
 		case BROWSER_AUDIO:
            	String audioExtensions[] = MultimediaUtils.getSupportedWordPressAudioFormat();
-           	RimFileBrowser audioFileBrowser = new RimFileBrowser(audioExtensions, false);
-           	audioFileBrowser.setListener(new MultimediaFileBrowserListener(AUDIO));
-           	UiApplication.getUiApplication().pushScreen(audioFileBrowser);
+           	displayFileBrowser(AUDIO, audioExtensions, false);
+           	//audioFileBrowser.setListener(new MultimediaFileBrowserListener(AUDIO));
 			break;
 			
 		case PHOTO:
@@ -380,31 +384,6 @@ public abstract class BlogObjectController extends BaseController {
 		default:
 			break;
 		}		
-	}
-	
-	private class MultimediaFileBrowserListener extends RimFileBrowserListener {
-	    
-		int type = -1;
-	    
-		public MultimediaFileBrowserListener(int multimediaFileType) {
-			super();
-			type = multimediaFileType;			
-		}
-
-		public boolean chosen(String theFile) {
-			Log.trace("[MultimediaFileBrowserListener.chosen]");
-			Log.trace("filename: " + theFile);
-             if (theFile == null){
-            	 
-             } else {
-    		     if(!theFile.startsWith("file://")) {
-    		    	 theFile = "file://"+ theFile;
-    		       } 
-				addLinkToMediaObject(theFile, type);	
-             }	
-			
-			return true;    
-	    }
 	}
 	
 	private void addVideoFileJournalListener() {
@@ -569,8 +548,7 @@ public abstract class BlogObjectController extends BaseController {
 			});
 		}
 	} 
-	
-	
+		
 	/**
 	 * Build the html fragment for the body preview
 	 * @param body  original body text field content
@@ -593,4 +571,42 @@ public abstract class BlogObjectController extends BaseController {
 		}
 		return newContentBuff.toString();
 	}
+	
+	protected void displayFileBrowser(int type, String[] extensions, boolean isThumbEnabled) {
+		//#ifdef IS_OS50_OR_ABOVE
+
+		//#else
+		RimFileBrowser oldFileBrowser = new RimFileBrowser(extensions, false);
+		if(type == VIDEO)
+			oldFileBrowser.setPredefinedThumb(Bitmap.getBitmapResource("video_thumb_48.png"));
+		oldFileBrowser.setListener(new OldFileBrowserListener(type));
+       	UiApplication.getUiApplication().pushScreen(oldFileBrowser);					
+		//#endif
+	}
+	
+	//#ifdef IS_OS50_OR_ABOVE
+
+	//#else
+	private class OldFileBrowserListener implements RimFileBrowserListener {
+	    
+		int type = -1;
+	    
+		public OldFileBrowserListener(int multimediaFileType) {
+			type = multimediaFileType;			
+		}
+
+		public void selectionDone(String theFile) {
+			Log.trace("[OldFileBrowserListener.selectionDone]");
+			Log.trace("filename: " + theFile);
+             if (theFile == null){
+            	 
+             } else {
+    		     if(!theFile.startsWith("file://")) {
+    		    	 theFile = "file://"+ theFile;
+    		       } 
+				addLinkToMediaObject(theFile, type);	
+             }	
+	    }
+	}
+	//#endif
 }
