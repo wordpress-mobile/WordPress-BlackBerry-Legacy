@@ -68,7 +68,7 @@ public class Gps extends Observable implements Runnable {
 			locationProvider = LocationProvider.getInstance(criteria);
 			
 			if ( locationProvider == null ) {
-				Log.error("No GPS  LocationProviders that meet our criteria are currently available");
+				Log.error("No GPS LocationProviders that meet our criteria are currently available");
 				showError(_resources.getString(WordPress.MESSAGE_GPS_NOT_AVAILABLE), null);
 				return;
 			}

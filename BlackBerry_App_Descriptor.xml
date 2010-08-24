@@ -1,0 +1,24 @@
+<Properties ModelVersion="1.1.2">
+  <General Title="WordPress" Version="1.4.1.1" Vendor="Automattic" Description="WordPress for BlackBerry"/>
+  <Application Type="BlackBerry Application" MainMIDletName="" MainArgs="" HomeScreenPosition="0" StartupTier="7" IsSystemModule="false" IsAutostartup="true"/>
+  <Resources hasTitleResource="true" TitleResourceBundleName="WordPress" TitleResourceBundleRelativePath="src/com/wordpress/bb/WordPress.rrh" TitleResourceBundleClassName="com.wordpress.bb.WordPress" TitleResourceBundleKey="" DescriptionId="">
+    <Icons>
+      <Icon CanonicalFileName="src/application-icon.png" IsFocus="false"/>
+    </Icons>
+  </Resources>
+  <Compile OutputCompilerMessages="false" ConvertImages="true" CreateWarningForNoExportedRoutine="true" CompressResources="false" AliasList="">
+    <PreprocessorDefines>
+      <PreprocessorTag IsActive="true" PreprocessorDefine="IS_OS47_OR_ABOVE" Scope="0"/>
+      <PreprocessorTag IsActive="true" PreprocessorDefine="IS_OS50_OR_ABOVE" Scope="0"/>
+      <PreprocessorTag IsActive="true" PreprocessorDefine="LOG_CONSOLE" Scope="0"/>
+    </PreprocessorDefines>
+  </Compile>
+  <Packaging OutputFileName="wordpress" OutputFolder="deliverables" PreBuildStep="" PostBuildStep="" CleanStep="" GenerateALXFile="false">
+    <AlxFiles/>
+  </Packaging>
+  <HiddenProperties>
+    <ClassProtection/>
+    <PackageProtection/>
+  </HiddenProperties>
+  <AlternateEntryPoints/>
+</Properties>

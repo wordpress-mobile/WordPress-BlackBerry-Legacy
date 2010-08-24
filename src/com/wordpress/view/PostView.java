@@ -317,10 +317,16 @@ public class PostView extends StandardBaseView {
 				Log.debug("key - "+key);
 				Log.debug("value - "+value);	
 				
-				//find the lat/lon field
+				//find the address/lat/lon fields
+				if(key.equalsIgnoreCase("geo_latitude")) {
+					isPresent = true;
+				} 
 				if(key.equalsIgnoreCase("geo_longitude")) {
 					isPresent = true;
 				} 
+				if(key.equalsIgnoreCase("geo_address")) {
+					isPresent = true;
+				}
 				
 				//update the geo_public custom field
 				if( key.equalsIgnoreCase("geo_public")){
@@ -361,7 +367,7 @@ public class PostView extends StandardBaseView {
 				Log.debug("key - "+key);
 				Log.debug("value - "+value);	
 				
-				//find the lat/lon field
+				//find location fields
 				if(key.equalsIgnoreCase("geo_address") || key.equalsIgnoreCase("geo_public")
 						|| key.equalsIgnoreCase("geo_accuracy")
 						|| key.equalsIgnoreCase("geo_longitude") || key.equalsIgnoreCase("geo_latitude")) {

@@ -1,14 +1,18 @@
+//#preprocess
 package com.wordpress.controller;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.location.Landmark;
 import javax.microedition.location.Location;
 import javax.microedition.location.LocationException;
+import javax.microedition.location.QualifiedCoordinates;
 
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
+import net.rim.device.api.system.ControlledAccessException;
 
 import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressCore;
@@ -36,6 +40,13 @@ import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.NewCategoryConn;
 import com.wordpress.xmlrpc.post.EditPostConn;
 import com.wordpress.xmlrpc.post.NewPostConn;
+
+
+//#ifdef IS_OS50_OR_ABOVE
+import net.rim.device.api.lbs.picker.LocationPicker;
+import net.rim.device.api.lbs.picker.LocationPicker.Picker;
+import com.wordpress.location.WPLocationPicker;
+//#endif
 
 
 public class PostController extends BlogObjectController {
@@ -70,11 +81,60 @@ public class PostController extends BlogObjectController {
 	}
 		
 	public void startGeoTagging(boolean sentAfterPosition) {
+		//#ifdef IS_OS50_OR_ABOVE
+		try{
+			WPLocationPicker locationPicker = new WPLocationPicker();
+			locationPicker.setListener(new WPLocationPickerListener(sentAfterPosition));
+			locationPicker.show();
+		} catch (ControlledAccessException permExp) {
+			displayError("The application does not have PERMISSION_LOCATION_DATA permission set to Allow");
+			return;
+		} catch (Exception gpExp) {
+			displayError("Location data is currently unavailable");
+			return;
+		}
+		//#else
 		Gps gps = new Gps();
 		gps.addObserver(new GPSLocationCallBack(sentAfterPosition));
 		gps.findMyPosition();
+		//#endif
 	}
 	
+	//#ifdef IS_OS50_OR_ABOVE 
+	private class WPLocationPickerListener implements LocationPicker.Listener {
+		private boolean sentAfterPosition = false;
+
+		WPLocationPickerListener (boolean sendAfterPosition){
+			this.sentAfterPosition = sendAfterPosition;
+		}
+
+		public void locationPicked(Picker picker, Landmark location) {
+			if(location != null)
+			{
+				String address = location.getDescription();
+				QualifiedCoordinates coordinates = location.getQualifiedCoordinates();
+				if(coordinates != null ) {
+					double latitude = coordinates.getLatitude();
+					double longitude = coordinates.getLongitude();
+					updateLocationCustomField(address, latitude, longitude);
+				} else {
+					updateLocationCustomField(address);
+				}
+
+				if(sentAfterPosition) {
+					sendPostToBlog();
+				} else {
+					saveDraftPost();
+				}
+
+			} else {
+				displayError("Location data is currently unavailable");
+				return;
+			}
+		}
+	}
+
+	//#else
 	private class GPSLocationCallBack implements Observer {
 		private boolean sentAfterPosition = false;
 		
@@ -93,10 +153,11 @@ public class PostController extends BlogObjectController {
 						Location location = (Location) object;
 						double latitude = location.getQualifiedCoordinates().getLatitude();
 						double longitude = location.getQualifiedCoordinates().getLongitude();
-						updateLocationCustomField(latitude, longitude);
+						updateLocationCustomField(null, latitude, longitude);
 						
-						if(sentAfterPosition)
+						if(sentAfterPosition){
 							sendPostToBlog();
+						}
 						else {
 							saveDraftPost();
 						}
@@ -108,19 +169,103 @@ public class PostController extends BlogObjectController {
 			});
 		}
 	}
+	//#endif
 
 	
 	/**
 	 * Add or upgrade the location custom tags
 	 * 
 	 */
-	protected void updateLocationCustomField(double latitude, double longitude) {
+	protected void updateLocationCustomField(String address) {
+		
+		Log.debug(">>> updateLocationCustomField(String address) ");
+		Post post = getPostObj();
+		Vector customFields = post.getCustomFields();
+		int size = customFields.size();
+    	Log.debug("Found "+size +" custom fields");
+    	boolean addressFound = false;
+    	boolean locationPublicFound = false;
+    	
+		for (int i = 0; i <size; i++) {
+			Log.debug("Elaborating custom field # "+ i);
+			try {
+				Hashtable customField = (Hashtable)customFields.elementAt(i);
+				
+				String ID = (String)customField.get("id");
+				String key = (String)customField.get("key");
+				String value = (String)customField.get("value");
+				Log.debug("id - "+ID);
+				Log.debug("key - "+key);
+				Log.debug("value - "+value);	
+				
+				if(key.equalsIgnoreCase("geo_accuracy") || 
+				   key.equalsIgnoreCase("geo_longitude") ||
+				   key.equalsIgnoreCase("geo_latitude")
+				) {
+					//not used field
+					 customField.remove("key");
+					 customField.remove("value");
+					 Log.debug("Removed custom field : "+ key);
+				}				
+				if(key.equalsIgnoreCase("geo_address")){
+					 Log.debug("Updated custom field : "+ key);
+					 customField.put("value", (address == null ? "" : address));
+					 addressFound = true;
+				}
+				//geo_public
+				if( key.equalsIgnoreCase("geo_public")){
+					Log.debug("Updated custom field : "+ key);
+					if(post.isLocationPublic())
+						customField.put("value", String.valueOf(1));
+					else
+						customField.put("value", String.valueOf(0));
+					locationPublicFound = true;
+				}
+				
+			} catch(Exception ex) {
+				Log.error("Error while Elaborating custom field # "+ i);
+			}
+		}
+		
+		if(addressFound == false && address != null)
+		{
+			Hashtable customField1 = new Hashtable();
+			customField1.put("key", "geo_address");
+			customField1.put("value", address); 
+			customFields.addElement(customField1);
+			Log.debug("Added custom field geo_address");
+		}
+			
+		//add geo_public field
+		if(locationPublicFound == false)
+		{
+			Hashtable customField3 = new Hashtable();
+			customField3.put("key", "geo_public"); 
+			if(post.isLocationPublic())
+				customField3.put("value", String.valueOf(1));
+			else
+				customField3.put("value", String.valueOf(0));
+			customFields.addElement(customField3);
+			
+			Log.debug("Added custom field geo_public");
+		}
+		
+		Log.debug("<<< updateLocationCustomField(String address) ");
+	}
+	
+	
+	/**
+	 * Add or upgrade the location custom tags
+	 * 
+	 */
+	protected void updateLocationCustomField(String address, double latitude, double longitude) {
 		
 		Log.debug(">>> updateLocationCustomField ");
 		Post post = getPostObj();
 		Vector customFields = post.getCustomFields();
 		int size = customFields.size();
     	Log.debug("Found "+size +" custom fields");
+    	boolean addressFound = false;
     	boolean latitudeFound = false;
     	boolean longitudeFound = false;
     	boolean locationPublicFound = false;
@@ -137,14 +282,17 @@ public class PostController extends BlogObjectController {
 				Log.debug("key - "+key);
 				Log.debug("value - "+value);	
 				
-				//find the lat/lon field
-				if(key.equalsIgnoreCase("geo_address") || key.equalsIgnoreCase("geo_accuracy")) {
-				
+				if(key.equalsIgnoreCase("geo_accuracy")) {
+					//not used field
 					 customField.remove("key");
 					 customField.remove("value");
 					 Log.debug("Removed custom field : "+ key);
+				}				
+				if(key.equalsIgnoreCase("geo_address")){
+					 Log.debug("Updated custom field : "+ key);
+					 customField.put("value", (address == null ? "" : address));
+					 addressFound = true;
 				}
-				
 				if(key.equalsIgnoreCase("geo_longitude")){
 					 Log.debug("Updated custom field : "+ key);
 					 customField.put("value", String.valueOf(longitude));
@@ -168,6 +316,15 @@ public class PostController extends BlogObjectController {
 			} catch(Exception ex) {
 				Log.error("Error while Elaborating custom field # "+ i);
 			}
+		}
+		
+		if(addressFound == false && address != null)
+		{
+			Hashtable customField1 = new Hashtable();
+			customField1.put("key", "geo_address");
+			customField1.put("value", address); 
+			customFields.addElement(customField1);
+			Log.debug("Added custom field geo_address");
 		}
 		
 		if(longitudeFound == false)

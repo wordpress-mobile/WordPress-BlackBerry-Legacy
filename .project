@@ -6,24 +6,24 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
-			<name>net.rim.eide.RIMResourcesBuilder</name>
+			<name>net.rim.ejde.internal.builder.BlackBerryPreprocessBuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>net.rim.eide.PreprocessBuilder</name>
+			<name>net.rim.ejde.internal.builder.BlackBerryResourcesBuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>net.rim.eide.JavaIncrementalProjectBuilder</name>
+			<name>org.eclipse.jdt.core.javabuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 	</buildSpec>
 	<natures>
-		<nature>net.rim.eide.rimnature</nature>
+		<nature>net.rim.ejde.BlackBerryPreProcessNature</nature>
+		<nature>net.rim.ejde.BlackBerryProjectCoreNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>net.rim.eide.PreprocessingNature</nature>
 	</natures>
 </projectDescription>

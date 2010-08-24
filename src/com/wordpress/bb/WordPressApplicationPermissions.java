@@ -1,3 +1,5 @@
+//#preprocess
+
 package com.wordpress.bb;
 
 import net.rim.device.api.applicationcontrol.ApplicationPermissions;
@@ -47,16 +49,32 @@ public class WordPressApplicationPermissions{
         ApplicationPermissions original = ApplicationPermissionsManager.getInstance().getApplicationPermissions();
         
         if( original.getPermission( ApplicationPermissions.PERMISSION_MEDIA ) == ApplicationPermissions.VALUE_ALLOW &&
-            //original.getPermission( ApplicationPermissions.PERMISSION_IDLE_TIMER ) == ApplicationPermissions.VALUE_ALLOW &&
-            original.getPermission( ApplicationPermissions.PERMISSION_EVENT_INJECTOR ) == ApplicationPermissions.VALUE_ALLOW &&
-            original.getPermission( ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS ) == ApplicationPermissions.VALUE_ALLOW &&
-            original.getPermission( ApplicationPermissions.PERMISSION_FILE_API ) == ApplicationPermissions.VALUE_ALLOW  &&
-        	original.getPermission( ApplicationPermissions.PERMISSION_LOCATION_API ) == ApplicationPermissions.VALUE_ALLOW &&
-        	original.getPermission( ApplicationPermissions.PERMISSION_WIFI ) == ApplicationPermissions.VALUE_ALLOW  &&
-        	original.getPermission( ApplicationPermissions.PERMISSION_INTER_PROCESS_COMMUNICATION ) == ApplicationPermissions.VALUE_ALLOW )
+        		//original.getPermission( ApplicationPermissions.PERMISSION_IDLE_TIMER ) == ApplicationPermissions.VALUE_ALLOW &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_EVENT_INJECTOR ) == ApplicationPermissions.VALUE_ALLOW &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS ) == ApplicationPermissions.VALUE_ALLOW &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_FILE_API ) == ApplicationPermissions.VALUE_ALLOW  &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_LOCATION_API ) == ApplicationPermissions.VALUE_ALLOW &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_WIFI ) == ApplicationPermissions.VALUE_ALLOW  &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_INTER_PROCESS_COMMUNICATION ) == ApplicationPermissions.VALUE_ALLOW )
+
         {
-                // All of the necessary permissions are currently available.  
-                return;
+
+        	//#ifdef IS_OS50_OR_ABOVE
+
+        	//check additional permissions for BB OS5.0 or higher
+        	if( original.getPermission( ApplicationPermissions.PERMISSION_LOCATION_DATA ) == ApplicationPermissions.VALUE_ALLOW &&
+        			original.getPermission( ApplicationPermissions.PERMISSION_ORGANIZER_DATA  ) == ApplicationPermissions.VALUE_ALLOW
+        	) {
+        		return;
+        	}
+        	
+        	//#else
+        	
+        	// All of the necessary permissions are currently available.  
+        	return;
+        	
+        	//#endif
+
         }
 
         // Create a permission request for each of the permissions your application
@@ -72,6 +90,11 @@ public class WordPressApplicationPermissions{
         permRequest.addPermission( ApplicationPermissions.PERMISSION_WIFI );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_INTER_PROCESS_COMMUNICATION );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_MEDIA );
+        
+    	//#ifdef IS_OS50_OR_ABOVE
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_LOCATION_DATA );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_ORGANIZER_DATA  );
+    	//#endif
         
         boolean acceptance = ApplicationPermissionsManager.getInstance().invokePermissionsRequest( permRequest );
         

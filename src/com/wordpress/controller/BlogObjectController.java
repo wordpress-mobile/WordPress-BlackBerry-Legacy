@@ -15,7 +15,9 @@ import net.rim.device.api.system.CodeModuleManager;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
+
 import com.wordpress.bb.WordPress;
+import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.FileUtils;
 import com.wordpress.io.JSR75FileSystem;
@@ -47,11 +49,10 @@ import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.PreviewHTTPConn;
 
 //#ifdef IS_OS50_OR_ABOVE
-import com.wordpress.view.component.FileBrowser.RimFileBrowser;
+import net.rim.device.api.ui.picker.FilePicker;
 //#else
 import com.wordpress.view.component.FileBrowser.RimFileBrowser;
 //#endif
-
 
 
 /**
@@ -429,8 +430,7 @@ public abstract class BlogObjectController extends BaseController {
 			connection.stopConnWork(); //stop the connection if the user click on cancel button
 		}		
 	}
-	
-	
+		
 	public void startLocalPreview(String title, String content, String tags, String categories) {
 
 		
@@ -574,18 +574,73 @@ public abstract class BlogObjectController extends BaseController {
 	
 	protected void displayFileBrowser(int type, String[] extensions, boolean isThumbEnabled) {
 		//#ifdef IS_OS50_OR_ABOVE
-
+		FilePicker fp = FilePicker.getInstance();
+		//note: the filepick doesn't support multiple filters (.jpg|.png)
+		//then, all files type are showed in the filepick and we check the file type in the listener
+		FilePickListener fileListener = new FilePickListener(type);
+		fp.setListener(fileListener);
+		WordPressCore wpCore = WordPressCore.getInstance(); 
+		if(wpCore.getLastFileBrowserPath() != null)
+			fp.setPath(wpCore.getLastFileBrowserPath());
+		fp.show(); 
 		//#else
 		RimFileBrowser oldFileBrowser = new RimFileBrowser(extensions, false);
 		if(type == VIDEO)
 			oldFileBrowser.setPredefinedThumb(Bitmap.getBitmapResource("video_thumb_48.png"));
 		oldFileBrowser.setListener(new OldFileBrowserListener(type));
-       	UiApplication.getUiApplication().pushScreen(oldFileBrowser);					
+		UiApplication.getUiApplication().pushScreen(oldFileBrowser);					
 		//#endif
 	}
-	
-	//#ifdef IS_OS50_OR_ABOVE
 
+	//#ifdef IS_OS50_OR_ABOVE
+	private class FilePickListener implements FilePicker.Listener 
+	{   
+
+		int type = -1;
+
+		public FilePickListener(int multimediaFileType) {
+			type = multimediaFileType;			
+		}
+		
+		public void selectionDone(String theFile)
+		{
+			Log.trace("[FilePickListener]");
+			if (theFile == null){
+				Log.trace("selected none"); 
+			} else {
+				Log.trace("filename: " + theFile);
+				if(!theFile.startsWith("file://")) {
+					theFile = "file://"+ theFile;
+				}
+				
+				//retrieve the correct file type
+				String[] split = StringUtils.split(theFile, ".");
+				String ext = split[split.length - 1];
+				if(!MultimediaUtils.getImageMIMEType(ext).equalsIgnoreCase("")) {
+					type = PHOTO;
+				} else if(!MultimediaUtils.getAudioMIMEType(ext).equalsIgnoreCase("")) {
+					type = AUDIO;
+				} else if(!MultimediaUtils.getVideoMIMEType(ext).equalsIgnoreCase("")) {
+					type = VIDEO;
+				} else {
+					Dialog.alert( _resources.getString(WordPressResource.ERROR_FILETYPE_NOT_SUPPORTED));
+					return;
+				}
+				//store the last used dir
+				int lastPos = theFile.lastIndexOf('/');
+				if(lastPos != -1) {
+					String lastDir = theFile.substring(0, lastPos+1);
+					if (!lastDir.endsWith("/")){
+						lastDir+="/";
+					}
+					WordPressCore wpCore = WordPressCore.getInstance(); 
+					wpCore.setLastFileBrowserPath(lastDir);
+				}
+				//link the file
+				addLinkToMediaObject(theFile, type);	
+			}
+		}
+	}
 	//#else
 	private class OldFileBrowserListener implements RimFileBrowserListener {
 	    
