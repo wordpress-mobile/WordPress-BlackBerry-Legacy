@@ -117,18 +117,17 @@ public class PostController extends BlogObjectController {
 					double latitude = coordinates.getLatitude();
 					double longitude = coordinates.getLongitude();
 					updateLocationCustomField(address, latitude, longitude);
+					if(sentAfterPosition) {
+						sendPostToBlog();
+					} else {
+						saveDraftPost();
+					}
 				} else {
-					updateLocationCustomField(address);
+					displayError("Location data is currently unavailable.");
+					return;
 				}
-
-				if(sentAfterPosition) {
-					sendPostToBlog();
-				} else {
-					saveDraftPost();
-				}
-
 			} else {
-				displayError("Location data is currently unavailable");
+				displayError("Location data is currently unavailable.");
 				return;
 			}
 		}
@@ -171,89 +170,7 @@ public class PostController extends BlogObjectController {
 	}
 	//#endif
 
-	
-	/**
-	 * Add or upgrade the location custom tags
-	 * 
-	 */
-	protected void updateLocationCustomField(String address) {
-		
-		Log.debug(">>> updateLocationCustomField(String address) ");
-		Post post = getPostObj();
-		Vector customFields = post.getCustomFields();
-		int size = customFields.size();
-    	Log.debug("Found "+size +" custom fields");
-    	boolean addressFound = false;
-    	boolean locationPublicFound = false;
-    	
-		for (int i = 0; i <size; i++) {
-			Log.debug("Elaborating custom field # "+ i);
-			try {
-				Hashtable customField = (Hashtable)customFields.elementAt(i);
-				
-				String ID = (String)customField.get("id");
-				String key = (String)customField.get("key");
-				String value = (String)customField.get("value");
-				Log.debug("id - "+ID);
-				Log.debug("key - "+key);
-				Log.debug("value - "+value);	
-				
-				if(key.equalsIgnoreCase("geo_accuracy") || 
-				   key.equalsIgnoreCase("geo_longitude") ||
-				   key.equalsIgnoreCase("geo_latitude")
-				) {
-					//not used field
-					 customField.remove("key");
-					 customField.remove("value");
-					 Log.debug("Removed custom field : "+ key);
-				}				
-				if(key.equalsIgnoreCase("geo_address")){
-					 Log.debug("Updated custom field : "+ key);
-					 customField.put("value", (address == null ? "" : address));
-					 addressFound = true;
-				}
-				//geo_public
-				if( key.equalsIgnoreCase("geo_public")){
-					Log.debug("Updated custom field : "+ key);
-					if(post.isLocationPublic())
-						customField.put("value", String.valueOf(1));
-					else
-						customField.put("value", String.valueOf(0));
-					locationPublicFound = true;
-				}
-				
-			} catch(Exception ex) {
-				Log.error("Error while Elaborating custom field # "+ i);
-			}
-		}
-		
-		if(addressFound == false && address != null)
-		{
-			Hashtable customField1 = new Hashtable();
-			customField1.put("key", "geo_address");
-			customField1.put("value", address); 
-			customFields.addElement(customField1);
-			Log.debug("Added custom field geo_address");
-		}
-			
-		//add geo_public field
-		if(locationPublicFound == false)
-		{
-			Hashtable customField3 = new Hashtable();
-			customField3.put("key", "geo_public"); 
-			if(post.isLocationPublic())
-				customField3.put("value", String.valueOf(1));
-			else
-				customField3.put("value", String.valueOf(0));
-			customFields.addElement(customField3);
-			
-			Log.debug("Added custom field geo_public");
-		}
-		
-		Log.debug("<<< updateLocationCustomField(String address) ");
-	}
-	
-	
+
 	/**
 	 * Add or upgrade the location custom tags
 	 * 

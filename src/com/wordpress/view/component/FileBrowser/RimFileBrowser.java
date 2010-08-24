@@ -269,7 +269,6 @@ public class RimFileBrowser extends PopupScreen {
             listField.changeDirectory(0);
             
             wpCore.setLastFileBrowserPath(currDirName);
-            	
         }
     }
     

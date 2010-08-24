@@ -1,10 +1,18 @@
 Q How do I set up the WordPress for Blackberry development environment?
 
-A: On a computer that meets the requirements described here, perform the following:
+A: 
+ 
+Technical requirements
+- Eclipse 3.5 classic
+- 32-bit Windows® XP, Windows Vista or Windows 7 (Note: 64-bit versions require 32-bit Java and Eclipse)
+- PC with Intel Pentium 4 processor or compatible (2.5 GHz or higher, 2 GB RAM, 1.5 GB HD free)
+- Java SE Development Kit (JDK) 6, update 10 or later.
 
-   1. If you do not already have eclipse installed, download and extract the Windows version of the Eclipse IDE for Java Developers.
+On a computer that meets the requirements described above, perform the following:
+
+   1. If you do not already have eclipse installed, download and extract the Windows version of the Eclipse Classic.
    2. Download and install the BlackBerry JDE Plug-in for Eclipse (registration required). 
-   (Note: To build WordPress for Blackberry, a BlackBerry Component Pack for JDE v4.5.0.16 or higher is required)
+   (http://na.blackberry.com/eng/developers/javaappdev/javaupdate.jsp)
    3. Install Subclipse SVN Plug-in for Eclipse.
    4. Open Eclipse and create a new BlackBerry project to initialize the BlackBerry workspace.
           * Open the File menu and select New -> Project

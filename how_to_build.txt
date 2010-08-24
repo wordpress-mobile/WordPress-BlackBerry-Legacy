@@ -1,6 +1,6 @@
 WordPress for BlackBerry Building HOW-TO:
 ---------------------------------------
-This file contains the instructions to build the source code provided with the zip package wordpress-src-1.0.0.zip
+This file contains the instructions to build the source code
 
 1. Required tools
 
@@ -8,7 +8,8 @@ This file contains the instructions to build the source code provided with the z
     - Download and install Sun Java Wireless Toolkit: http://java.sun.com/products/sjwtoolkit/ (version 2.5.2)
     - Download and install Blackberry JDE ComponentPack 4.5.0_4.5.0.16 or higher : http://na.blackberry.com/eng/developers/ 
     - Download and install Blackberry JDE 4.7: http://na.blackberry.com/eng/developers/ (version 4.7)
-    - Download and install Eclipse for Java Developer and the Blackberry JDE Plug-in for Eclipse 1.1 or higher. 
+    - Download and install Blackberry JDE 5.0: http://na.blackberry.com/eng/developers/ (version 5.0)
+    - Download and install Eclipse 3.5 Classic and the Blackberry JDE Plug-in for Eclipse 1.1 or higher. 
 
 Note: Some Ant build tasks are using feature from svnant-1.3.0 library. (to read informations inside svn properties files). 
 You should checkout this project from svn server using Subversion 1.6.x client features and working copy format.
@@ -35,8 +36,11 @@ If you checkout the project using a previous svn client, such as 1.5.x, you shou
       or if you are using eclipse JDE Plug-in
       C:/opt/eclipseRIM4.2.1/plugins/net.rim.eide.componentpack4.5.0_4.5.0.16/components
   
-    - rim.home.os47=<JDE 4.7 -home >
+    - rim.home.os47=<JDE 4.7 - home >
       Example: rim.home=C:/Program Files/Research In Motion/BlackBerry JDE 4.7.0
+
+    - rim.home.os50=<JDE 5.0 - home >
+      Example: rim.home=C:/Program Files/Research In Motion/BlackBerry JDE 5.0.0
 
     - Your signature password. This password is provided by RIM together with
       the certificates.
@@ -57,7 +61,7 @@ If you checkout the project using a previous svn client, such as 1.5.x, you shou
       os47.
 
     - <blackberry-dir>/output/xxx/release/ota contains the cod files suitable for
-      OTA installation. xxx can be os45 or os47.
+      OTA installation. xxx can be os45, os47 or os50.
 
     In both directories there is a proper jad file for the installation.
 

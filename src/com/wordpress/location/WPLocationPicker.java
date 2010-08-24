@@ -43,6 +43,7 @@ public class WPLocationPicker {
 			}
 			catch(IllegalStateException ise)
 			{
+				
 			}
 
 			locationPickersVector.addElement(ContactsLocationPicker.getInstance(true));

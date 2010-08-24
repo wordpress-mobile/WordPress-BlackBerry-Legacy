@@ -119,19 +119,13 @@ public class FrontController {
 				Log.debug("key - "+key);
 				Log.debug("value - "+value);	
 				
-				if(key.equalsIgnoreCase("geo_longitude")) {
+				if(key.equalsIgnoreCase("geo_longitude") ||
+				   key.equalsIgnoreCase("geo_latitude") ||
+				   key.equalsIgnoreCase("geo_address")
+				) {
 					post.setLocation(true); //set the post as geo-tagged
 					Log.debug("Location Custom Field  found!");
 				} 
-				if(key.equalsIgnoreCase("geo_latitude")) {
-					post.setLocation(true); //set the post as geo-tagged
-					Log.debug("Location Custom Field  found!");
-				}
-				//find the lat/lon field
-				if(key.equalsIgnoreCase("geo_address")) {
-					post.setLocation(true); //set the post as geo-tagged
-					Log.debug("Location Custom Field  found!");
-				}
 				
 			} catch(Exception ex) {
 				Log.error("Error while Elaborating custom field # "+ i);
