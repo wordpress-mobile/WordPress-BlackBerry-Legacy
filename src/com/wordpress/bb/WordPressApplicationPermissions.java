@@ -63,7 +63,9 @@ public class WordPressApplicationPermissions{
 
         	//check additional permissions for BB OS5.0 or higher
         	if( original.getPermission( ApplicationPermissions.PERMISSION_LOCATION_DATA ) == ApplicationPermissions.VALUE_ALLOW &&
-        			original.getPermission( ApplicationPermissions.PERMISSION_ORGANIZER_DATA  ) == ApplicationPermissions.VALUE_ALLOW
+        		original.getPermission( ApplicationPermissions.PERMISSION_ORGANIZER_DATA  ) == ApplicationPermissions.VALUE_ALLOW &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_CROSS_APPLICATION_COMMUNICATION  ) == ApplicationPermissions.VALUE_ALLOW
+        			 
         	) {
         		return;
         	}
@@ -94,6 +96,7 @@ public class WordPressApplicationPermissions{
     	//#ifdef IS_OS50_OR_ABOVE
         permRequest.addPermission( ApplicationPermissions.PERMISSION_LOCATION_DATA );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_ORGANIZER_DATA  );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_CROSS_APPLICATION_COMMUNICATION  );
     	//#endif
         
         boolean acceptance = ApplicationPermissionsManager.getInstance().invokePermissionsRequest( permRequest );

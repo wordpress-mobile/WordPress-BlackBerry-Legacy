@@ -39,11 +39,15 @@ public class WPLocationPicker {
 			try       
 			{
 				mapsLocationPicker = MapsLocationPicker.getInstance();       
-				//locationPickersVector.addElement(mapsLocationPicker);
+				locationPickersVector.addElement(mapsLocationPicker);
 			}
 			catch(IllegalStateException ise)
 			{
-				
+				//bb maps is not installed
+			}
+			catch(SecurityException see)
+			{
+				//SecurityException - - if BlackBerry Maps is disabled by ITPolicy 
 			}
 
 			locationPickersVector.addElement(ContactsLocationPicker.getInstance(true));

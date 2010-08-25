@@ -5,6 +5,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.location.AddressInfo;
 import javax.microedition.location.Landmark;
 import javax.microedition.location.Location;
 import javax.microedition.location.LocationException;
@@ -43,6 +44,7 @@ import com.wordpress.xmlrpc.post.NewPostConn;
 
 
 //#ifdef IS_OS50_OR_ABOVE
+import net.rim.device.api.lbs.picker.AbstractLocationPicker;
 import net.rim.device.api.lbs.picker.LocationPicker;
 import net.rim.device.api.lbs.picker.LocationPicker.Picker;
 import com.wordpress.location.WPLocationPicker;
@@ -113,6 +115,7 @@ public class PostController extends BlogObjectController {
 			{
 				String address = location.getDescription();
 				QualifiedCoordinates coordinates = location.getQualifiedCoordinates();
+				AddressInfo ai = location.getAddressInfo();
 				if(coordinates != null ) {
 					double latitude = coordinates.getLatitude();
 					double longitude = coordinates.getLongitude();
@@ -122,10 +125,57 @@ public class PostController extends BlogObjectController {
 					} else {
 						saveDraftPost();
 					}
-				} else {
-					displayError("Location data is currently unavailable.");
+				}  else if (ai != null) {
+					StringBuffer locationsearch = new StringBuffer();
+					if (picker.getLocationPickerName().equals("From Contacts...") == false && location.getName() != null && location.getName().length() > 0) {
+						locationsearch.append(location.getName());
+					}
+					if (ai.getField(AddressInfo.STREET) != null && ai.getField(AddressInfo.STREET).length() > 0) {
+						if (locationsearch.length() > 0) {
+							locationsearch.append(", ");
+						}
+						locationsearch.append(ai.getField(AddressInfo.STREET));
+						System.out.println("Street: " + ai.getField(AddressInfo.STREET));
+					}
+					if (ai.getField(AddressInfo.CITY) != null && ai.getField(AddressInfo.CITY).length() > 0) {
+						if (locationsearch.length() > 0) {
+							locationsearch.append(", ");
+						}
+						locationsearch.append(ai.getField(AddressInfo.CITY));
+						System.out.println("City: " + ai.getField(AddressInfo.CITY));
+					}
+					if (ai.getField(AddressInfo.STATE) != null && ai.getField(AddressInfo.STATE).length() > 0) {
+						if (locationsearch.length() > 0) {
+							locationsearch.append(", ");
+						}
+						locationsearch.append(ai.getField(AddressInfo.STATE));
+						System.out.println("State: " + ai.getField(AddressInfo.STATE));
+					}
+					if (ai.getField(AddressInfo.POSTAL_CODE) != null && ai.getField(AddressInfo.POSTAL_CODE).length() > 0) {
+						if (locationsearch.length() > 0) {
+							locationsearch.append(", ");
+						}
+						locationsearch.append(ai.getField(AddressInfo.POSTAL_CODE));
+						System.out.println("Zip code: " + ai.getField(AddressInfo.POSTAL_CODE));
+					}
+					if (ai.getField(AddressInfo.COUNTRY) != null && ai.getField(AddressInfo.COUNTRY).length() > 0) {
+						if (locationsearch.length() > 0) {
+							locationsearch.append(", ");
+						}
+						locationsearch.append(ai.getField(AddressInfo.COUNTRY));
+					}
+					
+					
+					displayError("Location data doesn't contain GPS coordinate information");
 					return;
 				}
+				
+			/*	try {
+					((AbstractLocationPicker)picker).close();
+				} catch (Exception e) { 
+					Log.error(e, "((AbstractLocationPicker)picker).close(); error");
+				}
+				*/
 			} else {
 				displayError("Location data is currently unavailable.");
 				return;

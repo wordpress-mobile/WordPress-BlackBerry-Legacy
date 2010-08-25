@@ -40,16 +40,16 @@ public class BlogUpdateConn extends BlogConn  {
 			if ( connResponse.getResponseObject() instanceof XmlRpcException) {
 				//do nothing. here we capturing all permission denied for blog...
 				//or xmlrpc method missing (old wp)"
-				XmlRpcException responseObject = (XmlRpcException) connResponse.getResponseObject();
+			/*	XmlRpcException responseObject = (XmlRpcException) connResponse.getResponseObject();
 				if(responseObject.code == 403) { //bad login 
 					connResponse.setResponseObject(new Exception(_resources.getString(WordPressResource.MESSAGE_BAD_USERNAME_PASSWORD)));
 					connResponse.setResponse("");
 					throw new Exception(_resources.getString(WordPressResource.MESSAGE_BAD_USERNAME_PASSWORD));
 				}
-			} /*else if ( connResponse.getResponseObject() instanceof IOException) {
+			} else if ( connResponse.getResponseObject() instanceof IOException) {
 				//if IO exception occurred we should exit immediately 
 				throw (Exception) connResponse.getResponseObject();
-			}*/ else {
+			*/} else {
 				Exception currentError = (Exception) connResponse.getResponseObject();
 				isError = true;
 				if(currentError != null) {

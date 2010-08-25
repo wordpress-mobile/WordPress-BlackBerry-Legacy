@@ -588,7 +588,7 @@ public class BlogDAO implements BaseDAO {
 		}
 		
 		
-		//since version 1.4.X
+		//since version 1.4.1
         //reading blog options
 		try {
             Hashtable options= (Hashtable)ser.deserialize();
