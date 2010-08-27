@@ -31,7 +31,7 @@ public class Tools {
 		invoc.setAction(ContentHandler.ACTION_OPEN);
 		
 		if(!fileURL.startsWith("file://")){
-			Tools.getNativeBrowserSession(fileURL);
+			Tools.openNativeBrowser(fileURL);
 			return;
 		} 
 		
@@ -43,7 +43,7 @@ public class Tools {
 		
 			if(candidates.length == 0) {
 				Log.trace("there is no ext-app that could open this file, using browser");
-				Tools.getNativeBrowserSession(fileURL);
+				Tools.openNativeBrowser(fileURL);
 				return;
 			} else if(candidates.length == 1) { //there is 1 only ext-app that could open this file
     			Log.trace("there is 1 only ext-app that could open this file");
@@ -66,7 +66,7 @@ public class Tools {
 			}
 		} catch (Exception e) {
 			Log.error(e, "Error while finding a chapi endpoint");
-			Tools.getNativeBrowserSession(fileURL);
+			Tools.openNativeBrowser(fileURL);
 			return;
 		}
 	}
@@ -138,7 +138,7 @@ public class Tools {
 		invoc.setAction(ContentHandler.ACTION_OPEN);
 		
 		if(!url.startsWith("http")){
-			Tools.getNativeBrowserSession(url);
+			Tools.openNativeBrowser(url);
 			return;
 		} 
 		
@@ -150,7 +150,7 @@ public class Tools {
 			
 			//check the #s of apps that can handle html file
 			if(candidates.length == 0) {
-				Tools.getNativeBrowserSession(url);
+				Tools.openNativeBrowser(url);
 				return;
 			}
 					
@@ -168,7 +168,7 @@ public class Tools {
 			newCandidates.copyInto(candidates);
 
 			if(candidates.length == 0) {
-				Tools.getNativeBrowserSession(url);
+				Tools.openNativeBrowser(url);
 				return;
 			}
 
@@ -189,19 +189,19 @@ public class Tools {
 					registry.invoke(invoc);
 				} else {
 					//native browser
-					Tools.getNativeBrowserSession(url);
+					Tools.openNativeBrowser(url);
 				}
 			}
 	
 		} catch (Exception e) {
 			Log.error(e, "Error while finding a chapi endpoint");
-			Tools.getNativeBrowserSession(url);
+			Tools.openNativeBrowser(url);
 			return;
 		}
 	}	
 	
 	
-	public static synchronized BrowserSession getNativeBrowserSession(String URL) {
+	public static synchronized BrowserSession openNativeBrowser(String URL) {
 		// Get the default sessionBrowserSession
     	BrowserSession browserSession = Browser.getDefaultSession();
     	// now launch the URL

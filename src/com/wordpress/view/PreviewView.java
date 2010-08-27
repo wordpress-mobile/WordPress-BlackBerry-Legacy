@@ -1,6 +1,8 @@
+//#preprocess
 package com.wordpress.view;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import javax.microedition.io.HttpConnection;
 import javax.microedition.io.InputConnection;
@@ -26,8 +28,16 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.utils.LocalHttpConn;
 import com.wordpress.utils.SecondaryResourceFetchThread;
+import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.ConnectionInProgressView;
+
+
+//#ifdef IS_OS50_OR_ABOVE
+import net.rim.device.api.browser.field2.BrowserField;
+import net.rim.device.api.browser.field2.BrowserFieldConfig;
+//#endif
+
 
 public class PreviewView  extends BaseView implements RenderingApplication {
 	ConnectionInProgressView connectionProgressView=null;
@@ -37,9 +47,51 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 	private InputConnection  _currentConnection;
 	private BrowserContent browserContent = null;
 	
-	public PreviewView(String html, String encoding) {
+	
+	public PreviewView(byte[] data, String contentType) {
 		super(_resources.getString(WordPressResource.TITLE_PREVIEW));
+		
+		String encoding = null;
+		
+		if(contentType != null && contentType.indexOf("charset") > -1 ) {
+			String[] encodings = StringUtils.split(contentType, "=");
+			encoding = encodings[1];
+			encoding = StringUtils.replaceAll(encoding, ";", "");
+			
+			if(!StringUtils.isDeviceSupportEncoding(encoding)){
+				//set encoding to UTF-8 if response encoding is not supported
+				Log.trace("Response charset is not supported by device");
+				encoding = "UTF-8";
+			}
+		} else {
+			Log.debug("Response Content-type without charset");
+			encoding = "UTF-8";
+		}
+		Log.trace("Selected Encoding: "+ encoding);
+		
+		String html = "";
+		try {
+			html = new String(data, encoding);
+		} catch (UnsupportedEncodingException e) {
+			//never fall here
+		}
+		
+		//#ifdef IS_OS50_OR_ABOVE
+		
+		BrowserFieldConfig myBrowserFieldConfig = new BrowserFieldConfig();
+		myBrowserFieldConfig.setProperty(BrowserFieldConfig.NAVIGATION_MODE,BrowserFieldConfig.NAVIGATION_MODE_POINTER);
+		myBrowserFieldConfig.setProperty(BrowserFieldConfig.ALLOW_CS_XHR,Boolean.TRUE);
+		myBrowserFieldConfig.setProperty(BrowserFieldConfig.ENABLE_GEARS,Boolean.TRUE);
+		BrowserField browserField = new BrowserField(myBrowserFieldConfig);
+		if (contentType!= null) {
+			browserField.displayContent(data, contentType, "http://localhost");
+		} else {
+			browserField.displayContent(html, "http://localhost");
+		}
+		add(browserField);
 				
+		//#else
+		
 		_renderingSession = RenderingSession.getNewInstance();        
         // Enable javascript.
        // _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.JAVASCRIPT_ENABLED, true);
@@ -61,9 +113,38 @@ public class PreviewView  extends BaseView implements RenderingApplication {
         	thread.setEncoding(encoding);
         }
         
-        thread.start();       
+        thread.start();  
+        //#endif
 	}
 	
+	//#ifndef IS_OS50_OR_ABOVE
+	
+	//local preview on devices running OS < 5.0
+	public PreviewView(String html) {
+		super(_resources.getString(WordPressResource.TITLE_PREVIEW));
+		
+		_renderingSession = RenderingSession.getNewInstance();        
+        // Enable javascript.
+       // _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.JAVASCRIPT_ENABLED, true);
+		
+		_renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ENABLE_CSS, true);
+        _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.CSS_MEDIA_TYPE, "screen");
+        _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ENABLE_IMAGE_SAVING, false);
+        _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ENABLE_AUDIO_SAVING, false);
+         
+        _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ADD_IMAGE_ADDRESS_MENU_ITEM, false);
+        _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ADD_LINK_ADDRESS_MENU_ITEM, false);
+        _renderingSession.getRenderingOptions().setProperty(RenderingOptions.CORE_OPTIONS_GUID,  RenderingOptions.ALLOW_POPUPS, false);
+
+        PrimaryResourceFetchThread thread = new PrimaryResourceFetchThread(html, null, this);
+              
+        thread.start();  
+	}
+	//#endif
+	
+	public BaseController getController() {
+		return null;
+	}
 	
 	  public void processConnection(InputConnection connection, Event e) 
 	    {
@@ -307,10 +388,8 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 	
 
 	
-	public BaseController getController() {
-		return null;
-	}
-		
+	//#ifndef IS_OS50_OR_ABOVE
+		    
 	protected void makeMenu(Menu menu, int instance) {
 		menu.deleteAll();
 		// The following will remove the menu items associated with the current
@@ -323,6 +402,13 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 		// call "super.makeMenu(menu, instance);" here the default menu
 		// items would be added (Close, Hide, etc...).
 	}
+    
+	//override onClose() to stop all internet activity immediatly 
+	public boolean onClose()   {
+		SecondaryResourceFetchThread.stopAllActivity();
+		return super.onClose();
+    }
+
 		
 	private class PrimaryResourceFetchThread extends Thread {
 	    
@@ -355,11 +441,5 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 	    }
 	    
 	}
-		
-    //override onClose() to stop all internet activity immediatly 
-	public boolean onClose()   {
-		SecondaryResourceFetchThread.stopAllActivity();
-		return super.onClose();
-    }
-	
+	//#endif
 }

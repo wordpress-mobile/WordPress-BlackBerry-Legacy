@@ -11,12 +11,17 @@ import javax.microedition.location.Location;
 import javax.microedition.location.LocationException;
 import javax.microedition.location.QualifiedCoordinates;
 
+import org.json.me.JSONArray;
+import org.json.me.JSONObject;
+
+import net.rim.blackberry.api.browser.URLEncodedPostData;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.system.ControlledAccessException;
 
 import com.wordpress.bb.WordPress;
 import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.DraftDAO;
@@ -34,10 +39,12 @@ import com.wordpress.view.NewCategoryView;
 import com.wordpress.view.PostCategoriesView;
 import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PostView;
+import com.wordpress.view.component.SelectorPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
+import com.wordpress.xmlrpc.HTTPGetConn;
 import com.wordpress.xmlrpc.NewCategoryConn;
 import com.wordpress.xmlrpc.post.EditPostConn;
 import com.wordpress.xmlrpc.post.NewPostConn;
@@ -135,28 +142,28 @@ public class PostController extends BlogObjectController {
 							locationsearch.append(", ");
 						}
 						locationsearch.append(ai.getField(AddressInfo.STREET));
-						System.out.println("Street: " + ai.getField(AddressInfo.STREET));
+						Log.trace("Street: " + ai.getField(AddressInfo.STREET));
 					}
 					if (ai.getField(AddressInfo.CITY) != null && ai.getField(AddressInfo.CITY).length() > 0) {
 						if (locationsearch.length() > 0) {
 							locationsearch.append(", ");
 						}
 						locationsearch.append(ai.getField(AddressInfo.CITY));
-						System.out.println("City: " + ai.getField(AddressInfo.CITY));
+						Log.trace("City: " + ai.getField(AddressInfo.CITY));
 					}
 					if (ai.getField(AddressInfo.STATE) != null && ai.getField(AddressInfo.STATE).length() > 0) {
 						if (locationsearch.length() > 0) {
 							locationsearch.append(", ");
 						}
 						locationsearch.append(ai.getField(AddressInfo.STATE));
-						System.out.println("State: " + ai.getField(AddressInfo.STATE));
+						Log.trace("State: " + ai.getField(AddressInfo.STATE));
 					}
 					if (ai.getField(AddressInfo.POSTAL_CODE) != null && ai.getField(AddressInfo.POSTAL_CODE).length() > 0) {
 						if (locationsearch.length() > 0) {
 							locationsearch.append(", ");
 						}
 						locationsearch.append(ai.getField(AddressInfo.POSTAL_CODE));
-						System.out.println("Zip code: " + ai.getField(AddressInfo.POSTAL_CODE));
+						Log.trace("Zip code: " + ai.getField(AddressInfo.POSTAL_CODE));
 					}
 					if (ai.getField(AddressInfo.COUNTRY) != null && ai.getField(AddressInfo.COUNTRY).length() > 0) {
 						if (locationsearch.length() > 0) {
@@ -164,25 +171,132 @@ public class PostController extends BlogObjectController {
 						}
 						locationsearch.append(ai.getField(AddressInfo.COUNTRY));
 					}
+					Log.trace("Search String: " + locationsearch.toString());
 					
+					URLEncodedPostData urlenc  = new URLEncodedPostData(URLEncodedPostData.DEFAULT_CHARSET, true);
+					urlenc.append("address", locationsearch.toString());
+					urlenc.append("sensor", "false");
 					
-					displayError("Location data doesn't contain GPS coordinate information");
+					Log.trace("Google geocoding service invoked : " + WordPressInfo.GOOGLE_GEOCODING_API_URL+"json?"+ urlenc.toString());
+					final HTTPGetConn connection = new HTTPGetConn(WordPressInfo.GOOGLE_GEOCODING_API_URL+"json?"+ urlenc.toString(), "", "");
+					
+			        connection.addObserver(new GoogleGecodingServiceCallBack(connection, sentAfterPosition));  
+			        connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_INPROGRESS));	       
+			        connection.startConnWork(); //starts connection
+							
+					int choice = connectionProgressView.doModal();
+					if(choice==Dialog.CANCEL) {
+						connection.stopConnWork(); //stop the connection if the user click on cancel button
+					}
+					
+				} else {
+					displayError("Location data does not contain any valid information");
 					return;
 				}
-				
-			/*	try {
-					((AbstractLocationPicker)picker).close();
-				} catch (Exception e) { 
-					Log.error(e, "((AbstractLocationPicker)picker).close(); error");
-				}
-				*/
-			} else {
-				displayError("Location data is currently unavailable.");
-				return;
-			}
+			} 
 		}
 	}
+	
+	private class GoogleGecodingServiceCallBack implements Observer {
 
+		private final HTTPGetConn connection;
+		private boolean sentAfterPosition = false;
+		
+		public GoogleGecodingServiceCallBack(final HTTPGetConn connection, boolean sendAfterPosition){
+			this.sentAfterPosition = sendAfterPosition;
+			this.connection = connection;
+		}
+
+		public void update(Observable observable, final Object object) {
+
+			dismissDialog(connectionProgressView);
+			BlogConnResponse resp = (BlogConnResponse) object;
+
+			if(resp.isStopped()){
+				return;
+			}
+
+			if (resp.isError()) {
+				final String respMessage = resp.getResponse();
+				displayError(respMessage);
+				return;
+			}
+
+			try {
+				Hashtable[] rv = null;
+				byte[] response = (byte[]) resp.getResponseObject();
+				if(response != null ) {
+
+					if(Log.getDefaultLogLevel() >= Log.TRACE)
+						Log.trace("RESPONSE - " + new String(response));
+
+					Vector searchplace = new Vector();
+
+					JSONObject jsonRespObj = new JSONObject(new String(response));
+					String jsonResponseCode = jsonRespObj.getString("status");
+
+					JSONArray jsonResults = jsonRespObj.getJSONArray("results");
+					for (int x = 0; x < jsonResults.length(); ++x) {
+						JSONObject jsonPlace = jsonResults.getJSONObject(x);
+						String name = jsonPlace.getString("formatted_address");
+						JSONObject geometry  = jsonPlace.getJSONObject("geometry");
+						JSONObject location =  geometry.getJSONObject("location");
+						double lat = location.getDouble("lat");
+						double lng = location.getDouble("lng");
+						Hashtable result = new Hashtable();
+						result.put("formatted_address", name);
+						result.put("lat", new Double(lat));
+						result.put("lng", new Double(lng));
+						searchplace.addElement(result);
+					}
+					rv = new Hashtable[searchplace.size()];
+					searchplace.copyInto(rv);
+				}
+
+				if(rv == null || rv.length==0) {
+					displayError("No locations found");
+				} else {
+					final String[] names = new String[rv.length];
+					for (int i = 0; i < rv.length; i++) {
+						Hashtable result = rv[i];
+						names[i] = (String)result.get("formatted_address");
+					}
+					int selection = -1;
+					final SelectorPopupScreen selScr = new SelectorPopupScreen("Search Results", names);
+
+					UiApplication.getUiApplication().invokeAndWait(new Runnable() {
+						public void run() {
+							selScr.pickItem();
+						}
+					});
+
+					selection = selScr.getSelectedItem();
+					Log.trace("Selected index: " + selection);
+					if(selection != -1) {
+						Hashtable selectedLocationData =  rv[selection];
+						
+						double latitude = ((Double)selectedLocationData.get("lat")).doubleValue();
+						double longitude = ((Double)selectedLocationData.get("lng")).doubleValue();
+						String addr = ((String)selectedLocationData.get("formatted_address"));
+						updateLocationCustomField(addr, latitude, longitude);
+						
+						UiApplication.getUiApplication().invokeAndWait(new Runnable() {
+							public void run() {
+								if(sentAfterPosition) {
+									sendPostToBlog();
+								} else {
+									saveDraftPost();
+								}
+							}
+						});
+					} //end selection
+				}
+			} catch (Exception e) {
+				displayError("Error while retrieving location data: "+e.getMessage());
+				return;
+			}						
+		}
+	} 
 	//#else
 	private class GPSLocationCallBack implements Observer {
 		private boolean sentAfterPosition = false;

@@ -89,7 +89,7 @@ public class CommentView extends StandardBaseView {
 			authorUrl = new BasicEditField(_resources.getString(WordPressResource.LABEL_URL)+": ", "", 1024, Field.EDITABLE) {
 				protected MenuItem myContextMenuItemA = new MenuItem(_resources.getString(WordPressResource.LABEL_VISIT_SITE), 10, 2) {
 					public void run() {
-						Tools.getNativeBrowserSession(getText());
+						Tools.openNativeBrowser(getText());
 					}
 				};
 
@@ -241,7 +241,7 @@ public class CommentView extends StandardBaseView {
 		 FieldChangeListener listener = new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {
 				 if(!authorUrl.getText().trim().equals("")) {
-					 Tools.getNativeBrowserSession(authorUrl.getText());
+					 Tools.openNativeBrowser(authorUrl.getText());
 				 }
 			 }
 		 };
@@ -625,7 +625,7 @@ public class CommentView extends StandardBaseView {
 
 				} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
 					Log.trace("Input came from a four way navigation input device");
-					Tools.getNativeBrowserSession(largePhotoURL);
+					Tools.openNativeBrowser(largePhotoURL);
 					return true;
 				}
 				return super.navigationClick(status, time);
@@ -641,7 +641,7 @@ public class CommentView extends StandardBaseView {
 				Log.trace(">>> keyChar");
 				// Close this screen if escape is selected.
 				if (c == Characters.ENTER) {
-					Tools.getNativeBrowserSession(largePhotoURL);
+					Tools.openNativeBrowser(largePhotoURL);
 					return true;
 				}
 				return super.keyChar(c, status, time);
@@ -655,7 +655,7 @@ public class CommentView extends StandardBaseView {
 				// Get the screen coordinates of the touch event
 				if(eventCode == TouchEvent.CLICK) {
 					Log.trace("TouchEvent.CLICK");
-					Tools.getNativeBrowserSession(largePhotoURL);
+					Tools.openNativeBrowser(largePhotoURL);
 					return true;
 				} 
 				return false; 
@@ -664,7 +664,7 @@ public class CommentView extends StandardBaseView {
 
 			protected MenuItem myContextMenuItemA = new MenuItem(_resources.getString(WordPressResource.MENUITEM_OPEN), 10, 2) {
 				public void run() {
-					Tools.getNativeBrowserSession(largePhotoURL);
+					Tools.openNativeBrowser(largePhotoURL);
 				}
 			};
 

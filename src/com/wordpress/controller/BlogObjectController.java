@@ -2,6 +2,7 @@
 package com.wordpress.controller;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -474,7 +475,16 @@ public abstract class BlogObjectController extends BaseController {
 			html = StringUtils.replaceAll(html, "!$categories$!", ""); //The pages have no categories
 		}
 		
-		UiApplication.getUiApplication().pushScreen(new PreviewView(html, null));	
+		//#ifdef IS_OS50_OR_ABOVE
+		try {
+			UiApplication.getUiApplication().pushScreen(new PreviewView(html.getBytes("UTF-8"), "text/html; charset=UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			UiApplication.getUiApplication().pushScreen(new PreviewView(html));
+		}
+		//#else
+		UiApplication.getUiApplication().pushScreen(new PreviewView(html));	
+		//#endif
+	
 	}
 	
 	protected String getTheSignaturePreview() {
@@ -503,44 +513,23 @@ public abstract class BlogObjectController extends BaseController {
 					dismissDialog(connectionProgressView);
 					BlogConnResponse resp= (BlogConnResponse) object;
 					
-					String html = null;
-					
 					if(resp.isStopped()){
 						return;
 					}
 					
 					if(!resp.isError()) {
-						String encoding = null;
+						String contentType = null;
 						try {
 							Hashtable responseHash =  (Hashtable) resp.getResponseObject();
 							byte[] responseContent  = (byte[])responseHash.get("data");
 							Hashtable responseHeaders =  (Hashtable)responseHash.get("headers");
-
 							Log.trace("Finding respose content type from http header");		
-				    		String contentType = (String) responseHeaders.get("Content-Type");
-				    		if(contentType != null && contentType.indexOf("charset") > -1 ) {
-				    			String[] encodings = StringUtils.split(contentType, "=");
-				    			encoding = encodings[1];
-				    			encoding = StringUtils.replaceAll(encoding, ";", "");
-				    			
-				    			if(!StringUtils.isDeviceSupportEncoding(encoding)){
-				    				//set encoding to UTF-8 if response encoding is not supported
-				    				Log.trace("Response charset is not supported by device");
-				    				encoding = "UTF-8";
-				    			}
-				    		} else {
-				    			Log.debug("Response Content-type without charset");
-				    			encoding = "UTF-8";
-				    		}
-				    		Log.trace("Selected Encoding: "+ encoding);
-							html = new String(responseContent, encoding);
+				    		contentType = (String) responseHeaders.get("Content-Type");
+				    		UiApplication.getUiApplication().pushScreen(new PreviewView(responseContent, contentType));
 						} catch (Exception e) {
 							startLocalPreview(title,content,tags, categories);
 							return;
 						}
-						
-						UiApplication.getUiApplication().pushScreen(new PreviewView(html, encoding));
-						
 					} else {
 						startLocalPreview(title,content,tags, categories);
 					}
