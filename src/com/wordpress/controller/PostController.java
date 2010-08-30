@@ -89,11 +89,11 @@ public class PostController extends BlogObjectController {
 		return (Post)blogEntry;
 	}
 		
-	public void startGeoTagging(boolean sentAfterPosition) {
+	public void startGeoTagging() {
 		//#ifdef IS_OS50_OR_ABOVE
 		try{
 			WPLocationPicker locationPicker = new WPLocationPicker();
-			locationPicker.setListener(new WPLocationPickerListener(sentAfterPosition));
+			locationPicker.setListener(new WPLocationPickerListener());
 			locationPicker.show();
 		} catch (ControlledAccessException permExp) {
 			displayError("The application does not have PERMISSION_LOCATION_DATA permission set to Allow");
@@ -104,26 +104,21 @@ public class PostController extends BlogObjectController {
 		}
 		//#else
 		Gps gps = new Gps();
-		gps.addObserver(new GPSLocationCallBack(sentAfterPosition));
+		gps.addObserver(new GPSLocationCallBack());
 		gps.findMyPosition();
 		//#endif
 	}
 	
 	//#ifdef IS_OS50_OR_ABOVE 
 	private class WPLocationPickerListener implements LocationPicker.Listener {
-		private boolean sentAfterPosition = false;
-
-		WPLocationPickerListener (boolean sendAfterPosition){
-			this.sentAfterPosition = sendAfterPosition;
-		}
-
+	
 		public void locationPicked(Picker picker, Landmark location) {
 			if(location != null)
 			{
 				String address = location.getDescription();
 				QualifiedCoordinates coordinates = location.getQualifiedCoordinates();
 				AddressInfo ai = location.getAddressInfo();
-				if(coordinates != null ) {
+			/*	if(coordinates != null ) {
 					double latitude = coordinates.getLatitude();
 					double longitude = coordinates.getLongitude();
 					updateLocationCustomField(address, latitude, longitude);
@@ -132,7 +127,7 @@ public class PostController extends BlogObjectController {
 					} else {
 						saveDraftPost();
 					}
-				}  else if (ai != null) {
+				}  else*/ if (ai != null) {
 					StringBuffer locationsearch = new StringBuffer();
 					if (picker.getLocationPickerName().equals("From Contacts...") == false && location.getName() != null && location.getName().length() > 0) {
 						locationsearch.append(location.getName());
@@ -180,7 +175,7 @@ public class PostController extends BlogObjectController {
 					Log.trace("Google geocoding service invoked : " + WordPressInfo.GOOGLE_GEOCODING_API_URL+"json?"+ urlenc.toString());
 					final HTTPGetConn connection = new HTTPGetConn(WordPressInfo.GOOGLE_GEOCODING_API_URL+"json?"+ urlenc.toString(), "", "");
 					
-			        connection.addObserver(new GoogleGecodingServiceCallBack(connection, sentAfterPosition));  
+			        connection.addObserver(new GoogleGecodingServiceCallBack(connection));  
 			        connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_INPROGRESS));	       
 			        connection.startConnWork(); //starts connection
 							
@@ -200,10 +195,8 @@ public class PostController extends BlogObjectController {
 	private class GoogleGecodingServiceCallBack implements Observer {
 
 		private final HTTPGetConn connection;
-		private boolean sentAfterPosition = false;
 		
-		public GoogleGecodingServiceCallBack(final HTTPGetConn connection, boolean sendAfterPosition){
-			this.sentAfterPosition = sendAfterPosition;
+		public GoogleGecodingServiceCallBack(final HTTPGetConn connection){
 			this.connection = connection;
 		}
 
@@ -225,6 +218,8 @@ public class PostController extends BlogObjectController {
 			try {
 				Hashtable[] rv = null;
 				byte[] response = (byte[]) resp.getResponseObject();
+				
+				
 				if(response != null ) {
 
 					if(Log.getDefaultLogLevel() >= Log.TRACE)
@@ -233,7 +228,13 @@ public class PostController extends BlogObjectController {
 					Vector searchplace = new Vector();
 
 					JSONObject jsonRespObj = new JSONObject(new String(response));
+					
 					String jsonResponseCode = jsonRespObj.getString("status");
+					if(!jsonResponseCode.equalsIgnoreCase("OK")) {
+						displayError(_resources.getString(WordPressResource.ERROR_GEOCODING_ADDRESS_NOT_FOUND));
+						return;
+					}
+					
 
 					JSONArray jsonResults = jsonRespObj.getJSONArray("results");
 					for (int x = 0; x < jsonResults.length(); ++x) {
@@ -250,11 +251,12 @@ public class PostController extends BlogObjectController {
 						searchplace.addElement(result);
 					}
 					rv = new Hashtable[searchplace.size()];
+					
 					searchplace.copyInto(rv);
 				}
 
 				if(rv == null || rv.length==0) {
-					displayError("No locations found");
+					displayError(_resources.getString(WordPressResource.ERROR_GEOCODING_ADDRESS_NOT_FOUND));
 				} else {
 					final String[] names = new String[rv.length];
 					for (int i = 0; i < rv.length; i++) {
@@ -274,57 +276,35 @@ public class PostController extends BlogObjectController {
 					Log.trace("Selected index: " + selection);
 					if(selection != -1) {
 						Hashtable selectedLocationData =  rv[selection];
-						
 						double latitude = ((Double)selectedLocationData.get("lat")).doubleValue();
 						double longitude = ((Double)selectedLocationData.get("lng")).doubleValue();
 						String addr = ((String)selectedLocationData.get("formatted_address"));
 						updateLocationCustomField(addr, latitude, longitude);
-						
-						UiApplication.getUiApplication().invokeAndWait(new Runnable() {
-							public void run() {
-								if(sentAfterPosition) {
-									sendPostToBlog();
-								} else {
-									saveDraftPost();
-								}
-							}
-						});
-					} //end selection
+					}
+					
 				}
 			} catch (Exception e) {
-				displayError("Error while retrieving location data: "+e.getMessage());
+				displayError("Error while geocoding: "+e.getMessage());
 				return;
 			}						
 		}
 	} 
 	//#else
 	private class GPSLocationCallBack implements Observer {
-		private boolean sentAfterPosition = false;
-		
-		GPSLocationCallBack (boolean sendAfterPosition){
-			this.sentAfterPosition = sendAfterPosition;
-		}
-		
+
 		public void update(Observable observable, final Object object) {
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
 					if(object == null) {
 					
 					} else if(object instanceof Location) {
-						
+
 						//javax.microedition.location.Location
 						Location location = (Location) object;
 						double latitude = location.getQualifiedCoordinates().getLatitude();
 						double longitude = location.getQualifiedCoordinates().getLongitude();
 						updateLocationCustomField(null, latitude, longitude);
 						
-						if(sentAfterPosition){
-							sendPostToBlog();
-						}
-						else {
-							saveDraftPost();
-						}
-
 					} else if(object instanceof LocationException) {
 						displayError((LocationException)object, "GPS Error");
 					}
@@ -393,6 +373,9 @@ public class PostController extends BlogObjectController {
 						customField.put("value", String.valueOf(0));
 					locationPublicFound = true;
 				}
+				
+				//add the show location link to the view
+				view.showMapLink(true);
 				
 			} catch(Exception ex) {
 				Log.error("Error while Elaborating custom field # "+ i);

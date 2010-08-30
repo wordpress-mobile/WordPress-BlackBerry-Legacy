@@ -213,6 +213,39 @@ public class MediaView extends StandardBaseView {
     	}
     };
     
+    private MenuItem _rotatePhotoItem = new MenuItem("Rotate", 130, 10) {
+    	public void run() { 
+    		Field fieldWithFocus = getLeafFieldWithFocus();
+    		MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
+    		if (mediaViewMediator != null) {
+    			MediaEntry mediaEntry = mediaViewMediator.getMediaEntry();
+    			if(mediaEntry != null) {
+    				try {
+    					
+							Log.trace( " resize2");
+							byte[] readFile = JSR75FileSystem.readFile(mediaEntry.getFilePath());
+							EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
+							
+							int scale = ImageUtils.findBestImgScale(img.getWidth(), img.getHeight(), 128, 128);
+							if(scale > 1)
+								img.setScale(scale); //set the scale
+							
+							
+							byte[] rotatedImg = ImageUtils.rotateImage(img.getBitmap(), 90);
+				    		
+							Bitmap test = Bitmap.createBitmapFromBytes(rotatedImg, 0, -1, 1);
+							((BitmapField)mediaViewMediator.getFields()[0]).setBitmap(test);
+				    		invalidate();
+						  	
+					} catch (Exception e) {
+						Log.trace(e, "error during rotating");
+					}
+    			}
+    		}
+    		
+    	}
+    };
+    
     protected MenuItem _allOnTopPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_ALLTOP, 100000, 10) {
         public void run() {
         	for (int i = 0; i < uiLink.size(); i++) {
@@ -249,7 +282,7 @@ public class MediaView extends StandardBaseView {
 			}
 		}
     }
-   
+       
     /**
      * This is used when chapi could not find an app to open the media file
      */
@@ -396,6 +429,7 @@ public class MediaView extends StandardBaseView {
 		if (counterPhotos > 0) {
 			menu.add(_showPhotoPropertiesItem);
 			menu.add(_deletePhotoItem);
+			menu.add(_rotatePhotoItem);
 		
 			try {
 				Invocation invoc =  buildCHAPIInvocation();

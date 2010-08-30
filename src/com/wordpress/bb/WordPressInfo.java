@@ -17,7 +17,9 @@ public final class WordPressInfo {
 	public final static String STATS_CHART_URL = "http://chart.apis.google.com/chart";
 	public final static String BB_APP_STATS_ENDPOINT_URL = "http://api.wordpress.org/bbapp/update-check/1.0/";
 	public final static String BB_APP_SIGNUP_URL = "http://wordpress.com/signup/?ref=wp-blackberry";
+	
 	public final static String GOOGLE_GEOCODING_API_URL = "http://maps.google.com/maps/api/geocode/";
+	public static final String GOOGLE_STATIC_MAP_URL = "http://maps.google.com/maps/api/staticmap";
 	
 	public static final int DEFAULT_DOWNLOADED_COMMENTS = 100;
 	

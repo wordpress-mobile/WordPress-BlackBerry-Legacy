@@ -217,15 +217,16 @@ public class PageView extends StandardBaseView {
     private MenuItem _previewItem = new MenuItem( _resources, WordPressResource.MENUITEM_PREVIEW, 160000, 1000) {
         public void run() {
         	
-        	if(title.isDirty() || bodyTextBox.isDirty() || 
-        			status.isDirty() || lblPhotoNumber.isDirty()) {
-        		//page is just changed
+        	if( controller.isDraftItem() || controller.isObjectChanged()) {
+        		//1. draft page
+        		//2. published page is changed 
         		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
-        	} else if (controller.isObjectChanged()) {
-        		//page is changed, and the user has saved it as draft
-    			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
+        	} else if(title.isDirty() || bodyTextBox.isDirty() || 
+        			status.isDirty() || lblPhotoNumber.isDirty()) {
+        		//page main screen is just changed
+        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
     		} else {
-    			//page not changed, not changed, check if is published or scheduled
+    			//page not changed, check if is published or scheduled
     			if ("publish".equalsIgnoreCase(page.getPageStatus()) ) {
     				Date righNowDate = new Date();//this date is NOT at GMT timezone 
     				long righNow = CalendarUtils.adjustTimeFromDefaultTimezone(righNowDate.getTime());

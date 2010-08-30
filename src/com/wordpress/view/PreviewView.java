@@ -47,7 +47,10 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 	private InputConnection  _currentConnection;
 	private BrowserContent browserContent = null;
 	
-	
+	/*
+	 * Remote Preview for all devices
+	 * Local Preview on devices running OS >= 5.0
+	 */
 	public PreviewView(byte[] data, String contentType) {
 		super(_resources.getString(WordPressResource.TITLE_PREVIEW));
 		
@@ -118,7 +121,6 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 	}
 	
 	//#ifndef IS_OS50_OR_ABOVE
-	
 	//local preview on devices running OS < 5.0
 	public PreviewView(String html) {
 		super(_resources.getString(WordPressResource.TITLE_PREVIEW));

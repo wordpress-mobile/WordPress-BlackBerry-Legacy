@@ -115,6 +115,10 @@ public abstract class BlogObjectController extends BaseController {
 		return isModified;
 	}
 	
+	public boolean isDraftItem() {
+		return isDraft;
+	}
+	
 	public void setPhotoResizing(boolean isPhotoRes, Integer imageResizeWidth, Integer imageResizeHeight) {
 
 		Log.trace("Entering setPhotoResizing. imageResizeWidth is " + imageResizeWidth.toString());
@@ -479,7 +483,7 @@ public abstract class BlogObjectController extends BaseController {
 		try {
 			UiApplication.getUiApplication().pushScreen(new PreviewView(html.getBytes("UTF-8"), "text/html; charset=UTF-8"));
 		} catch (UnsupportedEncodingException e) {
-			UiApplication.getUiApplication().pushScreen(new PreviewView(html));
+			//never fall here
 		}
 		//#else
 		UiApplication.getUiApplication().pushScreen(new PreviewView(html));	

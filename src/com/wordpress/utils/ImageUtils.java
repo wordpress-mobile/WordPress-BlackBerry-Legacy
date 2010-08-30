@@ -81,47 +81,79 @@ public class ImageUtils {
 			return image.scaleImage32(scaleW, scaleW);
 		}
 	}
-
-/*
-	public static Image resizeImageAndCopyPrevious(final int newWidth, final int newHeight,
-			final Image resized) {
-		// TODO : if new is smaller can optimize with
-		// createImage(Image image, int x, int y, int width, int height, int
-		// transform)
-		final Image result = Image.createImage(newWidth, newHeight);
-		final Graphics g = result.getGraphics();
-		g.drawImage(resized, (newWidth - resized.getWidth()) / 2,
-				(newHeight - resized.getHeight()) / 2, Graphics.TOP | Graphics.LEFT);
-		return result;
-	}
-
-
-	public static Image createResizedImg(Image image) {
-		int sourceWidth = image.getWidth();
-		int sourceHeight = image.getHeight();
-
-		int thumbWidth = 640;
-		int thumbHeight = -1;
-
-		if (thumbHeight == -1)
-			thumbHeight = thumbWidth * sourceHeight / sourceWidth;
-
-		Image thumb = Image.createImage(thumbWidth, thumbHeight);
-		Graphics g = thumb.getGraphics();
-
-		for (int y = 0; y < thumbHeight; y++) {
-			for (int x = 0; x < thumbWidth; x++) {
-				g.setClip(x, y, 1, 1);
-				int dx = x * sourceWidth / thumbWidth;
-				int dy = y * sourceHeight / thumbHeight;
-				g.drawImage(image, x - dx, y - dy, Graphics.LEFT | Graphics.TOP);
+	
+	public static byte[] rotateImage(Bitmap bitmap, int angle) throws Exception
+	{
+		if(angle == 0)
+		{
+			return null; 
+		}
+		else if(angle != 180 && angle != 90 && angle != 270)
+		{
+			throw new Exception("Invalid angle");
+		}
+	 
+		int width = bitmap.getWidth();
+		int height = bitmap.getHeight();
+	 
+		int[] rowData = new int[width];
+		int[] rotatedData = new int[width * height];
+	 
+		int rotatedIndex = 0;
+	 
+		for(int i = 0; i < height; i++)
+		{
+			bitmap.getARGB(rowData, 0, width, 0, i, width, 1);
+	 
+			for(int j = 0; j < width; j++)
+			{
+				rotatedIndex = 
+					angle == 90 ? (height - i - 1) + j * height : 
+					(angle == 270 ? i + height * (width - j - 1) : 
+						width * height - (i * width + j) - 1
+					);
+	 
+				rotatedData[rotatedIndex] = rowData[j];
 			}
 		}
 
-		Image immutableThumb = Image.createImage(thumb);
-		return immutableThumb;
+		javax.microedition.lcdui.Image tmpJ2MEImage = null;
+		
+		if(angle == 90 || angle == 270)
+		{
+			tmpJ2MEImage = javax.microedition.lcdui.Image.createRGBImage(rotatedData, height, width, true);
+		}
+		else
+		{
+			tmpJ2MEImage = javax.microedition.lcdui.Image.createRGBImage(rotatedData, width, height, true);
+		}
+		
+		int imageSize = tmpJ2MEImage.getWidth() * tmpJ2MEImage.getHeight();
+		int[] rgbs = new int[imageSize];
+		byte[] a, r, g, b;
+		int colorToDecode;
+
+		tmpJ2MEImage.getRGB(rgbs, 0, tmpJ2MEImage.getWidth() , 0, 0, tmpJ2MEImage.getWidth(), tmpJ2MEImage.getHeight());
+
+		a = new byte[imageSize];
+		r = new byte[imageSize];
+		g = new byte[imageSize];
+		b = new byte[imageSize];
+
+		for (int i = 0; i < imageSize; i++) {
+			colorToDecode = rgbs[i];
+
+			a[i] = (byte) ((colorToDecode & 0xFF000000) >>> 24);
+			r[i] = (byte) ((colorToDecode & 0x00FF0000) >>> 16);
+			g[i] = (byte) ((colorToDecode & 0x0000FF00) >>> 8);
+			b[i] = (byte) ((colorToDecode & 0x000000FF));
+		}
+
+		byte[] returnedData = MinimalPNGEncoder.toPNG(tmpJ2MEImage.getWidth(), tmpJ2MEImage.getHeight(), a, r, g, b);
+		return returnedData;
 	}
-*/
+	
+
 	public static int findBestImgScale(int originalWidth, int originalHeight, int maxWidth, int maxHeight) {
 
 		if(originalWidth < maxWidth && originalHeight < maxHeight) return 1; //image is smaller than the desidered size...no resize!

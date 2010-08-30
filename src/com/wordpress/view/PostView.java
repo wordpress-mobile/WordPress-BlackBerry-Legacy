@@ -1,5 +1,5 @@
+//#preprocess
 package com.wordpress.view;
-
 
 import java.util.Date;
 import java.util.Hashtable;
@@ -15,6 +15,7 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.Ui;
+import net.rim.device.api.ui.UiApplication;
 
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.CheckboxField;
@@ -39,6 +40,10 @@ import com.wordpress.view.component.MarkupToolBarTextFieldMediator;
 import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.dialog.InquiryView;
 
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.VirtualKeyboard;
+//#endif
+
 public class PostView extends StandardBaseView {
 	
     private PostController controller;
@@ -50,8 +55,10 @@ public class PostView extends StandardBaseView {
 	private ObjectChoiceField status;
 	private ClickableLabelField categories;
 	private ClickableLabelField lblPhotoNumber;
+	final BorderedFieldManager locationManager;
 	private CheckboxField enableLocation;
 	private CheckboxField isLocationPublic;
+	private ClickableLabelField showGMaps;
 	private LabelField wordCountField;
 	
     public PostView(PostController _controller, Post _post) {
@@ -125,14 +132,91 @@ public class PostView extends StandardBaseView {
         
         add(outerManagerRowInfos);
         //row location
-        BorderedFieldManager locationManager = new BorderedFieldManager(
+        locationManager = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL
         		| BorderedFieldManager.BOTTOM_BORDER_NONE);
 		enableLocation = new CheckboxField(_resources.getString(WordPressResource.LABEL_LOCATION_ADD), post.isLocation());
+		enableLocation.setChangeListener(
+				new FieldChangeListener() {
+					public void fieldChanged(Field field, int context) {
+						if(context == 0) { //user has clicked							
+							if( enableLocation.getChecked() == false ) {
+								PostView.this.showMapLink(false);
+							} else {
+								boolean isPresent = false;
+								isPresent = findPreviousLocationCustomFields();
+								//location tags are already present, asks to user what actions should be taken on old location data
+								if(isPresent == true) {
+									InquiryView infoView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_LOCATION_OVERWRITE));
+									int choice=infoView.doModal();  
+									if (choice == Dialog.YES) {
+										//avvia il gps
+										controller.startGeoTagging();
+										//unchecks the location field. it will be checked on success by callback
+										enableLocation.setChecked(false); //unchecks the location field. it will be checked on success by callback
+									} else {
+										//keep old location data
+										PostView.this.showMapLink(true);
+									}
+								} else {
+									//start the gps controller
+									controller.startGeoTagging();
+									enableLocation.setChecked(false); //unchecks the location field. it will be checked on success by callback
+								}
+							}
+						}
+					}
+				});
 		locationManager.add(enableLocation);
 		isLocationPublic = new CheckboxField(_resources.getString(WordPressResource.LABEL_LOCATION_PUBLIC), post.isLocationPublic());
 		locationManager.add(isLocationPublic);
+		
+		showGMaps = new ClickableLabelField(_resources.getString(WordPressResource.LABEL_LOCATION_SHOW), LabelField.FOCUSABLE | LabelField.ELLIPSIS);
+		showGMaps.setChangeListener(
+
+				new FieldChangeListener() {
+					public void fieldChanged(Field field, int context) {
+
+						if(context != 0) return; //not an user click
+						
+						String geo_latitude = null;
+						String geo_longitude= null;
+
+						Vector customFields = post.getCustomFields();
+						int size = customFields.size();
+						for (int i = 0; i <size; i++) {
+
+							Hashtable customField = (Hashtable)customFields.elementAt(i);
+							String key = (String)customField.get("key");
+							String value = (String)customField.get("value");
+							//find the address/lat/lon fields
+							if(key.equalsIgnoreCase("geo_latitude")) {
+								geo_latitude = value;
+							} 
+							if(key.equalsIgnoreCase("geo_longitude")) {
+								geo_longitude = value;
+							} 
+						}
+						if(geo_latitude!= null && geo_longitude!= null) {
+						  	//#ifdef IS_OS47_OR_ABOVE
+					    	VirtualKeyboard virtKbd = getVirtualKeyboard();
+					    	if(virtKbd != null)
+					    		virtKbd.setVisibility(VirtualKeyboard.HIDE);
+					    	//#endif
+							GoogleMapView mapView = new GoogleMapView(controller,_resources.getString(WordPressResource.TITLE_LOCATION_MAP_VIEW), geo_latitude, geo_longitude);
+							UiApplication.getUiApplication().pushScreen(mapView);
+						} else {
+							
+						}
+					}
+				}//end change listener class
+		);
+
+		if(post.isLocation()) {
+			locationManager.add(showGMaps);
+		}
+		
 		add(locationManager);
   		
   		//row content - decode the post body content
@@ -194,6 +278,30 @@ public class PostView extends StandardBaseView {
     	lblPhotoNumber.setText(String.valueOf(count));
     }
     
+    public void showMapLink(boolean show) {
+    	try {
+    		//add the field only if it is not attached to any manager
+			if(show && showGMaps.getManager() == null) { 
+				UiApplication.getUiApplication().invokeAndWait(new Runnable() {
+					public void run() {
+					locationManager.add(showGMaps);
+					enableLocation.setChecked(true);
+					}
+				});
+			} else if(!show && showGMaps.getManager() != null) {
+				//remove the field if it was prev. attached
+				UiApplication.getUiApplication().invokeAndWait(new Runnable() {
+					public void run() {
+						locationManager.delete(showGMaps);
+						enableLocation.setChecked(false);
+					}
+				});
+			}
+		} catch (Exception e) {
+			Log.trace(e, "Error while changing the UI");
+		}
+    }
+    
     //update the cat label field
     public void updateCategoriesField(){
     	String availableCategories = controller.getPostCategoriesLabel();
@@ -234,13 +342,15 @@ public class PostView extends StandardBaseView {
     private MenuItem _previewItem = new MenuItem( _resources, WordPressResource.MENUITEM_PREVIEW, 160000, 1000) {
         public void run() {
         	String categoriesLabel = controller.getPostCategoriesLabel();
-        	if(title.isDirty() || bodyTextBox.isDirty() || 
+        	
+        	if( controller.isDraftItem() || controller.isObjectChanged()){
+        		//1. draft post
+        		//2. published post is changed
+        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
+        	}else if(title.isDirty() || bodyTextBox.isDirty() || 
         			tags.isDirty() || status.isDirty() || categories.isDirty() || lblPhotoNumber.isDirty()) {
         		//post is just changed
         		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel); 
-        	} else if (controller.isObjectChanged()) {
-    			//post is changed, and the user has saved it as draft
-    			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
     		} else {
     			//post not changed, check if is published or scheduled
     			if ("publish".equalsIgnoreCase(post.getStatus()) ) {
@@ -261,8 +371,8 @@ public class PostView extends StandardBaseView {
     
     
     private void saveOrSendPost(boolean sendPost)throws Exception {
-    	
-		if (post.isLocation()) {
+
+    	/*	if (post.isLocation()) {
 
 			boolean isPresent = false;
 
@@ -286,14 +396,18 @@ public class PostView extends StandardBaseView {
 				controller.startGeoTagging(sendPost);
 			}
 		} else {
-			removeLocationCustomFields(); //remove the location field if necessary
-			if(sendPost)
-				controller.sendPostToBlog();
-			else {
-				controller.saveDraftPost();
-				
-			}
-		}
+			removeLocationCustomFields(); //remove the location field if necessary*/
+
+    	if (!post.isLocation()) {
+    		//remove the location field if present
+    		removeLocationCustomFields(); 
+    	}
+
+    	if(sendPost) {
+    		controller.sendPostToBlog();
+    	} else {
+    		controller.saveDraftPost();
+    	}
     }
     
     /**

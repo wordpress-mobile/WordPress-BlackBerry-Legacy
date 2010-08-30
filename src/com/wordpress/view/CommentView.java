@@ -17,6 +17,7 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 //#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.VirtualKeyboard;
 import net.rim.device.api.ui.TouchGesture;
 import net.rim.device.api.ui.TouchEvent;
 //#endif
@@ -65,7 +66,13 @@ public class CommentView extends StandardBaseView {
 			this.comments = comments;
 			this.commentStatusList = controller.getCommentStatusList();
 			this.gvtCtrl = gvtCtrl;
-	   
+			
+		  	//#ifdef IS_OS47_OR_ABOVE
+	    	VirtualKeyboard virtKbd = getVirtualKeyboard();
+	    	if(virtKbd != null)
+	    		virtKbd.setVisibility(VirtualKeyboard.HIDE);
+	    	//#endif
+			
 	        //row from
 	        outerManagerFrom = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
 	        		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
