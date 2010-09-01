@@ -98,7 +98,7 @@ public class GoogleMapView extends StandardBaseView {
 	}
 	
 	private int getPredefinedMapHeigth(){
-		return (Display.getHeight() - (toolbarOne.getHeight()+10));
+		return (Display.getHeight() - (toolbarOne.getHeight()+18));
 	}
 	
     //Override the makeMenu method so we can add a custom menu item

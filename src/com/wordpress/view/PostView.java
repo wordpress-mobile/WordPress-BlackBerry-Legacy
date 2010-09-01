@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import net.rim.blackberry.api.invoke.Invoke;
+import net.rim.blackberry.api.invoke.MapsArguments;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.ContextMenu;
@@ -27,6 +29,7 @@ import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
+import com.wordpress.controller.LocationHelper;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Post;
 import com.wordpress.utils.CalendarUtils;
@@ -140,12 +143,16 @@ public class PostView extends StandardBaseView {
 		enableLocation.setChangeListener(
 				new FieldChangeListener() {
 					public void fieldChanged(Field field, int context) {
-						if(context == 0) { //user has clicked							
+						enableLocation.setDirty(true);
+
+						if(context == 0) { //user has clicked	
 							if( enableLocation.getChecked() == false ) {
+					    		Vector customFields = post.getCustomFields();
+					    		LocationHelper.removeAllLocationCustomFields(customFields); 
 								PostView.this.showMapLink(false);
 							} else {
 								boolean isPresent = false;
-								isPresent = findPreviousLocationCustomFields();
+								isPresent = LocationHelper.isLocationCustomFieldsAvailable(post);
 								//location tags are already present, asks to user what actions should be taken on old location data
 								if(isPresent == true) {
 									InquiryView infoView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_LOCATION_OVERWRITE));
@@ -169,8 +176,24 @@ public class PostView extends StandardBaseView {
 					}
 				});
 		locationManager.add(enableLocation);
+		
 		isLocationPublic = new CheckboxField(_resources.getString(WordPressResource.LABEL_LOCATION_PUBLIC), post.isLocationPublic());
 		locationManager.add(isLocationPublic);
+		isLocationPublic.setChangeListener(
+				new FieldChangeListener() {
+					public void fieldChanged(Field field, int context) {
+						if(context == 0) { //user has clicked
+							
+							Vector customFields = post.getCustomFields();
+							if( isLocationPublic.getChecked() == false ) {
+								LocationHelper.removeLocationPublicCustomField(customFields); 
+							} else {
+								LocationHelper.setLocationPublicCustomField(customFields);
+							}
+						}
+					}
+				});
+		
 		
 		showGMaps = new ClickableLabelField(_resources.getString(WordPressResource.LABEL_LOCATION_SHOW), LabelField.FOCUSABLE | LabelField.ELLIPSIS);
 		showGMaps.setChangeListener(
@@ -180,34 +203,35 @@ public class PostView extends StandardBaseView {
 
 						if(context != 0) return; //not an user click
 						
-						String geo_latitude = null;
-						String geo_longitude= null;
-
 						Vector customFields = post.getCustomFields();
-						int size = customFields.size();
-						for (int i = 0; i <size; i++) {
-
-							Hashtable customField = (Hashtable)customFields.elementAt(i);
-							String key = (String)customField.get("key");
-							String value = (String)customField.get("value");
-							//find the address/lat/lon fields
-							if(key.equalsIgnoreCase("geo_latitude")) {
-								geo_latitude = value;
-							} 
-							if(key.equalsIgnoreCase("geo_longitude")) {
-								geo_longitude = value;
-							} 
-						}
+						String geo_latitude = LocationHelper.getLatitute(customFields);
+						String geo_longitude= LocationHelper.getLongitude(customFields);
+						
 						if(geo_latitude!= null && geo_longitude!= null) {
-						  	//#ifdef IS_OS47_OR_ABOVE
-					    	VirtualKeyboard virtKbd = getVirtualKeyboard();
-					    	if(virtKbd != null)
-					    		virtKbd.setVisibility(VirtualKeyboard.HIDE);
-					    	//#endif
-							GoogleMapView mapView = new GoogleMapView(controller,_resources.getString(WordPressResource.TITLE_LOCATION_MAP_VIEW), geo_latitude, geo_longitude);
-							UiApplication.getUiApplication().pushScreen(mapView);
-						} else {
 							
+							try {
+								int lon = (int) (Double.parseDouble(geo_longitude) * 100000);
+								int lat = (int) (Double.parseDouble(geo_latitude) * 100000);
+								String escapedTitle = StringUtils.replaceAll(title.getText(), "'", "\'");
+								// Invoke the BlackBerry Maps application with the post location.
+								String document = "<location-document>" +
+				                  "<location lon='"+lon+"' lat='"+lat+"'" +
+				                  " label='"+escapedTitle+"' description='' zoom='10'/>" +
+				                  "</location-document>";
+								Invoke.invokeApplication(Invoke.APP_TYPE_MAPS, new MapsArguments(
+				                MapsArguments.ARG_LOCATION_DOCUMENT,document));
+								
+							} catch (Exception e) {
+								Log.error(e, "Error while invoking BlackBerry Maps - starting google maps");
+								//start google maps if bb maps fails
+							  	//#ifdef IS_OS47_OR_ABOVE
+						    	VirtualKeyboard virtKbd = getVirtualKeyboard();
+						    	if(virtKbd != null)
+						    		virtKbd.setVisibility(VirtualKeyboard.HIDE);
+						    	//#endif
+								GoogleMapView mapView = new GoogleMapView(controller,_resources.getString(WordPressResource.TITLE_LOCATION_MAP_VIEW), geo_latitude, geo_longitude);
+								UiApplication.getUiApplication().pushScreen(mapView);
+							}    
 						}
 					}
 				}//end change listener class
@@ -371,131 +395,12 @@ public class PostView extends StandardBaseView {
     
     
     private void saveOrSendPost(boolean sendPost)throws Exception {
-
-    	/*	if (post.isLocation()) {
-
-			boolean isPresent = false;
-
-			isPresent = findPreviousLocationCustomFields();
-			//location tags are already present, asks to user what we should do with old location data
-			if(isPresent == true) {
-				InquiryView infoView= new InquiryView(_resources.getString(WordPressResource.MESSAGE_LOCATION_OVERWRITE));
-				int choice=infoView.doModal();  
-				if (choice == Dialog.YES) {
-					//avvia il gps
-					controller.startGeoTagging(sendPost);
-				} else {
-					if(sendPost)
-						controller.sendPostToBlog();
-					else
-						controller.saveDraftPost();
-				}
-			} //location tags are not already present, so we should only start the gps 
-			else {
-				//start the gps controller
-				controller.startGeoTagging(sendPost);
-			}
-		} else {
-			removeLocationCustomFields(); //remove the location field if necessary*/
-
-    	if (!post.isLocation()) {
-    		//remove the location field if present
-    		removeLocationCustomFields(); 
-    	}
-
     	if(sendPost) {
     		controller.sendPostToBlog();
     	} else {
     		controller.saveDraftPost();
     	}
     }
-    
-    /**
-     * find prev location customs fieds, and update location-public field according to GUI checkbox 
-     */
-    private boolean findPreviousLocationCustomFields(){
-		Vector customFields = post.getCustomFields();
-    	int size = customFields.size();
-    	boolean isPresent = false;
-    	Log.debug("Found "+size +" custom fields");
-    	
-		for (int i = 0; i <size; i++) {
-			Log.debug("Elaborating custom field # "+ i);
-			try {
-				Hashtable customField = (Hashtable)customFields.elementAt(i);
-				
-				String ID = (String)customField.get("id");
-				String key = (String)customField.get("key");
-				String value = (String)customField.get("value");
-				Log.debug("id - "+ID);
-				Log.debug("key - "+key);
-				Log.debug("value - "+value);	
-				
-				//find the address/lat/lon fields
-				if(key.equalsIgnoreCase("geo_latitude")) {
-					isPresent = true;
-				} 
-				if(key.equalsIgnoreCase("geo_longitude")) {
-					isPresent = true;
-				} 
-				if(key.equalsIgnoreCase("geo_address")) {
-					isPresent = true;
-				}
-				
-				//update the geo_public custom field
-				if( key.equalsIgnoreCase("geo_public")){
-					Log.debug("Updated custom field : "+ key);
-					if(post.isLocationPublic())
-						customField.put("value", String.valueOf(1));
-					else
-						customField.put("value", String.valueOf(0));
-				}
-				
-			} catch(Exception ex) {
-				Log.error("Error while Elaborating custom field # "+ i);
-			}
-		}
-		return isPresent;
-    }
-    
-    private void removeLocationCustomFields() {
-		Log.debug(">>> removeLocationCustomFields ");
-		if(post.isLocation()) {
-			Log.debug("location was not removed, bc post is already marked as geotagged");
-			return;
-		}
-		
-		Vector customFields = this.post.getCustomFields();
-		int size = customFields.size();
-    	Log.debug("Found "+size +" custom fields");
-    	
-		for (int i = 0; i <size; i++) {
-			Log.debug("Elaborating custom field # "+ i);
-			try {
-				Hashtable customField = (Hashtable)customFields.elementAt(i);
-				
-				String ID = (String)customField.get("id");
-				String key = (String)customField.get("key");
-				String value = (String)customField.get("value");
-				Log.debug("id - "+ID);
-				Log.debug("key - "+key);
-				Log.debug("value - "+value);	
-				
-				//find location fields
-				if(key.equalsIgnoreCase("geo_address") || key.equalsIgnoreCase("geo_public")
-						|| key.equalsIgnoreCase("geo_accuracy")
-						|| key.equalsIgnoreCase("geo_longitude") || key.equalsIgnoreCase("geo_latitude")) {
-				
-					 customField.remove("key");
-					 customField.remove("value");
-					 Log.debug("Removed custom field : "+ key);
-				} 
-			} catch(Exception ex) {
-				Log.error("Error while Elaborating custom field # "+ i);
-			}
-		}
-		Log.debug("<<< removeLocationCustomFields ");
-	}
     
     private MenuItem _photosItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA, 80000, 100) {
         public void run() {

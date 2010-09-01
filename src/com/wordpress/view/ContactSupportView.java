@@ -1,4 +1,3 @@
-//#preprocess
 package com.wordpress.view;
 
 import net.rim.blackberry.api.invoke.Invoke;
@@ -104,11 +103,8 @@ public class ContactSupportView extends BaseView {
 
     					StringBuffer mailContent = new StringBuffer();
     					mailContent.append("App Version: "+Tools.getAppVersion()+ "\n");
-    					//#ifdef IS_OS47_OR_ABOVE
-    					mailContent.append("Package: Os4.7 or Higher\n");
-    					//#elseif
-    					mailContent.append("Package: Os4.2 or Higher\n");
-    					//#endif
+
+    					
     					mailContent.append(manufacturer + "\n");
     					mailContent.append(deviceName + "\n");
     					mailContent.append(platformVersion + "\n" );

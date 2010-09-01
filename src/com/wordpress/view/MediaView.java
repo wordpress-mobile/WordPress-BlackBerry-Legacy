@@ -429,7 +429,7 @@ public class MediaView extends StandardBaseView {
 		if (counterPhotos > 0) {
 			menu.add(_showPhotoPropertiesItem);
 			menu.add(_deletePhotoItem);
-			menu.add(_rotatePhotoItem);
+			//menu.add(_rotatePhotoItem);
 		
 			try {
 				Invocation invoc =  buildCHAPIInvocation();

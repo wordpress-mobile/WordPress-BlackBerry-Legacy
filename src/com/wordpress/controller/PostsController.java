@@ -317,7 +317,7 @@ public class PostsController extends BaseController{
 					}
 					if(!resp.isError()) {
 						Post post=(Post)resp.getResponseObject();
-						FrontController.getIstance().showPost(post);	
+						FrontController.getIstance().showPost(post, false);	
 					} else {
 						final String respMessage=resp.getResponse();
 					 	displayError(respMessage);	

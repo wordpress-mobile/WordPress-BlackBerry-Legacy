@@ -118,16 +118,11 @@ public class PostController extends BlogObjectController {
 				String address = location.getDescription();
 				QualifiedCoordinates coordinates = location.getQualifiedCoordinates();
 				AddressInfo ai = location.getAddressInfo();
-			/*	if(coordinates != null ) {
+				if(coordinates != null ) {
 					double latitude = coordinates.getLatitude();
 					double longitude = coordinates.getLongitude();
 					updateLocationCustomField(address, latitude, longitude);
-					if(sentAfterPosition) {
-						sendPostToBlog();
-					} else {
-						saveDraftPost();
-					}
-				}  else*/ if (ai != null) {
+				}  else if (ai != null) {
 					StringBuffer locationsearch = new StringBuffer();
 					if (picker.getLocationPickerName().equals("From Contacts...") == false && location.getName() != null && location.getName().length() > 0) {
 						locationsearch.append(location.getName());
@@ -339,6 +334,9 @@ public class PostController extends BlogObjectController {
 				String ID = (String)customField.get("id");
 				String key = (String)customField.get("key");
 				String value = (String)customField.get("value");
+				
+				if(key == null) continue;
+				
 				Log.debug("id - "+ID);
 				Log.debug("key - "+key);
 				Log.debug("value - "+value);	
@@ -373,9 +371,6 @@ public class PostController extends BlogObjectController {
 						customField.put("value", String.valueOf(0));
 					locationPublicFound = true;
 				}
-				
-				//add the show location link to the view
-				view.showMapLink(true);
 				
 			} catch(Exception ex) {
 				Log.error("Error while Elaborating custom field # "+ i);
@@ -422,6 +417,9 @@ public class PostController extends BlogObjectController {
 			
 			Log.debug("Added custom field geo_public");
 		}
+		
+		//add the show location link to the view
+		view.showMapLink(true);
 		
 		Log.debug("<<< updateLocationCustomField ");
 	}

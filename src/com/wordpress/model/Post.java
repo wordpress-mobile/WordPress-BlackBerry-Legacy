@@ -34,8 +34,8 @@ public class Post extends BlogEntry {
 	public Post(Blog aBlog) {
 		blog = aBlog;
 		//check if the blog has the location enabled by default
-		boolean location = aBlog.isLocation();
-		this.setLocation(location);
+		//boolean location = aBlog.isLocation();
+		//this.setLocation(location);
 	}
 
     public Blog getBlog() {

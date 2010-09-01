@@ -60,7 +60,7 @@ public class AddBlogsView extends StandardBaseView {
            	LabelField lblUrl = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_URL), Color.BLACK); 
            	rowURL.add(lblUrl);
            	rowURL.add(GUIFactory.createSepatorField());
-           	blogUrlField = new BasicEditField("", "http://", 100, Field.EDITABLE | BasicEditField.NO_COMPLEX_INPUT);
+           	blogUrlField = new BasicEditField("", "http://", 100, Field.EDITABLE);
             blogUrlField.setFilter(new URLTextFilter());
             if(blogUrlField.getTextLength() > 0)
             	blogUrlField.setCursorPosition(blogUrlField.getTextLength());//set the cursor at the end
@@ -75,7 +75,7 @@ public class AddBlogsView extends StandardBaseView {
       				 GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_USERNAME), Color.BLACK)
       				 );
             rowUserName.add(GUIFactory.createSepatorField());
-            userNameField = new BasicEditField("", "", 60, Field.EDITABLE | BasicEditField.NO_COMPLEX_INPUT);
+            userNameField = new BasicEditField("", "", 60, Field.EDITABLE);
             rowUserName.add(userNameField);
             add(rowUserName);
 
@@ -87,7 +87,7 @@ public class AddBlogsView extends StandardBaseView {
             		GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_PASSWD), Color.BLACK)
             );
             rowPassword.add(GUIFactory.createSepatorField());
-            passwordField = new PasswordEditField("", "", 64, Field.EDITABLE | BasicEditField.NO_COMPLEX_INPUT);
+            passwordField = new PasswordEditField("", "", 64, Field.EDITABLE);
             rowPassword.add(passwordField);
             add(rowPassword);
             

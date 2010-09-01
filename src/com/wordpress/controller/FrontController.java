@@ -1,7 +1,5 @@
 package com.wordpress.controller;
 
-import java.util.Hashtable;
-import java.util.Vector;
 
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
@@ -9,7 +7,6 @@ import net.rim.device.api.ui.UiApplication;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Post;
-import com.wordpress.utils.log.Log;
 import com.wordpress.view.BaseView;
 import com.wordpress.view.MainView;
 
@@ -85,7 +82,6 @@ public class FrontController {
 	}
 	
 	
-	
 	/**
 	 * show draft post view
 	 */
@@ -93,44 +89,17 @@ public class FrontController {
 		DraftPostsController ctrl=new DraftPostsController(currentBlog);
 		ctrl.showView();
 	}
-
-	public void showPost(Post post){
-		this.showPost(post, false);
-	}
 	
 	/**
 	 * show->edit post
 	 */
 	public void showPost(Post post, boolean isPostChanged){
-		//read custom field and set the post.isLocation = true  if location fields are present
-		Vector customFields = post.getCustomFields();
-    	int size = customFields.size();
-    	Log.debug("Found "+size +" custom fields");
-    	
-		for (int i = 0; i <size; i++) {
-			Log.debug("Elaborating custom field # "+ i);
-			try {
-				Hashtable customField = (Hashtable)customFields.elementAt(i);
-				
-				String ID = (String)customField.get("id");
-				String key = (String)customField.get("key");
-				String value = (String)customField.get("value");
-				Log.debug("id - "+ID);
-				Log.debug("key - "+key);
-				Log.debug("value - "+value);	
-				
-				if(key.equalsIgnoreCase("geo_longitude") ||
-				   key.equalsIgnoreCase("geo_latitude") ||
-				   key.equalsIgnoreCase("geo_address")
-				) {
-					post.setLocation(true); //set the post as geo-tagged
-					Log.debug("Location Custom Field  found!");
-				} 
-				
-			} catch(Exception ex) {
-				Log.error("Error while Elaborating custom field # "+ i);
-			}
-		}
+		
+		if(LocationHelper.isLocationCustomFieldsAvailable(post))
+			post.setLocation(true); //set the post as geo-tagged
+
+		if(LocationHelper.isLocationPublicCustomField(post.getCustomFields()))
+			post.setLocationPublic(true); 
 		
 		PostController ctrl=new PostController(post);
 		ctrl.showView();
@@ -138,12 +107,19 @@ public class FrontController {
 		if(isPostChanged)
 			ctrl.setObjectAsChanged(isPostChanged);
 	}
-	
+
 	/**
 	 * show draft post 
 	 */
 	public void showDraftPost(Post post, int draftId){
 		PostController ctrl=new PostController(post,draftId);
+		
+		if(LocationHelper.isLocationPublicCustomField(post.getCustomFields()))
+			post.setLocationPublic(true); 
+		
+		if(LocationHelper.isLocationCustomFieldsAvailable(post))
+			post.setLocation(true); //set the post as geo-tagged
+		
 		ctrl.showView();
 	}
 	
