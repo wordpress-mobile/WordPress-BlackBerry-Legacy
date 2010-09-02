@@ -13,7 +13,6 @@ import org.kxml2.io.KXmlParser;
 import org.kxmlrpc.XmlRpcException;
 import org.xmlpull.v1.XmlPullParser;
 
-import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.utils.StringUtils;

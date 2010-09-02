@@ -85,6 +85,10 @@ public abstract class MediaEntry {
 		return hash;
 	}
 	
+	protected void _deserialize(Hashtable hash) {
+		
+	}
+	
 	public static MediaEntry deserialize(Hashtable hash) {
 		
 		MediaEntry tmpMedia = null;
@@ -156,6 +160,10 @@ public abstract class MediaEntry {
 		else
 			tmpMedia.horizontalAlignment = ALIGNMENT_NONE;
 	*/
+		
+		//call the subclasses deserialize submethod
+		//tmpMedia._deserialize(hash);
+		
 		return tmpMedia;
 	}
 	

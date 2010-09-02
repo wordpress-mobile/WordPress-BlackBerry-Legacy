@@ -1,13 +1,44 @@
 package com.wordpress.model;
 
+import java.util.Hashtable;
+
 import net.rim.device.api.system.Bitmap;
 
 public class PhotoEntry extends MediaEntry {
 	
+	/* constants used in photo rotation */
+	public final static int NO_ROTATION = 0;
+	public final static int ROTATION_90 = 90;
+	public final static int ROTATION_180 = 180;
+	public final static int ROTATION_270 = 270;
+	
+	public int rotationAngle = NO_ROTATION;
+	
 	public PhotoEntry() {
 		super();
 	}
+	
+/*	public int getRotationAngle() {
+		return rotationAngle;
+	}
 
+	public void setRotationAngle(int rotationAngle) {
+		this.rotationAngle = rotationAngle;
+	}
+
+	public Hashtable serialize() {
+		Hashtable hashtable = super.serialize();
+		hashtable.put("rotationAngle", new Integer(rotationAngle));
+		return hashtable;
+	}
+	
+	protected void _deserialize(Hashtable hash) {
+		Integer _rotationAngle = (Integer)hash.get("rotationAngle");
+		if(_rotationAngle != null)
+			rotationAngle = _rotationAngle.intValue();
+	}
+	*/
+	
 	/**
 	 * get the thumb - 128x128 pixel
 	 * @return
