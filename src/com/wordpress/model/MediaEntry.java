@@ -85,6 +85,7 @@ public abstract class MediaEntry {
 		return hash;
 	}
 	
+	//all subclasses should implements this method to deserialize their own fields.
 	protected void _deserialize(Hashtable hash) {
 		
 	}
@@ -162,7 +163,7 @@ public abstract class MediaEntry {
 	*/
 		
 		//call the subclasses deserialize submethod
-		//tmpMedia._deserialize(hash);
+		tmpMedia._deserialize(hash);
 		
 		return tmpMedia;
 	}

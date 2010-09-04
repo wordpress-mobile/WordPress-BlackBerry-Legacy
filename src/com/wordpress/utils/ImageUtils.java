@@ -81,8 +81,71 @@ public class ImageUtils {
 			return image.scaleImage32(scaleW, scaleW);
 		}
 	}
+
+	public static Hashtable rotatePhoto(byte[] data, int angle, String fileName)  {
+		EncodedImage originalImage = EncodedImage.createEncodedImage(data, 0, -1);
+		Hashtable content = new Hashtable(5);
+		//init the hash table with no rotated img data
+		content.put("name", fileName);
+		content.put("height", String.valueOf(originalImage.getHeight()));
+		content.put("width", String.valueOf(originalImage.getWidth()));
+		content.put("bits", data);
+		content.put("type", originalImage.getMIMEType());
+		
+		EncodedImage img = EncodedImage.createEncodedImage(data, 0, -1);
+		int type = img.getImageType();
+		Bitmap bitmap = img.getBitmap();
+		img = null;
+
+		byte[] imageBytes;
+		switch (type) {
+		case EncodedImage.IMAGE_TYPE_PNG:
+			try {
+				imageBytes = ImageUtils.rotateBitmap(bitmap, angle, EncodedImage.IMAGE_TYPE_PNG);
+			} catch (Exception e) {
+				Log.error(e, "Error during PNG encoding, restore prev img");
+				imageBytes = data;
+			}
+			if (fileName.endsWith("png") || fileName.endsWith("PNG")){
+
+			} else {
+				fileName+=".png";
+			}
+			break;
+		case EncodedImage.IMAGE_TYPE_JPEG:
+		default:
+			try {
+				imageBytes = ImageUtils.rotateBitmap(bitmap, angle, EncodedImage.IMAGE_TYPE_JPEG);
+			} catch (Exception e) {
+				Log.error(e, "Error during JPEG encoding, restore prev img");
+				imageBytes = data;
+			}
+			//check file name ext eventually add jpg ext
+			if (fileName.endsWith("jpg") || fileName.endsWith("JPG")){				
+			} else {
+				fileName+=".jpg";
+			}
+			break;
+
+		}//end switch
+		
+		Bitmap bitmap2 = Bitmap.createBitmapFromBytes(imageBytes, 0, -1, 1);
+		content.put("name", fileName);
+		content.put("height", String.valueOf(bitmap2.getHeight()));
+		content.put("width", String.valueOf(bitmap2.getWidth()));
+		bitmap2 = null;
+		content.put("bits", imageBytes );	
+		//set the new mime type
+		if (fileName.endsWith("jpg") || fileName.endsWith("JPG")){
+			content.put("type", "image/jpeg");
+		} else {
+			content.put("type", "image/png");
+		}
+		
+		return content;
+	}
 	
-	public static byte[] rotateImage(Bitmap bitmap, int angle) throws Exception
+	public static byte[] rotateBitmap(Bitmap bitmap, int angle, int outputType) throws Exception
 	{
 		if(angle == 0)
 		{
@@ -118,7 +181,6 @@ public class ImageUtils {
 		}
 
 		javax.microedition.lcdui.Image tmpJ2MEImage = null;
-		
 		if(angle == 90 || angle == 270)
 		{
 			tmpJ2MEImage = javax.microedition.lcdui.Image.createRGBImage(rotatedData, height, width, true);
@@ -128,31 +190,21 @@ public class ImageUtils {
 			tmpJ2MEImage = javax.microedition.lcdui.Image.createRGBImage(rotatedData, width, height, true);
 		}
 		
-		int imageSize = tmpJ2MEImage.getWidth() * tmpJ2MEImage.getHeight();
-		int[] rgbs = new int[imageSize];
-		byte[] a, r, g, b;
-		int colorToDecode;
-
-		tmpJ2MEImage.getRGB(rgbs, 0, tmpJ2MEImage.getWidth() , 0, 0, tmpJ2MEImage.getWidth(), tmpJ2MEImage.getHeight());
-
-		a = new byte[imageSize];
-		r = new byte[imageSize];
-		g = new byte[imageSize];
-		b = new byte[imageSize];
-
-		for (int i = 0; i < imageSize; i++) {
-			colorToDecode = rgbs[i];
-
-			a[i] = (byte) ((colorToDecode & 0xFF000000) >>> 24);
-			r[i] = (byte) ((colorToDecode & 0x00FF0000) >>> 16);
-			g[i] = (byte) ((colorToDecode & 0x0000FF00) >>> 8);
-			b[i] = (byte) ((colorToDecode & 0x000000FF));
-		}
-
-		byte[] returnedData = MinimalPNGEncoder.toPNG(tmpJ2MEImage.getWidth(), tmpJ2MEImage.getHeight(), a, r, g, b);
-		return returnedData;
+		rowData = null;
+		rotatedData = null;
+		
+		switch (outputType) {
+		
+		case EncodedImage.IMAGE_TYPE_PNG:
+			return toPNG(tmpJ2MEImage);
+			
+		case EncodedImage.IMAGE_TYPE_JPEG:
+		default:
+			byte[] png = toPNG(tmpJ2MEImage);
+			Bitmap bitmap2 = Bitmap.createBitmapFromPNG(png, 0, -1);
+			return JPEGEncodedImage.encode(bitmap2, 75).getData();
+		}//end switch
 	}
-	
 
 	public static int findBestImgScale(int originalWidth, int originalHeight, int maxWidth, int maxHeight) {
 
@@ -263,10 +315,11 @@ public class ImageUtils {
 		return content;
 	}
 
+	
 	/** 
-	 * Returns a PNG stored in a byte array from the supplied Image.
+	 * Returns a PNG stored in a byte array from the supplied Bitmap.
 	 *
-	 * @param image   an Image object
+	 * @param image   an Bitmap object
 	 * @return        a byte array containing PNG data
 	 * @throws IOException 
 	 *
@@ -296,4 +349,38 @@ public class ImageUtils {
 
 		return MinimalPNGEncoder.toPNG(image.getWidth(), image.getHeight(), a, r, g, b);
 	}  
+	
+	
+	/** 
+	 * Returns a PNG stored in a byte array from the supplied Image.
+	 *
+	 * @param image   an Image object
+	 * @return        a byte array containing PNG data
+	 * @throws IOException 
+	 *
+	 */
+	private static byte[] toPNG(javax.microedition.lcdui.Image image) throws IOException {
+		int imageSize = image.getWidth() * image.getHeight();
+		int[] rgbs = new int[imageSize];
+		byte[] a, r, g, b;
+		int colorToDecode;
+
+		image.getRGB(rgbs, 0, image.getWidth() , 0, 0, image.getWidth(), image.getHeight());
+
+		a = new byte[imageSize];
+		r = new byte[imageSize];
+		g = new byte[imageSize];
+		b = new byte[imageSize];
+
+		for (int i = 0; i < imageSize; i++) {
+			colorToDecode = rgbs[i];
+
+			a[i] = (byte) ((colorToDecode & 0xFF000000) >>> 24);
+			r[i] = (byte) ((colorToDecode & 0x00FF0000) >>> 16);
+			g[i] = (byte) ((colorToDecode & 0x0000FF00) >>> 8);
+			b[i] = (byte) ((colorToDecode & 0x000000FF));
+		}
+		return MinimalPNGEncoder.toPNG(image.getWidth(), image.getHeight(), a, r, g, b);
+	}  
+	
 }

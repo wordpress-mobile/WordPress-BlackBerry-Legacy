@@ -11,6 +11,7 @@ import org.kxmlrpc.XmlRpcException;
 
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.i18n.ResourceBundleFamily;
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.EncodedImage;
 
 import com.wordpress.bb.WordPressCore;
@@ -202,7 +203,6 @@ public class SendToBlogTask extends TaskImpl {
 		}
 	}
 
-
 	private void addTheSignature() {
 		if(post.getId()!= null) {
 			Log.trace("This is not a new post, signature not necessary!");
@@ -281,7 +281,7 @@ public class SendToBlogTask extends TaskImpl {
 		if(isRes){
 			Hashtable content;
 			
-			try { //the resize function could gets the "out of memory error" from JVM
+			try { //the resize function can throw "out of memory error" from JVM
 							 
 				if(imageResizeWidth.intValue() <= 0 || imageResizeHeight.intValue() <= 0)
 				{
@@ -325,6 +325,38 @@ public class SendToBlogTask extends TaskImpl {
 		mediaEntry.setMIMEType(MIMEtype);
 		mediaEntry.setWidth(w);
 		mediaEntry.setHeight(h);
+				
+		//rotating the image
+		PhotoEntry currentPhoto = (PhotoEntry)mediaEntry;
+		int rotationAngle = currentPhoto.getRotationAngle();
+		if (rotationAngle == 0) return;
+		photosBytes = JSR75FileSystem.readFile(filePath);
+		try { //the rotate function can throw "out of memory error" from JVM
+			Hashtable rotatedContentInfo = ImageUtils.rotatePhoto(photosBytes, rotationAngle, mediaEntry.getFilePath());
+			//save the tor img in a temp file
+			photosBytes = (byte[]) rotatedContentInfo.get("bits");
+			String imageTempFilePath = AppDAO.getImageTempFilePath();
+			if(JSR75FileSystem.isFileExist(imageTempFilePath)) {
+				JSR75FileSystem.removeFile(imageTempFilePath);
+			}
+			JSR75FileSystem.createFile(imageTempFilePath);
+			DataOutputStream dataOutputStream = JSR75FileSystem.getDataOutputStream(imageTempFilePath);
+			dataOutputStream.write(photosBytes);
+			dataOutputStream.flush();
+			dataOutputStream.close();
+
+			h = Integer.parseInt( (String) rotatedContentInfo.get("height") );
+			w = Integer.parseInt( (String) rotatedContentInfo.get("width") );
+			mediaEntry.setFilePath(imageTempFilePath);
+			MIMEtype = (String) rotatedContentInfo.get("type");
+			mediaEntry.setMIMEType(MIMEtype);
+			mediaEntry.setWidth(w);
+			mediaEntry.setHeight(h);
+
+		} catch (Error  err) { //capturing the JVM error. 
+			Log.error(err, "Serious Error during rotating: " + err.getMessage());
+			throw new IOException("Error during photo rotating!");
+		}
 	}
 	
 	private void sendMedia(BlogConn blogConn) throws IOException, RecordStoreException {

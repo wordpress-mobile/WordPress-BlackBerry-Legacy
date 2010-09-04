@@ -213,38 +213,52 @@ public class MediaView extends StandardBaseView {
     	}
     };
     
-    private MenuItem _rotatePhotoItem = new MenuItem("Rotate", 130, 10) {
+    protected MenuItem _rotateLeftPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_ROTATE_LEFT, 140, 10) {
     	public void run() { 
-    		Field fieldWithFocus = getLeafFieldWithFocus();
-    		MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
-    		if (mediaViewMediator != null) {
-    			MediaEntry mediaEntry = mediaViewMediator.getMediaEntry();
-    			if(mediaEntry != null) {
-    				try {
-    					
-							Log.trace( " resize2");
-							byte[] readFile = JSR75FileSystem.readFile(mediaEntry.getFilePath());
-							EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
-							
-							int scale = ImageUtils.findBestImgScale(img.getWidth(), img.getHeight(), 128, 128);
-							if(scale > 1)
-								img.setScale(scale); //set the scale
-							
-							
-							byte[] rotatedImg = ImageUtils.rotateImage(img.getBitmap(), 90);
-				    		
-							Bitmap test = Bitmap.createBitmapFromBytes(rotatedImg, 0, -1, 1);
-							((BitmapField)mediaViewMediator.getFields()[0]).setBitmap(test);
-				    		invalidate();
-						  	
-					} catch (Exception e) {
-						Log.trace(e, "error during rotating");
-					}
-    			}
-    		}
-    		
+    		rotatePhoto(270);
     	}
     };
+    
+    protected MenuItem _rotateRightPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_ROTATE_RIGHT, 150, 10) {
+    	public void run() { 
+    		rotatePhoto(90);
+    	}
+    };
+    
+    protected void rotatePhoto(int angle) {
+		Field fieldWithFocus = getLeafFieldWithFocus();
+		MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
+		if (mediaViewMediator != null) {
+			MediaEntry mediaEntry = mediaViewMediator.getMediaEntry();
+			if(mediaEntry != null && mediaEntry instanceof PhotoEntry) {
+				PhotoEntry photoEntry = (PhotoEntry)mediaEntry;
+				photoEntry.addRotationAngle(angle);
+				int realAngle = photoEntry.getRotationAngle();
+				try {
+					
+						byte[] readFile = JSR75FileSystem.readFile(mediaEntry.getFilePath());
+						EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
+						
+						int scale = ImageUtils.findBestImgScale(img.getWidth(), img.getHeight(), 96, 96);
+						if(scale > 1)
+							img.setScale(scale); //set the scale
+						
+						Bitmap bitmapRescale = img.getBitmap();
+						
+						if(realAngle != 0) {
+							byte[] rotatedImg = ImageUtils.rotateBitmap(bitmapRescale, realAngle, EncodedImage.IMAGE_TYPE_PNG);
+							bitmapRescale = Bitmap.createBitmapFromBytes(rotatedImg, 0, -1, 1);
+						} 
+						
+						((BitmapField)mediaViewMediator.getFields()[0]).setBitmap(bitmapRescale);
+						invalidate();
+				} catch (Exception e) {
+					Log.trace(e, "error during rotating");
+				}
+			}
+		}
+		controller.setObjectAsChanged(true);
+    }
     
     protected MenuItem _allOnTopPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_ALLTOP, 100000, 10) {
         public void run() {
@@ -429,8 +443,20 @@ public class MediaView extends StandardBaseView {
 		if (counterPhotos > 0) {
 			menu.add(_showPhotoPropertiesItem);
 			menu.add(_deletePhotoItem);
-			//menu.add(_rotatePhotoItem);
-		
+			
+			//add photo rotation item when focus on photo
+			Field fieldWithFocus = getLeafFieldWithFocus();
+			if (fieldWithFocus != null) {
+				MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
+				if (mediaViewMediator != null) {
+					MediaEntry mediaEntry = mediaViewMediator.getMediaEntry();
+					if (mediaEntry != null && mediaEntry instanceof PhotoEntry) {
+						menu.add(_rotateLeftPhotoItem);
+						menu.add(_rotateRightPhotoItem);
+					}
+				}
+			}
+				
 			try {
 				Invocation invoc =  buildCHAPIInvocation();
 				if (invoc != null) {
@@ -738,18 +764,33 @@ public class MediaView extends StandardBaseView {
 				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 				readFile = JSR75FileSystem.readFile(entry.getFilePath());
 				EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
+				int currentAngle = entry.getRotationAngle();
+				
 				//find the photo size
 				int scale = ImageUtils.findBestImgScale(img.getWidth(), img.getHeight(), width, height);
 				if(scale > 1)
 					img.setScale(scale); //set the scale
 				
-				final Bitmap bitmapRescale = img.getBitmap();
-				UiApplication.getUiApplication().invokeLater(new Runnable() {
-		    		public void run() {
-		    			if(bitmapRescale != null)
-		    				field.setBitmap(bitmapRescale);
-		    		}
-		    	});
+				if(currentAngle != 0) {
+					byte[] rotatedImg = ImageUtils.rotateBitmap(img.getBitmap(), currentAngle, EncodedImage.IMAGE_TYPE_PNG);
+					final Bitmap rotBitmap = Bitmap.createBitmapFromBytes(rotatedImg, 0, -1, 1);
+					UiApplication.getUiApplication().invokeLater(new Runnable() {
+						public void run() {
+							if(rotBitmap != null)
+								field.setBitmap(rotBitmap);
+						}
+					});
+				} else {
+					final Bitmap bitmapRescale = img.getBitmap();
+					UiApplication.getUiApplication().invokeLater(new Runnable() {
+						public void run() {
+							if(bitmapRescale != null)
+								field.setBitmap(bitmapRescale);
+						}
+					});
+				}
+				
+				
 			} catch (Throwable t) {
 				cancel();
 				Log.error(t, "Serious Error in buildThumbnails Task: " + t.getMessage());
