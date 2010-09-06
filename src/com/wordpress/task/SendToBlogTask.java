@@ -282,17 +282,19 @@ public class SendToBlogTask extends TaskImpl {
 			Hashtable content;
 			
 			try { //the resize function can throw "out of memory error" from JVM
-							 
+				
+				String fileName = mediaEntry.getFileName() != null ? mediaEntry.getFileName() : filePath;
+				
 				if(imageResizeWidth.intValue() <= 0 || imageResizeHeight.intValue() <= 0)
 				{
-					content = ImageUtils.resizePhoto(photosBytes, filePath, this, ImageUtils.DEFAULT_RESIZE_WIDTH, ImageUtils.DEFAULT_RESIZE_HEIGHT);
+					content = ImageUtils.resizePhoto(photosBytes, fileName, this, ImageUtils.DEFAULT_RESIZE_WIDTH, ImageUtils.DEFAULT_RESIZE_HEIGHT);
 					Log.trace("img resize settings are NOT valid, using the default");
 				} else {
-					content = ImageUtils.resizePhoto(photosBytes, filePath, this, imageResizeWidth.intValue(), imageResizeHeight.intValue());
+					content = ImageUtils.resizePhoto(photosBytes, fileName, this, imageResizeWidth.intValue(), imageResizeHeight.intValue());
 				}
 			} catch (Error  err) { //capturing the JVM error. 
-	    		Log.error(err, "Serious Error during resizing: " + err.getMessage());
-	    		throw new IOException("Error during photo resize!");
+	    		Log.error(err, "Error while resizing: " + err.getMessage());
+	    		throw new IOException("Error while resizing the picture!");
 	    	}
 			
 			//resizing img is a long task. if user has stoped the operation..
@@ -315,6 +317,11 @@ public class SendToBlogTask extends TaskImpl {
 			w = Integer.parseInt( (String) content.get("width") );
 			mediaEntry.setFilePath(imageTempFilePath);
 			MIMEtype = (String) content.get("type");
+			
+			if( content.get("name") != null ) {
+				mediaEntry.setFileName( (String) content.get("name"));
+			}
+			
 		} else {
 			EncodedImage imgTmp = EncodedImage.createEncodedImage(photosBytes, 0, -1);
 			h = imgTmp.getHeight();
@@ -326,14 +333,16 @@ public class SendToBlogTask extends TaskImpl {
 		mediaEntry.setWidth(w);
 		mediaEntry.setHeight(h);
 				
-		/*rotating the image
+		//rotating the image
 		PhotoEntry currentPhoto = (PhotoEntry)mediaEntry;
 		int rotationAngle = currentPhoto.getRotationAngle();
 		if (rotationAngle == 0) return;
 		filePath = mediaEntry.getFilePath(); //may not be the original file location
 		photosBytes = JSR75FileSystem.readFile(filePath);
 		try { //the rotate function can throw "out of memory error" from JVM
-			Hashtable rotatedContentInfo = ImageUtils.rotatePhoto(photosBytes, -1 * rotationAngle, mediaEntry.getFilePath());
+			
+			String fileName = mediaEntry.getFileName() != null ? mediaEntry.getFileName() : filePath;
+			Hashtable rotatedContentInfo = ImageUtils.rotatePhoto(photosBytes, rotationAngle, fileName);
 			//save the img in a temp file
 			photosBytes = (byte[]) rotatedContentInfo.get("bits");
 			String imageTempFilePath = AppDAO.getImageTempFilePath();
@@ -353,12 +362,15 @@ public class SendToBlogTask extends TaskImpl {
 			mediaEntry.setMIMEType(MIMEtype);
 			mediaEntry.setWidth(w);
 			mediaEntry.setHeight(h);
+			
+			if( rotatedContentInfo.get("name") != null ) {
+				mediaEntry.setFileName( (String) rotatedContentInfo.get("name"));
+			}
 
 		} catch (Error  err) { //capturing the JVM error. 
-			Log.error(err, "Serious Error during rotating: " + err.getMessage());
-			throw new IOException("Error during photo rotating!");
+			Log.error(err, "Error while rotating the photo: " + err.getMessage());
+			throw new IOException("Error while rotating the picture!");
 		}
-		*/
 	}
 	
 	private void sendMedia(BlogConn blogConn) throws IOException, RecordStoreException, Exception {

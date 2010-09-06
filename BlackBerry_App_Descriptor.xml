@@ -1,5 +1,5 @@
 <Properties ModelVersion="1.1.2">
-  <General Title="WordPress" Version="1.4.1.1" Vendor="Automattic" Description="WordPress for BlackBerry"/>
+  <General Title="WordPress" Version="1.4.3.1" Vendor="Automattic" Description="WordPress for BlackBerry"/>
   <Application Type="BlackBerry Application" MainMIDletName="" MainArgs="" HomeScreenPosition="0" StartupTier="7" IsSystemModule="false" IsAutostartup="true"/>
   <Resources hasTitleResource="true" TitleResourceBundleName="WordPress" TitleResourceBundleRelativePath="src/com/wordpress/bb/WordPress.rrh" TitleResourceBundleClassName="com.wordpress.bb.WordPress" TitleResourceBundleKey="" DescriptionId="">
     <Icons>

@@ -44,7 +44,6 @@ import com.wordpress.controller.BlogObjectController;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.model.PhotoEntry;
-import com.wordpress.utils.ImageManipulator;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
@@ -213,19 +212,19 @@ public class MediaView extends StandardBaseView {
     		removeMediaItem();
     	}
     };
- /*   
-    protected MenuItem _rotateLeftPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_ROTATE_LEFT, 140, 10) {
+    
+    protected MenuItem _rotateLeftPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_ROTATE_CCW, 140, 10) {
     	public void run() { 
     		rotatePhoto(270);
     	}
     };
     
-    protected MenuItem _rotateRightPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_ROTATE_RIGHT, 150, 10) {
+    protected MenuItem _rotateRightPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_ROTATE_CW, 150, 10) {
     	public void run() { 
     		rotatePhoto(90);
     	}
     };
-    */
+    
     protected void rotatePhoto(int angle) {
 		Field fieldWithFocus = getLeafFieldWithFocus();
 		MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
@@ -247,7 +246,7 @@ public class MediaView extends StandardBaseView {
 						Bitmap bitmapRescale = img.getBitmap();
 						
 						if(realAngle != 0) {
-							bitmapRescale = ImageManipulator.rotate(bitmapRescale, -1 * realAngle);
+							bitmapRescale = ImageUtils.rotate(bitmapRescale, realAngle);
 						} 
 						
 						((BitmapField)mediaViewMediator.getFields()[0]).setBitmap(bitmapRescale);
@@ -443,7 +442,7 @@ public class MediaView extends StandardBaseView {
 		if (counterPhotos > 0) {
 			menu.add(_showPhotoPropertiesItem);
 			menu.add(_deletePhotoItem);
-		/*	
+			
 			//add photo rotation item when focus on photo
 			Field fieldWithFocus = getLeafFieldWithFocus();
 			if (fieldWithFocus != null) {
@@ -456,7 +455,7 @@ public class MediaView extends StandardBaseView {
 					}
 				}
 			}
-		*/		
+				
 			try {
 				Invocation invoc =  buildCHAPIInvocation();
 				if (invoc != null) {
@@ -772,7 +771,7 @@ public class MediaView extends StandardBaseView {
 					img.setScale(scale); //set the scale
 				
 				if(currentAngle != 0) {
-					final Bitmap rotBitmap = ImageManipulator.rotate(img.getBitmap(), -1 * currentAngle);
+					final Bitmap rotBitmap = ImageUtils.rotate(img.getBitmap(), currentAngle);
 					UiApplication.getUiApplication().invokeLater(new Runnable() {
 						public void run() {
 							if(rotBitmap != null)
