@@ -39,7 +39,7 @@ public class WPLocationPicker {
 			try       
 			{
 				mapsLocationPicker = MapsLocationPicker.getInstance();       
-				locationPickersVector.addElement(mapsLocationPicker);
+				//locationPickersVector.addElement(mapsLocationPicker);
 			}
 			catch(IllegalStateException ise)
 			{

@@ -44,6 +44,7 @@ import com.wordpress.controller.BlogObjectController;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.model.PhotoEntry;
+import com.wordpress.utils.ImageManipulator;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
@@ -212,7 +213,7 @@ public class MediaView extends StandardBaseView {
     		removeMediaItem();
     	}
     };
-    
+ /*   
     protected MenuItem _rotateLeftPhotoItem = new MenuItem( _resources, WordPressResource.MENUITEM_ROTATE_LEFT, 140, 10) {
     	public void run() { 
     		rotatePhoto(270);
@@ -224,7 +225,7 @@ public class MediaView extends StandardBaseView {
     		rotatePhoto(90);
     	}
     };
-    
+    */
     protected void rotatePhoto(int angle) {
 		Field fieldWithFocus = getLeafFieldWithFocus();
 		MediaViewMediator mediaViewMediator = getMediator(fieldWithFocus);
@@ -246,8 +247,7 @@ public class MediaView extends StandardBaseView {
 						Bitmap bitmapRescale = img.getBitmap();
 						
 						if(realAngle != 0) {
-							byte[] rotatedImg = ImageUtils.rotateBitmap(bitmapRescale, realAngle, EncodedImage.IMAGE_TYPE_PNG);
-							bitmapRescale = Bitmap.createBitmapFromBytes(rotatedImg, 0, -1, 1);
+							bitmapRescale = ImageManipulator.rotate(bitmapRescale, -1 * realAngle);
 						} 
 						
 						((BitmapField)mediaViewMediator.getFields()[0]).setBitmap(bitmapRescale);
@@ -443,7 +443,7 @@ public class MediaView extends StandardBaseView {
 		if (counterPhotos > 0) {
 			menu.add(_showPhotoPropertiesItem);
 			menu.add(_deletePhotoItem);
-			
+		/*	
 			//add photo rotation item when focus on photo
 			Field fieldWithFocus = getLeafFieldWithFocus();
 			if (fieldWithFocus != null) {
@@ -456,7 +456,7 @@ public class MediaView extends StandardBaseView {
 					}
 				}
 			}
-				
+		*/		
 			try {
 				Invocation invoc =  buildCHAPIInvocation();
 				if (invoc != null) {
@@ -772,8 +772,7 @@ public class MediaView extends StandardBaseView {
 					img.setScale(scale); //set the scale
 				
 				if(currentAngle != 0) {
-					byte[] rotatedImg = ImageUtils.rotateBitmap(img.getBitmap(), currentAngle, EncodedImage.IMAGE_TYPE_PNG);
-					final Bitmap rotBitmap = Bitmap.createBitmapFromBytes(rotatedImg, 0, -1, 1);
+					final Bitmap rotBitmap = ImageManipulator.rotate(img.getBitmap(), -1 * currentAngle);
 					UiApplication.getUiApplication().invokeLater(new Runnable() {
 						public void run() {
 							if(rotBitmap != null)

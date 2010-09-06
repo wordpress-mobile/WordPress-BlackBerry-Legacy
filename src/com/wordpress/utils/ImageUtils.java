@@ -82,7 +82,7 @@ public class ImageUtils {
 		}
 	}
 
-	public static Hashtable rotatePhoto(byte[] data, int angle, String fileName)  {
+	public static Hashtable rotatePhoto(byte[] data, int angle, String fileName) throws Exception  {
 		EncodedImage originalImage = EncodedImage.createEncodedImage(data, 0, -1);
 		Hashtable content = new Hashtable(5);
 		//init the hash table with no rotated img data
@@ -94,57 +94,50 @@ public class ImageUtils {
 		
 		EncodedImage img = EncodedImage.createEncodedImage(data, 0, -1);
 		int type = img.getImageType();
-		Bitmap bitmap = img.getBitmap();
-		img = null;
+
+		Bitmap rotatedBitmap = null;
+		rotatedBitmap = ImageManipulator.rotate(img.getBitmap(), angle);
 
 		byte[] imageBytes;
 		switch (type) {
+
 		case EncodedImage.IMAGE_TYPE_PNG:
-			try {
-				imageBytes = ImageUtils.rotateBitmap(bitmap, angle, EncodedImage.IMAGE_TYPE_PNG);
-			} catch (Exception e) {
-				Log.error(e, "Error during PNG encoding, restore prev img");
-				imageBytes = data;
-			}
+			imageBytes = ImageUtils.toPNG(rotatedBitmap);
 			if (fileName.endsWith("png") || fileName.endsWith("PNG")){
 
 			} else {
 				fileName+=".png";
 			}
+
 			break;
+
 		case EncodedImage.IMAGE_TYPE_JPEG:
 		default:
-			try {
-				imageBytes = ImageUtils.rotateBitmap(bitmap, angle, EncodedImage.IMAGE_TYPE_JPEG);
-			} catch (Exception e) {
-				Log.error(e, "Error during JPEG encoding, restore prev img");
-				imageBytes = data;
-			}
+			imageBytes = JPEGEncodedImage.encode(rotatedBitmap, 75).getData();
 			//check file name ext eventually add jpg ext
 			if (fileName.endsWith("jpg") || fileName.endsWith("JPG")){				
 			} else {
 				fileName+=".jpg";
 			}
 			break;
-
-		}//end switch
+		}//end switch		
 		
-		Bitmap bitmap2 = Bitmap.createBitmapFromBytes(imageBytes, 0, -1, 1);
-		content.put("name", fileName);
-		content.put("height", String.valueOf(bitmap2.getHeight()));
-		content.put("width", String.valueOf(bitmap2.getWidth()));
-		bitmap2 = null;
-		content.put("bits", imageBytes );	
-		//set the new mime type
-		if (fileName.endsWith("jpg") || fileName.endsWith("JPG")){
-			content.put("type", "image/jpeg");
-		} else {
-			content.put("type", "image/png");
+		if(rotatedBitmap != null) {
+			content.put("name", fileName);
+			content.put("height", String.valueOf(rotatedBitmap.getHeight()));
+			content.put("width", String.valueOf(rotatedBitmap.getWidth()));
+			
+			content.put("bits", imageBytes );	
+			//set the new mime type
+			if (fileName.endsWith("jpg") || fileName.endsWith("JPG")){
+				content.put("type", "image/jpeg");
+			} else {
+				content.put("type", "image/png");
+			}
 		}
-		
 		return content;
 	}
-	
+	/*
 	public static byte[] rotateBitmap(Bitmap bitmap, int angle, int outputType) throws Exception
 	{
 		if(angle == 0)
@@ -205,7 +198,7 @@ public class ImageUtils {
 			return JPEGEncodedImage.encode(bitmap2, 75).getData();
 		}//end switch
 	}
-
+*/
 	public static int findBestImgScale(int originalWidth, int originalHeight, int maxWidth, int maxHeight) {
 
 		if(originalWidth < maxWidth && originalHeight < maxHeight) return 1; //image is smaller than the desidered size...no resize!

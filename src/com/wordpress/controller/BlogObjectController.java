@@ -49,11 +49,8 @@ import com.wordpress.view.mm.VideoFileJournalListener;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.PreviewHTTPConn;
 
-//#ifdef IS_OS50_OR_ABOVE
-import net.rim.device.api.ui.picker.FilePicker;
-//#else
 import com.wordpress.view.component.FileBrowser.RimFileBrowser;
-//#endif
+
 
 
 /**
@@ -566,7 +563,7 @@ public abstract class BlogObjectController extends BaseController {
 	}
 	
 	protected void displayFileBrowser(int type, String[] extensions, boolean isThumbEnabled) {
-		//#ifdef IS_OS50_OR_ABOVE
+		/*
 		FilePicker fp = FilePicker.getInstance();
 		//note: the filepick doesn't support multiple filters (.jpg|.png)
 		//then, all files type are showed in the filepick and we check the file type in the listener
@@ -576,16 +573,15 @@ public abstract class BlogObjectController extends BaseController {
 		if(wpCore.getLastFileBrowserPath() != null)
 			fp.setPath(wpCore.getLastFileBrowserPath());
 		fp.show(); 
-		//#else
+		*/
 		RimFileBrowser oldFileBrowser = new RimFileBrowser(extensions, false);
 		if(type == VIDEO)
 			oldFileBrowser.setPredefinedThumb(Bitmap.getBitmapResource("video_thumb_48.png"));
 		oldFileBrowser.setListener(new OldFileBrowserListener(type));
 		UiApplication.getUiApplication().pushScreen(oldFileBrowser);					
-		//#endif
 	}
 
-	//#ifdef IS_OS50_OR_ABOVE
+	/*
 	private class FilePickListener implements FilePicker.Listener 
 	{   
 
@@ -634,7 +630,8 @@ public abstract class BlogObjectController extends BaseController {
 			}
 		}
 	}
-	//#else
+	*/
+	
 	private class OldFileBrowserListener implements RimFileBrowserListener {
 	    
 		int type = -1;
@@ -656,5 +653,5 @@ public abstract class BlogObjectController extends BaseController {
              }	
 	    }
 	}
-	//#endif
+
 }

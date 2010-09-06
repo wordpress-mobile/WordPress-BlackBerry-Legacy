@@ -242,7 +242,7 @@ public class SendToBlogTask extends TaskImpl {
 		}
 	}
 
-	private void prepareImage(MediaEntry mediaEntry) throws IOException, RecordStoreException {
+	private void prepareImage(MediaEntry mediaEntry) throws Exception {
 		String filePath = mediaEntry.getFilePath();
 		byte[] photosBytes;
 		int h, w;
@@ -326,14 +326,15 @@ public class SendToBlogTask extends TaskImpl {
 		mediaEntry.setWidth(w);
 		mediaEntry.setHeight(h);
 				
-		//rotating the image
+		/*rotating the image
 		PhotoEntry currentPhoto = (PhotoEntry)mediaEntry;
 		int rotationAngle = currentPhoto.getRotationAngle();
 		if (rotationAngle == 0) return;
+		filePath = mediaEntry.getFilePath(); //may not be the original file location
 		photosBytes = JSR75FileSystem.readFile(filePath);
 		try { //the rotate function can throw "out of memory error" from JVM
-			Hashtable rotatedContentInfo = ImageUtils.rotatePhoto(photosBytes, rotationAngle, mediaEntry.getFilePath());
-			//save the tor img in a temp file
+			Hashtable rotatedContentInfo = ImageUtils.rotatePhoto(photosBytes, -1 * rotationAngle, mediaEntry.getFilePath());
+			//save the img in a temp file
 			photosBytes = (byte[]) rotatedContentInfo.get("bits");
 			String imageTempFilePath = AppDAO.getImageTempFilePath();
 			if(JSR75FileSystem.isFileExist(imageTempFilePath)) {
@@ -357,9 +358,10 @@ public class SendToBlogTask extends TaskImpl {
 			Log.error(err, "Serious Error during rotating: " + err.getMessage());
 			throw new IOException("Error during photo rotating!");
 		}
+		*/
 	}
 	
-	private void sendMedia(BlogConn blogConn) throws IOException, RecordStoreException {
+	private void sendMedia(BlogConn blogConn) throws IOException, RecordStoreException, Exception {
 		MediaEntry mediaEntry = ((NewMediaObjectConn) blogConn).getMediaObj();
 		String filePath = mediaEntry.getFilePath();
 		Log.trace("Sending file: "+filePath);
