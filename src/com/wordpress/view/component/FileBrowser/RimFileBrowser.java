@@ -609,8 +609,8 @@ public class RimFileBrowser extends PopupScreen {
     		} */
     		
     		// Get the screen coordinates of the touch event
-    		if(eventCode == TouchEvent.CLICK) {
-    			Log.trace("TouchEvent.CLICK");
+    		if(eventCode == TouchEvent.UNCLICK) {
+    			Log.trace("TouchEvent.UNCLICK");
     			performDefaultActionOnItem();
     			return true;
 			} 

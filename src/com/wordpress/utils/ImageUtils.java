@@ -3,8 +3,6 @@ package com.wordpress.utils;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import javax.microedition.media.control.MetaDataControl;
-
 import net.rim.device.api.math.Fixed32;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Display;
@@ -106,6 +104,7 @@ public class ImageUtils {
 		EncodedImage img = EncodedImage.createEncodedImage(data, 0, -1);
 
 		Bitmap rotatedBitmap = null;
+		
 		rotatedBitmap = ImageUtils.rotate(img.getBitmap(), angle);
 
 		byte[] imageBytes = JPEGEncodedImage.encode(rotatedBitmap, 75).getData();
@@ -130,7 +129,16 @@ public class ImageUtils {
 		}
 		return content;
 	}
-	
+
+	/*
+	public static Bitmap rotate(Bitmap bitmap, int angle) throws Exception {
+		ImageManipulator imageTool_ = new ImageManipulator(bitmap);
+		imageTool_.setBitmap(bitmap);
+		imageTool_.transformByAngle(-1 * angle, false, false);
+		return imageTool_.transformAndPaintBitmap();
+	}
+	*/
+		
 	public static Bitmap rotate(Bitmap bitmap, int angle) throws Exception
 	{
 		if(angle == 0)

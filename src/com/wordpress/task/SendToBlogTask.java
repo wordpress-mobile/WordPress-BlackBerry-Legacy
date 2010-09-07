@@ -11,7 +11,6 @@ import org.kxmlrpc.XmlRpcException;
 
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.i18n.ResourceBundleFamily;
-import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.EncodedImage;
 
 import com.wordpress.bb.WordPressCore;
@@ -293,8 +292,8 @@ public class SendToBlogTask extends TaskImpl {
 					content = ImageUtils.resizePhoto(photosBytes, fileName, this, imageResizeWidth.intValue(), imageResizeHeight.intValue());
 				}
 			} catch (Error  err) { //capturing the JVM error. 
-	    		Log.error(err, "Error while resizing: " + err.getMessage());
-	    		throw new IOException("Error while resizing the picture!");
+	    		Log.error(err, "Error while resizing");
+	    		throw new IOException("Sorry, we are unable to resize your images");
 	    	}
 			
 			//resizing img is a long task. if user has stoped the operation..
@@ -367,9 +366,12 @@ public class SendToBlogTask extends TaskImpl {
 				mediaEntry.setFileName( (String) rotatedContentInfo.get("name"));
 			}
 
+		} catch (OutOfMemoryError e) { //capturing OutOfMemoryError error. 
+			Log.error(e, "OutOfMemoryError while rotating images");
+			throw new IOException("Unable to rotate images. Probably one or more images are far too big. You can set the image resizing option within the setting screen, this will allow you to rotate images.");
 		} catch (Error  err) { //capturing the JVM error. 
-			Log.error(err, "Error while rotating the photo: " + err.getMessage());
-			throw new IOException("Error while rotating the picture!");
+			Log.error(err, "Error while rotating the photo:");
+			throw new IOException("Sorry, we are unable to rotate your images");
 		}
 	}
 	

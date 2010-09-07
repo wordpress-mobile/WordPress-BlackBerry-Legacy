@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.controller;
 
 import net.rim.device.api.i18n.ResourceBundle;
@@ -10,6 +11,10 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.ErrorView;
 import com.wordpress.view.dialog.InfoView;
 import com.wordpress.view.dialog.InquiryView;
+
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.VirtualKeyboard;
+//#endif
 
 public abstract class BaseController {
 
@@ -42,6 +47,14 @@ public abstract class BaseController {
 	}
 	
 	private void _displayError(final String msg) {
+	  	//#ifdef IS_OS47_OR_ABOVE
+		Screen scr = UiApplication.getUiApplication().getActiveScreen();
+    	VirtualKeyboard virtKbd = scr.getVirtualKeyboard();
+    	if(virtKbd != null)
+    		virtKbd.setVisibility(VirtualKeyboard.HIDE);
+    	//#endif
+		
+		
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
 				ErrorView errView = new ErrorView(msg);
@@ -67,6 +80,12 @@ public abstract class BaseController {
 	}
 	
 	private void _displayErrorAndWait(final String msg) {
+	  	//#ifdef IS_OS47_OR_ABOVE
+		Screen scr = UiApplication.getUiApplication().getActiveScreen();
+    	VirtualKeyboard virtKbd = scr.getVirtualKeyboard();
+    	if(virtKbd != null)
+    		virtKbd.setVisibility(VirtualKeyboard.HIDE);
+    	//#endif
 		UiApplication.getUiApplication().invokeAndWait(new Runnable() {
 			public void run() {
 				ErrorView errView = new ErrorView(msg);
