@@ -2,7 +2,6 @@
 package com.wordpress.view;
 
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.Vector;
 
 import net.rim.blackberry.api.invoke.Invoke;
@@ -22,6 +21,7 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.Dialog;
+import net.rim.device.api.ui.component.EditField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
@@ -124,7 +124,7 @@ public class PostView extends StandardBaseView {
   		outerManagerRowInfos.add(rowCategories);
   		
   	   //row tags
-		tags = new BasicEditField(_resources.getString(WordPressResource.LABEL_POST_TAGS)+": ", post.getTags(), 100, Field.EDITABLE);
+		tags = new BasicEditField(_resources.getString(WordPressResource.LABEL_POST_TAGS)+": ", post.getTags(), BasicEditField.DEFAULT_MAXCHARS, Field.EDITABLE);
 		tags.setMargin(5, 5, 5, 5);
         outerManagerRowInfos.add(tags);
         
