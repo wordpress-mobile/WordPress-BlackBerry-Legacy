@@ -93,9 +93,25 @@ public class CategoriesListField {
 	   //ordering process
 	   Vector rootCategories = new Vector();
 	   for (int i = 0; i < blogCategories.length; i++) {
-		   if( blogCategories[i].getParentCategory() < 1  ) 
+		   int parentCategoryID = blogCategories[i].getParentCategory();
+		   if( parentCategoryID < 1  ) { 
+			   //this is a root category
 			   rootCategories.addElement(blogCategories[i]);
+		   } else {
+			   //check here for orphan cats
+			   boolean foundParent = false;
+			   for(int j = 0; j < blogCategories.length; j++ ) {
+				    if( Integer.parseInt(blogCategories[j].getId()) == parentCategoryID) {
+				    	foundParent = true;
+				    	break;
+				    }
+			   }
+			   if(!foundParent) {
+				   rootCategories.addElement(blogCategories[i]);   
+			   }
+		   }//end else
 	   }
+	   
 	   //we have the root category node, start the process of ordering
 	   Vector tmpCategoryList = new Vector();
 	   Vector tmpCategoryLevelList = new Vector();
@@ -108,7 +124,7 @@ public class CategoriesListField {
 		   
 		   addChild(rootCategory, blogCategories, tmpCategoryList, tmpCategoryLevelList, 1);	   
 	   }
-	   
+	   	   
 	   Category[] orderedBlogCategories = new Category[blogCategories.length];
 	   tmpCategoryList.copyInto(orderedBlogCategories);
 	   int[]orderedBlogCategoriesLevel = new int[blogCategories.length];
