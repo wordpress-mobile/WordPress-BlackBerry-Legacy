@@ -8,6 +8,8 @@ import java.util.Vector;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.EncodedImage;
+import net.rim.device.api.system.JPEGEncodedImage;
 
 import org.kxml2.io.KXmlParser;
 import org.kxmlrpc.XmlRpcException;
@@ -15,6 +17,7 @@ import org.xmlpull.v1.XmlPullParser;
 
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 
@@ -251,8 +254,15 @@ public class BlogUpdateConn extends BlogConn  {
 				Log.trace("no valid image file found");
 				return;
 			} else {
-				Bitmap.createBitmapFromBytes((byte[])responseImg, 0, -1, 1); //try to build an image immediately
-				blog.setShortcutIcon((byte[])responseImg);
+				//Bitmap tmpBitmap = Bitmap.createBitmapFromBytes((byte[])responseImg, 0, -1, 1); //try to build an image immediately
+				EncodedImage tmp_img = EncodedImage.createEncodedImage((byte[])responseImg, 0, -1);
+				if(tmp_img.getHeight() > 32 || tmp_img.getWidth() > 32) {
+					tmp_img = ImageUtils.resizeEncodedImage(tmp_img, 32, 32);
+					Bitmap tmpBitmap = tmp_img.getBitmap();
+					blog.setShortcutIcon(JPEGEncodedImage.encode(tmpBitmap, 100).getData());	
+				} else {
+					blog.setShortcutIcon((byte[])responseImg);
+				}
 			}
 			
 		} catch (Exception e) {
