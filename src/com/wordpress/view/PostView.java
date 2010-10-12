@@ -73,7 +73,7 @@ public class PostView extends StandardBaseView {
     	BorderedFieldManager rowTitle = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
     	LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_TITLE), Color.BLACK);
-		title = new BasicEditField("", post.getTitle(), 100, Field.EDITABLE);
+		title = new BasicEditField("", post.getTitle(), BasicEditField.DEFAULT_MAXCHARS, Field.EDITABLE);
         rowTitle.add(lblTitle);
         rowTitle.add(GUIFactory.createSepatorField());
         rowTitle.add(title);

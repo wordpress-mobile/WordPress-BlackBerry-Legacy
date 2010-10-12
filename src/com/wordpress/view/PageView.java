@@ -55,7 +55,7 @@ public class PageView extends StandardBaseView {
     	BorderedFieldManager outerManagerRowTitle = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
 		LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_TITLE), Color.BLACK);
-		title = new BasicEditField("", page.getTitle(), 100, Field.EDITABLE);
+		title = new BasicEditField("", page.getTitle(), BasicEditField.DEFAULT_MAXCHARS, Field.EDITABLE);
 		outerManagerRowTitle.add(lblTitle);
 		outerManagerRowTitle.add(GUIFactory.createSepatorField());
 		outerManagerRowTitle.add(title);
