@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStoreException;
 
 import com.wordpress.model.Blog;
@@ -28,12 +29,14 @@ public class DraftDAO implements BaseDAO{
     	String draftFilePath = getPostFilePath(draftPost.getBlog(), draftId);
     	int newPostID= getDraftPostID(draftPost.getBlog(), draftId);
     	JSR75FileSystem.createFile(draftFilePath);    	
-    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(draftFilePath);
+    	FileConnection fc = JSR75FileSystem.openFile(draftFilePath);
+    	DataOutputStream out = fc.openDataOutputStream();
     	Serializer ser= new Serializer(out);
     	Hashtable post2Hashtable = post2Hashtable(draftPost);
     	ser.serialize(post2Hashtable);
     	ser.serialize(draftPost.getCategories());
     	out.close();
+    	fc.close();
 		Log.trace("writing draft post: ok");
 		return newPostID;
 	}
@@ -72,15 +75,15 @@ public class DraftDAO implements BaseDAO{
 	public static Post loadPost(Blog blog, int draftId) throws IOException, RecordStoreException {
 		String blogDraftsPath=getPath(blog);
 		String draftFile = blogDraftsPath + String.valueOf(draftId);
-    	DataInputStream in = JSR75FileSystem.getDataInputStream(draftFile);
- 
+		FileConnection fc = JSR75FileSystem.openFile(draftFile);
+		DataInputStream in = fc.openDataInputStream();
     	Serializer ser= new Serializer(in);
     	Hashtable postHas = (Hashtable) ser.deserialize();
     	int[] postCat = (int[]) ser.deserialize();
     	Post draft = hashtable2Post(postHas, blog);
     	draft.setCategories(postCat);
     	in.close();
- 
+    	fc.close();
     	Log.trace("loading draft post ok");
     	return draft;		
 	}

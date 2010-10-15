@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStoreException;
 
 import com.wordpress.model.Blog;
@@ -29,11 +30,12 @@ public class PageDAO implements BaseDAO{
 		String draftFilePath = getPageFilePath(blog, draftId);
 		int newPostID= getDraftPageID(blog, draftId);
 		JSR75FileSystem.createFile(draftFilePath);
-		
-		DataOutputStream out = JSR75FileSystem.getDataOutputStream(draftFilePath);
+		FileConnection fc = JSR75FileSystem.openFile(draftFilePath);
+		DataOutputStream out = fc.openDataOutputStream();
 		Serializer ser= new Serializer(out);
 		ser.serialize(page2Hashtable(page));
 		out.close();
+		fc.close();
 		Log.trace("Page obj stored into memory");
 		return newPostID;
 	}
@@ -43,10 +45,12 @@ public class PageDAO implements BaseDAO{
     	String blogDraftsPath=getPath(blog);    	
 		String currPageFile = fileName;  		
 		String draftFile = blogDraftsPath + currPageFile;
-		DataInputStream in = JSR75FileSystem.getDataInputStream(draftFile);
+   		FileConnection fc = JSR75FileSystem.openFile(draftFile);
+		DataInputStream in = fc.openDataInputStream();
 		Serializer ser= new Serializer(in);
 		Hashtable page = (Hashtable) ser.deserialize();
 		in.close();
+		fc.close();
     	return page;   	
 	}
 	

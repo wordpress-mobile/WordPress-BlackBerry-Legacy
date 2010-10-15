@@ -1,3 +1,7 @@
+//#preprocess
+
+//#ifndef VER_6.0.0
+
 package org.json.me;
 
 /*
@@ -74,3 +78,4 @@ public class JSONStringer extends JSONWriter {
         return this.mode == 'd' ? this.writer.toString() : null;
     }
 }
+//#endif

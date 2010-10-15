@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStoreException;
 
 import com.wordpress.model.Blog;
@@ -47,10 +48,11 @@ public class BlogDAO implements BaseDAO {
     	}    	
     	
     	JSR75FileSystem.createFile(filePath+BLOG_FILE); //create the blog file
-    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(filePath+BLOG_FILE);
+    	FileConnection fc = JSR75FileSystem.openFile(filePath+BLOG_FILE);
+    	DataOutputStream out = fc.openDataOutputStream();
     	storeBlog(blog, out);
-    	    	
 		out.close();
+		fc.close();
 		Log.trace("Scrittura blog on memory terminata con successo");   	
     	return true;
     }
@@ -69,11 +71,12 @@ public class BlogDAO implements BaseDAO {
     	if (!JSR75FileSystem.isFileExist(filePath)){
     		throw new Exception("Cannot update this blog: " + name + " because not exist!");
     	}  	
-    	
-    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(filePath+BLOG_FILE);
+    	FileConnection fc = JSR75FileSystem.openFile(filePath+BLOG_FILE);
+    	DataOutputStream out =fc.openDataOutputStream();
     	storeBlog(blog, out);
     	Log.debug("blog updated succesfully");    	    	
 		out.close(); //already closed during store
+		fc.close();
     	return true;
     }
     
@@ -347,10 +350,11 @@ public class BlogDAO implements BaseDAO {
     	String filePath=AppDAO.getBaseDirPath()+name;
         
     	if (!JSR75FileSystem.isFileExist(filePath)){
-    		throw new Exception("Cannot load this blog: " + name + " because not exist!");
-    	}   	
+    		throw new Exception("Cannot load this blog: " + name + " because does not exist!");
+    	}   
     	
-    	DataInputStream in = JSR75FileSystem.getDataInputStream(filePath+BLOG_FILE);
+		FileConnection fc = JSR75FileSystem.openFile(filePath+BLOG_FILE);
+		DataInputStream in = fc.openDataInputStream();
     	Serializer ser= new Serializer(in);
     	
         Blog blog;
@@ -618,6 +622,7 @@ public class BlogDAO implements BaseDAO {
 		}
 		
         in.close();
+        fc.close();
         return blog;     
      } 
     

@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.EncodedImage;
@@ -29,11 +30,12 @@ public class CommentsDAO implements BaseDAO {
     		return null;
     	}   	
     	
-    	DataInputStream in = JSR75FileSystem.getDataInputStream(commentsFilePath);
+		FileConnection fc = JSR75FileSystem.openFile(commentsFilePath);
+		DataInputStream in = fc.openDataInputStream();
     	Serializer ser= new Serializer(in);
     	Vector comments = (Vector) ser.deserialize();
-    	
     	in.close();
+    	fc.close();
     	return comments;
 	}
 		
@@ -99,12 +101,12 @@ public class CommentsDAO implements BaseDAO {
 		String commentsFilePath=AppDAO.getBaseDirPath()+blogNameMD5+COMMENTS_FILE;
     	
     	JSR75FileSystem.createFile(commentsFilePath); //create the file
-    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(commentsFilePath);
-
+    	FileConnection fc = JSR75FileSystem.openFile(commentsFilePath);
+    	DataOutputStream out = fc.openDataOutputStream();
     	Serializer ser= new Serializer(out);
     	ser.serialize(comments);
     	out.close();
-		
+    	fc.close();
 		Log.debug("Scrittura commenti terminata con successo"); 
 	}
 	
@@ -118,11 +120,13 @@ public class CommentsDAO implements BaseDAO {
     		return null;
     	}   	
     	
-    	DataInputStream in = JSR75FileSystem.getDataInputStream(commentsFilePath);
+		FileConnection fc = JSR75FileSystem.openFile(commentsFilePath);
+		DataInputStream in = fc.openDataInputStream();
     	Serializer ser= new Serializer(in);
     	Hashtable gvt = (Hashtable) ser.deserialize();
-    	
     	in.close();
+    	fc.close();
+    	
     	Log.debug("Gravatars loaded from device memory");
     	Log.trace(">>> start Creating imgs for Gravatars");
        	Hashtable storeGvt = new Hashtable();
@@ -154,7 +158,8 @@ public class CommentsDAO implements BaseDAO {
     	String commentsFilePath=AppDAO.getBaseDirPath()+blogNameMD5+GRAVATARS_FILE;
     	
     	JSR75FileSystem.createFile(commentsFilePath); //create the file
-    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(commentsFilePath);
+    	FileConnection fc = JSR75FileSystem.openFile(commentsFilePath);
+    	DataOutputStream out = fc.openDataOutputStream();
 
     	Log.trace(">>> storeGravatars starts storing imgs Gravatar");
     	Hashtable storeGvt = new Hashtable();
@@ -175,6 +180,7 @@ public class CommentsDAO implements BaseDAO {
     	Serializer ser= new Serializer(out);
     	ser.serialize(storeGvt);
 		out.close();
+		fc.close();
 		Log.debug("Gravatars stored into device memory");   	
 	}
 	

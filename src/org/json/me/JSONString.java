@@ -1,3 +1,7 @@
+//#preprocess
+
+//#ifndef VER_6.0.0
+
 package org.json.me;
 /**
  * The <code>JSONString</code> interface allows a <code>toJSONString()</code> 
@@ -16,3 +20,4 @@ public interface JSONString {
 	 */
 	public String toJSONString();
 }
+//#endif

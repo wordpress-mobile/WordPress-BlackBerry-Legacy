@@ -123,11 +123,14 @@ public class XmlRpcClient {
     	XmlRpcDualOutputStream os = new XmlRpcDualOutputStream();
     	
     	xw = new KXmlSerializer();
-    	xw.setOutput(new OutputStreamWriter(os.getOutputStream()));
+    	OutputStreamWriter outputStreamWriter = new OutputStreamWriter(os.getOutputStream());
+		xw.setOutput(outputStreamWriter);
     	writer = new XmlRpcWriter(xw);
     	
     	writer.writeCall(method, params);
     	xw.flush();
+    	outputStreamWriter.flush();
+    	outputStreamWriter.close();
     	os.close(); //close the dual output stream
 
     	if( isStopped == true ){
@@ -139,7 +142,7 @@ public class XmlRpcClient {
     	byte[] encodedAuthCredential = null;
 		if(http401Password != null) {
 			String login = this.http401Username+ ":"+this.http401Password;
-			//Encode the login information in Base64 format.
+			//Encodes login information in Base64 format.
 			encodedAuthCredential = Base64OutputStream.encode(login.getBytes(), 0, login.length(), false, false);
 		} 
     	

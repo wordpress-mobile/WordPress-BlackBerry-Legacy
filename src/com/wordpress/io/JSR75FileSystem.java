@@ -124,21 +124,36 @@ public class JSR75FileSystem  {
 		}
 	}
 
-
-  public static DataOutputStream getDataOutputStream(String filePath) throws IOException{
+  /*
+   *  This method opens an output stream positioned at the start of the file.
+   *   Data written to the returned output stream overwrites any existing data until EOF is reached, 
+   *   and then additional data is appended.  
+   */
+  public static synchronized void write(String filePath, byte[] content) throws IOException{
 		FileConnection filecon = (FileConnection) Connector.open(filePath);
 		if (!filecon.exists()) {
-			throw new IOException("File not exist!");
+			filecon.create();
+			Log.debug("File successfully created: " + filePath);
+		} else {
+			Log.trace("File already available: " + filePath);			
 		}
-		return filecon.openDataOutputStream();
+		
+		if (!filecon.exists()) {
+			throw new IOException("File does not exist: " + filePath);
+		}
+		DataOutputStream dataOutputStream = filecon.openDataOutputStream();
+		dataOutputStream.write(content);
+		dataOutputStream.flush();
+		dataOutputStream.close();
+		filecon.close();
 	}
   
-  public static DataInputStream getDataInputStream(String filePath) throws IOException{
+  public static synchronized FileConnection openFile(String filePath) throws IOException{
 		FileConnection filecon = (FileConnection) Connector.open(filePath);
 		if (!filecon.exists()) {
-			throw new IOException("File not exist!");
+			throw new IOException("File does not exist: " + filePath);
 		}
-		return filecon.openDataInputStream();
+		return filecon;
 	}
   
   public static synchronized void createDir(String filePath) throws IOException{
@@ -160,7 +175,6 @@ public class JSR75FileSystem  {
 	
 		filecon.close();
 	}
-
 		
   /**
    * Read a file using JSR-75 API.

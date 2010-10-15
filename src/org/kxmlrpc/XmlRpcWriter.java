@@ -31,12 +31,16 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
+
 import net.rim.device.api.io.Base64OutputStream;
 
 import org.kobjects.base64.Base64;
 import org.kxml2.io.KXmlSerializer;
 import org.kxmlrpc.util.IsoDate;
 
+import com.wordpress.io.FileUtils;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.utils.log.Log;
@@ -154,12 +158,17 @@ public class XmlRpcWriter {
 			writer.startTag( null, "base64" );
 			MediaEntry videoFile = (MediaEntry) value;
 			//read the file and encode the file 
-			InputStream inStream = JSR75FileSystem.getDataInputStream(videoFile.getFilePath());
+			FileConnection filecon = (FileConnection) Connector.open(videoFile.getFilePath());
+			if (!filecon.exists()) {
+				throw new IOException("Media File does not exist!");
+			}
+			InputStream inStream = filecon.openDataInputStream();
 			byte[] buffer = new byte[3600];//you must use a 24bit multiple
-			int length = -1;
 			Log.trace("Inizio codifica del file in base64");
 			long start1 = System.currentTimeMillis();
 			String pippo = null;
+			int length = -1;
+			
 			while ((length = inStream.read(buffer)) > 0 && !stopEncoding) {
 				//pippo = Base64.encode(buffer, 0 , length, null).toString();
 				pippo = Base64OutputStream.encodeAsString(buffer, 0, length, true, true);
@@ -168,9 +177,10 @@ public class XmlRpcWriter {
 			long end1 = System.currentTimeMillis();
 			Log.trace("termine codifica del file in base64");
 			Log.trace("tempo impegato sec:" + ((end1-start1)/1000));
-			inStream.close();
-
-/*		
+			FileUtils.closeStream(inStream);
+			FileUtils.closeConnection(filecon);
+							
+/*
 			writer.text( Base64.encode( JSR75FileSystem.readFile(videoFile.getFilePath()) ) );		
 	*/		
 			writer.endTag(null, "base64");

@@ -485,7 +485,7 @@ public abstract class BlogObjectController extends BaseController {
 		//#else
 		UiApplication.getUiApplication().pushScreen(new PreviewView(html));	
 		//#endif
-	
+		
 	}
 	
 	protected String getTheSignaturePreview() {

@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.task;
 
 import java.io.DataOutputStream;
@@ -5,6 +6,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStoreException;
 
 import org.kxmlrpc.XmlRpcException;
@@ -37,6 +39,9 @@ import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
+//#ifdef VER_6.0.0
+import com.wordpress.xmlrpc.AtomPubNewMediaObjectConn;
+//#endif
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.NewMediaObjectConn;
@@ -65,8 +70,16 @@ public class SendToBlogTask extends TaskImpl {
 		Vector mediaObjects = library.getMediaObjects();
 		for (int i =0; i < mediaObjects.size(); i++ ) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
-			NewMediaObjectConn mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
+			
+			BlogConn mediaConnection;
+			//#ifdef VER_6.0.0
+			 mediaConnection = new AtomPubNewMediaObjectConn (blog.getUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
+			//#else
+			mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
+					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
+			//#endif
+			
 			if(blog.isHTTPBasicAuthRequired()) {
 				mediaConnection.setHttp401Password(blog.getHTTPAuthPassword());
 				mediaConnection.setHttp401Username(blog.getHTTPAuthUsername());
@@ -85,8 +98,22 @@ public class SendToBlogTask extends TaskImpl {
 		Vector mediaObjects = page.getMediaObjects();
 		for (int i =0; i < mediaObjects.size(); i++ ) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
-			NewMediaObjectConn mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
+			BlogConn mediaConnection;
+			
+			//#ifdef VER_6.0.0
+			 mediaConnection = new AtomPubNewMediaObjectConn (blog.getUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
+			//#else
+			mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
+					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
+			//#endif
+			
+			if(blog.isHTTPBasicAuthRequired()) {
+				mediaConnection.setHttp401Password(blog.getHTTPAuthPassword());
+				mediaConnection.setHttp401Username(blog.getHTTPAuthUsername());
+			}
+			executionQueue.push(mediaConnection);
+			
 			if(blog.isHTTPBasicAuthRequired()) {
 				mediaConnection.setHttp401Password(blog.getHTTPAuthPassword());
 				mediaConnection.setHttp401Username(blog.getHTTPAuthUsername());
@@ -107,8 +134,16 @@ public class SendToBlogTask extends TaskImpl {
 		Log.trace("Found "+mediaObjects.size()+ " media objs attached to content");
 		for (int i =0; i < mediaObjects.size(); i++ ) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
-			NewMediaObjectConn mediaConnection = new NewMediaObjectConn (post.getBlog().getXmlRpcUrl(), 
-					post.getBlog().getUsername(), post.getBlog().getPassword(), post.getBlog().getId(), tmp);
+		
+			BlogConn mediaConnection;
+			//#ifdef VER_6.0.0
+			 mediaConnection = new AtomPubNewMediaObjectConn (blog.getUrl(), 
+					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
+			//#else
+			mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
+					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
+			//#endif
+			
 			if(blog.isHTTPBasicAuthRequired()) {
 				mediaConnection.setHttp401Password(blog.getHTTPAuthPassword());
 				mediaConnection.setHttp401Username(blog.getHTTPAuthUsername());
@@ -306,11 +341,7 @@ public class SendToBlogTask extends TaskImpl {
 			if(JSR75FileSystem.isFileExist(imageTempFilePath)) {
 				JSR75FileSystem.removeFile(imageTempFilePath);
 			}
-			JSR75FileSystem.createFile(imageTempFilePath);
-			DataOutputStream dataOutputStream = JSR75FileSystem.getDataOutputStream(imageTempFilePath);
-			dataOutputStream.write(photosBytes);
-			dataOutputStream.flush();
-			dataOutputStream.close();
+			JSR75FileSystem.write(imageTempFilePath, photosBytes);
 			
 			h = Integer.parseInt( (String) content.get("height") );
 			w = Integer.parseInt( (String) content.get("width") );
@@ -348,11 +379,7 @@ public class SendToBlogTask extends TaskImpl {
 			if(JSR75FileSystem.isFileExist(imageTempFilePath)) {
 				JSR75FileSystem.removeFile(imageTempFilePath);
 			}
-			JSR75FileSystem.createFile(imageTempFilePath);
-			DataOutputStream dataOutputStream = JSR75FileSystem.getDataOutputStream(imageTempFilePath);
-			dataOutputStream.write(photosBytes);
-			dataOutputStream.flush();
-			dataOutputStream.close();
+			JSR75FileSystem.write(imageTempFilePath, photosBytes);
 
 			h = Integer.parseInt( (String) rotatedContentInfo.get("height") );
 			w = Integer.parseInt( (String) rotatedContentInfo.get("width") );
@@ -492,7 +519,7 @@ public class SendToBlogTask extends TaskImpl {
 	
 	
 	//callback for send post to the blog
-	private class SendMediaCallBack implements Observer{
+	private class SendMediaCallBack implements Observer {
 
 		private MediaEntry mediaObj;
 		private String oldFilePath = null;

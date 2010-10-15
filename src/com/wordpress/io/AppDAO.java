@@ -7,6 +7,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
 
@@ -116,7 +117,8 @@ public class AppDAO implements BaseDAO {
 				return false;
 			}
 
-			DataInputStream in = JSR75FileSystem.getDataInputStream(getAppPrefsFilePath());
+			FileConnection fc = JSR75FileSystem.openFile(getAppPrefsFilePath());
+			DataInputStream in = fc.openDataInputStream();
 			Serializer ser = new Serializer(in);
 
 			String videoEncoding = (String) ser.deserialize();
@@ -165,6 +167,7 @@ public class AppDAO implements BaseDAO {
 			
 			Log.debug("Prefs loading succesfully!");
 			in.close();
+			fc.close();
 			return true;
 		}
 	    
@@ -172,7 +175,8 @@ public class AppDAO implements BaseDAO {
 			Log.debug(">>>store application preferences");
 
 		  	JSR75FileSystem.createFile(getAppPrefsFilePath()); 
-	    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(getAppPrefsFilePath());
+		  	FileConnection fc = JSR75FileSystem.openFile(getAppPrefsFilePath());
+	    	DataOutputStream out = fc.openDataOutputStream();
 	    	
 			String videoEncoding = pref.getVideoEncoding();
 			String audioEncoding = pref.getAudioEncoding();
@@ -214,6 +218,7 @@ public class AppDAO implements BaseDAO {
 	    	ser.serialize(pref.getOpt());
 	    	
 	    	out.close();
+	    	fc.close();
 			Log.debug("Prefs stored succesfully!");
 		}
 }

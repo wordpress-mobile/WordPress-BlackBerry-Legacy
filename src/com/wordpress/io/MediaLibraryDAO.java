@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStoreException;
 
 import com.wordpress.model.Blog;
@@ -25,10 +26,12 @@ public class MediaLibraryDAO implements BaseDAO {
     		return new MediaLibrary[0];
     	}   	
     	
-    	DataInputStream in = JSR75FileSystem.getDataInputStream(commentsFilePath);
+    	FileConnection fc = JSR75FileSystem.openFile(commentsFilePath);
+		DataInputStream in = fc.openDataInputStream();
     	Serializer ser= new Serializer(in);
     	Vector comments = (Vector) ser.deserialize();
     	in.close();
+    	fc.close();
     	
     	Vector controlledMediaEntries = new Vector();
     	String error = null;
@@ -60,18 +63,23 @@ public class MediaLibraryDAO implements BaseDAO {
     		return false;
     	}   	
     	
-    	DataInputStream in = JSR75FileSystem.getDataInputStream(commentsFilePath);
+		FileConnection fc = JSR75FileSystem.openFile(commentsFilePath);
+		
+		DataInputStream in = fc.openDataInputStream();
     	Serializer ser= new Serializer(in);
     	Vector comments = (Vector) ser.deserialize();
     	in.close();
     	comments.removeElementAt(itemIdx);
     	
     	//store objs
-    	JSR75FileSystem.createFile(commentsFilePath); //create the file
-    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(commentsFilePath);
+//    	JSR75FileSystem.createFile(commentsFilePath); //create the file
+//		FileConnection fc = JSR75FileSystem.openFile(commentsFilePath);
+		DataOutputStream out = fc.openDataOutputStream();
     	ser= new Serializer(out);
     	ser.serialize(comments);
     	out.close();
+    	fc.close();	  	
+   
     	return true;
 	}
 	
@@ -83,10 +91,12 @@ public class MediaLibraryDAO implements BaseDAO {
     	Serializer ser = null;
     	
     	if (JSR75FileSystem.isFileExist(commentsFilePath)){
-    		DataInputStream in = JSR75FileSystem.getDataInputStream(commentsFilePath);
+    		FileConnection fc = JSR75FileSystem.openFile(commentsFilePath);
+    		DataInputStream in = fc.openDataInputStream();
     		ser= new Serializer(in);
     		comments = (Vector) ser.deserialize();
     		in.close();
+    		fc.close();
     	} else {
     		comments = new Vector();
     	}
@@ -99,10 +109,12 @@ public class MediaLibraryDAO implements BaseDAO {
     	}
     	//store objs
     	JSR75FileSystem.createFile(commentsFilePath); //create the file
-    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(commentsFilePath);
+		FileConnection fc = JSR75FileSystem.openFile(commentsFilePath);
+		DataOutputStream out = fc.openDataOutputStream();		
     	ser= new Serializer(out);
     	ser.serialize(comments);
     	out.close();
+    	fc.close();
     	return true;
 	}
 	
@@ -120,11 +132,12 @@ public class MediaLibraryDAO implements BaseDAO {
 		String commentsFilePath=AppDAO.getBaseDirPath()+blogNameMD5+MEDIALIBRARY_FILE;
     	
     	JSR75FileSystem.createFile(commentsFilePath); //create the file
-    	DataOutputStream out = JSR75FileSystem.getDataOutputStream(commentsFilePath);
-
+		FileConnection fc = JSR75FileSystem.openFile(commentsFilePath);
+		DataOutputStream out = fc.openDataOutputStream();
     	Serializer ser= new Serializer(out);
     	ser.serialize(serializedData);
     	out.close();
+    	fc.close();
 		Log.trace("<<< storeMediaLibray");
 	}
 	

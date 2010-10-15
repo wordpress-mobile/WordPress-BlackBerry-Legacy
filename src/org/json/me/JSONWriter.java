@@ -1,3 +1,6 @@
+//#preprocess
+
+//#ifndef VER_6.0.0
 package org.json.me;
 
 import java.io.IOException;
@@ -316,3 +319,4 @@ public class JSONWriter {
         return this.append(JSONObject.valueToString(o));
     }
 }
+//#endif

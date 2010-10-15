@@ -12,6 +12,7 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.MenuItem;
 //#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.TouchGesture;
 import net.rim.device.api.ui.TouchEvent;
 //#endif
 import net.rim.device.api.ui.component.ListField;
@@ -23,11 +24,10 @@ import com.wordpress.utils.log.Log;
 
 public class CategoriesListField {
 
-    
 	private Vector _listData = new Vector();
     private ListField _checkList;
     private ListCallBack listFieldCallBack = null;
-
+    private boolean isTorch = false; //used in a very ugly trick!!
 
 	public boolean[] getSelected(){
        int elementLength = _listData.size();
@@ -90,6 +90,10 @@ public class CategoriesListField {
 	
    public CategoriesListField( Category[] blogCategories, int[] postCategoriesID ) {
 
+	   //#ifdef VER_6.0.0
+	    isTorch = true;
+	   //#endif
+	    
 	   //ordering process
 	   Vector rootCategories = new Vector();
 	   for (int i = 0; i < blogCategories.length; i++) {
@@ -209,6 +213,7 @@ public class CategoriesListField {
                 return retVal;
             }
             
+            
         	//#ifdef IS_OS47_OR_ABOVE
 			protected boolean touchEvent(TouchEvent message) {
 				Log.trace(">>> touchEvent");
@@ -217,13 +222,26 @@ public class CategoriesListField {
         		{       			
         			return false;
         		}
-				
+
 				int eventCode = message.getEvent();
-				if (eventCode == TouchEvent.CLICK) {
-					defaultItemAction();
-					return true;
-				} 
-				return false;
+				
+				if(isTorch) {
+					if (eventCode == TouchEvent.GESTURE) {
+						TouchGesture gesture = message.getGesture();
+						int gestureCode = gesture.getEvent();
+						if (gestureCode == TouchGesture.TAP) {
+							defaultItemAction();
+							return true;
+						}
+					} 
+					return false;
+				} else {
+					if (eventCode == TouchEvent.CLICK) {
+						defaultItemAction();
+						return true;
+					} 
+					return false;
+				}
 			}
         	//#endif
             

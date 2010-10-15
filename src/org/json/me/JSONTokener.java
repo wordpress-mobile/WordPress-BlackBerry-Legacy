@@ -1,3 +1,8 @@
+//#preprocess
+
+//#ifndef VER_6.0.0
+
+
 package org.json.me;
 
 /*
@@ -458,3 +463,4 @@ public class JSONTokener {
         return " at character " + this.myIndex + " of " + this.mySource;
     }
 }
+//#endif

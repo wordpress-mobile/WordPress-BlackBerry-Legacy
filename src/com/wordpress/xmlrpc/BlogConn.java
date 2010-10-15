@@ -143,7 +143,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 		} catch (IOException ioe) {
 			setErrorMessage(ioe, "A server communication error occurred");
 		} catch (XmlRpcException xre) {
-			setErrorMessage(xre, "Blog Message (code " +xre.code+")");
+			setErrorMessage(xre, "Server Error " +xre.code+"");
 		} catch (XmlPullParserException parserEx) { //catch all parser exception and rewrite the log message for user
 			Log.error("Parser Exception : "+parserEx.getMessage());
 			XmlPullParserException rewrittenEx = new XmlPullParserException("Malformed blog response");

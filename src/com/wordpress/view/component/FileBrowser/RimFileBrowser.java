@@ -22,6 +22,7 @@ import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 //#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.TouchGesture;
 import net.rim.device.api.ui.TouchEvent;
 //#endif
 import net.rim.device.api.ui.component.ListField;
@@ -71,7 +72,7 @@ public class RimFileBrowser extends PopupScreen {
     private boolean isThumbRunning = false;
     
     private WordPressCore wpCore = null;
-
+    private boolean isTorch = false; //used in a very ugly trick!!
     
 	public RimFileBrowser(String[] extensions, boolean isThumbEnabled) {
     	
@@ -91,6 +92,10 @@ public class RimFileBrowser extends PopupScreen {
         wpCore = WordPressCore.getInstance(); 
         if(wpCore.getLastFileBrowserPath() != null)
         	this.setPath(wpCore.getLastFileBrowserPath());
+        
+ 	   //#ifdef VER_6.0.0
+	    isTorch = true;
+	   //#endif
     }
     
     
@@ -600,21 +605,32 @@ public class RimFileBrowser extends PopupScreen {
         
     	//#ifdef IS_OS47_OR_ABOVE
     	protected boolean touchEvent(TouchEvent message) {
-    		Log.trace(">>> touchEvent");
-    		int eventCode = message.getEvent();
     		
     		/*if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
     		{       			
     			return false;
     		} */
     		
-    		// Get the screen coordinates of the touch event
-    		if(eventCode == TouchEvent.UNCLICK) {
-    			Log.trace("TouchEvent.UNCLICK");
-    			performDefaultActionOnItem();
-    			return true;
-			} 
-			return false; 
+			int eventCode = message.getEvent();
+			
+			if(isTorch) {
+				if (eventCode == TouchEvent.GESTURE) {
+					TouchGesture gesture = message.getGesture();
+					int gestureCode = gesture.getEvent();
+					if (gestureCode == TouchGesture.TAP) {
+						performDefaultActionOnItem();
+						return true;
+					}
+				} 
+				return false;
+			} else {
+	    		if(eventCode == TouchEvent.UNCLICK) {
+	    			Log.trace("TouchEvent.UNCLICK");
+	    			performDefaultActionOnItem();
+	    			return true;
+				} 
+				return false; 
+			}
     	}
     	//#endif
     	

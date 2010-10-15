@@ -1,3 +1,7 @@
+//#preprocess
+
+//#ifndef VER_6.0.0
+
 /*
  * Copyright 2006 Sun Microsystems, Inc.
  */
@@ -42,3 +46,4 @@ public class StringWriter extends Writer {
     public void close() throws IOException {
     }
 }
+//#endif

@@ -1,3 +1,4 @@
+//#preprocess
 package org.kxmlrpc;
 
 import java.io.ByteArrayOutputStream;
@@ -6,24 +7,31 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStoreException;
 
 import com.wordpress.io.AppDAO;
+import com.wordpress.io.FileUtils;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.utils.log.Log;
 
 public class XmlRpcDualOutputStream {
 	
 	private OutputStream os = null;
+	private FileConnection filecon = null;
 	private byte[] memoryStorage = null; //used when no disk storage
 	public String tmpFilePath = null; //used when disk storage
 	
 	public XmlRpcDualOutputStream() {
+		
+		//#ifndef VER_6.0.0
 		os = getTmpFileOutputStream(); //first try the file output stream
+		//#endif
+		
     	if(os == null) {
     		setUpMemoryOutputStream();
     	} else {
-    		
     		try {
 				tmpFilePath = AppDAO.getXmlRpcTempFilePath();
 			} catch (RecordStoreException e) {
@@ -44,7 +52,10 @@ public class XmlRpcDualOutputStream {
 	    	} else {
 	    		
 	    	}		
-			os.close();		
+			os.close();
+			
+			FileUtils.closeConnection(filecon);
+			
 		} catch (Exception e) {
 			Log.error("Error while closing the xmlrpc tmp file");
 		}
@@ -77,7 +88,13 @@ public class XmlRpcDualOutputStream {
 				memoryStorage = ((ByteArrayOutputStream)os).toByteArray();
 			out.write(memoryStorage);
 		} else {
-			InputStream inStream = JSR75FileSystem.getDataInputStream(tmpFilePath);
+			FileConnection filecon = (FileConnection) Connector.open(tmpFilePath);
+			if (!filecon.exists()) {
+				throw new IOException("File not exist!");
+			}
+			InputStream inStream = filecon.openDataInputStream();
+			
+			//InputStream inStream = JSR75FileSystem.getDataInputStream(tmpFilePath);
 			byte[] buffer = new byte[1024]; 
 			int length = -1;
 			while ((length = inStream.read(buffer)) >0 ) {
@@ -85,7 +102,8 @@ public class XmlRpcDualOutputStream {
 				//Log.trace("1024byte X: "+ (count++));
 				//Log.trace("1048576byte per: "+ (count++));
 			}
-			inStream.close();
+			FileUtils.closeStream(inStream);
+			FileUtils.closeConnection(filecon);
 		}
 	}
 	
@@ -122,18 +140,16 @@ public class XmlRpcDualOutputStream {
 				JSR75FileSystem.removeFile(tmpFilePath);
 			}
 			JSR75FileSystem.createFile(tmpFilePath);
-			return JSR75FileSystem.getDataOutputStream(tmpFilePath);
-		
+			filecon = (FileConnection) Connector.open(tmpFilePath);
+			if (!filecon.exists()) {
+				throw new IOException("File does not exist: " + tmpFilePath);
+			}
+			return filecon.openDataOutputStream();
 		} catch (RecordStoreException e) {
 	    	Log.error(e, "Error while allocating xmlrpc tmp file");
 		} catch (IOException e) {
 			Log.error(e, "Error while allocating xmlrpc file");
 		}
-		
 		return null;
     }
-	
-    
-    
-	
 }

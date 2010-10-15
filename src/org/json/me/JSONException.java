@@ -1,3 +1,7 @@
+//#preprocess
+
+//#ifndef VER_6.0.0
+
 package org.json.me;
 
 /**
@@ -25,3 +29,4 @@ public class JSONException extends Exception {
         return this.cause;
     }
 }
+//#endif

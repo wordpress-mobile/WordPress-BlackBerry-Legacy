@@ -8,8 +8,8 @@ import com.wordpress.utils.log.Log;
 
 public class NewMediaObjectConn extends BlogConn  {
 
-	private MediaEntry mediaObj =null;	
-	private String blogID;
+	protected MediaEntry mediaObj =null;	
+	protected String blogID;
 	
 	public MediaEntry getMediaObj() {
 		return mediaObj;

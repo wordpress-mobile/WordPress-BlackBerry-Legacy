@@ -8,6 +8,8 @@ import java.io.Reader;
 
 import javax.microedition.io.Connection;
 
+import com.wordpress.utils.log.Log;
+
 public class FileUtils {
 	
 	
@@ -42,6 +44,7 @@ public class FileUtils {
 	      try {
 	        is.close();
 	      } catch (final IOException ignore) {
+	    	  Log.error(ignore, "Error while closing the stream");
 	      }
 	    }
 	  }
@@ -51,6 +54,7 @@ public class FileUtils {
 	      try {
 	        os.close();
 	      } catch (final IOException ignore) {
+	    	  Log.error(ignore, "Error while closing the stream");
 	      }
 	    }
 	  }
@@ -60,6 +64,7 @@ public class FileUtils {
 	      try {
 	        reader.close();
 	      } catch (final IOException ignore) {
+	    	  Log.error(ignore, "Error while closing the reader");
 	      }
 	    }
 	  }
@@ -69,6 +74,7 @@ public class FileUtils {
 	      try {
 	        conn.close();
 	      } catch (final IOException ignore) {
+	    	  Log.error(ignore, "Error while closing the file");
 	      }
 	    }
 	  }
