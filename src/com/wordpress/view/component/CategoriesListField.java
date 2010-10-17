@@ -18,6 +18,7 @@ import net.rim.device.api.ui.TouchEvent;
 import net.rim.device.api.ui.component.ListField;
 
 import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.model.Category;
 import com.wordpress.utils.log.Log;
@@ -27,7 +28,6 @@ public class CategoriesListField {
 	private Vector _listData = new Vector();
     private ListField _checkList;
     private ListCallBack listFieldCallBack = null;
-    private boolean isTorch = false; //used in a very ugly trick!!
 
 	public boolean[] getSelected(){
        int elementLength = _listData.size();
@@ -90,10 +90,6 @@ public class CategoriesListField {
 	
    public CategoriesListField( Category[] blogCategories, int[] postCategoriesID ) {
 
-	   //#ifdef VER_6.0.0
-	    isTorch = true;
-	   //#endif
-	    
 	   //ordering process
 	   Vector rootCategories = new Vector();
 	   for (int i = 0; i < blogCategories.length; i++) {
@@ -216,8 +212,6 @@ public class CategoriesListField {
             
         	//#ifdef IS_OS47_OR_ABOVE
 			protected boolean touchEvent(TouchEvent message) {
-				Log.trace(">>> touchEvent");
-
 				if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
         		{       			
         			return false;
@@ -225,7 +219,7 @@ public class CategoriesListField {
 
 				int eventCode = message.getEvent();
 				
-				if(isTorch) {
+				if(WordPressInfo.isTorch) {
 					if (eventCode == TouchEvent.GESTURE) {
 						TouchGesture gesture = message.getGesture();
 						int gestureCode = gesture.getEvent();

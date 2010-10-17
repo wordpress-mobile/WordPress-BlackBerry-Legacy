@@ -4,6 +4,7 @@ package com.wordpress.view.component;
 import java.util.Vector;
 
 import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.utils.log.Log;
 
@@ -15,6 +16,7 @@ import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.TouchGesture;
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.TouchEvent;
 //#endif
@@ -121,32 +123,38 @@ public class CheckBoxListField {
             
         	//#ifdef IS_OS47_OR_ABOVE
         	protected boolean touchEvent(TouchEvent message) {
-        		Log.trace(">>> touchEvent");
+        		Log.trace("touchEvent");
         		
         		if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
         		{       			
         			return false;
         		} 
-        		        		
-        		//DOWN, UP, CLICK, UNCLICK, MOVE, and CANCEL. An additional event, GESTURE
-        		int eventCode = message.getEvent();
-        		if(eventCode == TouchEvent.CLICK) {
-        			Log.trace("TouchEvent.CLICK");
-        			defaultItemAction();
-        			return true;
-        		}else if(eventCode == TouchEvent.DOWN) {
-        			Log.trace("TouchEvent.CLICK");
-        		} else if(eventCode == TouchEvent.UP) {
-        			Log.trace("TouchEvent.UP");
-        		} else if(eventCode == TouchEvent.UNCLICK) {
-        			Log.trace("TouchEvent.UNCLICK");
-        			//return true; //consume the event: avoid context menu!!
-        		} else if(eventCode == TouchEvent.CANCEL) {
-        			Log.trace("TouchEvent.CANCEL");
-        		}
         		
-        		return false; 
-        		//return super.touchEvent(message);
+        		int eventCode = message.getEvent();
+
+        		if(WordPressInfo.isTorch) {
+    				if (eventCode == TouchEvent.GESTURE) {
+    					TouchGesture gesture = message.getGesture();
+    					int gestureCode = gesture.getEvent();
+    					if (gestureCode == TouchGesture.TAP) {
+    						defaultItemAction();
+    						return true;
+    					}
+    				} 
+    				return false;
+    			} else {
+    				if(eventCode == TouchEvent.CLICK) {
+    					defaultItemAction();
+    					return true;
+    				}else if(eventCode == TouchEvent.DOWN) {
+    				} else if(eventCode == TouchEvent.UP) {
+    				} else if(eventCode == TouchEvent.UNCLICK) {
+    					//return true; //consume the event: avoid context menu!!
+    				} else if(eventCode == TouchEvent.CANCEL) {
+    				}
+    				return false; 
+    				//return super.touchEvent(message);
+    			}
         	}
         	//#endif
         	

@@ -35,6 +35,7 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 
 
 import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.utils.ImageUtils;
@@ -72,7 +73,6 @@ public class RimFileBrowser extends PopupScreen {
     private boolean isThumbRunning = false;
     
     private WordPressCore wpCore = null;
-    private boolean isTorch = false; //used in a very ugly trick!!
     
 	public RimFileBrowser(String[] extensions, boolean isThumbEnabled) {
     	
@@ -92,10 +92,6 @@ public class RimFileBrowser extends PopupScreen {
         wpCore = WordPressCore.getInstance(); 
         if(wpCore.getLastFileBrowserPath() != null)
         	this.setPath(wpCore.getLastFileBrowserPath());
-        
- 	   //#ifdef VER_6.0.0
-	    isTorch = true;
-	   //#endif
     }
     
     
@@ -613,7 +609,7 @@ public class RimFileBrowser extends PopupScreen {
     		
 			int eventCode = message.getEvent();
 			
-			if(isTorch) {
+			if(WordPressInfo.isTorch) {
 				if (eventCode == TouchEvent.GESTURE) {
 					TouchGesture gesture = message.getGesture();
 					int gestureCode = gesture.getEvent();

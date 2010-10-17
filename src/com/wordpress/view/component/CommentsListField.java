@@ -13,12 +13,14 @@ import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.TouchGesture;
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.TouchEvent;
 //#endif
 import net.rim.device.api.ui.component.ListField;
 
 import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.GravatarController;
 import com.wordpress.model.Comment;
@@ -168,7 +170,6 @@ public class CommentsListField {
             
         	//#ifdef IS_OS47_OR_ABOVE
         	protected boolean touchEvent(TouchEvent message) {
-        		Log.trace(">>> touchEvent");
     			
         		if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
         		{       			
@@ -176,10 +177,21 @@ public class CommentsListField {
         		} 
     			
         		int eventCode = message.getEvent();
-        		if(eventCode == TouchEvent.CLICK) {
-        			return defaultAction();
+        		if(WordPressInfo.isTorch) {
+        			if (eventCode == TouchEvent.GESTURE) {
+        				TouchGesture gesture = message.getGesture();
+        				int gestureCode = gesture.getEvent();
+        				if (gestureCode == TouchGesture.TAP) {
+        					return defaultAction();
+        				}
+        			} 
+        			return false;
+        		} else {
+        			if(eventCode == TouchEvent.CLICK) {
+        				return defaultAction();
+        			}
+        			return false;	
         		}
-        		return false;	
         	}
         	//#endif
         	

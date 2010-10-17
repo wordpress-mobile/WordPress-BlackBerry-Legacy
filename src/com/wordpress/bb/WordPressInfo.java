@@ -1,4 +1,7 @@
+//#preprocess
 package com.wordpress.bb;
+
+import com.wordpress.utils.log.Log;
 
 import net.rim.device.api.system.Bitmap;
 
@@ -23,6 +26,7 @@ public final class WordPressInfo {
 	
 	public static final int DEFAULT_DOWNLOADED_COMMENTS = 100;
 	
+	public static boolean isTorch; //used in a very ugly trick!!
 	
     private static Bitmap icon = Bitmap.getBitmapResource("application-icon.png");
     private static Bitmap newCommentsIcon = Bitmap.getBitmapResource("application-icon-new.png");
@@ -33,7 +37,12 @@ public final class WordPressInfo {
      * @param args Arguments
      */
     public static synchronized void initialize(String args[]) {
-
+    	Log.trace("WordPress Info inizialized");
+    	//#ifdef VER_6.0.0
+    	isTorch = true;
+    	//#else
+    	isTorch = false;
+    	//#endif
     }
    
     public static Bitmap getIcon() {

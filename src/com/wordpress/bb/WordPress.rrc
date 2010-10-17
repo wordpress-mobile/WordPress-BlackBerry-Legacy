@@ -222,7 +222,7 @@ MENUITEM_VIEW_TITLES#0="View Titles";
 MESSAGES_ADD_BLOG#0={
     "Add existing",
     "WordPress.com blogs",
-    "WordPress.org site",
+    "WordPress.org blogs",
 };
 MESSAGE_APP_RESTART#0="Application restarts automatically. If it doesn't work, you should restart the app manually.";
 MESSAGE_AUTH_REQUIRED#0="HTTP Authorization Required, please insert your Username and Password";
@@ -315,7 +315,7 @@ OPTIONSSCREEN_TITLE_STORAGE#0="Cache Files Options";
 OPTIONSSCREEN_USERDEFINEDCONN_DESC#0="The following are advanced connection settings. Under Normal circumstances leave this options unselected, however if you are having connectivity issues you can enable your connection settings in this box.";
 OPTIONSSCREEN_USERDEFINEDCONN_WARNING#0="If you enable this option, all internet activity will be managed by your connection settings. No other connection type will be used.";
 PROMOSCREEN_BUTTON_HAVE_A_WPCOM_BLOG#0="Add existing WordPress.com blogs";
-PROMOSCREEN_BUTTON_HAVE_A_WPORG_BLOG#0="Add existing WordPress.org site";
+PROMOSCREEN_BUTTON_HAVE_A_WPORG_BLOG#0="Add existing WordPress.org blogs";
 PROMOSCREEN_BUTTON_NEW_TO_WP_BLOG#0="Start a new blog at WordPress.com";
 PROMOSCREEN_TAGLINE#0="Start blogging from your BlackBerry in seconds.";
 SUPPORT_DESC_1#0="Having trouble with the App? Be sure to go through this checklist before contacting us. You may be able to solve it all by yourself!";
