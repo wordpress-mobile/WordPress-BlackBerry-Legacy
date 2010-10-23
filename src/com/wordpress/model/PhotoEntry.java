@@ -51,12 +51,8 @@ public class PhotoEntry extends MediaEntry {
 	}
 	
 	public String getMediaObjectAsSmallHtml() {
-		
 		StringBuffer tmpBuff = new StringBuffer();
-			tmpBuff.append("<p>"+
-					"<img class=\"alignnone size-full\"" +
-					" src=\""+this.getFilePath()+"\" alt=\"\" " +
-					"</p>");
+			tmpBuff.append("<p><img class=\"alignnone size-full\" src=\""+this.getFilePath()+"\" /></p>");
 		return tmpBuff.toString();
 	}
 	
@@ -86,7 +82,7 @@ public class PhotoEntry extends MediaEntry {
 		if(!caption.equals("")) {
 			//<div id="attachment_30" class="wp-caption alignnone" style="width: 830px">
 			int divWidth = this.getWidth()+10; //adding 10px padding
-			tmpBuff.append("<div class=\"wp-caption alignnone\" style=\"width: "+divWidth+"px\"");
+			tmpBuff.append("<div class=\"wp-caption alignnone\" style=\"width: "+divWidth+"px\">");
 		} else {
 			tmpBuff.append("<p>");
 		}
