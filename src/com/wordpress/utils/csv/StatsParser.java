@@ -43,7 +43,13 @@ public class StatsParser {
 	
 	public void parseAll() throws IOException {
 		String tmpString = new String (data);
+				
 		if (tmpString.startsWith("Error: ")) {
+			//rewrite the error message
+			if(tmpString.indexOf("zero rows returned.")!= -1) {
+				throw new IOException("No data available!");
+			}
+			
 			LineReader br = new LineReader(new ByteArrayInputStream(data));
 			String line = "";
 			try {

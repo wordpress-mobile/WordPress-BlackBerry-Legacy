@@ -15,8 +15,8 @@ public final class WordPressInfo {
     public final static long APPLICATION_ID = 0x97ebc046dec5817fL;
     public final static long COMMENTS_UID = 0x8de9c6b3a49fd864L;
     
-	public final static String STATS_AUTH_ENDPOINT_URL = "https://public-api.wordpress.com/getuserblogs.php";
-	public final static String STATS_ENDPOINT_URL = "http://stats.wordpress.com/csv.php";
+	public final static String STATS_AUTH_ENDPOINT_URL = "https://public-api.wordpress.com/get-user-blogs/1.0/";
+	public final static String STATS_ENDPOINT_URL = "http://stats.wordpress.com/api/1.0/";
 	public final static String STATS_CHART_URL = "http://chart.apis.google.com/chart";
 	public final static String BB_APP_STATS_ENDPOINT_URL = "http://api.wordpress.org/bbapp/update-check/1.0/";
 	public final static String BB_APP_SIGNUP_URL = "http://wordpress.com/signup/?ref=wp-blackberry";

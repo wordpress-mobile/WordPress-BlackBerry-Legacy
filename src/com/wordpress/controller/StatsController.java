@@ -65,6 +65,7 @@ public class StatsController extends BaseController {
 	public static final int TYPE_REFERRERS = 2;
 	public static final int TYPE_SEARCH = 3;
 	public static final int TYPE_CLICKS = 4;
+	public static final int TYPE_VIDEO = 5;
 	
 	//constants used to group stats when stats type != view
 	public static final int INTERVAL_7DAYS = 7;
@@ -133,6 +134,9 @@ public class StatsController extends BaseController {
 			break;
 		case TYPE_TOP:
 			retType = "postviews";
+			break;
+		case TYPE_VIDEO:
+			retType = "videoplays";
 			break;
 		default:
 			break;

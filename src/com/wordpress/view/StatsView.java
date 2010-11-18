@@ -71,6 +71,7 @@ public class StatsView extends BaseView {
 		addMenuItem(_referrersItem);
 		addMenuItem(_searchEngineTermsItem);
 		addMenuItem(_clicksItem);
+		addMenuItem(_videoPlayItem);
 		
 		updateSubTitle(); 
 	}
@@ -141,6 +142,19 @@ public class StatsView extends BaseView {
 			columnName = new String[]{"post_title", "views"};
 			columnLink = new String[]{"post_permalink",null};
 			break;
+		
+		case StatsController.TYPE_VIDEO:
+			statsDesc.setText(_resources.getString(WordPressResource.MESSAGE_STATS_VIDEO));
+			outerTable = new TableLayoutManager(new int[] {
+					TableLayoutManager.USE_PREFERRED_SIZE,
+					TableLayoutManager.SPLIT_REMAINING_WIDTH,
+					TableLayoutManager.USE_PREFERRED_SIZE }, new int[] { 2, 2, 2 }, 5,
+					Manager.USE_ALL_WIDTH);
+			columnHeader = new String[]{_resources.getString(WordPressResource.LABEL_TITLE),viewsColumnTitle};
+			columnName = new String[]{"video_title","views"};
+			columnLink = new String[]{null,null};
+			break;	
+			
 		default:
 			return;
 		}
@@ -181,9 +195,25 @@ public class StatsView extends BaseView {
 
 		//fill the table
 		try {
+			
+			//reverse the order of the row
+			Vector reversedData = new Vector();
+			if(controller.getType() == StatsController.TYPE_VIEW) {
+				while (statParser.hasNext()) {
+					String[] nextLine = statParser.next();
+					reversedData.addElement(nextLine);
+				}
+				statParser.reset();
+			}
+			
 			int counter = 1;
 			while (statParser.hasNext()) {
 				String[] nextLine = statParser.next();
+
+				if(controller.getType() == StatsController.TYPE_VIEW) {
+					//reverse the order of the row
+					 nextLine = (String[])reversedData.elementAt(reversedData.size()- counter);
+				}
 				
 				LabelField currentLabelField = null;
 				
@@ -192,7 +222,7 @@ public class StatsView extends BaseView {
 					outerTable.add(currentLabelField);
 					//#ifdef IS_OS47_OR_ABOVE
 					if(counter % 2 != 0)
-						currentLabelField.setBackground(BackgroundFactory.createSolidBackground(0xe6f0ff));
+						currentLabelField.setBackground(BackgroundFactory.createSolidBackground(0xf5f5f5));
 					else
 						currentLabelField.setBackground(BackgroundFactory.createSolidBackground(Color.WHITE));
 					//#endif
@@ -218,7 +248,7 @@ public class StatsView extends BaseView {
 					
 					//#ifdef IS_OS47_OR_ABOVE
 					if(counter % 2 != 0)
-						currentLabelField.setBackground(BackgroundFactory.createSolidBackground(0xe6f0ff));
+						currentLabelField.setBackground(BackgroundFactory.createSolidBackground(0xf5f5f5));
 					else
 						currentLabelField.setBackground(BackgroundFactory.createSolidBackground(Color.WHITE));
 					//#endif
@@ -245,9 +275,10 @@ public class StatsView extends BaseView {
 
 			if(controller.getType() == StatsController.TYPE_VIEW) {
 				//draw a line chart
-				Vector xAxisValues = new Vector();
-				StringBuffer chd_y = new StringBuffer("");
-				int max = 0;
+				Vector dateStrings = new Vector();
+				StringBuffer dataValues = new StringBuffer("");
+				int maxValue = Integer.MIN_VALUE;
+				int minValue = Integer.MAX_VALUE;
 				while (statParser.hasNext()) {
 					String[] nextLine = statParser.next();
 
@@ -255,31 +286,39 @@ public class StatsView extends BaseView {
 						String _tmpName = columnName[i];
 						int _tmpIdx = statParser.getColumnIndex(_tmpName);
 						if(i ==  0) {
-							xAxisValues.addElement(nextLine[_tmpIdx]);
+							dateStrings.addElement(nextLine[_tmpIdx]);
 						} else {
 							int value = Integer.parseInt(nextLine[_tmpIdx]);
-							if (value > max) max = value;
-							chd_y.append(value+",");
+							if (value > maxValue) maxValue = value;
+							if (value < minValue) minValue = value;
+							dataValues.append(value+",");
 						}
 					}
 				}//end while
 
-				chd_y.deleteCharAt(chd_y.length()-1);
-
+				dataValues.deleteCharAt(dataValues.length()-1);
+				long maxBuffer = (long) (maxValue +  Tools.round(maxValue * .10));
 				//chxl=0:|Jan|Feb|March|April|May|
-				String startLabel = (String)xAxisValues.elementAt(0);
+				String startLabel = (String)dateStrings.elementAt(0);
 				String endLabel = startLabel; 
-				if(xAxisValues.size() > 1)
-					endLabel = (String)xAxisValues.elementAt((xAxisValues.size()-1));
+				if(dateStrings.size() > 1)
+					endLabel = (String)dateStrings.elementAt((dateStrings.size()-1));
 				
-
-				String axisLabels= "&chxl=0:|"+startLabel+"|"+endLabel;
-				chartParametersURL = "?cht=lc" +
-				"&chxt=x,y&chxr=1,0,"+max+"&chxs=1N*sz0*&chds=0,"+(max+10)+axisLabels+
-				"&chd=t:"+chd_y.toString()+"&chco=21759b&chf=c,lg,90,DADEDA,0,F6FAF6,1&chm=s,21759b,0,-1,6";
+				//check if the bar width is not too large.
+				//int chartDimensionToContainAllBars = (dateStrings.size()*23) + (dateStrings.size()*4);
+				//scrollerData.add( GUIFactory.createURLLabelField("Open in Browser", WordPressInfo.STATS_CHART_URL+chartParametersURL+"&chs="+chartDimensionToContainAllBars+"x"+getPredefinedChartHeigth(), LabelField.FOCUSABLE) );
 				
+				chartParametersURL = "?cht=bvs" + //chart type
+						"&chco=a3bcd3" + //color
+						"&chxt=x,y" + //Visible Axes
+						"&chxr=1,0,"+maxBuffer+"" + //Axis Range
+						"&chds=0,"+maxBuffer + //Custom scaling 
+						"&chxl=0:|"+startLabel+"|"+endLabel+ //Custom Axis Labels
+						"&chxp=0,0,100" + //Axis Label Positions
+						"&chxs=1N*sz0*" + //Axis Label Styles
+						"&chbh=a"+ //Bar Width and Spacing
+						"&chd=t:"+dataValues.toString();
 			} else { 
-				//building a bar chart
 				
 				StringBuffer chdl = new StringBuffer("&chl=");
 				StringBuffer chd = new StringBuffer("&chd=t:");
@@ -304,12 +343,20 @@ public class StatsView extends BaseView {
 					counter++;
 				}//end while
 
-				//building the chart url
+
 				chd.deleteCharAt(chd.length()-1);
 				chdl.deleteCharAt(chdl.length()-1);
-
-				chartParametersURL ="?cht=bvs" +"&chxt=x,y&chxr=1,0,"+(max+10)+"&chxs=1N*sz0*"+
-				chd.toString() + "&chds=0,"+(max+10)+chdl.toString()+"&chco=21759b|d54e21|464646|ffffe0&chf=c,lg,90,DADEDA,0,F6FAF6,1";
+				long maxBuffer = (long) (max +  Tools.round(max * .10));
+				
+				chartParametersURL ="?cht=bvs" +
+					"&chxt=x,y" +
+					"&chxr=1,0,"+maxBuffer+"" +
+					"&chds=0,"+maxBuffer+
+					"&chxs=1N*sz0*"+
+				     chd.toString() + 
+				     chdl.toString()+
+				     "&chco=a3bcd3"; //color
+				     //"&chf=c,lg,90,DADEDA,0,F6FAF6,1";
 			}
 
 			chartImg = new ChartBitmap(WordPressInfo.STATS_CHART_URL+chartParametersURL, 
@@ -318,8 +365,7 @@ public class StatsView extends BaseView {
 			chartImg.setMargin(5,0,5,0);
 
 			scrollerData.add(chartImg);
-		
-
+			
 		} catch (Exception e) {
 			controller.displayError(e, "Error while building stats chart.");
 		}
@@ -558,6 +604,11 @@ public class StatsView extends BaseView {
 	 private MenuItem _clicksItem = new MenuItem( _resources, WordPressResource.MENUITEM_STATS_CLICKS, 100000, 200) {
 		 public void run() {
 			 changeStatsType(StatsController.TYPE_CLICKS);
+		 }
+	 };
+	 private MenuItem _videoPlayItem = new MenuItem( _resources, WordPressResource.MENUITEM_STATS_VIDEOPLAYS, 100000, 200) {
+		 public void run() {
+			 changeStatsType(StatsController.TYPE_VIDEO);
 		 }
 	 };
 	private VerticalFieldManager scrollerData;
