@@ -467,6 +467,9 @@ public class StatsView extends BaseView {
 		case StatsController.TYPE_TOP:
 			subtitle += _resources.getString(WordPressResource.MENUITEM_STATS_TOP);
 			break;
+		case StatsController.TYPE_VIDEO:
+			subtitle += _resources.getString(WordPressResource.MENUITEM_STATS_VIDEOPLAYS);
+			break;
 		default:
 			subtitle += _resources.getString(WordPressResource.MENUITEM_STATS_VIEW);
 			break;

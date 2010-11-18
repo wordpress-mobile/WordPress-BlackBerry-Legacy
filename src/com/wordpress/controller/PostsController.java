@@ -50,11 +50,11 @@ public class PostsController extends BaseController{
 		for (int i = 0; i < recentPostsTitle.size(); i++) {
 			boolean presence = false; 
 			Hashtable recentPost = (Hashtable) recentPostsTitle.elementAt(i);
-            String postId = (String) recentPost.get("postid");
+            String postId = String.valueOf( recentPost.get("postid") );
 			
 		    for (int j = 0; j < viewedPostsTitle.size(); j++) {
 		    	Hashtable viewedPost = (Hashtable) viewedPostsTitle.elementAt(j);
-	            String viewedPostId = (String) viewedPost.get("postid");
+	            String viewedPostId = String.valueOf( viewedPost.get("postid") );
 		    	
 		    	if (postId.equalsIgnoreCase(viewedPostId)) {
 		    		presence = true;
@@ -119,7 +119,7 @@ public class PostsController extends BaseController{
 			*/
 	        
 			final GetPostConn connection = new GetPostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
-	        		currentBlog.getPassword(), currentBlog, (String) postData.get("postid"));
+	        		currentBlog.getPassword(), currentBlog, String.valueOf(postData.get("postid")) );
 	        connection.addObserver(new loadPostCallBack());  
 	        connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONN_LOADING_POST));
 	       
@@ -143,7 +143,7 @@ public class PostsController extends BaseController{
 		
     		Hashtable postData = (Hashtable) currentBlog.getRecentPostTitles().elementAt(postID);
 
-			String postid=(String) postData.get("postid");
+			String postid = String.valueOf(postData.get("postid"));
 				 
 			DeletePostConn connection = new DeletePostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
 					 currentBlog.getPassword(), postid);
