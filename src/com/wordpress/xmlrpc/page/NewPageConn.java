@@ -1,5 +1,6 @@
 package com.wordpress.xmlrpc.page;
 
+import java.util.Hashtable;
 import java.util.Vector;
 
 import com.wordpress.io.PageDAO;
@@ -42,7 +43,20 @@ public class NewPageConn extends BlogConn  {
 			args.addElement(String.valueOf(blogId));
 			args.addElement(mUsername);
 			args.addElement(mPassword);
-			args.addElement(PageDAO.page2Hashtable(page));
+			
+			Hashtable content = PageDAO.page2Hashtable(page);
+	        /*
+	         * 'trackback' and 'enable comments' option
+	         *  should not be considered at this moment.
+	         *  We haven't the GUI to set this value so we are using the ù
+	         *  blog main setting. 
+	         *  
+	         *  look at EditPageConn.java
+	         */
+		 	content.remove("mt_allow_comments");
+		    content.remove("mt_allow_pings");
+
+			args.addElement(content);
 			args.addElement(isPublished ? TRUE : FALSE);
 
 			Object response = execute("wp.newPage", args);
