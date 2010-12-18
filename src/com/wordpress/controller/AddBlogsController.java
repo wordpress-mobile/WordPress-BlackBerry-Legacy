@@ -128,8 +128,8 @@ public class AddBlogsController extends BaseController {
 		addedBlog.copyInto(serverBlogs);
 		addedBlog = new Vector();
 		
-		//show the blog selector popup when there are blogs associated with the account
-		if(serverBlogs.length > 0) {
+		//show the blog selector popup when there are more then 1 blog associated with the account
+		if(serverBlogs.length > 1) {
 			String title = _resources.getString(WordPressResource.TITLE_ADDBLOGS_SELECTOR_POPUP);
 			String[] blogNames = new String[serverBlogs.length];
 			for (int i = 0; i < blogNames.length; i++) {
@@ -156,7 +156,7 @@ public class AddBlogsController extends BaseController {
 			serverBlogs = new Blog[addedBlog.size()];
 			addedBlog.copyInto(serverBlogs);
 			addedBlog = new Vector();
-		} else {
+		} else if(serverBlogs.length == 0) {
 			displayMessage(_resources.getString(WordPressResource.MESSAGE_NO_OTHER_BLOGS_FOR_ACCOUNT));
 		}
 		
