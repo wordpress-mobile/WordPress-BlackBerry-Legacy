@@ -11,6 +11,12 @@ import java.util.Vector;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStoreException;
 
+import net.rim.device.api.system.ApplicationDescriptor;
+import net.rim.device.api.system.CodeSigningKey;
+import net.rim.device.api.system.ControlledAccess;
+import net.rim.device.api.system.PersistentObject;
+import net.rim.device.api.system.PersistentStore;
+
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Category;
@@ -21,6 +27,8 @@ import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 
 public class BlogDAO implements BaseDAO {
+	
+	private final static long BLOG_DATA_ID = 0x58fef94fa0de97e4L; //com.wordpress.io.BlogDAO
 	
 	//You might wonder what happens when a static synchronized method is invoked, since a static method is 
 	//associated with a class, not an object. 
@@ -226,7 +234,24 @@ public class BlogDAO implements BaseDAO {
 		ser.serialize(new Integer(blog.getLoadingState()));
     	ser.serialize(blog.getXmlRpcUrl());
     	ser.serialize(blog.getUsername());
-    	ser.serialize(blog.getPassword());
+    	ser.serialize("");//blog.getPassword()
+    	
+    	//protect the password data!!
+    	Hashtable blogsSecretStuff = null;
+    	PersistentObject rec = PersistentStore.getPersistentObject(BLOG_DATA_ID);
+    	int moduleHandle = ApplicationDescriptor.currentApplicationDescriptor().getModuleHandle();
+    	CodeSigningKey codeSigningKey = CodeSigningKey.get( moduleHandle, "WP" );
+    	Object contents = rec.getContents(codeSigningKey);
+    	if(contents == null) {
+    		blogsSecretStuff = new Hashtable();
+    	} else {
+    		blogsSecretStuff = (Hashtable) contents;
+    	}
+    	blogsSecretStuff.put(getBlogFolderName(blog), blog.getPassword());
+    	rec.setContents( new ControlledAccess( blogsSecretStuff, codeSigningKey ) );
+    	rec.commit();
+    	//end protected data
+    	
     	ser.serialize(blog.getId());
     	ser.serialize(blog.getName());
     	ser.serialize(blog.getUrl());
@@ -363,6 +388,25 @@ public class BlogDAO implements BaseDAO {
         String xmlRpcUrl = (String)ser.deserialize();
         String userName = (String)ser.deserialize();
         String password = (String)ser.deserialize();
+        
+        //deserialize the real password here
+    	Hashtable blogsSecretStuff = null;
+    	PersistentObject rec = PersistentStore.getPersistentObject(BLOG_DATA_ID);
+    	int moduleHandle = ApplicationDescriptor.currentApplicationDescriptor().getModuleHandle();
+    	CodeSigningKey codeSigningKey = CodeSigningKey.get( moduleHandle, "WP" );
+    	Object contents = rec.getContents(codeSigningKey);
+    	if(contents == null) {
+    		blogsSecretStuff = new Hashtable();
+    	} else {
+    		blogsSecretStuff = (Hashtable) contents;
+    	}
+    	Object objpass = blogsSecretStuff.get(name);
+    	
+    	if( objpass!= null )
+    		password = (String)objpass;
+        //end deserialization
+        
+        
         String blodId= (String)ser.deserialize();
         String blogName= (String)ser.deserialize();
         String blodUrl= (String)ser.deserialize();
@@ -638,6 +682,21 @@ public class BlogDAO implements BaseDAO {
     		throw new IOException("Cannot delete this blog: " + blogName + " because not exist!");
     	} else {
 			JSR75FileSystem.removeFile(filePath);
+	    	//removed the protected password the password data!!
+	    	Hashtable blogsSecretStuff = null;
+	    	PersistentObject rec = PersistentStore.getPersistentObject(BLOG_DATA_ID);
+	    	int moduleHandle = ApplicationDescriptor.currentApplicationDescriptor().getModuleHandle();
+	    	CodeSigningKey codeSigningKey = CodeSigningKey.get( moduleHandle, "WP" );
+	    	Object contents = rec.getContents(codeSigningKey);
+	    	if(contents == null) {
+	    		blogsSecretStuff = new Hashtable();
+	    	} else {
+	    		blogsSecretStuff = (Hashtable) contents;
+	    	}
+	    	blogsSecretStuff.remove(blogName);
+	    	rec.setContents( new ControlledAccess( blogsSecretStuff, codeSigningKey ) );
+	    	rec.commit();
+	    	//end deleting of protected data
     	}    
     }
     

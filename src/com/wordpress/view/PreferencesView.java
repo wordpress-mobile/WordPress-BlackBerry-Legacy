@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
+import net.rim.device.api.system.ControlledAccessException;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
@@ -700,9 +701,7 @@ public class PreferencesView extends StandardBaseView {
 									Object value = applicationAccountsNew.get(key);
 									applicationAccounts.put(key, value);
 								}
-							} catch (IOException e) {
-								Log.error(e, "Error while reading accounts info");
-							} catch (RecordStoreException e) {
+							} catch (ControlledAccessException e) {
 								Log.error(e, "Error while reading accounts info");
 							}
 					}	

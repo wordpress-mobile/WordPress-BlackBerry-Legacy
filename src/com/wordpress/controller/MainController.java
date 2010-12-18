@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
+import net.rim.device.api.system.ControlledAccessException;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
@@ -52,9 +53,7 @@ public class MainController extends BaseController implements TaskProgressListen
 		//loading accounts data.
 		try {
 			applicationAccounts = AccountsDAO.loadAccounts();
-		} catch (IOException e) {
-			this.displayError(e, "Error while reading accounts info");
-		} catch (RecordStoreException e) {
+		} catch (ControlledAccessException e) {
 			this.displayError(e, "Error while reading accounts info");
 		}
 		

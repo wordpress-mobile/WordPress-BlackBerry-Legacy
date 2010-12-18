@@ -221,7 +221,7 @@ public class ConnectionManager  implements GlobalEventListener
     		if(conn instanceof HttpConnection) {
     			HttpConnection connCasted = (HttpConnection) conn;
     			connCasted.setRequestProperty("User-Agent","wp-blackberry/"+ Tools.getAppVersion());
-    			Log.trace("common http request properties setted");
+    			Log.trace("common http request properties set");
     		}
     	} catch (IOException e) {
     		Log.error("Cannot set http request common properties!");

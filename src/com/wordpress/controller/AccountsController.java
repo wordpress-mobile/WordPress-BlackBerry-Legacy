@@ -1,16 +1,12 @@
 package com.wordpress.controller;
 
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-
-import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.io.AccountsDAO;
 import com.wordpress.model.Blog;
-import com.wordpress.utils.log.Log;
 import com.wordpress.view.AccountDetailView;
 import com.wordpress.view.AccountsView;
 import com.wordpress.view.BaseView;
@@ -74,12 +70,8 @@ public class AccountsController extends BaseController {
 	}
 	
 	public static synchronized void storeWPCOMAccount(Blog[] serverBlogs) {
-
 		if (serverBlogs.length == 0) return;
-
-		try {
 			Hashtable loadAccounts = MainController.getIstance().getApplicationAccounts();
-
 			Blog tmpBlog = serverBlogs[0];
 			String username = tmpBlog.getUsername();
 			String passwd = tmpBlog.getPassword();
@@ -98,11 +90,6 @@ public class AccountsController extends BaseController {
 				loadAccounts.put(username, accountInfo);
 				AccountsDAO.storeAccounts(loadAccounts);
 			}
-		} catch (IOException e) {
-			Log.error(e, "Error while storing account info");
-		} catch (RecordStoreException e) {
-			Log.error(e, "Error while storing account info");
-		}
 	}
 	
 }

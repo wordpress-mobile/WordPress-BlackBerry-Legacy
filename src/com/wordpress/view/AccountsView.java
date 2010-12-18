@@ -1,11 +1,8 @@
 //#preprocess
 package com.wordpress.view;
 
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-
-import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Manager;
@@ -167,9 +164,7 @@ public class AccountsView extends BaseView  implements ListActionListener {
 		accounts.remove(username);
 		try {
 			AccountsDAO.storeAccounts(accounts);
-		} catch (IOException e) {
-			controller.displayError(e, "Error while removing accounts info");
-		} catch (RecordStoreException e) {
+		} catch (Exception e) {
 			controller.displayError(e, "Error while removing accounts info");
 		}
 
