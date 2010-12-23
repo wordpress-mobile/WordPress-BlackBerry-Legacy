@@ -724,7 +724,7 @@ public class PostController extends BlogObjectController {
 				DraftDAO.removePost(post.getBlog(), draftFolder);
 			}
 		} catch (Exception e) {
-			displayError(e, "Cannot remove temporary files from disk!");
+			displayErrorAndWait(e, "Cannot remove temporary files from disk!");
 		}
 		
 		FrontController.getIstance().backAndRefreshView(false);		

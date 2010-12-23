@@ -1,13 +1,10 @@
 package com.wordpress.view;
 
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
-import net.rim.device.api.system.ControlledAccessException;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
@@ -32,12 +29,9 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
 import com.wordpress.controller.PreferenceController;
-import com.wordpress.io.AccountsDAO;
 import com.wordpress.io.AppDAO;
 import com.wordpress.io.BaseDAO;
-import com.wordpress.io.BlogDAO;
 import com.wordpress.io.JSR75FileSystem;
-import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
@@ -51,7 +45,7 @@ import com.wordpress.view.dialog.DiscardChangeInquiryView;
 public class PreferencesView extends StandardBaseView {
 	
     private PreferenceController controller= null;
-    private Preferences mPrefs=Preferences.getIstance();
+    private Preferences mPrefs = Preferences.getIstance();
 	private ObjectChoiceField audioGroup;
 	private ObjectChoiceField photoGroup;
 	private ObjectChoiceField videoGroup;
@@ -411,7 +405,7 @@ public class PreferencesView extends StandardBaseView {
 	 //create a menu item for users click to save
 	    private MenuItem _saveItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVE, 1000, 10) {
 	        public void run() {
-	        	updateDataModel();
+	        	updatePreferencesModel();
 	        	controller.savePrefAndBack();
 	        }
 	    };
@@ -419,7 +413,7 @@ public class PreferencesView extends StandardBaseView {
 	    
 		private FieldChangeListener listenerOkButton = new FieldChangeListener() {
 		    public void fieldChanged(Field field, int context) {
-		    	updateDataModel();
+		    	updatePreferencesModel();
 		    	controller.savePrefAndBack();
 		    }
 		};
@@ -440,44 +434,28 @@ public class PreferencesView extends StandardBaseView {
 		    	} else {
 		    		return;
 		    	}
-		    	
 		    	try {
-		    		
-		    		Log.trace("closing log file");
 		    		FileAppender fileAppender = WordPressCore.getInstance().getFileAppender();
 		    		Log.removeAppender(fileAppender);
-		    		fileAppender.close();		  
-					
-		    		AppDAO.cleanUpFolderStructure();
-
-					Log.trace("erased app temp dir");
-					AppDAO.setUpFolderStructure();
-					
+		    		fileAppender.close();		  	
+		    		AppDAO.resetAppData(); //reset the PersistenStore
+					AppDAO.setUpFolderStructure(); //create the folder struction on FS
 					fileAppender.open(); //reopen the log file
 					Log.addAppender(fileAppender);
-					
 					Vector applicationBlogs = WordPressCore.getInstance().getApplicationBlogs();
 		   		 	applicationBlogs.removeAllElements();
-					
-					updateDataModel();
-		    		controller.savePref();
+		   		 	MainController.getIstance().getApplicationAccounts().clear();
+					updatePreferencesModel();
 		    		FrontController.getIstance().backToMainView();
-/*					
-					controller.displayMessage(_resources.getString(WordPressResource.MESSAGE_APP_RESTART));
-					Log.debug("Called application restart...");
-			        //Get the current application descriptor.
-			        ApplicationDescriptor current = ApplicationDescriptor.currentApplicationDescriptor();
-			        Log.debug("Scheduling the restart immediately...");
-			        WordPressCore.getInstance().clean(); //stop bg thread
-			        ApplicationManager.getApplicationManager().scheduleApplication(current, System.currentTimeMillis() + 3000, true);
-			        Log.debug("Application is exiting...");
-			        System.exit(0);*/
 				} catch (RecordStoreException e) {
 					Log.error(e.getMessage());
+					controller.displayErrorAndWait(e, "Error while deleting temp files!");
 				} catch (IOException e) {
+					controller.displayErrorAndWait(e, "Error while deleting temp files!");
 					Log.error(e.getMessage());
 				} catch (Exception e) {
-					Log.error(e, "Error while cleaning app cache");
+					controller.displayErrorAndWait(e, "Error while deleting temp files!");
+					Log.error(e, e.getMessage());
 				}
 		    }
 		};
@@ -488,47 +466,14 @@ public class PreferencesView extends StandardBaseView {
 		 */
 		private boolean isUIChanged(){
 			boolean stateChanged = false;
-			
 			if(isDirty()){
 				 stateChanged = true;
 			}
-
-			
-		/*	if(audioGroup != null){
-				if(audioGroup.isDirty()) {
-					stateChanged = true;
-	        	}
-			}
-			if(videoGroup != null){
-				if(videoGroup.isDirty()) {
-					stateChanged = true;
-	        	}
-			}
-			if(photoGroup != null){
-				if(photoGroup.isDirty()) {
-					stateChanged = true;
-        		}
-			}
-			if(_username.isDirty() || _password.isDirty() || userConnectionEnabledField.isDirty()
-					|| _gateway.isDirty() ||  _gatewayPort.isDirty() || _apn.isDirty()
-					|| _sourceIP.isDirty() || _sourcePort.isDirty() 
-					|| userConnectionWapTypeField.isDirty()
-					|| _userAllowWap.isDirty() 
-					|| _userAllowWiFi.isDirty()
-					|| _userAllowTCP.isDirty()
-					|| _userAllowWAP2.isDirty()
-					|| _userAllowBES.isDirty()
-			) {
-				 stateChanged = true;
-			}
-			
-			*/
-			
 			return stateChanged;
 		}
 		
 		//get the changes from the UI and update the model
-		private void updateDataModel(){
+		private void updatePreferencesModel(){
 			if(audioGroup != null && audioGroup.isDirty()){
 				
 				int selected= ((ObjectChoiceField)audioGroup).getSelectedIndex();
@@ -670,46 +615,14 @@ public class PreferencesView extends StandardBaseView {
 						
 						fileAppender.open(); //reopen the log file
 						Log.addAppender(fileAppender);
-						
-						//update the application blogs
-					   	 try {
-					   		 	Vector applicationBlogs = WordPressCore.getInstance().getApplicationBlogs();
-					   		 	applicationBlogs.removeAllElements();
-					   		 	
-						   		Hashtable blogsInfo = BlogDAO.getBlogsInfo();
-								BlogInfo[] blogsList =  (BlogInfo[]) blogsInfo.get("list");
-								if(blogsInfo.get("error") != null )
-									controller.displayErrorAndWait((String)blogsInfo.get("error"));
-											
-								for (int i = 0; i < blogsList.length; i++) {
-									BlogInfo blogInfo = blogsList[i];
-									applicationBlogs.addElement(blogInfo);
-								}
-								
-							} catch (Exception e) {
-								Log.error(e, "Error while reading stored blog");
-							}
-							//reload the applications accounts
-							try {
-								Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
-								applicationAccounts.clear();
-								Hashtable applicationAccountsNew = AccountsDAO.loadAccounts();
-								
-								Enumeration k = applicationAccountsNew.keys();
-								while (k.hasMoreElements()) {
-									String key = (String) k.nextElement();
-									Object value = applicationAccountsNew.get(key);
-									applicationAccounts.put(key, value);
-								}
-							} catch (ControlledAccessException e) {
-								Log.error(e, "Error while reading accounts info");
-							}
 					}	
 				} catch (RecordStoreException e) {
 					Log.error(e, "Error upgrading Storage location");
+					controller.displayErrorAndWait(e, "Error while changing the temp file path.");
 					return;
 				} catch (IOException e) {
 					Log.error(e, "Error upgrading Storage location");
+					controller.displayErrorAndWait(e, "Error while changing the temp file path.");
 					return;
 				}
 			}
@@ -733,7 +646,7 @@ public class PreferencesView extends StandardBaseView {
 	    	}else if(Dialog.SAVE == choice) {
 	    		Log.trace("user has selected save");
 	    		//get the changes from the UI and update the model
-	    		updateDataModel();
+	    		updatePreferencesModel();
 	    		controller.savePrefAndBack();
 	    		return true;
 	    	} else {

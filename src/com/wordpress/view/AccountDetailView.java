@@ -20,7 +20,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.MainController;
-import com.wordpress.io.AccountsDAO;
+import com.wordpress.io.AppDAO;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
@@ -101,8 +101,8 @@ public class AccountDetailView extends StandardBaseView {
 		try {
 			if(isDirty()){
 				String pass = passwordField.getText();
-				accountData.put(AccountsDAO.PASSWORD_KEY, pass);
-				AccountsDAO.storeAccounts(MainController.getIstance().getApplicationAccounts());
+				accountData.put(AppDAO.PASSWORD_KEY, pass);
+				AppDAO.storeAccounts(MainController.getIstance().getApplicationAccounts());
 			} 
 			controller.backCmd();
 		} catch (Exception e) {

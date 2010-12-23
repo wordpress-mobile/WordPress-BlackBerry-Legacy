@@ -80,12 +80,14 @@ public abstract class BaseController {
 	}
 	
 	private void _displayErrorAndWait(final String msg) {
-	  	//#ifdef IS_OS47_OR_ABOVE
+		//#ifdef IS_OS47_OR_ABOVE
 		Screen scr = UiApplication.getUiApplication().getActiveScreen();
-    	VirtualKeyboard virtKbd = scr.getVirtualKeyboard();
-    	if(virtKbd != null)
-    		virtKbd.setVisibility(VirtualKeyboard.HIDE);
-    	//#endif
+		if(scr != null) {
+			VirtualKeyboard virtKbd = scr.getVirtualKeyboard();
+			if(virtKbd != null)
+				virtKbd.setVisibility(VirtualKeyboard.HIDE);
+		}
+		//#endif
 		UiApplication.getUiApplication().invokeAndWait(new Runnable() {
 			public void run() {
 				ErrorView errView = new ErrorView(msg);

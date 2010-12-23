@@ -24,8 +24,7 @@ public class PreferenceController extends BaseController {
 	 
 	public boolean savePrefAndBack(){
 		try {
-			savePref();
-			//backCmd();
+			AppDAO.storeApplicationPreferecens(Preferences.getIstance());
 			FrontController.getIstance().backToMainView();
 		} catch (Exception e) {
 			displayError(e, "Error while saving preferences");
@@ -34,14 +33,7 @@ public class PreferenceController extends BaseController {
 		return true;
 	}
 	
-
-	
-	public void savePref() throws Exception {
-		AppDAO.storeApplicationPreferecens(Preferences.getIstance());
-	}
-    
 	public void refreshView() {
-		
 	}
 	
 }

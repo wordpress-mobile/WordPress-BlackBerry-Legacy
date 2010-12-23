@@ -5,6 +5,8 @@ import java.util.Hashtable;
 import java.util.TimerTask;
 import java.util.Vector;
 
+import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.ControlledAccessException;
@@ -13,9 +15,10 @@ import net.rim.device.api.ui.component.Dialog;
 
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
-import com.wordpress.io.AccountsDAO;
+import com.wordpress.io.AppDAO;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.CommentsDAO;
+import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Comment;
@@ -49,27 +52,42 @@ public class MainController extends BaseController implements TaskProgressListen
     }
 	
 	public void showView(){
-		
 		//loading accounts data.
 		try {
-			applicationAccounts = AccountsDAO.loadAccounts();
+			applicationAccounts = AppDAO.loadAccounts();
 		} catch (ControlledAccessException e) {
 			this.displayError(e, "Error while reading accounts info");
+		} catch (IOException e) {
+			this.displayError(e, "Error while reading accounts info");
+		}
+		//check the FS writing status
+		try {
+			String tmpFilePath;
+			tmpFilePath = AppDAO.getXmlRpcTempFilePath();
+			if(JSR75FileSystem.isFileExist(tmpFilePath)) {
+				JSR75FileSystem.removeFile(tmpFilePath);
+			}
+			JSR75FileSystem.createFile(tmpFilePath);
+			if(JSR75FileSystem.isFileExist(tmpFilePath)) {
+				JSR75FileSystem.removeFile(tmpFilePath);
+			}
+		} catch (RecordStoreException e) {
+	    	Log.error(e, "Error while writing on the FS");
+	    	this.displayError("Unable to write temp files: Please set the cache file location to the SD card and check the App permissions.");
+		} catch (IOException e) {
+			Log.error(e, "Error while writing on the FS");
+			this.displayError("Unable to write temp files: Please set the cache file location on the SDCard and check the App permissions.");
 		}
 		
 		int numberOfBlog = 0; 
 				
 		Log.trace(">>> Checking blogs data");
 	   	 try {
-	   		Hashtable blogsInfo = BlogDAO.getBlogsInfo();
-			BlogInfo[] blogsList =  (BlogInfo[]) blogsInfo.get("list");
-			if(blogsInfo.get("error") != null )
-				displayError((String)blogsInfo.get("error"));
-						
+	   	
+	   		Blog[] blogsList =  BlogDAO.getBlogs();
 			for (int i = 0; i < blogsList.length; i++) {
-				BlogInfo blogInfo = blogsList[i];
-				Blog blog = BlogDAO.getBlog(blogInfo);
-				
+				Blog blog = blogsList[i];
+				BlogInfo blogInfo = new BlogInfo(blog);
 				//reset the state of blogs that are in loading or queue to loading error state
 				//.... maybe app there was a crash during adding blog
 				if (blogInfo.getState() == BlogInfo.STATE_LOADING

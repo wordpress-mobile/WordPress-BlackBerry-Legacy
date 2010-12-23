@@ -306,7 +306,7 @@ public class PageController extends BlogObjectController {
 				PageDAO.removePage(blog, draftFolder);
 			}
 		} catch (Exception e) {
-			displayError(e, "Cannot remove temporary files from disk!");
+			displayErrorAndWait(e, "Cannot remove temporary files from disk!");
 		}
 		
 		FrontController.getIstance().backAndRefreshView(false);		

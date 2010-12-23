@@ -1,21 +1,18 @@
 package com.wordpress.io;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStoreException;
 
-import net.rim.device.api.system.ApplicationDescriptor;
-import net.rim.device.api.system.CodeSigningKey;
-import net.rim.device.api.system.ControlledAccess;
-import net.rim.device.api.system.PersistentObject;
-import net.rim.device.api.system.PersistentStore;
+import net.rim.device.api.system.ControlledAccessException;
 
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
@@ -23,12 +20,9 @@ import com.wordpress.model.Category;
 import com.wordpress.model.Tag;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.MD5;
-import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 
 public class BlogDAO implements BaseDAO {
-	
-	private final static long BLOG_DATA_ID = 0x58fef94fa0de97e4L; //com.wordpress.io.BlogDAO
 	
 	//You might wonder what happens when a static synchronized method is invoked, since a static method is 
 	//associated with a class, not an object. 
@@ -45,23 +39,18 @@ public class BlogDAO implements BaseDAO {
     	String name = blog.getName();
     	String nameMD5=getBlogFolderName(blog);
     	String filePath=AppDAO.getBaseDirPath()+nameMD5;
-    
-    	if (JSR75FileSystem.isFileExist(filePath)){
-    		throw new Exception("Cannot add '" + name + "' because that blog already exists in the App");
+    	
+    	Hashtable blogs = loadBlogs();
+        
+    	if (blogs.get(nameMD5) != null){
+    		throw new IOException("Cannot add '" + name + "' because that blog already exists in the App");
     	} else {
     		JSR75FileSystem.createDir(AppDAO.getBaseDirPath()); 
     		JSR75FileSystem.createDir(filePath);
     		JSR75FileSystem.createDir(filePath+DRAFT_FOLDER_PREFIX); //create draft posts folder
     		JSR75FileSystem.createDir(filePath+PAGE_FOLDER_PREFIX); //create draft page folder
     	}    	
-    	
-    	JSR75FileSystem.createFile(filePath+BLOG_FILE); //create the blog file
-    	FileConnection fc = JSR75FileSystem.openFile(filePath+BLOG_FILE);
-    	DataOutputStream out = fc.openDataOutputStream();
-    	storeBlog(blog, out);
-		out.close();
-		fc.close();
-		Log.trace("Scrittura blog on memory terminata con successo");   	
+    	storeBlog(blog);   	
     	return true;
     }
     
@@ -73,76 +62,16 @@ public class BlogDAO implements BaseDAO {
      */
     public static synchronized boolean updateBlog(Blog blog) throws Exception {   	
     	String name = blog.getName();
-    	String nameMD5=getBlogFolderName(blog);
-    	String filePath=AppDAO.getBaseDirPath()+nameMD5;
+    	String nameMD5 = getBlogFolderName(blog);
+    	Hashtable blogs = loadBlogs();
     
-    	if (!JSR75FileSystem.isFileExist(filePath)){
+    	if (blogs.get(nameMD5) == null){
     		throw new Exception("Cannot update this blog: " + name + " because not exist!");
     	}  	
-    	FileConnection fc = JSR75FileSystem.openFile(filePath+BLOG_FILE);
-    	DataOutputStream out =fc.openDataOutputStream();
-    	storeBlog(blog, out);
+    	storeBlog(blog);
     	Log.debug("blog updated succesfully");    	    	
-		out.close(); //already closed during store
-		fc.close();
     	return true;
     }
-    
-    /**
-     * Load the blogs informations from the fs.  
-     * @return An Hashtable with the following keys: "list" type of BlogInfo[] - "error" type of String
-     * @throws IOException
-     * @throws RecordStoreException
-     */
-	public static synchronized Hashtable getBlogsInfo() throws IOException, RecordStoreException {
-		
-		Hashtable result = new Hashtable();
-				
-		String[] listFiles = new String[0];
-		BlogInfo[] blogs = new BlogInfo[0];
-
-		try {
-			listFiles = BlogDAO.getBlogsPath();
-		} catch (IOException e2) {
-			Log.error(e2, "Error while loading blogs index");
-			throw new IOException("Error while loading blogs index -> " + e2.getMessage());
-		} catch (RecordStoreException e2) {
-			Log.error(e2, "Error while loading blogs index");
-			throw new RecordStoreException("Error while loading blogs index -> " + e2.getMessage());
-		}
-
-		Vector blogsVector = new Vector();
-		for (int i = 0; i < listFiles.length; i++) {
-			String currBlogPath = listFiles[i];
-			
-			try {
-				BlogInfo currBlogInfo = BlogDAO.getBlogInfo(currBlogPath);
-				blogsVector.addElement(currBlogInfo);
-			} catch (Exception e) {
-				
-				Log.error(e, "Error while loading blog: "+ currBlogPath);
-			//	Log.error("Trying to delete the blog with fs corrupted: "+ currBlogPath);				 
-			/*	try {
-					BlogDAO.removeBlog(currBlogPath);
-					Log.error("The blog with fs corrupted was deleted : "+ currBlogPath);
-				} catch (Exception e1) {
-					Log.error(e, "Error while deleting blog: "+ currBlogPath);
-				} 
-				*/
-				result.put("error", "The folder "+ currBlogPath +" is corrupted. Please delete it");
-			}
-		}
-		
-		blogs = new BlogInfo[blogsVector.size()];
-		for (int i = 0; i < blogs.length; i++) {
-			blogs[i] = (BlogInfo) blogsVector.elementAt(i);
-		}		
-		
-		result.put("list",blogs);
-		
-		return result;
-	}
-    
     
 	public static synchronized boolean isBlogExist(Blog blogInfo) {
 		try {
@@ -158,14 +87,38 @@ public class BlogDAO implements BaseDAO {
 		
 		return false;
 	}
-	        
-	
+	        	
+    public static Blog[] getBlogs() throws Exception {
+        try {
+        	Hashtable loadBlogs = loadBlogs();
+        	Enumeration keys = loadBlogs.keys();
+        	Vector blogs = new Vector();
+        	while (keys.hasMoreElements()) {
+        		String currentKey = (String) keys.nextElement();
+        		byte[] blogData = (byte[])loadBlogs.get(currentKey);
+        		Blog currentBlog = deserializeBlogData (blogData);
+				blogs.addElement(currentBlog);
+			}
+            Blog[] blogList = new Blog[blogs.size()];
+            blogs.copyInto(blogList);
+            return blogList;
+        } catch (Exception e) {
+        	throw new Exception("Failed to load blog: " + e.getMessage());            
+        }
+    }
+		
     //TODO refactor blog and blogInfo. with a common base class
     //reload this blog form disk to memory
     public static synchronized Blog getBlog(Blog blogInfo) throws Exception {
         try {
         	String blogName = getBlogFolderName(blogInfo);
-            return loadBlog(blogName);
+        	Hashtable loadBlogs = loadBlogs();
+        	if (loadBlogs.get(blogName) == null){
+        		throw new IOException("Cannot load this blog: " + blogName + " because does not exist!");
+        	}   
+        	byte[] blogData = (byte[])loadBlogs.get(blogName);
+        	return deserializeBlogData (blogData);
+        	
         } catch (Exception e) {
         	throw new Exception("Failed to load blog: " + e.getMessage());            
         }
@@ -173,37 +126,19 @@ public class BlogDAO implements BaseDAO {
     
     public static synchronized Blog getBlog(BlogInfo blogInfo) throws Exception {
         try {
-        	//String blogName = getBlogsPath()[aIndex];
         	String blogName = getBlogFolderName(blogInfo);
-            return loadBlog(blogName);
+        	Hashtable loadBlogs = loadBlogs();
+        	if (loadBlogs.get(blogName) == null){
+        		throw new IOException("Cannot load this blog: " + blogName + " because does not exist!");
+        	}   
+        	byte[] blogData = (byte[])loadBlogs.get(blogName);
+        	return deserializeBlogData (blogData);
+        	
         } catch (Exception e) {
         	throw new Exception("Failed to load blog: " + e.getMessage());            
         }
     }
     
-    public static synchronized String[] getBlogsPath() throws IOException, RecordStoreException{
-    	String[] listFilesAndDir = JSR75FileSystem.listFiles(AppDAO.getBaseDirPath());
-    	Vector listDir= new Vector();
-    	
-    	for (int i = 0; i < listFilesAndDir.length; i++) {
-    		String path=listFilesAndDir[i];
-    		if (path.endsWith("/")) { //found directory
-    			listDir.addElement(path);
-    		}
-		}
-    	return Tools.toStringArray(listDir);
-    }
-    
-    /**
-     * Retrive a small set of infos for blog
-     * @return
-     * @throws Exception
-     */
-    private static synchronized BlogInfo getBlogInfo(String blogPath) throws Exception{
-		Blog loadedBlog = loadBlog(blogPath);
-		BlogInfo blogI = new BlogInfo(loadedBlog);
-   		return blogI;
-    }
     
 	private static void serializeTest (Object obj ) throws IOException {
 		Log.trace(">>> serialize test");
@@ -224,34 +159,20 @@ public class BlogDAO implements BaseDAO {
 		}
 	}
     
-	private static synchronized void storeBlog(Blog blog, DataOutputStream out)
+	private static synchronized void storeBlog(Blog blog)
 			throws IOException {
 		
+		String nameMD5 = getBlogFolderName(blog);
+		ByteArrayOutputStream tmpLocation = new ByteArrayOutputStream();
+
 		String wholeErrorMessage = ""; 
-		Serializer ser= new Serializer(out);
+		Serializer ser= new Serializer(new DataOutputStream(tmpLocation));
 		boolean isError = false;
 		
 		ser.serialize(new Integer(blog.getLoadingState()));
     	ser.serialize(blog.getXmlRpcUrl());
     	ser.serialize(blog.getUsername());
-    	ser.serialize("");//blog.getPassword()
-    	
-    	//protect the password data!!
-    	Hashtable blogsSecretStuff = null;
-    	PersistentObject rec = PersistentStore.getPersistentObject(BLOG_DATA_ID);
-    	int moduleHandle = ApplicationDescriptor.currentApplicationDescriptor().getModuleHandle();
-    	CodeSigningKey codeSigningKey = CodeSigningKey.get( moduleHandle, "WP" );
-    	Object contents = rec.getContents(codeSigningKey);
-    	if(contents == null) {
-    		blogsSecretStuff = new Hashtable();
-    	} else {
-    		blogsSecretStuff = (Hashtable) contents;
-    	}
-    	blogsSecretStuff.put(getBlogFolderName(blog), blog.getPassword());
-    	rec.setContents( new ControlledAccess( blogsSecretStuff, codeSigningKey ) );
-    	rec.commit();
-    	//end protected data
-    	
+    	ser.serialize(blog.getPassword());    	
     	ser.serialize(blog.getId());
     	ser.serialize(blog.getName());
     	ser.serialize(blog.getUrl());
@@ -360,224 +281,199 @@ public class BlogDAO implements BaseDAO {
         ser.serialize(blog.getBlogOptions());
         ser.serialize(blog.getShortcutIcon());
         ser.serialize(blog.getWpcomFeatures());
-        
-        out.close();
 
 		if(isError) {
 			throw new IOException(wholeErrorMessage);
 		}
+		
+		Hashtable blogs = AppDAO.loadAppData(AppDAO.BLOGS_DATA_ID);
+		blogs.put(nameMD5, tmpLocation.toByteArray());
+		AppDAO.storeAppData(AppDAO.BLOGS_DATA_ID, blogs);
 	}
     
    
-    private static synchronized Blog loadBlog(String name) throws Exception {
-    	Log.debug("loading blog " + name + " from file system");
-    	
-    	String filePath=AppDAO.getBaseDirPath()+name;
-        
-    	if (!JSR75FileSystem.isFileExist(filePath)){
-    		throw new Exception("Cannot load this blog: " + name + " because does not exist!");
-    	}   
-    	
-		FileConnection fc = JSR75FileSystem.openFile(filePath+BLOG_FILE);
-		DataInputStream in = fc.openDataInputStream();
-    	Serializer ser= new Serializer(in);
-    	
-        Blog blog;
-        
-        int loadingState= ((Integer)ser.deserialize()).intValue();
-        String xmlRpcUrl = (String)ser.deserialize();
-        String userName = (String)ser.deserialize();
-        String password = (String)ser.deserialize();
-        
-        //deserialize the real password here
-    	Hashtable blogsSecretStuff = null;
-    	PersistentObject rec = PersistentStore.getPersistentObject(BLOG_DATA_ID);
-    	int moduleHandle = ApplicationDescriptor.currentApplicationDescriptor().getModuleHandle();
-    	CodeSigningKey codeSigningKey = CodeSigningKey.get( moduleHandle, "WP" );
-    	Object contents = rec.getContents(codeSigningKey);
-    	if(contents == null) {
-    		blogsSecretStuff = new Hashtable();
-    	} else {
-    		blogsSecretStuff = (Hashtable) contents;
-    	}
-    	Object objpass = blogsSecretStuff.get(name);
-    	
-    	if( objpass!= null )
-    		password = (String)objpass;
-        //end deserialization
-        
-        
-        String blodId= (String)ser.deserialize();
-        String blogName= (String)ser.deserialize();
-        String blodUrl= (String)ser.deserialize();
-        int maxPostCount= ((Integer)ser.deserialize()).intValue();
-        boolean isRes=((Boolean)ser.deserialize()).booleanValue();
-        
-        blog = new Blog(blodId, blogName, blodUrl, xmlRpcUrl, userName, password);
-        blog.setLoadingState(loadingState);
-        blog.setMaxPostCount(maxPostCount);
-        blog.setResizePhotos(isRes);
-        
-        
-        Hashtable commentStatusList= (Hashtable)ser.deserialize();
-        blog.setCommentStatusList(commentStatusList);
-        
-        Hashtable pageStatusList= (Hashtable)ser.deserialize();
-        blog.setPageStatusList(pageStatusList);
-        
-        Hashtable pageTemplates= (Hashtable)ser.deserialize();
-        blog.setPageTemplates(pageTemplates);
-        
-        Hashtable postStatusList= (Hashtable)ser.deserialize();
-        blog.setPostStatusList(postStatusList);
-        
-        Vector recentPostTitleList= (Vector)ser.deserialize();
-        blog.setRecentPostTitles(recentPostTitleList);
-        
-        Vector viewedPostList= (Vector)ser.deserialize();
-        blog.setViewedPost(viewedPostList);
-    	
-        Vector pagesList= (Vector)ser.deserialize();
-        blog.setPages(pagesList);
-        
-        int[] viewedPagesList= (int[])ser.deserialize();
-        blog.setViewedPages(viewedPagesList);
-        
+	private static synchronized Blog deserializeBlogData(byte[] blogData) throws Exception {
+		DataInputStream in = new DataInputStream(new ByteArrayInputStream(blogData));
+		Serializer ser= new Serializer(in);
 
-        int categoryLength= ((Integer)ser.deserialize()).intValue();
-        Category[] categories;
+		Blog blog;
 
-        if (categoryLength > 0) {
-            categories = new Category[categoryLength];
-            for (int i = 0; i < categoryLength; i++) {
-                categories[i] = new Category((String)ser.deserialize(),
-                							 (String)ser.deserialize(),
-                							 (String)ser.deserialize(),
-                                             ((Integer)ser.deserialize()).intValue(),
-                                             (String)ser.deserialize(),
-                                             (String)ser.deserialize()                                              
-                );
-            }
-            blog.setCategories(categories);
-        }
-            
-        
-        int tagsLength= ((Integer)ser.deserialize()).intValue();
-        Tag[] tags ;
-        
-        if (tagsLength > 0) {
-        	tags  = new Tag[tagsLength];
-            for (int i = 0; i < tagsLength; i++) {
-            	int tagID= ((Integer)ser.deserialize()).intValue();
-                String tagname = (String)ser.deserialize();
-                int count= ((Integer)ser.deserialize()).intValue();
-                String slug= (String)ser.deserialize();
-                String htmlURL=(String)ser.deserialize();
-                String rssURL=(String)ser.deserialize();
-            
-            	tags[i] = new Tag(tagID, tagname, count, slug, htmlURL, rssURL);
-            }
-            blog.setTags(tags);
-        } 
+		int loadingState= ((Integer)ser.deserialize()).intValue();
+		String xmlRpcUrl = (String)ser.deserialize();
+		String userName = (String)ser.deserialize();
+		String password = (String)ser.deserialize();
 
-        //since version 1.0.X
-        try {
-        	Object testObj = ser.deserialize();
-        	//some devices when reach the end of the input stream doesn't throws EOFException, but returns null.
-        	if( testObj != null ) {
-        		boolean isCommentNotifies=((Boolean)testObj).booleanValue();
-        		blog.setCommentNotifies(isCommentNotifies);       	        		
-        	} else {
-        		Log.error("No comment notification info found - End of file was reached. Probably a previous blog data file is loaded" );
-        	}
-        } catch (Exception  e) {
-        	Log.error("No comment notification info found - End of file was reached. Probably a previous blog data file is loaded" );
+		String blodId= (String)ser.deserialize();
+		String blogName= (String)ser.deserialize();
+		String blodUrl= (String)ser.deserialize();
+		int maxPostCount= ((Integer)ser.deserialize()).intValue();
+		boolean isRes=((Boolean)ser.deserialize()).booleanValue();
+
+		blog = new Blog(blodId, blogName, blodUrl, xmlRpcUrl, userName, password);
+		blog.setLoadingState(loadingState);
+		blog.setMaxPostCount(maxPostCount);
+		blog.setResizePhotos(isRes);
+
+
+		Hashtable commentStatusList= (Hashtable)ser.deserialize();
+		blog.setCommentStatusList(commentStatusList);
+
+		Hashtable pageStatusList= (Hashtable)ser.deserialize();
+		blog.setPageStatusList(pageStatusList);
+
+		Hashtable pageTemplates= (Hashtable)ser.deserialize();
+		blog.setPageTemplates(pageTemplates);
+
+		Hashtable postStatusList= (Hashtable)ser.deserialize();
+		blog.setPostStatusList(postStatusList);
+
+		Vector recentPostTitleList= (Vector)ser.deserialize();
+		blog.setRecentPostTitles(recentPostTitleList);
+
+		Vector viewedPostList= (Vector)ser.deserialize();
+		blog.setViewedPost(viewedPostList);
+
+		Vector pagesList= (Vector)ser.deserialize();
+		blog.setPages(pagesList);
+
+		int[] viewedPagesList= (int[])ser.deserialize();
+		blog.setViewedPages(viewedPagesList);
+
+
+		int categoryLength= ((Integer)ser.deserialize()).intValue();
+		Category[] categories;
+
+		if (categoryLength > 0) {
+			categories = new Category[categoryLength];
+			for (int i = 0; i < categoryLength; i++) {
+				categories[i] = new Category((String)ser.deserialize(),
+						(String)ser.deserialize(),
+						(String)ser.deserialize(),
+						((Integer)ser.deserialize()).intValue(),
+						(String)ser.deserialize(),
+						(String)ser.deserialize()                                              
+				);
+			}
+			blog.setCategories(categories);
+		}
+
+
+		int tagsLength= ((Integer)ser.deserialize()).intValue();
+		Tag[] tags ;
+
+		if (tagsLength > 0) {
+			tags  = new Tag[tagsLength];
+			for (int i = 0; i < tagsLength; i++) {
+				int tagID= ((Integer)ser.deserialize()).intValue();
+				String tagname = (String)ser.deserialize();
+				int count= ((Integer)ser.deserialize()).intValue();
+				String slug= (String)ser.deserialize();
+				String htmlURL=(String)ser.deserialize();
+				String rssURL=(String)ser.deserialize();
+
+				tags[i] = new Tag(tagID, tagname, count, slug, htmlURL, rssURL);
+			}
+			blog.setTags(tags);
+		} 
+
+		//since version 1.0.X
+		try {
+			Object testObj = ser.deserialize();
+			//some devices when reach the end of the input stream doesn't throws EOFException, but returns null.
+			if( testObj != null ) {
+				boolean isCommentNotifies=((Boolean)testObj).booleanValue();
+				blog.setCommentNotifies(isCommentNotifies);       	        		
+			} else {
+				Log.error("No comment notification info found - End of file was reached. Probably a previous blog data file is loaded" );
+			}
+		} catch (Exception  e) {
+			Log.error("No comment notification info found - End of file was reached. Probably a previous blog data file is loaded" );
 		} catch (Throwable  e) {
-        	Log.error("No comment notification info found - End of file was reached. Probably a previous blog data file is loaded" );
+			Log.error("No comment notification info found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
-        
-        try {
-        	Object testObj = ser.deserialize();
-        	if( testObj != null ) {
-        		boolean isLocation =((Boolean)testObj).booleanValue();
-        		blog.setLocation(isLocation);       	
-        	} else {
-        		Log.error("No location info found - End of file was reached. Probably a previous blog data file is loaded" );
-        	}
-        } catch (Exception  e) {
-        	Log.error("No location info found - End of file was reached. Probably a previous blog data file is loaded" );
+
+		try {
+			Object testObj = ser.deserialize();
+			if( testObj != null ) {
+				boolean isLocation =((Boolean)testObj).booleanValue();
+				blog.setLocation(isLocation);       	
+			} else {
+				Log.error("No location info found - End of file was reached. Probably a previous blog data file is loaded" );
+			}
+		} catch (Exception  e) {
+			Log.error("No location info found - End of file was reached. Probably a previous blog data file is loaded" );
 		} catch (Throwable  t) {
-        	Log.error("No location info found - End of file was reached. Probably a previous blog data file is loaded" );
-		}
-        
-        
-        // Read image resize dimensions
-        try {
-        	Object testObj = ser.deserialize();
-        	if( testObj != null ) {
-        		Integer imageResizeWidth = (Integer)testObj;
-        		blog.setImageResizeWidth(imageResizeWidth);
-        	} else {
-        		Log.error("No image resize width found - End of file was reached. Probably a previous blog data file is loaded" );
-        		blog.setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
-        	}
-        } catch (Exception  e) {
-        	Log.error("No image resize width found - End of file was reached. Probably a previous blog data file is loaded" );
-        	blog.setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
-        } catch (Throwable  t) {
-        	Log.error("No image resize width found - End of file was reached. Probably a previous blog data file is loaded" );
-        	blog.setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
+			Log.error("No location info found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
 
 
-        try {
-        	Object testObj = ser.deserialize();
-        	if( testObj != null ) {
-        		Integer imageResizeHeight = (Integer)testObj;
-        		blog.setImageResizeHeight(imageResizeHeight);
-        	} else {
-        		Log.error("No image resize height found - End of file was reached. Probably a previous blog data file is loaded" );
-        		blog.setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
-        	}
-        } catch (Exception  e) {
-        	Log.error("No image resize height found - End of file was reached. Probably a previous blog data file is loaded" );
-        	blog.setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
-        } catch (Throwable  t) {
-        	Log.error("No image resize height found - End of file was reached. Probably a previous blog data file is loaded" );
-        	blog.setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
-		}
-
-        //since version 1.2
-        //reading signature data
-        try {
-        	Object testObj = ser.deserialize();
-        	//some devices when reach the end of the input stream doesn't throws EOFException, but returns null.
-        	if( testObj != null ) {
-        		boolean isSignatureActive =((Boolean)testObj).booleanValue();
-        		blog.setSignatureEnabled(isSignatureActive);       	        		
-        	} 
-        	
-        	testObj = ser.deserialize();
-        	blog.setSignature((String)testObj);       	        		
-        		
-        } catch (Exception  e) {
-        	Log.error("No signature info found - End of file was reached. Probably a previous blog data file is loaded" );
-        } catch (Throwable  t) {
-        	Log.error("No signature info found - End of file was reached. Probably a previous blog data file is loaded" );
-		}
-        
-        //reading stats auth data
-        try {
-        	Object statsUsr = ser.deserialize();
-        	Object statsPasswd = ser.deserialize();
-        	blog.setStatsUsername((String)statsUsr);
-        	blog.setStatsPassword((String)statsPasswd);
-        } catch (Exception  e) {
-        	Log.error("No stats auth data found - End of file was reached. Probably a previous blog data file is loaded" );
+		// Read image resize dimensions
+		try {
+			Object testObj = ser.deserialize();
+			if( testObj != null ) {
+				Integer imageResizeWidth = (Integer)testObj;
+				blog.setImageResizeWidth(imageResizeWidth);
+			} else {
+				Log.error("No image resize width found - End of file was reached. Probably a previous blog data file is loaded" );
+				blog.setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
+			}
+		} catch (Exception  e) {
+			Log.error("No image resize width found - End of file was reached. Probably a previous blog data file is loaded" );
+			blog.setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
 		} catch (Throwable  t) {
-        	Log.error("No stats auth data found - End of file was reached. Probably a previous blog data file is loaded" );
+			Log.error("No image resize width found - End of file was reached. Probably a previous blog data file is loaded" );
+			blog.setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
 		}
-		
+
+
+		try {
+			Object testObj = ser.deserialize();
+			if( testObj != null ) {
+				Integer imageResizeHeight = (Integer)testObj;
+				blog.setImageResizeHeight(imageResizeHeight);
+			} else {
+				Log.error("No image resize height found - End of file was reached. Probably a previous blog data file is loaded" );
+				blog.setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
+			}
+		} catch (Exception  e) {
+			Log.error("No image resize height found - End of file was reached. Probably a previous blog data file is loaded" );
+			blog.setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
+		} catch (Throwable  t) {
+			Log.error("No image resize height found - End of file was reached. Probably a previous blog data file is loaded" );
+			blog.setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
+		}
+
+		//since version 1.2
+		//reading signature data
+		try {
+			Object testObj = ser.deserialize();
+			//some devices when reach the end of the input stream doesn't throws EOFException, but returns null.
+			if( testObj != null ) {
+				boolean isSignatureActive =((Boolean)testObj).booleanValue();
+				blog.setSignatureEnabled(isSignatureActive);       	        		
+			} 
+
+			testObj = ser.deserialize();
+			blog.setSignature((String)testObj);       	        		
+
+		} catch (Exception  e) {
+			Log.error("No signature info found - End of file was reached. Probably a previous blog data file is loaded" );
+		} catch (Throwable  t) {
+			Log.error("No signature info found - End of file was reached. Probably a previous blog data file is loaded" );
+		}
+
+		//reading stats auth data
+		try {
+			Object statsUsr = ser.deserialize();
+			Object statsPasswd = ser.deserialize();
+			blog.setStatsUsername((String)statsUsr);
+			blog.setStatsPassword((String)statsPasswd);
+		} catch (Exception  e) {
+			Log.error("No stats auth data found - End of file was reached. Probably a previous blog data file is loaded" );
+		} catch (Throwable  t) {
+			Log.error("No stats auth data found - End of file was reached. Probably a previous blog data file is loaded" );
+		}
+
 		//since version 1.3
 		//reading VideoPress resize opt
 		try {
@@ -610,7 +506,7 @@ public class BlogDAO implements BaseDAO {
 		} catch (Throwable  t) {
 			Log.error("No video resize height found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
-        
+
 		//since version 1.4
 		try {
 			boolean isWPCOMBlog=((Boolean)ser.deserialize()).booleanValue();
@@ -620,84 +516,78 @@ public class BlogDAO implements BaseDAO {
 		} catch (Throwable  t) {
 			Log.error("No isWPCOM flag found  - End of file was reached. Probably a previous blog data file is loaded" );
 		}
-		
-        //reading HTTP auth data
-        try {
-        	boolean isHttpAuth=((Boolean)ser.deserialize()).booleanValue();
-        	Object statsUsr = ser.deserialize();
-        	Object statsPasswd = ser.deserialize();
-        	blog.setHTTPBasicAuthRequired(isHttpAuth);
-        	blog.setHTTPAuthUsername((String)statsUsr);
-        	blog.setHTTPAuthPassword((String)statsPasswd);
-        } catch (Exception  e) {
-        	Log.error("No http auth data found - End of file was reached. Probably a previous blog data file is loaded" );
+
+		//reading HTTP auth data
+		try {
+			boolean isHttpAuth=((Boolean)ser.deserialize()).booleanValue();
+			Object statsUsr = ser.deserialize();
+			Object statsPasswd = ser.deserialize();
+			blog.setHTTPBasicAuthRequired(isHttpAuth);
+			blog.setHTTPAuthUsername((String)statsUsr);
+			blog.setHTTPAuthPassword((String)statsPasswd);
+		} catch (Exception  e) {
+			Log.error("No http auth data found - End of file was reached. Probably a previous blog data file is loaded" );
 		} catch (Throwable  t) {
-        	Log.error("No http auth data found - End of file was reached. Probably a previous blog data file is loaded" );
+			Log.error("No http auth data found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
-		
-		
+
+
 		//since version 1.4.1
-        //reading blog options
+		//reading blog options
 		try {
-            Hashtable options= (Hashtable)ser.deserialize();
-            blog.setBlogOptions(options);
-        } catch (Exception  e) {
-        	Log.error("No blog options found - End of file was reached. Probably a previous blog data file is loaded" );
+			Hashtable options= (Hashtable)ser.deserialize();
+			blog.setBlogOptions(options);
+		} catch (Exception  e) {
+			Log.error("No blog options found - End of file was reached. Probably a previous blog data file is loaded" );
 		} catch (Throwable  t) {
-        	Log.error("No blog options found - End of file was reached. Probably a previous blog data file is loaded" );
+			Log.error("No blog options found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
-        //reading shortcut icon
+		//reading shortcut icon
 		try {
-            byte[] shortcutIcon = (byte[])ser.deserialize();
-            blog.setShortcutIcon(shortcutIcon);
-        } catch (Exception  e) {
-        	Log.error("No blog shorcut icon found - End of file was reached. Probably a previous blog data file is loaded" );
+			byte[] shortcutIcon = (byte[])ser.deserialize();
+			blog.setShortcutIcon(shortcutIcon);
+		} catch (Exception  e) {
+			Log.error("No blog shorcut icon found - End of file was reached. Probably a previous blog data file is loaded" );
 		} catch (Throwable  t) {
-        	Log.error("No blog shorcut icon found - End of file was reached. Probably a previous blog data file is loaded" );
+			Log.error("No blog shorcut icon found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
-        //reading WP.COM blog features
+		//reading WP.COM blog features
 		try {
-            Hashtable options= (Hashtable)ser.deserialize();
-            blog.setWpcomFeatures(options);
-        } catch (Exception  e) {
-        	Log.error("No WP.COM features found - End of file was reached. Probably a previous blog data file is loaded" );
+			Hashtable options = (Hashtable)ser.deserialize();
+			blog.setWpcomFeatures(options);
+		} catch (Exception  e) {
+			Log.error("No WP.COM features found - End of file was reached. Probably a previous blog data file is loaded" );
 		} catch (Throwable  t) {
-        	Log.error("No WP.COM features found - End of file was reached. Probably a previous blog data file is loaded" );
+			Log.error("No WP.COM features found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
-		
-        in.close();
-        fc.close();
-        return blog;     
-     } 
-    
+
+		in.close();
+		return blog;  
+	}
+
+	public static synchronized Hashtable loadBlogs() throws ControlledAccessException, IOException {
+		Log.debug(">>> loadBlogs");
+		Hashtable blogs = AppDAO.loadAppData(AppDAO.BLOGS_DATA_ID);
+		Log.debug("<<< loadBlogs");
+		return blogs;
+	}
+   
     public static synchronized void removeBlog(BlogInfo blog)  throws IOException, RecordStoreException{
     	String blogName = getBlogFolderName(blog);
-    	 BlogDAO.removeBlog(blogName);  
+    	BlogDAO.removeBlog(blogName);  
     }
     
     public static synchronized void removeBlog(String  blogName)  throws IOException, RecordStoreException{
+    	Hashtable loadBlogs = loadBlogs();
     	String filePath=AppDAO.getBaseDirPath()+blogName;
     	
-    	if (!JSR75FileSystem.isFileExist(filePath)){
-    		throw new IOException("Cannot delete this blog: " + blogName + " because not exist!");
-    	} else {
-			JSR75FileSystem.removeFile(filePath);
-	    	//removed the protected password the password data!!
-	    	Hashtable blogsSecretStuff = null;
-	    	PersistentObject rec = PersistentStore.getPersistentObject(BLOG_DATA_ID);
-	    	int moduleHandle = ApplicationDescriptor.currentApplicationDescriptor().getModuleHandle();
-	    	CodeSigningKey codeSigningKey = CodeSigningKey.get( moduleHandle, "WP" );
-	    	Object contents = rec.getContents(codeSigningKey);
-	    	if(contents == null) {
-	    		blogsSecretStuff = new Hashtable();
-	    	} else {
-	    		blogsSecretStuff = (Hashtable) contents;
-	    	}
-	    	blogsSecretStuff.remove(blogName);
-	    	rec.setContents( new ControlledAccess( blogsSecretStuff, codeSigningKey ) );
-	    	rec.commit();
-	    	//end deleting of protected data
-    	}    
+    	if (loadBlogs.get(blogName) == null){
+    		throw new IOException("Cannot remove this blog: " + blogName + " because does not exist!");
+    	}   
+    	
+    	JSR75FileSystem.removeFile(filePath);
+    	loadBlogs.remove(blogName);
+    	AppDAO.storeAppData(AppDAO.BLOGS_DATA_ID, loadBlogs);
     }
     
     /**

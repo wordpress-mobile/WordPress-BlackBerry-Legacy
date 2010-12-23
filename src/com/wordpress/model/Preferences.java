@@ -22,10 +22,10 @@ public class Preferences {
     private boolean isServiceBookConnectionPermitted = true; //Wireless service provider WAP 2.0 gateway
     private boolean isBlackBerryInternetServicePermitted = true; //BlackBerry Internet Service
 
-	private String username;
-    private String password;
-    private String gateway;
-    private String apn;
+	private String username = "";
+    private String password = "";
+    private String gateway = "";
+    private String apn = "";
     private String gatewayPort;
     private String sourceIP;
     private String sourcePort;

@@ -7,9 +7,15 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
+
+import net.rim.device.api.system.ApplicationDescriptor;
+import net.rim.device.api.system.CodeSigningKey;
+import net.rim.device.api.system.ControlledAccess;
+import net.rim.device.api.system.ControlledAccessException;
+import net.rim.device.api.system.PersistentObject;
+import net.rim.device.api.system.PersistentStore;
 
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.log.Log;
@@ -17,8 +23,18 @@ import com.wordpress.utils.log.Log;
 public class AppDAO implements BaseDAO {
 
 	private final static String basePathRecordStoreKey="basepath";
-	
 	public static final String SD_STORE_PATH;
+	
+	//PersistentStore constants
+	public final static long BLOGS_DATA_ID = 0xc526d2b6855be856L; //com.wordpress.io.AppDAO.blogs
+	public final static long ACCOUNTS_DATA_ID = 0x197f31296e9ef33fL; //com.wordpress.io.AppDAO.accounts
+	public final static long PREFERENCES_DATA_ID = 0x8d22e492b38c69efL; //com.wordpress.io.AppDAO.preferences
+	public final static long[] persistentStoreUsedKeys = {BLOGS_DATA_ID, ACCOUNTS_DATA_ID, PREFERENCES_DATA_ID };	
+	
+    //keys used to store accounts
+    public final static String USERNAME_KEY = "username";
+	public final static String PASSWORD_KEY = "passwd";
+	public final static String BLOGNUMBER_KEY = "blogs_number";
 	
 	static {
 		String path = System.getProperty("fileconn.dir.memorycard");
@@ -29,18 +45,74 @@ public class AppDAO implements BaseDAO {
 		}
 	}
 	
-	public static String getInstFilePath() throws RecordStoreException, IOException {
-		return getBaseDirPath() + INST_FILE;
+	private static boolean isKeysExists(long key) {
+		for (int i = 0; i < persistentStoreUsedKeys.length; i++) {
+			if (persistentStoreUsedKeys[i] == key) return true;
+		}
+		return false;
 	}
 	
-	public static String getAppPrefsFilePath() throws RecordStoreException, IOException {	
-		return getBaseDirPath() + APP_PREFS_FILE;
+	static Hashtable loadAppData(long key) throws ControlledAccessException, IOException {
+		Log.debug(">>> loadAppData for key :"+ key);
+		Hashtable appData = null;
+
+		if(!isKeysExists(key)){
+			throw new IOException("key doesn't exists!");
+		}
+
+		PersistentObject rec = PersistentStore.getPersistentObject(key);
+		synchronized (rec) {
+			try {				
+				int moduleHandle = ApplicationDescriptor.currentApplicationDescriptor().getModuleHandle();
+				CodeSigningKey codeSigningKey = CodeSigningKey.get( moduleHandle, "WP" );
+				Object contents = rec.getContents(codeSigningKey);
+				if(contents == null) {
+					Log.debug("No app data found for key: " + String.valueOf(key) +" returning an empty hashtable");
+					Log.debug("<<< loadAppData");
+					return new Hashtable();
+				}
+				appData = (Hashtable) contents;
+			}    catch (ControlledAccessException e) {
+				Log.error(e, "ControlledAccessException - not authorised to read app data");
+				throw e;
+			}
+		}
+		Log.debug("<<< loadAppData for key "+ key);
+		return appData;
 	}
 	
-	public static String getAccountsFilePath() throws RecordStoreException, IOException {	
-		return getBaseDirPath() + ACCOUNTS_FILE;
+	static void storeAppData(long key, Hashtable appData) throws ControlledAccessException, IOException  {
+		Log.debug(">>> store app data");
+		if(!isKeysExists(key)){
+			throw new IOException("key doesn't exists!");
+		}
+		PersistentObject persistentObject;
+		persistentObject = PersistentStore.getPersistentObject( key );
+		synchronized (persistentObject) {
+			int moduleHandle = ApplicationDescriptor.currentApplicationDescriptor().getModuleHandle();
+			// Get the code signing key associated with "WP"
+			CodeSigningKey codeSigningKey = CodeSigningKey.get( moduleHandle, "WP" );
+			persistentObject.setContents( new ControlledAccess( appData, codeSigningKey ) );
+			persistentObject.commit();
+		}
+		Log.debug("app data stored succesfully!");
+		Log.debug("<<< store app data");
 	}
-	
+    	
+	public static synchronized Hashtable loadAccounts() throws ControlledAccessException, IOException {
+		Log.debug(">>> loadAccounts");
+		Hashtable accounts = loadAppData(ACCOUNTS_DATA_ID);
+		Log.debug("<<< loadAccounts");
+		return accounts;
+	}
+
+    public static synchronized void storeAccounts(Hashtable accounts) throws ControlledAccessException, IOException  {
+		Log.debug(">>> store accounts");
+		storeAppData(ACCOUNTS_DATA_ID, accounts);		
+		Log.debug("Account stored succesfully!");
+		Log.debug("<<< store accounts");
+	}
+        		
 	public static String getXmlRpcTempFilePath() throws RecordStoreException, IOException {	
 		return getBaseDirPath() + APP_TMP_XMLRPC_FILE;
 	}
@@ -68,32 +140,15 @@ public class AppDAO implements BaseDAO {
 		return basePath;
 	}
 
-	//remove the entire application folder structure
-	public static void cleanUpFolderStructure() throws RecordStoreException, IOException {
-		if(JSR75FileSystem.isFileExist(getBaseDirPath())){
-			JSR75FileSystem.removeFile(getBaseDirPath());
-		}
-	}
-	
-	public static void setUpFolderStructure() throws RecordStoreException, IOException {
-	
-		if(JSR75FileSystem.isFileExist(getBaseDirPath())){
-			//JSR75FileSystem.removeFile(getBaseDirPath());
-		} else {
-			JSR75FileSystem.createDir(AppDAO.getBaseDirPath());
-		}
-	}
-
-	
 	// set the application base path
 	public static synchronized void setBaseDirPath(String basePath)
-			throws 	RecordStoreException, IOException {
+	throws 	RecordStoreException, IOException {
 		
 		RecordStore records = null;
 		ByteArrayOutputStream bytes;
 		DataOutputStream data;
 		byte[] record;
-
+		
 		records = RecordStore.openRecordStore(basePathRecordStoreKey, true);
 		bytes = new ByteArrayOutputStream();
 		data = new DataOutputStream(bytes);
@@ -106,119 +161,168 @@ public class AppDAO implements BaseDAO {
 			records.addRecord(record, 0, record.length);			
 		}
 		records.closeRecordStore();
-
+		
 	}
 	
+	//remove the entire application folder structure and other app data
+	public static void resetAppData() throws RecordStoreException, IOException {
+		
+		if(JSR75FileSystem.isFileExist(getBaseDirPath())){
+			JSR75FileSystem.removeFile(getBaseDirPath());
+		}
+
+		for (int i = 0; i < persistentStoreUsedKeys.length; i++) {
+			if (persistentStoreUsedKeys[i] != PREFERENCES_DATA_ID){
+				try {
+					PersistentObject rec = PersistentStore.getPersistentObject(persistentStoreUsedKeys[i] );
+					int moduleHandle = ApplicationDescriptor.currentApplicationDescriptor().getModuleHandle();
+					CodeSigningKey codeSigningKey = CodeSigningKey.get( moduleHandle, "WP" );
+					ControlledAccess controlledAccess = new ControlledAccess(rec, codeSigningKey);
+					//synchronized (controlledAccess) {
+						PersistentStore.destroyPersistentObject(persistentStoreUsedKeys[i]);
+					//}
+				}    catch (ControlledAccessException e) {
+					Log.error(e, "You are not authorized to access this delete App data");
+					throw e;
+				}
+			}
+		}
+	}
+
+	public static void setUpFolderStructure() throws RecordStoreException, IOException {
+		if(JSR75FileSystem.isFileExist(getBaseDirPath())){
+			//JSR75FileSystem.removeFile(getBaseDirPath());
+		} else {
+			JSR75FileSystem.createDir(AppDAO.getBaseDirPath());
+		}
+	}
+
 	
 	  public static boolean readApplicationPreferecens(Preferences pref) throws IOException, RecordStoreException {
 			Log.debug(">>>load application preferences");
-
-			if (!JSR75FileSystem.isFileExist(getAppPrefsFilePath())) {
-				return false;
+			Hashtable preferences = loadAppData(PREFERENCES_DATA_ID);
+			
+			if(preferences.get("videoEncoding") != null) {
+				pref.setVideoEncoding((String)preferences.get("videoEncoding"));
+			}
+			if(preferences.get("audioEncoding") != null) {
+				pref.setAudioEncoding((String)preferences.get("audioEncoding"));
+			}
+			if(preferences.get("photoEncoding") != null) {
+				pref.setPhotoEncoding((String)preferences.get("audioEncoding"));
+			}	
+			if(preferences.get("apn") != null) {
+				pref.setApn((String)preferences.get("apn"));
+			}
+			if(preferences.get("gateway") != null) {
+				pref.setGateway((String)preferences.get("gateway"));
+			}
+			if(preferences.get("gatewayPort") != null) {
+				pref.setGatewayPort((String)preferences.get("gatewayPort"));
+			}
+			if(preferences.get("sourceIP") != null) {
+				pref.setSourceIP((String)preferences.get("sourceIP"));
+			}
+			if(preferences.get("sourcePort") != null) {
+				pref.setSourcePort((String)preferences.get("sourcePort"));
+			}
+			if(preferences.get("isUserConnectionOptionsEnabled") != null) {
+				pref.setUserConnectionOptionsEnabled(((Boolean)preferences.get("isUserConnectionOptionsEnabled")).booleanValue());
+			}
+			if(preferences.get("isUserConnectionWap") != null) {
+				pref.setUserConnectionWap(((Boolean)preferences.get("isUserConnectionWap")).booleanValue());
+			}
+			if(preferences.get("isWiFiConnectionPermitted") != null) {
+				pref.setWiFiConnectionPermitted(((Boolean)preferences.get("isWiFiConnectionPermitted")).booleanValue());
+			}
+			if(preferences.get("isTcpConnectionPermitted") != null) {
+				pref.setTcpConnectionPermitted(((Boolean)preferences.get("isTcpConnectionPermitted")).booleanValue());
+			}
+			if(preferences.get("isBESConnectionPermitted") != null) {
+				pref.setBESConnectionPermitted(((Boolean)preferences.get("isBESConnectionPermitted")).booleanValue());
+			}
+			if(preferences.get("isServiceBookConnectionPermitted") != null) {
+				pref.setServiceBookConnectionPermitted(((Boolean)preferences.get("isServiceBookConnectionPermitted")).booleanValue());
+			}
+			if(preferences.get("isWapConnectionPermitted") != null) {
+				pref.setBlackBerryInternetServicePermitted(((Boolean)preferences.get("isWapConnectionPermitted")).booleanValue());
+			}
+	
+			if(preferences.get("userName") != null) {
+				pref.setUsername((String)preferences.get("userName"));
+			}
+			if(preferences.get("userPass") != null) {
+				pref.setPassword((String)preferences.get("userPass"));
 			}
 
-			FileConnection fc = JSR75FileSystem.openFile(getAppPrefsFilePath());
-			DataInputStream in = fc.openDataInputStream();
-			Serializer ser = new Serializer(in);
-
-			String videoEncoding = (String) ser.deserialize();
-			String audioEncoding = (String) ser.deserialize();
-			String photoEncoding = (String) ser.deserialize();
-			String apn = (String) ser.deserialize();
-		    String gateway = (String) ser.deserialize();
-		    String gatewayPort = (String) ser.deserialize();
-		    String sourceIP = (String) ser.deserialize();
-		    String sourcePort = (String) ser.deserialize();
-		    Boolean isUserConnectionOptionsEnabled = (Boolean) ser.deserialize();
-		    Boolean isUserConnectionWap = (Boolean) ser.deserialize();
-		    Boolean isWiFiConnectionPermitted = (Boolean) ser.deserialize();
-		    Boolean isTcpConnectionPermitted = (Boolean) ser.deserialize();
-		    Boolean isBESConnectionPermitted = (Boolean) ser.deserialize();
-		    Boolean isServiceBookConnectionPermitted = (Boolean) ser.deserialize();
-		    Boolean isWapConnectionPermitted = (Boolean) ser.deserialize();
-		    String userName = (String) ser.deserialize();
-		    String userPass = (String) ser.deserialize();
-
-		    Hashtable opt = new Hashtable(); 
-		    // try to read the added hashtable in the rev108
-		    //in this hashtable we should store all next needed variable
-		    if(in.available() != 0) { 
-		    	opt = (Hashtable) ser.deserialize();
-		    }
-			
-			pref.setAudioEncoding(audioEncoding);
-			pref.setPhotoEncoding(photoEncoding);
-			pref.setVideoEncoding(videoEncoding);
-			pref.setGateway(gateway);
-			pref.setGatewayPort(gatewayPort);
-			pref.setApn(apn);
-			pref.setSourceIP(sourceIP);
-			pref.setSourcePort(sourcePort);
-			pref.setUserConnectionOptionsEnabled(isUserConnectionOptionsEnabled.booleanValue());
-			pref.setUserConnectionWap(isUserConnectionWap.booleanValue());
-			pref.setWiFiConnectionPermitted(isWiFiConnectionPermitted.booleanValue());
-			pref.setTcpConnectionPermitted(isTcpConnectionPermitted.booleanValue());
-			pref.setBlackBerryInternetServicePermitted(isWapConnectionPermitted.booleanValue());
-			pref.setBESConnectionPermitted(isBESConnectionPermitted.booleanValue());
-			pref.setServiceBookConnectionPermitted(isServiceBookConnectionPermitted.booleanValue());
-			pref.setUsername(userName);
-			pref.setPassword(userPass);
-			pref.setOpt(opt);
+			if(preferences.get("opt") != null) {
+				pref.setOpt((Hashtable)preferences.get("opt"));
+			}
 			
 			Log.debug("Prefs loading succesfully!");
-			in.close();
-			fc.close();
 			return true;
 		}
 	    
 	    public static void storeApplicationPreferecens(Preferences pref) throws IOException, RecordStoreException  {
 			Log.debug(">>>store application preferences");
-
-		  	JSR75FileSystem.createFile(getAppPrefsFilePath()); 
-		  	FileConnection fc = JSR75FileSystem.openFile(getAppPrefsFilePath());
-	    	DataOutputStream out = fc.openDataOutputStream();
 	    	
+			Hashtable preferences = new Hashtable();
+			
 			String videoEncoding = pref.getVideoEncoding();
+			preferences.put("videoEncoding", videoEncoding);
+			
 			String audioEncoding = pref.getAudioEncoding();
+			preferences.put("audioEncoding", audioEncoding);
+			
 			String photoEncoding = pref.getPhotoEncoding();
+			preferences.put("photoEncoding", photoEncoding);
+			
 			String apn = pref.getApn();
+			preferences.put("apn", apn);
+			
 		    String gateway = pref.getGateway();
+		    preferences.put("videoEncoding", gateway);
+		    
 		    String gatewayPort = pref.getGatewayPort();
+		    preferences.put("gatewayPort", gatewayPort);
+		    
 		    String sourceIP = pref.getSourceIP();
+		    preferences.put("sourceIP", sourceIP);
+		    
 		    String sourcePort = pref.getSourcePort();
+		    preferences.put("sourcePort", sourcePort);
+		    
 		    Boolean isUserConnectionOptionsEnabled = new Boolean(pref.isUserConnectionOptionsEnabled());
+		    preferences.put("isUserConnectionOptionsEnabled", isUserConnectionOptionsEnabled);
+		    
 		    Boolean isUserConnectionWap = new Boolean(pref.isUserConnectionWap());
+		    preferences.put("isUserConnectionWap", isUserConnectionWap);
+		    
 		    Boolean isWiFiConnectionPermitted =new Boolean(pref.isWiFiConnectionPermitted());
+		    preferences.put("isWiFiConnectionPermitted", isWiFiConnectionPermitted);
+		    
 		    Boolean isTcpConnectionPermitted = new Boolean(pref.isTcpConnectionPermitted());
+		    preferences.put("isTcpConnectionPermitted", isTcpConnectionPermitted);
+		    
 		    Boolean isBESConnectionPermitted = new Boolean(pref.isBESConnectionPermitted());
+		    preferences.put("isBESConnectionPermitted", isBESConnectionPermitted);
+		    
 		    Boolean isServiceBookConnectionPermitted = new Boolean(pref.isServiceBookConnectionPermitted());
+		    preferences.put("isServiceBookConnectionPermitted", isServiceBookConnectionPermitted);
+		    
 		    Boolean isWapConnectionPermitted = new Boolean(pref.isBlackBerryInternetServicePermitted());
+		    preferences.put("isWapConnectionPermitted", isWapConnectionPermitted);
+		    
 		    String userPass = pref.getPassword();
+		    preferences.put("userPass", userPass);
+		    
 		    String userName = pref.getUsername();
-		    
-		    
-			Serializer ser= new Serializer(out);
-	    	ser.serialize(videoEncoding);
-	    	ser.serialize(audioEncoding);
-	    	ser.serialize(photoEncoding);
-	    	ser.serialize(apn);
-	    	ser.serialize(gateway);
-	    	ser.serialize(gatewayPort);
-	    	ser.serialize(sourceIP);
-	    	ser.serialize(sourcePort);
-	    	ser.serialize(isUserConnectionOptionsEnabled);
-	    	ser.serialize(isUserConnectionWap);
-	    	ser.serialize(isWiFiConnectionPermitted);
-	    	ser.serialize(isTcpConnectionPermitted);
-	    	ser.serialize(isBESConnectionPermitted);
-	    	ser.serialize(isServiceBookConnectionPermitted);
-	    	ser.serialize(isWapConnectionPermitted);
-	    	ser.serialize(userName);
-	    	ser.serialize(userPass);
-	    	ser.serialize(pref.getOpt());
+		    preferences.put("userName", userName);
 	    	
-	    	out.close();
-	    	fc.close();
+		    preferences.put("opt", pref.getOpt());
+		    
+		    storeAppData(PREFERENCES_DATA_ID, preferences);
+
 			Log.debug("Prefs stored succesfully!");
 		}
 }

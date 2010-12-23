@@ -110,105 +110,112 @@ public class AddBlogsController extends BaseController {
 		
 	
 	private void parseResponse(BlogConnResponse resp) {
-		Log.debug("found blogs: "+((Blog[])resp.getResponseObject()).length);	
-		Blog[] serverBlogs = (Blog[]) resp.getResponseObject();
-		if (isWPCOMCall) {
-			AccountsController.storeWPCOMAccount(serverBlogs);
-		}
-	
-		Vector addedBlog = new Vector();
-
-		//skip the blog already available in the app
-		for (int i = 0; i < serverBlogs.length; i++) {
-			if(!BlogDAO.isBlogExist(serverBlogs[i])) {
-				addedBlog.addElement(serverBlogs[i]);
-			}
-		}
-		serverBlogs = new Blog[addedBlog.size()];
-		addedBlog.copyInto(serverBlogs);
-		addedBlog = new Vector();
-		
-		//show the blog selector popup when there are more then 1 blog associated with the account
-		if(serverBlogs.length > 1) {
-			String title = _resources.getString(WordPressResource.TITLE_ADDBLOGS_SELECTOR_POPUP);
-			String[] blogNames = new String[serverBlogs.length];
-			for (int i = 0; i < blogNames.length; i++) {
-				blogNames[i] = serverBlogs[i].getName();
-			}
-			final CheckBoxPopupScreen selScr = new CheckBoxPopupScreen(title, blogNames);
-
-			UiApplication.getUiApplication().invokeAndWait(new Runnable() {
-				public void run() {
-					selScr.pickItems();
-				}
-			});
+		try {
 			
-			boolean selection[] = selScr.getSelectedItems();
-			for (int i = 0; i < selection.length; i++) {
-				if(selection[i]){
+			Log.debug("found blogs: "+((Blog[])resp.getResponseObject()).length);	
+			Blog[] serverBlogs = (Blog[]) resp.getResponseObject();
+			if (isWPCOMCall) {
+				AccountsController.storeWPCOMAccount(serverBlogs);
+			}
+
+			Vector addedBlog = new Vector();
+
+			//skip the blog already available in the app
+			for (int i = 0; i < serverBlogs.length; i++) {
+				if(!BlogDAO.isBlogExist(serverBlogs[i])) {
 					addedBlog.addElement(serverBlogs[i]);
 				}
 			}
-			
-			//check if no blogs selected
-			if (addedBlog.size() == 0 ) return;
-			
 			serverBlogs = new Blog[addedBlog.size()];
 			addedBlog.copyInto(serverBlogs);
 			addedBlog = new Vector();
-		} else if(serverBlogs.length == 0) {
-			displayMessage(_resources.getString(WordPressResource.MESSAGE_NO_OTHER_BLOGS_FOR_ACCOUNT));
-		}
-		
-		Queue connectionsQueue = new Queue(serverBlogs.length);
-		for (int i = 0; i < serverBlogs.length; i++) {
-			serverBlogs[i].setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
-			serverBlogs[i].setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
-			serverBlogs[i].setLoadingState(BlogInfo.STATE_ADDED_TO_QUEUE);
-			if (isWPCOMCall) {
-				serverBlogs[i].setWPCOMBlog(true);
+
+			//show the blog selector popup when there are more then 1 blog associated with the account
+			if(serverBlogs.length > 1) {
+				String title = _resources.getString(WordPressResource.TITLE_ADDBLOGS_SELECTOR_POPUP);
+				String[] blogNames = new String[serverBlogs.length];
+				for (int i = 0; i < blogNames.length; i++) {
+					blogNames[i] = serverBlogs[i].getName();
+				}
+				final CheckBoxPopupScreen selScr = new CheckBoxPopupScreen(title, blogNames);
+
+				UiApplication.getUiApplication().invokeAndWait(new Runnable() {
+					public void run() {
+						selScr.pickItems();
+					}
+				});
+
+				boolean selection[] = selScr.getSelectedItems();
+				for (int i = 0; i < selection.length; i++) {
+					if(selection[i]){
+						addedBlog.addElement(serverBlogs[i]);
+					}
+				}
+
+				//check if no blogs selected
+				if (addedBlog.size() == 0 ) return;
+
+				serverBlogs = new Blog[addedBlog.size()];
+				addedBlog.copyInto(serverBlogs);
+				addedBlog = new Vector();
+			} else if(serverBlogs.length == 0) {
+				displayMessage(_resources.getString(WordPressResource.MESSAGE_NO_OTHER_BLOGS_FOR_ACCOUNT));
 			}
-			
-			try { //if a blog with same name and xmlrpc url exist
-				BlogDAO.newBlog(serverBlogs[i], true);
-				//add this blog to the queue	
-				final BlogUpdateConn connection = new BlogUpdateConn (serverBlogs[i]);       
-				connectionsQueue.push(connection); 
-				addedBlog.addElement(serverBlogs[i]); //add this blog to the list of just added blog
-			} catch (Exception e) {
-				if(e != null && e.getMessage()!= null ) {
-					displayMessage(e.getMessage());
-				} else {
-					displayMessage("Error while adding blog");			
+
+			Queue connectionsQueue = new Queue(serverBlogs.length);
+			for (int i = 0; i < serverBlogs.length; i++) {
+				serverBlogs[i].setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
+				serverBlogs[i].setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
+				serverBlogs[i].setLoadingState(BlogInfo.STATE_ADDED_TO_QUEUE);
+				if (isWPCOMCall) {
+					serverBlogs[i].setWPCOMBlog(true);
+				}
+
+				try { //if a blog with same name and xmlrpc url exist
+					BlogDAO.newBlog(serverBlogs[i], true);
+					//add this blog to the queue	
+					final BlogUpdateConn connection = new BlogUpdateConn (serverBlogs[i]);       
+					connectionsQueue.push(connection); 
+					addedBlog.addElement(serverBlogs[i]); //add this blog to the list of just added blog
+				} catch (Exception e) {
+					if(e != null && e.getMessage()!= null ) {
+						displayMessage(e.getMessage());
+					} else {
+						displayMessage("Error while adding blog");			
+					}
 				}
 			}
-		}
-		
-		//no blogs added
-		if (connectionsQueue.isEmpty()) {
-			FrontController.getIstance().backAndRefreshView(false);			
-			return;
-		}
-		
-		Vector applicationBlogs = WordPressCore.getInstance().getApplicationBlogs();
 
-		for (int i = 0; i < addedBlog.size(); i++) {
-			Blog loadedBlog = (Blog)addedBlog.elementAt(i);
-			BlogInfo blogI = new BlogInfo(loadedBlog);
-			applicationBlogs.addElement(blogI);
-		}
-		
-		FrontController.getIstance().backAndRefreshView(true);
-		LoadBlogsDataTask loadBlogsTask = new LoadBlogsDataTask(connectionsQueue);
-		loadBlogsTask.setProgressListener(listener);
-		
-		//push into the Runner
-		try {
-			Thread.currentThread().sleep(2000);
-		} catch (InterruptedException e) {
+			//no blogs added
+			if (connectionsQueue.isEmpty()) {
+				FrontController.getIstance().backAndRefreshView(false);			
+				return;
+			}
+
+			Vector applicationBlogs = WordPressCore.getInstance().getApplicationBlogs();
+
+			for (int i = 0; i < addedBlog.size(); i++) {
+				Blog loadedBlog = (Blog)addedBlog.elementAt(i);
+				BlogInfo blogI = new BlogInfo(loadedBlog);
+				applicationBlogs.addElement(blogI);
+			}
+
+			FrontController.getIstance().backAndRefreshView(true);
+			LoadBlogsDataTask loadBlogsTask = new LoadBlogsDataTask(connectionsQueue);
+			loadBlogsTask.setProgressListener(listener);
+
+			//push into the Runner
+			try {
+				Thread.currentThread().sleep(2000);
+			} catch (InterruptedException e) {
+				Log.error(e, "Error while adding blogs");
+			}
+
+			WordPressCore.getInstance().getTasksRunner().enqueue(loadBlogsTask);
+
+		} catch (Exception e) {
 			Log.error(e, "Error while adding blogs");
 		}
-		WordPressCore.getInstance().getTasksRunner().enqueue(loadBlogsTask);
 	}
 
 	//callback for send post to the blog

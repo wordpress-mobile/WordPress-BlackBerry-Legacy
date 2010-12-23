@@ -8,17 +8,17 @@ import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.Dialog;
+import net.rim.device.api.ui.component.Menu;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.MainController;
-import com.wordpress.io.AccountsDAO;
+import com.wordpress.io.AppDAO;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ListActionListener;
 import com.wordpress.view.component.PostsListField;
-import net.rim.device.api.ui.component.Dialog;
-import net.rim.device.api.ui.component.Menu;
 
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.Touchscreen;
@@ -79,7 +79,7 @@ public class AccountsView extends BaseView  implements ListActionListener {
 		 while (k.hasMoreElements()) {
 			 String key = (String) k.nextElement();
 			 Hashtable currentAccount = (Hashtable)accounts.get(key);
-			 String blogsNo = (String)currentAccount.get(AccountsDAO.BLOGNUMBER_KEY);
+			 String blogsNo = (String)currentAccount.get(AppDAO.BLOGNUMBER_KEY);
 
 			 Hashtable currentListItem = new Hashtable();
 			 currentListItem.put("title", key);
@@ -163,7 +163,7 @@ public class AccountsView extends BaseView  implements ListActionListener {
 		String username =  (String)accountHashtable.get("username");
 		accounts.remove(username);
 		try {
-			AccountsDAO.storeAccounts(accounts);
+			AppDAO.storeAccounts(accounts);
 		} catch (Exception e) {
 			controller.displayError(e, "Error while removing accounts info");
 		}

@@ -16,7 +16,7 @@ public class NotificationController extends BaseController {
 	
 	private NotificationView view = null;
 	private BlogInfo[] blogsList = new BlogInfo[0];
-    private Preferences mPrefs=Preferences.getIstance();
+    private Preferences mPrefs = Preferences.getIstance();
     
 	public NotificationController(BlogInfo[] blogs) {
 		super();

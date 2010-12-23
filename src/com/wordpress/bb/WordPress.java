@@ -200,13 +200,15 @@ public class WordPress extends UiApplication implements WordPressResource {
 		WordPressApplicationPermissions.getIstance().checkPermissions();
 		
 		try {
-			String baseDirPath = AppDAO.getBaseDirPath(); //read from rms the base dir path
-
-			//if there is no app path stored into RMS put the default path
+			String baseDirPath = AppDAO.getBaseDirPath(); //read the base dir path
+			//first startup
 			if(baseDirPath == null) {
-				//first startup
 				appPrefs.isFirstStartupOrUpgrade = true; //set as first startup.
-				AppDAO.setBaseDirPath(BaseDAO.DEVICE_STORE_PATH); 
+				if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD()) {
+					AppDAO.setBaseDirPath(AppDAO.SD_STORE_PATH);
+				} else {
+					AppDAO.setBaseDirPath(BaseDAO.DEVICE_STORE_PATH); 
+				}
 			} else {
 				//set as no first  startup.
 				appPrefs.isFirstStartupOrUpgrade = false; 
@@ -225,32 +227,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 			}
 
 			AppDAO.setUpFolderStructure(); //check for the folder existence, create it if not exist
-						
-			if ( baseDirPath != null ) {
-				//not first startup 	
-				AppDAO.readApplicationPreferecens(appPrefs); //load pref on startup
-			} else { 
-				//check if this is a new inst or an upgrade. 
-				//if prefs file exist, this is an upgrade.
-				String appPrefsFilePath = AppDAO.getAppPrefsFilePath();
-				if (JSR75FileSystem.isFileExist(appPrefsFilePath)) {
-					//upgrading
-					Log.trace("App upgrading");
-					AppDAO.readApplicationPreferecens(appPrefs); //load pref on upgrading
-				} else {
-					//new inst
-					Log.trace("App first installation");
-				}
-			}
-			
-			//modified since 1.3, now we are using the real device PIN
-			//check the existence of UUID var.
-			//if UUID does not exists, generate it and put it in the prefs
-			/*Hashtable opt = appPrefs.getOpt();
-			if(opt.get("device_uuid") == null)
-				opt.put("device_uuid", ""+(Tools.generateDeviceUUID())); 
-			AppDAO.storeApplicationPreferecens(appPrefs); //store app pref, trick for store pref when added new parameters
-			*/
+			AppDAO.readApplicationPreferecens(appPrefs); //load pref on startup
 			
 			//add the file log appender
 			FileAppender fileAppender = new FileAppender(baseDirPath, BaseDAO.LOG_FILE_PREFIX);

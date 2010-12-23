@@ -1,11 +1,13 @@
 package com.wordpress.controller;
 
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import net.rim.device.api.system.ControlledAccessException;
 import net.rim.device.api.ui.UiApplication;
 
-import com.wordpress.io.AccountsDAO;
+import com.wordpress.io.AppDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.view.AccountDetailView;
 import com.wordpress.view.AccountsView;
@@ -53,7 +55,7 @@ public class AccountsController extends BaseController {
 	public static synchronized String getAccountPassword(String username) throws  NullPointerException{
 		Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
 		Hashtable account = (Hashtable)applicationAccounts.get(username);
-		return (String) account.get(AccountsDAO.PASSWORD_KEY);
+		return (String) account.get(AppDAO.PASSWORD_KEY);
 	}
 	
 	public static synchronized String[] getAccountsName() throws  NullPointerException{
@@ -69,26 +71,26 @@ public class AccountsController extends BaseController {
 		return accountsList;
 	}
 	
-	public static synchronized void storeWPCOMAccount(Blog[] serverBlogs) {
+	public static synchronized void storeWPCOMAccount(Blog[] serverBlogs) throws ControlledAccessException, IOException {
 		if (serverBlogs.length == 0) return;
 			Hashtable loadAccounts = MainController.getIstance().getApplicationAccounts();
 			Blog tmpBlog = serverBlogs[0];
 			String username = tmpBlog.getUsername();
 			String passwd = tmpBlog.getPassword();
 			Hashtable accountInfo = new Hashtable();
-			accountInfo.put(AccountsDAO.USERNAME_KEY, username);
-			accountInfo.put(AccountsDAO.PASSWORD_KEY, passwd);
-			accountInfo.put(AccountsDAO.BLOGNUMBER_KEY, ""+serverBlogs.length);
+			accountInfo.put(AppDAO.USERNAME_KEY, username);
+			accountInfo.put(AppDAO.PASSWORD_KEY, passwd);
+			accountInfo.put(AppDAO.BLOGNUMBER_KEY, ""+serverBlogs.length);
 
 			Object object = loadAccounts.get(username);
 			if(object == null) {
 				//new account detected
 				loadAccounts.put(username, accountInfo);
-				AccountsDAO.storeAccounts(loadAccounts);
+				AppDAO.storeAccounts(loadAccounts);
 			} else {
 				//account already available inside the app
 				loadAccounts.put(username, accountInfo);
-				AccountsDAO.storeAccounts(loadAccounts);
+				AppDAO.storeAccounts(loadAccounts);
 			}
 	}
 	
