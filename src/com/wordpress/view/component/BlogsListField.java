@@ -169,7 +169,7 @@ public class BlogsListField {
 		private Bitmap imgQueue = Bitmap.getBitmapResource("enqueued.png");
 		private Bitmap wp_blue = Bitmap.getBitmapResource("wp_blue-s.png");
 		private Bitmap wp_grey = Bitmap.getBitmapResource("wp_grey-s.png");
-		
+		private Bitmap pendingActivation = Bitmap.getBitmapResource("pending_activation.png");
 		
         // Draws the list row.
     	public void drawListRow(ListField list, Graphics graphics, int index, int y, int w) {
@@ -183,8 +183,9 @@ public class BlogsListField {
     		int height = list.getRowHeight();
     		
     		int stato = currentRow.getState();
-
-    		if (stato == BlogInfo.STATE_LOADING) { 
+    		if(stato == BlogInfo.STATE_PENDING_ACTIVATION) {
+    			icon = pendingActivation;
+    		} else if (stato == BlogInfo.STATE_LOADING) { 
     			icon = null;
     		} else if (stato == BlogInfo.STATE_ADDED_TO_QUEUE) {
     			icon = imgQueue; 

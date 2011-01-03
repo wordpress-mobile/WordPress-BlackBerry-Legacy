@@ -5,8 +5,6 @@ import java.util.Hashtable;
 import java.util.TimerTask;
 import java.util.Vector;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.ControlledAccessException;
@@ -56,9 +54,9 @@ public class MainController extends BaseController implements TaskProgressListen
 		try {
 			applicationAccounts = AppDAO.loadAccounts();
 		} catch (ControlledAccessException e) {
-			this.displayError(e, "Error while reading accounts info");
+			this.displayError(e, "Error while reading accounts data.");
 		} catch (IOException e) {
-			this.displayError(e, "Error while reading accounts info");
+			this.displayError(e, "Error while reading accounts data.");
 		}
 		//check the FS writing status
 		try {
@@ -73,10 +71,10 @@ public class MainController extends BaseController implements TaskProgressListen
 			}
 		} catch (RecordStoreException e) {
 	    	Log.error(e, "Error while writing on the FS");
-	    	this.displayError("Unable to write temp files: Please set the cache file location to the SD card and check the App permissions.");
+	    	this.displayError("Unable to write temporary files. Please check application permissions, and set the cache files location to the SD card.");
 		} catch (IOException e) {
 			Log.error(e, "Error while writing on the FS");
-			this.displayError("Unable to write temp files: Please set the cache file location on the SDCard and check the App permissions.");
+			this.displayError("Unable to write temporary files. Please check application permissions, and set the cache files location to the SD card.");
 		}
 		
 		int numberOfBlog = 0; 
@@ -238,8 +236,7 @@ public class MainController extends BaseController implements TaskProgressListen
 		AddBlogsController ctrl = new AddBlogsController(this, false);
 		ctrl.showView();
 	}
-	
-	
+		
 	public void addWPCOMBlogs() {
 		AddBlogsController ctrl = new AddBlogsController(this, true);
 		ctrl.showView();
@@ -271,10 +268,13 @@ public class MainController extends BaseController implements TaskProgressListen
 	}
 
 	public void showBlog(BlogInfo selectedBlog) {
-
 		if (selectedBlog.getState() == BlogInfo.STATE_LOADING || selectedBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
-			//blog in caricamento
+			//blog in not available yet. loading in progress
 			displayMessage(_resources.getString(WordPressResource.MESSAGE_LOADING_BLOGS));
+		} else if (selectedBlog.getState() == BlogInfo.STATE_PENDING_ACTIVATION) {
+			//you should activate the blog first.
+			//start the check here
+			displayMessage(_resources.getString(WordPressResource.MESSAGE_PENDING_ACTIVATION_BLOG));
 		} else {
 			FrontController.getIstance().showBlog(selectedBlog);
 		}

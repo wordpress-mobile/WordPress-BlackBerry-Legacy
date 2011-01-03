@@ -252,7 +252,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 			if(e != null && e.getMessage()!= null ) {
 				excMsg = "\n" + e.getMessage();
 			} else {
-				excMsg = "";
+				excMsg = "\n" + "Please configure application permissions and reboot the device by removing and reinserting the battery.";
 			}
 			invokeLater(new Runnable() {
 				public void run() {

@@ -9,6 +9,7 @@ public class BlogInfo {
 	public static int STATE_LOADED = 2;
 	public static int STATE_LOADED_WITH_ERROR = 3;
 	public static int STATE_ERROR = 4;
+	public static int STATE_PENDING_ACTIVATION = 5; //blog created within the app that should be activated
 	
 	private boolean isWPCOMBlog = false;
 	private String id;

@@ -71,7 +71,7 @@ public class AppDAO implements BaseDAO {
 					Log.debug("<<< loadAppData");
 					return new Hashtable();
 				}
-				appData = (Hashtable) contents;
+				appData = ((CustomHashtable) contents).unwrapAppData();
 			}    catch (ControlledAccessException e) {
 				Log.error(e, "ControlledAccessException - not authorised to read app data");
 				throw e;
@@ -90,9 +90,11 @@ public class AppDAO implements BaseDAO {
 		persistentObject = PersistentStore.getPersistentObject( key );
 		synchronized (persistentObject) {
 			int moduleHandle = ApplicationDescriptor.currentApplicationDescriptor().getModuleHandle();
+			CustomHashtable myAppData = new CustomHashtable();
+			myAppData.wrapAppData(appData); //trick to remove the content store obj when deleting the app
 			// Get the code signing key associated with "WP"
 			CodeSigningKey codeSigningKey = CodeSigningKey.get( moduleHandle, "WP" );
-			persistentObject.setContents( new ControlledAccess( appData, codeSigningKey ) );
+			persistentObject.setContents( new ControlledAccess( myAppData, codeSigningKey ) );
 			persistentObject.commit();
 		}
 		Log.debug("app data stored succesfully!");

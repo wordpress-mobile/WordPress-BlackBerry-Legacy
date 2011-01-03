@@ -73,20 +73,19 @@ public class BlogDAO implements BaseDAO {
     	return true;
     }
     
-	public static synchronized boolean isBlogExist(Blog blogInfo) {
-		try {
-			String nameMD5=getBlogFolderName(blogInfo);
-			String filePath=AppDAO.getBaseDirPath()+nameMD5;
-			if (JSR75FileSystem.isFileExist(filePath)){
-				return true;
-			}
-		} catch (Exception e) {
-			Log.error(e, "Failed to check the existence for the blog: " + blogInfo.getName()); 
-			return false;
-		}
-		
-		return false;
-	}
+    public static synchronized boolean isBlogExist(Blog blogInfo) {		
+    	try {
+    		String blogName = getBlogFolderName(blogInfo);
+    		Hashtable loadBlogs = loadBlogs();
+    		if (loadBlogs.get(blogName) == null){
+    			return false;
+    		} else 
+    			return true;
+    	} catch (Exception e) {
+    		Log.error(e, "Failed to check the existence for the blog: " + blogInfo.getName()); 
+    		return false;
+    	}
+    }
 	        	
     public static Blog[] getBlogs() throws Exception {
         try {
@@ -118,7 +117,6 @@ public class BlogDAO implements BaseDAO {
         	}   
         	byte[] blogData = (byte[])loadBlogs.get(blogName);
         	return deserializeBlogData (blogData);
-        	
         } catch (Exception e) {
         	throw new Exception("Failed to load blog: " + e.getMessage());            
         }

@@ -45,7 +45,7 @@ public class XmlRpcDualOutputStream {
 	public void close() {		
 		try {
 			Log.trace("Closing the xml rpc output stream");
-			os.flush();
+			//os.flush();
 			
 		 	if(os instanceof ByteArrayOutputStream) {
 	    		memoryStorage = ((ByteArrayOutputStream)os).toByteArray(); //set the global byte array before.
@@ -77,7 +77,7 @@ public class XmlRpcDualOutputStream {
 				Log.error(e, "Error while clean xmlrpc file");
 			}
 		} catch (Exception e) {
-			Log.error("Error while closing the xmlrpc tmp file");
+			Log.error("Error while cleaning the xmlrpc tmp file");
 		}
 	}
 	

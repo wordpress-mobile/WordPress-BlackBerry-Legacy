@@ -35,6 +35,7 @@ import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
+import com.wordpress.controller.SignUpBlogController;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.DataCollector;
@@ -199,7 +200,8 @@ public class MainView extends BaseView {
 		 buttonGetFreeBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
 		 buttonGetFreeBlog.setChangeListener(new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {
-				 Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
+	    			SignUpBlogController ctrl = new SignUpBlogController();
+	    			ctrl.showView();
 			 }
 		 });
 
@@ -329,13 +331,16 @@ public class MainView extends BaseView {
     		int selection = -1;
     		String[] messages = _resources.getStringArray(WordPressResource.MESSAGES_ADD_BLOG);
     		String title = messages[0];
-    		SelectorPopupScreen selScr = new SelectorPopupScreen(title, new String[]{messages[1], messages[2]});
+    		SelectorPopupScreen selScr = new SelectorPopupScreen(title, new String[]{messages[1], messages[2], messages[3]});
     		selScr.pickItem();
     		selection = selScr.getSelectedItem();
     		if(selection == 0) {
 				mainController.addWPCOMBlogs();
     		} else if(selection == 1) {
 				mainController.addWPORGBlogs();
+    		} else if(selection == 2) {
+    			SignUpBlogController ctrl = new SignUpBlogController();
+    			ctrl.showView();
     		}
     	}
     };

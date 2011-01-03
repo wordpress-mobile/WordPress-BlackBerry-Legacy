@@ -13,6 +13,7 @@ BUTTON_POSTS#0="Posts";
 BUTTON_REFRESH_BLOG#0="Refresh";
 BUTTON_REMOVE#0="Remove";
 BUTTON_SIGN_IN#0="Sign in";
+BUTTON_SIGN_UP#0="Sign up";
 BUTTON_STATS#0="Stats";
 BUTTON_ZOOM_IN#0="Zoom In";
 BUTTON_ZOOM_OUT#0="Zoom Out";
@@ -57,6 +58,7 @@ LABEL_AUDIOENCODING#0="Audio Encoding";
 LABEL_AUDIORECORDING_NOTSUPPORTED#0="Sorry, audio recording is not supported!";
 LABEL_AUTHOR#0="Author";
 LABEL_BLOGS#0="Blogs";
+LABEL_BLOG_ADDRESS#0="Blog Address";
 LABEL_CAPTION#0="Caption";
 LABEL_CATEGORY_NAME#0="Category name";
 LABEL_CATEGORY_PARENT#0="Parent Category";
@@ -209,7 +211,7 @@ MENUITEM_SELECT#0="Select";
 MENUITEM_SETTINGS#0="Settings";
 MENUITEM_SETUP#0="Setup";
 MENUITEM_SHARE_TO_WORDPRESS#0="Share to WordPress";
-MENUITEM_SHOWBLOG#0="Show blog";
+MENUITEM_SHOWBLOG#0="Show Blog";
 MENUITEM_STATS_CLICKS#0="Clicks";
 MENUITEM_STATS_REFERRERS#0="Referrers";
 MENUITEM_STATS_SEARCH#0="Search Engine Terms";
@@ -224,6 +226,7 @@ MESSAGES_ADD_BLOG#0={
     "Add existing",
     "WordPress.com blogs",
     "WordPress.org blogs",
+    "or Start a new blog",
 };
 MESSAGE_APP_RESTART#0="Application restarts automatically. If it doesn't work, you should restart the app manually.";
 MESSAGE_AUTH_REQUIRED#0="HTTP Authorization Required, please insert your Username and Password";
@@ -259,8 +262,10 @@ MESSAGE_NO_NEW_VERSION_AVAILABLE#0="WordPress for BlackBerry is updated.";
 MESSAGE_NO_OTHER_BLOGS_FOR_ACCOUNT#0="You have already added all blogs for this WordPress account!";
 MESSAGE_NO_PAGES#0="No pages found";
 MESSAGE_NO_POSTS#0="No posts found";
+MESSAGE_PENDING_ACTIVATION_BLOG#0="You might not have activated your blog yet, please check your email and click on the activation link.";
 MESSAGE_REMOVE_TEMPFILES#0="All application data will be lost, are you sure you want to continue?";
 MESSAGE_SHARE_TO_WORDPRESS_NO_BLOGS#0="Please add a Blog before sharing content.";
+MESSAGE_SIGNUP_BLOG#0="Fill out this form and you'll be blogging seconds later!";
 MESSAGE_STATS_AUTH_REQUIRED#0="Please insert your WordPress.com Username and Password";
 MESSAGE_STATS_CLICKS#0="Your visitors clicked these links on your blog.";
 MESSAGE_STATS_REFFERERS#0="People clicked links from these pages to get to your blog.";
@@ -356,4 +361,5 @@ TITLE_STATS#0="Stats";
 TITLE_VIDEOPRESS_OPTIONS#0="VideoPress Options";
 TITLE_VIEW_ACCOUNT#0="WordPress.com Account Details";
 TITLE_VIEW_ACCOUNTS#0="WordPress.com Accounts";
+TITLE_VIEW_SIGNUP#0="WordPress.com Sign Up";
 TITLE_WPCOM_ACCOUNTS_SELECTOR_POPUP#0="Select a WordPress.com Account";
