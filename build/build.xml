@@ -30,18 +30,22 @@
 		<echo message=" Available targets are :"/>
 		<echo message=""/>
 		<echo message=" usage                --> Print this usage listing"/>
-		<echo message=" cleanOS42            --> Clean OS 4.5 version"/>
+		<echo message=" cleanOS45            --> Clean OS 4.5 version"/>
 		<echo message=" cleanOS47            --> Clean OS 4.7 version"/>
 		<echo message=" cleanOS50            --> Clean OS 5.0 version"/>
+		<echo message=" cleanOS60            --> Clean OS 6.0 version"/>
+		<echo message=" cleanTorch           --> Clean Torch version"/>
 		<echo message=" clean                --> Clean all versions"/>
-		<echo message=" releaseOS42          --> "/>
+		<echo message=" releaseOS45          --> "/>
 		<echo message=" releaseOS47          --> "/>
 		<echo message=" releaseOS50          --> "/>
+		<echo message=" releaseOS60          --> "/>
+		<echo message=" releaseTorch         --> "/>
 		<echo message=""/>
 	</target>
 
 
-	<target name="clean" depends="cleanOS45, cleanOS47, cleanOS50" />
+	<target name="clean" depends="cleanOS45, cleanOS47, cleanOS50, cleanOS60, cleanTorch" />
 	
 	<target name="cleanOS45" depends="init">
 		<ant antfile="build/build_single.xml" target="clean">
@@ -64,6 +68,12 @@
 	<target name="cleanOS60" depends="init">
 		<ant antfile="build/build_single.xml" target="clean">
 			<property name="platform"         value="os60"/>
+		</ant>
+	</target>
+	
+	<target name="cleanTorch" depends="init">
+		<ant antfile="build/build_single.xml" target="clean">
+			<property name="platform"         value="torch"/>
 		</ant>
 	</target>
 
@@ -91,7 +101,6 @@
 	<target name="releaseOS45" depends="init, cleanOS45">
         <property file="build/build.properties" />
         <property file="build/release.properties" />
-        	
 		<ant antfile="build/build_single.xml" target="release">
 			<property name="platform"         value="os45"/>
 			<property name="rim.home"         value="${rim.home.os45}"/>
@@ -135,11 +144,24 @@
 		</ant>
 	</target>
 	
+	<target name="releaseTorch" depends="init, cleanTorch">
+        <property file="build/build.properties" />
+        <property file="build/release.properties" />
+		<ant antfile="build/build_single.xml" target="release">
+			<property name="platform" value="torch" />
+			<property name="rim.home" value="${rim.home.os60}" />
+			<property name="is_os47_or_above"   value="true" />
+			<property name="is_os50_or_above"   value="true" />
+			<property name="VER_6.0.0"  value="true" />
+			<property name="is_torch"  value="true" />
+			<property name="module.version" value="${release.number}" />
+		</ant>
+	</target>
+	
 	
 	<target name="simulator" depends="init, cleanOS45">
         <property file="build/build.properties" />
         <property file="build/release.properties" />
-        	
 		<ant antfile="build/build_single.xml" target="rapc">
 			<property name="platform" value="os45" />
 			<property name="rim.home" value="${rim.home.os45}" />
@@ -149,10 +171,8 @@
 	</target>
 		
 	<target name="simulatorOS47" depends="init, cleanOS47">
-       
 		<property file="build/build.properties" />
         <property file="build/release.properties" />
-		
 		<ant antfile="build/build_single.xml" target="rapc">
 			<property name="platform" value="os47" />
 			<property name="rim.home" value="${rim.home.os47}" />
@@ -163,10 +183,8 @@
 	</target>
 	
 	<target name="simulatorOS50" depends="init, cleanOS50">
-       
 		<property file="build/build.properties" />
         <property file="build/release.properties" />
-		
 		<ant antfile="build/build_single.xml" target="rapc">
 			<property name="platform" value="os50" />
 			<property name="rim.home" value="${rim.home.os50}" />
@@ -178,10 +196,8 @@
 	</target>
 	
 	<target name="simulatorOS60" depends="init, cleanOS60">
-       
 		<property file="build/build.properties" />
         <property file="build/release.properties" />
-		
 		<ant antfile="build/build_single.xml" target="rapc">
 			<property name="platform" value="os60" />
 			<property name="rim.home" value="${rim.home.os60}" />
@@ -193,5 +209,19 @@
 		</ant>
 	</target>
 	
+	<target name="simulatorTorch" depends="init, cleanTorch">
+		<property file="build/build.properties" />
+        <property file="build/release.properties" />
+		<ant antfile="build/build_single.xml" target="rapc">
+			<property name="platform" value="torch" />
+			<property name="rim.home" value="${rim.home.os60}" />
+			<property name="log_console" value="true" />
+			<property name="is_os47_or_above"   value="true" />
+			<property name="is_os50_or_above"   value="true" />
+			<property name="VER_6.0.0"  value="true" />
+			<property name="is_torch"  value="true" />
+			<property name="module.version" value="${nightly.number}" />
+		</ant>
+	</target>
 	
 </project>

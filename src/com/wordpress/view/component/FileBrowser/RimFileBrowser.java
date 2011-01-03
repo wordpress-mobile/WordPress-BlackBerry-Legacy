@@ -609,7 +609,7 @@ public class RimFileBrowser extends PopupScreen {
     		
 			int eventCode = message.getEvent();
 			
-			if(WordPressInfo.isTorch) {
+			if(WordPressInfo.isForcelessTouchClickSupported) {
 				if (eventCode == TouchEvent.GESTURE) {
 					TouchGesture gesture = message.getGesture();
 					int gestureCode = gesture.getEvent();

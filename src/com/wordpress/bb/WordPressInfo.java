@@ -26,9 +26,15 @@ public final class WordPressInfo {
 	
 	public static final int DEFAULT_DOWNLOADED_COMMENTS = 100;
 	
-	public static boolean isTorch; //used in a very ugly trick!!
-	
-    private static Bitmap icon = Bitmap.getBitmapResource("application-icon.png");
+	/*
+	 * you can determine whether a device with a touch screen supports forceless clicks 
+	 * by invoking DeviceCapability.isTouchClickSupported(). 
+	 * If the device supports forceless clicks, the method returns false. 
+	 * If the device has a SurePress touch screen, the method returns true.
+	 */
+	public static boolean isForcelessTouchClickSupported; //If the device supports forceless clicks (BB 6.0 or higher)
+
+	private static Bitmap icon = Bitmap.getBitmapResource("application-icon.png");
     private static Bitmap newCommentsIcon = Bitmap.getBitmapResource("application-icon-new.png");
     
     /**
@@ -39,9 +45,9 @@ public final class WordPressInfo {
     public static synchronized void initialize(String args[]) {
     	Log.trace("WordPress Info inizialized");
     	//#ifdef VER_6.0.0
-    	isTorch = true;
+    	isForcelessTouchClickSupported = true;
     	//#else
-    	isTorch = false;
+    	isForcelessTouchClickSupported = false;
     	//#endif
     }
    

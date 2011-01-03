@@ -25,7 +25,7 @@ public class XmlRpcDualOutputStream {
 	
 	public XmlRpcDualOutputStream() {
 		
-		//#ifndef VER_6.0.0
+		//#ifndef IS_TORCH
 		os = getTmpFileOutputStream(); //first try the file output stream
 		//#endif
 		

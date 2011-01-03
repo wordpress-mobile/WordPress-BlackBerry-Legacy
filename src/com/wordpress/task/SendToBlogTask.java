@@ -39,7 +39,7 @@ import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
-//#ifdef VER_6.0.0
+//#ifdef IS_TORCH
 import com.wordpress.xmlrpc.AtomPubNewMediaObjectConn;
 //#endif
 import com.wordpress.xmlrpc.BlogConn;
@@ -72,7 +72,7 @@ public class SendToBlogTask extends TaskImpl {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			
 			BlogConn mediaConnection;
-			//#ifdef VER_6.0.0
+			//#ifdef IS_TORCH
 			 mediaConnection = new AtomPubNewMediaObjectConn (blog.getUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
 			//#else
@@ -100,7 +100,7 @@ public class SendToBlogTask extends TaskImpl {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			BlogConn mediaConnection;
 			
-			//#ifdef VER_6.0.0
+			//#ifdef IS_TORCH
 			 mediaConnection = new AtomPubNewMediaObjectConn (blog.getUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
 			//#else
@@ -136,7 +136,7 @@ public class SendToBlogTask extends TaskImpl {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 		
 			BlogConn mediaConnection;
-			//#ifdef VER_6.0.0
+			//#ifdef IS_TORCH
 			 mediaConnection = new AtomPubNewMediaObjectConn (blog.getUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
 			//#else

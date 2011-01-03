@@ -1,6 +1,6 @@
 //#preprocess
 
-//#ifdef VER_6.0.0
+//#ifdef IS_TORCH
 package com.wordpress.xmlrpc;
 
 import java.io.ByteArrayInputStream;
