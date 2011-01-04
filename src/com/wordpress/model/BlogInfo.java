@@ -1,6 +1,12 @@
 package com.wordpress.model;
 
+import java.io.IOException;
 import java.util.Hashtable;
+
+import javax.microedition.rms.RecordStoreException;
+
+import com.wordpress.io.BlogDAO;
+import com.wordpress.utils.log.Log;
 
 public class BlogInfo {
 
@@ -46,7 +52,13 @@ public class BlogInfo {
 		this.isHTTPBasicAuthRequired = currentBlog.isHTTPBasicAuthRequired();
 		this.HTTPAuthUsername= currentBlog.getHTTPAuthUsername();
 		this.HTTPAuthPassword = currentBlog.getHTTPAuthPassword();
-		this.shortcutIcon = currentBlog.getShortcutIcon();
+		try {
+			this.shortcutIcon = BlogDAO.getBlogIco(currentBlog);
+		} catch (IOException e) {
+			Log.error("no valid shortcut ico found for the blog obj");
+		} catch (RecordStoreException e) {
+			Log.error("no valid shortcut ico found for the blog obj");
+		}
 	}
 	
 	public String getId() {
@@ -152,7 +164,7 @@ public class BlogInfo {
 		return HTTPAuthPassword;
 	}
 	
-	public byte[] getShortcutIcon() {
+	public byte[] getBlogIcon() {
 		return shortcutIcon;
 	}
 

@@ -277,7 +277,6 @@ public class BlogDAO implements BaseDAO {
         ser.serialize(blog.getHTTPAuthUsername());
         ser.serialize(blog.getHTTPAuthPassword());
         ser.serialize(blog.getBlogOptions());
-        ser.serialize(blog.getShortcutIcon());
         ser.serialize(blog.getWpcomFeatures());
 
 		if(isError) {
@@ -540,15 +539,7 @@ public class BlogDAO implements BaseDAO {
 		} catch (Throwable  t) {
 			Log.error("No blog options found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
-		//reading shortcut icon
-		try {
-			byte[] shortcutIcon = (byte[])ser.deserialize();
-			blog.setShortcutIcon(shortcutIcon);
-		} catch (Exception  e) {
-			Log.error("No blog shorcut icon found - End of file was reached. Probably a previous blog data file is loaded" );
-		} catch (Throwable  t) {
-			Log.error("No blog shorcut icon found - End of file was reached. Probably a previous blog data file is loaded" );
-		}
+
 		//reading WP.COM blog features
 		try {
 			Hashtable options = (Hashtable)ser.deserialize();
@@ -617,4 +608,20 @@ public class BlogDAO implements BaseDAO {
     	return getBlogFolderName(blog.getId(), blog.getXmlRpcUrl()); 	   
     }
 
+    public static synchronized byte[] getBlogIco(Blog blog) throws IOException, RecordStoreException {
+    	String blogNameMD5 = BlogDAO.getBlogFolderName(blog);
+    	String icoFilePath = AppDAO.getBaseDirPath() + blogNameMD5 + SHORT_ICO_FILE;
+    	if (!JSR75FileSystem.isFileExist(icoFilePath)){
+    		return null;
+    	}   	
+    	return  JSR75FileSystem.readFile(icoFilePath);
+    }
+    
+	public static synchronized void setBlogIco(Blog blog, byte[] shortIco) throws IOException, RecordStoreException {
+		String blogNameMD5 = BlogDAO.getBlogFolderName(blog);
+    	String icoFilePath = AppDAO.getBaseDirPath() + blogNameMD5 + SHORT_ICO_FILE;
+    	JSR75FileSystem.removeFile(icoFilePath); 
+    	if(shortIco != null)
+    		JSR75FileSystem.write(icoFilePath, shortIco); 	
+	}
 }

@@ -40,13 +40,13 @@ public class BlogController extends BaseController {
 
 	public EncodedImage getBlogIcon() {
 		EncodedImage _theImage = null;
-		if(currentBlog.getShortcutIcon() != null) {
-			try {
-				_theImage = EncodedImage.createEncodedImage(currentBlog.getShortcutIcon(), 0, -1);
-			} catch (Exception e) {
-				Log.error("no valid shortcut ico found in the blog obj");
-				_theImage = null;
+		try {
+			if(BlogDAO.getBlogIco(currentBlog) != null) {
+				_theImage = EncodedImage.createEncodedImage(BlogDAO.getBlogIco(currentBlog), 0, -1);
 			}
+		} catch (Exception e) {
+			Log.error("no valid shortcut ico found in the blog obj");
+			_theImage = null;
 		}
 
 		if (_theImage == null ) {

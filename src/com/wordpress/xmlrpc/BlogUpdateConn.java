@@ -15,6 +15,7 @@ import org.kxml2.io.KXmlParser;
 import org.kxmlrpc.XmlRpcException;
 import org.xmlpull.v1.XmlPullParser;
 
+import com.wordpress.io.BlogDAO;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.utils.ImageUtils;
@@ -144,7 +145,7 @@ public class BlogUpdateConn extends BlogConn  {
 				checkConnectionResponse("Error while loading Blog features");
 			}
 			
-			blog.setShortcutIcon(null);
+			BlogDAO.setBlogIco(blog, null);
 			downloadIcoFile(); 	//downloading the blog ico file
 			
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
@@ -259,9 +260,9 @@ public class BlogUpdateConn extends BlogConn  {
 				if(tmp_img.getHeight() > 32 || tmp_img.getWidth() > 32) {
 					tmp_img = ImageUtils.resizeEncodedImage(tmp_img, 32, 32);
 					Bitmap tmpBitmap = tmp_img.getBitmap();
-					blog.setShortcutIcon(JPEGEncodedImage.encode(tmpBitmap, 100).getData());	
+					BlogDAO.setBlogIco(blog, JPEGEncodedImage.encode(tmpBitmap, 100).getData());	
 				} else {
-					blog.setShortcutIcon((byte[])responseImg);
+					BlogDAO.setBlogIco(blog, (byte[])responseImg);
 				}
 			}
 			

@@ -43,7 +43,6 @@ public class Blog {
 	private Hashtable commentStatusList=null; 
 	private Tag[] tags=null;
 	private Hashtable blogOptions=null; 
-	private byte[] shortcutIcon = null;
 	private Hashtable wpcomFeatures=null; 
 
 	private Vector recentPostTitles = null; //response of mt.getRecentPostTitles
@@ -380,14 +379,5 @@ public class Blog {
 		} else {
 			return predefinedResponse; 
 		}
-	}
-
-	public byte[] getShortcutIcon() {
-		return shortcutIcon;
-	}
-
-	public void setShortcutIcon(byte[] shortcutIcon) {
-		this.shortcutIcon = shortcutIcon;
-	}
-	
+	}	
 }

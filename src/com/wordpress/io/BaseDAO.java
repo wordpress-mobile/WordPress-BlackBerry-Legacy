@@ -4,7 +4,7 @@ package com.wordpress.io;
 public interface BaseDAO {
 	
 	public static final String DEVICE_STORE_PATH ="file:///store/home/user/wordpress/";
-	//hte SDCARD path is defined on AppDao.java since it is dynamic
+	//the SDCARD path is defined on AppDao.java since it is dynamic
 	public static final String LOG_FILE_PREFIX = "log";
 	public static final String APP_TMP_XMLRPC_FILE = "tmp_xmlrpc"; //used in xmlrpc calls
 	public static final String APP_TMP_IMG_FILE = "tmp_image"; //used when resize opt is active
@@ -13,6 +13,7 @@ public interface BaseDAO {
 	public static final String COMMENTS_FILE = "comments";
 	public static final String MEDIALIBRARY_FILE = "media_library";
 	public static final String GRAVATARS_FILE = "gravatars";
+	public static final String SHORT_ICO_FILE = "short_ico";
 
 	
 /*	

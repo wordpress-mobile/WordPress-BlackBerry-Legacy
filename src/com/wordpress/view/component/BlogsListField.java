@@ -193,9 +193,9 @@ public class BlogsListField {
     			icon = imgImportant;
     		} else if( stato == BlogInfo.STATE_LOADED ) {
 
-    			if(currentRow.getShortcutIcon() != null) {
+    			if(currentRow.getBlogIcon() != null) {
     				try {
-						icon = Bitmap.createBitmapFromBytes(currentRow.getShortcutIcon(), 0, -1, 1);
+						icon = Bitmap.createBitmapFromBytes(currentRow.getBlogIcon(), 0, -1, 1);
 					} catch (Exception e) {
 						Log.error("no valid shortcut ico found in the blog obj");
 					}
