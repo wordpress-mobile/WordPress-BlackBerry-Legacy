@@ -24,8 +24,8 @@ import com.wordpress.xmlrpc.HTTPGetConn;
  * In order to make requests for WPCOM stats for a given blog you need some specific information. 
  * In order to get this additional info a new URL was created:
 
-https://public-api.wordpress.com/getuserblogs.php
-http://stats.wordpress.com/csv.php
+https://public-api.wordpress.com/get-user-blogs/1.0/
+http://stats.wordpress.com/api/1.0/
 
 It requires SSL, uses HTTP BASIC AUTHENTICATION and returns XML data
 that looks like:
