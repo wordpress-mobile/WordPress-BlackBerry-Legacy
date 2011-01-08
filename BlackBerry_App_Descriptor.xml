@@ -10,6 +10,7 @@
     <PreprocessorDefines>
       <PreprocessorTag IsActive="true" PreprocessorDefine="IS_OS47_OR_ABOVE" Scope="0"/>
       <PreprocessorTag IsActive="true" PreprocessorDefine="IS_OS50_OR_ABOVE" Scope="0"/>
+      <PreprocessorTag IsActive="false" PreprocessorDefine="IS_TORCH" Scope="0"/>
       <PreprocessorTag IsActive="true" PreprocessorDefine="LOG_CONSOLE" Scope="0"/>
       <PreprocessorTag IsActive="false" PreprocessorDefine="VER_6.0.0" Scope="0"/>
     </PreprocessorDefines>
