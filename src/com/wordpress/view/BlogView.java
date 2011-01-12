@@ -102,21 +102,23 @@ public class BlogView extends BaseView {
 	   list.setCallback(new BlogListFieldCallBack());	
 	   add(list); 
     
-	   addMenuItem(_goItem);
+	   
+	   for (int i=0; i<mainMenuItems.length; i++){
+		   final int currentIndex = i;
+		   addMenuItem(
+				   new MenuItem(mainMenuItemsLabel[i], (220+i), 10) {
+				        public void run() {
+				        	doSelection(mainMenuItems[currentIndex]);
+				        }
+				    }
+		   );  
+	   }
 	}
 	
 	public void add( Field field ) {
 		_scrollerManager.add( field );
 	}
-    
-    private MenuItem _goItem = new MenuItem( _resources, WordPressResource.BUTTON_OK, 220, 10) {
-        public void run() {
-        	doSelection();
-        }
-    };
-
-
-    
+        
     protected void onExposed() {
     	super.onExposed();
         Log.debug(">>> onExposed BlogView");
@@ -140,9 +142,7 @@ public class BlogView extends BaseView {
     	wpLogoBitmapField.setImage(blogIcon);
     }
         
-    private void doSelection() {
-
-		int i = mainMenuItems[list.getSelectedIndex()];
+    private void doSelection(int i) {
 
 		switch (i) {
 
@@ -176,7 +176,7 @@ public class BlogView extends BaseView {
    
 	 // Handle trackball clicks.
 	protected boolean navigationClick(int status, int time) {
-		doSelection();
+		doSelection(mainMenuItems[list.getSelectedIndex()]);
 		return true;
 	}
 	
@@ -186,7 +186,7 @@ public class BlogView extends BaseView {
         //If the spacebar was pressed...
         if (key == Characters.SPACE || key == Characters.ENTER)
         {
-        	doSelection();
+        	doSelection(mainMenuItems[list.getSelectedIndex()]);
         	return true;
         }
         return false;
