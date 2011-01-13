@@ -175,7 +175,8 @@ public class RimFileBrowser extends PopupScreen {
 	        if (isDirectory(entry)) {
 	        	chooseDirectory();
 	        } else {
-	        	Tools.openFileWithExternalApp("file://"+currDirName + entry);
+	        	//Tools.openFileWithExternalApp("file://"+currDirName + entry);
+	        	chooseFile();
 	        }
         }
     }
