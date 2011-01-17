@@ -468,7 +468,7 @@ public abstract class BlogObjectController extends BaseController {
 		if(title == null || title.length() == 0) title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
 		html = StringUtils.replaceAll(html, "!$title$!", title);
 		html = StringUtils.replaceAll(html, "<p>!$text$!</p>", htmlPage);
-		if( tags !=null && tags.trim().length() > 0  ) {
+		if( tags != null && tags.trim().length() > 0  ) {
 			html = StringUtils.replaceAll(html, "!$mt_keywords$!", tags);
 			html = StringUtils.replaceAll(html, "!$categories$!", "Categories: "+ categories);
 		} else {

@@ -84,7 +84,7 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 		BrowserFieldConfig myBrowserFieldConfig = new BrowserFieldConfig();
 		myBrowserFieldConfig.setProperty(BrowserFieldConfig.NAVIGATION_MODE,BrowserFieldConfig.NAVIGATION_MODE_POINTER);
 		myBrowserFieldConfig.setProperty(BrowserFieldConfig.ALLOW_CS_XHR,Boolean.TRUE);
-		myBrowserFieldConfig.setProperty(BrowserFieldConfig.ENABLE_GEARS,Boolean.TRUE);
+		myBrowserFieldConfig.setProperty(BrowserFieldConfig.ENABLE_GEARS,Boolean.FALSE);
 		BrowserField browserField = new BrowserField(myBrowserFieldConfig);
 		if (contentType!= null) {
 			browserField.displayContent(data, contentType, "http://localhost");
