@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.utils;
 
 import java.io.IOException;
@@ -206,10 +207,16 @@ public class Tools {
     	BrowserSession browserSession = Browser.getDefaultSession();
     	// now launch the URL
     	browserSession.displayPage(URL);
+    	
+    	//#ifndef VER_6.0.0 || IS_OS50_OR_ABOVE
+    	
     	// The following line is a work around to the issue found in
     	// version 4.2.0
-    	browserSession.showBrowser();
-		return browserSession;
+    	browserSession.showBrowser(); 
+		
+    	//#endif
+    	
+    	return browserSession;
 	}
 	
 	/**

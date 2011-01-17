@@ -31,6 +31,7 @@ import com.wordpress.model.VideoEntry;
 import com.wordpress.task.SendToBlogTask;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
+import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -415,6 +416,12 @@ public abstract class BlogObjectController extends BaseController {
 	}
 	
 	public void startRemotePreview(String objectLink, String title, String content, String tags, String categories){
+	
+		if(objectLink != null && objectLink.trim().length() > 0) {
+			 Tools.openURL(objectLink);
+			 return;
+		}
+		
 		String connMessage = null;
 		connMessage = _resources.getString(WordPressResource.CONN_LOADING_PREVIEW_TEMPLATE);
 		
