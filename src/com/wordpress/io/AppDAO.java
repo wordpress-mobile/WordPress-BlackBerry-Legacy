@@ -27,6 +27,7 @@ public class AppDAO implements BaseDAO {
 	
 	//PersistentStore constants
 	public final static long BLOGS_DATA_ID = 0xc526d2b6855be856L; //com.wordpress.io.AppDAO.blogs
+//	public final static long WPORG_BLOGS_PASSWORD_ID = 0x457d90a77c83dee3L; //com.wordpress.io.AppDAO.WPORG.blogs
 	public final static long ACCOUNTS_DATA_ID = 0x197f31296e9ef33fL; //com.wordpress.io.AppDAO.accounts
 	public final static long PREFERENCES_DATA_ID = 0x8d22e492b38c69efL; //com.wordpress.io.AppDAO.preferences
 	public final static long[] persistentStoreUsedKeys = {BLOGS_DATA_ID, ACCOUNTS_DATA_ID, PREFERENCES_DATA_ID };	
@@ -52,12 +53,33 @@ public class AppDAO implements BaseDAO {
 		return false;
 	}
 	
-	static Hashtable loadAppData(long key) throws ControlledAccessException, IOException {
+	static synchronized Hashtable loadAppData(long key) throws ControlledAccessException, IOException {
 		Log.debug(">>> loadAppData for key :"+ key);
 		Hashtable appData = null;
 
 		if(!isKeysExists(key)){
-			throw new IOException("key doesn't exists!");
+			throw new IOException("PersistentStore key doesn't exists!");
+		}
+
+		PersistentObject rec = PersistentStore.getPersistentObject(key);
+		Object contents = rec.getContents();
+		if(contents == null) {
+			Log.debug("No app data found for key: " + String.valueOf(key) +" returning an empty hashtable");
+			Log.debug("<<< loadAppData");
+			return new Hashtable();
+		}
+		appData = ((CustomHashtable) contents).unwrapAppData();
+
+		Log.debug("<<< loadAppData for key "+ key);
+		return appData;
+	}
+	
+	static synchronized Hashtable loadSecuredAppData(long key) throws ControlledAccessException, IOException {
+		Log.debug(">>> loadSecuredAppData for key :"+ key);
+		Hashtable appData = null;
+
+		if(!isKeysExists(key)){
+			throw new IOException("PersistentStore key doesn't exists!");
 		}
 
 		PersistentObject rec = PersistentStore.getPersistentObject(key);
@@ -68,7 +90,7 @@ public class AppDAO implements BaseDAO {
 				Object contents = rec.getContents(codeSigningKey);
 				if(contents == null) {
 					Log.debug("No app data found for key: " + String.valueOf(key) +" returning an empty hashtable");
-					Log.debug("<<< loadAppData");
+					Log.debug("<<< loadSecuredAppData");
 					return new Hashtable();
 				}
 				appData = ((CustomHashtable) contents).unwrapAppData();
@@ -77,12 +99,30 @@ public class AppDAO implements BaseDAO {
 				throw e;
 			}
 		}
-		Log.debug("<<< loadAppData for key "+ key);
+		Log.debug("<<< loadSecuredAppData for key "+ key);
 		return appData;
 	}
 	
-	static void storeAppData(long key, Hashtable appData) throws ControlledAccessException, IOException  {
-		Log.debug(">>> store app data");
+	static synchronized void storeAppData(long key, Hashtable appData) throws ControlledAccessException, IOException  {
+		Log.debug(">>> storeAppData");
+		if(!isKeysExists(key)){
+			throw new IOException("key doesn't exists!");
+		}
+		PersistentObject persistentObject;
+		persistentObject = PersistentStore.getPersistentObject( key );
+		synchronized (persistentObject) {
+			CustomHashtable myAppData = new CustomHashtable();
+			myAppData.wrapAppData(appData); //trick to remove the content store obj when deleting the app
+			persistentObject.setContents( myAppData );
+			persistentObject.commit();
+		}
+		Log.debug("app data stored succesfully!");
+		Log.debug("<<< storeAppData");
+	}
+    
+	
+	static synchronized void storeSecuredAppData(long key, Hashtable appData) throws ControlledAccessException, IOException  {
+		Log.debug(">>> storeSecuredAppData");
 		if(!isKeysExists(key)){
 			throw new IOException("key doesn't exists!");
 		}
@@ -98,25 +138,25 @@ public class AppDAO implements BaseDAO {
 			persistentObject.commit();
 		}
 		Log.debug("app data stored succesfully!");
-		Log.debug("<<< store app data");
+		Log.debug("<<< storeSecuredAppData");
 	}
     	
 	public static synchronized Hashtable loadAccounts() throws ControlledAccessException, IOException {
 		Log.debug(">>> loadAccounts");
-		Hashtable accounts = loadAppData(ACCOUNTS_DATA_ID);
+		Hashtable accounts = loadSecuredAppData(ACCOUNTS_DATA_ID);
 		Log.debug("<<< loadAccounts");
 		return accounts;
 	}
 
     public static synchronized void storeAccounts(Hashtable accounts) throws ControlledAccessException, IOException  {
 		Log.debug(">>> store accounts");
-		storeAppData(ACCOUNTS_DATA_ID, accounts);		
+		storeSecuredAppData(ACCOUNTS_DATA_ID, accounts);		
 		Log.debug("Account stored succesfully!");
 		Log.debug("<<< store accounts");
 	}
         		
-	public static String getXmlRpcTempFilePath() throws RecordStoreException, IOException {	
-		return getBaseDirPath() + APP_TMP_XMLRPC_FILE;
+	public static String getXmlRpcTempFilesPath() throws RecordStoreException, IOException {	
+		return getBaseDirPath() + APP_TMP_FOLDER_XMLRPC_FILES;
 	}
 	
 	public static String getImageTempFilePath() throws RecordStoreException, IOException {	
@@ -165,30 +205,36 @@ public class AppDAO implements BaseDAO {
 		records.closeRecordStore();
 		
 	}
-	
+
 	//remove the entire application folder structure and other app data
-	public static void resetAppData() throws RecordStoreException, IOException {
-		
+	public synchronized static void resetAppData() throws RecordStoreException, IOException {
+
 		if(JSR75FileSystem.isFileExist(getBaseDirPath())){
 			JSR75FileSystem.removeFile(getBaseDirPath());
 		}
 
 		for (int i = 0; i < persistentStoreUsedKeys.length; i++) {
-			if (persistentStoreUsedKeys[i] != PREFERENCES_DATA_ID){
+			if (persistentStoreUsedKeys[i] != PREFERENCES_DATA_ID){ //do not delete preferences on app reset
+
 				try {
 					PersistentObject rec = PersistentStore.getPersistentObject(persistentStoreUsedKeys[i] );
-					int moduleHandle = ApplicationDescriptor.currentApplicationDescriptor().getModuleHandle();
-					CodeSigningKey codeSigningKey = CodeSigningKey.get( moduleHandle, "WP" );
-					ControlledAccess controlledAccess = new ControlledAccess(rec, codeSigningKey);
-					//synchronized (controlledAccess) {
-						PersistentStore.destroyPersistentObject(persistentStoreUsedKeys[i]);
-					//}
+
+					if (persistentStoreUsedKeys[i] == ACCOUNTS_DATA_ID || persistentStoreUsedKeys[i] == BLOGS_DATA_ID){
+						//delete the secure storage location
+						int moduleHandle = ApplicationDescriptor.currentApplicationDescriptor().getModuleHandle();
+						CodeSigningKey codeSigningKey = CodeSigningKey.get( moduleHandle, "WP" );
+						ControlledAccess controlledAccess = new ControlledAccess(rec, codeSigningKey);
+					}
+
+					PersistentStore.destroyPersistentObject(persistentStoreUsedKeys[i]);
+
 				}    catch (ControlledAccessException e) {
 					Log.error(e, "You are not authorized to access this delete App data");
 					throw e;
 				}
+
 			}
-		}
+		}//end for
 	}
 
 	public static void setUpFolderStructure() throws RecordStoreException, IOException {

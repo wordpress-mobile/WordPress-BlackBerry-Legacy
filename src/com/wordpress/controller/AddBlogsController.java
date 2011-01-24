@@ -118,14 +118,16 @@ public class AddBlogsController extends BaseController {
 				AccountsController.storeWPCOMAccount(serverBlogs);
 			}
 
-			Vector addedBlog = new Vector();
+			boolean[] existenceCheck = BlogDAO.checkBlogsExistance(serverBlogs);
+			Vector addedBlog = new Vector(); //array of blog added to the app. this could be different from the response of the server
 
-			//skip the blog already available in the app
-			for (int i = 0; i < serverBlogs.length; i++) {
-				if(!BlogDAO.isBlogExist(serverBlogs[i])) {
+			//skip blogs already available in the app
+			for (int i = 0; i < existenceCheck.length; i++) {
+				if(existenceCheck[i] == false) {
 					addedBlog.addElement(serverBlogs[i]);
 				}
 			}
+			
 			serverBlogs = new Blog[addedBlog.size()];
 			addedBlog.copyInto(serverBlogs);
 			addedBlog = new Vector();
@@ -139,44 +141,48 @@ public class AddBlogsController extends BaseController {
 				}
 				final CheckBoxPopupScreen selScr = new CheckBoxPopupScreen(title, blogNames);
 
+
 				UiApplication.getUiApplication().invokeAndWait(new Runnable() {
 					public void run() {
 						selScr.pickItems();
+						//close the picker and shows the connection in progress dialog
+						ConnectionInProgressView connectionProgressView = new ConnectionInProgressView(
+								_resources.getString(WordPressResource.CONNECTION_INPROGRESS)); 
+						connectionProgressView.show();				
 					}
 				});
-
+				
 				boolean selection[] = selScr.getSelectedItems();
 				for (int i = 0; i < selection.length; i++) {
 					if(selection[i]){
+						serverBlogs[i].setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
+						serverBlogs[i].setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
+						serverBlogs[i].setLoadingState(BlogInfo.STATE_ADDED_TO_QUEUE);
+						if (isWPCOMCall) {
+							serverBlogs[i].setWPCOMBlog(true);
+						}
 						addedBlog.addElement(serverBlogs[i]);
 					}
 				}
-
-				//check if no blogs selected
-				if (addedBlog.size() == 0 ) return;
-
-				serverBlogs = new Blog[addedBlog.size()];
-				addedBlog.copyInto(serverBlogs);
-				addedBlog = new Vector();
 			} else if(serverBlogs.length == 0) {
 				displayMessage(_resources.getString(WordPressResource.MESSAGE_NO_OTHER_BLOGS_FOR_ACCOUNT));
 			}
+			
+			serverBlogs = null;
 
-			Queue connectionsQueue = new Queue(serverBlogs.length);
-			for (int i = 0; i < serverBlogs.length; i++) {
-				serverBlogs[i].setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
-				serverBlogs[i].setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
-				serverBlogs[i].setLoadingState(BlogInfo.STATE_ADDED_TO_QUEUE);
-				if (isWPCOMCall) {
-					serverBlogs[i].setWPCOMBlog(true);
-				}
+			if (addedBlog.size() == 0 ){
+				return; //no blogs added
+			}
+			
+			//store the new blog 
+			BlogDAO.newBlogs(addedBlog);
 
-				try { //if a blog with same name and xmlrpc url exist
-					BlogDAO.newBlog(serverBlogs[i], true);
+			Queue connectionsQueue = new Queue(addedBlog.size());
+			for (int i = 0; i < addedBlog.size(); i++) {
+				try { 
 					//add this blog to the queue	
-					final BlogUpdateConn connection = new BlogUpdateConn (serverBlogs[i]);       
+					final BlogUpdateConn connection = new BlogUpdateConn ((Blog)addedBlog.elementAt(i));       
 					connectionsQueue.push(connection); 
-					addedBlog.addElement(serverBlogs[i]); //add this blog to the list of just added blog
 				} catch (Exception e) {
 					if(e != null && e.getMessage()!= null ) {
 						displayMessage(e.getMessage());
@@ -186,21 +192,20 @@ public class AddBlogsController extends BaseController {
 				}
 			}
 
-			//no blogs added
 			if (connectionsQueue.isEmpty()) {
-				FrontController.getIstance().backAndRefreshView(false);			
+				FrontController.getIstance().backToMainView();			
 				return;
 			}
 
+			//adds the new blogs to the app cached blogs list
 			Vector applicationBlogs = WordPressCore.getInstance().getApplicationBlogs();
-
 			for (int i = 0; i < addedBlog.size(); i++) {
 				Blog loadedBlog = (Blog)addedBlog.elementAt(i);
 				BlogInfo blogI = new BlogInfo(loadedBlog);
 				applicationBlogs.addElement(blogI);
 			}
 
-			FrontController.getIstance().backAndRefreshView(true);
+			FrontController.getIstance().backToMainView();
 			LoadBlogsDataTask loadBlogsTask = new LoadBlogsDataTask(connectionsQueue);
 			loadBlogsTask.setProgressListener(listener);
 

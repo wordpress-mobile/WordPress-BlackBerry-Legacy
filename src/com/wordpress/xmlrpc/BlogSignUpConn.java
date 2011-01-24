@@ -37,7 +37,7 @@ public class BlogSignUpConn extends BlogConn  {
 	      
 			connResponse.setResponseObject(response);
 		} catch (Exception cce) {
-			setErrorMessage(cce, "loadBlogs error");
+			setErrorMessage(cce, "SignUp Error");
 		}
 		
 		try {

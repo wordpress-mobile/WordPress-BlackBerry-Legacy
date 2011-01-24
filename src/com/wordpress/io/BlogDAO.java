@@ -29,31 +29,37 @@ public class BlogDAO implements BaseDAO {
 	//In this case, the thread acquires the intrinsic lock for the Class object associated with the class. 
 			
 	/**
-     * add One  blog to the storage!
+     * add Blogs to the storage!
      * @param blog
      * @param overwrite 
      * @return
 	 * @throws Exception If a blog with the same xmlrpc url and ID already exist in the app
      */
-    public static synchronized boolean newBlog(Blog blog, boolean overwrite) throws Exception{
-    	String name = blog.getName();
-    	String nameMD5=getBlogFolderName(blog);
-    	String filePath=AppDAO.getBaseDirPath()+nameMD5;
+    public static synchronized void newBlogs(Vector newBlogs) throws Exception{
+    	if (newBlogs.size() == 0 ) return ;
     	
-    	Hashtable blogs = loadBlogs();
-        
-    	if (blogs.get(nameMD5) != null){
-    		throw new IOException("Cannot add '" + name + "' because that blog already exists in the App");
-    	} else {
-    		JSR75FileSystem.createDir(AppDAO.getBaseDirPath()); 
-    		JSR75FileSystem.createDir(filePath);
-    		JSR75FileSystem.createDir(filePath+DRAFT_FOLDER_PREFIX); //create draft posts folder
-    		JSR75FileSystem.createDir(filePath+PAGE_FOLDER_PREFIX); //create draft page folder
-    	}    	
-    	storeBlog(blog);   	
-    	return true;
+    	Hashtable storedBlogs = loadBlogs();
+    	for (int i = 0; i < newBlogs.size(); i++) {
+			try {
+				Blog blog = (Blog)newBlogs.elementAt(i);
+		    	String nameMD5=getBlogFolderName(blog);
+		    	String filePath=AppDAO.getBaseDirPath()+nameMD5;
+		    	if (storedBlogs.get(nameMD5) != null){
+		    		//throw new IOException("Cannot add '" + name + "' because that blog already exists in the App");
+		    	} else {
+		    		JSR75FileSystem.createDir(AppDAO.getBaseDirPath()); 
+		    		JSR75FileSystem.createDir(filePath);
+		    		JSR75FileSystem.createDir(filePath+DRAFT_FOLDER_PREFIX); //create draft posts folder
+		    		JSR75FileSystem.createDir(filePath+PAGE_FOLDER_PREFIX); //create draft page folder
+		    		storedBlogs.put(nameMD5, serializeBlogData(blog));
+		    	}    					
+			} catch (Exception e) {
+				Log.error(e, "Error adding blogs");
+			}
+		}
+		AppDAO.storeSecuredAppData(AppDAO.BLOGS_DATA_ID, storedBlogs);    	
+    	return;
     }
-    
     
 	/**
      * Update all blog info in the storage
@@ -64,29 +70,33 @@ public class BlogDAO implements BaseDAO {
     	String name = blog.getName();
     	String nameMD5 = getBlogFolderName(blog);
     	Hashtable blogs = loadBlogs();
-    
     	if (blogs.get(nameMD5) == null){
     		throw new Exception("Cannot update this blog: " + name + " because not exist!");
     	}  	
-    	storeBlog(blog);
+    	blogs.put(nameMD5, serializeBlogData(blog));
+    	AppDAO.storeSecuredAppData(AppDAO.BLOGS_DATA_ID, blogs);
     	Log.debug("blog updated succesfully");    	    	
     	return true;
     }
-    
-    public static synchronized boolean isBlogExist(Blog blogInfo) {		
-    	try {
-    		String blogName = getBlogFolderName(blogInfo);
-    		Hashtable loadBlogs = loadBlogs();
-    		if (loadBlogs.get(blogName) == null){
-    			return false;
-    		} else 
-    			return true;
-    	} catch (Exception e) {
-    		Log.error(e, "Failed to check the existence for the blog: " + blogInfo.getName()); 
-    		return false;
+
+    public static synchronized boolean[] checkBlogsExistance(Blog[] blogsInfo) throws ControlledAccessException, IOException {		
+    	Hashtable loadBlogs = loadBlogs(); //load blogs from storage
+    	boolean[] existArray = new boolean[blogsInfo.length];
+    	for (int i = 0; i < blogsInfo.length; i++) {
+    		try {
+    			String blogName = getBlogFolderName(blogsInfo[i]);
+    			if (loadBlogs.containsKey(blogName))
+    				existArray[i] = true;
+    			else 
+    				existArray[i] = false;
+    		} catch (Exception e) {
+    			Log.error(e, "Failed to check the existence for the blog: " + blogsInfo[i].getName()); 
+    			existArray[i] = true;
+    		}
     	}
+    	return existArray;
     }
-	        	
+
     public static Blog[] getBlogs() throws Exception {
         try {
         	Hashtable loadBlogs = loadBlogs();
@@ -157,138 +167,152 @@ public class BlogDAO implements BaseDAO {
 		}
 	}
     
-	private static synchronized void storeBlog(Blog blog)
-			throws IOException {
+	/*
+	private static synchronized void storeBlogPassword(String blogKey, String password)
+	throws IOException, ControlledAccessException {
+		Hashtable accounts = AppDAO.loadSecuredAppData(AppDAO.WPORG_BLOGS_PASSWORD_ID);
+		accounts.put(blogKey, password);
+		AppDAO.storeSecuredAppData(AppDAO.WPORG_BLOGS_PASSWORD_ID, accounts);
+	}
+	
+	private static synchronized void loadBlogPassword(String blogKey)
+	throws IOException, ControlledAccessException {
+		Hashtable accounts = AppDAO.loadSecuredAppData(AppDAO.WPORG_BLOGS_PASSWORD_ID);
+		Hashtable account = (String)applicationAccounts.get(blogKey);
+		return (String) account.get(AppDAO.PASSWORD_KEY);
 		
-		String nameMD5 = getBlogFolderName(blog);
+	}
+	*/
+	
+	private static synchronized byte[] serializeBlogData(Blog blog) throws IOException {
+
 		ByteArrayOutputStream tmpLocation = new ByteArrayOutputStream();
 
 		String wholeErrorMessage = ""; 
 		Serializer ser= new Serializer(new DataOutputStream(tmpLocation));
 		boolean isError = false;
-		
+
 		ser.serialize(new Integer(blog.getLoadingState()));
-    	ser.serialize(blog.getXmlRpcUrl());
-    	ser.serialize(blog.getUsername());
-    	ser.serialize(blog.getPassword());    	
-    	ser.serialize(blog.getId());
-    	ser.serialize(blog.getName());
-    	ser.serialize(blog.getUrl());
-    	ser.serialize(new Integer(blog.getMaxPostCount()));
-    	ser.serialize(new Boolean(blog.isResizePhotos()));
-    	ser.serialize(blog.getCommentStatusList());
-    	ser.serialize(blog.getPageStatusList());
-    	ser.serialize(blog.getPageTemplates());
-    	ser.serialize(blog.getPostStatusList());
-    	
-    	try {
-    		serializeTest(blog.getRecentPostTitles());
-    		//if test fails don't write into real stream
-    		ser.serialize(blog.getRecentPostTitles());
-    	} catch (Exception errPage) {
-    		isError = true;
-    		String errorMessage = errPage.getMessage();
-    		if(errorMessage != null && !errorMessage.trim().equals(""))
-    			wholeErrorMessage += "Store Recent Post Error" + " - " + errorMessage + "\n";
-    		
-    		ser.serialize(new Vector()); //serialize empty posts vector
-    	}
+		ser.serialize(blog.getXmlRpcUrl());
+		ser.serialize(blog.getUsername());
+		ser.serialize( blog.getPassword());//password
+		//if(!blog.isWPCOMBlog()) storeBlogPassword(nameMD5, blog.getPassword());
+		ser.serialize(blog.getId());
+		ser.serialize(blog.getName());
+		ser.serialize(blog.getUrl());
+		ser.serialize(new Integer(blog.getMaxPostCount()));
+		ser.serialize(new Boolean(blog.isResizePhotos()));
+		ser.serialize(blog.getCommentStatusList());
+		ser.serialize(blog.getPageStatusList());
+		ser.serialize(blog.getPageTemplates());
+		ser.serialize(blog.getPostStatusList());
 
-    	ser.serialize(blog.getViewedPost());
+		try {
+			serializeTest(blog.getRecentPostTitles());
+			//if test fails don't write into real stream
+			ser.serialize(blog.getRecentPostTitles());
+		} catch (Exception errPage) {
+			isError = true;
+			String errorMessage = errPage.getMessage();
+			if(errorMessage != null && !errorMessage.trim().equals(""))
+				wholeErrorMessage += "Store Recent Post Error" + " - " + errorMessage + "\n";
 
-    	try {
-    		serializeTest(blog.getPages());
-    		//if test fails don't write into real stream
-    		ser.serialize(blog.getPages());
-    	} catch (Exception errPage) {
-    		isError = true;
-    		String errorMessage = errPage.getMessage();
-    		if(errorMessage != null && !errorMessage.trim().equals(""))
-    			wholeErrorMessage += "Store Pages Error" + " - " + errorMessage + "\n";
-    		
-    		ser.serialize(new Vector()); //serialize empty pages vector
-    	}
-    	
-    	ser.serialize(blog.getViewedPages());
-    	
-    	Category[] categories = blog.getCategories();
-        if (categories != null) {
-        	ser.serialize(new Integer(categories.length));
-            for (int i = 0; i < categories.length; i++) {
-            	ser.serialize(categories[i].getId());
-            	ser.serialize(categories[i].getLabel());
-            	ser.serialize(categories[i].getDescription());
-            	ser.serialize(new Integer(categories[i].getParentCategory()));
-            	ser.serialize(categories[i].getHtmlUrl());
-            	ser.serialize(categories[i].getRssUrl());           
-                }
-        } else {
-        	ser.serialize(new Integer(0));
-        }
-              
-    	Tag[] tags = blog.getTags();
-        if (tags != null) {
-        	ser.serialize(new Integer(tags.length));
-            for (int i = 0; i < tags.length; i++) {
-            	ser.serialize(new Integer(tags[i].getID()));
-            	ser.serialize(tags[i].getName());
-            	ser.serialize(new Integer(tags[i].getCount()));
-            	ser.serialize(tags[i].getSlug());
-            	ser.serialize(tags[i].getHtmlURL());
-            	ser.serialize(tags[i].getRssURL());           
-                }
-        } else {
-        	ser.serialize(new Integer(0));
-        }
-        
-        ser.serialize(new Boolean(blog.isCommentNotifies()));
-        ser.serialize(new Boolean(blog.isLocation()));
-        
-        // Store image resize dimensions if they have been set.
-        Integer imageResizeWidth = blog.getImageResizeWidth();
-        if(imageResizeWidth != null) {
-        	ser.serialize(imageResizeWidth);
-        }
-        else {
-        	ser.serialize(new Integer(0));
-        }
-        
-        Integer imageResizeHeight = blog.getImageResizeHeight();
-        if(imageResizeHeight != null) {
-        	ser.serialize(imageResizeHeight);
-        }
-        else {
-        	ser.serialize(new Integer(0));
-        }
-        
-        ser.serialize(new Boolean(blog.isSignatureEnabled()));
-        ser.serialize(blog.getSignature());
-        
-        ser.serialize(blog.getStatsUsername());
-        ser.serialize(blog.getStatsPassword());
-        
-        ser.serialize(new Boolean(blog.isResizeVideos()));
-        ser.serialize(blog.getVideoResizeWidth()); //if it is null no problem, the serializer handles null value
-        ser.serialize(blog.getVideoResizeHeight()); //if it is null no problem, the serializer handles null value
-        
-        ser.serialize(new Boolean(blog.isWPCOMBlog()));
-        
-        ser.serialize(new Boolean(blog.isHTTPBasicAuthRequired()));
-        ser.serialize(blog.getHTTPAuthUsername());
-        ser.serialize(blog.getHTTPAuthPassword());
-        ser.serialize(blog.getBlogOptions());
-        ser.serialize(blog.getWpcomFeatures());
+			ser.serialize(new Vector()); //serialize empty posts vector
+		}
+
+		ser.serialize(blog.getViewedPost());
+
+		try {
+			serializeTest(blog.getPages());
+			//if test fails don't write into real stream
+			ser.serialize(blog.getPages());
+		} catch (Exception errPage) {
+			isError = true;
+			String errorMessage = errPage.getMessage();
+			if(errorMessage != null && !errorMessage.trim().equals(""))
+				wholeErrorMessage += "Store Pages Error" + " - " + errorMessage + "\n";
+
+			ser.serialize(new Vector()); //serialize empty pages vector
+		}
+
+		ser.serialize(blog.getViewedPages());
+
+		Category[] categories = blog.getCategories();
+		if (categories != null) {
+			ser.serialize(new Integer(categories.length));
+			for (int i = 0; i < categories.length; i++) {
+				ser.serialize(categories[i].getId());
+				ser.serialize(categories[i].getLabel());
+				ser.serialize(categories[i].getDescription());
+				ser.serialize(new Integer(categories[i].getParentCategory()));
+				ser.serialize(categories[i].getHtmlUrl());
+				ser.serialize(categories[i].getRssUrl());           
+			}
+		} else {
+			ser.serialize(new Integer(0));
+		}
+
+		Tag[] tags = blog.getTags();
+		if (tags != null) {
+			ser.serialize(new Integer(tags.length));
+			for (int i = 0; i < tags.length; i++) {
+				ser.serialize(new Integer(tags[i].getID()));
+				ser.serialize(tags[i].getName());
+				ser.serialize(new Integer(tags[i].getCount()));
+				ser.serialize(tags[i].getSlug());
+				ser.serialize(tags[i].getHtmlURL());
+				ser.serialize(tags[i].getRssURL());           
+			}
+		} else {
+			ser.serialize(new Integer(0));
+		}
+
+		ser.serialize(new Boolean(blog.isCommentNotifies()));
+		ser.serialize(new Boolean(blog.isLocation()));
+
+		// Store image resize dimensions if they have been set.
+		Integer imageResizeWidth = blog.getImageResizeWidth();
+		if(imageResizeWidth != null) {
+			ser.serialize(imageResizeWidth);
+		}
+		else {
+			ser.serialize(new Integer(0));
+		}
+
+		Integer imageResizeHeight = blog.getImageResizeHeight();
+		if(imageResizeHeight != null) {
+			ser.serialize(imageResizeHeight);
+		}
+		else {
+			ser.serialize(new Integer(0));
+		}
+
+		ser.serialize(new Boolean(blog.isSignatureEnabled()));
+		ser.serialize(blog.getSignature());
+
+		ser.serialize(blog.getStatsUsername());
+		ser.serialize(blog.getStatsPassword());
+
+		ser.serialize(new Boolean(blog.isResizeVideos()));
+		ser.serialize(blog.getVideoResizeWidth()); //if it is null no problem, the serializer handles null value
+		ser.serialize(blog.getVideoResizeHeight()); //if it is null no problem, the serializer handles null value
+
+		ser.serialize(new Boolean(blog.isWPCOMBlog()));
+
+		ser.serialize(new Boolean(blog.isHTTPBasicAuthRequired()));
+		ser.serialize(blog.getHTTPAuthUsername());
+		ser.serialize(blog.getHTTPAuthPassword());
+		ser.serialize(blog.getBlogOptions());
+		ser.serialize(blog.getWpcomFeatures());
 
 		if(isError) {
 			throw new IOException(wholeErrorMessage);
 		}
-		
-		Hashtable blogs = AppDAO.loadAppData(AppDAO.BLOGS_DATA_ID);
-		blogs.put(nameMD5, tmpLocation.toByteArray());
-		AppDAO.storeAppData(AppDAO.BLOGS_DATA_ID, blogs);
+
+		return tmpLocation.toByteArray();
 	}
-    
-   
+
+       
 	private static synchronized Blog deserializeBlogData(byte[] blogData) throws Exception {
 		DataInputStream in = new DataInputStream(new ByteArrayInputStream(blogData));
 		Serializer ser= new Serializer(in);
@@ -554,9 +578,9 @@ public class BlogDAO implements BaseDAO {
 		return blog;  
 	}
 
-	public static synchronized Hashtable loadBlogs() throws ControlledAccessException, IOException {
+	private static synchronized Hashtable loadBlogs() throws ControlledAccessException, IOException {
 		Log.debug(">>> loadBlogs");
-		Hashtable blogs = AppDAO.loadAppData(AppDAO.BLOGS_DATA_ID);
+		Hashtable blogs = AppDAO.loadSecuredAppData(AppDAO.BLOGS_DATA_ID);
 		Log.debug("<<< loadBlogs");
 		return blogs;
 	}
@@ -573,10 +597,9 @@ public class BlogDAO implements BaseDAO {
     	if (loadBlogs.get(blogName) == null){
     		throw new IOException("Cannot remove this blog: " + blogName + " because does not exist!");
     	}   
-    	
     	JSR75FileSystem.removeFile(filePath);
     	loadBlogs.remove(blogName);
-    	AppDAO.storeAppData(AppDAO.BLOGS_DATA_ID, loadBlogs);
+    	AppDAO.storeSecuredAppData(AppDAO.BLOGS_DATA_ID, loadBlogs);
     }
     
     /**

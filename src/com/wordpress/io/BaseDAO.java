@@ -6,8 +6,8 @@ public interface BaseDAO {
 	public static final String DEVICE_STORE_PATH ="file:///store/home/user/wordpress/";
 	//the SDCARD path is defined on AppDao.java since it is dynamic
 	public static final String LOG_FILE_PREFIX = "log";
-	public static final String APP_TMP_XMLRPC_FILE = "tmp_xmlrpc"; //used in xmlrpc calls
 	public static final String APP_TMP_IMG_FILE = "tmp_image"; //used when resize opt is active
+	public static final String APP_TMP_FOLDER_XMLRPC_FILES = "tmp_xmlrpc/";
 	public static final String DRAFT_FOLDER_PREFIX = "d/";
 	public static final String PAGE_FOLDER_PREFIX = "p/";
 	public static final String COMMENTS_FILE = "comments";

@@ -2,8 +2,16 @@
 package com.wordpress.bb;
 
 import com.wordpress.utils.log.Log;
-
 import net.rim.device.api.system.Bitmap;
+
+//#ifndef VER_6.0.0
+/*  avoid Eclipse complaints
+//#endif
+import net.rim.device.api.system.capability.DeviceCapability;
+//#ifndef VER_6.0.0
+*/
+//#endif
+
 
 /**
  * Class to provide information about the application
@@ -44,10 +52,18 @@ public final class WordPressInfo {
      */
     public static synchronized void initialize(String args[]) {
     	Log.trace("WordPress Info inizialized");
-    	//#ifdef VER_6.0.0
-    	isForcelessTouchClickSupported = true;
-    	//#else
     	isForcelessTouchClickSupported = false;
+
+    	//#ifndef VER_6.0.0
+    	/*  avoid Eclipse complaints
+    	//#endif
+    	 
+    	 //this code is excuted only when there isn't the tag VER_6.0.0 defined
+ 		// If the device supports forceless clicks, the method returns false
+    	isForcelessTouchClickSupported = !(DeviceCapability.isTouchClickSupported());
+    	
+    	//#ifndef VER_6.0.0
+    	*/  
     	//#endif
     }
    
@@ -57,5 +73,5 @@ public final class WordPressInfo {
     
     public static Bitmap getNewCommentsIcon() {
     	return newCommentsIcon;
-    }    
+    }
 }

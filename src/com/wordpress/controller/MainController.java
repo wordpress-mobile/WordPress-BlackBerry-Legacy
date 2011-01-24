@@ -24,7 +24,14 @@ import com.wordpress.model.Preferences;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.DataCollector;
 import com.wordpress.utils.log.Log;
+import com.wordpress.utils.observer.Observable;
+import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.MainView;
+import com.wordpress.view.dialog.ConnectionDialogClosedListener;
+import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.xmlrpc.BlogConnResponse;
+import com.wordpress.xmlrpc.BlogGetActivationStatusConn;
+import com.wordpress.xmlrpc.BlogSignUpConn;
 
 
 public class MainController extends BaseController implements TaskProgressListener {
@@ -34,6 +41,8 @@ public class MainController extends BaseController implements TaskProgressListen
 	private Hashtable applicationAccounts = new Hashtable();
 	
 	private static MainController singletonObject;
+	
+	private boolean isCheckingForNewActivatedBlog = false;
 	
 	public static MainController getIstance() {
 		if (singletonObject == null) {
@@ -60,21 +69,21 @@ public class MainController extends BaseController implements TaskProgressListen
 		}
 		//check the FS writing status
 		try {
-			String tmpFilePath;
-			tmpFilePath = AppDAO.getXmlRpcTempFilePath();
-			if(JSR75FileSystem.isFileExist(tmpFilePath)) {
-				JSR75FileSystem.removeFile(tmpFilePath);
+			String xmlrpcTmpDir;
+			xmlrpcTmpDir = AppDAO.getXmlRpcTempFilesPath();
+			if(JSR75FileSystem.isFileExist(xmlrpcTmpDir)) {
+				JSR75FileSystem.removeFile(xmlrpcTmpDir);
 			}
-			JSR75FileSystem.createFile(tmpFilePath);
-			if(JSR75FileSystem.isFileExist(tmpFilePath)) {
-				JSR75FileSystem.removeFile(tmpFilePath);
+			JSR75FileSystem.createDir(xmlrpcTmpDir);
+			if(!JSR75FileSystem.isFileExist(xmlrpcTmpDir)) {
+				throw new IOException("Unable to write temp files. Please check application permissions, and set the cache files location to the SD card.");
 			}
 		} catch (RecordStoreException e) {
 	    	Log.error(e, "Error while writing on the FS");
-	    	this.displayError("Unable to write temporary files. Please check application permissions, and set the cache files location to the SD card.");
+	    	this.displayError("Unable to access temp files. Please check application permissions, and set the cache files location to the SD card.");
 		} catch (IOException e) {
 			Log.error(e, "Error while writing on the FS");
-			this.displayError("Unable to write temporary files. Please check application permissions, and set the cache files location to the SD card.");
+			this.displayError("Unable to access temp files. Please check application permissions, and set the cache files location to the SD card.");
 		}
 		
 		int numberOfBlog = 0; 
@@ -353,4 +362,48 @@ public class MainController extends BaseController implements TaskProgressListen
 	    	}
 		}
 	}
+	
+	public synchronized void checkForNewActivatedBlog() {
+		Log.trace("MainController checkForNewActivatedBlog");
+		if (isCheckingForNewActivatedBlog == true)
+			return;
+		else
+			isCheckingForNewActivatedBlog = true;
+		
+		for(int count = 0; count < applicationBlogs.size(); ++count)
+    	{
+			BlogInfo applicationBlogTmp = (BlogInfo)applicationBlogs.elementAt(count);
+			if (applicationBlogTmp.getState() == BlogInfo.STATE_PENDING_ACTIVATION) {
+				//chiamare la procedura per controllare l'attivazione di un blog
+			BlogGetActivationStatusConn connection = new BlogGetActivationStatusConn ("https://wordpress.com/xmlrpc.php", applicationBlogTmp.getBlogURL());		        
+        	connection.addObserver(new BlogGetActivationStatusConnCallBack()); 	        
+            connection.startConnWork();
+            return;
+			}
+    	}
+		isCheckingForNewActivatedBlog = false;
+	}
+	
+	//callback for signup to the blog
+	private class BlogGetActivationStatusConnCallBack implements Observer {
+		public void update(Observable observable, final Object object) {
+			Log.trace("BlogGetActivationStatusConnCallBack update");
+			BlogConnResponse resp = (BlogConnResponse)object;
+			if(resp.isStopped()){
+				isCheckingForNewActivatedBlog = false;
+				return;
+			}
+			if(resp.isError()) {
+				final String respMessage=resp.getResponse();
+				Log.error(respMessage);
+				isCheckingForNewActivatedBlog = false;
+				return;
+			}
+			
+			Log.debug(resp.getResponseObject(), "it is a success");	
+			
+			isCheckingForNewActivatedBlog = false;
+		}
+	}
+	
 }

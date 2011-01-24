@@ -69,7 +69,7 @@ public class WordPress extends UiApplication implements WordPressResource {
     }
     
 	 /**
-     * Method to execute in autostart mode.
+     *  autostart method
      */
     private void doAutoStart() {
 		
@@ -119,7 +119,7 @@ public class WordPress extends UiApplication implements WordPressResource {
                     	//check if autostart app is enabled, if so start the "full app"
                     	String baseDirPath = null;
 						try {	
-							Log.trace("Reading the prefs to find out if  autostartup is selected");
+							Log.trace("Reading the prefs and check if  autostartup is selected");
 							baseDirPath = AppDAO.getBaseDirPath();
 	                    	if(baseDirPath != null) {
 	                    		Preferences appPrefs = Preferences.getIstance();

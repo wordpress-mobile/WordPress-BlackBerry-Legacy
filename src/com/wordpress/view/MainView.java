@@ -200,8 +200,9 @@ public class MainView extends BaseView {
 		 buttonGetFreeBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
 		 buttonGetFreeBlog.setChangeListener(new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {
-	    			SignUpBlogController ctrl = new SignUpBlogController();
-	    			ctrl.showView();
+	    			//SignUpBlogController ctrl = new SignUpBlogController();
+	    			//ctrl.showView();
+	    			Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
 			 }
 		 });
 
@@ -339,8 +340,9 @@ public class MainView extends BaseView {
     		} else if(selection == 1) {
 				mainController.addWPORGBlogs();
     		} else if(selection == 2) {
-    			SignUpBlogController ctrl = new SignUpBlogController();
-    			ctrl.showView();
+    			/*SignUpBlogController ctrl = new SignUpBlogController();
+    			ctrl.showView();*/
+    			Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
     		}
     	}
     };
@@ -472,6 +474,18 @@ public class MainView extends BaseView {
     	return mainController.exitApp();
     }
 
+	
+    protected void onExposed() {
+    	super.onExposed();
+    	Log.trace("OnExposed of MainView");
+    	/*UiApplication.getUiApplication().invokeLater(new Runnable() {
+			public void run() {
+				mainController.checkForNewActivatedBlog();
+			}
+    	});*/
+    }
+    
+	
 	public BaseController getController() {
 		return mainController;
 	}

@@ -128,13 +128,15 @@ public abstract class BaseController {
 		if(dlg != null && dlg.isDisplayed()) 
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
-				UiApplication.getUiApplication().popScreen(dlg);
-				//dlg.close();
+				try {
+					UiApplication.getUiApplication().popScreen(dlg);
+				} catch (Exception e) {
+					Log.error(e, "Error while removing the dialog from the screen stack");
+				}
 			}
 		});
 	}
-	
-
+		
 	public void backCmd(){ 	
 	 	UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {

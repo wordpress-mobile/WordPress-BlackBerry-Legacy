@@ -21,6 +21,8 @@ public class BlogInfo {
 	private String id;
 	private String name;
 	private String xmlRpcUrl; //real url for publishing on this blog
+	private String blogURL;
+
 	private String username;
 	private String password;
 	private int state = -1;
@@ -43,6 +45,7 @@ public class BlogInfo {
 		super();
 		this.id = currentBlog.getId(); 
 		this.name = currentBlog.getName();
+		this.blogURL = currentBlog.getUrl();
 		this.xmlRpcUrl = currentBlog.getXmlRpcUrl();
 		this.username = currentBlog.getUsername();
 		this.password = currentBlog.getPassword();
@@ -67,6 +70,10 @@ public class BlogInfo {
 	
 	public String getName() {
 		return name;
+	}
+	
+	public String getBlogURL() {
+		return blogURL;
 	}
 	
 	public String getXmlRpcUrl() {

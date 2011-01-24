@@ -2,7 +2,6 @@
 package org.kxmlrpc;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,17 +20,38 @@ public class XmlRpcDualOutputStream {
 	private OutputStream os = null;
 	private FileConnection filecon = null;
 	private byte[] memoryStorage = null; //used when no disk storage
-	public String tmpFilePath = null; //used when disk storage
+	private String tmpFilePath = null; //real tmp file path.
 	
 	public XmlRpcDualOutputStream() {
 		
 		//#ifndef IS_TORCH
-		os = getTmpFileOutputStream(); //first try the file output stream
+		try {
+			tmpFilePath = AppDAO.getXmlRpcTempFilesPath()+String.valueOf(System.currentTimeMillis());
+			//check the folder first
+			if(!JSR75FileSystem.isFileExist(AppDAO.getXmlRpcTempFilesPath())) {
+				JSR75FileSystem.createDir(AppDAO.getXmlRpcTempFilesPath());
+			}
+			//create the file
+			JSR75FileSystem.createFile(tmpFilePath);
+			filecon = (FileConnection) Connector.open(tmpFilePath);
+			if (!filecon.exists()) {
+				throw new IOException("File does not exist: " + tmpFilePath);
+			}
+			os = filecon.openDataOutputStream();
+		} catch (RecordStoreException e) {
+	    	Log.error(e, "Error while allocating xmlrpc tmp file");
+	    	os = null;
+	    	tmpFilePath = null;
+		} catch (IOException e) {
+			Log.error(e, "Error while allocating xmlrpc file");
+	    	os = null;
+	    	tmpFilePath = null;
+		}
 		//#endif
 		
     	if(os == null) {
     		setUpMemoryOutputStream();
-    	} else {
+    	} /*else {
     		try {
 				tmpFilePath = AppDAO.getXmlRpcTempFilePath();
 			} catch (RecordStoreException e) {
@@ -39,7 +59,7 @@ public class XmlRpcDualOutputStream {
 			} catch (IOException e) {
 				setUpMemoryOutputStream();
 			}
-    	}
+    	}*/
 	}
 	
 	public void close() {		
@@ -66,13 +86,10 @@ public class XmlRpcDualOutputStream {
 			Log.trace("Clean the resources used by XmlRpc dual output stream");
 			try {
 				os.close();
-				String tmpFilePath = AppDAO.getXmlRpcTempFilePath();
-				if(JSR75FileSystem.isFileExist(tmpFilePath)) {
+				if(tmpFilePath != null && JSR75FileSystem.isFileExist(tmpFilePath)) {
 					JSR75FileSystem.removeFile(tmpFilePath);
 				}
 				memoryStorage = null;
-			} catch (RecordStoreException e) {
-		    	Log.error(e, "Error while clean xmlrpc tmp file");
 			} catch (IOException e) {
 				Log.error(e, "Error while clean xmlrpc file");
 			}
@@ -90,7 +107,8 @@ public class XmlRpcDualOutputStream {
 		} else {
 			FileConnection filecon = (FileConnection) Connector.open(tmpFilePath);
 			if (!filecon.exists()) {
-				throw new IOException("File not exist!");
+				Log.error("The xml-rpc tmp file doesn't exist anymore!!");
+				throw new IOException(null);
 			}
 			InputStream inStream = filecon.openDataInputStream();
 			
@@ -130,26 +148,4 @@ public class XmlRpcDualOutputStream {
 		Log.trace("Xmlrpc call works with byte array in memory! this could be a bottle neck when video/image");
 		os = new ByteArrayOutputStream();
 	}
-	
-
-    private DataOutputStream getTmpFileOutputStream() {
-    	String tmpFilePath;
-		try {
-			tmpFilePath = AppDAO.getXmlRpcTempFilePath();
-			if(JSR75FileSystem.isFileExist(tmpFilePath)) {
-				JSR75FileSystem.removeFile(tmpFilePath);
-			}
-			JSR75FileSystem.createFile(tmpFilePath);
-			filecon = (FileConnection) Connector.open(tmpFilePath);
-			if (!filecon.exists()) {
-				throw new IOException("File does not exist: " + tmpFilePath);
-			}
-			return filecon.openDataOutputStream();
-		} catch (RecordStoreException e) {
-	    	Log.error(e, "Error while allocating xmlrpc tmp file");
-		} catch (IOException e) {
-			Log.error(e, "Error while allocating xmlrpc file");
-		}
-		return null;
-    }
 }

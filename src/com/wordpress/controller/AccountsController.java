@@ -43,15 +43,6 @@ public class AccountsController extends BaseController {
 		return MainController.getIstance().getApplicationAccounts().size();
 	}
 	
-	public static synchronized boolean isAccountExist(String username){
-		Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
-		Hashtable account = (Hashtable)applicationAccounts.get(username);
-		if(account == null)
-			return false; 
-		else
-			return true;
-	}
-
 	public static synchronized String getAccountPassword(String username) throws  NullPointerException{
 		Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
 		Hashtable account = (Hashtable)applicationAccounts.get(username);
