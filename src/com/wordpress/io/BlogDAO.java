@@ -35,17 +35,20 @@ public class BlogDAO implements BaseDAO {
      * @return
 	 * @throws Exception If a blog with the same xmlrpc url and ID already exist in the app
      */
-    public static synchronized void newBlogs(Vector newBlogs) throws Exception{
+    public static synchronized void newBlogs(Vector newBlogs) throws Exception {
     	if (newBlogs.size() == 0 ) return ;
     	
-    	Hashtable storedBlogs = loadBlogs();
+    	Vector blogWithError = new Vector();
+    	
+    	Hashtable storedBlogs = loadBlogs(); //load the app blogs
     	for (int i = 0; i < newBlogs.size(); i++) {
+    		Blog blog = (Blog)newBlogs.elementAt(i);
 			try {
-				Blog blog = (Blog)newBlogs.elementAt(i);
-		    	String nameMD5=getBlogFolderName(blog);
-		    	String filePath=AppDAO.getBaseDirPath()+nameMD5;
+		    	String nameMD5 = getBlogFolderName(blog);
+		    	String filePath = AppDAO.getBaseDirPath()+nameMD5;
 		    	if (storedBlogs.get(nameMD5) != null){
-		    		//throw new IOException("Cannot add '" + name + "' because that blog already exists in the App");
+		    		blogWithError.addElement(blog);
+		    		Log.error("Cannot add '" + blog.getName() + " - " + blog .getXmlRpcUrl()+ "' because that blog already exists in the App");
 		    	} else {
 		    		JSR75FileSystem.createDir(AppDAO.getBaseDirPath()); 
 		    		JSR75FileSystem.createDir(filePath);
@@ -54,10 +57,16 @@ public class BlogDAO implements BaseDAO {
 		    		storedBlogs.put(nameMD5, serializeBlogData(blog));
 		    	}    					
 			} catch (Exception e) {
-				Log.error(e, "Error adding blogs");
+				blogWithError.addElement(blog);
+	    		Log.error(e, "Cannot add '" + blog.getName() + " - " + blog .getXmlRpcUrl()+ "' because that blog already exists in the App");
 			}
 		}
-		AppDAO.storeSecuredAppData(AppDAO.BLOGS_DATA_ID, storedBlogs);    	
+		AppDAO.storeSecuredAppData(AppDAO.BLOGS_DATA_ID, storedBlogs);
+		
+		//remove the blogs with error within the blogs vector
+		for (int i = 0; i < blogWithError.size(); i++) {
+			newBlogs.removeElement(blogWithError.elementAt(i));
+		}
     	return;
     }
     

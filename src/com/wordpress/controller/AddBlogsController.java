@@ -31,6 +31,7 @@ import com.wordpress.view.AddWPCOMBlogsView;
 import com.wordpress.view.StandardBaseView;
 import com.wordpress.view.component.CheckBoxPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.view.dialog.WaitScreen;
 import com.wordpress.xmlrpc.BlogAuthConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.BlogUpdateConn;
@@ -117,7 +118,6 @@ public class AddBlogsController extends BaseController {
 			if (isWPCOMCall) {
 				AccountsController.storeWPCOMAccount(serverBlogs);
 			}
-
 			boolean[] existenceCheck = BlogDAO.checkBlogsExistance(serverBlogs);
 			Vector addedBlog = new Vector(); //array of blog added to the app. this could be different from the response of the server
 
@@ -145,10 +145,9 @@ public class AddBlogsController extends BaseController {
 				UiApplication.getUiApplication().invokeAndWait(new Runnable() {
 					public void run() {
 						selScr.pickItems();
-						//close the picker and shows the connection in progress dialog
-						ConnectionInProgressView connectionProgressView = new ConnectionInProgressView(
-								_resources.getString(WordPressResource.CONNECTION_INPROGRESS)); 
-						connectionProgressView.show();				
+						WaitScreen connectionProgressView = new WaitScreen(
+								_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
+						UiApplication.getUiApplication().pushScreen(connectionProgressView);
 					}
 				});
 				
@@ -171,10 +170,11 @@ public class AddBlogsController extends BaseController {
 			serverBlogs = null;
 
 			if (addedBlog.size() == 0 ){
+				FrontController.getIstance().backToMainView();	
 				return; //no blogs added
 			}
-			
-			//store the new blog 
+
+			//store the new blogs 
 			BlogDAO.newBlogs(addedBlog);
 
 			Queue connectionsQueue = new Queue(addedBlog.size());
