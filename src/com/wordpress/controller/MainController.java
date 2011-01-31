@@ -2,6 +2,7 @@ package com.wordpress.controller;
 
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
@@ -23,6 +24,7 @@ import com.wordpress.model.Comment;
 import com.wordpress.model.Preferences;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.DataCollector;
+import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -40,9 +42,9 @@ public class MainController extends BaseController implements TaskProgressListen
 	private Vector applicationBlogs = null;
 	private Hashtable applicationAccounts = new Hashtable();
 	
-	private static MainController singletonObject;
-	
 	private boolean isCheckingForNewActivatedBlog = false;
+	
+	private static MainController singletonObject;
 	
 	public static MainController getIstance() {
 		if (singletonObject == null) {
@@ -363,47 +365,82 @@ public class MainController extends BaseController implements TaskProgressListen
 		}
 	}
 	
-	public synchronized void checkForNewActivatedBlog() {
+	
+	public void checkForNewActivatedBlog(int index) {
 		Log.trace("MainController checkForNewActivatedBlog");
-		if (isCheckingForNewActivatedBlog == true)
+		if (isCheckingForNewActivatedBlog == false)
 			return;
-		else
-			isCheckingForNewActivatedBlog = true;
-		
-		for(int count = 0; count < applicationBlogs.size(); ++count)
-    	{
-			BlogInfo applicationBlogTmp = (BlogInfo)applicationBlogs.elementAt(count);
-			if (applicationBlogTmp.getState() == BlogInfo.STATE_PENDING_ACTIVATION) {
-				//chiamare la procedura per controllare l'attivazione di un blog
-			BlogGetActivationStatusConn connection = new BlogGetActivationStatusConn ("https://wordpress.com/xmlrpc.php", applicationBlogTmp.getBlogURL());		        
-        	connection.addObserver(new BlogGetActivationStatusConnCallBack()); 	        
-            connection.startConnWork();
-            return;
-			}
-    	}
-		isCheckingForNewActivatedBlog = false;
+	
+		Thread t = new CheckForNewActivatedBlog(index);
+		t.setPriority(Thread.MIN_PRIORITY); //thread by default is set to priority normal
+		t.start();
 	}
 	
+	private class CheckForNewActivatedBlog extends Thread {
+		private int blogIndex;
+
+		public CheckForNewActivatedBlog(int blogIndex) {
+			super();
+			this.blogIndex = blogIndex;
+		}
+
+		public void run() {
+			try {
+				BlogInfo applicationBlogTmp = (BlogInfo)applicationBlogs.elementAt(blogIndex);
+				//chiamare la procedura per controllare l'attivazione di un blog
+				BlogGetActivationStatusConn connection = new BlogGetActivationStatusConn ("https://wordpress.com/xmlrpc.php", applicationBlogTmp.getBlogURL());		        
+				connection.addObserver(new BlogGetActivationStatusConnCallBack(applicationBlogTmp)); 	        
+				connection.startConnWork();
+				return;
+			} catch (Throwable  e) {
+				Log.error(e, "Serious Error in CheckUpdateTask: " + e.getMessage());
+				isCheckingForNewActivatedBlog = false;
+			} 			  
+		}
+	}
+
 	//callback for signup to the blog
 	private class BlogGetActivationStatusConnCallBack implements Observer {
+		
+		private BlogInfo currentBlogTmp;
+		
+		public BlogGetActivationStatusConnCallBack(BlogInfo currentBlogTmp) {
+			super();
+			this.currentBlogTmp = currentBlogTmp;
+		}
+
 		public void update(Observable observable, final Object object) {
+			isCheckingForNewActivatedBlog = false;
 			Log.trace("BlogGetActivationStatusConnCallBack update");
 			BlogConnResponse resp = (BlogConnResponse)object;
 			if(resp.isStopped()){
-				isCheckingForNewActivatedBlog = false;
 				return;
 			}
 			if(resp.isError()) {
 				final String respMessage=resp.getResponse();
 				Log.error(respMessage);
-				isCheckingForNewActivatedBlog = false;
 				return;
 			}
+
+			final Hashtable tempData = (Hashtable)resp.getResponseObject();
+			try {
+				Blog tempFullBlog = BlogDAO.getBlog(currentBlogTmp);
+				BlogDAO.removeBlog(currentBlogTmp); //we should remove the blog bc we have changed the ID
+				currentBlogTmp = null;
+				tempFullBlog.setId(String.valueOf(tempData.get(" blog_id")));
+				tempFullBlog.setLoadingState(BlogInfo.STATE_ADDED_TO_QUEUE);
+				Vector tmpBlogList = new Vector(1);
+				tmpBlogList.addElement(tempFullBlog);
+				BlogDAO.newBlogs(tmpBlogList);
+				MainController.this.refreshView();
+			} catch (IOException e) {
+				Log.error(e,"IOException while finalizing the activation");
+			} catch (RecordStoreException e) {
+				Log.error(e,"RecordStoreException while finalizing the activation");
+			} catch (Exception e) {
+				Log.error(e,"Exception while finalizing the activation");
+			}
 			
-			Log.debug(resp.getResponseObject(), "it is a success");	
-			
-			isCheckingForNewActivatedBlog = false;
 		}
 	}
-	
 }

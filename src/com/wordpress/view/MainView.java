@@ -35,7 +35,6 @@ import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
-import com.wordpress.controller.SignUpBlogController;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.DataCollector;
@@ -60,6 +59,7 @@ public class MainView extends BaseView {
     private  BitmapField wpPromoBitmapField;
     private  EncodedImage promoImg;
     
+        
 	public MainView(MainController mainController) {
 		super( MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL | USE_ALL_HEIGHT);
 		
@@ -137,7 +137,6 @@ public class MainView extends BaseView {
 			Log.error(e, "Error while reading stored blog");
 			mainController.displayError("Error while reading stored blogs");
 		}*/
-		
     	try {
     		if (wpClassicHeaderBitmapField.getManager() != null)
     			internalManager.delete( wpClassicHeaderBitmapField );
@@ -148,6 +147,14 @@ public class MainView extends BaseView {
     	if (blogCaricati.length == 0) {
         	setUpPromoView();
         } else {
+        	
+        	//check if there are blogs with pending activation
+        	for (int i=0; i< blogCaricati.length; i++){
+        		if(blogCaricati[i].getState() == BlogInfo.STATE_PENDING_ACTIVATION){
+        			mainController.checkForNewActivatedBlog(i);
+        		}
+        	}
+        	
         	internalManager.insert( wpClassicHeaderBitmapField, 0);
         	blogListController = new BlogsListField(blogCaricati);        	
         	listaBlog = blogListController.getList();
@@ -359,7 +366,7 @@ public class MainView extends BaseView {
     public void refreshBlogList() {
     	synchronized (this) {
 			_scrollerManager.deleteAll();
-	        setupUpBlogsView(); //repaint entire list
+	        setupUpBlogsView(); //repaint entire list	        
     	}
     }        
     
@@ -456,13 +463,30 @@ public class MainView extends BaseView {
         }
     };
        
+    
+	
+    private MenuItem _activateBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_CHECK_BLOG_ACTIVATION, 1000, 900) {
+        public void run() {
+        	if(blogListController == null) return;
+        	BlogInfo blogSelected = blogListController.getBlogSelected();
+        	mainController.showBlog(blogSelected);
+        }
+    };
+    
     //Override the makeMenu method so we can add a custom menu item
     protected void makeMenu(Menu menu, int instance)
     {
     	
     	if(Preferences.getIstance().isBackgroundOnClose())
     		menu.add(_exitItem);
-   
+    	
+    	//add the check for activation menu item if the blog is on pending state
+    	if(blogListController != null) {
+    		BlogInfo blogSelected = blogListController.getBlogSelected();
+    		if(blogSelected.getState() == BlogInfo.STATE_PENDING_ACTIVATION)
+    			menu.add(_activateBlogItem);
+    	}
+    	
         //Create the default menu.
         super.makeMenu(menu, instance);
     }
@@ -473,18 +497,12 @@ public class MainView extends BaseView {
 		Log.trace ("public boolean onClose()...");
     	return mainController.exitApp();
     }
-
-	
+/*
     protected void onExposed() {
     	super.onExposed();
-    	Log.trace("OnExposed of MainView");
-    	/*UiApplication.getUiApplication().invokeLater(new Runnable() {
-			public void run() {
-				mainController.checkForNewActivatedBlog();
-			}
-    	});*/
+    	Log.trace("OnExposed of MainView");    
     }
-    
+    */
 	
 	public BaseController getController() {
 		return mainController;

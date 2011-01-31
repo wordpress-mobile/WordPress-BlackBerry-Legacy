@@ -343,12 +343,15 @@ public class SignUpBlogView extends StandardBaseView {
 							Vector tmpBlog = new Vector(1);
 							tmpBlog.addElement(currentBlog);
 							BlogDAO.newBlogs(tmpBlog);
+							if(tmpBlog.size() == 0) 
+								throw new Exception ("Error while adding blog");
 						} catch (Exception e) {
 							if(e != null && e.getMessage()!= null ) {
 								controller.displayMessage(e.getMessage());
 							} else {
 								controller.displayMessage("Error while adding blog");			
 							}
+							return;
 						}
 
 						Vector applicationBlogs = WordPressCore.getInstance().getApplicationBlogs();
@@ -385,9 +388,7 @@ public class SignUpBlogView extends StandardBaseView {
 								}
 							} //end run
 						});
-
-					}//end else
-
+					}//end elses
 				} catch (Exception e) {
 					Log.error(e, "Error while adding blogs");
 				}

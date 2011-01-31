@@ -81,6 +81,10 @@ public class Blog {
 		return id;
 	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
+	
 	public Category[] getCategories() {
 		return categories;
 	}
