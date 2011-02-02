@@ -12,6 +12,7 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.UiApplication;
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.VirtualKeyboard;
@@ -54,7 +55,7 @@ public class SignUpBlogView extends StandardBaseView {
 	
     private BorderedFieldManager rowBlogURL;
     private BasicEditField blogNameField;
-    private LabelField fullblogNameField;
+    private LabelField  fullblogNameField;
     private ColoredLabelField blogNameErrorField;
     
     private BorderedFieldManager rowUserName;
@@ -102,16 +103,19 @@ public class SignUpBlogView extends StandardBaseView {
             
             rowBlogURL.add(GUIFactory.getLabel(_resources.getString(WordPressResource.LABEL_BLOG_ADDRESS), Color.BLACK));
             rowBlogURL.add(GUIFactory.createSepatorField());
-            blogNameField = new BasicEditField("", "insert your blog name", 60, Field.EDITABLE);
+            blogNameField = new BasicEditField("", "", 60, Field.EDITABLE);
             rowBlogURL.add(blogNameField);
-            fullblogNameField = GUIFactory.getLabel(".wordpress.com", Color.BLACK);
-            Font fnt = Font.getDefault().derive(Font.ITALIC);
+            
+            int fntHeight = Font.getDefault().getHeight();
+            Font fnt = Font.getDefault().derive(Font.ITALIC, fntHeight-4, Ui.UNITS_px);
+            fullblogNameField = new LabelField(".wordpress.com", Field.NON_FOCUSABLE);
             fullblogNameField.setFont(fnt);
+            rowBlogURL.add(GUIFactory.createSepatorField());
             rowBlogURL.add(fullblogNameField);
+            blogNameField.setChangeListener(blogURLChangeListener);
             
     		blogNameErrorField = new ColoredLabelField("", Color.RED);
     		blogNameErrorField.setMargin(2, 5, 5, 5);
-    		blogNameField.setChangeListener(blogURLChangeListener);
             add(rowBlogURL);
             
             //username
@@ -223,7 +227,7 @@ public class SignUpBlogView extends StandardBaseView {
 
 	private void resetErrorFields() {
 		//reset the error fields
-		if(rowBlogURL.getFieldCount() == 5)
+		if(rowBlogURL.getFieldCount() == 6)
 			rowBlogURL.delete(blogNameErrorField);
 		if(rowUserName.getFieldCount() == 4)
 			rowUserName.delete(userNameErrorField);			
@@ -285,8 +289,8 @@ public class SignUpBlogView extends StandardBaseView {
         	connection = new BlogSignUpConn ("https://wordpress.com/xmlrpc.php", user, passwd, blogName, email);
         	connectionProgressView= new ConnectionInProgressView(
         			_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
-        	connectionProgressView.setDialogClosedListener(new ConnectionDialogClosedListener(connection));
         	connection.addObserver(new BlogSignUpCallBack(connectionProgressView)); 
+        	connectionProgressView.setDialogClosedListener(new ConnectionDialogClosedListener(connection));
             connectionProgressView.show();
             connection.startConnWork();
         }

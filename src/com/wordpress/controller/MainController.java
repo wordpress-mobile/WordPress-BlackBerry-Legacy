@@ -2,7 +2,6 @@ package com.wordpress.controller;
 
 import java.io.IOException;
 import java.util.Hashtable;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
@@ -11,6 +10,7 @@ import javax.microedition.rms.RecordStoreException;
 import net.rim.device.api.system.ControlledAccessException;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
+import net.rim.device.api.ui.component.Status;
 
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
@@ -22,9 +22,10 @@ import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Comment;
 import com.wordpress.model.Preferences;
+import com.wordpress.task.LoadBlogsDataTask;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.DataCollector;
-import com.wordpress.utils.ImageUtils;
+import com.wordpress.utils.Queue;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -33,7 +34,7 @@ import com.wordpress.view.dialog.ConnectionDialogClosedListener;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.BlogGetActivationStatusConn;
-import com.wordpress.xmlrpc.BlogSignUpConn;
+import com.wordpress.xmlrpc.BlogUpdateConn;
 
 
 public class MainController extends BaseController implements TaskProgressListener {
@@ -42,7 +43,9 @@ public class MainController extends BaseController implements TaskProgressListen
 	private Vector applicationBlogs = null;
 	private Hashtable applicationAccounts = new Hashtable();
 	
-	private boolean isCheckingForNewActivatedBlog = false;
+	private CheckForNewActivatedBlog checkForNewActivatedBlog = null;
+	private long lastCheckTime = -1L;
+	private ConnectionInProgressView connectionProgressView = null;
 	
 	private static MainController singletonObject;
 	
@@ -364,37 +367,79 @@ public class MainController extends BaseController implements TaskProgressListen
 	    	}
 		}
 	}
+
 	
-	
-	public void checkForNewActivatedBlog(int index) {
+	public synchronized void checkForNewActivatedBlog(int index) {
 		Log.trace("MainController checkForNewActivatedBlog");
-		if (isCheckingForNewActivatedBlog == false)
-			return;
-	
-		Thread t = new CheckForNewActivatedBlog(index);
-		t.setPriority(Thread.MIN_PRIORITY); //thread by default is set to priority normal
-		t.start();
+		
+		if(lastCheckTime != -1L) { //first check
+			long currentTime = System.currentTimeMillis();
+			// Get difference in milliseconds
+			long diffMillis = currentTime - lastCheckTime;
+			long  diffMins = diffMillis/(60*1000); //one minute
+			if(diffMins < 2) {
+				Status.show("slow down baby...");
+				Log.trace("slow down baby...");
+				return;
+			}
+		} 
+		
+		lastCheckTime = System.currentTimeMillis();
+
+		if(((BlogInfo)applicationBlogs.elementAt(index)).getState() == BlogInfo.STATE_PENDING_ACTIVATION){
+			BlogInfo applicationBlogTmp = (BlogInfo)applicationBlogs.elementAt(index);
+			//chiamare la procedura per controllare l'attivazione di un blog
+			BlogGetActivationStatusConn connection = new BlogGetActivationStatusConn ("https://wordpress.com/xmlrpc.php", applicationBlogTmp.getBlogURL());		        
+			
+			connectionProgressView= new ConnectionInProgressView(
+	    			_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
+			connection.addObserver(new BlogGetActivationStatusConnCallBack(applicationBlogTmp, connectionProgressView)); 	        
+			connectionProgressView.setDialogClosedListener(new ConnectionDialogClosedListener(connection));
+	        connectionProgressView.show();
+			connection.startConnWork();
+		}
 	}
 	
-	private class CheckForNewActivatedBlog extends Thread {
-		private int blogIndex;
-
-		public CheckForNewActivatedBlog(int blogIndex) {
-			super();
-			this.blogIndex = blogIndex;
+	
+	public void startPendingActivationSchedule() {
+		Log.trace("startPendingActivationSchedule");
+		if(checkForNewActivatedBlog == null)
+			checkForNewActivatedBlog = new CheckForNewActivatedBlog();
+		else {
+			checkForNewActivatedBlog.cancel(); //ensure the timer is canceled
+			checkForNewActivatedBlog = new CheckForNewActivatedBlog();
 		}
-
+		WordPressCore wpCore = WordPressCore.getInstance();
+		//schedule the update check task at startup
+		wpCore.getTimer().schedule(checkForNewActivatedBlog, 3*60*1000, 3*60*1000); //3mins check
+	}
+	
+	private class CheckForNewActivatedBlog  extends TimerTask {
 		public void run() {
 			try {
-				BlogInfo applicationBlogTmp = (BlogInfo)applicationBlogs.elementAt(blogIndex);
-				//chiamare la procedura per controllare l'attivazione di un blog
-				BlogGetActivationStatusConn connection = new BlogGetActivationStatusConn ("https://wordpress.com/xmlrpc.php", applicationBlogTmp.getBlogURL());		        
-				connection.addObserver(new BlogGetActivationStatusConnCallBack(applicationBlogTmp)); 	        
-				connection.startConnWork();
-				return;
+				for (int i=0; i< applicationBlogs.size(); i++){
+					if(((BlogInfo)applicationBlogs.elementAt(i)).getState() == BlogInfo.STATE_PENDING_ACTIVATION){
+						BlogInfo applicationBlogTmp = (BlogInfo)applicationBlogs.elementAt(i);
+						//chiamare la procedura per controllare l'attivazione di un blog
+						BlogGetActivationStatusConn connection = new BlogGetActivationStatusConn ("https://wordpress.com/xmlrpc.php", applicationBlogTmp.getBlogURL());		        
+						connection.addObserver(new BlogGetActivationStatusConnCallBack(applicationBlogTmp)); 	        
+						connection.startConnWork();
+						return;
+					}
+				}
+				
+				//no blog in pending state cancel the task
+				cancel();
 			} catch (Throwable  e) {
-				Log.error(e, "Serious Error in CheckUpdateTask: " + e.getMessage());
-				isCheckingForNewActivatedBlog = false;
+				cancel();
+				Log.error(e, "Serious Error in CheckForNewActivatedBlog: " + e.getMessage());
+				//When CheckUpdateTask throws an exception, it calls cancel on itself 
+				//to remove itself from the Timer. 
+				//It then logs the exception.
+				//Because the exception never propagates back into the Timer thread, others Tasks continue to function even after 
+				//CheckForNewActivatedBlog fails.
+				checkForNewActivatedBlog = new CheckForNewActivatedBlog();
+				 WordPressCore.getInstance().getTimer().schedule(checkForNewActivatedBlog, 3*60*1000, 3*60*1000); //3mins check
 			} 			  
 		}
 	}
@@ -402,37 +447,78 @@ public class MainController extends BaseController implements TaskProgressListen
 	//callback for signup to the blog
 	private class BlogGetActivationStatusConnCallBack implements Observer {
 		
-		private BlogInfo currentBlogTmp;
+		private BlogInfo currentBlogInfo;
 		
 		public BlogGetActivationStatusConnCallBack(BlogInfo currentBlogTmp) {
 			super();
-			this.currentBlogTmp = currentBlogTmp;
+			this.currentBlogInfo = currentBlogTmp;
+		}
+		
+		ConnectionInProgressView dialog;
+		public BlogGetActivationStatusConnCallBack(BlogInfo currentBlogTmp, ConnectionInProgressView dialog) {
+			super();
+			this.currentBlogInfo = currentBlogTmp;
+			this.dialog = dialog;
 		}
 
 		public void update(Observable observable, final Object object) {
-			isCheckingForNewActivatedBlog = false;
 			Log.trace("BlogGetActivationStatusConnCallBack update");
+			if(dialog != null)
+				MainController.this.dismissDialog(dialog);
+			
 			BlogConnResponse resp = (BlogConnResponse)object;
 			if(resp.isStopped()){
 				return;
 			}
 			if(resp.isError()) {
 				final String respMessage=resp.getResponse();
+				if(dialog != null)
+					MainController.this.displayError(respMessage);
 				Log.error(respMessage);
 				return;
 			}
 
 			final Hashtable tempData = (Hashtable)resp.getResponseObject();
 			try {
-				Blog tempFullBlog = BlogDAO.getBlog(currentBlogTmp);
-				BlogDAO.removeBlog(currentBlogTmp); //we should remove the blog bc we have changed the ID
-				currentBlogTmp = null;
+				//update the blog on FS
+				Blog tempFullBlog = BlogDAO.getBlog(currentBlogInfo);
+				BlogDAO.removeBlog(currentBlogInfo); //we should remove the blog bc we have changed the ID
 				tempFullBlog.setId(String.valueOf(tempData.get(" blog_id")));
 				tempFullBlog.setLoadingState(BlogInfo.STATE_ADDED_TO_QUEUE);
 				Vector tmpBlogList = new Vector(1);
 				tmpBlogList.addElement(tempFullBlog);
 				BlogDAO.newBlogs(tmpBlogList);
-				MainController.this.refreshView();
+				
+				//update the blog in memory
+				currentBlogInfo.setId(String.valueOf(tempData.get(" blog_id")));
+				currentBlogInfo.setState(BlogInfo.STATE_ADDED_TO_QUEUE);
+				
+				UiApplication.getUiApplication().invokeLater(new Runnable() {
+					public void run() {
+						try {
+							MainController.this.refreshView();
+						} catch (Exception e) {
+							Log.error(e, "Error while refreshing the blog view");
+						}
+					}
+				});
+				
+				//schedule the execution of blog loading
+				Queue connectionsQueue = new Queue(1);
+				final BlogUpdateConn connection = new BlogUpdateConn (tempFullBlog);       
+				connectionsQueue.push(connection); 
+				LoadBlogsDataTask loadBlogsTask = new LoadBlogsDataTask(connectionsQueue);
+				loadBlogsTask.setProgressListener(MainController.this);
+
+				//push into the Runner
+				try {
+					Thread.currentThread().sleep(2000);
+				} catch (InterruptedException e) {
+					Log.error(e, "Error while adding blogs");
+				}
+
+				WordPressCore.getInstance().getTasksRunner().enqueue(loadBlogsTask);
+				
 			} catch (IOException e) {
 				Log.error(e,"IOException while finalizing the activation");
 			} catch (RecordStoreException e) {

@@ -24,6 +24,7 @@ import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.Menu;
+import net.rim.device.api.ui.component.Status;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
@@ -35,6 +36,7 @@ import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
+import com.wordpress.controller.SignUpBlogController;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.DataCollector;
@@ -59,7 +61,6 @@ public class MainView extends BaseView {
     private  BitmapField wpPromoBitmapField;
     private  EncodedImage promoImg;
     
-        
 	public MainView(MainController mainController) {
 		super( MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL | USE_ALL_HEIGHT);
 		
@@ -143,17 +144,18 @@ public class MainView extends BaseView {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-    	if (blogCaricati.length == 0) {
+		
+		if (blogCaricati.length == 0) {
         	setUpPromoView();
         } else {
         	
         	//check if there are blogs with pending activation
         	for (int i=0; i< blogCaricati.length; i++){
         		if(blogCaricati[i].getState() == BlogInfo.STATE_PENDING_ACTIVATION){
-        			mainController.checkForNewActivatedBlog(i);
+        			mainController.startPendingActivationSchedule();
+        			break;
         		}
-        	}
+        	} 
         	
         	internalManager.insert( wpClassicHeaderBitmapField, 0);
         	blogListController = new BlogsListField(blogCaricati);        	
@@ -207,9 +209,9 @@ public class MainView extends BaseView {
 		 buttonGetFreeBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
 		 buttonGetFreeBlog.setChangeListener(new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {
-	    			//SignUpBlogController ctrl = new SignUpBlogController();
-	    			//ctrl.showView();
-	    			Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
+	    			SignUpBlogController ctrl = new SignUpBlogController();
+	    			ctrl.showView();
+	    			//Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
 			 }
 		 });
 
@@ -347,9 +349,9 @@ public class MainView extends BaseView {
     		} else if(selection == 1) {
 				mainController.addWPORGBlogs();
     		} else if(selection == 2) {
-    			/*SignUpBlogController ctrl = new SignUpBlogController();
-    			ctrl.showView();*/
-    			Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
+    			SignUpBlogController ctrl = new SignUpBlogController();
+    			ctrl.showView();
+    			//Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
     		}
     	}
     };
@@ -468,8 +470,8 @@ public class MainView extends BaseView {
     private MenuItem _activateBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_CHECK_BLOG_ACTIVATION, 1000, 900) {
         public void run() {
         	if(blogListController == null) return;
-        	BlogInfo blogSelected = blogListController.getBlogSelected();
-        	mainController.showBlog(blogSelected);
+        	int blogSelected = blogListController.getList().getSelectedIndex();
+        	mainController.checkForNewActivatedBlog(blogSelected);
         }
     };
     
@@ -497,13 +499,7 @@ public class MainView extends BaseView {
 		Log.trace ("public boolean onClose()...");
     	return mainController.exitApp();
     }
-/*
-    protected void onExposed() {
-    	super.onExposed();
-    	Log.trace("OnExposed of MainView");    
-    }
-    */
-	
+ 
 	public BaseController getController() {
 		return mainController;
 	}

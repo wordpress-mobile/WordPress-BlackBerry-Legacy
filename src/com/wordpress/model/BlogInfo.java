@@ -19,6 +19,7 @@ public class BlogInfo {
 	
 	private boolean isWPCOMBlog = false;
 	private String id;
+
 	private String name;
 	private String xmlRpcUrl; //real url for publishing on this blog
 	private String blogURL;
@@ -66,6 +67,10 @@ public class BlogInfo {
 	
 	public String getId() {
 		return id;
+	}
+	
+	public void setId(String id) {
+		this.id = id;
 	}
 	
 	public String getName() {
