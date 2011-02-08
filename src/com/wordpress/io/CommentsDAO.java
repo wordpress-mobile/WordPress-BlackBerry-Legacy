@@ -17,6 +17,7 @@ import com.wordpress.bb.WordPressCore;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Comment;
+import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 
 public class CommentsDAO implements BaseDAO {
@@ -218,19 +219,16 @@ public class CommentsDAO implements BaseDAO {
 			try {
 				Hashtable returnCommentData = (Hashtable)respVector.elementAt(i);
 				 
-				Comment comment = new Comment();
-				 
-				int commentID=Integer.parseInt((String)returnCommentData.get("comment_id"));
-		        int commentParent=Integer.parseInt((String) returnCommentData.get("parent"));
+				Comment comment = new Comment();				 
+				comment.setID(Tools.decodeString(returnCommentData.get("comment_id")));
+				comment.setPostID(Tools.decodeString(returnCommentData.get("post_id")));
+				comment.setParent(Tools.decodeString(returnCommentData.get("parent")));
+				comment.setUserId( (String)returnCommentData.get("user_id") ) ;
 	            String status=(String) returnCommentData.get("status");
 	            comment.setDateCreatedGMT((Date) returnCommentData.get("date_created_gmt"));
-	            comment.setUserId( (String)returnCommentData.get("user_id") ) ;
-	            comment.setID(commentID);
-	            comment.setParent(commentParent);
 	            comment.setStatus(status);
 	            comment.setContent( (String) returnCommentData.get("content") );
 	            comment.setLink((String) returnCommentData.get("link"));
-	            comment.setPostID(Integer.parseInt((String)returnCommentData.get("post_id")));
 	            comment.setPostTitle((String) returnCommentData.get("post_title"));
 	            comment.setAuthor((String) returnCommentData.get("author"));
 	            comment.setAuthorEmail((String) returnCommentData.get("author_email"));
@@ -257,15 +255,20 @@ public class CommentsDAO implements BaseDAO {
 		for (int i = 0; i < comments.length; i++) {
 			Comment currentComment = comments[i];
 	        Hashtable hash = new Hashtable(13);
-	        hash.put("comment_id", String.valueOf(currentComment.getID()));
-	        hash.put("parent", String.valueOf(currentComment.getParent()));
+
+	        if(currentComment.getID() != null)
+	        	hash.put("comment_id", currentComment.getID());
+	        if(currentComment.getParent() != null)
+	        	hash.put("parent", currentComment.getParent());
+	        if(currentComment.getPostID() != null)
+	        	hash.put("post_id", currentComment.getPostID());
+	        
 	        hash.put("status", currentComment.getStatus());
 	        if(currentComment.getDateCreatedGMT() != null)
 	        	hash.put("date_created_gmt", currentComment.getDateCreatedGMT());
 	        hash.put("user_id", currentComment.getUserId());
 	        hash.put("content", currentComment.getContent());
-	        hash.put("link", currentComment.getLink());
-	        hash.put("post_id", String.valueOf(currentComment.getPostID()));
+	        hash.put("link", currentComment.getLink());      
 	        hash.put("author", currentComment.getAuthor());
 	        hash.put("post_title", currentComment.getPostTitle());
 	        hash.put("author_email", currentComment.getAuthorEmail());

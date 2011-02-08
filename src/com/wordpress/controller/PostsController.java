@@ -96,7 +96,7 @@ public class PostsController extends BaseController{
 				return;
 			}
 			else {
-				FrontController.getIstance().showCommentsByPost(currentBlog, Integer.parseInt(postID), (String) postData.get("title"));
+				FrontController.getIstance().showCommentsByPost(currentBlog, postID, (String) postData.get("title"));
 			}
 		}
 	}

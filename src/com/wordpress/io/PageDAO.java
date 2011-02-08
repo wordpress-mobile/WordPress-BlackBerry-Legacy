@@ -177,10 +177,10 @@ public class PageDAO implements BaseDAO{
 		page.setDateCreatedGMT(dateCreated);
 		
 		if( returnPageData.get("userid") != null)
-			page.setUserID(Tools.decodeInt(returnPageData.get("userid")));
+			page.setUserID(Tools.decodeString(returnPageData.get("userid")));
 		
 		if( returnPageData.get("page_id") != null )
-			page.setPageId(Tools.decodeInt(returnPageData.get("page_id")));
+			page.setPageId(Tools.decodeString(returnPageData.get("page_id")));
 
 		page.setPageStatus((String) returnPageData.get("page_status"));
 		String description = ((String) returnPageData.get("description"));
@@ -211,8 +211,8 @@ public class PageDAO implements BaseDAO{
 		
 	
 		if(returnPageData.get("wp_page_parent_id") != null ) {
-			String parentID = String.valueOf(returnPageData.get("wp_page_parent_id"));
-			page.setWpPageParentID(Integer.parseInt(parentID));
+			String parentID = Tools.decodeString(returnPageData.get("wp_page_parent_id"));
+			page.setWpPageParentID(parentID);
 		}
 	
 		page.setWpPageParentTitle((String) returnPageData.get("wp_page_parent_title"));
@@ -223,8 +223,8 @@ public class PageDAO implements BaseDAO{
 		}
 		
 		if(returnPageData.get("wp_author_id") != null) {
-			String pageAuthorID = String.valueOf( returnPageData.get("wp_author_id") );
-			page.setWpAuthorID(Integer.parseInt(pageAuthorID));
+			String pageAuthorID = Tools.decodeString(returnPageData.get("wp_author_id") );
+			page.setWpAuthorID(pageAuthorID);
 		}
 		
 		//set the prop for photo res
@@ -283,10 +283,10 @@ public class PageDAO implements BaseDAO{
 	//	if (page.getDateCreated()!= null)
 	//		content.put("dateCreated", page.getDateCreated());
 		
-		if(page.getUserID() != -1)
-			content.put("userid", new Integer(page.getUserID()));
-		if(page.getID() != -1)
-			content.put("page_id", new Integer(page.getID()));
+		if(page.getUserID() != null)
+			content.put("userid", page.getUserID());
+		if(page.getID() != null)
+			content.put("page_id", page.getID());
 		if (page.getPageStatus()!= null)
 			content.put("page_status", page.getPageStatus());
 		if (page.getDescription()!= null)
@@ -311,8 +311,8 @@ public class PageDAO implements BaseDAO{
 		if (page.getWpAuthor()!= null)
 			content.put("wp_author", page.getWpAuthor());
 		
-		if(page.getWpPageParentID() != -1)
-			content.put("wp_page_parent_id", new Integer(page.getWpPageParentID()));
+		if(page.getWpPageParentID() != null)
+			content.put("wp_page_parent_id", page.getWpPageParentID());
 	
 		if(page.getWpPageParentTitle() !=null)
 		content.put("wp_page_parent_title", page.getWpPageParentTitle());
@@ -320,8 +320,8 @@ public class PageDAO implements BaseDAO{
 		if(page.getWpPageOrder() != -1)
 			content.put("wp_page_order", new Integer(page.getWpPageOrder()));
 		
-		if(page.getWpAuthorID() != -1)
-			content.put("wp_author_id", new Integer(page.getWpAuthorID()));
+		if(page.getWpAuthorID() != null)
+			content.put("wp_author_id", page.getWpAuthorID());
 
 		if(page.getDateCreatedGMT() !=null)
 			content.put("date_created_gmt", page.getDateCreatedGMT());

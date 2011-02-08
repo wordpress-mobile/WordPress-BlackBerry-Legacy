@@ -484,7 +484,7 @@ public class CommentView extends StandardBaseView {
 		 int index = -1;
 		 for (int i = 0; i < comments.length; i++) {
 			 Comment	comment = comments[i];
-			 if (comment.getID() == currentComment.getID()) {
+			 if (comment.getID().equalsIgnoreCase(currentComment.getID())) {
 				 index = i;
 				 break;
 			 }
@@ -496,7 +496,7 @@ public class CommentView extends StandardBaseView {
 		 int index = -1;
 		 for (int i = 0; i < comments.length; i++) {
 			 Comment	comment = comments[i];
-			 if (comment.getID() == currentComment.getID()) {
+			 if (comment.getID().equalsIgnoreCase(currentComment.getID())) {
 				 index = i;
 				 break;
 			 }
@@ -516,7 +516,7 @@ public class CommentView extends StandardBaseView {
 		 int index = -1;
 		 for (int i = 0; i < comments.length; i++) {
 			 Comment	comment = comments[i];
-			 if (comment.getID() == currentComment.getID()) {
+			 if (comment.getID().equalsIgnoreCase(currentComment.getID())) {
 				 index = i;
 				 break;
 			 }

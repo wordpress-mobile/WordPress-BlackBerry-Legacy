@@ -4,10 +4,10 @@ import java.util.Date;
 
 public class Comment {
 
-	private int commentId = -1;
-	private int postID = -1;
+	private String commentId = null;
+	private String postID = null;
+	private String commentParent=null;
 	private String postTitle = "";
-	private int commentParent;
 	private String content = "";
 	private String author = "";
 	private String authorUrl = "";
@@ -17,34 +17,32 @@ public class Comment {
 	private String userID = "";
 	private String link = "";
 	private String authorIp = "";
-
 	
 	public Comment() {
 	
 	}
-	
 
-	public int getID() {
+	public String getID() {
 		return commentId;
 	}
 
-	public void setID(int commentId) {
+	public void setID(String commentId) {
 		this.commentId = commentId;
 	}
 
-	public int getPostID() {
+	public String getPostID() {
 		return postID;
 	}
 
-	public void setPostID(int postID) {
+	public void setPostID(String postID) {
 		this.postID = postID;
 	}
 
-	public int getParent() {
+	public String getParent() {
 		return commentParent;
 	}
 
-	public void setParent(int commentparent) {
+	public void setParent(String commentparent) {
 		commentParent = commentparent;
 	}
 

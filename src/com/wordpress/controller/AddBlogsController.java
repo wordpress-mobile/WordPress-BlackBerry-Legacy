@@ -163,6 +163,14 @@ public class AddBlogsController extends BaseController {
 						addedBlog.addElement(serverBlogs[i]);
 					}
 				}
+			} else if(serverBlogs.length == 1) {
+				serverBlogs[0].setImageResizeWidth(new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH));
+				serverBlogs[0].setImageResizeHeight(new Integer(ImageUtils.DEFAULT_RESIZE_HEIGHT));
+				serverBlogs[0].setLoadingState(BlogInfo.STATE_ADDED_TO_QUEUE);
+				if (isWPCOMCall) {
+					serverBlogs[0].setWPCOMBlog(true);
+				}
+				addedBlog.addElement(serverBlogs[0]);		
 			} else if(serverBlogs.length == 0) {
 				displayMessage(_resources.getString(WordPressResource.MESSAGE_NO_OTHER_BLOGS_FOR_ACCOUNT));
 			}

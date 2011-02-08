@@ -128,7 +128,7 @@ public class PageController extends BlogObjectController {
 	
 	public int getParentPageFieldIndex() {
 		for (int i = 0; i < remotePages.length; i++) {
-			if ( remotePages[i].getID() == getPageObj().getWpPageParentID() )
+			if ( remotePages[i].getID().equalsIgnoreCase(getPageObj().getWpPageParentID()) )
 				return i;
 		}
 		return remotePages.length; //selected no parent page (base Page page title)
@@ -136,10 +136,9 @@ public class PageController extends BlogObjectController {
 	
 	//find the id of the selected page parent
 	public void setParentPageID(int selectedFieldIndex) {
-		int parentPageID= -1;
+		String parentPageID = null;
 		if(remotePages.length > selectedFieldIndex)
 			parentPageID = remotePages[selectedFieldIndex].getID();
-		
 		getPageObj().setWpPageParentID(parentPageID);
 	}
 		
@@ -206,12 +205,12 @@ public class PageController extends BlogObjectController {
 			publish= true;
 		
 		BlogConn connection;
-		if( getPageObj().getID()== -1 ) { //new page
+		if( getPageObj().getID()== null ) { //new page
 	           connection = new NewPageConn (blog.getXmlRpcUrl(), blog.getUsername(), 
-	        		   blog.getPassword(), Integer.parseInt(blog.getId()), getPageObj() ,publish);
+	        		   blog.getPassword(), blog.getId(), getPageObj() ,publish);
 		} else { //edit post
 			 connection = new EditPageConn (blog.getXmlRpcUrl(), blog.getUsername(), 
-	        		   blog.getPassword(), Integer.parseInt(blog.getId()), getPageObj() ,publish);
+	        		   blog.getPassword(), blog.getId(), getPageObj() ,publish);
 		}
 		if(blog.isHTTPBasicAuthRequired()) {
 			connection.setHttp401Password(blog.getHTTPAuthPassword());

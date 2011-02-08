@@ -92,10 +92,10 @@ public class PagesController extends BaseController{
 		
     	if(Dialog.YES==result) {
 		
-    		int pageID = pages[selectedIndex].getID();
+    		String pageID = pages[selectedIndex].getID();
     		    						 
 			DeletePageConn connection = new DeletePageConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
-					 currentBlog.getPassword(), Integer.parseInt(currentBlog.getId()), pageID);
+					 currentBlog.getPassword(), currentBlog.getId(), pageID);
 			if(currentBlog.isHTTPBasicAuthRequired()) {
 				connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
 				connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
@@ -138,7 +138,7 @@ public class PagesController extends BaseController{
 	public void refreshPagesList() {
 		System.out.println(">>>refreshPosts");
         final GetPagesConn connection = new GetPagesConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
-        		currentBlog.getPassword(),  Integer.parseInt(currentBlog.getId()), currentBlog.getMaxPostCount());
+        		currentBlog.getPassword(),  currentBlog.getId(), currentBlog.getMaxPostCount());
 		if(currentBlog.isHTTPBasicAuthRequired()) {
 			connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
 			connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
@@ -155,8 +155,7 @@ public class PagesController extends BaseController{
 			connection.stopConnWork(); //stop the connection if the user click on cancel button
 		}
 	}
-	
-	
+		
 	private class deletePageCallBack implements Observer{
 		
 		int index;

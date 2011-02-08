@@ -8,10 +8,10 @@ import com.wordpress.xmlrpc.BlogConnResponse;
 
 public class GetPagesConn extends BlogConn  {
 
-	private final int blogID;
+	private final String blogID;
 	private final int maxPages;
 
-	public GetPagesConn(String hint, String userHint, String passwordHint, int blogID, int maxPages) {
+	public GetPagesConn(String hint, String userHint, String passwordHint, String blogID, int maxPages) {
 		super(hint, userHint, passwordHint);
 		this.blogID = blogID;
 		this.maxPages = maxPages;
@@ -19,7 +19,7 @@ public class GetPagesConn extends BlogConn  {
 
 	public void run() {
 
-		if (this.blogID < 0) {
+		if (this.blogID == null) {
 			setErrorMessage("Page does not have a BlogId");
 			notifyObservers(connResponse);
 			return;

@@ -21,7 +21,7 @@ public class EditCommentConn extends BlogConn  {
 	public void run() {
 		try {
 
-			if (comment.getID() < 0 ) {
+			if (comment.getID() == null ) {
 				 setErrorMessage("Error CommentId");
 				 notifyObservers(connResponse);
 		         return;
@@ -49,7 +49,7 @@ public class EditCommentConn extends BlogConn  {
 	        args.addElement(blogId);
 	        args.addElement(mUsername);
 	        args.addElement(mPassword);
-	        args.addElement(String.valueOf(comment.getID()));
+	        args.addElement(comment.getID());
 	        args.addElement(vcomment);
 	        
 	        Object response = execute("wp.editComment", args);

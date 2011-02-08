@@ -144,7 +144,7 @@ public class FrontController {
 	/*
 	 * show comments by post view
 	 */
-	public void showCommentsByPost(Blog currentBlog, int postID, String postTitle){
+	public void showCommentsByPost(Blog currentBlog, String postID, String postTitle){
 		RecentCommentsController ctrl=new RecentCommentsController(currentBlog);
 		ctrl.setPostID(postID);
 		ctrl.setPostTitle(postTitle);

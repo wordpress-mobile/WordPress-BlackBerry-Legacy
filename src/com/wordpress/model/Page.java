@@ -6,8 +6,8 @@ import java.util.Vector;
 public class Page extends BlogEntry {
 	
 	private Date dateCreated = null;
-	private int userID = -1;
-	private int pageID = -1;
+	private String userID = null;
+	private String pageID = null;
 	private String pageStatus = null;
 	private String description = "";
 	private String title = "";
@@ -21,16 +21,16 @@ public class Page extends BlogEntry {
 	private String wpSlug = "";
 	private String wpPassword = "";
 	private String wpAuthor;
-	private int wpPageParentID = -1;
+	private String wpPageParentID = null;
 	private String wpPageParentTitle;
 	private int wpPageOrder = -1;
-	private int wpAuthorID = -1;
+	private String wpAuthorID = null;
 	private String wpAuthorDisplayName;
 	private Date dateCreatedGMT;
 	private String wpPageTemplate;
    
 	
-	public Page(int pageID, String Title, String description, Date dateCreated) {
+	public Page(String pageID, String Title, String description, Date dateCreated) {
 		this.pageID = pageID;
 		this.title = Title;
 		this.description = description;
@@ -39,11 +39,11 @@ public class Page extends BlogEntry {
 	
 	public Page() {}
 	
-	public int getWpAuthorID() {
+	public String getWpAuthorID() {
 		return wpAuthorID;
 	}
 
-	public void setWpAuthorID(int wpAuthorID) {
+	public void setWpAuthorID(String wpAuthorID) {
 		this.wpAuthorID = wpAuthorID;
 	}
 
@@ -64,11 +64,11 @@ public class Page extends BlogEntry {
 		return wpPassword;
 	}
 
-	public void setWpPageParentID(int wp_parent_id) {
+	public void setWpPageParentID(String wp_parent_id) {
 		this.wpPageParentID = wp_parent_id;
 	}
 
-	public int getWpPageParentID() {
+	public String getWpPageParentID() {
 		return wpPageParentID;
 	}
 
@@ -144,11 +144,11 @@ public class Page extends BlogEntry {
 		return dateCreated;
 	}
 
-	public void setPageId(int pageId) {
+	public void setPageId(String pageId) {
 		this.pageID = pageId;
 	}
 
-	public int getID() {
+	public String getID() {
 		return pageID;
 	}
 
@@ -160,11 +160,11 @@ public class Page extends BlogEntry {
 		return pageStatus;
 	}
 
-	public void setUserID(int userid) {
+	public void setUserID(String userid) {
 		this.userID = userid;
 	}
 
-	public int getUserID() {
+	public String getUserID() {
 		return userID;
 	}
 

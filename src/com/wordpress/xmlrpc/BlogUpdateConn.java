@@ -110,13 +110,13 @@ public class BlogUpdateConn extends BlogConn  {
 			checkConnectionResponse("Error while loading Recent Post");
 			
 			
-			Vector blogPages = getPages(Integer.parseInt(blog.getId()), blog.getMaxPostCount());
+			Vector blogPages = getPages(blog.getId(), blog.getMaxPostCount());
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				blog.setPages(blogPages);
 			checkConnectionResponse("Error while loading Pages");
 		
-			Vector comments = getComments(Integer.parseInt(blog.getId()), -1, "", 0, 100);
+			Vector comments = getComments(blog.getId(), null, null, 0, 100);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false ) {
 				try{

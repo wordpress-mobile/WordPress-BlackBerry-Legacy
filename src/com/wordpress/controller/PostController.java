@@ -766,7 +766,7 @@ public class PostController extends BlogObjectController {
 			return;
 		}
 		else {
-			FrontController.getIstance().showCommentsByPost(post.getBlog(), Integer.parseInt(post.getId()), post.getTitle());
+			FrontController.getIstance().showCommentsByPost(post.getBlog(), post.getId(), post.getTitle());
 		}
 	}
 	

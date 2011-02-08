@@ -7,10 +7,10 @@ import com.wordpress.xmlrpc.BlogConn;
 
 public class DeleteCommentConn extends BlogConn  {
 	
-	private final int commentID;
+	private final String commentID;
 	private final String blogID;
 
-	public DeleteCommentConn(String hint, String userHint, String passwordHint, String blogID, int commentID){
+	public DeleteCommentConn(String hint, String userHint, String passwordHint, String blogID, String commentID){
 		super(hint, userHint, passwordHint);
 		this.blogID = blogID;
 		this.commentID = commentID;
@@ -19,12 +19,12 @@ public class DeleteCommentConn extends BlogConn  {
 	
 	public void run() {
 		try {
-			if (Integer.parseInt(blogID) < 0 ) {
+			if (blogID == null ) {
 				 setErrorMessage("Error Missing Blog Identification");
 				 notifyObservers(connResponse);
 		         return;
 			}
-			if (this.commentID < 0 ) {
+			if (this.commentID == null || this.commentID.equalsIgnoreCase("-1") ) {
 				 setErrorMessage("Error CommentId");
 				 notifyObservers(connResponse);
 		         return;
@@ -33,7 +33,7 @@ public class DeleteCommentConn extends BlogConn  {
 		        args.addElement(this.blogID);
 				args.addElement(mUsername);
 		        args.addElement(mPassword);
-		        args.addElement(String.valueOf(this.commentID));
+		        args.addElement(this.commentID);
 
 		        Object response = execute("wp.deleteComment", args);
 				if(connResponse.isError()) {

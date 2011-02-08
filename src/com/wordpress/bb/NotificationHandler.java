@@ -174,8 +174,8 @@ public class NotificationHandler {
 			
 				//blog is correctly loaded within the app
 				final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
-						Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
-						currentBlog.getPassword(), -1, "", 0, WordPressInfo.DEFAULT_DOWNLOADED_COMMENTS);
+						currentBlog.getId(), currentBlog.getUsername(), 
+						currentBlog.getPassword(), null, null, 0, WordPressInfo.DEFAULT_DOWNLOADED_COMMENTS);
 				if(currentBlog.isHTTPBasicAuthRequired()) {
 					connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
 					connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
@@ -262,14 +262,14 @@ public class NotificationHandler {
 					}
 					
 					//retrive the previous comments ID List for  current blog
-					int[] newCommentsIDList = new int[commentsFromServer.length];
+					String[] newCommentsIDList = new String[commentsFromServer.length];
 					Log.trace("retrived comments from server # "+ commentsFromServer.length);
 					for (int i = 0; i < newCommentsIDList.length; i++) {
 						Comment	comment = commentsFromServer[i];
 						newCommentsIDList[i] = comment.getID();
 					}
 
-					int[] previousComments = currentBlog.getCommentsID();
+					String[] previousComments = currentBlog.getCommentsID();
 					currentBlog.setCommentsID(newCommentsIDList);
 			
 					//check if there are available new comments for moderation
@@ -277,13 +277,13 @@ public class NotificationHandler {
 					for (int i = 0; i < commentsFromServer.length; i++) {
 						Comment	commentFromServer = commentsFromServer[i];
 						//check the presence of this comment only if it is in awaiting of moderation 
-						Log.trace("stato del commento "+ commentFromServer.getStatus());
+						Log.trace("comment state: "+ commentFromServer.getStatus());
 						if  (!commentFromServer.getStatus().equalsIgnoreCase("hold")){
 							continue;
 						}
 
 						for (int j = 0; j < previousComments.length; j++) {
-							if (previousComments[j] == commentFromServer.getID()) {
+							if (previousComments[j].equalsIgnoreCase(commentFromServer.getID())) {
 								presence = true;
 								break;
 							}
@@ -373,7 +373,7 @@ public class NotificationHandler {
 				this.currentBlog = blogInfo;
 				//blog is correctly loaded within the app
 				GetCommentCountConn connection = new GetCommentCountConn(blogInfo.getXmlRpcUrl(), 
-						blogInfo.getUsername(), blogInfo.getPassword(), -1);
+						blogInfo.getUsername(), blogInfo.getPassword(), "-1");
 				if(currentBlog.isHTTPBasicAuthRequired()) {
 					connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
 					connection.setHttp401Username(currentBlog.getHTTPAuthUsername());

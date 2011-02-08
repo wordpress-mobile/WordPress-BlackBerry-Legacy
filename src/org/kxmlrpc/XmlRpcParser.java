@@ -225,9 +225,17 @@ public class XmlRpcParser {
 				result = parser.nextText();
 				result=createString((String)result);
 				}
-			else if( name.equals("i4") || name.equals("int") )
-				result = new Integer 
-				( Integer.parseInt( parser.nextText().trim() ) );
+			else if( name.equals("i4") || name.equals("int") ) {
+				//fix the overflow issue #180: http://blackberry.trac.wordpress.org/ticket/180
+				String currentValue = parser.nextText().trim();
+				try {
+					result = new Integer(Integer.parseInt(currentValue));
+				} catch (NumberFormatException e) {
+					Log.error("Found an integer, but value is outside the range "+e.getMessage());
+					Log.error("#180: http://blackberry.trac.wordpress.org/ticket/180");
+					result = new Long(Long.parseLong(currentValue));
+				}
+			}
 			else if( name.equals("boolean") )
 				result = new Boolean( parser.nextText().trim().equals("1") );
 			else if( name.equals("dateTime.iso8601") )

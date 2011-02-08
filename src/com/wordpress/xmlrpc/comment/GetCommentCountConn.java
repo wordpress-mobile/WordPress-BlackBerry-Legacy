@@ -8,9 +8,9 @@ import com.wordpress.xmlrpc.BlogConn;
 
 public class GetCommentCountConn extends BlogConn  {
 	
-	private int postID = -1;
+	private String postID = null;
 
-	public GetCommentCountConn(String url, String user, String password, int postID){
+	public GetCommentCountConn(String url, String user, String password, String postID){
 		super(url, user, password);
 		this.postID = postID;
 	}
@@ -18,18 +18,12 @@ public class GetCommentCountConn extends BlogConn  {
 	public void run() {
 		try {
 
-/*			if (this.postID < 0) {
-				 setErrorMessage("Error PostID");
-				 notifyObservers(connResponse);
-		         return;
-			}
-	*/		
 			Vector args = new Vector(5);
 			
 	        args.addElement("1");
 	        args.addElement(mUsername);
 	        args.addElement(mPassword);
-	        args.addElement(String.valueOf(this.postID));
+	        args.addElement(this.postID);
 		
 	        Object response = execute("wp.getCommentCount", args);
 			if(connResponse.isError()) {

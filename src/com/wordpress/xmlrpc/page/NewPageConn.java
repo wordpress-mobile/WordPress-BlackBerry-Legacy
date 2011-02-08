@@ -10,10 +10,10 @@ import com.wordpress.xmlrpc.BlogConn;
 public class NewPageConn extends BlogConn  {
 
 	private boolean isPublished=false;
-	private final int blogId;
+	private final String blogId;
 	private Page page;
 
-	public NewPageConn(String hint, String userHint, String passwordHint, int blogId, Page page, boolean isPublished) {
+	public NewPageConn(String hint, String userHint, String passwordHint, String blogId, Page page, boolean isPublished) {
 		super(hint, userHint, passwordHint);
 		this.blogId = blogId;
 		this.page = page;
@@ -27,13 +27,13 @@ public class NewPageConn extends BlogConn  {
 	public void run() {
 		try{
 
-			if (blogId < 0 ) {
+			if (blogId == null ) {
 				setErrorMessage("Blog already has a BlogId");
 				notifyObservers(connResponse);
 				return;
 			}
 
-			if (page.getID() > 0 ) {
+			if (page.getID() != null ) {
 				setErrorMessage("Page already has an Id");
 				notifyObservers(connResponse);
 				return;

@@ -6,23 +6,23 @@ import com.wordpress.xmlrpc.BlogConn;
 
 public class GetPageListConn extends BlogConn  {
 
-	private final int blogID;	
+	private final String blogID;	
 
-	public GetPageListConn(String hint, int blogId, String userHint, String passwordHint) {
+	public GetPageListConn(String hint, String blogId, String userHint, String passwordHint) {
 		super(hint, userHint, passwordHint);
-		this.blogID=blogId;
+		this.blogID = blogId;
 	}
 
 	public void run() {
 
-		if (this.blogID < 0) {
+		if (this.blogID == null) {
 			setErrorMessage("Page does not have a BlogId");
 			notifyObservers(connResponse);
 			return;
 		}
 
 		Vector args = new Vector(3);
-		args.addElement(String.valueOf(this.blogID));
+		args.addElement(this.blogID);
 		args.addElement(mUsername);
 		args.addElement(mPassword);
 

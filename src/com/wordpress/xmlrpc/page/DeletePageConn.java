@@ -6,10 +6,10 @@ import com.wordpress.xmlrpc.BlogConn;
 
 public class DeletePageConn extends BlogConn {
 
-	private final int pageID;
-	private final int blogID;
+	private final String pageID;
+	private final String blogID;
 
-	public DeletePageConn(String hint, String userHint, String passwordHint, int blogID, int pageID) {
+	public DeletePageConn(String hint, String userHint, String passwordHint, String blogID, String pageID) {
 		super(hint, userHint, passwordHint);
 		this.pageID = pageID;
 		this.blogID = blogID;
@@ -17,22 +17,22 @@ public class DeletePageConn extends BlogConn {
 
 	public void run() {
 		try {
-			if (this.blogID < 0) {
+			if (this.blogID == null) {
 				setErrorMessage("Page doesn't have a BlogId");
 				notifyObservers(connResponse);
 				return;
 			}
-			if (this.pageID < 0) {
+			if (this.pageID == null) {
 				setErrorMessage("Page doesn't have an Id");
 				notifyObservers(connResponse);
 				return;
 			}
 
 			Vector args = new Vector(5);
-			args.addElement(String.valueOf(this.blogID));
+			args.addElement(this.blogID);
 			args.addElement(mUsername);
 			args.addElement(mPassword);
-			args.addElement(String.valueOf(this.pageID));
+			args.addElement(this.pageID);
 
 			Object response = execute("wp.deletePage", args);
 			if (connResponse.isError()) {

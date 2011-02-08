@@ -35,7 +35,7 @@ public class RecentCommentsController extends BaseController {
 	
 	protected CommentsView view = null;
 	protected Blog currentBlog;
-	protected int postID = -1; //no post id
+	protected String postID = null; //no post id
 	protected int offset = 0;
 	protected int number = WordPressInfo.DEFAULT_DOWNLOADED_COMMENTS;
 	
@@ -53,7 +53,7 @@ public class RecentCommentsController extends BaseController {
 	
 	public RecentCommentsController(Blog currentBlog) {
 		super();
-		this.currentBlog=currentBlog;
+		this.currentBlog = currentBlog;
 		this.gravatarController = new GravatarController(currentBlog);
 	}
 	
@@ -72,7 +72,7 @@ public class RecentCommentsController extends BaseController {
 			String connMessage = _resources.getString(WordPressResource.CONN_LOADING_COMMENTS);
 			
 			final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
-					Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
+					currentBlog.getId(), currentBlog.getUsername(), 
 					currentBlog.getPassword(), postID, statusFilter, offset, number);
 			if(currentBlog.isHTTPBasicAuthRequired()) {
 				connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
@@ -102,7 +102,7 @@ public class RecentCommentsController extends BaseController {
 	
 	public void resetViewToAllComments() {
 		gravatarController.stopGravatarTask(); //stop task if already running
-		if(this.postID == -1) {
+		if(this.postID == null) {
 			this.statusFilter = NO_FILTER_STATUS;
 			loadCommentsFromCache();
 			view.refresh();			
@@ -256,7 +256,7 @@ public class RecentCommentsController extends BaseController {
 		String connMessage = _resources.getString(WordPressResource.CONN_LOADING_COMMENTS);
 
 		final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
-				Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
+				currentBlog.getId(), currentBlog.getUsername(), 
 				currentBlog.getPassword(), postID, commentsStatus, offset, number);
 		if(currentBlog.isHTTPBasicAuthRequired()) {
 			connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
@@ -276,7 +276,7 @@ public class RecentCommentsController extends BaseController {
 		String connMessage = _resources.getString(WordPressResource.CONN_REFRESH_COMMENTS);
 		
 		final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
-				Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
+				currentBlog.getId(), currentBlog.getUsername(), 
 				currentBlog.getPassword(), postID, statusFilter, offset, number);
 		if(currentBlog.isHTTPBasicAuthRequired()) {
 			connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
@@ -296,7 +296,7 @@ public class RecentCommentsController extends BaseController {
 		String connMessage = _resources.getString(WordPressResource.CONN_REFRESH_COMMENTS);
 		
 		final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
-				Integer.parseInt(currentBlog.getId()), currentBlog.getUsername(), 
+				currentBlog.getId(), currentBlog.getUsername(), 
 				currentBlog.getPassword(), postID, statusFilter, commentList.length, number);
 		if(currentBlog.isHTTPBasicAuthRequired()) {
 			connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
@@ -325,7 +325,7 @@ public class RecentCommentsController extends BaseController {
 			boolean presence = false;
 			for (int j = 0; j < deleteComments.length; j++) {
 				Comment	modifiedComment = deleteComments[j];
-				if (comment.getID() == modifiedComment.getID()) {
+				if (comment.getID().equalsIgnoreCase(modifiedComment.getID())) {
 					presence = true;
 					break;
 				}
@@ -340,7 +340,7 @@ public class RecentCommentsController extends BaseController {
 		return differences;
 	}
 	
-	public void setPostID(int postID) {
+	public void setPostID(String postID) {
 		this.postID = postID;
 	}
 	
@@ -354,7 +354,7 @@ public class RecentCommentsController extends BaseController {
 		if (!statusFilter.equalsIgnoreCase(NO_FILTER_STATUS))
 			return true;
 
-		if(this.postID != -1 )
+		if(this.postID != null )
 			return true;
 	
 		return false;
@@ -398,7 +398,7 @@ public class RecentCommentsController extends BaseController {
 				Comment	comment = mainCacheComments[i];
 				for (int j = 0; j < updatedComments.length; j++) {
 					Comment	modifiedComment = updatedComments[j];
-					if (comment.getID() == modifiedComment.getID()) {
+					if (comment.getID().equalsIgnoreCase(modifiedComment.getID())) {
 						mainCacheComments[i] = modifiedComment;
 						break;
 					}

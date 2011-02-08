@@ -15,21 +15,21 @@ public class NewCommentConn extends BlogConn  {
 	public NewCommentConn(String url, String user, String password, String blogId, Comment comment){
 		super(url, user, password);
 		this.blogId = blogId;
-		this.comment=comment;
+		this.comment = comment;
 	}
 
 	public void run() {
 		try {
 			
-			if (comment.getPostID() == -1) {
+			if (comment.getPostID() == null) {
 				setErrorMessage("Comment doesn't have PostID");
 				notifyObservers(connResponse);
 				return;
 			}
 
 			Hashtable vcomment = new Hashtable(10);
-			if (comment.getParent() != 0) {
-				vcomment.put("comment_parent", String.valueOf(comment.getParent()));
+			if (comment.getParent() != null ) {
+				vcomment.put("comment_parent", comment.getParent());
 			}
 			if (comment.getContent() != null) {
 				vcomment.put("content", comment.getContent());
@@ -47,7 +47,7 @@ public class NewCommentConn extends BlogConn  {
 			args.addElement(blogId);
 			args.addElement(mUsername);
 			args.addElement(mPassword);
-			args.addElement(String.valueOf(comment.getPostID()));
+			args.addElement(comment.getPostID());
 			args.addElement(vcomment);
 			Object response = execute("wp.newComment", args);
 

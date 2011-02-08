@@ -233,21 +233,20 @@ public abstract class BlogConn extends Observable implements Runnable {
 	}
 	
 	//retrive comments 
-	protected synchronized Vector getComments(int blogId, int postId, String status, int offset, int number){
+	protected synchronized Vector getComments(String blogId, String postId, String status, int offset, int number){
 		try{
 			Log.debug(">>> getComments");
 			Hashtable structData = new Hashtable(5);
 			
-			if (postId > 0) {
-				structData.put("post_id", String.valueOf(postId));
+			if (postId != null) {
+				structData.put("post_id", postId);
 			} else {
 				
 			}
-			
-			if(status!= null && !status.equalsIgnoreCase(""))
+			if(status != null && !status.equalsIgnoreCase(""))
 				structData.put("status", status);
 			
-			if (offset!=0 ) {
+			if (offset!= 0 ) {
 				structData.put("offset", String.valueOf(offset));
 			}
 			if (number != 0) {
@@ -255,7 +254,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 			}
 			
 			Vector args = new Vector(5);
-			args.addElement(String.valueOf(blogId));
+			args.addElement(blogId);
 			args.addElement(mUsername);
 			args.addElement(mPassword);
 			args.addElement(structData);
@@ -380,11 +379,11 @@ public abstract class BlogConn extends Observable implements Runnable {
 	}
 	
 	//retrive all pages from blog
-	protected synchronized Vector getPages(int blogID, int maxPages) throws Exception{
+	protected synchronized Vector getPages(String blogID, int maxPages) throws Exception{
 		try{
 			Log.debug(">>> getPages");
 			Vector args = new Vector(3);
-			args.addElement(String.valueOf(blogID));
+			args.addElement(blogID);
 			args.addElement(mUsername);
 			args.addElement(mPassword);
 			args.addElement(String.valueOf(maxPages));

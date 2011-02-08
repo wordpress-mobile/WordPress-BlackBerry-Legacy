@@ -8,18 +8,18 @@ import com.wordpress.xmlrpc.BlogConn;
 
 public class GetCommentStatusListConn extends BlogConn  {
 	
-	private int blogId=-1;
+	private String blogId = null;
 	
-	public GetCommentStatusListConn(String hint, int blogId, String userHint, String passwordHint){
+	public GetCommentStatusListConn(String hint, String blogId, String userHint, String passwordHint){
 		super(hint, userHint, passwordHint);
-		this.blogId=blogId;
+		this.blogId = blogId;
 	}
 	
 	public void run() {
 		try {
 			
 			Vector args = new Vector(4);
-	        args.addElement(String.valueOf(blogId));
+	        args.addElement(blogId);
 	        args.addElement(mUsername);
 	        args.addElement(mPassword);
 		

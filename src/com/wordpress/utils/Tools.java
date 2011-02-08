@@ -297,6 +297,7 @@ public class Tools {
 		//return UIDGenerator.makeLUID(UIDGenerator.getUniqueScopingValue(), UIDGenerator.getUID());
 	}
 	
+	/*
 	 public static int decodeInt(Object input){	 
 		 if (input instanceof String){
 			 return Integer.parseInt((String)input);
@@ -310,7 +311,7 @@ public class Tools {
 		 }
 		 return -1;		 
 	 }
-	 
+	 */
 	 public static String decodeString(Object input){
 		 if(input == null ) return null;
 		 if (input instanceof String)

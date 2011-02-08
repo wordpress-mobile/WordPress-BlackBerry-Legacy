@@ -9,11 +9,11 @@ import com.wordpress.xmlrpc.BlogConn;
 
 public class EditPageConn extends BlogConn  {
 
-	private boolean isPublished=false;
-	private final int blogId;
+	private boolean isPublished = false;
+	private final String blogId;
 	private Page page;
 
-	public EditPageConn(String hint, String userHint, String passwordHint, int blogId, Page page, boolean isPublished) {
+	public EditPageConn(String hint, String userHint, String passwordHint, String blogId, Page page, boolean isPublished) {
 		super(hint, userHint, passwordHint);
 		this.blogId = blogId;
 		this.page = page;
@@ -26,15 +26,15 @@ public class EditPageConn extends BlogConn  {
 	
 	public void run() {
 		try{
-			if (page.getID() < 0) {
+			if (page.getID() == null) {
 				setErrorMessage("Page does not have an Id");
 				notifyObservers(connResponse);
 				return;
 			}
 
 			Vector args = new Vector(6);
-			args.addElement(String.valueOf(blogId));
-			args.addElement(String.valueOf(page.getID()));
+			args.addElement(blogId);
+			args.addElement(page.getID());
 			args.addElement(mUsername);
 			args.addElement(mPassword);
 			

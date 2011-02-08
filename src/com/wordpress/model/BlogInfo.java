@@ -36,7 +36,7 @@ public class BlogInfo {
 	
 	private boolean isCommentNotifies = false; //true when comment notifies is active
 	
-	private int[] commentsID = new int[0];
+	private String[] commentsID = new String[0];
 	private Hashtable commentsSummary = new Hashtable();
 //    approved:(new String("14")), awaiting_moderation:(new String("1")), spam:(new String("4")), total_comments:(new Number(19))
 	private boolean isCommentsDownloadNecessary = false;
@@ -140,11 +140,11 @@ public class BlogInfo {
 		return pendingComments;
 	}
 
-	public int[] getCommentsID() {
+	public String[] getCommentsID() {
 		return commentsID;
 	}
 
-	public void setCommentsID(int[] commentsID) {
+	public void setCommentsID(String[] commentsID) {
 		this.commentsID = commentsID;
 	}
 
