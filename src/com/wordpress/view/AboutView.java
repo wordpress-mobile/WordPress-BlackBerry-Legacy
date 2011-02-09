@@ -19,6 +19,8 @@ import com.wordpress.view.container.TableLayoutManager;
 public class AboutView extends BaseView {
 	private AboutController controller;
 	private LabelField urlAddr;
+	private LabelField tosAddr;
+	private LabelField privacyAddr;
 
     public AboutView(AboutController _aboutController) {
     	super(_resources.getString(WordPressResource.TITLE_ABOUT_VIEW));
@@ -71,9 +73,29 @@ public class AboutView extends BaseView {
     	urlAddr = GUIFactory.createURLLabelField("http://blackberry.wordpress.org", "http://blackberry.wordpress.org", LabelField.FOCUSABLE);
     	urlAddr.setMargin(0, 10, 2, 10);
     	add(urlAddr);
+    	
+    	
+        TableLayoutManager	tosAndPrivacyRow = new TableLayoutManager(new int[] {
+        		TableLayoutManager.USE_PREFERRED_SIZE,
+        		TableLayoutManager.USE_PREFERRED_SIZE,
+        		TableLayoutManager.SPLIT_REMAINING_WIDTH
+        }, new int[] { 2, 2, 2 }, 0,
+        Manager.USE_ALL_WIDTH);  
+    	//Terms of Service 
+    	tosAddr = GUIFactory.createURLLabelField("Terms of Service", "http://wordpress.com/tos", LabelField.FOCUSABLE);
+    	tosAndPrivacyRow.add(tosAddr);
+    	//separator
+    	tosAndPrivacyRow.add(GUIFactory.getLabel(" - ", LabelField.FOCUSABLE));
+    	//Privacy
+    	privacyAddr = GUIFactory.createURLLabelField("Privacy", "http://automattic.com/privacy", LabelField.FOCUSABLE);
+    	tosAndPrivacyRow.add(privacyAddr);
+
+    	tosAndPrivacyRow.setMargin(20, 10, 0, 10);
+    	add(tosAndPrivacyRow);
+    	
     	Bitmap img = Bitmap.getBitmapResource("aboutscreenfooter.png");
     	BitmapField bf = new BitmapField(img);
-    	bf.setMargin(0, 0, 2, 10);
+    	bf.setMargin(5, 0, 2, 10);
     	add(bf);
     	add(new LabelField("",Field.FOCUSABLE));
     }
