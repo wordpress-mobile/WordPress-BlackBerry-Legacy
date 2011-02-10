@@ -5,6 +5,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import net.rim.blackberry.api.homescreen.HomeScreen;
+import net.rim.device.api.applicationcontrol.ApplicationPermissions;
+import net.rim.device.api.applicationcontrol.ApplicationPermissionsManager;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.notification.NotificationsConstants;
 import net.rim.device.api.notification.NotificationsManager;
@@ -168,6 +170,8 @@ public class WordPress extends UiApplication implements WordPressResource {
 	}
     
 	public WordPress(String[] args){
+		checkPermissions();
+		
 		WordPressInfo.initialize(args);
 		//When device is in startup check the startup variable
 		ApplicationManager myApp = ApplicationManager.getApplicationManager();
@@ -179,6 +183,93 @@ public class WordPress extends UiApplication implements WordPressResource {
         	loadApp();
 		}
 	}
+	
+	
+	  /**
+	 *  If the permissions are insufficient, the user will be prompted
+     * to increase the level of permissions.
+     */
+    public void checkPermissions()
+    {
+        // NOTE: This app leverages the following permissions: 
+        // --
+        // --
+        // --
+        // --
+    	//
+        
+        // Capture the current state of permissions and check against the requirements.
+        ApplicationPermissions original = ApplicationPermissionsManager.getInstance().getApplicationPermissions();
+        
+        if( original.getPermission( ApplicationPermissions.PERMISSION_MEDIA ) == ApplicationPermissions.VALUE_ALLOW &&
+        		//original.getPermission( ApplicationPermissions.PERMISSION_IDLE_TIMER ) == ApplicationPermissions.VALUE_ALLOW &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_EVENT_INJECTOR ) == ApplicationPermissions.VALUE_ALLOW &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS ) == ApplicationPermissions.VALUE_ALLOW &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_FILE_API ) == ApplicationPermissions.VALUE_ALLOW  &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_LOCATION_API ) == ApplicationPermissions.VALUE_ALLOW &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_WIFI ) == ApplicationPermissions.VALUE_ALLOW  &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_INTER_PROCESS_COMMUNICATION ) == ApplicationPermissions.VALUE_ALLOW )
+
+        {
+
+        	//#ifdef IS_OS50_OR_ABOVE
+
+        	//check additional permissions for BB OS5.0 or higher
+        	if( original.getPermission( ApplicationPermissions.PERMISSION_LOCATION_DATA ) == ApplicationPermissions.VALUE_ALLOW &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_ORGANIZER_DATA  ) == ApplicationPermissions.VALUE_ALLOW &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_CROSS_APPLICATION_COMMUNICATION  ) == ApplicationPermissions.VALUE_ALLOW
+        			 
+        	) {
+        		return;
+        	}
+        	
+        	//#else
+        	
+        	// All of the necessary permissions are currently available.  
+        	return;
+        	
+        	//#endif
+
+        }
+
+        // Create a permission request for each of the permissions your application
+        // needs. Note that you do not want to list all of the possible permission
+        // values since that provides little value for the application or the user.  
+        // Please only request the permissions needed for your application.
+        ApplicationPermissions permRequest = new ApplicationPermissions();
+        //permRequest.addPermission( ApplicationPermissions.PERMISSION_IDLE_TIMER );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_EVENT_INJECTOR );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_FILE_API );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_LOCATION_API );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_WIFI );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_INTER_PROCESS_COMMUNICATION );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_MEDIA );
+        
+    	//#ifdef IS_OS50_OR_ABOVE
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_LOCATION_DATA );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_ORGANIZER_DATA  );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_CROSS_APPLICATION_COMMUNICATION  );
+    	//#endif
+        
+        boolean acceptance = ApplicationPermissionsManager.getInstance().invokePermissionsRequest( permRequest );
+        
+        if( acceptance ) 
+        {
+            // User has accepted all of the permissions.
+            return;
+        } 
+        else 
+        {
+            // The user has only accepted some or none of the permissions requested. In this
+            // app, we will not perform any additional actions based on this information. 
+            // However, there are several screen where this information will be used throught
+        	//the call to methods
+            // For example, if the user denied networking capabilities then the application 
+            // could disable that functionality if it was not core to the operation of the 
+            // application.
+        }
+    }
 	
 	private void loadApp() {
 		
@@ -197,7 +288,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 		
 		Preferences appPrefs = Preferences.getIstance();
 		//check application permission as first step
-		WordPressApplicationPermissions.getIstance().checkPermissions();
+		//WordPressApplicationPermissions.getIstance().checkPermissions();
 		
 		try {
 			String baseDirPath = AppDAO.getBaseDirPath(); //read the base dir path

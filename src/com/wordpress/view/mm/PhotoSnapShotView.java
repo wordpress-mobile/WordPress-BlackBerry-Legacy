@@ -13,7 +13,6 @@ import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 
-import com.wordpress.bb.WordPressApplicationPermissions;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
@@ -153,11 +152,11 @@ public class PhotoSnapShotView extends BaseView {
 			getSelectedEncoding();
 			
 			//check the app permissions
-			if(! WordPressApplicationPermissions.getIstance().isScreenCapturePermitted() ) {
+		/*	if(! WordPressApplicationPermissions.getIstance().isScreenCapturePermitted() ) {
 				controller.displayMessage("Error while taking a photo");
 				return;
 			}
-			
+		*/	
 			if( vc != null && isViewfinderVisible){	
 				Log.info("Encoding: "+encoding);
 
