@@ -40,7 +40,7 @@ public class VideoEntry extends MediaEntry {
 		}
 		//[wpvideo code]
 		if(videoPressShortCode != null && !videoPressShortCode.trim().equals("")) {
-			tmpBuff.append(videoPressShortCode);
+			tmpBuff.append(" " + videoPressShortCode+ " ");
 		} else { 
 			tmpBuff.append("<p>");
 			tmpBuff.append("<a href=\""+this.getFileURL()+"\" title=\""+title+"\">"+
