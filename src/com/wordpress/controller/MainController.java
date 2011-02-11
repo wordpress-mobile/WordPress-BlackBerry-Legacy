@@ -128,6 +128,8 @@ public class MainController extends BaseController implements TaskProgressListen
 			}
 			numberOfBlog = blogsList.length;  //get the number of blog
 			
+			//recreate the folders structure if missing
+			BlogDAO.setUpFolderStructureForBlogs(applicationBlogs);
 		} catch (Exception e) {
 			Log.error(e, "Error while reading stored blog");
 		}

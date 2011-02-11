@@ -70,6 +70,21 @@ public class BlogDAO implements BaseDAO {
     	return;
     }
     
+    public static synchronized void setUpFolderStructureForBlogs(Vector newBlogs) throws Exception {
+    	if (newBlogs.size() == 0 ) return ;
+
+    	for (int i = 0; i < newBlogs.size(); i++) {
+    		BlogInfo blog = (BlogInfo)newBlogs.elementAt(i);
+    		String nameMD5 = getBlogFolderName(blog);
+    		String filePath = AppDAO.getBaseDirPath()+nameMD5;
+    		JSR75FileSystem.createDir(AppDAO.getBaseDirPath()); 
+    		JSR75FileSystem.createDir(filePath);
+    		JSR75FileSystem.createDir(filePath+DRAFT_FOLDER_PREFIX); //create draft posts folder
+    		JSR75FileSystem.createDir(filePath+PAGE_FOLDER_PREFIX); //create draft page folder
+    	}
+    	return;
+    }
+    
 	/**
      * Update all blog info in the storage
      * @param aBlog

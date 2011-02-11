@@ -31,6 +31,7 @@ import com.wordpress.controller.MainController;
 import com.wordpress.controller.PreferenceController;
 import com.wordpress.io.AppDAO;
 import com.wordpress.io.BaseDAO;
+import com.wordpress.io.BlogDAO;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.MultimediaUtils;
@@ -612,6 +613,13 @@ public class PreferencesView extends StandardBaseView {
 							AppDAO.setBaseDirPath(BaseDAO.DEVICE_STORE_PATH);
 						
 						AppDAO.setUpFolderStructure();
+						//recreate the folders structure if missing
+						try {
+							Vector applicationBlogs = WordPressCore.getInstance().getApplicationBlogs();
+							BlogDAO.setUpFolderStructureForBlogs(applicationBlogs);
+						} catch (Exception e) {
+							Log.error(e, "Error while creating tmp directories for blogs");
+						}
 						
 						fileAppender.open(); //reopen the log file
 						Log.addAppender(fileAppender);
