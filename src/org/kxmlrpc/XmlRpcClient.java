@@ -5,7 +5,6 @@
 package org.kxmlrpc;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -19,6 +18,7 @@ import net.rim.device.api.io.Base64OutputStream;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.io.KXmlSerializer;
 
+import com.wordpress.io.FileUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Log;
@@ -112,13 +112,12 @@ public class XmlRpcClient {
      */
     public Object execute(String method, Vector params) throws Exception {
     	// kxmlrpc classes
-    	KXmlSerializer          xw = null;
-    	
-    	XmlRpcParser            parser = null;
+    	KXmlSerializer xw = null; 	
+    	XmlRpcParser parser = null;
     	con = null;
     	in = null;
     	out = null;
-    	
+
     	// Misc objects for buffering request
     	XmlRpcDualOutputStream os = new XmlRpcDualOutputStream();
     	
@@ -126,13 +125,12 @@ public class XmlRpcClient {
     	OutputStreamWriter outputStreamWriter = new OutputStreamWriter(os.getOutputStream());
 		xw.setOutput(outputStreamWriter);
     	writer = new XmlRpcWriter(xw);
-    	
     	writer.writeCall(method, params);
-    	xw.flush();
+    	xw.flush();	
     	outputStreamWriter.flush();
     	outputStreamWriter.close();
     	os.close(); //close the dual output stream
-
+    	
     	if( isStopped == true ){
     		return null; //if the user has stopped the thread
     	}
@@ -267,12 +265,9 @@ public class XmlRpcClient {
         
 	public void closeXmlRpcConnection() {
 		try {
-		    if (con != null) con.close();
-		    if (in != null) in.close();
-		    if (out != null) out.close();
-		} catch (IOException ioe) {
-			Log.error(ioe, "Error while closing xmlrpc conn");
-		    ioe.printStackTrace();
+			FileUtils.closeConnection(con);
+			FileUtils.closeStream(in);
+			FileUtils.closeStream(out);
 		} finally {
 			Log.trace("XmlRpc Input/Ouput Stream  set to null");
 		    con = null;

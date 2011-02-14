@@ -77,7 +77,7 @@ public class JSR75FileSystem  {
   public static synchronized long getFileSize(String filePath) throws IOException {
 		FileConnection filecon = null;
 		try {
-			filecon = (FileConnection) Connector.open(filePath);
+			filecon = (FileConnection) Connector.open(filePath, Connector.READ);
 			if (!filecon.exists()) {
 				return 0;
 			} else {

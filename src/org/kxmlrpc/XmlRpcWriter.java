@@ -41,7 +41,6 @@ import org.kxml2.io.KXmlSerializer;
 import org.kxmlrpc.util.IsoDate;
 
 import com.wordpress.io.FileUtils;
-import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.utils.log.Log;
 
@@ -156,9 +155,9 @@ public class XmlRpcWriter {
 		//media content must be encoded parted, we cannot used byte array
 		else if( value instanceof MediaEntry ) {
 			writer.startTag( null, "base64" );
-			MediaEntry videoFile = (MediaEntry) value;
+			MediaEntry videoFile = (MediaEntry) value;			
 			//read the file and encode the file 
-			FileConnection filecon = (FileConnection) Connector.open(videoFile.getFilePath());
+			FileConnection filecon = (FileConnection) Connector.open(videoFile.getFilePath(), Connector.READ);
 			if (!filecon.exists()) {
 				throw new IOException("Media File does not exist!");
 			}
@@ -178,8 +177,7 @@ public class XmlRpcWriter {
 			Log.trace("termine codifica del file in base64");
 			Log.trace("tempo impegato sec:" + ((end1-start1)/1000));
 			FileUtils.closeStream(inStream);
-			FileUtils.closeConnection(filecon);
-							
+			FileUtils.closeConnection(filecon);				
 /*
 			writer.text( Base64.encode( JSR75FileSystem.readFile(videoFile.getFilePath()) ) );		
 	*/		

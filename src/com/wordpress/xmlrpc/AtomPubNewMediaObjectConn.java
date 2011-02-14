@@ -1,6 +1,3 @@
-//#preprocess
-
-//#ifdef IS_TORCH
 package com.wordpress.xmlrpc;
 
 import java.io.ByteArrayInputStream;
@@ -221,4 +218,3 @@ public class AtomPubNewMediaObjectConn extends NewMediaObjectConn  {
 		}
 	}
 }
-//#endif

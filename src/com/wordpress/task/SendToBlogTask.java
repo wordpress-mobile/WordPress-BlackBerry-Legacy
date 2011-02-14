@@ -1,19 +1,16 @@
-//#preprocess
 package com.wordpress.task;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.microedition.io.file.FileConnection;
 import javax.microedition.rms.RecordStoreException;
-
-import org.kxmlrpc.XmlRpcException;
 
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.i18n.ResourceBundleFamily;
 import net.rim.device.api.system.EncodedImage;
+
+import org.kxmlrpc.XmlRpcException;
 
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
@@ -30,6 +27,7 @@ import com.wordpress.model.MediaLibrary;
 import com.wordpress.model.Page;
 import com.wordpress.model.PhotoEntry;
 import com.wordpress.model.Post;
+import com.wordpress.model.Preferences;
 import com.wordpress.model.VideoEntry;
 import com.wordpress.utils.CalendarUtils;
 import com.wordpress.utils.ImageUtils;
@@ -39,9 +37,7 @@ import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
-//#ifdef IS_TORCH
 import com.wordpress.xmlrpc.AtomPubNewMediaObjectConn;
-//#endif
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.NewMediaObjectConn;
@@ -51,7 +47,8 @@ import com.wordpress.xmlrpc.post.EditPostConn;
 import com.wordpress.xmlrpc.post.NewPostConn;
 
 public class SendToBlogTask extends TaskImpl {
-
+	
+	private Preferences mPrefs = Preferences.getIstance();
 	private BlogConn blogConn = null;
 	private Queue executionQueue = new Queue(); // queue of BlogConn
 	private final Blog blog;
@@ -59,7 +56,8 @@ public class SendToBlogTask extends TaskImpl {
 	private Page page;
 	private Post post;
 	private MediaLibrary library;
-	private int draftFolder; 
+	private int draftFolder;
+	
 		
 	public SendToBlogTask(Blog blog, MediaLibrary library) {
 		this.blog = blog;
@@ -72,13 +70,13 @@ public class SendToBlogTask extends TaskImpl {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			
 			BlogConn mediaConnection;
-			//#ifdef IS_TORCH
+			if(mPrefs.isAtomPubEnabled())
 			 mediaConnection = new AtomPubNewMediaObjectConn (blog.getUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
-			//#else
+			else
 			mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
-			//#endif
+			
 			
 			if(blog.isHTTPBasicAuthRequired()) {
 				mediaConnection.setHttp401Password(blog.getHTTPAuthPassword());
@@ -100,13 +98,12 @@ public class SendToBlogTask extends TaskImpl {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			BlogConn mediaConnection;
 			
-			//#ifdef IS_TORCH
+			if(mPrefs.isAtomPubEnabled())
 			 mediaConnection = new AtomPubNewMediaObjectConn (blog.getUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
-			//#else
+			else
 			mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
-			//#endif
 			
 			if(blog.isHTTPBasicAuthRequired()) {
 				mediaConnection.setHttp401Password(blog.getHTTPAuthPassword());
@@ -136,13 +133,12 @@ public class SendToBlogTask extends TaskImpl {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 		
 			BlogConn mediaConnection;
-			//#ifdef IS_TORCH
+			if(mPrefs.isAtomPubEnabled())
 			 mediaConnection = new AtomPubNewMediaObjectConn (blog.getUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
-			//#else
+			else
 			mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
-			//#endif
 			
 			if(blog.isHTTPBasicAuthRequired()) {
 				mediaConnection.setHttp401Password(blog.getHTTPAuthPassword());

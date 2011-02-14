@@ -37,7 +37,7 @@ public class XmlRpcDualOutputStream {
 			if (!filecon.exists()) {
 				throw new IOException("File does not exist: " + tmpFilePath);
 			}
-			os = filecon.openDataOutputStream();
+			os = filecon.openOutputStream();
 		} catch (RecordStoreException e) {
 	    	Log.error(e, "Error while allocating xmlrpc tmp file");
 	    	os = null;
@@ -51,15 +51,7 @@ public class XmlRpcDualOutputStream {
 		
     	if(os == null) {
     		setUpMemoryOutputStream();
-    	} /*else {
-    		try {
-				tmpFilePath = AppDAO.getXmlRpcTempFilePath();
-			} catch (RecordStoreException e) {
-				setUpMemoryOutputStream();
-			} catch (IOException e) {
-				setUpMemoryOutputStream();
-			}
-    	}*/
+    	}
 	}
 	
 	public void close() {		
@@ -72,10 +64,8 @@ public class XmlRpcDualOutputStream {
 	    	} else {
 	    		
 	    	}		
-			os.close();
-			
+			FileUtils.closeStream(os);
 			FileUtils.closeConnection(filecon);
-			
 		} catch (Exception e) {
 			Log.error("Error while closing the xmlrpc tmp file");
 		}
@@ -85,7 +75,8 @@ public class XmlRpcDualOutputStream {
 		try {
 			Log.trace("Clean the resources used by XmlRpc dual output stream");
 			try {
-				os.close();
+				FileUtils.closeStream(os);
+				FileUtils.closeConnection(filecon);
 				if(tmpFilePath != null && JSR75FileSystem.isFileExist(tmpFilePath)) {
 					JSR75FileSystem.removeFile(tmpFilePath);
 				}
@@ -105,7 +96,7 @@ public class XmlRpcDualOutputStream {
 				memoryStorage = ((ByteArrayOutputStream)os).toByteArray();
 			out.write(memoryStorage);
 		} else {
-			FileConnection filecon = (FileConnection) Connector.open(tmpFilePath);
+			FileConnection filecon = (FileConnection) Connector.open(tmpFilePath, Connector.READ);
 			if (!filecon.exists()) {
 				Log.error("The xml-rpc tmp file doesn't exist anymore!!");
 				throw new IOException(null);
@@ -113,12 +104,10 @@ public class XmlRpcDualOutputStream {
 			InputStream inStream = filecon.openDataInputStream();
 			
 			//InputStream inStream = JSR75FileSystem.getDataInputStream(tmpFilePath);
-			byte[] buffer = new byte[1024]; 
+			byte[] buffer = new byte[3600]; 
 			int length = -1;
 			while ((length = inStream.read(buffer)) >0 ) {
 				out.write(buffer, 0 , length);
-				//Log.trace("1024byte X: "+ (count++));
-				//Log.trace("1048576byte per: "+ (count++));
 			}
 			FileUtils.closeStream(inStream);
 			FileUtils.closeConnection(filecon);
