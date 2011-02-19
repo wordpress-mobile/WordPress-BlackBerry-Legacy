@@ -5,6 +5,7 @@
 package org.kxmlrpc;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -17,6 +18,7 @@ import net.rim.device.api.io.Base64OutputStream;
 
 import org.kxml2.io.KXmlParser;
 import org.kxml2.io.KXmlSerializer;
+import org.xmlpull.v1.XmlPullParserException;
 
 import com.wordpress.io.FileUtils;
 import com.wordpress.utils.StringUtils;
@@ -82,14 +84,14 @@ public class XmlRpcClient {
         this.url = "http://" + hostname + ":" + port + context;
     }//end KxmlRpcClient( String, int )
     
-    public String getURL() {
+  /*  public String getURL() {
         return url;
     }
     
     public void setURL( String newUrl ) {
         url = newUrl;
     }
-     
+     */
 	public void setHttp401Username(String http401Username) {
 		this.http401Username = http401Username;
 	}
@@ -98,6 +100,33 @@ public class XmlRpcClient {
 		this.http401Password = http401Password;
 	}
   
+	private void prepareRequest(String method, Vector params, XmlRpcDualOutputStream os) throws IOException {
+    	// kxmlrpc classes
+    	KXmlSerializer xw = null; 	 	
+    	xw = new KXmlSerializer();
+    	OutputStreamWriter outputStreamWriter = new OutputStreamWriter(os.getOutputStream());
+		xw.setOutput(outputStreamWriter);
+    	writer = new XmlRpcWriter(xw);
+    	writer.writeCall(method, params);
+    	xw.flush();	
+    	outputStreamWriter.flush();
+    	outputStreamWriter.close();
+    	os.close(); //close the dual output stream	
+	}
+	
+	
+	private Object parseResponse(ByteArrayInputStream bais, String encoding) throws XmlPullParserException, IOException{
+		KXmlParser xp = new KXmlParser();
+		//put the parser in the relaxed mode
+		xp.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true); 
+		// Parse response from server
+		xp.setInput(bais, "ISO-8859-1"); //never change!
+    	XmlRpcParser parser = null;
+		parser = new XmlRpcParser(xp, encoding); //pass the rim encoding
+		result = parser.parseResponse();
+		return result;
+	}
+	
     /**
      * This method is the brains of the XmlRpcClient class. It opens an
      * HttpConnection on the URL stored in the url variable, sends an XML-RPC
@@ -111,30 +140,20 @@ public class XmlRpcClient {
      * returned by the server
      */
     public Object execute(String method, Vector params) throws Exception {
-    	// kxmlrpc classes
-    	KXmlSerializer xw = null; 	
-    	XmlRpcParser parser = null;
+    	
     	con = null;
     	in = null;
     	out = null;
-
+    	
     	// Misc objects for buffering request
     	XmlRpcDualOutputStream os = new XmlRpcDualOutputStream();
     	
-    	xw = new KXmlSerializer();
-    	OutputStreamWriter outputStreamWriter = new OutputStreamWriter(os.getOutputStream());
-		xw.setOutput(outputStreamWriter);
-    	writer = new XmlRpcWriter(xw);
-    	writer.writeCall(method, params);
-    	xw.flush();	
-    	outputStreamWriter.flush();
-    	outputStreamWriter.close();
-    	os.close(); //close the dual output stream
+    	//writes the request on disk
+    	prepareRequest(method, params, os);
     	
     	if( isStopped == true ){
     		return null; //if the user has stopped the thread
     	}
-
     	Log.trace("grandezza del file da inviare "+ Long.toString(os.getMessageLength()));
 
     	byte[] encodedAuthCredential = null;
@@ -144,9 +163,8 @@ public class XmlRpcClient {
 			encodedAuthCredential = Base64OutputStream.encode(login.getBytes(), 0, login.length(), false, false);
 		} 
     	
-    	con = (HttpConnection) ConnectionManager.getInstance().open(url);
     	try {
-    		
+    		con = (HttpConnection) ConnectionManager.getInstance().open(url);
     		con.setRequestMethod(HttpConnection.POST);
     		con.setRequestProperty("Content-Length", Long.toString(os.getMessageLength()));
      	    con.setRequestProperty("Content-Type", "text/xml");
@@ -207,11 +225,7 @@ public class XmlRpcClient {
     		}
     		
     		// Open an input stream on the server's response
-    		in = con.openInputStream();
-    		KXmlParser xp = new KXmlParser();
-    		//put the parser in the relaxed mode
-    		xp.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true); 
-    	//	if(Log.getDefaultLogLevel() >= Log.TRACE) {
+    		in = con.openInputStream();   		
     		int ch;
     		StringBuffer charBuff=new StringBuffer();
     		//get rid of junk characters before xml respons.  60 = '<'
@@ -227,17 +241,11 @@ public class XmlRpcClient {
     		Log.trace("response from the wordpress server: "+response);                                  
     		ByteArrayInputStream bais = new ByteArrayInputStream(response.getBytes());
 
-    		// Parse response from server
-    		xp.setInput(bais, "ISO-8859-1"); //never change!
-//    		} else {
-  //  			xp.setInput(in, "ISO-8859-1"); //never change!
-    //		}
-    		
-    		parser = new XmlRpcParser(xp, encoding); //pass the rim encoding
-    		result = parser.parseResponse();
+    		result = parseResponse(bais, encoding);
+    		bais = null;
     		
     	} catch (Exception x) {
-    		Log.error(x, "Error in XmlRpcClient");
+    		Log.error(x, "XML-RPC Error: ");
     		throw (Exception) x;
     	} catch (Throwable  t) { //capturing the JVM error. 
     		Log.error(t, "Serious Error in XmlRpcClient: " + t.getMessage());
@@ -248,7 +256,6 @@ public class XmlRpcClient {
     		closeXmlRpcConnection();//end try/catch
     	}//end try/catch/finally
     	
-    
     	if(result instanceof Exception)
     		throw (Exception) result;
     	
@@ -265,9 +272,9 @@ public class XmlRpcClient {
         
 	public void closeXmlRpcConnection() {
 		try {
-			FileUtils.closeConnection(con);
 			FileUtils.closeStream(in);
 			FileUtils.closeStream(out);
+			FileUtils.closeConnection(con);
 		} finally {
 			Log.trace("XmlRpc Input/Ouput Stream  set to null");
 		    con = null;
@@ -278,7 +285,7 @@ public class XmlRpcClient {
     
     /**
      * Called when the return value has been parsed.
-     */
+     
     void setParsedObject(Object parsedObject) {
         result = parsedObject;
     }
@@ -287,5 +294,5 @@ public class XmlRpcClient {
 	public Hashtable getResponseHeaders() {
 		return responseHeaders;
 	}
-    
+    */
 }
