@@ -135,14 +135,7 @@ public class MainController extends BaseController implements TaskProgressListen
 		}
 		Log.trace("<<< Checking blogs data");
 
-		//stats and update stuff!
-		try {
-			DataCollector dtc = new DataCollector();
-			dtc.collectData(numberOfBlog); //start data gathering here
-		} catch (Exception e) {
-			//don't propagate this Exception
-		}
-		
+
 		WordPressCore wpCore = WordPressCore.getInstance();
 		//schedule the update check task at startup
 		wpCore.getTimer().schedule(new CheckUpdateTask(), 24*60*60*1000, 24*60*60*1000); //24h check
@@ -155,6 +148,13 @@ public class MainController extends BaseController implements TaskProgressListen
 		//sHelper.addCHAPIListener();
 		//sHelper.checkPendingRequest();
 		
+		//stats and update stuff!
+		try {
+			DataCollector dtc = new DataCollector();
+			dtc.collectData(numberOfBlog); //start data gathering here
+		} catch (Exception e) {
+			//don't propagate this Exception
+		}
 	}
 	
 

@@ -128,16 +128,6 @@ public class MainView extends BaseView {
     	removeMenuItem(_notificationItem);
     	
     	BlogInfo[] blogCaricati = mainController.getApplicationBlogs();
-    	
-    	/*try {
-    		Hashtable blogsInfo = BlogDAO.getBlogsInfo();
-    		 blogCaricati =  (BlogInfo[]) blogsInfo.get("list");
-    			if(blogsInfo.get("error") != null )
-    				mainController.displayError((String)blogsInfo.get("error"));
-		} catch (Exception e) {
-			Log.error(e, "Error while reading stored blog");
-			mainController.displayError("Error while reading stored blogs");
-		}*/
     	try {
     		if (wpClassicHeaderBitmapField.getManager() != null)
     			internalManager.delete( wpClassicHeaderBitmapField );
@@ -149,13 +139,13 @@ public class MainView extends BaseView {
         	setUpPromoView();
         } else {
         	
-        	//check if there are blogs with pending activation
-        	for (int i=0; i< blogCaricati.length; i++){
+        	//TODO: reactivate this function later: check if there are blogs with pending activation
+        /*	for (int i=0; i< blogCaricati.length; i++){
         		if(blogCaricati[i].getState() == BlogInfo.STATE_PENDING_ACTIVATION){
         			mainController.startPendingActivationSchedule();
         			break;
         		}
-        	} 
+        	} */
         	
         	internalManager.insert( wpClassicHeaderBitmapField, 0);
         	blogListController = new BlogsListField(blogCaricati);        	
@@ -209,9 +199,9 @@ public class MainView extends BaseView {
 		 buttonGetFreeBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
 		 buttonGetFreeBlog.setChangeListener(new FieldChangeListener() {
 			 public void fieldChanged(Field field, int context) {
-	    			SignUpBlogController ctrl = new SignUpBlogController();
-	    			ctrl.showView();
-	    			//Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
+	    			/*SignUpBlogController ctrl = new SignUpBlogController();
+	    			ctrl.showView();*/
+	    			Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
 			 }
 		 });
 
@@ -349,9 +339,9 @@ public class MainView extends BaseView {
     		} else if(selection == 1) {
 				mainController.addWPORGBlogs();
     		} else if(selection == 2) {
-    			SignUpBlogController ctrl = new SignUpBlogController();
-    			ctrl.showView();
-    			//Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
+    			/*SignUpBlogController ctrl = new SignUpBlogController();
+    			ctrl.showView();*/
+    			Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
     		}
     	}
     };
