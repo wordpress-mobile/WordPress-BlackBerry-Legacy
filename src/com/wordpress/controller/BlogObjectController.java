@@ -16,9 +16,7 @@ import net.rim.device.api.system.CodeModuleManager;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
-
 import com.wordpress.bb.WordPress;
-import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.FileUtils;
 import com.wordpress.io.JSR75FileSystem;
@@ -42,7 +40,6 @@ import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PreviewView;
 import com.wordpress.view.component.FileBrowser.RimFileBrowserListener;
 import com.wordpress.view.dialog.ConnectionInProgressView;
-import com.wordpress.view.dialog.VideoPressInfoPopupScreen;
 import com.wordpress.view.mm.MediaObjFileJournalListener;
 import com.wordpress.view.mm.MediaViewMediator;
 import com.wordpress.view.mm.MultimediaPopupScreen;
@@ -330,8 +327,11 @@ public abstract class BlogObjectController extends BaseController {
 		int response = BROWSER_PHOTO;
 		
 		if(mediaType == VIDEO && blog.isWPCOMBlog() && !blog.isVideoPressUpgradeAvailable()) {
-			VideoPressInfoPopupScreen popup = new VideoPressInfoPopupScreen();
-			UiApplication.getUiApplication().pushModalScreen(popup);
+			String[] messages = _resources.getStringArray(WordPressResource.MESSAGE_VIDEOPRESS_UPGRADE);
+			int result=this.askQuestion(messages[0]+"\n"+messages[1]);  
+	    	if(Dialog.YES == result) {
+	    		 Tools.openURL("http://videopress.com");
+	    	}
 			return;
 		} 
 		
