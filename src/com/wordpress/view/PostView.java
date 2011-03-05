@@ -377,13 +377,16 @@ public class PostView extends StandardBaseView {
         		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel); 
     		} else {
     			//post not changed, check if is published or scheduled
-    			if ("publish".equalsIgnoreCase(post.getStatus()) ) {
+    			if ("publish".equalsIgnoreCase(post.getStatus()) || "private".equalsIgnoreCase(post.getStatus()) ) {
     				Date righNowDate = new Date();//this date is NOT at GMT timezone 
     				long righNow = CalendarUtils.adjustTimeFromDefaultTimezone(righNowDate.getTime());
     				Date postDate = post.getAuthoredOn();//this date is GMT date
     				long postDateLong = postDate.getTime();
     				if(righNow > postDateLong)
-    					controller.startRemotePreview(post.getLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
+    					if( "private".equalsIgnoreCase(post.getStatus()))
+    						controller.startRemotePrivatePostPreview(post.getPermaLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
+    					else
+    						controller.startRemotePreview(post.getPermaLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
     				else
     					controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
             	} else {

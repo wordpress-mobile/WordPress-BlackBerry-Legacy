@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import net.rim.blackberry.api.browser.URLEncodedPostData;
 import net.rim.blackberry.api.invoke.CameraArguments;
 import net.rim.blackberry.api.invoke.Invoke;
 import net.rim.device.api.io.file.FileSystemJournalListener;
@@ -45,7 +46,6 @@ import com.wordpress.view.mm.MediaViewMediator;
 import com.wordpress.view.mm.MultimediaPopupScreen;
 import com.wordpress.view.mm.VideoFileJournalListener;
 import com.wordpress.xmlrpc.BlogConnResponse;
-import com.wordpress.xmlrpc.PreviewHTTPConn;
 
 import com.wordpress.view.component.FileBrowser.RimFileBrowser;
 
@@ -416,29 +416,33 @@ public abstract class BlogObjectController extends BaseController {
 	}
 	
 	public void startRemotePreview(String objectLink, String title, String content, String tags, String categories){
-	
 		if(objectLink != null && objectLink.trim().length() > 0) {
 			 Tools.openURL(objectLink);
-			 return;
-		}
-		
-		String connMessage = null;
-		connMessage = _resources.getString(WordPressResource.CONN_LOADING_PREVIEW_TEMPLATE);
-		
-		final PreviewHTTPConn connection = new PreviewHTTPConn(objectLink);
-		
-        connection.addObserver(new RemotePreviewCallBack(title, content, tags, categories));  
-        connectionProgressView= new ConnectionInProgressView(connMessage);
-		if(blog.isHTTPBasicAuthRequired()) {
-			connection.setHttp401Password(blog.getHTTPAuthPassword());
-			connection.setHttp401Username(blog.getHTTPAuthUsername());
-		}
-        connection.startConnWork(); //starts connection
-		int choice = connectionProgressView.doModal();
-		if(choice==Dialog.CANCEL) {
-			connection.stopConnWork(); //stop the connection if the user click on cancel button
-		}		
+		}	
 	}
+	
+	public void startRemotePrivatePostPreview(String objectLink, String title, String content, String tags, String categories){
+		if(objectLink != null && objectLink.trim().length() > 0) {
+			//get the xmlrpc endpoint and try to discover the login file
+			String xmlRpcURL = this.blog.getXmlRpcUrl();
+			String loginEndPoint = "";
+			String[] pathArray = StringUtils.split(xmlRpcURL, "/");
+			for(int i = 0; i < pathArray.length -1 ; i++) {
+				loginEndPoint+= pathArray[i]+"/";
+			}
+			loginEndPoint+="/wp-login.php";
+			
+			//crate the link
+			URLEncodedPostData urlEncoder = new URLEncodedPostData("UTF-8", false);
+
+			urlEncoder.append("redirect_to", objectLink);
+			urlEncoder.append("log", this.blog.getUsername());
+			urlEncoder.append("pwd", this.blog.getPassword());
+			
+			Tools.openNativeBrowser(loginEndPoint, "WordPress for BlackBerry App", null, urlEncoder);
+		}	
+	}
+		
 		
 	public void startLocalPreview(String title, String content, String tags, String categories) {
 
@@ -498,53 +502,6 @@ public abstract class BlogObjectController extends BaseController {
 	protected String getTheSignaturePreview() {
 		return "";
 	}
-	
-	//callback for post loading
-	private class RemotePreviewCallBack implements Observer {
-		
-		private final String title;
-		private final String content;
-		private final String tags;
-		private final String categories;
-
-		public RemotePreviewCallBack(String title, String content, String tags, String categories) {
-			this.title = title;
-			this.content = content;
-			this.tags = tags;
-			this.categories = categories;
-		}
-
-		public void update(Observable observable, final Object object) {
-			UiApplication.getUiApplication().invokeLater(new Runnable() {
-				public void run() {
-
-					dismissDialog(connectionProgressView);
-					BlogConnResponse resp= (BlogConnResponse) object;
-					
-					if(resp.isStopped()){
-						return;
-					}
-					
-					if(!resp.isError()) {
-						String contentType = null;
-						try {
-							Hashtable responseHash =  (Hashtable) resp.getResponseObject();
-							byte[] responseContent  = (byte[])responseHash.get("data");
-							Hashtable responseHeaders =  (Hashtable)responseHash.get("headers");
-							Log.trace("Finding respose content type from http header");		
-				    		contentType = (String) responseHeaders.get("Content-Type");
-				    		UiApplication.getUiApplication().pushScreen(new PreviewView(responseContent, contentType));
-						} catch (Exception e) {
-							startLocalPreview(title,content,tags, categories);
-							return;
-						}
-					} else {
-						startLocalPreview(title,content,tags, categories);
-					}
-				}
-			});
-		}
-	} 
 		
 	/**
 	 * Build the html fragment for the body preview

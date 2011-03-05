@@ -11,8 +11,9 @@ import javax.microedition.content.Registry;
 
 import net.rim.blackberry.api.browser.Browser;
 import net.rim.blackberry.api.browser.BrowserSession;
+import net.rim.blackberry.api.browser.PostData;
 import net.rim.device.api.i18n.ResourceBundle;
-import net.rim.device.api.synchronization.UIDGenerator;
+import net.rim.device.api.io.http.HttpHeaders;
 import net.rim.device.api.system.DeviceInfo;
 
 import com.wordpress.bb.WordPressCore;
@@ -219,6 +220,23 @@ public class Tools {
     	return browserSession;
 	}
 	
+	
+	public static synchronized BrowserSession openNativeBrowser(String URL, String referrer, HttpHeaders requestHeaders, PostData postData) {
+		// Get the default sessionBrowserSession
+    	BrowserSession browserSession = Browser.getDefaultSession();
+    	// now launch the URL
+    	browserSession.displayPage(URL, referrer, requestHeaders, postData);
+    	
+    	//#ifndef VER_6.0.0 || IS_OS50_OR_ABOVE
+    	
+    	// The following line is a work around to the issue found in
+    	// version 4.2.0
+    	browserSession.showBrowser(); 
+		
+    	//#endif
+    	
+    	return browserSession;
+	}
 	/**
 	 * Invoke the default browser on the BlackBerry smartphone
 	 * 

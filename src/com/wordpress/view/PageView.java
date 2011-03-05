@@ -227,13 +227,16 @@ public class PageView extends StandardBaseView {
         		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
     		} else {
     			//page not changed, check if is published or scheduled
-    			if ("publish".equalsIgnoreCase(page.getPageStatus()) ) {
+    			if ("publish".equalsIgnoreCase(page.getPageStatus()) || "private".equalsIgnoreCase(page.getPageStatus())) {
     				Date righNowDate = new Date();//this date is NOT at GMT timezone 
     				long righNow = CalendarUtils.adjustTimeFromDefaultTimezone(righNowDate.getTime());
     				Date postDate = page.getDateCreatedGMT();
     				long postDateLong = postDate.getTime();
     				if(righNow > postDateLong)
-    					controller.startRemotePreview(page.getLink(), title.getText(), bodyTextBox.getText(), "", "");
+    					if( "private".equalsIgnoreCase(page.getPageStatus()))
+    						controller.startRemotePrivatePostPreview(page.getPermaLink(), title.getText(), bodyTextBox.getText(), "", "");
+    					else
+    						controller.startRemotePreview(page.getPermaLink(), title.getText(), bodyTextBox.getText(), "", "");
     				else
     					controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
             	} else {
