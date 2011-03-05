@@ -473,11 +473,11 @@ public class MainView extends BaseView {
     		menu.add(_exitItem);
     	
     	//add the check for activation menu item if the blog is on pending state
-    	if(blogListController != null) {
+    	/*if(blogListController != null) {
     		BlogInfo blogSelected = blogListController.getBlogSelected();
     		if(blogSelected.getState() == BlogInfo.STATE_PENDING_ACTIVATION)
     			menu.add(_activateBlogItem);
-    	}
+    	}*/
     	
         //Create the default menu.
         super.makeMenu(menu, instance);
