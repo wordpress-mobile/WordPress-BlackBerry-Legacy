@@ -189,7 +189,10 @@ public class DraftDAO implements BaseDAO{
         }
         if (post.getPermaLink() != null) {
         	content.put("permaLink", post.getPermaLink());
-        }	     
+        }
+        if (post.getLink() != null) {
+        	content.put("link", post.getLink());
+        }
 		if(post.isPhotoResizing() != null) {
 			content.put("IsPhotoResizing", post.isPhotoResizing());
 		}
@@ -254,10 +257,14 @@ public class DraftDAO implements BaseDAO{
         post.setPassword((String) postData.get("wp_password"));
         post.setStatus((String) postData.get("post_status"));
         
+        String permaLink = (String) postData.get("permaLink");
+        if (permaLink != null ) {
+            post.setPermaLink(permaLink);
+        }
         
-        String link = (String) postData.get("permaLink");
+        String link = (String) postData.get("link");
         if (link != null ) {
-            post.setPermaLink(link);
+            post.setLink(link);
         }
         
         String breaks = (String) postData.get("mt_convert_breaks");

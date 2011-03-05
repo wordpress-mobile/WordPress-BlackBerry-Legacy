@@ -26,6 +26,7 @@ public class Post extends BlogEntry {
     private String extended = "";
     private String excerpt = "";
     private String permaLink = null;
+    private String link = null;
 	private boolean isLocation = false; //true when per-post location setting is active
 	private boolean isLocationPublic = true; //true when location setting is public
 	private Boolean isSignatureEnabled= null; // 0 = false ; 1 = true //null = get option from blog settings
@@ -162,6 +163,14 @@ public class Post extends BlogEntry {
 		this.permaLink = link;
 	}
 
+	public String getLink() {
+		return link;
+	}
+
+	public void setLink(String link) {
+		this.link = link;
+	}
+	
 	public boolean isLocation() {
 		return isLocation;
 	}
