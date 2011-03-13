@@ -214,9 +214,10 @@ MENUITEM_VIDEO_ADD#0="Video hinzufügen";
 MENUITEM_VIEW_THUMBNAILS#0="Miniaturbilder anzeigen";
 MENUITEM_VIEW_TITLES#0="Titel anzeigen";
 MESSAGES_ADD_BLOG#0={
-    "Existierenden Blog hinzufügen",
-    "WordPress.com Blogs",
-    "WordPress.org Site",
+    "Select the type of your blog",
+    "WordPress.com blog",
+    "Self-hosted WordPress blog",
+    "Start a new blog",
 };
 MESSAGE_APP_RESTART#0="Die Applikation startet automatisch neu. Sollte das nicht funktionieren, dann starten Sie bitte das Programm manuell neu.";
 MESSAGE_AUTH_REQUIRED#0="HTTP Authentisierung erforderlich, bitte geben Sie Ihren Benutzernamen und Ihr Passwort ein";

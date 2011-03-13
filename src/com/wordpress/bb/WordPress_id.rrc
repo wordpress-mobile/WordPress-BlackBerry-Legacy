@@ -214,9 +214,10 @@ MENUITEM_VIDEO_ADD#0="Sisipkan Video";
 MENUITEM_VIEW_THUMBNAILS#0="Lihat Miniatur";
 MENUITEM_VIEW_TITLES#0="Lihat Judul";
 MESSAGES_ADD_BLOG#0={
-    "Add existing",
-    "WordPress.com blogs",
-    "WordPress.org site",
+    "Select the type of your blog",
+    "WordPress.com blog",
+    "Self-hosted WordPress blog",
+    "Start a new blog",
 };
 MESSAGE_APP_RESTART#0="Otomatis memulai ulang aplikasi. Jika tidak berhasil, anda harus memulai ulang aplikasi secara manual.";
 MESSAGE_AUTH_REQUIRED#0="HTTP Authorization Required, please insert your Username and Password";

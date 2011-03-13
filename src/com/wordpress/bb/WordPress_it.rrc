@@ -214,9 +214,10 @@ MENUITEM_VIDEO_ADD#0="Aggiungi un Video";
 MENUITEM_VIEW_THUMBNAILS#0="Visualizza Anteprima";
 MENUITEM_VIEW_TITLES#0="Visualizza Titoli";
 MESSAGES_ADD_BLOG#0={
-    "Aggiungi",
-    "WordPress.com blogs",
-    "WordPress.org site",
+    "Select the type of your blog",
+    "WordPress.com blog",
+    "Self-hosted WordPress blog",
+    "Start a new blog",
 };
 MESSAGE_APP_RESTART#0="L'applicazione si riavvia automaticamente, attendere circa 1 minuto.";
 MESSAGE_AUTH_REQUIRED#0="Autorizzazione HTTP richiesta. Per favore, inserisci i dati d'accesso";

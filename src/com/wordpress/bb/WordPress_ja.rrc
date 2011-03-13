@@ -214,9 +214,10 @@ MENUITEM_VIDEO_ADD#0="\u52D5\u753B\u3092\u8FFD\u52A0";
 MENUITEM_VIEW_THUMBNAILS#0="\u30B5\u30E0\u30CD\u30A4\u30EB\u3092\u8868\u793A";
 MENUITEM_VIEW_TITLES#0="\u30BF\u30A4\u30C8\u30EB\u3092\u8868\u793A";
 MESSAGES_ADD_BLOG#0={
-    "Add existing",
-    "WordPress.com blogs",
-    "WordPress.org site",
+    "Select the type of your blog",
+    "WordPress.com blog",
+    "Self-hosted WordPress blog",
+    "Start a new blog",
 };
 MESSAGE_APP_RESTART#0="\u30A2\u30D7\u30EA\u30B1\u30FC\u30B7\u30E7\u30F3\u306F\u81EA\u52D5\u7684\u306B\u518D\u8D77\u52D5\u3057\u307E\u3059\u3002\u3046\u307E\u304F\u3044\u304B\u306A\u3044\u5834\u5408\u306F\u624B\u52D5\u3067\u30A2\u30D7\u30EA\u30B1\u30FC\u30B7\u30E7\u30F3\u3092\u518D\u8D77\u52D5\u3057\u3066\u304F\u3060\u3055\u3044\u3002";
 MESSAGE_AUTH_REQUIRED#0="HTTP Authorization Required, please insert your Username and Password";

@@ -214,9 +214,10 @@ MENUITEM_VIDEO_ADD#0="Lis‰‰ video";
 MENUITEM_VIEW_THUMBNAILS#0="N‰yt‰ pikkukuvat";
 MENUITEM_VIEW_TITLES#0="N‰yt‰ otsikot";
 MESSAGES_ADD_BLOG#0={
-    "Add existing",
-    "WordPress.com blogs",
-    "WordPress.org site",
+    "Select the type of your blog",
+    "WordPress.com blog",
+    "Self-hosted WordPress blog",
+    "Start a new blog",
 };
 MESSAGE_APP_RESTART#0="Sovellus k‰ynnistet‰‰n uudelleen automaattisesti. Jos se ei toimi, sinun t‰ytyy k‰ynnist‰‰ se uudelleen manuaalisesti.";
 MESSAGE_AUTH_REQUIRED#0="HTTP Authorization Required, please insert your Username and Password";

@@ -214,9 +214,10 @@ MENUITEM_VIDEO_ADD#0="Añadir video";
 MENUITEM_VIEW_THUMBNAILS#0="Ver las viñetas";
 MENUITEM_VIEW_TITLES#0="Ver los títulos";
 MESSAGES_ADD_BLOG#0={
-    "Add existing",
-    "WordPress.com blogs",
-    "WordPress.org site",
+    "Select the type of your blog",
+    "WordPress.com blog",
+    "Self-hosted WordPress blog",
+    "Start a new blog",
 };
 MESSAGE_APP_RESTART#0="La aplicación comienza automáticamente. Si no funciona, debe empezarla manualmente. ";
 MESSAGE_AUTH_REQUIRED#0="HTTP Authorization Required, please insert your Username and Password";
