@@ -215,37 +215,34 @@ public class PageView extends StandardBaseView {
     };
     
     private MenuItem _previewItem = new MenuItem( _resources, WordPressResource.MENUITEM_PREVIEW, 160000, 1000) {
-        public void run() {
-        	
-        	if( controller.isDraftItem() || controller.isObjectChanged()) {
-        		//1. draft page
-        		//2. published page is changed 
-        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
-        	} else if(title.isDirty() || bodyTextBox.isDirty() || 
-        			status.isDirty() || lblPhotoNumber.isDirty()) {
-        		//page main screen is just changed
-        		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
+    	public void run() {
+
+    		if( controller.isDraftItem() || controller.isObjectChanged()) {
+    			//1. draft page
+    			//2. published page is changed 
+    			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
+    		} else if(title.isDirty() || bodyTextBox.isDirty() || 
+    				status.isDirty() || lblPhotoNumber.isDirty()) {
+    			//3. page main screen is just changed
+    			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
     		} else {
-    			//page not changed, check if is published or scheduled
-    			if ("publish".equalsIgnoreCase(page.getPageStatus()) || "private".equalsIgnoreCase(page.getPageStatus())) {
+    			if ( "draft".equalsIgnoreCase(page.getPageStatus()) || "private".equalsIgnoreCase(page.getPageStatus()) ) {
+    				controller.startRemotePrivatePostPreview(page.getPermaLink(), title.getText(), bodyTextBox.getText(), "", "");
+    			} else {
+    				//4. page synched with the blog
     				Date righNowDate = new Date();//this date is NOT at GMT timezone 
     				long righNow = CalendarUtils.adjustTimeFromDefaultTimezone(righNowDate.getTime());
     				Date postDate = page.getDateCreatedGMT();
     				long postDateLong = postDate.getTime();
     				if(righNow > postDateLong)
-    					if( "private".equalsIgnoreCase(page.getPageStatus()))
-    						controller.startRemotePrivatePostPreview(page.getPermaLink(), title.getText(), bodyTextBox.getText(), "", "");
-    					else
-    						controller.startRemotePreview(page.getPermaLink(), title.getText(), bodyTextBox.getText(), "", "");
+    					controller.startRemotePreview(page.getPermaLink(), title.getText(), bodyTextBox.getText(), "", "");
     				else
-    					controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
-            	} else {
-            		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
-            	}
+    					controller.startRemotePrivatePostPreview(page.getPermaLink(), title.getText(), bodyTextBox.getText(), "", "");
+    			}
     		}
-        }
+    	}
     };
-    
+
     private MenuItem _settingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETTINGS, 80000, 1000) {
         public void run() {
         	controller.showSettingsView();

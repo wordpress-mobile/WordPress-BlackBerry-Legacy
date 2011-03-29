@@ -373,25 +373,24 @@ public class PostView extends StandardBaseView {
         		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
         	}else if(title.isDirty() || bodyTextBox.isDirty() || 
         			tags.isDirty() || status.isDirty() || categories.isDirty() || lblPhotoNumber.isDirty()) {
-        		//post is just changed
+        		//3.post is just changed
         		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel); 
     		} else {
-    			//post not changed, check if is published or scheduled
-    			if ("publish".equalsIgnoreCase(post.getStatus()) || "private".equalsIgnoreCase(post.getStatus()) ) {
+    			//4. post synched with the blog
+    			if( "private".equalsIgnoreCase(post.getStatus()) || "draft".equalsIgnoreCase(post.getStatus()) 
+    					||  "pending".equalsIgnoreCase(post.getStatus()) ) {
+    				controller.startRemotePrivatePostPreview(post.getPermaLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
+    			} else {
+    				//check if is published or scheduled
     				Date righNowDate = new Date();//this date is NOT at GMT timezone 
     				long righNow = CalendarUtils.adjustTimeFromDefaultTimezone(righNowDate.getTime());
     				Date postDate = post.getAuthoredOn();//this date is GMT date
     				long postDateLong = postDate.getTime();
     				if(righNow > postDateLong)
-    					if( "private".equalsIgnoreCase(post.getStatus()))
-    						controller.startRemotePrivatePostPreview(post.getPermaLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
-    					else
-    						controller.startRemotePreview(post.getPermaLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
+    					controller.startRemotePreview(post.getPermaLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
     				else
-    					controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
-            	} else {
-        			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
-            	}
+    					controller.startRemotePrivatePostPreview(post.getPermaLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
+    			}
     		}
         }
     };
