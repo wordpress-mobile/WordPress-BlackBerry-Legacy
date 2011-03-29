@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.bb;
 
 import java.io.IOException;
@@ -8,7 +9,13 @@ import java.util.Vector;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.blackberry.api.homescreen.HomeScreen;
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.blackberry.api.messagelist.ApplicationIcon;
+import net.rim.blackberry.api.messagelist.ApplicationIndicator;
+import net.rim.blackberry.api.messagelist.ApplicationIndicatorRegistry;
+//#endif
 import net.rim.device.api.notification.NotificationsManager;
+import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
 
@@ -93,6 +100,15 @@ public class NotificationHandler {
 		Log.trace("NotificationHandler stopped");
 		cancelNotification();
 		stopInnerTask();
+		//#ifdef IS_OS47_OR_ABOVE
+		try{
+			ApplicationIndicatorRegistry reg = ApplicationIndicatorRegistry.getInstance();    
+			if ( reg.getApplicationIndicator() != null ) 
+				reg.unregister();
+		}catch(Exception e){
+			Log.error(e, "Error while un-registering the application indicator");
+		}
+		//#endif
 	}
 	
 	//start the task that gets the awaiting comments details
@@ -117,16 +133,42 @@ public class NotificationHandler {
 	}
 	
 	private void setAppIcon(boolean newMessages) {
-		//controllare se l'applicazione è in bg
-		
 		if(newMessages) {
 			HomeScreen.updateIcon(WordPressInfo.getNewCommentsIcon());
 		}
 		else {
 			HomeScreen.updateIcon(WordPressInfo.getIcon());
 		}
+		
+		//#ifdef IS_OS47_OR_ABOVE
+		try{
+			ApplicationIndicatorRegistry reg = ApplicationIndicatorRegistry.getInstance();
+			ApplicationIndicator indicator = null;
+			if ( reg.getApplicationIndicator() != null ) {
+				indicator = reg.getApplicationIndicator();
+			} else {
+				EncodedImage image = EncodedImage.getEncodedImageResource("wpmini-blue.png");
+				ApplicationIcon icon = new ApplicationIcon( image );				
+				indicator = reg.register( icon, false, true);				
+				indicator.setIcon(icon);
+			}
+			BlogInfo[] blogCaricati = MainController.getIstance().getApplicationBlogs();
+			int totalComments = 0;
+			for(int i= 0; i < blogCaricati.length; i++) {
+				if(blogCaricati[i].isAwaitingModeration())
+					totalComments+=  blogCaricati[i].getAwaitingModeration();
+			}
+			indicator.setValue(totalComments);
+			if(totalComments > 0)
+				indicator.setVisible(true);
+			else
+				indicator.setVisible(false);
+		} catch (Exception e) {
+			Log.error(e, "Error while registering/updating the application indicator");
+		}
+		//#endif
 	}
-	
+
 
 	private class NotificationDetailsTask implements Observer {
 		

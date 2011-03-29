@@ -172,7 +172,7 @@ public class WordPress extends UiApplication implements WordPressResource {
 	public WordPress(String[] args){
 		checkPermissions();
 		
-		WordPressInfo.initialize(args);
+		WordPressInfo.initialize();
 		//When device is in startup check the startup variable
 		ApplicationManager myApp = ApplicationManager.getApplicationManager();
 		if (myApp.inStartup()) {

@@ -50,7 +50,7 @@ public final class WordPressInfo {
      * command-line arguments.  This method must be called on startup.
      * @param args Arguments
      */
-    public static synchronized void initialize(String args[]) {
+    public static synchronized void initialize() {
     	Log.trace("WordPress Info inizialized");
     	isForcelessTouchClickSupported = false;
 
@@ -58,7 +58,7 @@ public final class WordPressInfo {
     	/*  avoid Eclipse complaints
     	//#endif
     	 
-    	 //this code is excuted only when there isn't the tag VER_6.0.0 defined
+    	 //this code is executed only when the tag VER_6.0.0 is defined
  		// If the device supports forceless clicks, the method returns false
     	isForcelessTouchClickSupported = !(DeviceCapability.isTouchClickSupported());
     	
