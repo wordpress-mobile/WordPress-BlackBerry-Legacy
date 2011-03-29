@@ -141,6 +141,12 @@ public class NotificationHandler {
 		}
 		
 		//#ifdef IS_OS47_OR_ABOVE
+		updateAplicationIndicator();
+		//#endif
+	}
+
+	private void updateAplicationIndicator() {
+		//#ifdef IS_OS47_OR_ABOVE
 		try{
 			ApplicationIndicatorRegistry reg = ApplicationIndicatorRegistry.getInstance();
 			ApplicationIndicator indicator = null;
@@ -168,7 +174,6 @@ public class NotificationHandler {
 		}
 		//#endif
 	}
-
 
 	private class NotificationDetailsTask implements Observer {
 		
@@ -238,6 +243,9 @@ public class NotificationHandler {
 				} else {
 					UiApplication.getUiApplication().invokeLater(new Runnable() {
 						public void run() {
+							//#ifdef IS_OS47_OR_ABOVE
+							updateAplicationIndicator();
+							//#endif
 							MainController.getIstance().refreshView(); //update the main view
 						}
 					});
