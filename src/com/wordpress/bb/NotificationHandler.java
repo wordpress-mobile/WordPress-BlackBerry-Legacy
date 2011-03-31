@@ -141,11 +141,11 @@ public class NotificationHandler {
 		}
 		
 		//#ifdef IS_OS47_OR_ABOVE
-		updateAplicationIndicator();
+		updateApplicationIndicator();
 		//#endif
 	}
 
-	private void updateAplicationIndicator() {
+	private void updateApplicationIndicator() {
 		//#ifdef IS_OS47_OR_ABOVE
 		try{
 			ApplicationIndicatorRegistry reg = ApplicationIndicatorRegistry.getInstance();
@@ -244,7 +244,7 @@ public class NotificationHandler {
 					UiApplication.getUiApplication().invokeLater(new Runnable() {
 						public void run() {
 							//#ifdef IS_OS47_OR_ABOVE
-							updateAplicationIndicator();
+							updateApplicationIndicator();
 							//#endif
 							MainController.getIstance().refreshView(); //update the main view
 						}

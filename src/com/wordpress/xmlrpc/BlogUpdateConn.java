@@ -2,6 +2,7 @@ package com.wordpress.xmlrpc;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -19,6 +20,7 @@ import com.wordpress.io.BlogDAO;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.utils.ImageUtils;
+import com.wordpress.utils.MD5;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 
@@ -146,7 +148,7 @@ public class BlogUpdateConn extends BlogConn  {
 			}
 			
 			BlogDAO.setBlogIco(blog, null);
-			downloadIcoFile(); 	//downloading the blog ico file
+			downloadBlavatar(); 	//downloading the blog ico file
 			
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			//if there was an errors
@@ -169,81 +171,26 @@ public class BlogUpdateConn extends BlogConn  {
 		}
 	}
 	
-	private void downloadIcoFile() {
-		Log.trace(">>> Retrieving Blog Shortcut image file");
+	private void downloadBlavatar() {
+		Log.trace(">>> Retrieving Retrieving blavatar");
 		try {
-			HTTPGetConn imageConnection = new HTTPGetConn(blog.getUrl(), "", "");
-			if(blog.isHTTPBasicAuthRequired()) {
-				imageConnection.setHttp401Password(blog.getHTTPAuthPassword());
-				imageConnection.setHttp401Username(blog.getHTTPAuthUsername());
-			}  
-			Object responseImg = imageConnection.execute("", null); //starts connection 
-			if(connResponse.isStopped()) return; //if the user has stopped the connection
-			if(responseImg == null) {
-				Log.trace("no response while retriving the blog hml");
-				return;
+			HTTPGetConn imageConnection;
+			Object responseImg;
+			String hashAuthorEmail = "";
+			
+			try {
+			String cleanedBlogURL = StringUtils.replaceAll(blog.getXmlRpcUrl(), "http://", "");
+			cleanedBlogURL = StringUtils.replaceAll(blog.getXmlRpcUrl(), "https://", "");
+			cleanedBlogURL = StringUtils.split(cleanedBlogURL, "/")[0];			
+			MD5 md5 = new MD5();
+				md5.Update(cleanedBlogURL, null);
+				hashAuthorEmail = md5.asHex();
+				md5.Final();
+			} catch (UnsupportedEncodingException e) {
+				Log.error(e, "Error while hashing URL for gravatar services");
 			}
-			if((responseImg instanceof byte[]) == false){
-				Log.trace("invalid response while retriving the blog hml");
-				return;
-			}
-
-			String icoFullURL = null;
-
-			byte[] response = (byte[])responseImg;
-			Log.trace("RESPONSE received - " + new String(response));
-
-
-			KXmlParser parser = new KXmlParser();
-			parser.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true); //relaxed parser
-			ByteArrayInputStream bais = new ByteArrayInputStream(response);
-			parser.setInput(bais, "ISO-8859-1");
-
-			while (parser.next() != XmlPullParser.END_DOCUMENT) {
-				if (parser.getEventType() == XmlPullParser.START_TAG) {
-					String rel="";
-					String href="";
-					//link tag
-					if(parser.getName()!=null && parser.getName().trim().equalsIgnoreCase("link")){
-						//unfold all attribute
-						for (int i = 0; i < parser.getAttributeCount(); i++) {
-							String attrName = parser.getAttributeName(i);
-							String attrValue = parser.getAttributeValue(i);
-							if("rel".equals(attrName))
-								rel = attrValue;
-							else if("href".equals(attrName))
-								href = attrValue;
-
-						}
-						if(rel.equals("apple-touch-icon")){
-							icoFullURL = href;
-						}
-
-					}//end link tag
-				}
-			}				
-
-			if(connResponse.isStopped()) return; //if the user has stopped the connection
-
-			if(icoFullURL == null) {
-				Log.trace("no icon url was Found");
-				return;
-			}
-
-			String[] tokens = StringUtils.split(icoFullURL, "?");
-			if(tokens.length < 2) {
-				//not a valid url
-				Log.trace("No valid icon url was Found");
-				return;
-			}
-			String icoURL = tokens[0] + "?s=32&d=404";
-			Log.trace("The icon url - " + icoURL);
-
-			imageConnection = new HTTPGetConn(icoURL, "", "");
-			if(blog.isHTTPBasicAuthRequired()) {
-				imageConnection.setHttp401Password(blog.getHTTPAuthPassword());
-				imageConnection.setHttp401Username(blog.getHTTPAuthUsername());
-			}  
+			
+			imageConnection = new HTTPGetConn("http://gravatar.com/blavatar/"+hashAuthorEmail+"?s=32&d=404", "", ""); 
 			responseImg = imageConnection.execute("", null); //starts connection without make another thread
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 
@@ -267,9 +214,9 @@ public class BlogUpdateConn extends BlogConn  {
 			}
 			
 		} catch (Exception e) {
-			Log.error(e, "error while retrieving shorcut ico");
+			Log.error(e, "error while retrieving blavatar");
 		} finally {
-			Log.trace("<<< Retrieving Blog Shortcut image file");
+			Log.trace("<<< Retrieving blavatar");
 		}
 	}
 		
