@@ -21,6 +21,7 @@ import com.wordpress.io.AppDAO;
 import com.wordpress.io.BaseDAO;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Preferences;
+import com.wordpress.utils.PropertyUtils;
 import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Appender;
 import com.wordpress.utils.log.BlackberryEventLogAppender;
@@ -170,9 +171,14 @@ public class WordPress extends UiApplication implements WordPressResource {
 	}
     
 	public WordPress(String[] args){
-		checkPermissions();
-		
 		WordPressInfo.initialize();
+		
+		//Check the permission only at the first app startup.
+		if(!WordPressInfo.getLastVersion().equals(PropertyUtils.getIstance().getAppVersion())) {              
+			checkPermissions();
+			WordPressInfo.updateLastVersion();
+		}
+			
 		//When device is in startup check the startup variable
 		ApplicationManager myApp = ApplicationManager.getApplicationManager();
 		if (myApp.inStartup()) {
@@ -183,7 +189,6 @@ public class WordPress extends UiApplication implements WordPressResource {
         	loadApp();
 		}
 	}
-	
 	
 	  /**
 	 *  If the permissions are insufficient, the user will be prompted
@@ -271,98 +276,98 @@ public class WordPress extends UiApplication implements WordPressResource {
         }
     }
 	
-	private void loadApp() {
-		
-		loadingScreen = new SplashScreen();
-		pushScreen(loadingScreen);
-     	 
-		 //The following code specifies that the screen backlight, once activated,
-		 //has a timeout period of 200 seconds.
-		 if ((Display.getProperties() & Display.DISPLAY_PROPERTY_REQUIRES_BACKLIGHT) != 0) {
-			Backlight.enable(true, 200);
-		}
+    private void loadApp() {
+    	invokeLater(new Runnable() {
+    		public void run() {
 
-	    // Create an instance of the ConnectionManager and register the GlobalEventListener
-		ConnectionManager  _manager = ConnectionManager.getInstance();
-	    this.addGlobalEventListener( _manager ); // Needed for ServiceBook parsing method 
-		
-		Preferences appPrefs = Preferences.getIstance();
-		//check application permission as first step
-		//WordPressApplicationPermissions.getIstance().checkPermissions();
-		
-		try {
-			String baseDirPath = AppDAO.getBaseDirPath(); //read the base dir path
-			//first startup
-			if(baseDirPath == null) {
-				appPrefs.isFirstStartupOrUpgrade = true; //set as first startup.
-				if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD()) {
-					AppDAO.setBaseDirPath(AppDAO.SD_STORE_PATH);
-				} else {
-					AppDAO.setBaseDirPath(BaseDAO.DEVICE_STORE_PATH); 
-				}
-			} else {
-				//set as no first  startup.
-				appPrefs.isFirstStartupOrUpgrade = false; 
+    			loadingScreen = new SplashScreen();
+    			pushScreen(loadingScreen);
 
-				//checking if storage is set to SDcard, then verify the presence of sd card into phone
-				if(baseDirPath.equals(AppDAO.SD_STORE_PATH)) {
-					if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD()) {
-						//ok
-					} else {
-						//microSD not present. set the storage to memory device
-						isSDCardNotFound = true;
-						AppDAO.setBaseDirPath(BaseDAO.DEVICE_STORE_PATH); 
-						baseDirPath = null;
-					}
-				}
-			}
+    			//The following code specifies that the screen backlight, once activated,
+    			//has a timeout period of 200 seconds.
+    			if ((Display.getProperties() & Display.DISPLAY_PROPERTY_REQUIRES_BACKLIGHT) != 0) {
+    				Backlight.enable(true, 200);
+    			}
 
-			AppDAO.setUpFolderStructure(); //check for the folder existence, create it if not exist
-			AppDAO.readApplicationPreferecens(appPrefs); //load pref on startup
-			
-			//add the file log appender
-			FileAppender fileAppender = new FileAppender(baseDirPath, BaseDAO.LOG_FILE_PREFIX);
-			fileAppender.setLogLevel(Log.ERROR); //if we set level to TRACE the file log size grows too fast
-			fileAppender.open();
-			Log.addAppender(fileAppender);
-			WordPressCore wpCore = WordPressCore.getInstance();
-			wpCore.setFileAppender(fileAppender); // add the file appender to the queue
-						
-			//Store this application istance into recordstore
-			SharingHelper.storeAppIstance(UiApplication.getUiApplication());
-			
-     		timer.schedule(new CountDown(), 800); //splash
-			
-			// Initialize the notification handler only if notification interval is != 0
-			if (appPrefs.getUpdateTimeIndex() != 0)
-				NotificationHandler.getInstance().setCommentsNotification(true, appPrefs.getUpdateTimeIndex());
-		} catch (Exception e) {
-			timer.cancel();
-			final String excMsg;
-			
-			if(e != null && e.getMessage()!= null ) {
-				excMsg = "\n" + e.getMessage();
-			} else {
-				excMsg = "\n" + "Please configure application permissions and reboot the device by removing and reinserting the battery.";
-			}
-			invokeLater(new Runnable() {
-				public void run() {
-					ErrorView errView = new ErrorView("Startup Error:"+excMsg);
-					errView.doModal();
-				 
-					try {
-				    	if (loadingScreen != null) 
-				    		popScreen(loadingScreen);
-					} catch (Exception e) {
-						Log.error(e, "Splash Screen is not on the stack!");
-					}
-					
-					mainScreen = MainController.getIstance();
-					mainScreen.showView();
-				}
-			});
-		}
-	}
+    			// Create an instance of the ConnectionManager and register the GlobalEventListener
+    			ConnectionManager  _manager = ConnectionManager.getInstance();
+    			addGlobalEventListener( _manager ); // Needed for ServiceBook parsing method 
+
+    			Preferences appPrefs = Preferences.getIstance();
+
+    			try {
+    				String baseDirPath = AppDAO.getBaseDirPath(); //read the base dir path
+    				//first startup
+    				if(baseDirPath == null) {
+    					appPrefs.isFirstStartupOrUpgrade = true; //set as first startup.
+    					if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD()) {
+    						AppDAO.setBaseDirPath(AppDAO.SD_STORE_PATH);
+    					} else {
+    						AppDAO.setBaseDirPath(BaseDAO.DEVICE_STORE_PATH); 
+    					}
+    				} else {
+    					//set as no first  startup.
+    					appPrefs.isFirstStartupOrUpgrade = false; 
+
+    					//checking if storage is set to SDcard, then verify the presence of sd card into phone
+    					if(baseDirPath.equals(AppDAO.SD_STORE_PATH)) {
+    						if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD()) {
+    							//ok
+    						} else {
+    							//microSD not present. set the storage to memory device
+    							isSDCardNotFound = true;
+    							AppDAO.setBaseDirPath(BaseDAO.DEVICE_STORE_PATH); 
+    							baseDirPath = null;
+    						}
+    					}
+    				}
+
+    				AppDAO.setUpFolderStructure(); //check for the folder existence, create it if not exist
+    				AppDAO.readApplicationPreferecens(appPrefs); //load pref on startup
+
+    				//add the file log appender
+    				FileAppender fileAppender = new FileAppender(baseDirPath, BaseDAO.LOG_FILE_PREFIX);
+    				fileAppender.setLogLevel(Log.ERROR); //if we set level to TRACE the file log size grows too fast
+    				fileAppender.open();
+    				Log.addAppender(fileAppender);
+    				WordPressCore wpCore = WordPressCore.getInstance();
+    				wpCore.setFileAppender(fileAppender); // add the file appender to the queue
+
+    				//Store this application istance into recordstore
+    				SharingHelper.storeAppIstance(UiApplication.getUiApplication());
+
+    				timer.schedule(new CountDown(), 800); //splash
+
+    				// Initialize the notification handler only if notification interval is != 0
+    				if (appPrefs.getUpdateTimeIndex() != 0)
+    					NotificationHandler.getInstance().setCommentsNotification(true, appPrefs.getUpdateTimeIndex());
+    			} catch (Exception e) {
+    				timer.cancel();
+    				final String excMsg;
+
+    				if(e != null && e.getMessage()!= null ) {
+    					excMsg = "\n" + e.getMessage();
+    				} else {
+    					excMsg = "\n" + "Please configure application permissions and reboot the device by removing and reinserting the battery.";
+    				}
+
+    				timer.cancel();
+
+    				ErrorView errView = new ErrorView("Startup Error:"+excMsg);
+    				errView.doModal();
+    				try {
+    					if (loadingScreen != null) 
+    						popScreen(loadingScreen);
+    				} catch (Exception e2) {
+    					Log.error(e2, "Splash Screen is not on the stack!");
+    				}
+
+    				mainScreen = MainController.getIstance();
+    				mainScreen.showView();
+    			}
+    		}
+    	});
+    }
 	
    private class CountDown extends TimerTask {
 	   public void run() {

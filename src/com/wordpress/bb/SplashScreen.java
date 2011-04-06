@@ -41,14 +41,8 @@ public class SplashScreen extends MainScreen {
 		splashImgField = new BitmapField(image.getBitmap(), Field.FIELD_HCENTER| Field.FIELD_VCENTER);
 		this.add(splashImgField);
 
-		String version = PropertyUtils.getAppVersion(); //read from the alx files
-		if(version == null || version.trim().equals("")) { //read value from jad file
-			//MIDlet-Version
-			version = PropertyUtils.getIstance().get("MIDlet-Version");
-			if(version == null)
-				version = "";
-		}
-
+		String version = PropertyUtils.getIstance().getAppVersion(); 
+		
 		versionLabel = new LabelField(version, Field.FIELD_HCENTER| Field.FIELD_VCENTER){
 			public void paint(Graphics graphics)
 			{

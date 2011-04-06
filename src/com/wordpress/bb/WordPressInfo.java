@@ -1,8 +1,12 @@
 //#preprocess
 package com.wordpress.bb;
 
+import com.wordpress.utils.PropertyUtils;
 import com.wordpress.utils.log.Log;
 import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.ControlledAccessException;
+import net.rim.device.api.system.PersistentObject;
+import net.rim.device.api.system.PersistentStore;
 
 //#ifndef VER_6.0.0
 /*  avoid Eclipse complaints
@@ -44,7 +48,37 @@ public final class WordPressInfo {
 
 	private static Bitmap icon = Bitmap.getBitmapResource("application-icon.png");
     private static Bitmap newCommentsIcon = Bitmap.getBitmapResource("application-icon-new.png");
-    
+   
+    //keep some configuration data outside the classic app storage model
+    private static PersistentObject store;
+    private static PersistableAppInfo persistableInfo;
+        
+    static {
+    	if(tryInitializeStore()) {
+    		synchronized(store) {
+    			if (!(store.getContents() instanceof PersistableAppInfo)) {
+    				store.setContents(new PersistableAppInfo(2));
+    				store.commit();
+    			}
+    		}
+    		persistableInfo = (PersistableAppInfo)store.getContents();
+    	}
+    	else {
+    		persistableInfo = new PersistableAppInfo(2);
+    	}
+    }
+
+    private static boolean tryInitializeStore() {
+    	if(store != null) { return true; }
+    	try {
+    		//"com.wordpress.bb.PersistableAppInfo"
+    		store = PersistentStore.getPersistentObject(0x90b8f1bf73b6cbb9L);
+    		return true;
+    	} catch (ControlledAccessException e) {
+    		return false;
+    	}
+    }
+
     /**
      * Initializes the application information from the descriptor and the
      * command-line arguments.  This method must be called on startup.
@@ -73,5 +107,29 @@ public final class WordPressInfo {
     
     public static Bitmap getNewCommentsIcon() {
     	return newCommentsIcon;
+    }
+    
+    public static String getLastVersion() {
+        Object value = persistableInfo.getElement(PersistableAppInfo.FIELD_LAST_APP_VERSION);
+        if(value instanceof String) {
+            return (String)value;
+        }
+        else {
+            return "";
+        }
+    }
+    
+    public static void updateLastVersion() {
+        persistableInfo.setElement(PersistableAppInfo.FIELD_LAST_APP_VERSION, PropertyUtils.getIstance().getAppVersion());
+        commitPersistableInfo();
+    }
+    
+    private static void commitPersistableInfo() {
+        if(tryInitializeStore()) {
+            synchronized(store) {
+                store.setContents(persistableInfo);
+                store.commit();
+            }
+        }
     }
 }

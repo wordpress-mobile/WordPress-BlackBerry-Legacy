@@ -1,0 +1,2 @@
+2011-04-06 11:17:43:0743 : SignatureTool Started
+2011-04-06 11:17:44:0227 : SignatureTool Stopped

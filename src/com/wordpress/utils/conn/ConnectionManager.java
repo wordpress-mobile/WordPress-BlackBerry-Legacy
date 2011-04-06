@@ -11,6 +11,7 @@ import net.rim.device.api.servicebook.ServiceBook;
 import net.rim.device.api.system.GlobalEventListener;
 
 import com.wordpress.model.Preferences;
+import com.wordpress.utils.PropertyUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 
@@ -220,7 +221,7 @@ public class ConnectionManager  implements GlobalEventListener
     	try {
     		if(conn instanceof HttpConnection) {
     			HttpConnection connCasted = (HttpConnection) conn;
-    			connCasted.setRequestProperty("User-Agent","wp-blackberry/"+ Tools.getAppVersion());
+    			connCasted.setRequestProperty("User-Agent","wp-blackberry/"+ PropertyUtils.getIstance().getAppVersion());
     			Log.trace("common http request properties set");
     		}
     	} catch (IOException e) {

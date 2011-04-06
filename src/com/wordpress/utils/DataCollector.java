@@ -52,7 +52,7 @@ public class DataCollector {
 		String appVersion = "";
 
 		try {
-			appVersion = Tools.getAppVersion();
+			appVersion = PropertyUtils.getIstance().getAppVersion();
 		} catch (Exception e) {
 			Log.error(e, "Could not retrive App version");
 		}
@@ -235,12 +235,23 @@ public class DataCollector {
 		String[] split = StringUtils.split(html, "\n");
 		String remoteAppVersion = split[0];
 		String remoteAppUrl = split[1];
-		String currentAppVersion = Tools.getAppVersion();
+		String currentAppVersion = PropertyUtils.getIstance().getAppVersion();
 		Log.info("remote app version is: "+remoteAppVersion);
 		Log.info("remote app url is: "+remoteAppUrl);
 		Log.info("local app version is: "+currentAppVersion);
-		
-		String[] remoteAppVersionArray = StringUtils.split(remoteAppVersion, ".");
+				
+		if(currentAppVersion.indexOf(".alpha") > -1)
+			currentAppVersion = StringUtils.replaceLast(currentAppVersion, ".alpha", "");
+		if(currentAppVersion.indexOf(".beta") > -1)
+			currentAppVersion = StringUtils.replaceLast(currentAppVersion, ".beta", "");
+		if(currentAppVersion.indexOf(".rc1") > -1)
+			currentAppVersion = StringUtils.replaceLast(currentAppVersion, ".rc1", "");
+		if(currentAppVersion.indexOf(".rc2") > -1)
+			currentAppVersion = StringUtils.replaceLast(currentAppVersion, ".rc2", "");
+		if(currentAppVersion.indexOf(".rc3") > -1)
+			currentAppVersion = StringUtils.replaceLast(currentAppVersion, ".rc3", "");
+	
+		String[] remoteAppVersionArray = StringUtils.split(remoteAppVersion, ".");		
 		String[] currentAppVersionArray = StringUtils.split(currentAppVersion, ".");
 		boolean isNewVersionAvailable = false;
 		

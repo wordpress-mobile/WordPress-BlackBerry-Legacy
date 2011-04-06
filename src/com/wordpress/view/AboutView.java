@@ -14,6 +14,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AboutController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.utils.PropertyUtils;
+import com.wordpress.utils.Tools;
 import com.wordpress.view.container.TableLayoutManager;
 
 public class AboutView extends BaseView {
@@ -29,13 +30,7 @@ public class AboutView extends BaseView {
         Bitmap _bitmap = PropertyUtils.getAppIcon();
     	//String name = PropertyUtils.getAppName();
         
-    	String version = PropertyUtils.getAppVersion(); //read from the alx files
-        if(version == null || version.trim().equals("")) { //read value from jad file
-        	//MIDlet-Version
-        	version = PropertyUtils.getIstance().get("MIDlet-Version");
-        	if(version == null)
-        		version = "";
-        }
+    	String version = PropertyUtils.getIstance().getAppVersion();
         
         //The Header Row
         TableLayoutManager	firstRow = new TableLayoutManager(new int[] {

@@ -16,6 +16,7 @@ import net.rim.device.api.ui.component.Menu;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.MainController;
+import com.wordpress.utils.PropertyUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
@@ -102,7 +103,7 @@ public class ContactSupportView extends BaseView {
     					String currentNetworkName = "Network Name: " + (RadioInfo.getCurrentNetworkName() == null ? " n.a." : RadioInfo.getCurrentNetworkName());
 
     					StringBuffer mailContent = new StringBuffer();
-    					mailContent.append("App Version: "+Tools.getAppVersion()+ "\n");
+    					mailContent.append("App Version: "+PropertyUtils.getIstance().getAppVersion()+ "\n");
 
     					
     					mailContent.append(manufacturer + "\n");

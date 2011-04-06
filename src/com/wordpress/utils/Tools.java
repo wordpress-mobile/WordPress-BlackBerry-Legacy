@@ -259,18 +259,6 @@ public class Tools {
 	}
 */
 	
-	public static synchronized String getAppVersion() {
-    	String version = PropertyUtils.getAppVersion(); //read from the alx files
-        if(version == null || version.trim().equals("")) { //read value from jad file
-        	//MIDlet-Version
-        	version = PropertyUtils.getIstance().get("MIDlet-Version");
-        	if(version == null)
-        		version = "";
-        }
-    	Log.debug("App version: "+version);
-        return version;
-	}
-	
 	/**
 	 * check the path of the file xmlrpc.php into the url string
 	 */

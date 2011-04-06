@@ -1,5 +1,7 @@
 package com.wordpress.utils;
 
+import com.wordpress.utils.log.Log;
+
 import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.CodeModuleGroup;
@@ -65,15 +67,24 @@ public class PropertyUtils {
         }
     }
 	
-
-	
 	public static synchronized String getAppName(){
 		 ApplicationDescriptor descriptor = ApplicationDescriptor.currentApplicationDescriptor();
 		 return descriptor.getName();
 	}
   
+	public synchronized String getAppVersion() {
+    	String version = this.getAppVersionFromDescriptor(); //read from the alx files
+        if(version == null || version.trim().equals("")) { //read value from jad file
+        	//MIDlet-Version
+        	version = this.get("MIDlet-Version");
+        	if(version == null)
+        		version = "";
+        }
+    	Log.debug("App version: "+version);
+        return version;
+	}
 	
-	public static synchronized String getAppVersion(){
+	private synchronized String getAppVersionFromDescriptor(){
 		 ApplicationDescriptor descriptor = ApplicationDescriptor.currentApplicationDescriptor();
 		 return descriptor.getVersion();
 	}
@@ -83,36 +94,4 @@ public class PropertyUtils {
 		 ApplicationDescriptor descriptor = ApplicationDescriptor.currentApplicationDescriptor();
 		 return descriptor.getIcon();
 	}
-	
-/* Research In Motion tracks the use of sensitive APIs in the BlackBerry® Java® Development Environment for security and export
-control reasons. This method require code sign otherwise the application won't start on real devices.
-*/
-	/**
-	 * Chiama la midlet per accedere alle risorse definite nel file jad
-	 * @param key
-	 * @return
-	 
-	public static synchronized String getAppProperty(String key){
-		//return midlet.getAppProperty(key);
-		CodeModuleGroup myGroup = null;
-		CodeModuleGroup[] allGroups=null;
-			
-		allGroups = CodeModuleGroupManager.loadAll();
-		String moduleName = ApplicationDescriptor.currentApplicationDescriptor().getModuleName();
-
-		for (int i = 0; i < allGroups.length; i++) {
-		   if (allGroups[i].containsModule(moduleName)) {
-		      myGroup = allGroups[i];
-		      break;
-		    }
-		}
-
-		if(myGroup != null){
-			String description = myGroup.getProperty(key);
-			return description;
-		} else {
-			return "";
-		} 
-	}
-	*/
 }
