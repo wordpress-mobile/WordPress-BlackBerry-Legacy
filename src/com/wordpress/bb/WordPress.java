@@ -164,10 +164,6 @@ public class WordPress extends UiApplication implements WordPressResource {
 		
 		Log.initLog(Log.TRACE);		
 		Log.trace("==== WordPress for BlackBerry Startup ====");
-		
-		//#ifdef IS_OS47_OR_ABOVE
-		Log.trace("==== IS_OS47_OR_ABOVE Edition ====");
-		//#endif
 	}
     
 	public WordPress(String[] args){
@@ -177,6 +173,9 @@ public class WordPress extends UiApplication implements WordPressResource {
 		if(!WordPressInfo.getLastVersion().equals(PropertyUtils.getIstance().getAppVersion())) {              
 			checkPermissions();
 			WordPressInfo.updateLastVersion();
+		} else {
+			//check the minimum permission settings
+			
 		}
 			
 		//When device is in startup check the startup variable
@@ -207,34 +206,36 @@ public class WordPress extends UiApplication implements WordPressResource {
         ApplicationPermissions original = ApplicationPermissionsManager.getInstance().getApplicationPermissions();
         
         if( original.getPermission( ApplicationPermissions.PERMISSION_MEDIA ) == ApplicationPermissions.VALUE_ALLOW &&
-        		//original.getPermission( ApplicationPermissions.PERMISSION_IDLE_TIMER ) == ApplicationPermissions.VALUE_ALLOW &&
-        		original.getPermission( ApplicationPermissions.PERMISSION_EVENT_INJECTOR ) == ApplicationPermissions.VALUE_ALLOW &&
-        		original.getPermission( ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS ) == ApplicationPermissions.VALUE_ALLOW &&
-        		original.getPermission( ApplicationPermissions.PERMISSION_FILE_API ) == ApplicationPermissions.VALUE_ALLOW  &&
-        		original.getPermission( ApplicationPermissions.PERMISSION_LOCATION_API ) == ApplicationPermissions.VALUE_ALLOW &&
-        		original.getPermission( ApplicationPermissions.PERMISSION_WIFI ) == ApplicationPermissions.VALUE_ALLOW  &&
-        		original.getPermission( ApplicationPermissions.PERMISSION_INTER_PROCESS_COMMUNICATION ) == ApplicationPermissions.VALUE_ALLOW )
-
+        	//original.getPermission( ApplicationPermissions.PERMISSION_IDLE_TIMER ) == ApplicationPermissions.VALUE_ALLOW &&
+        	original.getPermission( ApplicationPermissions.PERMISSION_FILE_API ) == ApplicationPermissions.VALUE_ALLOW  &&
+        	original.getPermission( ApplicationPermissions.PERMISSION_WIFI ) == ApplicationPermissions.VALUE_ALLOW  )
         {
 
-        	//#ifdef IS_OS50_OR_ABOVE
+        	//#ifdef IS_OS47_OR_ABOVE
 
-        	//check additional permissions for BB OS5.0 or higher
-        	if( original.getPermission( ApplicationPermissions.PERMISSION_LOCATION_DATA ) == ApplicationPermissions.VALUE_ALLOW &&
+        	//check additional permissions for BB OS4.7 or higher
+        	if( 
+        		original.getPermission( ApplicationPermissions.PERMISSION_INTERNET ) == ApplicationPermissions.VALUE_ALLOW &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_LOCATION_DATA ) == ApplicationPermissions.VALUE_ALLOW &&
         		original.getPermission( ApplicationPermissions.PERMISSION_ORGANIZER_DATA  ) == ApplicationPermissions.VALUE_ALLOW &&
         		original.getPermission( ApplicationPermissions.PERMISSION_CROSS_APPLICATION_COMMUNICATION  ) == ApplicationPermissions.VALUE_ALLOW
-        			 
         	) {
         		return;
         	}
-        	
-        	//#else
-        	
-        	// All of the necessary permissions are currently available.  
-        	return;
-        	
-        	//#endif
 
+        	//#else
+
+        	//check additional permissions for BB OS4.6 or lower
+        	if( 
+        		original.getPermission( ApplicationPermissions.PERMISSION_EVENT_INJECTOR ) == ApplicationPermissions.VALUE_ALLOW &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS ) == ApplicationPermissions.VALUE_ALLOW &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_LOCATION_API ) == ApplicationPermissions.VALUE_ALLOW &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_INTER_PROCESS_COMMUNICATION ) == ApplicationPermissions.VALUE_ALLOW 
+        	) {
+        		return;
+        	}
+
+        	//#endif
         }
 
         // Create a permission request for each of the permissions your application
@@ -243,18 +244,20 @@ public class WordPress extends UiApplication implements WordPressResource {
         // Please only request the permissions needed for your application.
         ApplicationPermissions permRequest = new ApplicationPermissions();
         //permRequest.addPermission( ApplicationPermissions.PERMISSION_IDLE_TIMER );
-        permRequest.addPermission( ApplicationPermissions.PERMISSION_EVENT_INJECTOR );
-        permRequest.addPermission( ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_FILE_API );
-        permRequest.addPermission( ApplicationPermissions.PERMISSION_LOCATION_API );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_WIFI );
-        permRequest.addPermission( ApplicationPermissions.PERMISSION_INTER_PROCESS_COMMUNICATION );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_MEDIA );
         
-    	//#ifdef IS_OS50_OR_ABOVE
+    	//#ifdef IS_OS47_OR_ABOVE
         permRequest.addPermission( ApplicationPermissions.PERMISSION_LOCATION_DATA );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_ORGANIZER_DATA  );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_CROSS_APPLICATION_COMMUNICATION  );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_INTERNET );
+        //#else
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_EVENT_INJECTOR );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_LOCATION_API );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_INTER_PROCESS_COMMUNICATION );
     	//#endif
         
         boolean acceptance = ApplicationPermissionsManager.getInstance().invokePermissionsRequest( permRequest );
