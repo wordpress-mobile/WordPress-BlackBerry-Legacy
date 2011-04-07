@@ -449,7 +449,7 @@ public class PostController extends BlogObjectController {
 			postStatusKey[postStatusLabel.length-1]= LOCAL_DRAFT_KEY;
 			// end 
 		}
-
+		
 		
 		String[] draftPostPhotoList =  getPhotoList();
 

@@ -31,6 +31,7 @@ public class Post extends BlogEntry {
 	private boolean isLocationPublic = true; //true when location setting is public
 	private Boolean isSignatureEnabled= null; // 0 = false ; 1 = true //null = get option from blog settings
 	private String signature=null;
+	private String postFormat = null;
 
 	public Post(Blog aBlog) {
 		blog = aBlog;
@@ -201,5 +202,13 @@ public class Post extends BlogEntry {
 
 	public void setSignature(String signature) {
 		this.signature = signature;
+	}
+	
+	public String getPostFormat() {
+		return postFormat;
+	}
+
+	public void setPostFormat(String postFormat) {
+		this.postFormat = postFormat;
 	}	
 }

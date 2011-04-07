@@ -328,7 +328,8 @@ public class BlogDAO implements BaseDAO {
 		ser.serialize(blog.getHTTPAuthPassword());
 		ser.serialize(blog.getBlogOptions());
 		ser.serialize(blog.getWpcomFeatures());
-
+		ser.serialize(blog.getPostFormats());
+		
 		if(isError) {
 			throw new IOException(wholeErrorMessage);
 		}
@@ -596,6 +597,17 @@ public class BlogDAO implements BaseDAO {
 			Log.error("No WP.COM features found - End of file was reached. Probably a previous blog data file is loaded" );
 		} catch (Throwable  t) {
 			Log.error("No WP.COM features found - End of file was reached. Probably a previous blog data file is loaded" );
+		}
+		
+		//since version 1.4.3
+		//reading PostFormats
+		try {
+			Hashtable postFormats = (Hashtable)ser.deserialize();
+			blog.setPostFormats(postFormats);
+		} catch (Exception  e) {
+			Log.error("No PostFormats features found - End of file was reached. Probably a previous blog data file is loaded" );
+		} catch (Throwable  t) {
+			Log.error("No PostFormats found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
 
 		in.close();

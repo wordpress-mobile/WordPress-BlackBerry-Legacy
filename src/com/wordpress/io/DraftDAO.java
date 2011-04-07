@@ -237,6 +237,11 @@ public class DraftDAO implements BaseDAO{
 		if(signature != null) {
 			content.put("signature", signature);
 		}
+        
+		String postFormat = post.getPostFormat();
+		if(postFormat != null) {
+			content.put("postFormat", postFormat);
+		}
 		return content;
 	}	
 	
@@ -344,6 +349,10 @@ public class DraftDAO implements BaseDAO{
 			post.setSignature((String)postData.get("signature"));
 		} 
 		
+		if(postData.get("postFormat") != null) {
+			post.setPostFormat((String)postData.get("postFormat"));
+		}
+
         return post;
 	}
 }

@@ -136,7 +136,7 @@ public class PreferencesView extends StandardBaseView {
 				 | Manager.NO_VERTICAL_SCROLL);
 		 RadioButtonGroup rgrp2 = new RadioButtonGroup();
 
-		 LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_VIDEOAPI),
+		 LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_MEDIAAPI),
 				 Color.BLACK);
 		 gpsManager.add(lblTitle);
 		 gpsManager.add(GUIFactory.createSepatorField());

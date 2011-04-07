@@ -2,7 +2,6 @@ package com.wordpress.xmlrpc;
 
 
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -344,39 +343,6 @@ public abstract class BlogConn extends Observable implements Runnable {
 		}
 	}
 	
-//retrive the blog "post status list"
-	protected synchronized void getPostStatusList(Blog blog) throws Exception {
-		try {
-			Log.debug("reading post status list for the blog : " + blog.getName());
-
-			Vector args = new Vector(3);
-			args.addElement(String.valueOf(blog.getId()));
-			args.addElement(mUsername);
-			args.addElement(mPassword);
-
-			Object response = execute("wp.getPostStatusList", args);
-			if (connResponse.isError()) {
-				// blog.setPostStatusList(null);
-				 return;
-				//throw new Exception("Cannot read post status list");
-			}
-
-			Hashtable statusList = (Hashtable) response;
-
-			Enumeration elements = statusList.keys();
-			for (; elements.hasMoreElements();) {
-				String key = (String) elements.nextElement();
-				Log.trace("key: " + key);
-				Log.trace("value: " + statusList.get(key));
-			}
-
-			blog.setPostStatusList(statusList);
-			
-			Log.debug("End reading post status list for the blog : " + blog.getName());
-		} catch (ClassCastException cce) {
-			throw new Exception("Error while reading post status list");
-		}
-	}
 	
 	//retrive all pages from blog
 	protected synchronized Vector getPages(String blogID, int maxPages) throws Exception{
@@ -400,103 +366,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 			throw new Exception("Error while reading pages data from blog");
 		}
 	}
-	
-	//retrive the blog "page status list"
-	protected synchronized void getPageStatusList(Blog blog) throws Exception {
-		try {
-			Log.debug("reading page status list for the blog : " + blog.getName());
-
-			Vector args = new Vector(3);
-			args.addElement(String.valueOf(blog.getId()));
-			args.addElement(mUsername);
-			args.addElement(mPassword);
-
-			Object response = execute("wp.getPageStatusList", args);
-			if (connResponse.isError()) {
-				//blog.setPageStatusList(null);
-				return;
-			}
-
-			Hashtable statusList = (Hashtable) response;
-
-			Enumeration elements = statusList.keys();
-			for (; elements.hasMoreElements();) {
-				String key = (String) elements.nextElement();
-				Log.trace("key: " + key);
-				System.out.println("value: " + statusList.get(key));
-			}
-
-			blog.setPageStatusList(statusList);
-			
-			Log.debug("End reading page status list for the blog : "	+ blog.getName());
-		} catch (ClassCastException cce) {
-			throw new Exception("Error while reading post status list");
-		}
-	}
-	
-	//retrive the blog "page status list"
-	protected synchronized void getPageTemplates(Blog blog) throws Exception {
-		try {
-			Log.debug("reading pages templates for the blog : " + blog.getName());
-
-			Vector args = new Vector(3);
-			args.addElement(String.valueOf(blog.getId()));
-			args.addElement(mUsername);
-			args.addElement(mPassword);
-
-			Object response = execute("wp.getPageTemplates", args);
-			if (connResponse.isError()) {
-				//blog.setPageStatusList(null);
-				return;
-			}
-
-			Hashtable statusList = (Hashtable) response;
-
-/*			Enumeration elements = statusList.keys();
-			for (; elements.hasMoreElements();) {
-				String key = (String) elements.nextElement();
-				System.out.println("key: " + key);
-				System.out.println("value: " + statusList.get(key));
-			}
-*/
-			blog.setPageTemplates(statusList);
-			
-			Log.debug("End reading page templates for the blog : : " + blog.getName());
-		} catch (ClassCastException cce) {
-			throw new Exception("Error while reading post status list");
-		}
-	}
-	
-	
-	protected synchronized void getCommentStatusList(Blog blog) {
-		try {
-
-			Log.debug("reading comment status list for the blog : "
-					+ blog.getName());
-
-			Vector args = new Vector(4);
-			args.addElement(String.valueOf(blog.getId()));
-			args.addElement(mUsername);
-			args.addElement(mPassword);
-
-			Object response = execute("wp.getCommentStatusList", args);
-			if (connResponse.isError()) {
-				//blog.setCommentStatusList(null);
-				return;
-			}
-			
-			Hashtable commentData = (Hashtable) response;
-			blog.setCommentStatusList(commentData);
-			
-			Log.debug("End reading comment status list for the blog : "
-					+ blog.getName());
-		} catch (Exception e) {
-			setErrorMessage(e,
-					"GetCommentStatusList error: Invalid server response");
-		}
-	}
-	
-	
+				
 	//retrive the blog "tag list"
 	protected synchronized void getTagList(Blog blog) throws Exception {
 		try {
@@ -515,7 +385,6 @@ public abstract class BlogConn extends Observable implements Runnable {
 				//throw new Exception("cannot read tag list");
 			}
 
-			
 			Vector tags = (Vector) response;
 
 			Tag[] mytags= new Tag[tags.size()];

@@ -239,18 +239,7 @@ public class DataCollector {
 		Log.info("remote app version is: "+remoteAppVersion);
 		Log.info("remote app url is: "+remoteAppUrl);
 		Log.info("local app version is: "+currentAppVersion);
-				
-		if(currentAppVersion.indexOf(".alpha") > -1)
-			currentAppVersion = StringUtils.replaceLast(currentAppVersion, ".alpha", "");
-		if(currentAppVersion.indexOf(".beta") > -1)
-			currentAppVersion = StringUtils.replaceLast(currentAppVersion, ".beta", "");
-		if(currentAppVersion.indexOf(".rc1") > -1)
-			currentAppVersion = StringUtils.replaceLast(currentAppVersion, ".rc1", "");
-		if(currentAppVersion.indexOf(".rc2") > -1)
-			currentAppVersion = StringUtils.replaceLast(currentAppVersion, ".rc2", "");
-		if(currentAppVersion.indexOf(".rc3") > -1)
-			currentAppVersion = StringUtils.replaceLast(currentAppVersion, ".rc3", "");
-	
+					
 		String[] remoteAppVersionArray = StringUtils.split(remoteAppVersion, ".");		
 		String[] currentAppVersionArray = StringUtils.split(currentAppVersion, ".");
 		boolean isNewVersionAvailable = false;

@@ -81,28 +81,40 @@ public class BlogUpdateConn extends BlogConn  {
 			connResponse = new BlogConnResponse();
 			//the following calls uses the same connection 
 			//These calls can modify the state of the connection to isError=true;
+			
 			getBlogCategories(blog);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			checkConnectionResponse("Error while loading categories");
 			
-			getPageStatusList(blog);
+			//retrive the blog "page status list"
+			Hashtable pageStatusList = getInfo(blog, "wp.getPageStatusList");
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			if(connResponse.isError() == false )
+				blog.setPageStatusList(pageStatusList);
 			checkConnectionResponse("Error while loading Page Status");
-			
-			getPageTemplates(blog);
+						
+			//retrieve the blog "page template list"
+			Hashtable pageTemplate = getInfo(blog, "wp.getPageTemplates");
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			if(connResponse.isError() == false )
+				blog.setPageTemplates(pageTemplate);
 			checkConnectionResponse("Error while loading Page Templates");
 			
-			getPostStatusList(blog);
+			//retrive the blog "post status list"
+			Hashtable statusList =  getInfo(blog, "wp.getPostStatusList");
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			if(connResponse.isError() == false )
+				blog.setPostStatusList(statusList);
 			checkConnectionResponse("Error while loading Post Status");
 			
 			getTagList(blog);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			checkConnectionResponse("Error while loading Tags");
 
-			getCommentStatusList(blog);
+			Hashtable commentStatusList = getInfo(blog, "wp.getCommentStatusList");
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			if(connResponse.isError() == false )
+				blog.setCommentStatusList(commentStatusList);
 			checkConnectionResponse("Error while loading Comment Status");
 						
 			Vector recentPostTitle = getRecentPostTitle(blog.getId(), blog.getMaxPostCount());
@@ -133,14 +145,30 @@ public class BlogUpdateConn extends BlogConn  {
 			}
 			checkConnectionResponse("Error while loading comments");
 
-			Hashtable options = getOptions(blog);
+			Hashtable options = getInfo(blog, "wp.getOptions");
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				blog.setBlogOptions(options);
 			checkConnectionResponse("Error while loading Blog options");
 			
+
+			//The method call  wpcom.getPostFormats  ( blog_id, username, password ) which returns a struct.
+			//http://core.trac.wordpress.org/ticket/1540
+			Hashtable postFormats = getInfo(blog, "wp.getPostFormats");
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			if(connResponse.isError() == false )
+				blog.setPostFormats(postFormats);
+			checkConnectionResponse("Error while loading PostFormats");
+
 			if(blog.isWPCOMBlog()) {
-				Hashtable features = getFeatures(blog);
+				/* 
+				 * The method call  wpcom.getFeatures  ( blog_id, username, password ) which returns a struct.
+				 * Just a simple way to expose data on WPCOM specific features (VideoPress or space upgrade for istance).
+				 * 
+				 * Right now the only field in the struct is "videopress_enabled", with a boolean value.
+				 * 
+				 */
+				Hashtable features = getInfo(blog, "wpcom.getFeatures");
 				if(connResponse.isStopped()) return; //if the user has stopped the connection
 				if(connResponse.isError() == false )
 					blog.setWpcomFeatures(features);
@@ -327,16 +355,16 @@ public class BlogUpdateConn extends BlogConn  {
 		}
 	}
 		
-	protected synchronized Hashtable getOptions(Blog blog) throws Exception {
+	protected synchronized Hashtable getInfo(Blog blog, String methodName) throws Exception {
 		try {
-			Log.debug(">>> reading Blog options for the blog : " + blog.getName());
+			Log.debug(">>> reading "+methodName+" on the blog : " + blog.getName());
 
 			Vector args = new Vector(3);
 			args.addElement(String.valueOf(blog.getId()));
 			args.addElement(mUsername);
 			args.addElement(mPassword);
 
-			Object response = execute("wp.getOptions", args);
+			Object response = execute(methodName, args);
 			if (connResponse.isError()) {
 				return null;
 			}
@@ -356,45 +384,10 @@ public class BlogUpdateConn extends BlogConn  {
 				}
 			}
 			*/
-			Log.debug("<<< End reading Blog options for the blog : "	+ blog.getName());
+			Log.debug("<<< End reading "+methodName+" on the blog : "	+ blog.getName());
 			return optionsStructs;
 		} catch (ClassCastException cce) {
-			throw new Exception ("Error while reading blog options");
-		}
-	}
-	
-	/* 
-	 * The method call  wpcom.getFeatures  ( blog_id, username, password ) which returns a struct.
-	 * Just a simple way to expose data on WPCOM specific features (VideoPress or space upgrade for istance).
-	 * 
-	 * Right now the only field in the struct is "videopress_enabled", with a boolean value.
-	 * 
-	 */
-	protected synchronized Hashtable getFeatures(Blog blog) throws Exception {
-		try {
-			Log.debug(">>> reading WP.COM Blog Features : " + blog.getName());
-
-			Vector args = new Vector(3);
-			args.addElement(String.valueOf(blog.getId()));
-			args.addElement(mUsername);
-			args.addElement(mPassword);
-
-			Object response = execute("wpcom.getFeatures", args);
-			if (connResponse.isError()) {
-				return null;
-			}
-			
-			Hashtable features = (Hashtable) response;
-			/*Enumeration elements = features.keys();
-			for (; elements.hasMoreElements();) {
-				String key = (String) elements.nextElement();
-				Log.trace("key: " + key);
-				Log.trace("value: " + features.get(key));
-			}*/
-			Log.debug("<<< reading WP.COM Blog Features : "	+ blog.getName());
-			return features;
-		} catch (ClassCastException cce) {
-			throw new Exception ("Error while reading blog Features");
+			throw new Exception ("Error while reading "+methodName+" for the blog : "	+ blog.getName());
 		}
 	}
 	

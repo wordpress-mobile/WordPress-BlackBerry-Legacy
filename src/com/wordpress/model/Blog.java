@@ -43,7 +43,8 @@ public class Blog {
 	private Hashtable commentStatusList=null; 
 	private Tag[] tags=null;
 	private Hashtable blogOptions=null; 
-	private Hashtable wpcomFeatures=null; 
+	private Hashtable wpcomFeatures=null;
+	private Hashtable postFormats=null; //introduces in WP3.1 
 
 	private Vector recentPostTitles = null; //response of mt.getRecentPostTitles
 	private Vector viewedPost = new Vector(); //the viewed post (similar to response of previous mt.getRecentPostTitles) 
@@ -370,6 +371,15 @@ public class Blog {
 	public void setWpcomFeatures(Hashtable wpcomFeatures) {
 		this.wpcomFeatures = wpcomFeatures;
 	}
+	
+	public Hashtable getPostFormats() {
+		return postFormats;
+	}
+
+	public void setPostFormats(Hashtable postFormats) {
+		this.postFormats = postFormats;
+	}
+	
 	
 	public boolean isVideoPressUpgradeAvailable() {
 		//for backward compatibility we return true when this info is missing in the blog object.
