@@ -2,6 +2,8 @@
 package com.wordpress.view;
 
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import net.rim.blackberry.api.invoke.Invoke;
@@ -56,6 +58,7 @@ public class PostView extends StandardBaseView {
 	private HtmlTextField bodyTextBox;
 	private BasicEditField tags;
 	private ObjectChoiceField status;
+	private ObjectChoiceField postFormatField;
 	private ClickableLabelField categories;
 	private ClickableLabelField lblPhotoNumber;
 	final BorderedFieldManager locationManager;
@@ -132,6 +135,34 @@ public class PostView extends StandardBaseView {
   		status = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":", controller.getStatusLabels(), controller.getPostStatusFieldIndex(), FIELD_VCENTER);
   		status.setMargin(0, 5, 5, 5);
   		outerManagerRowInfos.add(status);
+  		
+  		//row postFormats, available only if the blog support postFormats
+  		if(post.getBlog().getPostFormats() != null) {
+  			Hashtable postFormats = post.getBlog().getPostFormats();
+  			String postFormat = post.getPostFormat();
+  			int selectedPostFormatIndex = 0;
+  			Enumeration postFormatsKeys = postFormats.keys();
+  			
+  			int i = 0;
+  			String[] postFormatsLabel = new String[postFormats.size()];
+  			
+  			for (; postFormatsKeys.hasMoreElements(); ) {
+				String key = (String) postFormatsKeys.nextElement();
+				
+				if(postFormat != null) {
+					if ( postFormat.equalsIgnoreCase(key) )
+						selectedPostFormatIndex = i;
+	  			} else {
+	  				if ( "standard".equalsIgnoreCase(key) )
+	  					selectedPostFormatIndex = i;
+	  			}
+				postFormatsLabel[i] = (String)postFormats.get(key);
+				i++;
+			}
+  			postFormatField = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_POST_FORMATS)+":", postFormatsLabel, selectedPostFormatIndex, FIELD_VCENTER);
+  			postFormatField.setMargin(0, 5, 5, 5);
+  			outerManagerRowInfos.add(postFormatField);
+  		}
         
         add(outerManagerRowInfos);
         //row location
@@ -500,6 +531,24 @@ public class PostView extends StandardBaseView {
 			post.setStatus(newState);
 			controller.setObjectAsChanged(true);
 			Log.trace("status dirty");
+		}
+		
+		if(postFormatField != null && postFormatField.isDirty()){
+			int selectedStatusID = postFormatField.getSelectedIndex();	
+			Hashtable postFormats = post.getBlog().getPostFormats();
+			Enumeration postFormatsKeys = postFormats.keys();
+			int i = 0;
+			for (; postFormatsKeys.hasMoreElements(); ) {
+				String key = (String) postFormatsKeys.nextElement();
+
+				if(i == selectedStatusID) {
+					post.setPostFormat(key);
+					break;
+				}
+				i++;
+			}			
+			controller.setObjectAsChanged(true);
+			Log.trace("postFormats dirty");
 		}
 		
 		if(enableLocation.isDirty()) {

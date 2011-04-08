@@ -449,8 +449,7 @@ public class PostController extends BlogObjectController {
 			postStatusKey[postStatusLabel.length-1]= LOCAL_DRAFT_KEY;
 			// end 
 		}
-		
-		
+				
 		String[] draftPostPhotoList =  getPhotoList();
 
 		this.view= new PostView(this, post);
@@ -470,7 +469,7 @@ public class PostController extends BlogObjectController {
 	public int getPostStatusFieldIndex() {
 		Post post = getPostObj();
 		String status = post.getStatus();
-		if(post.getStatus() != null )
+		if(status != null )
 		for (int i = 0; i < postStatusKey.length; i++) {
 			String key = postStatusKey[i];
 				

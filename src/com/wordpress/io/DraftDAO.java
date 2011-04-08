@@ -240,7 +240,7 @@ public class DraftDAO implements BaseDAO{
         
 		String postFormat = post.getPostFormat();
 		if(postFormat != null) {
-			content.put("postFormat", postFormat);
+			content.put("wp_post_format", postFormat);
 		}
 		return content;
 	}	
@@ -349,8 +349,8 @@ public class DraftDAO implements BaseDAO{
 			post.setSignature((String)postData.get("signature"));
 		} 
 		
-		if(postData.get("postFormat") != null) {
-			post.setPostFormat((String)postData.get("postFormat"));
+		if(postData.get("wp_post_format") != null) {
+			post.setPostFormat((String)postData.get("wp_post_format"));
 		}
 
         return post;
