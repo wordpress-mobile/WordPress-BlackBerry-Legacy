@@ -757,7 +757,21 @@ public class PostController extends BlogObjectController {
 		}
 	}
 	
-
+	public boolean isPingbacksAndTrackbacksAllowed(){
+		return getPostObj().isTrackbackEnabled();
+	}
+	public void setPingbacksAndTrackbacksAllowed(boolean value) {
+		getPostObj().setTrackbackEnabled(value);
+		setObjectAsChanged(true);
+	}
+	public boolean isCommentsAllowed() {
+		return getPostObj().isCommentsEnabled();
+	}
+	public void setCommentsAllowed(boolean value){
+		getPostObj().setCommentsEnabled(value);
+		setObjectAsChanged(true);
+	}
+	
 	public void showComments() {
 		Post post = getPostObj();
 		if(post.getId() == null || post.getId().equals("")) {

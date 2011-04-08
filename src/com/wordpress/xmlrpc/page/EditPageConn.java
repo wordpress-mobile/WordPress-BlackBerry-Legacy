@@ -39,17 +39,6 @@ public class EditPageConn extends BlogConn  {
 			args.addElement(mPassword);
 			
 			Hashtable content = PageDAO.page2Hashtable(page);
-	        /*
-	         * 'trackback' and 'enable comments' option
-	         *  should not be considered at this moment.
-	         *  We haven't the GUI to set this value so we are using the ù
-	         *  blog main setting. 
-	         *  
-	         *  look at NewPageConn.java
-	         */
-		 	content.remove("mt_allow_comments");
-		    content.remove("mt_allow_pings");
-		    
 			args.addElement(content);
 			args.addElement(isPublished ? TRUE : FALSE);
 

@@ -50,6 +50,17 @@ public class MediaLibraryController extends BlogObjectController {
 			
 	}
 	
+	public boolean isPingbacksAndTrackbacksAllowed(){
+		return false;
+	}
+	public void setPingbacksAndTrackbacksAllowed(boolean value) {
+	}
+	public boolean isCommentsAllowed() {
+		return false;
+	}
+	public void setCommentsAllowed(boolean value){
+	}
+	
 	
 	public void saveLibrary() throws IOException, RecordStoreException {
 		MediaLibraryDAO.updateMediaLibrary(blog, internalIdx, getMediaLibraryObj());

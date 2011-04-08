@@ -38,18 +38,7 @@ public class EditPostConn extends BlogConn  {
 	         return;
 	        }
 
-		 	Hashtable content = DraftDAO.post2Hashtable(post);
-	        /*
-	         * 'trackback' and 'enable comments' option
-	         *  should not be considered at this moment.
-	         *  We haven't the GUI to set this value so we are using the ù
-	         *  blog main setting. 
-	         *  
-	         *  look at NewPostConn.java
-	         */
-		 	content.remove("mt_allow_comments");
-		    content.remove("mt_allow_pings");
-		 	
+		 	Hashtable content = DraftDAO.post2Hashtable(post);	 	
 			Vector args = new Vector(5);
 			args.addElement(post.getId());
 			args.addElement(mUsername);

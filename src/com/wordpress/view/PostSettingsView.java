@@ -41,6 +41,7 @@ public class PostSettingsView extends StandardBaseView {
 	private Integer imageResizeWidth;
 	private Integer imageResizeHeight;
 	
+	private BorderedFieldManager discussionSettingContainer;
 	BorderedFieldManager rowDate;
 	BorderedFieldManager rowPassword;
 	
@@ -53,6 +54,10 @@ public class PostSettingsView extends StandardBaseView {
 	private CheckboxField resizeVideo;
 	private BasicEditField videoResizeWidthField;
 	private BasicEditField videoResizeHeightField;
+	
+	//discussion fields
+	private CheckboxField enableCommentsField;
+	private CheckboxField enablePingbacksAndTrackbacksField;
 		
 	//used from media view - remove some field to the basic costructor
 	public PostSettingsView(BlogObjectController _controller,
@@ -60,7 +65,7 @@ public class PostSettingsView extends StandardBaseView {
 			boolean isResVideo, Integer videoResizeWidth, Integer videoResizeHeight ) {
 		this(_controller, new Date(), "", isResImg, imageResizeWidth, imageResizeHeight, isResVideo, videoResizeWidth, videoResizeHeight);
     	delete(rowDate);
-    	delete(rowPassword);
+    	delete(discussionSettingContainer);
 	}
 	
 	//used from post view to adds some fields used to show signature settings
@@ -70,6 +75,17 @@ public class PostSettingsView extends StandardBaseView {
 			boolean isSignatureEnabled, String signature) {
 		
 		this(_controller, postAuth, password, isResImg, imageResizeWidth, imageResizeHeight, isResVideo, videoResizeWidth, videoResizeHeight);
+		
+        //row password
+        rowPassword = new BorderedFieldManager(
+        		Manager.NO_HORIZONTAL_SCROLL
+        		| Manager.NO_VERTICAL_SCROLL
+        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
+        passwordField = new PasswordEditField(_resources.getString(WordPressResource.LABEL_PASSWD)+": ", password, 64, Field.EDITABLE);
+        rowPassword.add(passwordField);
+    	BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_POST_PASSWORD));
+		rowPassword.add(lblDesc);
+		insert(rowPassword, 2);
 		
 		rowSignature = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
@@ -84,7 +100,7 @@ public class PostSettingsView extends StandardBaseView {
 		signatureField = new BasicEditField(_resources.getString(WordPressResource.LABEL_SIGNATURE)+": ", signature, 1000, Field.EDITABLE);
 		signatureField.setMargin(5, 0, 5, 0);
 		rowSignature.add(signatureField);
-		insert(rowSignature, 2);
+		insert(rowSignature, 3);
 	}
 	
 	//used from page view
@@ -114,16 +130,21 @@ public class PostSettingsView extends StandardBaseView {
 	    rowDate.add(authoredOn);
 		add(rowDate); 
 		
-        //row password
-        rowPassword = new BorderedFieldManager(
+		//discussion settings 
+		discussionSettingContainer = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL
         		| BorderedFieldManager.BOTTOM_BORDER_NONE);
-        passwordField = new PasswordEditField(_resources.getString(WordPressResource.LABEL_PASSWD)+": ", password, 64, Field.EDITABLE);
-        rowPassword.add(passwordField);
-    	BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_POST_PASSWORD));
-		rowPassword.add(lblDesc);
-		add(rowPassword);
+		discussionSettingContainer.add(
+        		GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_DISCUSSION_SETTINGS),Color.BLACK)
+        		);
+		discussionSettingContainer.add(GUIFactory.createSepatorField());
+
+		enableCommentsField = new CheckboxField(_resources.getString(WordPressResource.LABEL_ALLOW_COMMENTS), controller.isCommentsAllowed());
+		discussionSettingContainer.add(enableCommentsField);
+		enablePingbacksAndTrackbacksField = new CheckboxField(_resources.getString(WordPressResource.LABEL_ALLOW_PINGBACKS_TRACKBACKS), controller.isPingbacksAndTrackbacksAllowed());
+		discussionSettingContainer.add(enablePingbacksAndTrackbacksField);
+		add(discussionSettingContainer);
 		
 		//resize photo sections
 		rowPhotoRes = new BorderedFieldManager(
@@ -275,28 +296,19 @@ public class PostSettingsView extends StandardBaseView {
 	
 	
 	private void saveChanges() {
-		if(authoredOn.isDirty() || passwordField.isDirty() || resizePhoto.isDirty() 
-				|| (imageResizeWidthField == null ? false : imageResizeWidthField.isDirty())
-				|| (imageResizeHeightField == null ? false : imageResizeHeightField.isDirty())
-				||  resizeVideo.isDirty() 
-				|| (videoResizeHeightField == null ? false : videoResizeHeightField.isDirty())
-				|| (videoResizeWidthField == null ? false : videoResizeWidthField.isDirty())
-				||  resizeVideo.isDirty() 
-				|| (enableSignature == null ? false : enableSignature.isDirty())
-				|| (signatureField == null ? false : signatureField.isDirty())
-			){
-			
+		if(hasChanges()){
+
 			Log.trace("settings are changed");
-			
+
 			if(authoredOn.isDirty()) {
 				long gmtTime = CalendarUtils.adjustTimeFromDefaultTimezone(authoredOn.getDate());
 				controller.setAuthDate(gmtTime);
 			}
-			
-			if(passwordField.isDirty()) {
+
+			if(passwordField == null ? false : passwordField.isDirty()) {
 				controller.setPassword(passwordField.getText());
 			}
-						
+
 			Integer resizeWidth = new Integer(ImageUtils.DEFAULT_RESIZE_WIDTH);
 			if(imageResizeWidthField != null) {
 				resizeWidth = Integer.valueOf(imageResizeWidthField.getText());
@@ -305,14 +317,14 @@ public class PostSettingsView extends StandardBaseView {
 			if(imageResizeHeightField != null) {
 				resizeHeight = Integer.valueOf(imageResizeHeightField.getText());
 			}
-			
+
 			//Before saving we should do an additional check over img resize width and height.
 			//it is necessary when user put a value into width/height field and then press backbutton;
 			//the focus lost on those fields is never fired....
 			int[] keepAspectRatio = ImageUtils.keepAspectRatio(resizeWidth.intValue(), resizeHeight.intValue());
 			resizeWidth = new Integer(keepAspectRatio[0]);
 			resizeHeight = new Integer(keepAspectRatio[1]);
-		
+
 			if (resizePhoto.isDirty()
 					|| (imageResizeWidthField == null ? false : imageResizeWidthField.isDirty())
 					|| (imageResizeHeightField == null ? false : imageResizeHeightField.isDirty())
@@ -322,7 +334,7 @@ public class PostSettingsView extends StandardBaseView {
 						resizeWidth, 
 						resizeHeight);
 			}
-			
+
 			boolean isVideoResizing = resizeVideo.getChecked();
 			Integer videoResizedWidth = new Integer(0);
 			Integer videoResizedHeight = new Integer(0);
@@ -336,40 +348,48 @@ public class PostSettingsView extends StandardBaseView {
 			} catch (NumberFormatException e) {
 				Log.error(e, "Error reading video resizing height");
 			}
-			
+
 			controller.setVideoResizing(isVideoResizing, 
 					videoResizedWidth, 
 					videoResizedHeight);
-			
+
 			if( (enableSignature == null ? false : enableSignature.isDirty()) ||
-			 (signatureField == null ? false : signatureField.isDirty()) ) {
+					(signatureField == null ? false : signatureField.isDirty()) ) {
 				controller.setSignature(enableSignature.getChecked(), signatureField.getText());
 			}
-			
+
+			if(enableCommentsField == null ? false : enableCommentsField.isDirty()) {
+				controller.setCommentsAllowed(enableCommentsField.getChecked());
+			}
+			if(enablePingbacksAndTrackbacksField == null ? false : enablePingbacksAndTrackbacksField.isDirty()) {
+				controller.setPingbacksAndTrackbacksAllowed(enablePingbacksAndTrackbacksField.getChecked());
+			}
+
 			controller.setObjectAsChanged(true);
 		} else {
 			Log.trace("settings are NOT changed");
 		}
 	}
 	
-	
-	public boolean onClose()   {
-		
-		boolean isModified=false;
-		
-		if(authoredOn.isDirty() || passwordField.isDirty() || resizePhoto.isDirty()
+	private boolean hasChanges() {
+		return (
+				authoredOn.isDirty() || resizePhoto.isDirty()
+				|| (passwordField == null ? false : passwordField.isDirty())
 				|| (imageResizeWidthField == null ? false : imageResizeWidthField.isDirty())
 				|| (imageResizeHeightField == null ? false : imageResizeHeightField.isDirty())
 				|| (enableSignature == null ? false : enableSignature.isDirty())
 				|| (signatureField == null ? false : signatureField.isDirty())
-				|| resizeVideo.isDirty()
-				|| videoResizeHeightField.isDirty()
-				|| videoResizeWidthField.isDirty()
-		) {
-			
-			isModified = true;
-		}
-		if(!isModified) {
+				||  resizeVideo.isDirty() 
+				|| (videoResizeHeightField == null ? false : videoResizeHeightField.isDirty())
+				|| (videoResizeWidthField == null ? false : videoResizeWidthField.isDirty()) 
+				|| (enableCommentsField == null ? false : enableCommentsField.isDirty())
+				|| (enablePingbacksAndTrackbacksField == null ? false : enablePingbacksAndTrackbacksField.isDirty())
+		);
+	}
+
+	public boolean onClose()   {
+
+		if(!hasChanges()) {
 			controller.backCmd();
 			return true;
 		}

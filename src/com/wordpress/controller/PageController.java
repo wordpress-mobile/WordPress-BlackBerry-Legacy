@@ -327,8 +327,8 @@ public class PageController extends BlogObjectController {
 	}
 
 
-	public void setPassword(String password) {
-		Page page = getPageObj();
+	public void setPassword(String password) { //password is not available for pages. it is in the model, but not on the UI
+		/*Page page = getPageObj();
 		if( page.getWpPassword() != null && !page.getWpPassword().equalsIgnoreCase(password) ){
 			page.setWpPassword(password);
 			setObjectAsChanged(true);
@@ -337,9 +337,23 @@ public class PageController extends BlogObjectController {
 				page.setWpPassword(password);
 				setObjectAsChanged(true);
 			}
-		}
+		}*/
 	}
 	
+	public boolean isPingbacksAndTrackbacksAllowed(){
+		return getPageObj().isPingsEnabled();
+	}
+	public void setPingbacksAndTrackbacksAllowed(boolean value) {
+		getPageObj().setPingsEnabled(value);
+		setObjectAsChanged(true);
+	}
+	public boolean isCommentsAllowed() {
+		return getPageObj().isCommentsEnabled();
+	}
+	public void setCommentsAllowed(boolean value){
+		getPageObj().setCommentsEnabled(value);
+		setObjectAsChanged(true);
+	}
 	
 	/*
 	 * set photos number on main post view

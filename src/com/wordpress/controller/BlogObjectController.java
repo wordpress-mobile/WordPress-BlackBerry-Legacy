@@ -85,6 +85,10 @@ public abstract class BlogObjectController extends BaseController {
 	public abstract void setAuthDate(long authoredOn);
 	public abstract void setPassword(String password);
 	public abstract void setSignature(boolean isSignatureEnabled, String signature);
+	public abstract boolean isPingbacksAndTrackbacksAllowed();
+	public abstract void setPingbacksAndTrackbacksAllowed(boolean value);
+	public abstract boolean isCommentsAllowed();
+	public abstract void setCommentsAllowed(boolean value);
 
 	//journal listener
 	FileSystemJournalListener mediaFileFSListener = null;
