@@ -3,6 +3,9 @@ package com.wordpress.model;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import net.rim.device.api.util.Arrays;
+import net.rim.device.api.util.Comparator;
+
 import com.wordpress.controller.AccountsController;
 import com.wordpress.utils.log.Log;
 
@@ -87,9 +90,23 @@ public class Blog {
 	}
 	
 	public Category[] getCategories() {
-		return categories;
+		if(categories == null) return null;
+		Category[] sortedArray = new Category[categories.length]; 
+		System.arraycopy(categories, 0, sortedArray, 0, categories.length);
+		Arrays.sort(sortedArray, new CategoryNameComparator() );
+		return sortedArray;
 	}
-
+	
+	private class CategoryNameComparator implements  Comparator {
+	    public int compare(Object emp1, Object emp2){    
+	        //parameter are of type Object, so we have to downcast it to Employee objects
+	        String emp1Name = ((Category)emp1).getLabel().toLowerCase();        
+	        String emp2Name = ((Category)emp2).getLabel().toLowerCase();
+	        //uses compareTo method of String class to compare names of the employee
+	        return emp1Name.compareTo(emp2Name);
+	    }
+	}
+	
 	public void setCategories(Category[] aCategories) {
 		categories = aCategories;
 	}
