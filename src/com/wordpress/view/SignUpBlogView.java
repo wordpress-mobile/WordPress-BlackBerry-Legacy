@@ -44,14 +44,14 @@ import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.dialog.ConnectionDialogClosedListener;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConnResponse;
-import com.wordpress.xmlrpc.BlogSignUpConn;
+import com.wordpress.xmlrpc.ParameterizedBlogConn;
 
 
 public class SignUpBlogView extends StandardBaseView {
 	
     private SignUpBlogController controller = null;
 	private ConnectionInProgressView connectionProgressView=null;
-	private BlogSignUpConn connection;
+	private ParameterizedBlogConn connection;
 	
     private BorderedFieldManager rowBlogURL;
     private BasicEditField blogNameField;
@@ -284,9 +284,16 @@ public class SignUpBlogView extends StandardBaseView {
 		passwd = passwd.trim();
 		blogName = blogName.trim();
 		email = email.trim();
-
+		
 		if (user != null && user != null && user.length() > 0) {
-        	connection = new BlogSignUpConn ("https://wordpress.com/xmlrpc.php", user, passwd, blogName, email);
+			
+			Vector args = new Vector(4);
+			args.addElement(blogName);
+			args.addElement(user);
+			args.addElement(passwd);
+			args.addElement(email);
+
+        	connection = new ParameterizedBlogConn ("https://wordpress.com/xmlrpc.php", "wpcom.registerAccount", args);
         	connectionProgressView= new ConnectionInProgressView(
         			_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
         	connection.addObserver(new BlogSignUpCallBack(connectionProgressView)); 

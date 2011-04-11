@@ -17,7 +17,7 @@ import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.PagesView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConnResponse;
-import com.wordpress.xmlrpc.page.DeletePageConn;
+import com.wordpress.xmlrpc.ParameterizedBlogConn;
 import com.wordpress.xmlrpc.page.GetPagesConn;
 
 
@@ -93,14 +93,20 @@ public class PagesController extends BaseController{
     	if(Dialog.YES==result) {
 		
     		String pageID = pages[selectedIndex].getID();
-    		    						 
-			DeletePageConn connection = new DeletePageConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
-					 currentBlog.getPassword(), currentBlog.getId(), pageID);
+    		
+			Vector args = new Vector(5);
+			args.addElement(currentBlog.getId());
+			args.addElement(currentBlog.getUsername());
+			args.addElement(currentBlog.getPassword());
+			args.addElement(pageID);
+    				 
+			ParameterizedBlogConn connection = new ParameterizedBlogConn (currentBlog.getXmlRpcUrl(),
+					"wp.deletePage", args);
 			if(currentBlog.isHTTPBasicAuthRequired()) {
 				connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
 				connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
 			}
-			 connection.addObserver(new deletePageCallBack(selectedIndex)); //not page id, selectedID
+			 connection.addObserver(new DeletePageCallBack(selectedIndex)); //not page id, selectedID
 		     
 		     connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONN_DELETE_PAGE));
 	  
@@ -143,7 +149,7 @@ public class PagesController extends BaseController{
 			connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
 			connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
 		}
-        connection.addObserver(new refreshPageCallBack()); 
+        connection.addObserver(new RefreshPageCallBack()); 
         String connMsg=_resources.getString(WordPressResource.CONN_LOADING_PAGES);
         connectionProgressView= new ConnectionInProgressView(connMsg);
        
@@ -156,11 +162,11 @@ public class PagesController extends BaseController{
 		}
 	}
 		
-	private class deletePageCallBack implements Observer{
+	private class DeletePageCallBack implements Observer{
 		
 		int index;
 		
-		public deletePageCallBack(int index) {
+		public DeletePageCallBack(int index) {
 			super();
 			this.index = index;
 		}
@@ -169,7 +175,7 @@ public class PagesController extends BaseController{
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
 					
-					System.out.println(">>>deletePageResponse");
+					Log.debug(">>>deletePageResponse");
 					dismissDialog(connectionProgressView);
 					BlogConnResponse resp= (BlogConnResponse) object;
 					if(resp.isStopped()){
@@ -201,32 +207,32 @@ public class PagesController extends BaseController{
 					}
 					
 					
-					}//and run 
+					}//End run 
 			});
 		}
 	}
 		
 	
-	private class refreshPageCallBack implements Observer{
+	private class RefreshPageCallBack implements Observer{
 		public void update(Observable observable, final Object object) {
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
-					
-					System.out.println(">>>loadPageResponse");
+
+					Log.debug(">>>loadPageResponse");
 
 					dismissDialog(connectionProgressView);
 					BlogConnResponse resp= (BlogConnResponse) object;
-							
+
 					if(resp.isStopped()){
 						return;
 					}
 					if(!resp.isError()) {
-						
+
 						Vector respVector= (Vector) resp.getResponseObject();
 						currentBlog.setPages(respVector);
 						pages = PageDAO.buildPagesArray(currentBlog.getPages());
 						view.refresh(pages , countNewPages());
-						
+
 						/*
 						//setting the NEW viewed page
 						int[] pagesID = new int[pages.length];
@@ -236,52 +242,23 @@ public class PagesController extends BaseController{
 							pagesID[i] = id;
 						}
 						currentBlog.setViewedPages(pagesID);
-						*/
-						
+						 */
+
 						try{
 							BlogDAO.updateBlog(currentBlog);							
 						} catch (final Exception e) {
-						 	displayError(e,"Error while storing pages");	
+							displayError(e,"Error while storing pages");	
 						}
-						
-						
+
+
 					} else {
 						final String respMessage=resp.getResponse();
-					 	displayError(respMessage);	
+						displayError(respMessage);	
 					}
 
-					
-					}//end run 
+
+				}//End run 
 			});
 		}
 	}
-
-	
-	/*
-	//callback for post loading
-	class loadPostCallBack implements Observer{
-		public void update(Observable observable, final Object object) {
-			UiApplication.getUiApplication().invokeLater(new Runnable() {
-				public void run() {
-
-					System.out.println(">>>loadPostResponse");
-
-					dismissDialog(connectionProgressView);
-					BlogConnResponse resp= (BlogConnResponse) object;
-							
-					if(!resp.isError()) {
-						if(resp.isStopped()){
-							return;
-						}
-						Post post=(Post)resp.getResponseObject();
-						FrontController.getIstance().showPost(post);	
-					} else {
-						final String respMessage=resp.getResponse();
-					 	displayError(respMessage);	
-					}
-				
-				}
-			});
-		}
-	} */
 }

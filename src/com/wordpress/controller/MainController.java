@@ -33,8 +33,8 @@ import com.wordpress.view.MainView;
 import com.wordpress.view.dialog.ConnectionDialogClosedListener;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConnResponse;
-import com.wordpress.xmlrpc.BlogGetActivationStatusConn;
 import com.wordpress.xmlrpc.BlogUpdateConn;
+import com.wordpress.xmlrpc.ParameterizedBlogConn;
 
 
 public class MainController extends BaseController implements TaskProgressListener {
@@ -391,13 +391,16 @@ public class MainController extends BaseController implements TaskProgressListen
 		if(((BlogInfo)applicationBlogs.elementAt(index)).getState() == BlogInfo.STATE_PENDING_ACTIVATION){
 			BlogInfo applicationBlogTmp = (BlogInfo)applicationBlogs.elementAt(index);
 			//chiamare la procedura per controllare l'attivazione di un blog
-			BlogGetActivationStatusConn connection = new BlogGetActivationStatusConn ("https://wordpress.com/xmlrpc.php", applicationBlogTmp.getBlogURL());		        
-			
+
+			Vector args = new Vector(1);
+			args.addElement(applicationBlogTmp.getBlogURL());
+			ParameterizedBlogConn connection = new ParameterizedBlogConn ("https://wordpress.com/xmlrpc.php", "wpcom.getActivationStatus", args);	
+
 			connectionProgressView= new ConnectionInProgressView(
-	    			_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
+					_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
 			connection.addObserver(new BlogGetActivationStatusConnCallBack(applicationBlogTmp, connectionProgressView)); 	        
 			connectionProgressView.setDialogClosedListener(new ConnectionDialogClosedListener(connection));
-	        connectionProgressView.show();
+			connectionProgressView.show();
 			connection.startConnWork();
 		}
 	}
@@ -423,7 +426,9 @@ public class MainController extends BaseController implements TaskProgressListen
 					if(((BlogInfo)applicationBlogs.elementAt(i)).getState() == BlogInfo.STATE_PENDING_ACTIVATION){
 						BlogInfo applicationBlogTmp = (BlogInfo)applicationBlogs.elementAt(i);
 						//chiamare la procedura per controllare l'attivazione di un blog
-						BlogGetActivationStatusConn connection = new BlogGetActivationStatusConn ("https://wordpress.com/xmlrpc.php", applicationBlogTmp.getBlogURL());		        
+					    Vector args = new Vector(1);
+				        args.addElement(applicationBlogTmp.getBlogURL());
+						ParameterizedBlogConn connection = new ParameterizedBlogConn ("https://wordpress.com/xmlrpc.php", "wpcom.getActivationStatus", args);		        
 						connection.addObserver(new BlogGetActivationStatusConnCallBack(applicationBlogTmp)); 	        
 						connection.startConnWork();
 						return;

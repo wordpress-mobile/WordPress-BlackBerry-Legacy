@@ -3,6 +3,7 @@ package com.wordpress.xmlrpc;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -78,6 +79,11 @@ public class BlogUpdateConn extends BlogConn  {
 	public void run() {
 		try {
 			
+			Vector basicArgs = new Vector(3);
+			basicArgs.addElement(String.valueOf(blog.getId()));
+			basicArgs.addElement(mUsername);
+			basicArgs.addElement(mPassword);
+			
 			connResponse = new BlogConnResponse();
 			//the following calls uses the same connection 
 			//These calls can modify the state of the connection to isError=true;
@@ -87,21 +93,21 @@ public class BlogUpdateConn extends BlogConn  {
 			checkConnectionResponse("Error while loading categories");
 			
 			//retrive the blog "page status list"
-			Hashtable pageStatusList = getInfo(blog, "wp.getPageStatusList");
+			Hashtable pageStatusList = (Hashtable) getXmlRpcWithParameters("wp.getPageStatusList", basicArgs);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				blog.setPageStatusList(pageStatusList);
 			checkConnectionResponse("Error while loading Page Status");
 						
 			//retrieve the blog "page template list"
-			Hashtable pageTemplate = getInfo(blog, "wp.getPageTemplates");
+			Hashtable pageTemplate = (Hashtable) getXmlRpcWithParameters("wp.getPageTemplates", basicArgs);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				blog.setPageTemplates(pageTemplate);
 			checkConnectionResponse("Error while loading Page Templates");
 			
 			//retrive the blog "post status list"
-			Hashtable statusList =  getInfo(blog, "wp.getPostStatusList");
+			Hashtable statusList = (Hashtable) getXmlRpcWithParameters("wp.getPostStatusList", basicArgs);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				blog.setPostStatusList(statusList);
@@ -111,7 +117,7 @@ public class BlogUpdateConn extends BlogConn  {
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			checkConnectionResponse("Error while loading Tags");
 
-			Hashtable commentStatusList = getInfo(blog, "wp.getCommentStatusList");
+			Hashtable commentStatusList = (Hashtable) getXmlRpcWithParameters("wp.getCommentStatusList", basicArgs);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				blog.setCommentStatusList(commentStatusList);
@@ -145,19 +151,47 @@ public class BlogUpdateConn extends BlogConn  {
 			}
 			checkConnectionResponse("Error while loading comments");
 
-			Hashtable options = getInfo(blog, "wp.getOptions");
+			Hashtable options = (Hashtable) getXmlRpcWithParameters("wp.getOptions", basicArgs);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				blog.setBlogOptions(options);
 			checkConnectionResponse("Error while loading Blog options");
 			
-
-			//The method call  wpcom.getPostFormats  ( blog_id, username, password ) which returns a struct.
+			//wpcom.getPostFormats  ( blog_id, username, password ) which returns a struct.
 			//http://core.trac.wordpress.org/ticket/1540
-			Hashtable postFormats = getInfo(blog, "wp.getPostFormats");
+			//http://core.trac.wordpress.org/ticket/17094
+			Hashtable postFormatRequestParameters = new Hashtable();
+			postFormatRequestParameters.put("show-supported", TRUE);
+			Vector additionalParameter = new Vector();
+			for (int i = 0; i < basicArgs.size(); i++) {
+				additionalParameter.addElement(basicArgs.elementAt(i));
+			}			
+			additionalParameter.addElement(postFormatRequestParameters);
+			Hashtable postFormats = (Hashtable) getXmlRpcWithParameters("wp.getPostFormats", additionalParameter);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
-			if(connResponse.isError() == false )
-				blog.setPostFormats(postFormats);
+			if(connResponse.isError() == false ) {
+				
+				if(postFormats != null && postFormats.containsKey("all") 
+						&&  postFormats.containsKey("supported")) {
+					Hashtable supportedFormats = (Hashtable) postFormats.get("supported");
+					Hashtable allFormats = (Hashtable) postFormats.get("all");
+					Hashtable mergedFormats = new Hashtable();
+					//adding the standard Post Formats
+					mergedFormats.put("standard", allFormats.get("standard"));
+
+					Enumeration k = supportedFormats.elements();
+					while (k.hasMoreElements()) {
+						String key = (String) k.nextElement();
+						String value = (String) allFormats.get(key);
+						if(value!= null) //just an additional check
+							mergedFormats.put(key, value);
+					}	
+					
+				} else			
+					blog.setPostFormats(postFormats);
+			}
+			additionalParameter = null;
+			postFormatRequestParameters = null;
 			checkConnectionResponse("Error while loading PostFormats");
 
 			if(blog.isWPCOMBlog()) {
@@ -168,7 +202,7 @@ public class BlogUpdateConn extends BlogConn  {
 				 * Right now the only field in the struct is "videopress_enabled", with a boolean value.
 				 * 
 				 */
-				Hashtable features = getInfo(blog, "wpcom.getFeatures");
+				Hashtable features = (Hashtable) getXmlRpcWithParameters("wpcom.getFeatures", basicArgs);
 				if(connResponse.isStopped()) return; //if the user has stopped the connection
 				if(connResponse.isError() == false )
 					blog.setWpcomFeatures(features);
@@ -355,37 +389,15 @@ public class BlogUpdateConn extends BlogConn  {
 		}
 	}
 		
-	protected synchronized Hashtable getInfo(Blog blog, String methodName) throws Exception {
+	protected synchronized Object getXmlRpcWithParameters(String methodName, Vector args) throws Exception {
 		try {
 			Log.debug(">>> reading "+methodName+" on the blog : " + blog.getName());
-
-			Vector args = new Vector(3);
-			args.addElement(String.valueOf(blog.getId()));
-			args.addElement(mUsername);
-			args.addElement(mPassword);
-
 			Object response = execute(methodName, args);
 			if (connResponse.isError()) {
 				return null;
-			}
-			
-			Hashtable optionsStructs = (Hashtable) response;
-			/*
-			Enumeration k = optionsStruct.keys();
-			while (k.hasMoreElements()) {
-				String key = (String) k.nextElement();
-				Log.trace("==== " + key + " ==== ");
-				Hashtable currentOption = (Hashtable) optionsStruct.get(key);
-				Enumeration innerkeys = currentOption.keys();
-				while (innerkeys.hasMoreElements()) {
-					String innerkey = (String) innerkeys.nextElement();
-					Log.trace("innerkey " + innerkey + "; ");
-					Log.trace("innervalue " + String.valueOf( currentOption.get(innerkey) )+ "; "); 
-				}
-			}
-			*/
+			}			
 			Log.debug("<<< End reading "+methodName+" on the blog : "	+ blog.getName());
-			return optionsStructs;
+			return response;			
 		} catch (ClassCastException cce) {
 			throw new Exception ("Error while reading "+methodName+" for the blog : "	+ blog.getName());
 		}

@@ -33,7 +33,7 @@ import com.wordpress.view.CommentReplyView;
 import com.wordpress.view.CommentView;
 import com.wordpress.view.CommentsView;
 import com.wordpress.xmlrpc.BlogConnResponse;
-import com.wordpress.xmlrpc.comment.GetCommentCountConn;
+import com.wordpress.xmlrpc.ParameterizedBlogConn;
 import com.wordpress.xmlrpc.comment.GetCommentsConn;
 
 /**
@@ -422,8 +422,14 @@ public class NotificationHandler {
 				BlogInfo blogInfo = (BlogInfo) executionQueue.pop();
 				this.currentBlog = blogInfo;
 				//blog is correctly loaded within the app
-				GetCommentCountConn connection = new GetCommentCountConn(blogInfo.getXmlRpcUrl(), 
-						blogInfo.getUsername(), blogInfo.getPassword(), "-1");
+				Vector args = new Vector(5);
+		        args.addElement("1");
+		        args.addElement(blogInfo.getUsername());
+		        args.addElement( blogInfo.getPassword());
+		        args.addElement("-1");
+		        
+		        ParameterizedBlogConn connection = new ParameterizedBlogConn(blogInfo.getXmlRpcUrl(), 
+		        		"wp.getCommentCount", args);
 				if(currentBlog.isHTTPBasicAuthRequired()) {
 					connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
 					connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
@@ -447,10 +453,9 @@ public class NotificationHandler {
 			}
 			*/	try{ 
 				BlogConnResponse resp= (BlogConnResponse) object;
-				Hashtable respObj= null;
+				Hashtable respObj = null;
 				
-				Log.trace("risposta è del tipo "+ resp.getResponseObject().getClass().getName());
-
+			
 				if(!resp.isError()) {
 					respObj = (Hashtable) resp.getResponseObject(); // the response from wp server
 					

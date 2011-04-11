@@ -26,7 +26,7 @@ import com.wordpress.view.CommentReplyView;
 import com.wordpress.view.CommentsView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConnResponse;
-import com.wordpress.xmlrpc.comment.DeleteCommentConn;
+import com.wordpress.xmlrpc.ParameterizedBlogConn;
 import com.wordpress.xmlrpc.comment.EditCommentConn;
 import com.wordpress.xmlrpc.comment.GetCommentsConn;
 import com.wordpress.xmlrpc.comment.NewCommentConn;
@@ -229,8 +229,14 @@ public class RecentCommentsController extends BaseController {
 		Queue connectionsQueue = new Queue();
 		for (int i = 0; i < deleteComments.length; i++) {
 			Comment comment = deleteComments[i];
-			DeleteCommentConn conn = new DeleteCommentConn(currentBlog.getXmlRpcUrl(), currentBlog.getUsername(),
-					currentBlog.getPassword(), currentBlog.getId(), comment.getID());
+			
+			Vector args = new Vector(4);
+	        args.addElement( currentBlog.getId());
+			args.addElement( currentBlog.getUsername());
+	        args.addElement( currentBlog.getPassword());
+	        args.addElement(comment.getID());
+			
+	        ParameterizedBlogConn conn = new ParameterizedBlogConn(currentBlog.getXmlRpcUrl(), "wp.deleteComment", args);
 			if(currentBlog.isHTTPBasicAuthRequired()) {
 				conn.setHttp401Password(currentBlog.getHTTPAuthPassword());
 				conn.setHttp401Username(currentBlog.getHTTPAuthUsername());

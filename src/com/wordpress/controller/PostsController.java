@@ -16,7 +16,7 @@ import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.PostsView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConnResponse;
-import com.wordpress.xmlrpc.post.DeletePostConn;
+import com.wordpress.xmlrpc.ParameterizedBlogConn;
 import com.wordpress.xmlrpc.post.GetPostConn;
 import com.wordpress.xmlrpc.post.RecentPostConn;
 
@@ -120,7 +120,7 @@ public class PostsController extends BaseController{
 	        
 			final GetPostConn connection = new GetPostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
 	        		currentBlog.getPassword(), currentBlog, String.valueOf(postData.get("postid")) );
-	        connection.addObserver(new loadPostCallBack());  
+	        connection.addObserver(new LoadPostCallBack());  
 	        connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONN_LOADING_POST));
 	       
 	        connection.startConnWork(); //starts connection
@@ -134,24 +134,28 @@ public class PostsController extends BaseController{
 		}	     	
 	}	
 
-	public void deletePost(int postID){
-		if(postID == -1) return;
+	public void deletePost(int postListIndex){
+		if(postListIndex == -1) return;
 		
 		int result=this.askQuestion(_resources.getString(WordPressResource.MESSAGE_DELETE_POST));   
 		
     	if(Dialog.YES==result) {
 		
-    		Hashtable postData = (Hashtable) currentBlog.getRecentPostTitles().elementAt(postID);
-
-			String postid = String.valueOf(postData.get("postid"));
+    		Hashtable postData = (Hashtable) currentBlog.getRecentPostTitles().elementAt(postListIndex);
+			String postID = String.valueOf(postData.get("postid"));
+			
+			Vector args = new Vector();
+			args.addElement(""); // appkkey
+			args.addElement(postID);
+			args.addElement(currentBlog.getUsername());
+			args.addElement(currentBlog.getPassword());
 				 
-			DeletePostConn connection = new DeletePostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
-					 currentBlog.getPassword(), postid);
+			ParameterizedBlogConn connection = new ParameterizedBlogConn (currentBlog.getXmlRpcUrl(), "blogger.deletePost", args);
 	   		if(currentBlog.isHTTPBasicAuthRequired()) {
 				connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
 				connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
 			}
-			 connection.addObserver(new deletePostCallBack());
+			 connection.addObserver(new DeletePostCallBack(postID));
 		     
 		     connectionProgressView= new ConnectionInProgressView(_resources.getString(WordPressResource.CONN_DELETE_POST));
 	  
@@ -201,7 +205,7 @@ public class PostsController extends BaseController{
 		System.out.println(">>>refreshPosts");
         final RecentPostConn connection = new RecentPostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
         		currentBlog.getPassword(), currentBlog);
-        connection.addObserver(new refreshRecentPostCallBack()); 
+        connection.addObserver(new RefreshRecentPostCallBack()); 
         String connMsg=_resources.getString(WordPressResource.CONN_REFRESH_POSTLIST);
         connectionProgressView= new ConnectionInProgressView(connMsg);
        
@@ -215,12 +219,19 @@ public class PostsController extends BaseController{
 	}
 	
 	
-	class deletePostCallBack implements Observer{
+	class DeletePostCallBack implements Observer {
+
+		private final String postID;
+		public DeletePostCallBack(String postID) {
+			super();
+			this.postID = postID;
+		}
+
 		public void update(Observable observable, final Object object) {
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
-					
-					Log.debug(">>>deletePostResponse");
+
+					Log.debug(">>>DeletePostResponse");
 
 					dismissDialog(connectionProgressView);
 					BlogConnResponse resp= (BlogConnResponse) object;
@@ -228,90 +239,96 @@ public class PostsController extends BaseController{
 						return;
 					}
 					if(!resp.isError()) {
-						
-				        String postID=(String) resp.getResponseObject();
-				        Vector recentPostTitles = currentBlog.getRecentPostTitles();
-				        
-				        for (int i = 0; i < recentPostTitles.size(); i++) {
-				        	Hashtable postData = (Hashtable) recentPostTitles.elementAt(i);
-				        	String tmpPostID =(String) postData.get("postid");
-				        	if(tmpPostID.equalsIgnoreCase(postID)){
-				        		recentPostTitles.removeElementAt(i);
-				        		break;
-				        	}
-						}			        
-						
-						view.refresh(currentBlog.getRecentPostTitles(), countNewPosts());
-						
-						try{
-							BlogDAO.updateBlog(currentBlog);							
-						} catch (final Exception e) {
-						 	displayError(e,"Error while refreshing blogs");	
+
+						Boolean deleteResp = (Boolean) resp.getResponseObject();
+						if(deleteResp.booleanValue()) {
+							//delete ok
+
+							Vector recentPostTitles = currentBlog.getRecentPostTitles();
+
+							for (int i = 0; i < recentPostTitles.size(); i++) {
+								Hashtable postData = (Hashtable) recentPostTitles.elementAt(i);
+								String tmpPostID =(String) postData.get("postid");
+								if(tmpPostID.equalsIgnoreCase(postID)){
+									recentPostTitles.removeElementAt(i);
+									break;
+								}
+							}			        
+
+							view.refresh(currentBlog.getRecentPostTitles(), countNewPosts());
+
+							try{
+								BlogDAO.updateBlog(currentBlog);							
+							} catch (final Exception e) {
+								displayError(e,"Error while refreshing blogs");	
+							}
+
+						} else {
+							displayError("Error while deleting Post");
 						}
 
-						
 					} else {  
 						final String respMessage=resp.getResponse();
-					 	displayError(respMessage);	
+						displayError(respMessage);	
 					}
-					
-					
-					}//and run 
+
+
+				}//End run 
 			});
 		}
 	}
 		
 	
-	class refreshRecentPostCallBack implements Observer{
+	class RefreshRecentPostCallBack implements Observer{
 		public void update(Observable observable, final Object object) {
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
-					
+
 					Log.trace(">>>loadRecentPostsResponse");
 
 					dismissDialog(connectionProgressView);
 					BlogConnResponse resp= (BlogConnResponse) object;
-							
+
 					if(resp.isStopped()){
 						return;
 					}
 					if(!resp.isError()) {
-						
+
 						Vector recentPostTitle= (Vector) resp.getResponseObject();
 						currentBlog.setRecentPostTitles(recentPostTitle);
 
 						view.refresh(currentBlog.getRecentPostTitles() , countNewPosts());
-						
+
 						try{
 							BlogDAO.updateBlog(currentBlog);							
 						} catch (final Exception e) {
-						 	displayError(e,"Error while refreshing blogs");	
+							displayError(e,"Error while refreshing blogs");	
 						}
-						
-						
+
+
 					} else {
 						final String respMessage=resp.getResponse();
-					 	displayError(respMessage);	
+						displayError(respMessage);	
 					}
 
-					
-					}//and run 
+
+				}//End run 
 			});
 		}
 	}
 
 	
 	//callback for post loading
-	class loadPostCallBack implements Observer{
+	class LoadPostCallBack implements Observer{
 		public void update(Observable observable, final Object object) {
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
 
-					System.out.println(">>>loadPostResponse");
+					Log.debug(">>>loadPostResponse");
 
 					dismissDialog(connectionProgressView);
 					BlogConnResponse resp= (BlogConnResponse) object;
-							
+
 					if(resp.isStopped()){
 						return;
 					}
@@ -320,9 +337,9 @@ public class PostsController extends BaseController{
 						FrontController.getIstance().showPost(post, false);	
 					} else {
 						final String respMessage=resp.getResponse();
-					 	displayError(respMessage);	
+						displayError(respMessage);	
 					}
-				
+
 				}
 			});
 		}

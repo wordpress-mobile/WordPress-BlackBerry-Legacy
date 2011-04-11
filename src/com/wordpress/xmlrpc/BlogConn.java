@@ -54,13 +54,17 @@ public abstract class BlogConn extends Observable implements Runnable {
 		//retrieve a reference to the ResourceBundle for localization support
 		_resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
 	}
-	
+
 	public BlogConn(String url, String user, String password) {
 	    mUsername = user;
 	    mPassword = password;
 	    urlConnessione=url;
 	}
-		
+	
+	public BlogConn(String url) {
+	    urlConnessione=url;
+	}
+	
 	public void startConnWork(){
 		Log.debug("Inizio richiesta XML-RPC");
 		isWorking=true;
