@@ -2,7 +2,6 @@ package com.wordpress.controller;
 
 import java.util.Vector;
 
-import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
@@ -36,28 +35,6 @@ public class BlogController extends BaseController {
 				
 	public String getBlogName() {
 		return currentBlogInfo.getName();
-	}
-
-	public EncodedImage getBlogIcon() {
-		EncodedImage _theImage = null;
-		try {
-			if(BlogDAO.getBlogIco(currentBlog) != null) {
-				_theImage = EncodedImage.createEncodedImage(BlogDAO.getBlogIco(currentBlog), 0, -1);
-			}
-		} catch (Exception e) {
-			Log.error("no valid shortcut ico found in the blog obj");
-			_theImage = null;
-		}
-
-		if (_theImage == null ) {
-			if(currentBlog.isWPCOMBlog()) {
-				_theImage = EncodedImage.getEncodedImageResource("wp_blue-s.png");
-			} else {
-				_theImage = EncodedImage.getEncodedImageResource("wp_grey-s.png");
-			}
-		}
-		
-		return _theImage;
 	}
 
 	public void showView(){
@@ -184,7 +161,7 @@ public class BlogController extends BaseController {
 			//update the title
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
-					view.setBlogHeader(currentBlogI.getName(), getBlogIcon());
+					view.setTitle(currentBlogI.getName());
 				}
 			});
 			

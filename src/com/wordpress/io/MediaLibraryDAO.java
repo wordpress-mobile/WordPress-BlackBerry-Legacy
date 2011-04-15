@@ -142,41 +142,20 @@ public class MediaLibraryDAO implements BaseDAO {
 	}
 	
 	private static synchronized Hashtable mediaItem2Hashtable(MediaLibrary item) {
-        Hashtable content = new Hashtable();
-        if (item.getTitle() != null) {
-            content.put("title", item.getTitle());
-        }
-        content.put("cutandpaste", new Boolean(item.isCutAndPaste()));
-        
+		Hashtable content = new Hashtable();
+		if (item.getTitle() != null) {
+			content.put("title", item.getTitle());
+		}
+		content.put("cutandpaste", new Boolean(item.isCutAndPaste()));
+
 		//convert media object before save them
 		Vector mediaObjects = item.getMediaObjects();
 		Vector hashedMediaIbjects = new Vector(mediaObjects.size());
 		for (int i = 0; i < mediaObjects.size(); i++) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			hashedMediaIbjects.addElement(tmp.serialize());
-			}
+		}
 		content.put("mediaObjects", hashedMediaIbjects);
-		
-		
-		if(item.isPhotoResizing() != null) {
-			content.put("IsPhotoResizing", item.isPhotoResizing());
-		}
-		if(item.getImageResizeWidth() != null) {
-			content.put("imageResizeWidth", item.getImageResizeWidth());
-		}
-		if(item.getImageResizeHeight() != null) {
-			content.put("imageResizeHeight", item.getImageResizeHeight());
-		}
-		
-		if(item.isVideoResizing() !=null)
-			content.put("IsVideoResizing", item.isVideoResizing());
-		
-		if(item.getImageResizeWidth() != null)
-			content.put("videoResizeWidth", item.getVideoResizeWidth());
-		
-		if(item.getImageResizeHeight() != null)
-			content.put("videoResizeHeight", item.getVideoResizeHeight());
-		
 		return content;
 	}
 	
@@ -198,34 +177,6 @@ public class MediaLibraryDAO implements BaseDAO {
 					}
 			entry.setMediaObjects(mediaObjects);
 			}
-			
-			//set the prop for photo res
-			if(storedData.get("IsPhotoResizing") != null) {
-				entry.setPhotoResizing((Boolean) storedData.get("IsPhotoResizing"));
-			}
-			
-			if(storedData.get("imageResizeWidth") != null) {
-				entry.setImageResizeWidth((Integer) storedData.get("imageResizeWidth"));
-			}
-			
-			if(storedData.get("imageResizeHeight") != null) {
-				entry.setImageResizeHeight((Integer) storedData.get("imageResizeHeight"));
-			}
-			
-			//set the prop for videopres resizing options
-			if(storedData.get("IsVideoResizing") != null) {
-				entry.setVideoResizing((Boolean) storedData.get("IsVideoResizing"));
-			}
-			
-			// Set the image resize dimension properties
-			if(storedData.get("videoResizeWidth") != null) {
-				entry.setVideoResizeWidth((Integer) storedData.get("videoResizeWidth"));
-			}
-			
-			if(storedData.get("videoResizeHeight") != null) {
-				entry.setVideoResizeHeight((Integer) storedData.get("videoResizeHeight"));
-			}
-			
 			return entry;
 		} catch (Exception e) {
 			Log.trace(e, "Error while reading media library entry from device storage");

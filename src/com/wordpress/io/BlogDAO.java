@@ -244,7 +244,7 @@ public class BlogDAO implements BaseDAO {
 			ser.serialize(new Vector()); //serialize empty posts vector
 		}
 
-		ser.serialize(blog.getViewedPost());
+		ser.serialize(new Boolean(true)); //was blog.getViewedPost()
 
 		try {
 			serializeTest(blog.getPages());
@@ -259,7 +259,7 @@ public class BlogDAO implements BaseDAO {
 			ser.serialize(new Vector()); //serialize empty pages vector
 		}
 
-		ser.serialize(blog.getViewedPages());
+		ser.serialize(new Boolean(true)); //was ser.serialize(blog.getViewedPages());
 
 		Category[] categories = blog.getCategories();
 		if (categories != null) {
@@ -376,14 +376,16 @@ public class BlogDAO implements BaseDAO {
 		Vector recentPostTitleList= (Vector)ser.deserialize();
 		blog.setRecentPostTitles(recentPostTitleList);
 
-		Vector viewedPostList= (Vector)ser.deserialize();
-		blog.setViewedPost(viewedPostList);
+		/*Vector viewedPostList= (Vector)ser.deserialize();
+		blog.setViewedPost(viewedPostList);*/
+		ser.deserialize();
 
 		Vector pagesList= (Vector)ser.deserialize();
 		blog.setPages(pagesList);
 
-		int[] viewedPagesList= (int[])ser.deserialize();
-		blog.setViewedPages(viewedPagesList);
+		/*int[] viewedPagesList= (int[])ser.deserialize();
+		blog.setViewedPages(viewedPagesList);*/
+		ser.deserialize();
 
 
 		int categoryLength= ((Integer)ser.deserialize()).intValue();

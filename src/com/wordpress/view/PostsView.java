@@ -31,17 +31,10 @@ public class PostsView extends BaseView implements ListActionListener {
     private PostsListField listaPost; 
     private VerticalFieldManager dataScroller;
 	
-	 public PostsView(PostsController _controller, Vector recentPostInfo, int numberOfNewPosts) {
-	    	super(_resources.getString(WordPressResource.TITLE_RECENTPOST)+ " > "+ _controller.getBlogName(), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
+	 public PostsView(PostsController _controller, Vector recentPostInfo) {
+	    	super(_controller.getBlogName(), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 	    	this.controller=_controller;
-	                
-	        if(recentPostInfo != null) {
-	        	String subTitleValue = getNumberOfTotalPostLabel(recentPostInfo.size())+ " " + getNumberOfNewPostLabel(numberOfNewPosts);
-	        	this.setSubTitleText(subTitleValue);
-	        } else {
-	        	this.setSubTitleText("");
-	        }
-	        
+	    	this.setSubTitleText(_resources.getString(WordPressResource.BUTTON_POSTS));        
 	        //A HorizontalFieldManager to hold the posts list
 	        dataScroller = new VerticalFieldManager(VerticalFieldManager.VERTICAL_SCROLL
 	                 | VerticalFieldManager.VERTICAL_SCROLLBAR);
@@ -87,25 +80,7 @@ public class PostsView extends BaseView implements ListActionListener {
 			}
 		}
 	//#endif
-	 
-	 
-	 private String getNumberOfNewPostLabel(int newPostNum) {
-		  //set the label for the post number object
-	        String numerOfPostLabel="(" +newPostNum+" "+_resources.getString(WordPressResource.LABEL_POST_NUMBER_NEW)+")";
-	        return numerOfPostLabel;
-	 }
-	 
-	 private String getNumberOfTotalPostLabel(int recentPostNum) {
-		  //set the label for the post number object
-	        String numerOfPostLabel = null;       
-	        if(recentPostNum > 1) 
-	        	numerOfPostLabel= recentPostNum+ " " +_resources.getString(WordPressResource.LABEL_POST_NUMBERS); 
-	        else 
-	        	numerOfPostLabel= recentPostNum+ " " +_resources.getString(WordPressResource.LABEL_POST_NUMBER);
-	        
-	        return numerOfPostLabel;
-	 }
-	 
+
 	private void buildList(Vector recentPostInfo) {
         
 		Hashtable elements[]= new Hashtable[0];
@@ -213,16 +188,8 @@ public class PostsView extends BaseView implements ListActionListener {
         }
     };
      	
-    public void refresh(Vector recentPostInfo, int count){
+    public void refresh(Vector recentPostInfo){
     	dataScroller.delete(listaPost);
-    	
-        if(recentPostInfo != null) {
-        	String subTitleValue = getNumberOfTotalPostLabel(recentPostInfo.size()) + " " + getNumberOfNewPostLabel(count);
-        	this.setSubTitleText(subTitleValue);
-        } else {
-        	this.setSubTitleText("");
-        }
-        
     	buildList(recentPostInfo);
     }
 

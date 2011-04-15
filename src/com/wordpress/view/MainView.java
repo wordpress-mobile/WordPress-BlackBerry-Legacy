@@ -5,29 +5,16 @@ import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.CodeModuleGroup;
 import net.rim.device.api.system.CodeModuleGroupManager;
-import net.rim.device.api.system.Display;
-import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.KeypadListener;
-import net.rim.device.api.ui.DrawStyle;
-import net.rim.device.api.ui.Field;
-import net.rim.device.api.ui.FieldChangeListener;
-import net.rim.device.api.ui.Font;
-import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.UiApplication;
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.TouchEvent;
 //#endif
-import net.rim.device.api.ui.component.BitmapField;
-import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.Menu;
-import net.rim.device.api.ui.component.Status;
-import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
-import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressInfo;
@@ -40,71 +27,23 @@ import com.wordpress.controller.SignUpBlogController;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.DataCollector;
-import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BlogsListField;
-import com.wordpress.view.component.ColoredLabelField;
-import com.wordpress.view.component.PillButtonField;
 import com.wordpress.view.component.SelectorPopupScreen;
 
-public class MainView extends BaseView {
+public class MainView extends StandardBaseView {
 	
-    private MainController mainController=null;
-    private VerticalFieldManager _scrollerManager;
-    VerticalFieldManager internalManager;
+    private MainController mainController = null;
     private ListField listaBlog;
     private BlogsListField blogListController;
     
-    private  BitmapField wpClassicHeaderBitmapField;
-    private  EncodedImage classicHeaderImg;
-    private  BitmapField wpPromoBitmapField;
-    private  EncodedImage promoImg;
-    
 	public MainView(MainController mainController) {
-		super( MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL | USE_ALL_HEIGHT);
-		
+		super( _resources.getString(WordPressResource.LABEL_BLOGS), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL | USE_ALL_HEIGHT);
 		this.mainController=mainController;
-	
-		//Set the preferred width to the image size or screen width if the image is larger than the screen width.
-		classicHeaderImg = EncodedImage.getEncodedImageResource("wplogo_header.png");
-		int _preferredWidth = -1;
-        if (classicHeaderImg.getWidth() > Display.getWidth()) {
-            _preferredWidth = Display.getWidth();
-        }
-        if( _preferredWidth != -1) {        	
-        	EncodedImage resImg = ImageUtils.resizeEncodedImage(classicHeaderImg, _preferredWidth, classicHeaderImg.getHeight());
-        	classicHeaderImg = resImg;
-        }
-		
-        if (Display.getWidth() >= 360  ) {
-        	promoImg = EncodedImage.getEncodedImageResource("wp_blue-xl.png");
-        } else {
-        	promoImg = EncodedImage.getEncodedImageResource("wp_blue-l.png");
-        }
-        
-		wpPromoBitmapField =  new BitmapField(promoImg.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER | Field.FOCUSABLE) {
-			protected void drawFocus(Graphics graphics, boolean on) {
-				//disabled the default focus behavior so that blue rectangle isn't drawn
-			}
-		};
-        wpClassicHeaderBitmapField =  new BitmapField(classicHeaderImg.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
+     
+		setupUpBlogsView();
 
-    	internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR) {
-    		public void paintBackground( Graphics g ) {
-    			g.clear();
-    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
-    		}
-    	};
-        
-    	_scrollerManager = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR | USE_ALL_HEIGHT | USE_ALL_WIDTH );
-    	
-    	//internalManager.add( wpClassicHeaderBitmapField );
-    	internalManager.add( _scrollerManager );
-    	super.add( internalManager );
-		
-        setupUpBlogsView();
-	
         addMenuItem(_feedbackItem);
         addMenuItem(_bugReportItem);
         addMenuItem(_aboutItem);
@@ -113,11 +52,6 @@ public class MainView extends BaseView {
 		addMenuItem(_accountItem);
 		addMenuItem(_updateItem);
 	}
-		
-	public void add( Field field ) {
-		_scrollerManager.add( field );
-	}
-	
 	
 	 public void setupUpBlogsView() {
     	listaBlog = null;
@@ -128,110 +62,25 @@ public class MainView extends BaseView {
     	removeMenuItem(_notificationItem);
     	
     	BlogInfo[] blogCaricati = mainController.getApplicationBlogs();
-    	try {
-    		if (wpClassicHeaderBitmapField.getManager() != null)
-    			internalManager.delete( wpClassicHeaderBitmapField );
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		if (blogCaricati.length == 0) {
-        	setUpPromoView();
-        } else {
-        	
-        	//TODO: reactivate this function later: check if there are blogs with pending activation
-        /*	for (int i=0; i< blogCaricati.length; i++){
+			    	
+    	//TODO: reactivate this function later: check if there are blogs with pending activation
+    	/*	for (int i=0; i< blogCaricati.length; i++){
         		if(blogCaricati[i].getState() == BlogInfo.STATE_PENDING_ACTIVATION){
         			mainController.startPendingActivationSchedule();
         			break;
         		}
         	} */
-        	
-        	internalManager.insert( wpClassicHeaderBitmapField, 0);
-        	blogListController = new BlogsListField(blogCaricati);        	
-        	listaBlog = blogListController.getList();
-        	addMenuItem(_showBlogItem);
-        	addMenuItem(_notificationItem);
-        	addMenuItem(_deleteBlogItem);
-        	add(listaBlog);    
-        }
-	 }
-	 
-	 private void setUpPromoView() {
-		 int width = Display.getWidth();
-		 _scrollerManager.add(wpPromoBitmapField);
-	
-		 Font fnt = Font.getDefault().derive(Font.BOLD);
-		 int fntHeight = fnt.getHeight();
-		 fnt = Font.getDefault().derive(Font.BOLD, fntHeight+2, Ui.UNITS_px);
-		 		 
-		 HorizontalFieldManager taglineManager = new HorizontalFieldManager(Field.FIELD_HCENTER |Field.USE_ALL_WIDTH);
-		 LabelField lblField = new ColoredLabelField(_resources.getString(WordPressResource.PROMOSCREEN_TAGLINE), 
-				 0x444444, Field.USE_ALL_WIDTH | DrawStyle.HCENTER);
-		 lblField.setFont(fnt);
-		 
-		 taglineManager.add(lblField);
-		 if (width > 320)
-			 lblField.setMargin( 15, 30, 15, 30 );
-		 else
-			 lblField.setMargin( 6, 4, 4, 4 );
-		 
-		 _scrollerManager.add(taglineManager);
 
-		 HorizontalFieldManager buttonsManagerOne = new HorizontalFieldManager(Field.FIELD_HCENTER);
-		 PillButtonField buttonHaveBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPCOM_BLOG));
-		 buttonHaveBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
-		 buttonHaveBlog.setChangeListener(new FieldChangeListener() {
-			 public void fieldChanged(Field field, int context) {
-				 mainController.addWPCOMBlogs();
-			 }
-		 });
+    	blogListController = new BlogsListField(blogCaricati);        	
+    	listaBlog = blogListController.getList();
+    	listaBlog.setMargin(5, 0, 0, 0);
+    	add(listaBlog);    
 
-		 if (width > 320)
-			 buttonHaveBlog.setMargin( 5, 30, 15, 30 );
-		 else
-			 buttonHaveBlog.setMargin( 4, 4, 4, 4 );
-
-		 buttonsManagerOne.add(buttonHaveBlog);
-
-		 HorizontalFieldManager buttonsManagerTwo = new HorizontalFieldManager(Field.FIELD_HCENTER);
-		 PillButtonField buttonGetFreeBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_NEW_TO_WP_BLOG));
-		 buttonGetFreeBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
-		 buttonGetFreeBlog.setChangeListener(new FieldChangeListener() {
-			 public void fieldChanged(Field field, int context) {
-	    			/*SignUpBlogController ctrl = new SignUpBlogController();
-	    			ctrl.showView();*/
-	    			Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
-			 }
-		 });
-
-		 if (width > 320)
-			 buttonGetFreeBlog.setMargin( 5, 30, 15 , 30 );
-		 else
-			 buttonGetFreeBlog.setMargin( 4, 4, 4, 4 );
-
-		 buttonsManagerTwo.add(buttonGetFreeBlog);
-
-
-		 HorizontalFieldManager buttonsManagerSelfHosted = new HorizontalFieldManager(Field.FIELD_HCENTER);
-		 PillButtonField buttonSelfHostedBlog = new PillButtonField(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPORG_BLOG));
-		 buttonSelfHostedBlog.setDrawPosition(PillButtonField.DRAWPOSITION_SINGLE);
-		 buttonSelfHostedBlog.setChangeListener(new FieldChangeListener() {
-			 public void fieldChanged(Field field, int context) {
-				 mainController.addWPORGBlogs();
-			 }
-		 });
-
-		 if (width > 320)
-			 buttonSelfHostedBlog.setMargin( 5, 30, 15 , 30 );
-		 else
-			 buttonSelfHostedBlog.setMargin( 4, 4, 4, 4 );
-
-		 buttonsManagerSelfHosted.add(buttonSelfHostedBlog);
-
-		 _scrollerManager.add(buttonsManagerTwo);
-		 _scrollerManager.add(buttonsManagerOne);
-		 _scrollerManager.add(buttonsManagerSelfHosted);
+    	if(blogCaricati.length > 0) {
+	    	addMenuItem(_showBlogItem);
+	    	addMenuItem(_notificationItem);
+	    	addMenuItem(_deleteBlogItem);
+    	} 
 	 }
 
 	 //update the view of blog list entry
@@ -241,13 +90,17 @@ public class MainView extends BaseView {
 	 }
 	 
 	 public int getBlogsNumber () {
-		 
 		 if (blogListController == null) return 0;
-		 
 		 return blogListController.getBlogs().length;
 	 }
 	
-	 
+	 public void refreshBlogList() {
+		 synchronized (this) {
+			 delete(listaBlog);
+			 setupUpBlogsView(); //repaint entire list	        
+		 }
+	 }        
+	    
     /**
      * Overrides default implementation.  Performs the show blog action if the 
      * 4ways trackpad was clicked; otherwise, the default action occurs.
@@ -286,17 +139,14 @@ public class MainView extends BaseView {
 	}
 	 
 	private boolean defaultAction() {
-		
 		if( listaBlog  == null ) {
 				return false;
 		} 
-		
 		if( blogListController  != null ) {
 			BlogInfo blogSelected = blogListController.getBlogSelected();
-	        mainController.showBlog(blogSelected);
-		} else {
-			mainController.addWPORGBlogs();
-		}
+			if(blogSelected != null)
+				mainController.showBlog(blogSelected);
+		} 
 		return true;
 	}
 	
@@ -327,22 +177,7 @@ public class MainView extends BaseView {
     			mainController.displayMessage(_resources.getString(WordPressResource.MESSAGE_LOADING_BLOGS));
 				return;
     		}
-    		
-    		int selection = -1;
-    		String[] messages = _resources.getStringArray(WordPressResource.MESSAGES_ADD_BLOG);
-    		String title = messages[0];
-    		SelectorPopupScreen selScr = new SelectorPopupScreen(title, new String[]{messages[1], messages[2], messages[3]});
-    		selScr.pickItem();
-    		selection = selScr.getSelectedItem();
-    		if(selection == 0) {
-				mainController.addWPCOMBlogs();
-    		} else if(selection == 1) {
-				mainController.addWPORGBlogs();
-    		} else if(selection == 2) {
-    			/*SignUpBlogController ctrl = new SignUpBlogController();
-    			ctrl.showView();*/
-    			Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
-    		}
+    		mainController.showWelcomeView();
     	}
     };
 
@@ -354,13 +189,6 @@ public class MainView extends BaseView {
 	        refreshBlogList();
         }
     };
-    
-    public void refreshBlogList() {
-    	synchronized (this) {
-			_scrollerManager.deleteAll();
-	        setupUpBlogsView(); //repaint entire list	        
-    	}
-    }        
     
     private MenuItem _notificationItem = new MenuItem( _resources, WordPressResource.MENUITEM_NOTIFICATIONS, 9000, 1000) {
         public void run() {

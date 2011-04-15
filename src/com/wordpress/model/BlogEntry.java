@@ -4,21 +4,22 @@ import java.util.Vector;
 
 /**
  * This is the base class for main blog objs - pages, posts, galleries
- * @author dercoli
+ * @author Danilo Ercoli
  *
  */
 public class BlogEntry {
 	
     private Vector mediaObjects = new Vector();
 	private Vector customFields = new Vector();
-	protected Boolean isPhotoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
+
+/*	protected Boolean isPhotoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
 	protected Integer imageResizeWidth = null;
 	protected Integer imageResizeHeight = null;
 	
 	protected Boolean isVideoResizing = null; // 0 = false ; 1 = true //null = get option from blog settings
 	protected Integer videoResizeWidth = null;
 	protected Integer videoResizeHeight = null;
-	
+	*/
 	public void setCustomFields(Vector custom_field) {
 		this.customFields = custom_field;
 	}
@@ -34,7 +35,7 @@ public class BlogEntry {
 	public void setMediaObjects(Vector mediaObjects) {
 		this.mediaObjects = mediaObjects;
 	}
-	
+	/*
 	public Boolean isPhotoResizing() {
 		return isPhotoResizing;
 	}
@@ -82,4 +83,5 @@ public class BlogEntry {
 	public void setVideoResizeHeight(Integer videoResizeHeight) {
 		this.videoResizeHeight = videoResizeHeight;
 	}
+	*/
 }

@@ -67,7 +67,7 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 		if (selected) {
 			graphics.setColor(this.focusBgColor);
 		} else {
-			graphics.setColor(Color.WHITE);
+			graphics.setColor(Color.WHITESMOKE);
 		}
 		graphics.fillRect(x - 1, y - 1, width + 2, height + 1);
 	}
@@ -155,7 +155,7 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 	        if (selected) {
 	            graphics.setColor(Color.WHITE);
 	        } else {
-	            graphics.setColor(Color.LIGHTGREY);
+	            graphics.setColor(Color.DARKGRAY);
 	        }
 	        graphics.drawText(status, x + PADDING + 5, y - 4 + (height - fontHeight),
 	                DrawStyle.LEFT | DrawStyle.TOP | DrawStyle.ELLIPSIS, width - (PADDING+5));

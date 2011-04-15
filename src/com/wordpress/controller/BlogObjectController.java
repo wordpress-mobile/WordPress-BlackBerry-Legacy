@@ -3,7 +3,6 @@ package com.wordpress.controller;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Hashtable;
 import java.util.Vector;
 
 import net.rim.blackberry.api.browser.URLEncodedPostData;
@@ -32,8 +31,6 @@ import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
-import com.wordpress.utils.observer.Observable;
-import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.CustomFieldsView;
 import com.wordpress.view.MediaEntryPropView;
 import com.wordpress.view.MediaView;
@@ -45,11 +42,8 @@ import com.wordpress.view.mm.MediaObjFileJournalListener;
 import com.wordpress.view.mm.MediaViewMediator;
 import com.wordpress.view.mm.MultimediaPopupScreen;
 import com.wordpress.view.mm.VideoFileJournalListener;
-import com.wordpress.xmlrpc.BlogConnResponse;
 
 import com.wordpress.view.component.FileBrowser.RimFileBrowser;
-
-
 
 /**
  * @author dercoli
@@ -84,7 +78,6 @@ public abstract class BlogObjectController extends BaseController {
 	public abstract void setPhotosNumber(int count);
 	public abstract void setAuthDate(long authoredOn);
 	public abstract void setPassword(String password);
-	public abstract void setSignature(boolean isSignatureEnabled, String signature);
 	public abstract boolean isPingbacksAndTrackbacksAllowed();
 	public abstract void setPingbacksAndTrackbacksAllowed(boolean value);
 	public abstract boolean isCommentsAllowed();
@@ -117,76 +110,7 @@ public abstract class BlogObjectController extends BaseController {
 	public boolean isDraftItem() {
 		return isDraft;
 	}
-	
-	public void setPhotoResizing(boolean isPhotoRes, Integer imageResizeWidth, Integer imageResizeHeight) {
-
-		Log.trace("Entering setPhotoResizing. imageResizeWidth is " + imageResizeWidth.toString());
-		if( blogEntry.isPhotoResizing() != null && !blogEntry.isPhotoResizing().booleanValue()== isPhotoRes ){
-			blogEntry.setPhotoResizing(new Boolean(isPhotoRes));
-			setObjectAsChanged(true);
-		} else {
-			if(blogEntry.isPhotoResizing() == null ){
-				blogEntry.setPhotoResizing(new Boolean(isPhotoRes));
-				setObjectAsChanged(true);
-			}
-		}
-
-		if(blogEntry.getImageResizeWidth() != null && !blogEntry.getImageResizeWidth().equals(imageResizeWidth)) {
-			blogEntry.setImageResizeWidth(imageResizeWidth);
-			setObjectAsChanged(true);
-		} else {
-			if(blogEntry.getImageResizeWidth() == null) {
-				blogEntry.setImageResizeWidth(imageResizeWidth);
-				setObjectAsChanged(true);
-			}
-		}
 		
-		if(blogEntry.getImageResizeHeight() != null && !blogEntry.getImageResizeHeight().equals(imageResizeHeight)) {
-			blogEntry.setImageResizeHeight(imageResizeHeight);
-			setObjectAsChanged(true);
-		} else {
-			if(blogEntry.getImageResizeHeight() == null) {
-				blogEntry.setImageResizeHeight(imageResizeHeight);
-				setObjectAsChanged(true);
-			}
-		}	
-	}
-	
-	public void setVideoResizing(boolean isVideoRes, Integer videoResizeWidth, Integer videoResizeHeight) {
-
-		Log.trace("Entering setVideoResizing. videoResizeWidth is " + videoResizeWidth.toString());
-		
-		if( blogEntry.isVideoResizing() != null && !blogEntry.isVideoResizing().booleanValue()== isVideoRes ){
-			blogEntry.setVideoResizing(new Boolean(isVideoRes));
-			setObjectAsChanged(true);
-		} else {
-			if(blogEntry.isVideoResizing() == null ){
-				blogEntry.setVideoResizing(new Boolean(isVideoRes));
-				setObjectAsChanged(true);
-			}
-		}
-
-		if(blogEntry.getVideoResizeWidth() != null && !blogEntry.getVideoResizeWidth().equals(videoResizeWidth)) {
-			blogEntry.setVideoResizeWidth(videoResizeWidth);
-			setObjectAsChanged(true);
-		} else {
-			if(blogEntry.getVideoResizeWidth() == null) {
-				blogEntry.setVideoResizeWidth(videoResizeWidth);
-				setObjectAsChanged(true);
-			}
-		}
-		
-		if(blogEntry.getVideoResizeHeight() != null && !blogEntry.getVideoResizeHeight().equals(videoResizeHeight)) {
-			blogEntry.setVideoResizeHeight(videoResizeHeight);
-			setObjectAsChanged(true);
-		} else {
-			if(blogEntry.getVideoResizeHeight() == null) {
-				blogEntry.setVideoResizeHeight(videoResizeHeight);
-				setObjectAsChanged(true);
-			}
-		}	
-	}
-	
 	protected String[] getPhotoList() {
 		String[] draftPostPhotoList = new String [0];
 		

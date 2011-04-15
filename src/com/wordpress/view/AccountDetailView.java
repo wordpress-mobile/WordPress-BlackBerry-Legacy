@@ -41,7 +41,7 @@ public class AccountDetailView extends StandardBaseView {
 			this.accountData = accountData;
             
 			//Set the preferred width to the image size or screen width if the image is larger than the screen width.
-	    	EncodedImage classicHeaderImg = EncodedImage.getEncodedImageResource("logo-wpcom-login.png");
+	    	EncodedImage classicHeaderImg = EncodedImage.getEncodedImageResource("wp_blue-s.png");
 			int _preferredWidth = -1;
 	        if (classicHeaderImg.getWidth() > Display.getWidth()) {
 	            _preferredWidth = Display.getWidth();

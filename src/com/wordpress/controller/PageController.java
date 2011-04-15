@@ -368,41 +368,7 @@ public class PageController extends BlogObjectController {
 	
 	public void showSettingsView(){
 		Page page = getPageObj();
-		boolean isPhotoResing = blog.isResizePhotos();
-		Integer imageResizeWidth = blog.getImageResizeWidth();
-		Integer imageResizeHeight = blog.getImageResizeHeight();
-
-		if (page.isPhotoResizing() != null ) {
-			isPhotoResing = page.isPhotoResizing().booleanValue();			
-		}
-		if (page.getImageResizeWidth() != null ) {
-			imageResizeWidth = page.getImageResizeWidth();
-		}
-		if( page.getImageResizeHeight() != null ) {
-			imageResizeHeight = page.getImageResizeHeight();
-		}
-		
-		boolean isVideoResing = blog.isResizeVideos();
-		Integer videoResizeWidth = blog.getVideoResizeWidth();
-		Integer videoResizeHeight = blog.getVideoResizeHeight();
-		
-		if (page.isVideoResizing() != null ) {
-			isVideoResing = page.isVideoResizing().booleanValue();			
-		}
-		if (page.getVideoResizeWidth() != null ) {
-			videoResizeWidth = page.getVideoResizeWidth();
-		}
-		if (page.getVideoResizeHeight() != null ) {
-			videoResizeHeight = page.getVideoResizeHeight();
-		}
-		
-		settingsView= new PostSettingsView(this, page.getDateCreatedGMT(), page.getWpPassword(), 
-				isPhotoResing, imageResizeWidth, imageResizeHeight,
-				isVideoResing, videoResizeWidth, videoResizeHeight);		
+		settingsView = new PostSettingsView(this, page.getDateCreatedGMT(), null);		
 		UiApplication.getUiApplication().pushScreen(settingsView);
-	}
-	
-	public void setSignature(boolean isSignatureEnabled, String signature) {
-		//do nothing for this view 		
 	}
 }

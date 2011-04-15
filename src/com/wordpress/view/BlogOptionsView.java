@@ -58,7 +58,8 @@ public class BlogOptionsView extends StandardBaseView {
 	HorizontalFieldManager buttonsManager;
 		
 	 public BlogOptionsView(BlogOptionsController blogsController, Blog blog) {
-	    	super(_resources.getString(WordPressResource.TITLE_BLOG_OPTION_VIEW)+" > "+ blogsController.getBlogName(), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
+	    	super(blogsController.getBlogName(), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
+	    	this.setSubTitleText(_resources.getString(WordPressResource.TITLE_BLOG_OPTION_VIEW));
 	    	this.controller=blogsController;
 	    	
 	    	//read the int value for maxPost showed

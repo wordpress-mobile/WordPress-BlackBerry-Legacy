@@ -83,7 +83,7 @@ public class SharingHelper implements RequestListener{
 	public void removeCHAPIListener() {
 		try {
 			server = Registry.getServer(CHAPI_CLASS_NAME);
-			server.setListener(null);           //set the listener 
+			server.setListener(null);  //set the listener 
 		} catch (ContentHandlerException e) {
 			Log.error(e,"Error removing  CHAPI listener" );
 		}
@@ -101,7 +101,7 @@ public class SharingHelper implements RequestListener{
 		}
 	}
 
-	public void verifyRegistration() {
+	public void registerCHAPI() {
 		Log.trace(">>> verifyRegistration");
 		
 		try
@@ -120,6 +120,10 @@ public class SharingHelper implements RequestListener{
 			registry.register(CHAPI_CLASS_NAME, CHAPI_MIME_TYPES, CHAPI_SUFFIXES, actions, maps,
 					CHAPI_ID, null);
 		}
+		catch (Exception e)
+		{
+			Log.error(e, "Could not register for " + CHAPI_ID);
+		}
 		catch (Throwable t)
 		{
 			Log.error(t, "Could not register for " + CHAPI_ID);
@@ -131,7 +135,7 @@ public class SharingHelper implements RequestListener{
 	public void addCHAPIListener() {
 		try {
 			server = Registry.getServer(CHAPI_CLASS_NAME);
-			pending = server.getRequest(false); //check if a request is already there
+			//pending = server.getRequest(false); //check if a request is already there
 			server.setListener(this);           //set the listener 
 		} catch (ContentHandlerException e) {
 			Log.error(e,"Error during SharingHelp init" );
@@ -264,55 +268,5 @@ public class SharingHelper implements RequestListener{
 				Dialog.alert("Error while Sharing to WordPress");
 			}				
 		} 
-	}
-	
-	/**
-	 * Called during shutdown to delete the app references from runtime store
-	 * @param istance
-	 */
-	static synchronized void deleteAppIstance() {
-		//Open the RuntimeStore.
-		RuntimeStore store = RuntimeStore.getRuntimeStore();
-		//Obtain the reference of WordPress for BlackBerry.
-		Object obj = store.get(WordPressInfo.APPLICATION_ID);
-
-		if (obj != null)
-		{    
-			store.remove(WordPressInfo.APPLICATION_ID);
-			Log.trace("App removed from RuntimeStore");
-
-		} else
-		{ //never falls here
-			Log.trace("RuntimeStore is already empty!");
-		}
-	}
-	
-	/**
-	 * Called at startup to store the app references onto runtime store
-	 * @param istance
-	 */
-	static synchronized void storeAppIstance(UiApplication istance) {
-		try{
-			//Open the RuntimeStore.
-			RuntimeStore store = RuntimeStore.getRuntimeStore();
-			//Obtain the reference of WordPress for BlackBerry.
-			Object obj = store.get(WordPressInfo.APPLICATION_ID);
-
-			//If obj is null, there is no current reference
-			//to WordPress for BlackBerry.
-			if (obj == null)
-			{    
-				//Store a reference to this instance in the RuntimeStore.
-				store.put(WordPressInfo.APPLICATION_ID, istance);
-				Log.trace("Application References added to the runtimestore");
-			} else
-			{
-				//should never fall here bc the app deregister istance on exit
-				Log.trace("runtimestore not empty, why??");
-				store.replace(WordPressInfo.APPLICATION_ID, UiApplication.getUiApplication());
-			}
-		} catch (ControlledAccessException  e) {
-			Log.trace(e, "Error while accessing the runtime store");
-		}
 	}
 }

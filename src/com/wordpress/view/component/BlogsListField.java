@@ -127,7 +127,7 @@ public class BlogsListField {
     public BlogInfo getBlogSelected(){
         //Get the index of the selected row.
         int index = _listField.getSelectedIndex();
-        
+        if(index == -1) return null;
         //Get the ChecklistData for this row.
         BlogInfo data = (BlogInfo)_listData[index];
         
@@ -167,8 +167,8 @@ public class BlogsListField {
     private class ListCallBack extends BasicListFieldCallBack {
 		private Bitmap imgImportant = Bitmap.getBitmapResource("important.png");
 		private Bitmap imgQueue = Bitmap.getBitmapResource("enqueued.png");
-		private Bitmap wp_blue = Bitmap.getBitmapResource("wp_blue-s.png");
-		private Bitmap wp_grey = Bitmap.getBitmapResource("wp_grey-s.png");
+		private Bitmap wp_blue = Bitmap.getBitmapResource("wp_blue-list.png");
+		private Bitmap wp_grey = Bitmap.getBitmapResource("wp_grey-list.png");
 		private Bitmap pendingActivation = Bitmap.getBitmapResource("pending_activation.png");
 		
         // Draws the list row.

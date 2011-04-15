@@ -24,7 +24,8 @@ public class MediaLibrariesView extends BaseView implements ListActionListener {
 	private PostsListField listaPost; 
 	
 	 public MediaLibrariesView(MediaLibrariesController  _controller) {
-	    	super(_resources.getString(WordPressResource.TITLE_PHONE_MEDIA_VIEW)+" > "+_controller.getCurrentBlogName());
+	    	super(_controller.getCurrentBlogName());
+	     	this.setSubTitleText(_resources.getString(WordPressResource.TITLE_PHONE_MEDIA_VIEW));
 	    	this.controller=_controller;	        
 	        buildList();
 	 }

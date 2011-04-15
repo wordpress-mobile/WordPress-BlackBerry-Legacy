@@ -97,9 +97,6 @@ LABEL_MONTHS#0="Mois";
 LABEL_MULTIMEDIATYPE#0="Choose multimedia type";
 LABEL_NAME#0="Nom";
 LABEL_NO_CATEGORY#0="Non classé";
-LABEL_PAGE_NUMBER#0="Page";
-LABEL_PAGE_NUMBERS#0="Pages";
-LABEL_PAGE_NUMBER_NEW#0="Nouveau";
 LABEL_PAGE_ORDER#0="Ordre de page";
 LABEL_PAGE_TEMPLATE#0="Template de page";
 LABEL_PARENT_PAGE#0="Page parent";
@@ -112,9 +109,6 @@ LABEL_PHOTO_NOTSUPPORTED#0="Appareil photo non supporté !";
 LABEL_PHOTO_TAKE_FROM_CAMERA#0="Faire une nouvelle photo";
 LABEL_POST_CATEGORIES#0="Catégories";
 LABEL_POST_CONTENT#0="Contenu de l'article";
-LABEL_POST_NUMBER#0="Article";
-LABEL_POST_NUMBERS#0="Articles";
-LABEL_POST_NUMBER_NEW#0="Nouveau";
 LABEL_POST_PUBLISHEDON#0="Publié le";
 LABEL_POST_STATUS#0="Statut";
 LABEL_POST_TAGS#0="Tags";
@@ -265,6 +259,10 @@ MESSAGE_STATS_VIEWS_DAY#0="Voir par jour";
 MESSAGE_STATS_VIEWS_MONTH#0="Voir par mois";
 MESSAGE_STATS_VIEWS_WEEK#0="Voir par semaine";
 MESSAGE_UNSAVED_CHANGES_LOST#0="Les changements non sauvegardés seront perdus, êtes vous sûre ?";
+MESSAGE_VIDEOPRESS_UPGRADE#0={
+    "You can upload videos to your blog using the VideoPress upgrade.",
+    "Would you like to learn more about VideoPress?",
+};
 MESSAGE_WORDPRESS_VERSION#0="Quelle version de WordPress utilisez vous ?";
 MESSAGE_XMLRPC_ENDPOINT#0="Impossible de trouver le service XmlRpc, veuillez mettre l'url complète.";
 MESSAGE_XMLRPC_ENDPOINT_FAILED#0="Impossible de trouver le service XmlRpc de votre blog. Veuillez consulter la FAQ (http://blackberry.wordpress.org/faq/)";
@@ -324,19 +322,15 @@ TITLE_BLOG_SELECTOR_POPUP#0="Sélectioner un Blog";
 TITLE_COMMENTS#0="Commentaires";
 TITLE_COMMENTVIEW#0="Commentaire";
 TITLE_CREDENTIALS#0="Accès utilisateur";
-TITLE_DRAFT_PAGES#0="Pages en brouillon";
-TITLE_DRAFT_POSTS#0="Articles en brouillon";
 TITLE_FILE_SELECTION_DIALOG#0="Choisir un fichier";
 TITLE_HTTP_AUTH_OPTIONS#0="Authentification HTTP";
 TITLE_MAIN_OPTIONS#0="Options principales";
 TITLE_MEDIA_VIEW#0="Média";
 TITLE_NOTIFICATION_VIEW#0="Paramètres de notifications";
-TITLE_PAGES#0="Pages";
 TITLE_PHONE_MEDIA_VIEW#0="Bibliothèque de média du téléphone";
 TITLE_PHOTOS_OPTIONS#0="Options photo";
 TITLE_POSTVIEW#0="Écrire";
 TITLE_PREVIEW#0="Aperçus";
-TITLE_RECENTPOST#0="Article récent";
 TITLE_SETTINGS_VIEW#0="Préférence";
 TITLE_SIGNATURE_OPTIONS#0="Options signature";
 TITLE_SNAPSHOT_VIEW#0="Cliché instantané";
@@ -345,7 +339,3 @@ TITLE_VIDEOPRESS_OPTIONS#0="Options VideoPress";
 TITLE_VIEW_ACCOUNT#0="Détails du compte WordPress.com";
 TITLE_VIEW_ACCOUNTS#0="Comptes WordPress.com";
 TITLE_WPCOM_ACCOUNTS_SELECTOR_POPUP#0="Choisir un compte WordPress.com";
-MESSAGE_VIDEOPRESS_UPGRADE#0={
-    "You can upload videos to your blog using the VideoPress upgrade.",
-    "Would you like to learn more about VideoPress?",
-};

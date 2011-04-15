@@ -14,6 +14,7 @@ import net.rim.device.api.ui.component.Status;
 
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.bb.SharingHelper;
 import com.wordpress.io.AppDAO;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.CommentsDAO;
@@ -30,6 +31,7 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.MainView;
+import com.wordpress.view.WelcomeView;
 import com.wordpress.view.dialog.ConnectionDialogClosedListener;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConnResponse;
@@ -143,7 +145,7 @@ public class MainController extends BaseController implements TaskProgressListen
 		this.view=new MainView(this); //main view init here!.	
 		UiApplication.getUiApplication().pushScreen(this.view);
 	
-		//chapi "post startup" registration
+		//CHAPI "post startup" registration
 		//SharingHelper sHelper = SharingHelper.getInstance();
 		//sHelper.addCHAPIListener();
 		//sHelper.checkPendingRequest();
@@ -154,6 +156,11 @@ public class MainController extends BaseController implements TaskProgressListen
 			dtc.collectData(numberOfBlog); //start data gathering here
 		} catch (Exception e) {
 			//don't propagate this Exception
+		}
+		
+		//shows the welcome view if blogs are not available
+		if(numberOfBlog <= 0) {
+			showWelcomeView();
 		}
 	}
 	
@@ -248,6 +255,11 @@ public class MainController extends BaseController implements TaskProgressListen
 		}
 	
 
+	public void showWelcomeView() {
+		WelcomeView wView = new WelcomeView();
+		UiApplication.getUiApplication().pushScreen(wView);
+	}
+	
 	public void addWPORGBlogs() {
 		AddBlogsController ctrl = new AddBlogsController(this, false);
 		ctrl.showView();

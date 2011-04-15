@@ -398,7 +398,7 @@ public class PostView extends StandardBaseView {
         public void run() {
         	String categoriesLabel = controller.getPostCategoriesLabel();
         	
-        	if( controller.isDraftItem() || controller.isObjectChanged()){
+        	if( controller.isDraftItem() || controller.isObjectChanged() || post.getId() == null){
         		//1. draft post not yet published
         		//2. published post is changed
         		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);

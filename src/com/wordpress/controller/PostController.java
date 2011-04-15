@@ -805,59 +805,7 @@ public class PostController extends BlogObjectController {
 	
 	public  void showSettingsView(){
 		Post post = getPostObj();
-		boolean isPhotoResing = blog.isResizePhotos();
-		Integer imageResizeWidth = blog.getImageResizeWidth();
-		Integer imageResizeHeight = blog.getImageResizeHeight();
-
-		if (post.isPhotoResizing() != null ) {
-			isPhotoResing = post.isPhotoResizing().booleanValue();			
-		}
-		if (post.getImageResizeWidth() != null ) {
-			imageResizeWidth = post.getImageResizeWidth();
-		}
-		if (post.getImageResizeHeight() != null ) {
-			imageResizeHeight = post.getImageResizeHeight();
-		}
-		
-		boolean isVideoResing = blog.isResizeVideos();
-		Integer videoResizeWidth = blog.getVideoResizeWidth();
-		Integer videoResizeHeight = blog.getVideoResizeHeight();
-		
-		if (post.isVideoResizing() != null ) {
-			isVideoResing = post.isVideoResizing().booleanValue();			
-		}
-		if (post.getVideoResizeWidth() != null ) {
-			videoResizeWidth = post.getVideoResizeWidth();
-		}
-		if (post.getVideoResizeHeight() != null ) {
-			videoResizeHeight = post.getVideoResizeHeight();
-		}
-		
-		//only for a new post show signature fields...
-		if(post.getId() == null ) {
-			//adding signature fields
-		boolean isSignatureEnabled = blog.isSignatureEnabled();
-		String  signature = blog.getSignature();
-		if(signature == null) 
-			signature = _resources.getString(WordPressResource.DEFAULT_SIGNATURE);
-		
-		if (post.isSignatureEnabled() != null ) {
-			isSignatureEnabled = post.isSignatureEnabled().booleanValue();			
-		}
-		if (post.getSignature() != null ) {
-			signature = post.getSignature();
-		}
-		
-		settingsView = new PostSettingsView(this, post.getAuthoredOn(), post.getPassword(),
-				isPhotoResing, imageResizeWidth, imageResizeHeight,
-				isVideoResing, videoResizeWidth, videoResizeHeight,
-				isSignatureEnabled, signature);		
-		} else {
-			settingsView = new PostSettingsView(this, post.getAuthoredOn(), post.getPassword(),
-					isPhotoResing, imageResizeWidth, imageResizeHeight,
-					isVideoResing, videoResizeWidth, videoResizeHeight);
-		}
-		
+		settingsView = new PostSettingsView(this, post.getAuthoredOn(), post.getPassword());
 		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
 
@@ -925,37 +873,23 @@ public class PostController extends BlogObjectController {
 		}
 	}
 
-
-	public void setSignature(boolean isSignatureEnabled, String signature) {
-		Post post = getPostObj();
-		post.setSignatureEnabled(new Boolean(isSignatureEnabled));
-		post.setSignature(signature);
-	}
 	
 	protected String getTheSignaturePreview() {
-		Post post = getPostObj();
 		boolean needSig;
 		String signature;
-		
-		if(post.isSignatureEnabled() != null) {
-			Log.trace("post signature settings found!");
-			needSig = post.isSignatureEnabled().booleanValue();
-			signature = post.getSignature();
-		} else {
-			Log.trace("not found post signature settings, reading the signature settings from blog setting");
-			//read the value from blog
-			needSig = blog.isSignatureEnabled();
-			signature = blog.getSignature();
-			if(needSig &&  signature == null) {
-				signature = _resources.getString(WordPressResource.DEFAULT_SIGNATURE);
-				}
+
+		Log.trace("not found post signature settings, reading the signature settings from blog setting");
+		//read the value from blog
+		needSig = blog.isSignatureEnabled();
+		signature = blog.getSignature();
+		if(needSig &&  signature == null) {
+			signature = _resources.getString(WordPressResource.DEFAULT_SIGNATURE);
 		}
-		
+
 		if(needSig && signature != null) {
 			Log.trace("adding signature to the post preview");
 			return 	 "<p>"+signature+"</p>"; 
 		}
-
 		return "";
 	}
 	

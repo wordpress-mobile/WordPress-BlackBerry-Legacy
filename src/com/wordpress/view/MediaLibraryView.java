@@ -80,7 +80,6 @@ public class MediaLibraryView extends MediaView {
                     
     	insert(outerManagerRowInfo, 0);
     	
-    	addMenuItem(_settingsItem);
 		addMenuItem(_saveDraftItem);
 		
 		//updateThumbs 
@@ -123,12 +122,7 @@ public class MediaLibraryView extends MediaView {
         }
     };
           
-    private MenuItem _settingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETTINGS, 100210, 10) {
-        public void run() {
-        	controller.showSettingsView();
-        }
-    };
-           	
+            	
   //Override the makeMenu method so we can add a custom menu item
 	protected void makeMenu(Menu menu, int instance)
 	{

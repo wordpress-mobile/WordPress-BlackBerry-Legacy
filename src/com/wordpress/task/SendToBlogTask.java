@@ -242,22 +242,15 @@ public class SendToBlogTask extends TaskImpl {
 		//add the signature to the end of post here
 		String signature = null;
 		boolean needSig = false;
-		
-		if(post.isSignatureEnabled() != null) {
-			Log.trace("post signature settings found!");
-			needSig = post.isSignatureEnabled().booleanValue();
-			signature = post.getSignature();
-		} else {
-			Log.trace("not found post signature settings, reading the signature settings from blog setting");
-			//read the value from blog
-			needSig = blog.isSignatureEnabled();
-			signature = blog.getSignature();
-			if(needSig &&  signature == null) {
-				ResourceBundle _resources = WordPressCore.getInstance().getResourceBundle();
-				signature = _resources.getString(WordPressResource.DEFAULT_SIGNATURE);
-				}
+		Log.trace("reading the signature settings from blog setting");
+		//read the value from blog
+		needSig = blog.isSignatureEnabled();
+		signature = blog.getSignature();
+		if(needSig &&  signature == null) {
+			ResourceBundle _resources = WordPressCore.getInstance().getResourceBundle();
+			signature = _resources.getString(WordPressResource.DEFAULT_SIGNATURE);
 		}
-		
+				
 		if(needSig && signature != null) {
 			Log.trace("adding signature to the post body");
 			String extendedBody = post.getExtendedBody();
@@ -283,21 +276,7 @@ public class SendToBlogTask extends TaskImpl {
 		boolean isRes = false;
 		Boolean currentObjectPhotoResSetting = null;
 		Integer imageResizeWidth = null;
-		Integer imageResizeHeight = null;
-		if( post != null ) {
-			currentObjectPhotoResSetting = post.isPhotoResizing();
-			imageResizeWidth = post.getImageResizeWidth();
-			imageResizeHeight = post.getImageResizeHeight();
-		} else if( page != null ) {
-			currentObjectPhotoResSetting = page.isPhotoResizing();
-			imageResizeWidth = page.getImageResizeWidth();
-			imageResizeHeight = page.getImageResizeHeight();
-		} else {
-			currentObjectPhotoResSetting = library.isPhotoResizing();
-			imageResizeWidth = library.getImageResizeWidth();
-			imageResizeHeight = library.getImageResizeHeight();
-		}
-		
+		Integer imageResizeHeight = null;		
 		if( currentObjectPhotoResSetting == null ){
 			Log.trace("not found post/page resize opt, read the resize opt from blog setting");
 			isRes = blog.isResizePhotos(); //get the option from the blog settings
@@ -628,20 +607,14 @@ public class SendToBlogTask extends TaskImpl {
 
 	private String buildVideoHTML(MediaEntry remoteFileInfo) {
 		boolean isRes = false;
-		Boolean currentObjectVideoResSetting = null;
 		Integer videoResizeWidth = null;
 		Integer videoResizeHeight = null;
-		currentObjectVideoResSetting = blogEntry.isVideoResizing();
-		if( currentObjectVideoResSetting != null) {
-			videoResizeWidth = blogEntry.getVideoResizeWidth();
-			videoResizeHeight = blogEntry.getVideoResizeHeight();
-			isRes = currentObjectVideoResSetting.booleanValue();
-		} else {
-			//read values from blog settings
-			isRes = blog.isResizeVideos();
-			videoResizeWidth = blog.getVideoResizeWidth();
-			videoResizeHeight = blog.getVideoResizeHeight();
-		}
+
+		//read values from blog settings
+		isRes = blog.isResizeVideos();
+		videoResizeWidth = blog.getVideoResizeWidth();
+		videoResizeHeight = blog.getVideoResizeHeight();
+		
 		String currentMediaObjHTML = remoteFileInfo.getMediaObjectAsHtml();
 		if (isRes && currentMediaObjHTML.endsWith("]")) {
 			String resizeString = "";

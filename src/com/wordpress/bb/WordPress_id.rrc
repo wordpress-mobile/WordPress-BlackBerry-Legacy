@@ -97,9 +97,6 @@ LABEL_MONTHS#0="Months";
 LABEL_MULTIMEDIATYPE#0="Tentukan Tipe Multimedia";
 LABEL_NAME#0="Nama";
 LABEL_NO_CATEGORY#0="Tidak Berkategori";
-LABEL_PAGE_NUMBER#0="Halaman";
-LABEL_PAGE_NUMBERS#0="Halaman";
-LABEL_PAGE_NUMBER_NEW#0="Baru";
 LABEL_PAGE_ORDER#0="Urutan Halaman";
 LABEL_PAGE_TEMPLATE#0="Templat Halaman";
 LABEL_PARENT_PAGE#0="Induk Halaman";
@@ -112,9 +109,6 @@ LABEL_PHOTO_NOTSUPPORTED#0="Tidak mendukung Photocamera!";
 LABEL_PHOTO_TAKE_FROM_CAMERA#0="Ambil Foto dengan Kamera";
 LABEL_POST_CATEGORIES#0="Kategori";
 LABEL_POST_CONTENT#0="Konten Tulisan";
-LABEL_POST_NUMBER#0="Tulisan";
-LABEL_POST_NUMBERS#0="Tulisan";
-LABEL_POST_NUMBER_NEW#0="Baru";
 LABEL_POST_PUBLISHEDON#0="Diterbitkan pada tanggal";
 LABEL_POST_STATUS#0="Status";
 LABEL_POST_TAGS#0="Tag";
@@ -265,6 +259,10 @@ MESSAGE_STATS_VIEWS_DAY#0="Views per day";
 MESSAGE_STATS_VIEWS_MONTH#0="View per month";
 MESSAGE_STATS_VIEWS_WEEK#0="Views per week";
 MESSAGE_UNSAVED_CHANGES_LOST#0="Unsaved changes will be lost, are you sure?";
+MESSAGE_VIDEOPRESS_UPGRADE#0={
+    "You can upload videos to your blog using the VideoPress upgrade.",
+    "Would you like to learn more about VideoPress?",
+};
 MESSAGE_WORDPRESS_VERSION#0="Which version of WordPress are you using?";
 MESSAGE_XMLRPC_ENDPOINT#0="Kami tidak dapat menemukan xmlrpc endpoint blog anda,  sisipkan url lengkap bawah ini";
 MESSAGE_XMLRPC_ENDPOINT_FAILED#0="Kami tidak dapat menemukan xmlrpc endpoint blog anda. Silahkan baca FAQ di http://blackberry.wordpress.org/faq/";
@@ -324,19 +322,15 @@ TITLE_BLOG_SELECTOR_POPUP#0="Pilih sebuah blog";
 TITLE_COMMENTS#0="Komentar";
 TITLE_COMMENTVIEW#0="Komentar";
 TITLE_CREDENTIALS#0="User Credentials";
-TITLE_DRAFT_PAGES#0="Naskah Halaman";
-TITLE_DRAFT_POSTS#0="Naskah Tulisan";
 TITLE_FILE_SELECTION_DIALOG#0="Pilih berkas";
 TITLE_HTTP_AUTH_OPTIONS#0="HTTP Authentication";
 TITLE_MAIN_OPTIONS#0="Main Options";
 TITLE_MEDIA_VIEW#0="Media";
 TITLE_NOTIFICATION_VIEW#0="Pengaturan Pemberitahuan";
-TITLE_PAGES#0="Halaman";
 TITLE_PHONE_MEDIA_VIEW#0="Pustaka Media Perangkat";
 TITLE_PHOTOS_OPTIONS#0="Photo Options";
 TITLE_POSTVIEW#0="Tulis";
 TITLE_PREVIEW#0="Pratampil";
-TITLE_RECENTPOST#0="Tulisan Terakhir";
 TITLE_SETTINGS_VIEW#0="Preferensi";
 TITLE_SIGNATURE_OPTIONS#0="Signature Options";
 TITLE_SNAPSHOT_VIEW#0="Potret";
@@ -345,7 +339,3 @@ TITLE_VIDEOPRESS_OPTIONS#0="VideoPress Options";
 TITLE_VIEW_ACCOUNT#0="WordPress.com Account Details";
 TITLE_VIEW_ACCOUNTS#0="WordPress.com Accounts";
 TITLE_WPCOM_ACCOUNTS_SELECTOR_POPUP#0="Select a WordPress.com Account";
-MESSAGE_VIDEOPRESS_UPGRADE#0={
-    "You can upload videos to your blog using the VideoPress upgrade.",
-    "Would you like to learn more about VideoPress?",
-};

@@ -29,8 +29,6 @@ public class Post extends BlogEntry {
     private String link = null;
 	private boolean isLocation = false; //true when per-post location setting is active
 	private boolean isLocationPublic = true; //true when location setting is public
-	private Boolean isSignatureEnabled= null; // 0 = false ; 1 = true //null = get option from blog settings
-	private String signature=null;
 	private String postFormat = null;
 
 	public Post(Blog aBlog) {
@@ -187,23 +185,7 @@ public class Post extends BlogEntry {
 	public void setLocationPublic(boolean isLocationPublic) {
 		this.isLocationPublic = isLocationPublic;
 	}
-	
-	public Boolean isSignatureEnabled() {
-		return isSignatureEnabled;
-	}
-
-	public void setSignatureEnabled(Boolean isSignatureActive) {
-		this.isSignatureEnabled = isSignatureActive;
-	}
-	
-	public String getSignature() {
-		return signature;
-	}
-
-	public void setSignature(String signature) {
-		this.signature = signature;
-	}
-	
+		
 	public String getPostFormat() {
 		return postFormat;
 	}

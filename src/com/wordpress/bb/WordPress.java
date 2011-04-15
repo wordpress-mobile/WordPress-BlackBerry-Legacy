@@ -13,7 +13,7 @@ import net.rim.device.api.notification.NotificationsManager;
 import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.Backlight;
 import net.rim.device.api.system.Display;
-import net.rim.device.api.system.RuntimeStore;
+import net.rim.device.api.system.SystemListener;
 import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.controller.MainController;
@@ -30,7 +30,7 @@ import com.wordpress.utils.log.FileAppender;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.ErrorView;
 
-public class WordPress extends UiApplication implements WordPressResource {
+public class WordPress extends UiApplication implements WordPressResource, SystemListener  {
 
     //create a variable to store the ResourceBundle for localization support
     private static ResourceBundle _resources;
@@ -46,34 +46,75 @@ public class WordPress extends UiApplication implements WordPressResource {
     }
 	
     public static void main(String[] args) {
-    	try {
-    		//Open the RuntimeStore.
-    		RuntimeStore store = RuntimeStore.getRuntimeStore();
-    		//Obtain the reference to WordPress for BlackBerry.
-    		final Object obj = store.get(WordPressInfo.APPLICATION_ID);
-    		//If obj is null, there is no current reference
-    		//to WordPress for BlackBerry
-    		if (obj == null) {
-    			System.out.println("RecordStore is void, launching new app");
-    			WordPress app = new WordPress(args);
-    			app.enterEventDispatcher();
-    		} else {
-    			System.out.println("RecordStore is NOT void, foreground the app");
-    			((WordPress)obj).requestForeground();
-    			System.exit(0);
-    		}
-    	} catch (Exception e) {
-    		WordPress app = new WordPress(args);
-    		app.enterEventDispatcher();
-    		System.err.println("error reading appstore: " + e.getMessage());
-    	} finally {
-
+    	WordPress app = new WordPress();
+    	// Perform additional work as part of main method if necessary.
+    	app.initLog();
+    	
+    	if( ApplicationManager.getApplicationManager().inStartup() ) { 
+    		// Add a system listener to detect when system is ready and available.
+    		app.addSystemListener( app ); 
+    	} else { 
+    		// System is already ready and available so perform your start up work now.
+    		// Note that this work must be completed using invokeLater because the 
+    		// application has not yet entered the event dispatcher.
+    		app.doStartupWorkLater(); 
     	}
+    	// Enter the event dispatcher.
+    	app.enterEventDispatcher(); 
     }
+    
+    /**
+     * Implementation of the powerUp method for the SystemListener interface
+     *
+     */
+    public void powerUp()
+    {
+    	// The BlackBerry has finished its startup process
+    	Log.trace("==== powerUp : The BlackBerry has finished its startup process ====");
+    	removeSystemListener( this );
+
+    	// Configure the rollover icons                    	
+    	HomeScreen.updateIcon(WordPressInfo.getIcon(), 0);
+
+    	//adds the CHAPI sharing to WP 
+    	SharingHelper.getInstance().unregisterCHAPI();
+    	//SharingHelper.getInstance().registerCHAPI();
+
+    	Log.trace("==== Registering WordPress Comments Notification ====");
+    	//Define a dummy object that provides the source for the event.
+    	Object eventSource = new Object() {
+    		public String toString() {
+    			return "WordPress";
+    		}
+    	};                    	
+
+    	NotificationsManager.registerSource(
+    			WordPressInfo.COMMENTS_UID,
+    			eventSource,
+    			NotificationsConstants.CASUAL);
+    	
+    	System.exit(0);
+    }
+    
+    /**
+    * Perform the start up work on a new Runnable using the 
+    * invokeLater construct to ensure that it is executed
+    * after the event thread has been created.
+    *
+    */
+    private void doStartupWorkLater() 
+    { 
+       this.invokeLater( new Runnable() { 
+          public void run() { 
+        	  loadApp(); 
+          }
+       } );
+    }
+
     
 	 /**
      *  autostart method
-     */
+     
     private void doAutoStart() {
 		
     	invokeLater(new Runnable()
@@ -150,7 +191,7 @@ public class WordPress extends UiApplication implements WordPressResource {
             }
         });
     }
-	
+	*/
     //init the log system
 	private void initLog() {
 		Appender eventAppender = new BlackberryEventLogAppender("WordPress for BlackBerry");
@@ -163,30 +204,10 @@ public class WordPress extends UiApplication implements WordPressResource {
 		//#endif
 		
 		Log.initLog(Log.TRACE);		
-		Log.trace("==== WordPress for BlackBerry Startup ====");
 	}
     
-	public WordPress(String[] args){
-		WordPressInfo.initialize();
-		
-		//Check the permission only at the first app startup.
-		if(!WordPressInfo.getLastVersion().equals(PropertyUtils.getIstance().getAppVersion())) {              
-			checkPermissions();
-			WordPressInfo.updateLastVersion();
-		} else {
-			//check the minimum permission settings
-			
-		}
-			
-		//When device is in startup check the startup variable
-		ApplicationManager myApp = ApplicationManager.getApplicationManager();
-		if (myApp.inStartup()) {
-			doAutoStart();
-		} else {
-			initLog();
-			Log.trace("==== User Start Mode ====");
-        	loadApp();
-		}
+	public WordPress(){
+	
 	}
 	
 	  /**
@@ -280,98 +301,103 @@ public class WordPress extends UiApplication implements WordPressResource {
     }
 	
     private void loadApp() {
-    	invokeLater(new Runnable() {
-    		public void run() {
+		Log.trace("==== loadApp ====");
+		
+    	WordPressInfo.initialize();
+		
+		//Check the permission only at the first app startup.
+		if(!WordPressInfo.getLastVersion().equals(PropertyUtils.getIstance().getAppVersion())) {              
+			checkPermissions();
+			WordPressInfo.updateLastVersion();
+		} else {
+			//check the minimum permission settings
+		}
+			    	
+    	loadingScreen = new SplashScreen();
+    	pushScreen(loadingScreen);
 
-    			loadingScreen = new SplashScreen();
-    			pushScreen(loadingScreen);
+    	//The following code specifies that the screen backlight, once activated,
+    	//has a timeout period of 200 seconds.
+    	if ((Display.getProperties() & Display.DISPLAY_PROPERTY_REQUIRES_BACKLIGHT) != 0) {
+    		Backlight.enable(true, 200);
+    	}
 
-    			//The following code specifies that the screen backlight, once activated,
-    			//has a timeout period of 200 seconds.
-    			if ((Display.getProperties() & Display.DISPLAY_PROPERTY_REQUIRES_BACKLIGHT) != 0) {
-    				Backlight.enable(true, 200);
+    	// Create an instance of the ConnectionManager and register the GlobalEventListener
+    	ConnectionManager  _manager = ConnectionManager.getInstance();
+    	addGlobalEventListener( _manager ); // Needed for ServiceBook parsing method 
+
+    	Preferences appPrefs = Preferences.getIstance();
+
+    	try {
+    		String baseDirPath = AppDAO.getBaseDirPath(); //read the base dir path
+    		//first startup
+    		if(baseDirPath == null) {
+    			appPrefs.isFirstStartupOrUpgrade = true; //set as first startup.
+    			if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD()) {
+    				AppDAO.setBaseDirPath(AppDAO.SD_STORE_PATH);
+    			} else {
+    				AppDAO.setBaseDirPath(BaseDAO.DEVICE_STORE_PATH); 
     			}
+    		} else {
+    			//set as no first  startup.
+    			appPrefs.isFirstStartupOrUpgrade = false; 
 
-    			// Create an instance of the ConnectionManager and register the GlobalEventListener
-    			ConnectionManager  _manager = ConnectionManager.getInstance();
-    			addGlobalEventListener( _manager ); // Needed for ServiceBook parsing method 
-
-    			Preferences appPrefs = Preferences.getIstance();
-
-    			try {
-    				String baseDirPath = AppDAO.getBaseDirPath(); //read the base dir path
-    				//first startup
-    				if(baseDirPath == null) {
-    					appPrefs.isFirstStartupOrUpgrade = true; //set as first startup.
-    					if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD()) {
-    						AppDAO.setBaseDirPath(AppDAO.SD_STORE_PATH);
-    					} else {
-    						AppDAO.setBaseDirPath(BaseDAO.DEVICE_STORE_PATH); 
-    					}
+    			//checking if storage is set to SDcard, then verify the presence of sd card into phone
+    			if(baseDirPath.equals(AppDAO.SD_STORE_PATH)) {
+    				if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD()) {
+    					//ok
     				} else {
-    					//set as no first  startup.
-    					appPrefs.isFirstStartupOrUpgrade = false; 
-
-    					//checking if storage is set to SDcard, then verify the presence of sd card into phone
-    					if(baseDirPath.equals(AppDAO.SD_STORE_PATH)) {
-    						if(JSR75FileSystem.supportMicroSD() && JSR75FileSystem.hasMicroSD()) {
-    							//ok
-    						} else {
-    							//microSD not present. set the storage to memory device
-    							isSDCardNotFound = true;
-    							AppDAO.setBaseDirPath(BaseDAO.DEVICE_STORE_PATH); 
-    							baseDirPath = null;
-    						}
-    					}
+    					//microSD not present. set the storage to memory device
+    					isSDCardNotFound = true;
+    					AppDAO.setBaseDirPath(BaseDAO.DEVICE_STORE_PATH); 
+    					baseDirPath = null;
     				}
-
-    				AppDAO.setUpFolderStructure(); //check for the folder existence, create it if not exist
-    				AppDAO.readApplicationPreferecens(appPrefs); //load pref on startup
-
-    				//add the file log appender
-    				FileAppender fileAppender = new FileAppender(baseDirPath, BaseDAO.LOG_FILE_PREFIX);
-    				fileAppender.setLogLevel(Log.ERROR); //if we set level to TRACE the file log size grows too fast
-    				fileAppender.open();
-    				Log.addAppender(fileAppender);
-    				WordPressCore wpCore = WordPressCore.getInstance();
-    				wpCore.setFileAppender(fileAppender); // add the file appender to the queue
-
-    				//Store this application istance into recordstore
-    				SharingHelper.storeAppIstance(UiApplication.getUiApplication());
-
-    				timer.schedule(new CountDown(), 800); //splash
-
-    				// Initialize the notification handler only if notification interval is != 0
-    				if (appPrefs.getUpdateTimeIndex() != 0)
-    					NotificationHandler.getInstance().setCommentsNotification(true, appPrefs.getUpdateTimeIndex());
-    			} catch (Exception e) {
-    				timer.cancel();
-    				final String excMsg;
-
-    				if(e != null && e.getMessage()!= null ) {
-    					excMsg = "\n" + e.getMessage();
-    				} else {
-    					excMsg = "\n" + "Please configure application permissions and reboot the device by removing and reinserting the battery.";
-    				}
-
-    				timer.cancel();
-
-    				ErrorView errView = new ErrorView("Startup Error:"+excMsg);
-    				errView.doModal();
-    				try {
-    					if (loadingScreen != null) 
-    						popScreen(loadingScreen);
-    				} catch (Exception e2) {
-    					Log.error(e2, "Splash Screen is not on the stack!");
-    				}
-
-    				mainScreen = MainController.getIstance();
-    				mainScreen.showView();
     			}
     		}
-    	});
+
+    		AppDAO.setUpFolderStructure(); //check for the folder existence, create it if not exist
+    		AppDAO.readApplicationPreferecens(appPrefs); //load pref on startup
+
+    		//add the file log appender
+    		FileAppender fileAppender = new FileAppender(baseDirPath, BaseDAO.LOG_FILE_PREFIX);
+    		fileAppender.setLogLevel(Log.ERROR); //if we set level to TRACE the file log size grows too fast
+    		fileAppender.open();
+    		Log.addAppender(fileAppender);
+    		WordPressCore wpCore = WordPressCore.getInstance();
+    		wpCore.setFileAppender(fileAppender); // add the file appender to the queue
+
+    		timer.schedule(new CountDown(), 800); //splash
+
+    		// Initialize the notification handler only if notification interval is != 0
+    		if (appPrefs.getUpdateTimeIndex() != 0)
+    			NotificationHandler.getInstance().setCommentsNotification(true, appPrefs.getUpdateTimeIndex());
+    	} catch (Exception e) {
+    		timer.cancel();
+    		final String excMsg;
+
+    		if(e != null && e.getMessage()!= null ) {
+    			excMsg = "\n" + e.getMessage();
+    		} else {
+    			excMsg = "\n" + "Please configure application permissions and reboot the device by removing and reinserting the battery.";
+    		}
+
+    		timer.cancel();
+
+    		ErrorView errView = new ErrorView("Startup Error:"+excMsg);
+    		errView.doModal();
+    		try {
+    			if (loadingScreen != null) 
+    				popScreen(loadingScreen);
+    		} catch (Exception e2) {
+    			Log.error(e2, "Splash Screen is not on the stack!");
+    		}
+
+    		mainScreen = MainController.getIstance();
+    		mainScreen.showView();
+    	}
+
     }
-	
+
    private class CountDown extends TimerTask {
 	   public void run() {
    	   invokeLater(new Runnable() {
@@ -396,5 +422,14 @@ public class WordPress extends UiApplication implements WordPressResource {
 		});
       }
    }
-   
+
+   public void batteryGood() {
+   }
+   public void batteryLow() {
+   }
+   public void batteryStatusChange(int status) {
+   }
+   public void powerOff() {
+   }
+  
 }

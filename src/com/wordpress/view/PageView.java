@@ -217,7 +217,7 @@ public class PageView extends StandardBaseView {
     private MenuItem _previewItem = new MenuItem( _resources, WordPressResource.MENUITEM_PREVIEW, 160000, 1000) {
     	public void run() {
 
-    		if( controller.isDraftItem() || controller.isObjectChanged()) {
+    		if( controller.isDraftItem() || controller.isObjectChanged() || page.getID() == null) {
     			//1. draft page
     			//2. published page is changed 
     			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");

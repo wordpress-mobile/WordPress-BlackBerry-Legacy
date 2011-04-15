@@ -2,22 +2,14 @@ package com.wordpress.view;
 
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
-import net.rim.device.api.system.Display;
-import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Color;
-import net.rim.device.api.ui.DrawStyle;
-import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.component.BitmapField;
-import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ObjectListField;
-import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
-import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
@@ -26,16 +18,10 @@ import com.wordpress.controller.FrontController;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BasicListFieldCallBack;
-import com.wordpress.view.component.ColoredLabelField;
 
-
-public class BlogView extends BaseView {
+public class BlogView extends StandardBaseView {
 	
     private BlogController controller=null;
-    private VerticalFieldManager _scrollerManager;
-    VerticalFieldManager internalManager;
-    private LabelField  blogTitleField;
-    private final BitmapField wpLogoBitmapField;
     
 	private static final int mnuPosts = 100;
 	private static final int mnuPages = 110;
@@ -62,36 +48,12 @@ public class BlogView extends BaseView {
 			};
 	      	
 	public BlogView(BlogController _controller) {
-		super( MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
-		this.controller=_controller;
-		
-		EncodedImage _theImage = controller.getBlogIcon();
-		blogTitleField = new ColoredLabelField(controller.getBlogName(), 0x464646, Field.USE_ALL_HEIGHT | Field.FIELD_VCENTER | DrawStyle.ELLIPSIS);
-		Font fnt = Font.getDefault().derive(Font.BOLD, 30);
-		blogTitleField.setFont(fnt);
-		blogTitleField.setMargin(5, 5, 5, 5);
-		
-        wpLogoBitmapField =  new BitmapField(_theImage.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
-        wpLogoBitmapField.setMargin(5, 5, 5, 5);
-    	internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR | USE_ALL_HEIGHT) {
-    		public void paintBackground( Graphics g ) {
-    			g.clear();
-    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
-    		}
-    	};
-    	
-    	_scrollerManager = new VerticalFieldManager( Manager.VERTICAL_SCROLL | Manager.VERTICAL_SCROLLBAR );
-    	HorizontalFieldManager _headerManager = new HorizontalFieldManager( Manager.NO_HORIZONTAL_SCROLL | Manager.NO_VERTICAL_SCROLL | USE_ALL_WIDTH);
-    	_headerManager.add( wpLogoBitmapField );
-    	_headerManager.add( blogTitleField );
-    	
-    	internalManager.add( _headerManager );
-    	internalManager.add( _scrollerManager );
-    	super.add( internalManager );
-  
+		super(_controller.getBlogName(), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
+		this.controller=_controller;  
     	BlogInfo currentBlogInfo = controller.getCurrentBlogInfo();
 		awaitingModeration = currentBlogInfo.getAwaitingModeration();
 		list = new BlogListField();
+		list.setMargin(5, 0, 0, 0);
 		
 		//Populate the ListField
 		for(int count = 0; count < mainMenuItems.length; ++count) {
@@ -114,11 +76,7 @@ public class BlogView extends BaseView {
 		   );  
 	   }
 	}
-	
-	public void add( Field field ) {
-		_scrollerManager.add( field );
-	}
-        
+	        
     protected void onExposed() {
     	super.onExposed();
         Log.debug(">>> onExposed BlogView");
@@ -126,8 +84,7 @@ public class BlogView extends BaseView {
         if(list != null)
         	list.invalidate();
     }
-        
-    
+           
     protected void onDisplay() {
     	
         super.onDisplay();
@@ -137,11 +94,6 @@ public class BlogView extends BaseView {
         	list.invalidate();
     }
     
-    public void setBlogHeader(String title, EncodedImage blogIcon)  {
-    	blogTitleField.setText(title);
-    	wpLogoBitmapField.setImage(blogIcon);
-    }
-        
     private void doSelection(int i) {
 
 		switch (i) {

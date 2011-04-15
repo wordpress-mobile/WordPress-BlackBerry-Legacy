@@ -31,17 +31,10 @@ public class PagesView extends BaseView implements ListActionListener {
     private VerticalFieldManager dataScroller;
 
 	
-	 public PagesView(PagesController _controller, Page[] pages, int numberOfNewPosts) {
-	    	super(_resources.getString(WordPressResource.TITLE_PAGES)+ " > "+ _controller.getBlogName(), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
+	 public PagesView(PagesController _controller, Page[] pages) {
+	    	super(_controller.getBlogName(), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
+	    	this.setSubTitleText(_resources.getString(WordPressResource.BUTTON_PAGES)); 
 	    	this.controller=_controller;
-	        
-	        if(pages != null) {
-	        	String subTitleValue = getNumberOfTotalPageLabel(pages.length)+ " " + getNumberOfNewPageLabel(numberOfNewPosts);
-	        	this.setSubTitleText(subTitleValue);
-	        } else {
-	        	this.setSubTitleText("");
-	        }
-	        
 	        //A HorizontalFieldManager to hold the posts list
 	        dataScroller = new VerticalFieldManager(VerticalFieldManager.VERTICAL_SCROLL
 	                 | VerticalFieldManager.VERTICAL_SCROLLBAR);
@@ -87,27 +80,7 @@ public class PagesView extends BaseView implements ListActionListener {
 			}
 		}
 	//#endif
-	 
-
-	 private String getNumberOfNewPageLabel(int recentPage) {
-	        String numerOfPageLabel = null;
-	        numerOfPageLabel=" (" +recentPage+" "+_resources.getString(WordPressResource.LABEL_PAGE_NUMBER_NEW)+")";
-	        return numerOfPageLabel;
-		 
-	 }
-	 
-	 private String getNumberOfTotalPageLabel(int pageNum) {
-	        String numerOfPostLabel = null;
-	        
-	        if(pageNum > 1) 
-	        	numerOfPostLabel= pageNum+ " " +_resources.getString(WordPressResource.LABEL_PAGE_NUMBERS); 
-	        else 
-	        	numerOfPostLabel= pageNum+ " " +_resources.getString(WordPressResource.LABEL_PAGE_NUMBER);
-	        
-	        return numerOfPostLabel;
-		 
-	 }
-	 
+	  
 	private void buildList(Page[] pages) {
         
 		Hashtable elements[]= new Hashtable[0];
@@ -206,16 +179,8 @@ public class PagesView extends BaseView implements ListActionListener {
      
 
     	
-	public void refresh(Page[] pages, int count){
+	public void refresh(Page[] pages){
 		dataScroller.delete(pagesList);
-				
-        if(pages != null) {
-        	String subTitleValue = getNumberOfTotalPageLabel(pages.length)+ " " + getNumberOfNewPageLabel(count);
-        	this.setSubTitleText(subTitleValue);
-        } else {
-        	this.setSubTitleText("");
-        }
-		
 		buildList(pages);
 	}
 

@@ -25,7 +25,8 @@ public class DraftPostsView extends BaseView implements ListActionListener {
 	private PostsListField listaPost; 
 	
 	 public DraftPostsView(DraftPostsController  _controller, Hashtable[] post) {
-	    	super(_resources.getString(WordPressResource.TITLE_DRAFT_POSTS)+" > "+_controller.getCurrentBlogName());
+	    	super(_controller.getCurrentBlogName());
+	    	this.setSubTitleText(_resources.getString(WordPressResource.MENUITEM_LOCALDRAFTS));  
 	    	this.controller=_controller;
 	        buildList(post);
 	 }

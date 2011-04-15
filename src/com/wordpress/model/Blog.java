@@ -49,27 +49,15 @@ public class Blog {
 	private Hashtable wpcomFeatures=null;
 	private Hashtable postFormats=null; //introduces in WP3.1 
 
-	private Vector recentPostTitles = null; //response of mt.getRecentPostTitles
-	private Vector viewedPost = new Vector(); //the viewed post (similar to response of previous mt.getRecentPostTitles) 
-		
+	private Vector recentPostTitles = null; //response of mt.getRecentPostTitles		
 	private Vector pages = null;
-	private int[] viewedPages = new int[0]; //the viewed page. only the ID of the page as String
-	
+
 	private String statsUsername = null; //this data could be different from http auth
 	private String statsPassword = null; //this data could be different from http auth 
 	
 	private boolean isHTTPBasicAuthRequired = false;
 	private String HTTPAuthUsername = null; //could be used only for self-hosted blog - this data could be different from stats auth
 	private String HTTPAuthPassword = null; //could be used used for self-hosted blog - this data could be different from stats auth 
-	
-	
-	public Vector getViewedPost() {
-		return viewedPost;
-	}
-
-	public void setViewedPost(Vector viewedPost) {
-		this.viewedPost = viewedPost;
-	}
 	
 	public Blog(String blogId, String blogName, String blogUrl,String blogXmlRpcUrl, 
 			String userName, String pass) {
@@ -272,16 +260,8 @@ public class Blog {
 		return pages;
 	}
 
-	public int[] getViewedPages() {
-		return viewedPages;
-	}
-
 	public void setPages(Vector pages) {
 		this.pages = pages;
-	}
-
-	public void setViewedPages(int[] viewedPages) {
-		this.viewedPages = viewedPages;
 	}
 
 	public Hashtable getPageTemplates() {

@@ -193,27 +193,6 @@ public class DraftDAO implements BaseDAO{
         if (post.getLink() != null) {
         	content.put("link", post.getLink());
         }
-		if(post.isPhotoResizing() != null) {
-			content.put("IsPhotoResizing", post.isPhotoResizing());
-		}
-		if(post.getImageResizeWidth() != null) {
-			content.put("imageResizeWidth", post.getImageResizeWidth());
-		}
-		if(post.getImageResizeHeight() != null) {
-			content.put("imageResizeHeight", post.getImageResizeHeight());
-		}
-		if(post.getCustomFields() != null ){
-			content.put("custom_fields", post.getCustomFields());
-		}
-		
-		if(post.isVideoResizing() !=null)
-			content.put("IsVideoResizing", post.isVideoResizing());
-		
-		if(post.getVideoResizeWidth() != null)
-			content.put("videoResizeWidth", post.getVideoResizeWidth());
-		
-		if(post.getVideoResizeHeight() != null)
-			content.put("videoResizeHeight", post.getVideoResizeHeight());
         
 		//convert media object before save them
 		Vector mediaObjects = post.getMediaObjects();
@@ -229,14 +208,6 @@ public class DraftDAO implements BaseDAO{
         content.put("mt_allow_pings", new Integer(post.isTrackbackEnabled() ? 1 : 0));
         content.put("isLocation", new Boolean(post.isLocation()));
         content.put("isLocationPublic", new Boolean(post.isLocationPublic()));
-
-		if(post.isSignatureEnabled() != null) {
-			content.put("isSignatureActive", post.isSignatureEnabled());
-		}
-        String signature = post.getSignature();
-		if(signature != null) {
-			content.put("signature", signature);
-		}
         
 		String postFormat = post.getPostFormat();
 		if(postFormat != null) {
@@ -286,33 +257,6 @@ public class DraftDAO implements BaseDAO{
             post.setTrackbackEnabled(trackback.intValue() != 0);
         }
         
-		//set the prop for photo res
-		if(postData.get("IsPhotoResizing") != null) {
-			post.setPhotoResizing((Boolean) postData.get("IsPhotoResizing"));
-		}
-		
-		if(postData.get("imageResizeWidth") != null) {
-			post.setImageResizeWidth((Integer) postData.get("imageResizeWidth"));
-		}
-		
-		if(postData.get("imageResizeHeight") != null) {
-			post.setImageResizeHeight((Integer) postData.get("imageResizeHeight"));
-		}
-		
-		//set the prop for videopres resizing options
-		if(postData.get("IsVideoResizing") != null) {
-			post.setVideoResizing((Boolean) postData.get("IsVideoResizing"));
-		}
-		
-		// Set the image resize dimension properties
-		if(postData.get("videoResizeWidth") != null) {
-			post.setVideoResizeWidth((Integer) postData.get("videoResizeWidth"));
-		}
-		
-		if(postData.get("videoResizeHeight") != null) {
-			post.setVideoResizeHeight((Integer) postData.get("videoResizeHeight"));
-		}
-
 		if(postData.get("custom_fields") != null) {
 			Vector cf = (Vector) postData.get("custom_fields");
 			post.setCustomFields(cf);
@@ -339,16 +283,7 @@ public class DraftDAO implements BaseDAO{
 			boolean isLocationPublic =((Boolean)postData.get("isLocationPublic")).booleanValue();
 			post.setLocationPublic(isLocationPublic);    
 		}
-		
-		if(postData.get("isSignatureActive") != null) {
-			Boolean isSignatureActive = ((Boolean)postData.get("isSignatureActive"));
-			post.setSignatureEnabled(isSignatureActive);
-		}
-		
-		if(postData.get("signature") != null) {
-			post.setSignature((String)postData.get("signature"));
-		} 
-		
+				
 		if(postData.get("wp_post_format") != null) {
 			post.setPostFormat((String)postData.get("wp_post_format"));
 		}

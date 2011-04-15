@@ -36,41 +36,9 @@ public class PostsController extends BaseController{
 	public String getBlogName() {
 		return currentBlog.getName();
 	}
-	
-	//count number of new posts and set the new number in the blog structure.
-	private int countNewPosts() {
-		Vector recentPostsTitle = currentBlog.getRecentPostTitles();
-		Vector viewedPostsTitle = currentBlog.getViewedPost();
 		
-		if(recentPostsTitle == null) //if recentpost is null you are not allow to view the post of this blog
-			return 0;
-		
-		int count = 0;
-
-		for (int i = 0; i < recentPostsTitle.size(); i++) {
-			boolean presence = false; 
-			Hashtable recentPost = (Hashtable) recentPostsTitle.elementAt(i);
-            String postId = String.valueOf( recentPost.get("postid") );
-			
-		    for (int j = 0; j < viewedPostsTitle.size(); j++) {
-		    	Hashtable viewedPost = (Hashtable) viewedPostsTitle.elementAt(j);
-	            String viewedPostId = String.valueOf( viewedPost.get("postid") );
-		    	
-		    	if (postId.equalsIgnoreCase(viewedPostId)) {
-		    		presence = true;
-		    		break;
-		    	}
-			}
-		    
-		    if (!presence) 
-		    	count++;
-		}
-		currentBlog.setViewedPost(recentPostsTitle); //update viewed post in blog obj
-		return count;
-	}
-	
 	public void showView(){
-		this.view= new PostsView(this,currentBlog.getRecentPostTitles(), countNewPosts());
+		this.view= new PostsView(this,currentBlog.getRecentPostTitles());
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 	
@@ -198,7 +166,7 @@ public class PostsController extends BaseController{
 			} catch (Exception e) {
 				displayError(e, "Refreshing Blog Error");
 			}
-		view.refresh(currentBlog.getRecentPostTitles(), countNewPosts());
+		view.refresh(currentBlog.getRecentPostTitles());
 	}
 	
 	public void refreshPostsList() {
@@ -255,7 +223,7 @@ public class PostsController extends BaseController{
 								}
 							}			        
 
-							view.refresh(currentBlog.getRecentPostTitles(), countNewPosts());
+							view.refresh(currentBlog.getRecentPostTitles());
 
 							try{
 								BlogDAO.updateBlog(currentBlog);							
@@ -297,7 +265,7 @@ public class PostsController extends BaseController{
 						Vector recentPostTitle= (Vector) resp.getResponseObject();
 						currentBlog.setRecentPostTitles(recentPostTitle);
 
-						view.refresh(currentBlog.getRecentPostTitles() , countNewPosts());
+						view.refresh(currentBlog.getRecentPostTitles());
 
 						try{
 							BlogDAO.updateBlog(currentBlog);							

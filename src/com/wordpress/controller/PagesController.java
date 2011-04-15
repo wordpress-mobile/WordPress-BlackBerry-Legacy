@@ -1,6 +1,5 @@
 package com.wordpress.controller;
 
-import java.util.Hashtable;
 import java.util.Vector;
 
 import net.rim.device.api.ui.UiApplication;
@@ -35,49 +34,13 @@ public class PagesController extends BaseController{
 			
 	public void showView(){
 		pages = PageDAO.buildPagesArray(currentBlog.getPages());
-		this.view= new PagesView(this, pages, countNewPages());
+		this.view= new PagesView(this, pages);
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 	
 	public String getBlogName() {
 		return currentBlog.getName();
 	}
-	
-	//count number of new pages
-	private int countNewPages() {
-		Vector pages = currentBlog.getPages();
-		if(pages == null) 
-			return 0;
-		
-		
-		int count = 0;
-		int[] viewedPages = currentBlog.getViewedPages();
-		int[] newViewedPage = new int[pages.size()];
-
-		for (int i = 0; i < pages.size(); i++) {
-			boolean presence = false; 
-			Hashtable page = (Hashtable) pages.elementAt(i);
-            int pageId = Integer.parseInt( String.valueOf(page.get("page_id")));
-            //add the pages into NEW viewed pages array
-            newViewedPage[i]= pageId;
-			
-		    for (int j = 0; j < viewedPages.length; j++) {
-		    	int viewedPageID = viewedPages[j];
-	            	    	
-		    	if (pageId == viewedPageID) {
-		    		presence = true;
-		    		break;
-		    	}
-			}
-		    
-		    if (!presence) 
-		    	count++;
-		}
-		
-		currentBlog.setViewedPages(newViewedPage);
-		return count;
-	}
-	
 	
 	public void editPage(int selected){
 		Page selectedPage = pages[selected];
@@ -191,7 +154,7 @@ public class PagesController extends BaseController{
 							blogPages.removeElementAt(index);
 							currentBlog.setPages(blogPages);
 							pages = PageDAO.buildPagesArray(blogPages);
-							view.refresh(pages , countNewPages());
+							view.refresh(pages);
 							try{
 								BlogDAO.updateBlog(currentBlog);							
 							} catch (final Exception e) {
@@ -230,19 +193,8 @@ public class PagesController extends BaseController{
 
 						Vector respVector= (Vector) resp.getResponseObject();
 						currentBlog.setPages(respVector);
-						pages = PageDAO.buildPagesArray(currentBlog.getPages());
-						view.refresh(pages , countNewPages());
-
-						/*
-						//setting the NEW viewed page
-						int[] pagesID = new int[pages.length];
-						for (int i = 0; i < pages.length; i++) {
-							Page curr = pages[i];
-							int id = curr.getID();
-							pagesID[i] = id;
-						}
-						currentBlog.setViewedPages(pagesID);
-						 */
+						pages = PageDAO.buildPagesArray(respVector);
+						view.refresh(pages);
 
 						try{
 							BlogDAO.updateBlog(currentBlog);							

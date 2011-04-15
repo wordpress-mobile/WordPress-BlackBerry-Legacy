@@ -19,7 +19,6 @@ import com.wordpress.task.SendToBlogTask;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.MediaLibraryView;
-import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
@@ -99,37 +98,6 @@ public class MediaLibraryController extends BlogObjectController {
 	}
 		
 	public void showSettingsView() {
-		MediaLibrary entry = getMediaLibraryObj();
-		boolean isPhotoResing = blog.isResizePhotos(); //first set the value as the predefined blog value
-		Integer imageResizeWidth = blog.getImageResizeWidth();
-		Integer imageResizeHeight = blog.getImageResizeHeight();
-
-		if (entry.isPhotoResizing() != null ) {
-			isPhotoResing = entry.isPhotoResizing().booleanValue();			
-		}
-		if (entry.getImageResizeWidth() != null ) {
-			imageResizeWidth = entry.getImageResizeWidth();
-		}
-		if( entry.getImageResizeHeight() != null ) {
-			imageResizeHeight = entry.getImageResizeHeight();
-		}
-		
-		boolean isVideoResing = blog.isResizeVideos(); 
-		Integer videoResizeWidth = blog.getVideoResizeWidth();
-		Integer videoResizeHeight = blog.getVideoResizeHeight();
-		if (entry.isVideoResizing() != null ) {
-			isVideoResing = entry.isVideoResizing().booleanValue();			
-		}
-		if (entry.getVideoResizeWidth() != null ) {
-			videoResizeWidth = entry.getVideoResizeWidth();
-		}
-		if (entry.getVideoResizeHeight() != null ) {
-			videoResizeHeight = entry.getVideoResizeHeight();
-		}
-		
-		settingsView = new PostSettingsView(this, isPhotoResing, imageResizeWidth, imageResizeHeight,
-				isVideoResing, videoResizeWidth, videoResizeHeight);
-		UiApplication.getUiApplication().pushScreen(settingsView);
 	}
 
 	public void refreshView() {
@@ -215,8 +183,4 @@ private class SubmitlibraryTaskListener implements TaskProgressListener {
 	
 	}	
  }
-
-	public void setSignature(boolean isSignatureEnabled, String signature) {
-		// do nothing for this view
-	}
 }

@@ -30,7 +30,7 @@ public class CommentsView extends BaseView implements ListActionListener {
 	//private boolean pendingMode = false; //a flag to show only pending comments
 	
 	 public CommentsView(RecentCommentsController _controller, GravatarController gvtCtrl, String title) {
-	    	super(_resources.getString(WordPressResource.TITLE_COMMENTS)+" > "+ title, MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
+	    	super(title, MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 	    	this.controller=_controller;
 			this.gravatarController = gvtCtrl;
 	      //  this.setSubTitleText(_resources.getString(WordPressResource.MENUITEM_COMMENTS)+" "
@@ -105,19 +105,6 @@ public class CommentsView extends BaseView implements ListActionListener {
 	private void updateSubTitle(Comment[] comments) {
 		int count = comments.length;;
 		String postStatusFilter = controller.getStatusFilter();
-    /*	//this filter on view is necessary when your have a filter applied 
-    	//(such as hold) and changing the status of a post it should not e visible 
-    	//anymore
-    	if(postStatusFilter != null && !postStatusFilter.equals("")) {
-    		for (int i = 0; i < comments.length; i++) {
-    			Comment	comment = comments[i];
-    			if ( comment.getStatus().equalsIgnoreCase(postStatusFilter) )
-    				count++;
-    		}
-    	} else {
-    		count = comments.length;
-    	}
-*/
     	String localizedStatusText = "";
     	if (postStatusFilter.equals(RecentCommentsController.PENDINGS_STATUS)){
     		localizedStatusText = _resources.getString(WordPressResource.LABEL_PENDING)+" ";

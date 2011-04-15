@@ -26,8 +26,9 @@ public class DraftPagesView extends BaseView implements ListActionListener {
 	private PostsListField pageListField; 
 	
 	 public DraftPagesView(DraftPagesController  _controller, Page[] pages) {
-	    	super(_resources.getString(WordPressResource.TITLE_DRAFT_PAGES)+" > "+_controller.getCurrentBlogName());
-	    	this.controller=_controller;	        
+	    	super(_controller.getCurrentBlogName());
+	    	this.setSubTitleText(_resources.getString(WordPressResource.MENUITEM_LOCALDRAFTS));  
+	    	this.controller=_controller;
 	        buildList(pages);
 	 }
 	 
