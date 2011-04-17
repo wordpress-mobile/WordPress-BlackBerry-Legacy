@@ -16,6 +16,17 @@ public class BlogInfo {
 	public static int STATE_LOADED_WITH_ERROR = 3;
 	public static int STATE_ERROR = 4;
 	public static int STATE_PENDING_ACTIVATION = 5; //blog created within the app that should be activated
+
+	public static final int SMALL_IMAGE_RESIZE_SETTING =  0;
+	public static final int MEDIUM_IMAGE_RESIZE_SETTING = 1;
+	public static final int LARGE_IMAGE_RESIZE_SETTING =  2;
+	public static final int CUSTOM_IMAGE_RESIZE_SETTING = 3;
+	public static final int ALWAYS_ASK_IMAGE_RESIZE_SETTING = 4;
+	public static final int OPTION1_IMAGE_RESIZE_SETTING = 5;
+	
+	public static final int[] DEFAULT_IMAGE_RESIZE_THUMB_SIZE = {150,150};
+	public static final int[] DEFAULT_IMAGE_RESIZE_MEDIUM_SIZE = {300,300};
+	public static final int[] DEFAULT_IMAGE_RESIZE_LARGE_SIZE = {1024,1024};
 	
 	private boolean isWPCOMBlog = false;
 	private String id;

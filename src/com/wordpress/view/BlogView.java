@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.view;
 
 import net.rim.device.api.system.Bitmap;
@@ -7,10 +8,12 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ObjectListField;
 import net.rim.device.api.ui.container.MainScreen;
 
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogController;
@@ -18,6 +21,12 @@ import com.wordpress.controller.FrontController;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BasicListFieldCallBack;
+
+
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.TouchEvent;
+import net.rim.device.api.ui.TouchGesture;
+//#endif
 
 public class BlogView extends StandardBaseView {
 	
@@ -126,26 +135,6 @@ public class BlogView extends StandardBaseView {
 		}
 	}
    
-	 // Handle trackball clicks.
-	protected boolean navigationClick(int status, int time) {
-		doSelection(mainMenuItems[list.getSelectedIndex()]);
-		return true;
-	}
-	
-    protected boolean keyChar(char key, int status, int time)
-    {
-        
-        //If the spacebar was pressed...
-        if (key == Characters.SPACE || key == Characters.ENTER)
-        {
-        	doSelection(mainMenuItems[list.getSelectedIndex()]);
-        	return true;
-        }
-        return false;
-    }
-    
-
-	
 	public boolean onClose() {
 		//controller.backCmd();
 		FrontController.getIstance().backAndRefreshView(true);	
@@ -240,6 +229,62 @@ public class BlogView extends StandardBaseView {
 	
 	private class BlogListField extends ObjectListField {
 			
+		 // Handle trackball clicks.
+		protected boolean navigationClick(int status, int time) {
+			doSelection(mainMenuItems[list.getSelectedIndex()]);
+			return true;
+		}
+		
+	    protected boolean keyChar(char key, int status, int time)
+	    {
+	        
+	        //If the spacebar was pressed...
+	        if (key == Characters.SPACE || key == Characters.ENTER)
+	        {
+	        	doSelection(mainMenuItems[list.getSelectedIndex()]);
+	        	return true;
+	        }
+	        return false;
+	    }
+	    
+		//#ifdef IS_OS47_OR_ABOVE
+		protected boolean touchEvent(TouchEvent message) {
+			Log.trace("touchEvent");
+			
+			if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
+			{       			
+				return true; //we are return true bc we are eating the event even if it outside the list
+			} 
+			
+			int eventCode = message.getEvent();
+
+			if(WordPressInfo.isForcelessTouchClickSupported) {
+				if (eventCode == TouchEvent.GESTURE) {
+					TouchGesture gesture = message.getGesture();
+					int gestureCode = gesture.getEvent();
+					if (gestureCode == TouchGesture.TAP) {
+						doSelection(mainMenuItems[list.getSelectedIndex()]);;
+						return true;
+					}
+				} 
+				return false;
+			} else {
+				if(eventCode == TouchEvent.CLICK) {
+					doSelection(mainMenuItems[list.getSelectedIndex()]);
+					return true;
+				}else if(eventCode == TouchEvent.DOWN) {
+				} else if(eventCode == TouchEvent.UP) {
+				} else if(eventCode == TouchEvent.UNCLICK) {
+					//return true; //consume the event: avoid context menu!!
+				} else if(eventCode == TouchEvent.CANCEL) {
+				}
+				return false; 
+				//return super.touchEvent(message);
+			}
+		}
+		//#endif
+		
+		
 	   protected void drawFocus(Graphics graphics, boolean on) { }
 	   
 

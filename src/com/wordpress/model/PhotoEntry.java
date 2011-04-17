@@ -6,8 +6,9 @@ import net.rim.device.api.system.Bitmap;
 
 public class PhotoEntry extends MediaEntry {
 	
-
 	public int rotationAngle = 0;
+	private Integer resizeWidth = null; //defined only when the user has set the res opt to "always ask"
+	private Integer resizeHeight = null;//defined only when the user has set the res opt to "always ask"
 	
 	public PhotoEntry() {
 		super();
@@ -21,6 +22,22 @@ public class PhotoEntry extends MediaEntry {
 		this.rotationAngle += addedAngle;
 	}
 	
+	public Integer getResizeWidth() {
+		return resizeWidth;
+	}
+
+	public void setResizeWidth(Integer resizeWidth) {
+		this.resizeWidth = resizeWidth;
+	}
+
+	public Integer getResizeHeight() {
+		return resizeHeight;
+	}
+
+	public void setResizeHeight(Integer resizeHeight) {
+		this.resizeHeight = resizeHeight;
+	}
+
 	/*
 	public void setRotationAngle(int rotationAngle) {
 		this.rotationAngle = rotationAngle;
@@ -29,6 +46,10 @@ public class PhotoEntry extends MediaEntry {
 	public Hashtable serialize() {
 		Hashtable hashtable = super.serialize();
 		hashtable.put("rotationAngle", new Integer(rotationAngle));
+		if(resizeHeight != null && resizeHeight != null) {
+			hashtable.put("resizeWidth",resizeWidth);
+			hashtable.put("resizeHeight",resizeHeight);
+		}
 		return hashtable;
 	}
 	
@@ -36,6 +57,10 @@ public class PhotoEntry extends MediaEntry {
 		Integer _rotationAngle = (Integer)hash.get("rotationAngle");
 		if(_rotationAngle != null)
 			rotationAngle = _rotationAngle.intValue();
+		if(hash.get("resizeWidth")!= null && hash.get("resizeHeight") != null) {
+			resizeWidth = (Integer) hash.get("resizeWidth");
+			resizeHeight = (Integer) hash.get ("resizeHeight");
+		}
 	}
 	
 	/**

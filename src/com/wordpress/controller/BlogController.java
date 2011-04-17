@@ -161,11 +161,9 @@ public class BlogController extends BaseController {
 			//update the title
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
-					view.setTitle(currentBlogI.getName());
+					view.setTitleText(currentBlogI.getName());
 				}
 			});
-			
-
 		}//end update
 	}
 

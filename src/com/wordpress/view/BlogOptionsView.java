@@ -34,13 +34,8 @@ public class BlogOptionsView extends StandardBaseView {
 	private PasswordEditField passwordField;
 	private ObjectChoiceField  maxRecentPost;
 	private BorderedFieldManager rowResizePhotos;
-	private CheckboxField resizePhoto;
-	private BasicEditField imageResizeWidthField;
-	private BasicEditField imageResizeHeightField;
 	private CheckboxField commentNotifications;
 	private CheckboxField enableLocation;
-	private Integer imageResizeWidth;
-	private Integer imageResizeHeight;
 	private CheckboxField enableSignature;
 	private BasicEditField signatureField;
 	private BorderedFieldManager rowVideoPressOptions;
@@ -51,6 +46,12 @@ public class BlogOptionsView extends StandardBaseView {
 	private BasicEditField authUserNameField;
 	private PasswordEditField authPasswordField;
 
+	private CheckboxField resizePhoto;
+	private ObjectChoiceField resizeOpt;
+	private BasicEditField imageResizeWidthField;
+	private BasicEditField imageResizeHeightField;
+	private Integer imageResizeWidth;
+	private Integer imageResizeHeight;
 	
 	public static final int[] recentsPostValues={10,20,30,40,50};
 	public static final String[] recentsPostValuesLabel={"10","20","30","40","50"};
@@ -84,9 +85,6 @@ public class BlogOptionsView extends StandardBaseView {
 			
 	        String[] recentPost = recentsPostValuesLabel;
 	        int recentPostSelect = indexRecPost;
-			boolean isResImg = blog.isResizePhotos();
-			imageResizeWidth = blog.getImageResizeWidth();
-			imageResizeHeight = blog.getImageResizeHeight();
 			boolean isLocation = blog.isLocation();
 			
 			boolean isCommentNotifications =blog.isCommentNotifies();
@@ -137,24 +135,37 @@ public class BlogOptionsView extends StandardBaseView {
             add(mainOptionsRow);           
 
             //row resize photos
-            rowResizePhotos = new BorderedFieldManager(
-	        		Manager.NO_HORIZONTAL_SCROLL
-	        		| Manager.NO_VERTICAL_SCROLL
-	        		| BorderedFieldManager.BOTTOM_BORDER_NONE);
+            boolean isResImg = blog.isResizePhotos();
+            imageResizeWidth = blog.getImageResizeWidth();
+            imageResizeHeight = blog.getImageResizeHeight();
             
-			 LabelField titlePhotoOptions = GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_PHOTOS_OPTIONS),
-					 Color.BLACK);
-			 rowResizePhotos.add(titlePhotoOptions);
-			 rowResizePhotos.add(GUIFactory.createSepatorField());
-			 
-    		resizePhoto=new CheckboxField(_resources.getString(WordPressResource.LABEL_RESIZEPHOTOS), isResImg);
-    		rowResizePhotos.add(resizePhoto);
-     		BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS));
-			rowResizePhotos.add(lblDesc);
-			addImageResizeWidthField();
-			addImageResizeHeightField();
-			add(rowResizePhotos);
-			
+            rowResizePhotos = new BorderedFieldManager(
+            		Manager.NO_HORIZONTAL_SCROLL
+            		| Manager.NO_VERTICAL_SCROLL
+            		| BorderedFieldManager.BOTTOM_BORDER_NONE);
+
+            LabelField titlePhotoOptions = GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_PHOTOS_OPTIONS),
+            		Color.BLACK);
+            rowResizePhotos.add(titlePhotoOptions);
+            rowResizePhotos.add(GUIFactory.createSepatorField());
+            BasicEditField lblDesc = getDescriptionTextField(_resources.getString(WordPressResource.DESCRIPTION_RESIZEPHOTOS));
+            rowResizePhotos.add(lblDesc);
+
+            resizePhoto=new CheckboxField(_resources.getString(WordPressResource.LABEL_RESIZEPHOTOS), isResImg);
+            rowResizePhotos.add(resizePhoto);
+                        
+            String[] resizeOptLabelsFromBlog = blog.getBlogImageResizeLabels(); //read the default resize settings from the blog
+            String[] resizeOptLabels = new String[resizeOptLabelsFromBlog.length+1];
+            System.arraycopy(resizeOptLabelsFromBlog, 0, resizeOptLabels, 0, resizeOptLabelsFromBlog.length);
+            resizeOptLabels[resizeOptLabelsFromBlog.length] = _resources.getString(WordPressResource.LABEL_ALWAYS_ASK);
+            
+            int selectedResizeOption = blog.getImageResizeSetting().intValue();
+            resizeOpt = new ObjectChoiceField( _resources.getString(WordPressResource.LABEL_RESIZE_DIMENSION), resizeOptLabels, selectedResizeOption);
+            rowResizePhotos.add(resizeOpt); 
+            addImageResizeWidthField();
+            addImageResizeHeightField();
+            add(rowResizePhotos);
+            
             //row resize Videos
 			rowVideoPressOptions = new BorderedFieldManager(
 	        		Manager.NO_HORIZONTAL_SCROLL
@@ -172,14 +183,14 @@ public class BlogOptionsView extends StandardBaseView {
      		rowVideoPressOptions.add(lblDescResizeVideo);
 			
             videoResizeWidthField = new BasicEditField(
-            		_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)+": ", 
+            		_resources.getString(WordPressResource.LABEL_CUSTOM_RESIZE_IMAGE_WIDTH)+": ", 
             		(videoResizeWidth == null ? "" : videoResizeWidth.toString()), 
             		4, 
             		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
             rowVideoPressOptions.add(videoResizeWidthField);
             
             videoResizeHeightField = new BasicEditField(
-            		_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)+": ", 
+            		_resources.getString(WordPressResource.LABEL_CUSTOM_RESIZE_IMAGE_HEIGHT)+": ", 
             		(videoResizeHeight == null ? "" : videoResizeHeight.toString()), 
             		4, 
             		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
@@ -390,6 +401,8 @@ public class BlogOptionsView extends StandardBaseView {
 			blog.setSignatureEnabled( enableSignature.getChecked() );
 			blog.setSignature(signatureField.getText());
 			blog.setResizeVideos(resizeVideo.getChecked());
+			int resizeSetting = resizeOpt.getSelectedIndex();
+			blog.setImageResizeSetting(new Integer(resizeSetting));
 			
 			try {
 				blog.setVideoResizeWidth(
@@ -490,7 +503,7 @@ public class BlogOptionsView extends StandardBaseView {
 	
 	private void addImageResizeWidthField() {
         imageResizeWidthField = new BasicEditField(
-        		_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_WIDTH)+": ", 
+        		_resources.getString(WordPressResource.LABEL_CUSTOM_RESIZE_IMAGE_WIDTH)+": ", 
         		(imageResizeWidth == null ? "" : imageResizeWidth.toString()), 
         		4, 
         		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
@@ -501,7 +514,7 @@ public class BlogOptionsView extends StandardBaseView {
 
 	private void addImageResizeHeightField() {
 	    imageResizeHeightField = new BasicEditField(
-	    		_resources.getString(WordPressResource.LABEL_RESIZE_IMAGE_HEIGHT)+": ", 
+	    		_resources.getString(WordPressResource.LABEL_CUSTOM_RESIZE_IMAGE_HEIGHT)+": ", 
 	    		(imageResizeHeight == null ? "" : imageResizeHeight.toString()), 
 	    		4, 
 	    		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);

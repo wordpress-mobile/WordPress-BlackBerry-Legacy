@@ -330,6 +330,14 @@ public class BlogDAO implements BaseDAO {
 		ser.serialize(blog.getWpcomFeatures());
 		ser.serialize(blog.getPostFormats());
 		
+		Integer imageResizeSetting = blog.getImageResizeSetting();
+		if(imageResizeSetting != null) {
+			ser.serialize(imageResizeSetting);
+		}
+		else {//should never falls here
+			ser.serialize(new Integer(BlogInfo.ALWAYS_ASK_IMAGE_RESIZE_SETTING)); 
+		}
+		
 		if(isError) {
 			throw new IOException(wholeErrorMessage);
 		}
@@ -601,7 +609,7 @@ public class BlogDAO implements BaseDAO {
 			Log.error("No WP.COM features found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
 		
-		//since version 1.4.3
+		//since version 1.5
 		//reading PostFormats
 		try {
 			Hashtable postFormats = (Hashtable)ser.deserialize();
@@ -612,6 +620,24 @@ public class BlogDAO implements BaseDAO {
 			Log.error("No PostFormats found - End of file was reached. Probably a previous blog data file is loaded" );
 		}
 
+		// Read image resize settings
+		try {
+			Object testObj = ser.deserialize();
+			if( testObj != null ) {
+				Integer imageResizeSetting = (Integer)testObj;
+				blog.setImageResizeSetting(imageResizeSetting);
+			} else {
+				Log.error("No image resize setting found - End of file was reached. Probably a previous blog data file is loaded" );
+				blog.setImageResizeSetting(new Integer(BlogInfo.ALWAYS_ASK_IMAGE_RESIZE_SETTING));
+			}
+		} catch (Exception  e) {
+			Log.error("No image resize setting found - End of file was reached. Probably a previous blog data file is loaded" );
+			blog.setImageResizeSetting(new Integer(BlogInfo.ALWAYS_ASK_IMAGE_RESIZE_SETTING));
+		} catch (Throwable  t) {
+			Log.error("No image resize setting found - End of file was reached. Probably a previous blog data file is loaded" );
+			blog.setImageResizeSetting(new Integer(BlogInfo.ALWAYS_ASK_IMAGE_RESIZE_SETTING));
+		}
+		
 		in.close();
 		return blog;  
 	}

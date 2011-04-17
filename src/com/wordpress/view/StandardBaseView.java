@@ -32,7 +32,7 @@ public abstract class StandardBaseView extends BaseView {
 		super(title, style);
 		initForegroundManager();
 	}
-	
+		
 	private void initForegroundManager() {
 		
 	  	VerticalFieldManager internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR ) {

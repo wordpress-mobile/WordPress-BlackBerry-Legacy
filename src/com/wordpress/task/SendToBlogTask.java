@@ -22,6 +22,7 @@ import com.wordpress.io.PageDAO;
 import com.wordpress.model.AudioEntry;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogEntry;
+import com.wordpress.model.BlogInfo;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.model.MediaLibrary;
 import com.wordpress.model.Page;
@@ -272,19 +273,27 @@ public class SendToBlogTask extends TaskImpl {
 		String MIMEtype = "";
 		
 		photosBytes = JSR75FileSystem.readFile(filePath);
-		
 		boolean isRes = false;
-		Boolean currentObjectPhotoResSetting = null;
-		Integer imageResizeWidth = null;
-		Integer imageResizeHeight = null;		
-		if( currentObjectPhotoResSetting == null ){
-			Log.trace("not found post/page resize opt, read the resize opt from blog setting");
-			isRes = blog.isResizePhotos(); //get the option from the blog settings
-			imageResizeWidth = blog.getImageResizeWidth();
-			imageResizeHeight = blog.getImageResizeHeight();
-		} else {
-			isRes = currentObjectPhotoResSetting.booleanValue();
-			Log.trace("found post/page resize opt: "+isRes);
+		int imageResizeWidth = 0;
+		int imageResizeHeight = 0;
+		
+		isRes = blog.isResizePhotos(); //get the option from the blog settings
+		if(isRes) {
+			int selectedResizeOption = blog.getImageResizeSetting().intValue();
+			if (selectedResizeOption == BlogInfo.ALWAYS_ASK_IMAGE_RESIZE_SETTING) {
+				//read the value from the image if it was set
+				if( ((PhotoEntry)mediaEntry).getResizeHeight() == null ||  ((PhotoEntry)mediaEntry).getResizeWidth() == null )
+					isRes = false;
+					else {
+						imageResizeWidth = ((PhotoEntry)mediaEntry).getResizeWidth().intValue();
+						imageResizeHeight = ((PhotoEntry)mediaEntry).getResizeHeight().intValue();
+					}
+			} else {
+				//read the value from the blogOptions is available
+				int[] blogResizeValues = blog.getDefaultImageResizeSettings(selectedResizeOption);
+				imageResizeWidth = blogResizeValues[0];
+				imageResizeHeight = blogResizeValues[1];
+			}
 		}
 		
 		if(isRes){
@@ -294,12 +303,12 @@ public class SendToBlogTask extends TaskImpl {
 				
 				String fileName = mediaEntry.getFileName() != null ? mediaEntry.getFileName() : filePath;
 				
-				if(imageResizeWidth.intValue() <= 0 || imageResizeHeight.intValue() <= 0)
+				if(imageResizeWidth <= 0 || imageResizeHeight <= 0)
 				{
 					content = ImageUtils.resizePhoto(photosBytes, fileName, this, ImageUtils.DEFAULT_RESIZE_WIDTH, ImageUtils.DEFAULT_RESIZE_HEIGHT);
 					Log.trace("img resize settings are NOT valid, using the default");
 				} else {
-					content = ImageUtils.resizePhoto(photosBytes, fileName, this, imageResizeWidth.intValue(), imageResizeHeight.intValue());
+					content = ImageUtils.resizePhoto(photosBytes, fileName, this, imageResizeWidth, imageResizeHeight);
 				}
 			} catch (Error  err) { //capturing the JVM error. 
 	    		Log.error(err, "Error while resizing");

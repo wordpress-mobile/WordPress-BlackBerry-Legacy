@@ -1,23 +1,16 @@
-//#preprocess
 package com.wordpress.view;
 
 import net.rim.device.api.system.ApplicationDescriptor;
-import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.CodeModuleGroup;
 import net.rim.device.api.system.CodeModuleGroupManager;
-import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
-//#ifdef IS_OS47_OR_ABOVE
-import net.rim.device.api.ui.TouchEvent;
-//#endif
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.bb.WordPressCore;
-import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.BaseController;
@@ -71,7 +64,7 @@ public class MainView extends StandardBaseView {
         		}
         	} */
 
-    	blogListController = new BlogsListField(blogCaricati);        	
+    	blogListController = new BlogsListField(blogCaricati, this);        	
     	listaBlog = blogListController.getList();
     	listaBlog.setMargin(5, 0, 0, 0);
     	add(listaBlog);    
@@ -101,66 +94,17 @@ public class MainView extends StandardBaseView {
 		 }
 	 }        
 	    
-    /**
-     * Overrides default implementation.  Performs the show blog action if the 
-     * 4ways trackpad was clicked; otherwise, the default action occurs.
-     * 
-     * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
-     */
-	protected boolean navigationClick(int status, int time) {
-		Log.trace(">>> navigationClick");
-		
-		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
-			Log.trace("Input came from the trackwheel");
-			// Input came from the trackwheel
-			return super.navigationClick(status, time);
-			
-		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
-			Log.trace("Input came from a four way navigation input device");
-			return defaultAction();
+	 public boolean defaultAction() {
+			if( listaBlog  == null ) {
+					return false;
+			} 
+			if( blogListController  != null ) {
+				BlogInfo blogSelected = blogListController.getBlogSelected();
+				if(blogSelected != null)
+					mainController.showBlog(blogSelected);
+			} 
+			return true;
 		}
-		return super.navigationClick(status, time);
-	}
-	
-    /**
-     * Overrides default.  Enter key will take show blog action on selected blog.
-     *  
-     * @see net.rim.device.api.ui.Screen#keyChar(char,int,int)
-     * 
-     */
-	protected boolean keyChar(char c, int status, int time) {
-		Log.trace(">>> keyChar");
-		// Close this screen if escape is selected.
-		if (c == Characters.ENTER) {
-			return defaultAction();
-		}
-		
-		return super.keyChar(c, status, time);
-	}
-	 
-	private boolean defaultAction() {
-		if( listaBlog  == null ) {
-				return false;
-		} 
-		if( blogListController  != null ) {
-			BlogInfo blogSelected = blogListController.getBlogSelected();
-			if(blogSelected != null)
-				mainController.showBlog(blogSelected);
-		} 
-		return true;
-	}
-	
-	//#ifdef IS_OS47_OR_ABOVE
-	protected boolean touchEvent(TouchEvent message) {
-		Log.trace(">>> touchEvent");
-		int eventCode = message.getEvent();
-        
-		if(eventCode == TouchEvent.CLICK) {
-			return defaultAction();
-		}
-		return super.touchEvent(message);	
-	}
-	//#endif
 	
     private MenuItem _showBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_SHOWBLOG, 1300, 900) {
         public void run() {

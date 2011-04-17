@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.view.component;
 
 import java.util.Timer;
@@ -5,17 +6,25 @@ import java.util.TimerTask;
 
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.GIFEncodedImage;
+import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
+//#ifdef IS_OS47_OR_ABOVE
+import net.rim.device.api.ui.TouchGesture;
+import net.rim.device.api.ui.TouchEvent;
+//#endif
 import net.rim.device.api.ui.component.ListField;
 
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.MainView;
 
 /**
  * This class is a wrapper around a list field that we have used to
@@ -31,7 +40,9 @@ public class BlogsListField {
 	private BlogInfo[] _listData;
     private ListField _listField;
     private ListCallBack listFieldCallBack = null;
-	
+	private MainView clickListener = null;
+    
+    
     //throbber variables 
     private Timer timer;
 	private TimerTask timerTask;
@@ -45,7 +56,8 @@ public class BlogsListField {
         _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
     }
        
-    public BlogsListField(BlogInfo[] blogCaricati) {  
+    public BlogsListField(BlogInfo[] blogCaricati, MainView listener) { 
+    	clickListener = listener;
     	listFieldCallBack = new ListCallBack();
     	
     	_listField = new ListField() {
@@ -91,9 +103,87 @@ public class BlogsListField {
     			timerTask.cancel();
     			super.onUndisplay();
     		}
+    		
+    		
+    		  /**
+    	     * Overrides default implementation.  Performs the show blog action if the 
+    	     * 4ways trackpad was clicked; otherwise, the default action occurs.
+    	     * 
+    	     * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
+    	     */
+    		protected boolean navigationClick(int status, int time) {
+    			Log.trace(">>> navigationClick");
+    			
+    			if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
+    				Log.trace("Input came from the trackwheel");
+    				// Input came from the trackwheel
+    				return super.navigationClick(status, time);
+    				
+    			} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
+    				Log.trace("Input came from a four way navigation input device");
+    				return clickListener.defaultAction();
+    			}
+    			return super.navigationClick(status, time);
+    		}
+    		
+    	    /**
+    	     * Overrides default.  Enter key will take show blog action on selected blog.
+    	     *  
+    	     * @see net.rim.device.api.ui.Screen#keyChar(char,int,int)
+    	     * 
+    	     */
+    		protected boolean keyChar(char c, int status, int time) {
+    			Log.trace(">>> keyChar");
+    			// Close this screen if escape is selected.
+    			if (c == Characters.ENTER) {
+    				return clickListener.defaultAction();
+    			}
+    			
+    			return super.keyChar(c, status, time);
+    		}
+    		 
+    		
+    		
+    		//#ifdef IS_OS47_OR_ABOVE
+    		protected boolean touchEvent(TouchEvent message) {
+    			Log.trace("touchEvent");
+    			
+    			if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
+    			{       			
+    				return true; //we are return true bc we are eating the event even if it outside the list
+    			} 
+    			
+    			int eventCode = message.getEvent();
+
+    			if(WordPressInfo.isForcelessTouchClickSupported) {
+    				if (eventCode == TouchEvent.GESTURE) {
+    					TouchGesture gesture = message.getGesture();
+    					int gestureCode = gesture.getEvent();
+    					if (gestureCode == TouchGesture.TAP) {
+    						clickListener.defaultAction();
+    						return true;
+    					}
+    				} 
+    				return false;
+    			} else {
+    				if(eventCode == TouchEvent.CLICK) {
+    					clickListener.defaultAction();
+    					return true;
+    				}else if(eventCode == TouchEvent.DOWN) {
+    				} else if(eventCode == TouchEvent.UP) {
+    				} else if(eventCode == TouchEvent.UNCLICK) {
+    					//return true; //consume the event: avoid context menu!!
+    				} else if(eventCode == TouchEvent.CANCEL) {
+    				}
+    				return false; 
+    				//return super.touchEvent(message);
+    			}
+    		}
+    		//#endif
+    		
     	};
     	
-    	_listField.setEmptyString(_resources.getString(WordPressResource.LABEL_ADD_YOUR_BLOG), DrawStyle.LEFT);
+    	_listField.setEmptyString("", DrawStyle.LEFT);
     	_listData= blogCaricati;
     	_listField.setRowHeight(48);//the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
     	//Set the ListFieldCallback

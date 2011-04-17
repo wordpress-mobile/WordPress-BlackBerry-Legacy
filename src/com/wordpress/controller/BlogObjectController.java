@@ -23,6 +23,7 @@ import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.AudioEntry;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogEntry;
+import com.wordpress.model.BlogInfo;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.model.PhotoEntry;
 import com.wordpress.model.VideoEntry;
@@ -38,6 +39,7 @@ import com.wordpress.view.PostSettingsView;
 import com.wordpress.view.PreviewView;
 import com.wordpress.view.component.FileBrowser.RimFileBrowserListener;
 import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.view.dialog.ImageResizeDialog;
 import com.wordpress.view.mm.MediaObjFileJournalListener;
 import com.wordpress.view.mm.MediaViewMediator;
 import com.wordpress.view.mm.MultimediaPopupScreen;
@@ -194,11 +196,28 @@ public abstract class BlogObjectController extends BaseController {
 			//check if the file is readable (0n some real phone you cannot access predefined imgs)
 			if (!JSR75FileSystem.isReadable(completePath))
 				throw new IOException("The file "+completePath+" isn't readable");
+			 
+			if(type == PHOTO &&  blog.isResizePhotos() && blog.getImageResizeSetting().intValue() == BlogInfo.ALWAYS_ASK_IMAGE_RESIZE_SETTING) {
+				final ImageResizeDialog dlg = new ImageResizeDialog(blog);
+				UiApplication.getUiApplication().invokeAndWait(new Runnable()
+				{
+					public void run()
+					{
+						dlg.doModal();
+					}
+				});				
+				
+				int[] res = dlg.getResizeDim();
+				if( res[0] != 0 && res[1] != 0) {
+					((PhotoEntry)mediaObj).setResizeWidth(new Integer(res[0]));
+					((PhotoEntry)mediaObj).setResizeHeight(new Integer(res[1]));
+				}
+			}
 			
 			photoView.addMedia(mediaObj);
 			//photoView.setLastAddedMediaObj(mediaObj);
-			
 			mediaObjects.addElement(mediaObj);
+			
 		} catch (Exception e) {
 			displayError(e, "Cannot link the media file!");
 		} finally {

@@ -20,8 +20,7 @@ public class ImageUtils {
 
 	public static int DEFAULT_RESIZE_WIDTH = 640;
 	public static int DEFAULT_RESIZE_HEIGHT = 480;
-
-
+	
 	public static int[] keepAspectRatio(int width, int height) {
 		int[] returnValues = {DEFAULT_RESIZE_WIDTH, DEFAULT_RESIZE_HEIGHT};
 

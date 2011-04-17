@@ -1,7 +1,6 @@
 //#preprocess
 package com.wordpress.view;
 
-import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Color;
@@ -37,7 +36,7 @@ public class AddBlogsView extends StandardBaseView {
 	private PasswordEditField passwordField;
 			
 	public AddBlogsView(AddBlogsController addBlogsController) {
-	    	super(Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
+	    	super(_resources.getString(WordPressResource.MENUITEM_ADDBLOG), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
 	    	this.controller=addBlogsController;
 	        
 			//Set the preferred width to the image size or screen width if the image is larger than the screen width.
@@ -51,7 +50,7 @@ public class AddBlogsView extends StandardBaseView {
 	        	classicHeaderImg = resImg;
 	        }
 	        BitmapField wpClassicHeaderBitmapField =  new BitmapField(classicHeaderImg.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
-	        wpClassicHeaderBitmapField.setMargin(5, 0, 0, 0);
+	        wpClassicHeaderBitmapField.setMargin(5, 0, 5, 0);
 	        add(wpClassicHeaderBitmapField);
 	        
             //row url

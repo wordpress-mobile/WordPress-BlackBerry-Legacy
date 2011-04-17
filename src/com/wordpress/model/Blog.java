@@ -3,10 +3,14 @@ package com.wordpress.model;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.util.Arrays;
 import net.rim.device.api.util.Comparator;
 
+import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AccountsController;
+import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
 
 public class Blog {
@@ -23,13 +27,14 @@ public class Blog {
 	private String password;
 	
 	private boolean isResizePhotos = false;
-    private Integer imageResizeWidth = null;
-    private Integer imageResizeHeight = null;
-
+    private Integer imageResizeWidth = null; //used for custom size
+    private Integer imageResizeHeight = null; //used for custom size 
+    private Integer  imageResizeSetting = new Integer (BlogInfo.ALWAYS_ASK_IMAGE_RESIZE_SETTING);
+    
     //VideoPress video Resize Options
 	private boolean isResizeVideos = false;
     private Integer videoResizeWidth = null;
-    private Integer videoResizeHeight = null;    
+    private Integer videoResizeHeight = null; 
     
 	private boolean isCommentNotifies=false; //true when comment notifies is active
 	private boolean isLocation=false; //true when location is active
@@ -176,6 +181,14 @@ public class Blog {
 		return imageResizeHeight;
 	}
 	
+	public Integer getImageResizeSetting() {
+		return imageResizeSetting;
+	}
+
+	public void setImageResizeSetting(Integer imageResizeSetting) {
+		this.imageResizeSetting = imageResizeSetting;
+	}
+
 	public boolean isResizeVideos() {
 		return isResizeVideos;
 	}
@@ -390,5 +403,88 @@ public class Blog {
 		} else {
 			return predefinedResponse; 
 		}
-	}	
+	}
+	
+	
+	public String[] getBlogImageResizeLabels() {
+		//read the value from the blogOptions is available
+		Hashtable blogOptions = this.getBlogOptions();
+		ResourceBundle _resources = WordPressCore.getInstance().getResourceBundle();
+
+		 //important, should be ordered like the indexes defined in BlogIndex!!
+		String[] resizeOptLabels = {_resources.getString(WordPressResource.LABEL_SMALL),
+				_resources.getString(WordPressResource.LABEL_MEDIUM), 
+				_resources.getString(WordPressResource.LABEL_LARGE), 
+				_resources.getString(WordPressResource.LABEL_CUSTOM), 
+		};
+		try{
+			if(blogOptions != null) {
+				Hashtable tmp = (Hashtable)blogOptions.get("thumbnail_size_w");
+				Hashtable tmp2 = (Hashtable)blogOptions.get("thumbnail_size_h");
+				resizeOptLabels[0] = _resources.getString(WordPressResource.LABEL_SMALL) +" ("+_resources.getString(WordPressResource.LABEL_MAX)+" "+ String.valueOf(tmp.get("value"))+"x"+String.valueOf(tmp2.get("value"))+")";
+
+				tmp = (Hashtable)blogOptions.get("medium_size_w");
+				tmp2 = (Hashtable)blogOptions.get("medium_size_h");
+				resizeOptLabels[1] = _resources.getString(WordPressResource.LABEL_MEDIUM) +" ("+_resources.getString(WordPressResource.LABEL_MAX)+" "+  String.valueOf(tmp.get("value"))+"x"+String.valueOf(tmp2.get("value"))+")";
+
+				tmp = (Hashtable)blogOptions.get("large_size_w");
+				tmp2 = (Hashtable)blogOptions.get("large_size_h");
+				resizeOptLabels[2] =_resources.getString(WordPressResource.LABEL_LARGE) +" ("+_resources.getString(WordPressResource.LABEL_MAX)+" "+  String.valueOf(tmp.get("value"))+"x"+String.valueOf(tmp2.get("value"))+")";
+			}
+		}catch (Exception e) {
+			//use fixed dimension defined within this app
+			resizeOptLabels[0] =_resources.getString(WordPressResource.LABEL_SMALL) +
+			" ("+_resources.getString(WordPressResource.LABEL_MAX)+" "+  BlogInfo.DEFAULT_IMAGE_RESIZE_THUMB_SIZE[0]+"x"+BlogInfo.DEFAULT_IMAGE_RESIZE_THUMB_SIZE[1]+")";
+			resizeOptLabels[1] =_resources.getString(WordPressResource.LABEL_MEDIUM) +
+			" ("+_resources.getString(WordPressResource.LABEL_MAX)+" "+  BlogInfo.DEFAULT_IMAGE_RESIZE_MEDIUM_SIZE[0]+"x"+BlogInfo.DEFAULT_IMAGE_RESIZE_MEDIUM_SIZE[1]+")";
+			resizeOptLabels[2] = _resources.getString(WordPressResource.LABEL_LARGE) +
+			" ("+_resources.getString(WordPressResource.LABEL_MAX)+" "+  BlogInfo.DEFAULT_IMAGE_RESIZE_LARGE_SIZE[0]+"x"+BlogInfo.DEFAULT_IMAGE_RESIZE_LARGE_SIZE[1]+")";
+		}
+		return resizeOptLabels;
+	}
+	
+	public int[] getDefaultImageResizeSettings(int resizeDim) {	
+		int imageResizeWidth = 0;
+		int imageResizeHeight = 0;
+		
+		String key_w = "";
+		String key_h = "";
+		
+		switch (resizeDim) {
+		case BlogInfo.SMALL_IMAGE_RESIZE_SETTING:
+			key_w = "thumbnail_size_w";
+			key_h = "thumbnail_size_h";
+			imageResizeWidth =  BlogInfo.DEFAULT_IMAGE_RESIZE_THUMB_SIZE[0];
+			imageResizeHeight =  BlogInfo.DEFAULT_IMAGE_RESIZE_THUMB_SIZE[1];
+			break;
+		case BlogInfo.MEDIUM_IMAGE_RESIZE_SETTING:
+			key_w = "medium_size_w";
+			key_h = "medium_size_h";
+			imageResizeWidth =  BlogInfo.DEFAULT_IMAGE_RESIZE_MEDIUM_SIZE[0];
+			imageResizeHeight =  BlogInfo.DEFAULT_IMAGE_RESIZE_MEDIUM_SIZE[1];
+			break;
+		case BlogInfo.LARGE_IMAGE_RESIZE_SETTING:
+			key_w = "large_size_w";
+			key_h = "large_size_h";
+			imageResizeWidth =  BlogInfo.DEFAULT_IMAGE_RESIZE_LARGE_SIZE[0];
+			imageResizeHeight =  BlogInfo.DEFAULT_IMAGE_RESIZE_LARGE_SIZE[1];
+			break;
+		case BlogInfo.CUSTOM_IMAGE_RESIZE_SETTING:
+			imageResizeWidth = this.getImageResizeWidth().intValue();
+			imageResizeHeight = this.getImageResizeHeight().intValue();
+		default:
+			 return new int[]{0,0}; 
+		}
+
+		try {
+			Hashtable blogOptions = this.getBlogOptions();
+			Hashtable tmp = (Hashtable)blogOptions.get(key_w);
+			imageResizeWidth = Integer.parseInt( String.valueOf(tmp.get("value")) );
+			tmp = (Hashtable)blogOptions.get(key_h);
+			imageResizeHeight = Integer.parseInt( String.valueOf(tmp.get("value")) );
+		} catch (Exception e) {
+			//we have set default values b4
+		}
+		return new int[]{imageResizeWidth, imageResizeHeight};
+	}
 }

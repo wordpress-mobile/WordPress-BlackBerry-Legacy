@@ -36,10 +36,8 @@ public class AddWPCOMBlogsView extends StandardBaseView {
 	private PasswordEditField passwordField;
 			
 	public AddWPCOMBlogsView(AddBlogsController addBlogsController) {
-	    	super(Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
-
-	    	this.controller=addBlogsController;
-            
+	    	super(_resources.getString(WordPressResource.MENUITEM_ADDBLOG), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
+	    	this.controller=addBlogsController;           
 			//Set the preferred width to the image size or screen width if the image is larger than the screen width.
 	    	EncodedImage classicHeaderImg = EncodedImage.getEncodedImageResource("wp_blue-s.png");
 			int _preferredWidth = -1;
@@ -51,6 +49,7 @@ public class AddWPCOMBlogsView extends StandardBaseView {
 	        	classicHeaderImg = resImg;
 	        }
 	        BitmapField wpClassicHeaderBitmapField =  new BitmapField(classicHeaderImg.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
+	        wpClassicHeaderBitmapField.setMargin(5,0,3,0);
 	        add(wpClassicHeaderBitmapField);
 
             BorderedFieldManager rowUserName = new BorderedFieldManager(
@@ -78,9 +77,9 @@ public class AddWPCOMBlogsView extends StandardBaseView {
             add(rowPassword);
            
             if(AccountsController.getAccountsNumber() > 0 ) {
-            	ClickableLabelField lblMyAccounts = new ClickableLabelField(_resources.getString(WordPressResource.LABEL_EXISTING_WPCOM_ACCOUNTS),
+            	ClickableLabelField lblMyAccounts = new ClickableLabelField(_resources.getString(WordPressResource.LABEL_EXISTING_WPCOM_ACCOUNTS)+"...",
             			LabelField.FOCUSABLE | LabelField.ELLIPSIS);
-            	lblMyAccounts.setTextColor(Color.BLUE);
+            	lblMyAccounts.setTextColor(Color.WHITESMOKE);
             	lblMyAccounts.setMargin(2, 5, 5, 5);
             	FieldChangeListener existingAccountListener = new FieldChangeListener() {
             		public void fieldChanged(Field field, int context) {
