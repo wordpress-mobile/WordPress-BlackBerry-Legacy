@@ -107,7 +107,7 @@ public class WelcomeView extends StandardBaseView {
 	   String emptyListString = resourceBundle.getString(WordPressResource.MESSAGE_NOTHING_TO_SEE_HERE);
 	   list.setEmptyString(emptyListString, DrawStyle.LEFT);
 	   //= ((int) ((3* height) / 5)) - (PADDING * 2);
-	   list.setRowHeight(((int) ((5* fntHeight) / 3)) + (2 * 2));
+	   list.setRowHeight(((int) ((5* fntHeight) / 3)));
 	   add(list);
 	   _listData.addElement(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_NEW_TO_WP_BLOG));	 
 	   _listData.addElement(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPCOM_BLOG));
