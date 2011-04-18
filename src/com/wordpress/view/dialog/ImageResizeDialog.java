@@ -36,9 +36,14 @@ public class ImageResizeDialog extends Dialog {
 	private final Blog blog;
 
 	public ImageResizeDialog(Blog blog){
-		super(Dialog.D_OK_CANCEL, _resources.getString(WordPressResource.LABEL_RESIZE_DIMENSION), Dialog.CANCEL, Bitmap.getPredefinedBitmap(Bitmap.INFORMATION), Dialog.GLOBAL_STATUS);
+		super(Dialog.D_OK, _resources.getString(WordPressResource.LABEL_RESIZE_DIMENSION), Dialog.OK, 
+				Bitmap.getPredefinedBitmap(Bitmap.QUESTION), Dialog.GLOBAL_STATUS);
+		
 		this.blog = blog;
 
+	    imageResizeWidth = blog.getImageResizeWidth();
+        imageResizeHeight = blog.getImageResizeHeight();
+		
 		rowResizePhotos = new VerticalFieldManager(
 				Manager.NO_HORIZONTAL_SCROLL
 				| Manager.NO_VERTICAL_SCROLL);

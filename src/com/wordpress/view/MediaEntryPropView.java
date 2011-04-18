@@ -1,5 +1,6 @@
 package com.wordpress.view;
 
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
@@ -14,9 +15,12 @@ import net.rim.device.api.ui.text.TextFilter;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.BlogObjectController;
+import com.wordpress.model.BlogInfo;
 import com.wordpress.model.MediaEntry;
+import com.wordpress.model.PhotoEntry;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
+import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 import com.wordpress.view.dialog.ErrorView;
@@ -74,19 +78,49 @@ public class MediaEntryPropView extends StandardBaseView {
        
        	add(rowFileInfo);
        	
-		 //The box that contains the media object Vertical position
+		 //The box that contains the media object Vertical position and the resize dim
         BorderedFieldManager rowMediaObjPosition = new BorderedFieldManager(
         		Manager.NO_HORIZONTAL_SCROLL
         		| Manager.NO_VERTICAL_SCROLL);
+        
+        //@see SentToBlogTask.java
+        boolean isResImg = controller.getBlog().isResizePhotos();
+        if(isResImg && mediaEntry instanceof PhotoEntry) {
+        	
+			int selectedResizeOption = controller.getBlog().getImageResizeSetting().intValue();
+			int imageResizeWidth = 0;
+			int imageResizeHeight = 0;
+			if (selectedResizeOption == BlogInfo.ALWAYS_ASK_IMAGE_RESIZE_SETTING) {
+				//read the value from the image if it was set
+				if(((PhotoEntry)mediaEntry).getResizeHeight() == null ||  
+						((PhotoEntry)mediaEntry).getResizeWidth() == null ) {
+					isResImg = false; //not set?  something went wrong, do not resize.
+				} else {
+						imageResizeWidth = ((PhotoEntry)mediaEntry).getResizeWidth().intValue();
+						imageResizeHeight = ((PhotoEntry)mediaEntry).getResizeHeight().intValue();
+					}
+			} else {
+				//read the value from the blogOptions is available
+				int[] blogResizeValues = controller.getBlog().getDefaultImageResizeSettings(selectedResizeOption);
+				imageResizeWidth = blogResizeValues[0];
+				imageResizeHeight = blogResizeValues[1];
+			}
+        	
+        	if(isResImg && imageResizeWidth!= 0 && imageResizeHeight != 0 ) {
+        		LabelField resizeLabelField = new ColoredLabelField(_resources.getString(WordPressResource.LABEL_RESIZE_DIMENSION) + ": "+
+        				imageResizeWidth+"x"+imageResizeHeight,
+        				Color.BLACK);
+        		rowMediaObjPosition.add(resizeLabelField);
+        	} 
+        }
+        
 		 String labelTop= _resources.getString(WordPressResource.LABEL_VERTICAL_ALIGNMENT_TOP);
 		 String labelBottom= _resources.getString(WordPressResource.LABEL_VERTICAL_ALIGNMENT_BOTTOM);
 		 String[] optLabels = {labelBottom, labelTop};
 		 int selectedPosition = 0;
-
 		 //false/0 = bottom, true/1 = top
 		 if(mediaEntry.isVerticalAlignmentOnTop())
 			 selectedPosition = 1;
-		 
 		 mediaVerticalAlignment = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_VERTICAL_ALIGNMENT),optLabels, selectedPosition);
 		 rowMediaObjPosition.add(mediaVerticalAlignment);
 		 add(rowMediaObjPosition);

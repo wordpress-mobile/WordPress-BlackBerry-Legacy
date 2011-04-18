@@ -282,9 +282,10 @@ public class SendToBlogTask extends TaskImpl {
 			int selectedResizeOption = blog.getImageResizeSetting().intValue();
 			if (selectedResizeOption == BlogInfo.ALWAYS_ASK_IMAGE_RESIZE_SETTING) {
 				//read the value from the image if it was set
-				if( ((PhotoEntry)mediaEntry).getResizeHeight() == null ||  ((PhotoEntry)mediaEntry).getResizeWidth() == null )
+				if(((PhotoEntry)mediaEntry).getResizeHeight() == null ||  
+						((PhotoEntry)mediaEntry).getResizeWidth() == null ) {
 					isRes = false;
-					else {
+				} else {
 						imageResizeWidth = ((PhotoEntry)mediaEntry).getResizeWidth().intValue();
 						imageResizeHeight = ((PhotoEntry)mediaEntry).getResizeHeight().intValue();
 					}

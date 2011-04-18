@@ -92,6 +92,10 @@ public abstract class BlogObjectController extends BaseController {
 		this.blog = _blog;
 		this.blogEntry = entry;
 	}
+
+	public Blog getBlog() {
+		return blog;
+	}
 	
 	public abstract void showSettingsView();
 	
@@ -197,6 +201,10 @@ public abstract class BlogObjectController extends BaseController {
 			if (!JSR75FileSystem.isReadable(completePath))
 				throw new IOException("The file "+completePath+" isn't readable");
 			 
+			photoView.addMedia(mediaObj);
+			//photoView.setLastAddedMediaObj(mediaObj);
+			mediaObjects.addElement(mediaObj);
+			
 			if(type == PHOTO &&  blog.isResizePhotos() && blog.getImageResizeSetting().intValue() == BlogInfo.ALWAYS_ASK_IMAGE_RESIZE_SETTING) {
 				final ImageResizeDialog dlg = new ImageResizeDialog(blog);
 				UiApplication.getUiApplication().invokeAndWait(new Runnable()
@@ -213,10 +221,6 @@ public abstract class BlogObjectController extends BaseController {
 					((PhotoEntry)mediaObj).setResizeHeight(new Integer(res[1]));
 				}
 			}
-			
-			photoView.addMedia(mediaObj);
-			//photoView.setLastAddedMediaObj(mediaObj);
-			mediaObjects.addElement(mediaObj);
 			
 		} catch (Exception e) {
 			displayError(e, "Cannot link the media file!");

@@ -75,7 +75,7 @@ public class WelcomeView extends StandardBaseView {
 			   //disabled the default focus behavior so that blue rectangle isn't drawn
 		   }
 	   };
-
+	   wpPromoBitmapField.setMargin(5, 0, 0, 0);
 	   add(wpPromoBitmapField);
 
 		Font fnt = Font.getDefault().derive(Font.BOLD);
@@ -86,10 +86,9 @@ public class WelcomeView extends StandardBaseView {
 		LabelField lblField = new ColoredLabelField(_resources.getString(WordPressResource.PROMOSCREEN_TAGLINE), 
 				 Color.WHITESMOKE, Field.USE_ALL_WIDTH | DrawStyle.HCENTER);
 		lblField.setFont(fnt);
-
 		taglineManager.add(lblField);
 		if (width > 320)
-			lblField.setMargin( 15, 30, 15, 30 );
+			lblField.setMargin( 10, 15, 10, 15 );
 		else
 			lblField.setMargin( 6, 4, 4, 4 );
 
@@ -107,7 +106,8 @@ public class WelcomeView extends StandardBaseView {
 	   ResourceBundle resourceBundle = WordPressCore.getInstance().getResourceBundle();
 	   String emptyListString = resourceBundle.getString(WordPressResource.MESSAGE_NOTHING_TO_SEE_HERE);
 	   list.setEmptyString(emptyListString, DrawStyle.LEFT);
-	   list.setRowHeight(42);
+	   //= ((int) ((3* height) / 5)) - (PADDING * 2);
+	   list.setRowHeight(((int) ((5* fntHeight) / 3)) + (2 * 2));
 	   add(list);
 	   _listData.addElement(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_NEW_TO_WP_BLOG));	 
 	   _listData.addElement(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPCOM_BLOG));
@@ -223,7 +223,7 @@ public class WelcomeView extends StandardBaseView {
     		drawBorder(graphics, 5, y, w, height, list.getSelectedIndex() ==  index);
     		int leftImageWidth = 0;
     		    		
-            drawText(graphics, leftImageWidth+5, y, w  - 5, height, currentRow, list.getSelectedIndex() ==  index);
+            drawText(graphics, leftImageWidth+5, y, w - 5, height, currentRow, list.getSelectedIndex() ==  index);
 
             graphics.setFont(originalFont);
             graphics.setColor(originalColor);
@@ -231,7 +231,7 @@ public class WelcomeView extends StandardBaseView {
     	
     	protected int drawText(Graphics graphics, int x, int y, int width, int height, String title, boolean selected) {
   
-    		int fontHeight = ((int) ((3* height) / 5)) - (PADDING * 2);
+    		int fontHeight = ((int) ((3* height) / 5));
     		
     		graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));
     		
@@ -241,8 +241,8 @@ public class WelcomeView extends StandardBaseView {
     			graphics.setColor(Color.BLACK);
     		}
     		if (title != null) {
-    			return   graphics.drawText(title, x + PADDING + 3, y + 1 + (height-fontHeight)/2, DrawStyle.HCENTER
-    					| DrawStyle.TOP | DrawStyle.ELLIPSIS, width - x - (PADDING * 2));
+    			return   graphics.drawText(title, x + PADDING, y + 1 + (height-fontHeight)/2, DrawStyle.HCENTER
+    					| DrawStyle.TOP | DrawStyle.ELLIPSIS, width - (PADDING * 2));
     		}
 
     		return 0;
