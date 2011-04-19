@@ -82,28 +82,40 @@ public class PagesView extends BaseView implements ListActionListener {
 	//#endif
 	  
 	private void buildList(Page[] pages) {
-        
+		
+		Hashtable postStatusHash = controller.getBlog().getPageStatusList();
 		Hashtable elements[]= new Hashtable[0];
 		
 		if(pages != null) {						
 			elements= new Hashtable[pages.length];
 			//Populate the vector with the elements [title, data, title, data ....]
-	        for (int i = 0; i < pages.length; i++) {
-	        	Page currentPage = pages[i];
-	            String title = currentPage.getTitle();
-	             if (title == null || title.length() == 0) {
-	                 title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
-	             }
-	             
-	             Hashtable smallPostData = new Hashtable();
-	        	 
-	             smallPostData .put("title", title);
-	             Date dateCreated = currentPage.getDateCreatedGMT();
-	             if (dateCreated != null)
-	            	 smallPostData .put("date_created_gmt", dateCreated);
-	             
-	             elements[i]=smallPostData;
-	         }			
+			for (int i = 0; i < pages.length; i++) {
+				Page currentPage = pages[i];
+				String title = currentPage.getTitle();
+				if (title == null || title.length() == 0) {
+					title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
+				}
+
+				Hashtable smallPostData = new Hashtable();
+
+				smallPostData .put("title", title);
+				Date dateCreated = currentPage.getDateCreatedGMT();
+				if (dateCreated != null)
+					smallPostData .put("date_created_gmt", dateCreated);
+
+				if ( currentPage.getPageStatus() != null) {
+					String statusUndecoded = currentPage.getPageStatus();
+					String status = (String) postStatusHash.get(statusUndecoded);
+
+					if(status == null && statusUndecoded.equalsIgnoreCase("future")) {
+						status = "Scheduled";
+					} 
+					if(status != null)
+						smallPostData .put("post_status", status);
+				}
+
+				elements[i]=smallPostData;
+			}			
 		}
 						
 		pagesList = new PostsListField(); 	        

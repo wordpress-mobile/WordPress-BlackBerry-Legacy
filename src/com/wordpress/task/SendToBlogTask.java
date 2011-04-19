@@ -1,6 +1,7 @@
 package com.wordpress.task;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -448,7 +449,7 @@ public class SendToBlogTask extends TaskImpl {
 							
 							if(type.equalsIgnoreCase("NewPostConn")) {
 								//add post on disk
-								String postID=String.valueOf(resp.getResponseObject());
+								String postID = String.valueOf(resp.getResponseObject());
 								Log.info("new post was added to blog with id: "+postID);
 								post.setId(postID); //update the post ID
 								if(post.getAuthoredOn() == null) {
@@ -456,9 +457,20 @@ public class SendToBlogTask extends TaskImpl {
 									post.setAuthoredOn(gmtTime);
 								}
 								Vector recentPostTitles = blog.getRecentPostTitles();
-								recentPostTitles.insertElementAt(DraftDAO.post2Hashtable(post), 0);
-								blog.setRecentPostTitles(recentPostTitles); 
+								Hashtable post2Hashtable = DraftDAO.post2Hashtable(post);
 								
+								//we are now calling the server with a getPost, just after the pub, so we should check if it is scheduled
+				            	 if(post.getStatus() != null && post.getStatus().equalsIgnoreCase("publish")) {
+				            		 Date righNowDate = new Date();//this date is NOT at GMT timezone 
+				            		 long righNow = CalendarUtils.adjustTimeFromDefaultTimezone(righNowDate.getTime());
+
+				            		 long postDateLong = post.getAuthoredOn().getTime();
+				            		 if(postDateLong > righNow) //set post as scheduled
+				            			 post2Hashtable.put("post_status", "future");
+				            	 }
+
+				            	recentPostTitles.insertElementAt(post2Hashtable, 0);
+								blog.setRecentPostTitles(recentPostTitles); 
 							} else {
 								//update previous post on disk
 								String responseValue=String.valueOf(resp.getResponseObject());
@@ -468,13 +480,12 @@ public class SendToBlogTask extends TaskImpl {
 										Hashtable postData = (Hashtable) recentPostTitles.elementAt(i);
 										String tmpPostID =(String) postData.get("postid");
 										if(tmpPostID.equalsIgnoreCase(post.getId())){
-											recentPostTitles.setElementAt(DraftDAO.post2Hashtable(post),i);
+											recentPostTitles.setElementAt(DraftDAO.post2Hashtable(post), i);
 											break;
 										}
 									}
 								blog.setRecentPostTitles(recentPostTitles);
 							}
-						
 						}
 						BlogDAO.updateBlog(blog);							
 					} else {

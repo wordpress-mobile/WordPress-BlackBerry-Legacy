@@ -200,11 +200,19 @@ public class PostsListField extends ObjectListField  {
 				long time = dateCreated.getTime();
 				Date dateCreatedTZ = new Date(CalendarUtils.adjustTimeToDefaultTimezone(time));		
 				String format = sdFormat.format(dateCreatedTZ);
+				
+				if (data.containsKey("post_status")) {
+					format+= "  -  " + (String)data.get("post_status");
+				}
+				
 				return format;	
+			} else if (data.containsKey("post_status")) {
+				String format= (String)data.get("post_status");
+				return format; 
 			} else if (data.containsKey("images_number")) {
 				String subTitle = (String) data.get("images_number");
 				return subTitle;
-			}else
+			} else
 				return "";
 		}
                    

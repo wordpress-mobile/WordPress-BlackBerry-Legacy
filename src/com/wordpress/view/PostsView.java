@@ -16,6 +16,7 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostsController;
+import com.wordpress.utils.CalendarUtils;
 import com.wordpress.view.component.ListActionListener;
 import com.wordpress.view.component.PostsListField;
 
@@ -85,7 +86,8 @@ public class PostsView extends BaseView implements ListActionListener {
         
 		Hashtable elements[]= new Hashtable[0];
 		
-		if(recentPostInfo != null) {						
+		if(recentPostInfo != null) {
+			Hashtable postStatusHash = controller.getBlog().getPostStatusList();
 			elements= new Hashtable[recentPostInfo.size()];
 
 			//Populate the vector with the elements [title, data, title, data ....]
@@ -102,6 +104,19 @@ public class PostsView extends BaseView implements ListActionListener {
 	             Date dateCreated = (Date) postData.get("date_created_gmt");
 	             if (dateCreated != null)
 	            	 smallPostData .put("date_created_gmt", dateCreated);
+	             
+	             if ( postData.get("post_status") != null) {
+	            	 String statusUndecoded = (String) postData.get("post_status");
+
+	            	 String status = (String) postStatusHash.get(statusUndecoded);
+
+	            	 if(status == null && statusUndecoded.equalsIgnoreCase("future")) {
+	            		 status = "Scheduled";
+	            	 } 
+	            	 
+	            	 if(status != null)
+	            		 smallPostData .put("post_status", status);
+	             }
 	             
 	             elements[i]=smallPostData; 
 	         }			

@@ -38,6 +38,10 @@ public class PagesController extends BaseController{
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 	
+	public Blog getBlog() {
+		return currentBlog;
+	}
+	
 	public String getBlogName() {
 		return currentBlog.getName();
 	}

@@ -10,7 +10,6 @@ import net.rim.device.api.util.Comparator;
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AccountsController;
-import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
 
 public class Blog {

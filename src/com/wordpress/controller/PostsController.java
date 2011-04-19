@@ -33,6 +33,10 @@ public class PostsController extends BaseController{
 		this.currentBlog=currentBlog;
 	}
 				
+	public Blog getBlog() {
+		return currentBlog;
+	}
+	
 	public String getBlogName() {
 		return currentBlog.getName();
 	}
