@@ -173,22 +173,21 @@ public class BlogUpdateConn extends BlogConn  {
 				
 				if(postFormats != null && postFormats.containsKey("all") 
 						&&  postFormats.containsKey("supported")) {
-					Hashtable supportedFormats = (Hashtable) postFormats.get("supported");
+					Vector supportedFormats = (Vector) postFormats.get("supported");
 					Hashtable allFormats = (Hashtable) postFormats.get("all");
 					Hashtable mergedFormats = new Hashtable();
 					//adding the standard Post Formats
 					mergedFormats.put("standard", allFormats.get("standard"));
 
-					Enumeration k = supportedFormats.elements();
-					while (k.hasMoreElements()) {
-						String key = (String) k.nextElement();
+					for (int i = 0; i < supportedFormats.size(); i++) {
+						String key = String.valueOf(supportedFormats.elementAt(i));
 						String value = (String) allFormats.get(key);
-						if(value!= null) //just an additional check
-							mergedFormats.put(key, value);
-					}	
-					
-				} else			
+						mergedFormats.put(key, value);
+					}
+					blog.setPostFormats(mergedFormats);
+				} else {
 					blog.setPostFormats(postFormats);
+				}
 			}
 			additionalParameter = null;
 			postFormatRequestParameters = null;
