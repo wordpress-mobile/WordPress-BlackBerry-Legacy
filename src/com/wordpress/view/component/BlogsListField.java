@@ -5,7 +5,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import net.rim.device.api.i18n.ResourceBundle;
-import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.GIFEncodedImage;
@@ -23,6 +22,7 @@ import net.rim.device.api.ui.component.ListField;
 import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.model.BlogInfo;
+import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.MainView;
 
@@ -141,8 +141,6 @@ public class BlogsListField {
     			
     			return super.keyChar(c, status, time);
     		}
-    		 
-    		
     		
     		//#ifdef IS_OS47_OR_ABOVE
     		protected boolean touchEvent(TouchEvent message) {
@@ -185,7 +183,7 @@ public class BlogsListField {
     	
     	_listField.setEmptyString("", DrawStyle.LEFT);
     	_listData= blogCaricati;
-    	_listField.setRowHeight(48);//the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
+    	_listField.setRowHeight(BasicListFieldCallBack.getRowHeightForDoubleLineRow()+ ListCallBack.SPACE_BETWEEN_ROW); //added 6 pixel of blank space for each row
     	//Set the ListFieldCallback
     	_listField.setCallback(listFieldCallBack);
     	
@@ -255,18 +253,19 @@ public class BlogsListField {
     }
     
     private class ListCallBack extends BasicListFieldCallBack {
-		private Bitmap imgImportant = Bitmap.getBitmapResource("important.png");
-		private Bitmap imgQueue = Bitmap.getBitmapResource("enqueued.png");
-		private Bitmap wp_blue = Bitmap.getBitmapResource("wp_blue-list.png");
-		private Bitmap wp_grey = Bitmap.getBitmapResource("wp_grey-list.png");
-		private Bitmap pendingActivation = Bitmap.getBitmapResource("pending_activation.png");
+    	   	
+		private EncodedImage imgImportant = EncodedImage.getEncodedImageResource("important.png");
+		private EncodedImage imgQueue = EncodedImage.getEncodedImageResource("enqueued.png");
+		private EncodedImage wp_blue = EncodedImage.getEncodedImageResource("wp_blue-m.png");
+		private EncodedImage wp_grey = EncodedImage.getEncodedImageResource("wp_grey-m.png");
+		private EncodedImage pendingActivation = EncodedImage.getEncodedImageResource("pending_activation.png");
 		
         // Draws the list row.
     	public void drawListRow(ListField list, Graphics graphics, int index, int y, int w) {
     		// Get the blog info for the current row.
     		BlogInfo currentRow = (BlogInfo) this.get(list, index);
     		
-    		Bitmap icon = null;
+    		EncodedImage icon = null;
     		
     		Font originalFont = graphics.getFont();
     		int originalColor = graphics.getColor();
@@ -282,10 +281,9 @@ public class BlogsListField {
     		} else if (stato == BlogInfo.STATE_LOADED_WITH_ERROR ||  stato == BlogInfo.STATE_ERROR) {
     			icon = imgImportant;
     		} else if( stato == BlogInfo.STATE_LOADED ) {
-
     			if(currentRow.getBlogIcon() != null) {
     				try {
-						icon = Bitmap.createBitmapFromBytes(currentRow.getBlogIcon(), 0, -1, 1);
+						icon =  EncodedImage.createEncodedImage(currentRow.getBlogIcon(), 0, -1);
 					} catch (Exception e) {
 						Log.error("no valid shortcut ico found in the blog obj");
 					}
@@ -301,44 +299,49 @@ public class BlogsListField {
     		} 
     		
 			/*
+			 * Example
 			 * 42px of row
 			 * 6px blank space
 			 */
-			height = height - 6;
+			height = height - SPACE_BETWEEN_ROW;
 			w = w - 10;
     		
     		drawBackground(graphics, 5, y, w, height, _listField.getSelectedIndex() ==  index);
-    		drawBorder(graphics, 5, y, w, height, _listField.getSelectedIndex() ==  index);
-    		int leftImageWidth = 0;
+    		drawBorder(graphics, 5, y, w, height);
     		
+    		int resizeDim = getImageHeightForDoubleLineRow();
     		if (icon != null) {
-    			leftImageWidth = drawLeftImage(graphics, 5, y, height, icon);
+    			if(icon.getHeight() > resizeDim  || icon.getWidth() > resizeDim) {
+    				icon = ImageUtils.resizeEncodedImage(icon, resizeDim, resizeDim);
+    			}    			
+    			drawLeftImage(graphics, 10, y, height, icon.getBitmap());
     		} else {
     			if (stato == BlogInfo.STATE_LOADING) {
-	    			graphics.pushRegion(10, y+5, 32, 32, 0, 0);
-	    			throbberRenderer.paint(graphics);
-	    			graphics.popContext();
-	    			leftImageWidth = height;
+    				int throbberWidth = 32;
+    				int throbberLeft = 10 + ((resizeDim - throbberWidth) / 2);
+    				int throbberTop = y + ((height - throbberWidth) / 2);
+    				graphics.pushRegion(throbberLeft, throbberTop, 32, 32, 0, 0);
+    				throbberRenderer.paint(graphics);
+    				graphics.popContext();
     			} 
     		}
+
+    		int leftImageWidth = 10 + resizeDim;
     		
     		String blogName = currentRow.getName();
     		if(currentRow.isAwaitingModeration())
     			blogName = "(" + currentRow.getAwaitingModeration() + ") " + blogName;
     		
-            drawText(graphics, leftImageWidth+5, y, w  - 5, height, blogName, _listField.getSelectedIndex() ==  index);
-
+            drawTextOnFirstRow(graphics, leftImageWidth, y, w  - leftImageWidth, height, blogName, _listField.getSelectedIndex() ==  index);
+            drawSecondRowText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentRow.getBlogURL() , _listField.getSelectedIndex() ==  index);
+            
             graphics.setFont(originalFont);
             graphics.setColor(originalColor);
     	}
         
     	
-		protected void drawBorder(Graphics graphics, int x, int y, int width,	int height, boolean selected) {
-			if(selected) 
-				graphics.setColor(Color.BLACK);
-			else 
-				graphics.setColor(Color.BLACK);	
-			
+		protected void drawBorder(Graphics graphics, int x, int y, int width,	int height) {
+			graphics.setColor(Color.BLACK);	
 			graphics.drawLine(x-1, y , x + width-1, y);
 			graphics.drawLine(x-1, y, x-1 , y + height-1); //linea verticale sx
 			graphics.drawLine(x + width, y-1, x + width , y + height-1); //linea verticale dx

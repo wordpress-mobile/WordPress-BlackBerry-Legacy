@@ -3,7 +3,6 @@ package com.wordpress.xmlrpc;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -24,6 +23,7 @@ import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.MD5;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.BasicListFieldCallBack;
 
 public class BlogUpdateConn extends BlogConn  {
 	
@@ -209,7 +209,22 @@ public class BlogUpdateConn extends BlogConn  {
 			}
 			
 			BlogDAO.setBlogIco(blog, null);
-			downloadBlavatar(); 	//downloading the blog ico file
+			byte[] iconData = downloadBlavatar(blog.getXmlRpcUrl());
+			if(iconData == null) {
+				iconData = downloadAppleTouchIco();
+			}
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			if(iconData == null) {
+				if(blog.isWPCOMBlog()) {
+					iconData = downloadBlavatar("wp4bb.mail.used.for.gravatar1@gmail.com");
+				} else {
+					iconData = downloadBlavatar("wp4bb.mail.used.for.gravatar2@gmail.com");
+				}
+			}
+			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			if(iconData != null) {
+				BlogDAO.setBlogIco(blog, iconData);
+			}
 			
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			//if there was an errors
@@ -232,7 +247,7 @@ public class BlogUpdateConn extends BlogConn  {
 		}
 	}
 	
-	private void downloadBlavatar() {
+	private byte[] downloadBlavatar(String emailOrSiteAddress) {
 		Log.trace(">>> Retrieving blavatar");
 		try {
 			HTTPGetConn imageConnection;
@@ -240,8 +255,8 @@ public class BlogUpdateConn extends BlogConn  {
 			String hashAuthorEmail = "";
 			
 			try {
-			String cleanedBlogURL = StringUtils.replaceAll(blog.getXmlRpcUrl(), "http://", "");
-			cleanedBlogURL = StringUtils.replaceAll(blog.getXmlRpcUrl(), "https://", "");
+			String cleanedBlogURL = StringUtils.replaceAll(emailOrSiteAddress, "http://", "");
+			cleanedBlogURL = StringUtils.replaceAll(cleanedBlogURL, "https://", "");
 			cleanedBlogURL = StringUtils.split(cleanedBlogURL, "/")[0];			
 			MD5 md5 = new MD5();
 				md5.Update(cleanedBlogURL, null);
@@ -251,29 +266,22 @@ public class BlogUpdateConn extends BlogConn  {
 				Log.error(e, "Error while hashing URL for gravatar services");
 			}
 			
-			imageConnection = new HTTPGetConn("http://gravatar.com/blavatar/"+hashAuthorEmail+"?s=32&d=404", "", ""); 
+			if(emailOrSiteAddress.indexOf('@') != -1) //email 
+				imageConnection = new HTTPGetConn("http://gravatar.com/avatar/"+hashAuthorEmail+"?s="+BasicListFieldCallBack.getImageHeightForDoubleLineRow()+"&d=404", "", "");
+			else
+				imageConnection = new HTTPGetConn("http://gravatar.com/blavatar/"+hashAuthorEmail+"?s="+BasicListFieldCallBack.getImageHeightForDoubleLineRow()+"&d=404", "", ""); 
 			responseImg = imageConnection.execute("", null); //starts connection without make another thread
-			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			if(connResponse.isStopped()) return null; //if the user has stopped the connection
 
 			if(responseImg == null) {
 				Log.trace("no response while retriving blavatar");
-				downloadAppleTouchIco();
-				return;
+				return null;
 			}
 			if((responseImg instanceof byte[]) == false){
 				Log.trace("no valid blavatar image file found");
-				downloadAppleTouchIco();
-				return;
+				return null;
 			} else {
-				//Bitmap tmpBitmap = Bitmap.createBitmapFromBytes((byte[])responseImg, 0, -1, 1); //try to build an image immediately
-				EncodedImage tmp_img = EncodedImage.createEncodedImage((byte[])responseImg, 0, -1);
-				if(tmp_img.getHeight() > 32 || tmp_img.getWidth() > 32) {
-					tmp_img = ImageUtils.resizeEncodedImage(tmp_img, 32, 32);
-					Bitmap tmpBitmap = tmp_img.getBitmap();
-					BlogDAO.setBlogIco(blog, JPEGEncodedImage.encode(tmpBitmap, 100).getData());	
-				} else {
-					BlogDAO.setBlogIco(blog, (byte[])responseImg);
-				}
+				return (byte[])responseImg;				
 			}
 			
 		} catch (Exception e) {
@@ -281,9 +289,10 @@ public class BlogUpdateConn extends BlogConn  {
 		} finally {
 			Log.trace("<<< Retrieving blavatar");
 		}
+		return null;
 	} 
 	
-	private void downloadAppleTouchIco() {
+	private byte[] downloadAppleTouchIco() {
 		Log.trace(">>> Retrieving AppleTouchIco");
 		try {
 			
@@ -293,14 +302,14 @@ public class BlogUpdateConn extends BlogConn  {
 				imageConnection.setHttp401Username(blog.getHTTPAuthUsername());
 			}  
 			Object responseImg = imageConnection.execute("", null); //starts connection 
-			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			if(connResponse.isStopped()) return null; //if the user has stopped the connection
 			if(responseImg == null) {
 				Log.trace("no response while retriving the blog hml");
-				return;
+				return null;
 			}
 			if((responseImg instanceof byte[]) == false){
 				Log.trace("invalid response while retriving the blog hml");
-				return;
+				return null;
 			}
 
 			String icoFullURL = null;
@@ -338,20 +347,20 @@ public class BlogUpdateConn extends BlogConn  {
 				}
 			}				
 
-			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			if(connResponse.isStopped()) return null; //if the user has stopped the connection
 
 			if(icoFullURL == null) {
 				Log.trace("no icon url was Found");
-				return;
+				return null;
 			}
 
 			String[] tokens = StringUtils.split(icoFullURL, "?");
 			if(tokens.length < 2) {
 				//not a valid url
 				Log.trace("No valid icon url was Found");
-				return;
+				return null;
 			}
-			String icoURL = tokens[0] + "?s=32&d=404";
+			String icoURL = tokens[0] + "?s="+BasicListFieldCallBack.getImageHeightForDoubleLineRow()+"&d=404";
 			Log.trace("The icon url - " + icoURL);
 
 			imageConnection = new HTTPGetConn(icoURL, "", "");
@@ -360,25 +369,24 @@ public class BlogUpdateConn extends BlogConn  {
 				imageConnection.setHttp401Username(blog.getHTTPAuthUsername());
 			}  
 			responseImg = imageConnection.execute("", null); //starts connection without make another thread
-			if(connResponse.isStopped()) return; //if the user has stopped the connection
+			if(connResponse.isStopped()) return null; //if the user has stopped the connection
 
 			if(responseImg == null) {
 				Log.trace("no response while retriving image file");
-				return;
+				return null;
 			}
 			if((responseImg instanceof byte[]) == false){
 				Log.trace("no valid image file found");
-				return;
+				return null;
 			} else {
 				//Bitmap tmpBitmap = Bitmap.createBitmapFromBytes((byte[])responseImg, 0, -1, 1); //try to build an image immediately
-				EncodedImage tmp_img = EncodedImage.createEncodedImage((byte[])responseImg, 0, -1);
+/*				EncodedImage tmp_img = EncodedImage.createEncodedImage((byte[])responseImg, 0, -1);
 				if(tmp_img.getHeight() > 32 || tmp_img.getWidth() > 32) {
 					tmp_img = ImageUtils.resizeEncodedImage(tmp_img, 32, 32);
 					Bitmap tmpBitmap = tmp_img.getBitmap();
-					BlogDAO.setBlogIco(blog, JPEGEncodedImage.encode(tmpBitmap, 100).getData());	
-				} else {
-					BlogDAO.setBlogIco(blog, (byte[])responseImg);
-				}
+					BlogDAO.setBlogIco(blog, JPEGEncodedImage.encode(tmpBitmap, 100).getData());
+					*/	
+				return (byte[])responseImg;
 			}
 			
 		} catch (Exception e) {
@@ -386,6 +394,8 @@ public class BlogUpdateConn extends BlogConn  {
 		} finally {
 			Log.trace("<<< Retrieving Blog Shortcut image file");
 		}
+		
+		return null;
 	}
 		
 	protected synchronized Object getXmlRpcWithParameters(String methodName, Vector args) throws Exception {

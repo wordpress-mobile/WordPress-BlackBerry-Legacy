@@ -49,7 +49,7 @@ public class PostsListField extends ObjectListField  {
         ResourceBundle resourceBundle = WordPressCore.getInstance().getResourceBundle();
         String emptyListString = resourceBundle.getString(WordPressResource.MESSAGE_NOTHING_TO_SEE_HERE);
         setEmptyString(emptyListString, DrawStyle.LEFT);
-		setRowHeight(42);
+		setRowHeight(BasicListFieldCallBack.getRowHeightForDoubleLineRow());
 		sdFormat = new SimpleDateFormat(resourceBundle.getString(WordPressResource.DEFAULT_DATE_FORMAT));
 	}
 	
@@ -161,11 +161,9 @@ public class PostsListField extends ObjectListField  {
             //drawXXX(graphics, 0, y, width, listField.getRowHeight());
             drawBackground(graphics, 0, y, w, height, currentRow.isSelected);
             drawBorder(graphics, 0, y, w, height);
-            
-            int leftImageWidth = 0;
                   
-            drawFirstRowMainText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentRow.getTitle(), currentRow.isSelected);
-            drawSecondRowText(graphics, leftImageWidth, y, w - leftImageWidth, height, currentRow.getSubTitle(), currentRow.isSelected);
+            drawTextOnFirstRow(graphics, 0, y, w, height, currentRow.getTitle(), currentRow.isSelected);
+            drawSecondRowText(graphics, 0, y, w, height, currentRow.getSubTitle(), currentRow.isSelected);
 
             graphics.setFont(originalFont);
             graphics.setColor(originalColor);

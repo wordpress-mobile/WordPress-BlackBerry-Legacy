@@ -69,7 +69,7 @@ public class BlogView extends StandardBaseView {
 			list.insert(count);
 		}
 
-	   list.setRowHeight(48);  //the others lists have rows of 42pixels height. added 6 pixel of blank space for each row
+	   list.setRowHeight(BasicListFieldCallBack.getRowHeightForSingleLineRow()+ BasicListFieldCallBack.SPACE_BETWEEN_ROW);
 	   list.setCallback(new BlogListFieldCallBack());	
 	   add(list); 
     
@@ -191,34 +191,29 @@ public class BlogView extends StandardBaseView {
 			int height = list.getRowHeight();
 			
 			/*
+			 * Example
 			 * 42px of row
 			 * 6px blank space
 			 */
-			height = height - 6;
-			width = width - 10;
-			//y = y+3;
-			
-			//drawXXX(graphics, 0, y, width, listField.getRowHeight());
+			height = height - SPACE_BETWEEN_ROW;
+			width = width - 10; //add some space to left and right
+					
 			drawBackground(graphics, 5, y, width, height, listField.getSelectedIndex() ==  index);
-			drawBorder(graphics, 5, y, width, height, listField.getSelectedIndex() ==  index);
-			int leftImageWidth = drawLeftImage(graphics, 5, y, height, icon);
-			drawText(graphics, leftImageWidth+5, y, width  - leftImageWidth, height, label, listField.getSelectedIndex() ==  index);
+			drawBorder(graphics, 5, y, width, height);
+
+			drawLeftImage(graphics, 10, y, height, icon);			
+			int leftImageWidth = 10 + 32;
+			drawSingleLineText(graphics, leftImageWidth, y, width - leftImageWidth, height, label, listField.getSelectedIndex() ==  index, Font.PLAIN);
 			
 			graphics.setFont(originalFont);
 			graphics.setColor(originalColor);
 		}
 		
-		protected void drawBorder(Graphics graphics, int x, int y, int width, int height, boolean selected) {
-			if(selected) 
-				graphics.setColor(Color.BLACK);
-			else 
-				graphics.setColor(Color.BLACK);	
-			
+		protected void drawBorder(Graphics graphics, int x, int y, int width, int height) {
+			graphics.setColor(Color.BLACK);
 			graphics.drawLine(x-1, y , x + width-1, y);
-			
 			graphics.drawLine(x-1, y, x-1 , y + height-1); //linea verticale sx
 			graphics.drawLine(x + width, y-1, x + width , y + height-1); //linea verticale dx
-			
 			graphics.drawLine(x-1, y + height - 1, x + width-1, y + height - 1);
 		}
 		

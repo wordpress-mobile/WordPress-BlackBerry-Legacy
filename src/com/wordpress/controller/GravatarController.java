@@ -15,6 +15,7 @@ import com.wordpress.model.Blog;
 import com.wordpress.task.AsyncRunner;
 import com.wordpress.task.GetGravatarTask;
 import com.wordpress.task.TaskProgressListener;
+import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 
@@ -29,7 +30,9 @@ import com.wordpress.utils.observer.Observable;
  */
 public class GravatarController extends Observable {
 	
-	public static EncodedImage defaultGravatarBitmap= EncodedImage.getEncodedImageResource("gravatar.png");
+	private static EncodedImage originalGravatarImg = EncodedImage.getEncodedImageResource("gr-none.png");
+	public static EncodedImage defaultGravatarBitmap = null;
+	private final int gravatarSize;
 	
 	//the email as key and Encoded img as value -- used for store gvt into disk
 	private Hashtable commentsGravatar = new Hashtable(); 
@@ -39,9 +42,12 @@ public class GravatarController extends Observable {
 	private boolean running = false;
 	private GravatarTaskListener gravatarCallBack = null;
 
-
-	public GravatarController(Blog blog) {
-		this.currentBlog = blog; 
+	public GravatarController(Blog blog, int gravatarSize) {
+		this.currentBlog = blog;
+		this.gravatarSize = gravatarSize; 
+		
+		defaultGravatarBitmap = ImageUtils.resizeEncodedImage(originalGravatarImg, gravatarSize, gravatarSize);
+		
 		//load the previous gravatar from disk
 		try {
 			commentsGravatar = CommentsDAO.loadGravatars(currentBlog); //load prev stored gravat
@@ -81,7 +87,7 @@ public class GravatarController extends Observable {
 					
 					gravatarCallBack = new GravatarTaskListener();
 					Enumeration keys = missingGravatar.keys();
-					gvtTask = new GetGravatarTask(keys);
+					gvtTask = new GetGravatarTask(keys, gravatarSize);
 					gvtTask.setProgressListener(gravatarCallBack);
 					
 					/*push into the Runner
@@ -126,7 +132,6 @@ public class GravatarController extends Observable {
 		   }
 		   return gravatarBitmap;
 	   }
-	   
 	   
 	   public void stopGravatarTask() {
 		   if(gvtTask != null) {

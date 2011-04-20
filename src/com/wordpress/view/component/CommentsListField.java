@@ -24,6 +24,7 @@ import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.GravatarController;
 import com.wordpress.model.Comment;
+import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -248,7 +249,7 @@ public class CommentsListField {
         ResourceBundle resourceBundle = WordPressCore.getInstance().getResourceBundle();
         String emptyListString = resourceBundle.getString(WordPressResource.MESSAGE_NOTHING_TO_SEE_HERE);
         _innerListField.setEmptyString(emptyListString, DrawStyle.LEFT);
-        _innerListField.setRowHeight(42);
+        _innerListField.setRowHeight(BasicListFieldCallBack.getRowHeightForDoubleLineRow());
         
         int elementLength = _elements.length;
 	    
@@ -291,10 +292,6 @@ public class CommentsListField {
         }
     }; 
     
-    public EncodedImage getLatestGravatar(String authorEmail) {
-    	return  gvtController.getLatestGravatar(authorEmail);
-    }
-    
     private class ListCallBack extends BasicListFieldCallBack {
     	  
         protected Bitmap checkedBitmap         = Bitmap.getBitmapResource("check.png");
@@ -311,69 +308,62 @@ public class CommentsListField {
             int originalColor = graphics.getColor();
             int height = list.getRowHeight();
             
-            //drawXXX(graphics, 0, y, width, listField.getRowHeight());
            	drawBackground(graphics, 0, y, w, height, currentRow.isSelected);
             drawBorder(graphics, 0, y, w, height);
-            
+       
             int leftImageWidth = 0;
+            
             //If it is checked draw the String prefixed with a checked box,
             //prefix an unchecked box if it is not.
     		if (isCheckBoxVisible()) {
     			if (currentRow.isChecked()) {
-    				leftImageWidth = drawLeftImage(graphics, 0, y, height, checkedBitmap);
+    				drawLeftImage(graphics, 3, y, height, checkedBitmap);
     			} else {
-    				leftImageWidth = drawLeftImage(graphics, 0, y, height, uncheckedBitmap);
+    				drawLeftImage(graphics, 3, y, height, uncheckedBitmap);
     			}
+    			leftImageWidth = 32;
     		} else {
     			String authorEmail = currentComment.getAuthorEmail();
-    			EncodedImage gravatarImage = getLatestGravatar(authorEmail);
-    			leftImageWidth = drawLeftImage(graphics, 0, y, height, gravatarImage);
-    			leftImageWidth = 40;
+    			EncodedImage gravatarImage = gvtController.getLatestGravatar(authorEmail);
+    			//just another check. may user has changed the device font width
+    			int resizeDim = BasicListFieldCallBack.getImageHeightForDoubleLineRow();
+    			if(gravatarImage.getHeight() > resizeDim  || gravatarImage.getWidth() > resizeDim) {
+    				gravatarImage = ImageUtils.resizeEncodedImage(gravatarImage, resizeDim, resizeDim);
+    			} 
+    			Bitmap tmpBitmap = gravatarImage.getBitmap();
+    			leftImageWidth = tmpBitmap.getWidth();
+    			drawLeftImage(graphics, 3, y, height, tmpBitmap );//use the bitmap. resized image here!!
     		}
-
+    		
+    		leftImageWidth+=3;
     		int authorWidth = 2;
             if(currentComment.getStatus().equalsIgnoreCase("hold"))
-            	authorWidth = drawFirstRowMainText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getAuthor(), Color.YELLOWGREEN);
+            	authorWidth = drawTextOnFirstRow(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getAuthor(), Color.YELLOWGREEN);
             else if(currentComment.getStatus().equalsIgnoreCase("spam"))
-            	authorWidth = drawFirstRowMainText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getAuthor(), Color.RED);
+            	authorWidth = drawTextOnFirstRow(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getAuthor(), Color.RED);
             else
-            	authorWidth = drawFirstRowMainText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getAuthor(), currentRow.isSelected);
+            	authorWidth = drawTextOnFirstRow(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getAuthor(), currentRow.isSelected);
             
-            drawEMailText(graphics, w, y, w -  leftImageWidth - authorWidth - 10 , height, currentComment.getAuthorEmail(), currentRow.isSelected);
+           // int spaceAvailableForEmail = w -( leftImageWidth + authorWidth + NEW_PADDING );
+           // drawEMailText(graphics, leftImageWidth + authorWidth + NEW_PADDING , y, spaceAvailableForEmail, height, currentComment.getAuthorEmail(), currentRow.isSelected);
+           
             drawSecondRowText(graphics, leftImageWidth, y, w - leftImageWidth, height, currentComment.getContent(), currentRow.isSelected);
-
+            
             graphics.setFont(originalFont);
             graphics.setColor(originalColor);
-            
         }
         
-        //width is the total row width, not the space free for email text
-        // x is the device width
         private void drawEMailText(Graphics graphics, int x, int y, int width, int height, String email, boolean selected) {
-            //int fontHeight = ((2* height) / 5) - (PADDING * 2);
-        	int fontHeight = ((3* height) / 6) - (PADDING * 2);
+        	Font fnt = Font.getDefault();
+    		int fontHeight = ((5* fnt.getHeight()) / 6);
+        	
             graphics.setFont(Font.getDefault().derive(Font.PLAIN, fontHeight));
-            
-            int textX = 0;
-            int fullTextWidth =  Font.getDefault().derive(Font.PLAIN, fontHeight).getAdvance(email); //space for the entire mail field
-            if (fullTextWidth +2*PADDING > width) {
-            	//space aren't enough for the entire email field
-            	
-            	//find the x position
-            	textX = x - (width - PADDING);
-               	width = width - 2*PADDING;
-            } else {
-                textX = x - (fullTextWidth + PADDING);
-                width = fullTextWidth;
-            }
-            
             if (selected) {
                 graphics.setColor(Color.WHITE);
             } else {
-                graphics.setColor(Color.LIGHTGREY);
+                graphics.setColor(Color.GRAY);
             }
-            graphics.drawText(email, textX , y + PADDING + 2, DrawStyle.LEFT
-                    | DrawStyle.TOP | DrawStyle.ELLIPSIS, width);
+            graphics.drawText(email, x , y + PADDING, DrawStyle.RIGHT | DrawStyle.TOP | DrawStyle.ELLIPSIS, width);
         }
         
     	 
@@ -382,23 +372,8 @@ public class CommentsListField {
         {
             return _listData.elementAt(index);
         }
-        
-   /*     //Returns the first occurence of the given String, beginning the search at index, 
-        //and testing for equality using the equals method.
-        public int indexOfList(ListField list, String p, int s) 
-        {
-            //return listElements.getSelectedIndex();
-            return _listData.indexOf(p, s);
-        }
-        
-        //Returns the screen width so the list uses the entire screen width.
-        public int getPreferredWidth(ListField list) 
-        {
-            return Graphics.getScreenWidth();
-        }
-        
-	*/
     }
+    
     //A class to hold the comment in the CheckBox and it's checkbox state (checked or unchecked).
     private class ChecklistData  {
 

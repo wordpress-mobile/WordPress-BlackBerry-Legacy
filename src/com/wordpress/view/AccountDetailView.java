@@ -8,7 +8,6 @@ import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
-import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.Dialog;
@@ -24,6 +23,7 @@ import com.wordpress.io.AppDAO;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
+import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.dialog.DiscardChangeInquiryView;
 
@@ -31,7 +31,7 @@ import com.wordpress.view.dialog.DiscardChangeInquiryView;
 public class AccountDetailView extends StandardBaseView {
 	
     private AccountsController controller = null;
-	private BasicEditField userNameField;
+	private ColoredLabelField userNameField;
 	private PasswordEditField passwordField;
 	private final Hashtable accountData;
 			
@@ -51,12 +51,13 @@ public class AccountDetailView extends StandardBaseView {
 	        	classicHeaderImg = resImg;
 	        }
 	        BitmapField wpClassicHeaderBitmapField =  new BitmapField(classicHeaderImg.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
+	        wpClassicHeaderBitmapField.setMargin(5,0,3,0);
 	        add(wpClassicHeaderBitmapField);
 
 	        String user = (String)accountData.get("username");
 	        String pass = (String)accountData.get("passwd");
 	        
-	        userNameField = new BasicEditField(_resources.getString(WordPressResource.LABEL_USERNAME)+": ", user, 60, Field.READONLY);
+	        userNameField = new ColoredLabelField(_resources.getString(WordPressResource.LABEL_USERNAME)+": " + user, Color.WHITESMOKE);
 	        userNameField.setMargin(0, 0, 0, 10);
 	        add(userNameField);
 	        

@@ -241,7 +241,7 @@ public class CheckBoxListField {
         ResourceBundle resourceBundle = WordPressCore.getInstance().getResourceBundle();
         String emptyListString = resourceBundle.getString(WordPressResource.MESSAGE_NOTHING_TO_SEE_HERE);
         _checkList.setEmptyString(emptyListString, DrawStyle.LEFT);
-        _checkList.setRowHeight(42);
+        _checkList.setRowHeight(BasicListFieldCallBack.getRowHeightForSingleLineRow());
         
         int elementLength = _elements.length;
         
@@ -358,7 +358,7 @@ public class CheckBoxListField {
             	drawRightImage(graphics, y, w, height, uncheckedBitmap);
             }
 
-    	    drawText(graphics, 0, y, w  - leftImageWidth, height, currentRow.getStringVal(), currentRow.isSelected);
+    	    drawSingleLineText(graphics, 0, y, w  - leftImageWidth, height, currentRow.getStringVal(), currentRow.isSelected, Font.PLAIN);
             graphics.setFont(originalFont);
             graphics.setColor(originalColor);
         }

@@ -282,7 +282,7 @@ public class CategoriesListField {
         ResourceBundle resourceBundle = WordPressCore.getInstance().getResourceBundle();
         String emptyListString = resourceBundle.getString(WordPressResource.MESSAGE_NOTHING_TO_SEE_HERE);
         _checkList.setEmptyString(emptyListString, DrawStyle.LEFT);
-        _checkList.setRowHeight(42);
+        _checkList.setRowHeight(BasicListFieldCallBack.getRowHeightForSingleLineRow());
         
         int elementLength = orderedBlogCategories.length;
         
@@ -394,7 +394,7 @@ public class CategoriesListField {
             	drawRightImage(graphics, y, w, height, uncheckedBitmap);
             }
 
-    	    drawText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getLabel(), currentRow.isSelected);
+    	    drawSingleLineText(graphics, leftImageWidth, y, w  - leftImageWidth, height, currentComment.getLabel(), currentRow.isSelected, Font.PLAIN);
             graphics.setFont(originalFont);
             graphics.setColor(originalColor);
         }

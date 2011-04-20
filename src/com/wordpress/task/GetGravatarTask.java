@@ -16,10 +16,12 @@ import com.wordpress.utils.log.Log;
 public class GetGravatarTask extends TaskImpl {
 	
 	private  Enumeration emailsGravatar = null ; //the email as key for gravatar
+	private final int gravaratDim;
 
-	public GetGravatarTask(Enumeration keys) {
+	public GetGravatarTask(Enumeration keys, int gravaratDim) {
 		super();
 		this.emailsGravatar = keys;
+		this.gravaratDim = gravaratDim;
 	}
 	
 	public void execute() {
@@ -52,7 +54,7 @@ public class GetGravatarTask extends TaskImpl {
 				continue;
 			}
 			
-			String gravURL = "http://www.gravatar.com/avatar/"+hashAuthorEmail+"?s=36&d=404";
+			String gravURL = "http://www.gravatar.com/avatar/"+hashAuthorEmail+"?s="+gravaratDim+"&d=404";
 			Log.debug("Requesting gravatar for the email: "+ authorEmail);
 			Log.debug("Open gravatar url "+ gravURL);
 			

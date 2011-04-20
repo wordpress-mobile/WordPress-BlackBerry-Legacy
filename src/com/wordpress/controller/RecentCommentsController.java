@@ -24,6 +24,7 @@ import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.CommentReplyView;
 import com.wordpress.view.CommentsView;
+import com.wordpress.view.component.BasicListFieldCallBack;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConnResponse;
 import com.wordpress.xmlrpc.ParameterizedBlogConn;
@@ -54,7 +55,7 @@ public class RecentCommentsController extends BaseController {
 	public RecentCommentsController(Blog currentBlog) {
 		super();
 		this.currentBlog = currentBlog;
-		this.gravatarController = new GravatarController(currentBlog);
+		this.gravatarController = new GravatarController(currentBlog,  BasicListFieldCallBack.getImageHeightForDoubleLineRow());
 	}
 	
 	public void showView() {

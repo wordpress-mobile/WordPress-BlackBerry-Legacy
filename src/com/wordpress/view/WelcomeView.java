@@ -106,8 +106,7 @@ public class WelcomeView extends StandardBaseView {
 	   ResourceBundle resourceBundle = WordPressCore.getInstance().getResourceBundle();
 	   String emptyListString = resourceBundle.getString(WordPressResource.MESSAGE_NOTHING_TO_SEE_HERE);
 	   list.setEmptyString(emptyListString, DrawStyle.LEFT);
-	   //= ((int) ((3* height) / 5)) - (PADDING * 2);
-	   list.setRowHeight(((int) ((5* fntHeight) / 3)));
+	   list.setRowHeight(BasicListFieldCallBack.getRowHeightForSingleLineRow()+ BasicListFieldCallBack.SPACE_BETWEEN_ROW);
 	   add(list);
 	   _listData.addElement(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_NEW_TO_WP_BLOG));	 
 	   _listData.addElement(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPCOM_BLOG));
@@ -216,50 +215,24 @@ public class WelcomeView extends StandardBaseView {
 			 * 42px of row
 			 * 6px blank space
 			 */
-			height = height - 6;
+			height = height - SPACE_BETWEEN_ROW;
 			w = w - 10;
     		
     		drawBackground(graphics, 5, y, w, height, list.getSelectedIndex() ==  index);
-    		drawBorder(graphics, 5, y, w, height, list.getSelectedIndex() ==  index);
-    		int leftImageWidth = 0;
-    		    		
-            drawText(graphics, leftImageWidth+5, y, w - 5, height, currentRow, list.getSelectedIndex() ==  index);
+    		drawBorder(graphics, 5, y, w, height);
+    		drawSingleLineTextHCentered(graphics, 5, y, w - 5, height, currentRow, list.getSelectedIndex() ==  index, Font.PLAIN);
 
             graphics.setFont(originalFont);
             graphics.setColor(originalColor);
     	}
     	
-    	protected int drawText(Graphics graphics, int x, int y, int width, int height, String title, boolean selected) {
-  
-    		int fontHeight = ((int) ((3* height) / 5));
-    		
-    		graphics.setFont(Font.getDefault().derive(Font.BOLD, fontHeight));
-    		
-    		if (selected) {
-    			graphics.setColor(Color.WHITE);
-    		} else {
-    			graphics.setColor(Color.BLACK);
-    		}
-    		if (title != null) {
-    			return   graphics.drawText(title, x + PADDING, y + 1 + (height-fontHeight)/2, DrawStyle.HCENTER
-    					| DrawStyle.TOP | DrawStyle.ELLIPSIS, width - (PADDING * 2));
-    		}
-
-    		return 0;
-    	}
-    	
-		protected void drawBorder(Graphics graphics, int x, int y, int width,	int height, boolean selected) {
-			if(selected) 
-				graphics.setColor(Color.BLACK);
-			else 
-				graphics.setColor(Color.BLACK);	
-			
+		protected void drawBorder(Graphics graphics, int x, int y, int width, int height) {
+			graphics.setColor(Color.BLACK);
 			graphics.drawLine(x-1, y , x + width-1, y);
 			graphics.drawLine(x-1, y, x-1 , y + height-1); //linea verticale sx
 			graphics.drawLine(x + width, y-1, x + width , y + height-1); //linea verticale dx
 			graphics.drawLine(x-1, y + height - 1, x + width-1, y + height - 1);
 		}
-
 
 		 //Returns the object at the specified index.
         public Object get(ListField list, int index) 
