@@ -1,5 +1,6 @@
 package com.wordpress.view.component;
 
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.GUIFactory;
 
 import net.rim.device.api.system.Bitmap;
@@ -17,7 +18,7 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 	protected int focusBgColor = GUIFactory.LIST_COLOUR_BACKGROUND_FOCUS;
 	
 	public final static int SPACE_BETWEEN_ROW = 6; //if you want some space between rows this is the predef dim
-	protected static final int MAX_ROW_HEIGHT = 80;
+	protected static final int MAX_ROW_HEIGHT = 100;
 	protected static final int MIN_ROW_HEIGHT = 42;
 	protected static final int PADDING = 4;
 		
@@ -149,7 +150,7 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 		graphics.setFont(Font.getDefault().derive(Font.BOLD));	 
 		if (title != null) {
 			return   graphics.drawText(title, x + PADDING , y + PADDING, DrawStyle.LEFT
-					| DrawStyle.TOP | DrawStyle.ELLIPSIS, width - x - (PADDING * 2));
+					| DrawStyle.TOP | DrawStyle.ELLIPSIS, width - (PADDING * 2));
 		}
 		return 0;
 	}
