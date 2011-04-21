@@ -25,7 +25,7 @@ public class Blog {
 	private String username;
 	private String password;
 	
-	private boolean isResizePhotos = false;
+	private boolean isResizePhotos = true;
     private Integer imageResizeWidth = null; //used for custom size
     private Integer imageResizeHeight = null; //used for custom size 
     private Integer  imageResizeSetting = new Integer (BlogInfo.ALWAYS_ASK_IMAGE_RESIZE_SETTING);
