@@ -69,7 +69,9 @@ public class BlogView extends StandardBaseView {
 			list.insert(count);
 		}
 
-	   list.setRowHeight(BasicListFieldCallBack.getRowHeightForSingleLineRow()+ BasicListFieldCallBack.SPACE_BETWEEN_ROW);
+	   list.setRowHeight(BasicListFieldCallBack.getRowHeightForSingleLineRow() 
+			   + BasicListFieldCallBack.SPACE_BETWEEN_ROW   //space between rows
+			   + BasicListFieldCallBack.SPACE_BETWEEN_ROW); //a little bit bigger
 	   list.setCallback(new BlogListFieldCallBack());	
 	   add(list); 
     

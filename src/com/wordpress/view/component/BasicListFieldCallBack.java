@@ -133,33 +133,7 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 		}
 		return 0;
 	}
-
-	//SingleLine of Text in the row
-	protected int drawSingleLineTextHCentered(Graphics graphics, int x, int y, int width, int height, String title, boolean selected, int fontStyle) {
-		Font fnt = null;
-		if(fontStyle != -1 ) {
-			fnt = Font.getDefault().derive(fontStyle);
-		} else {
-			fnt = Font.getDefault().derive(Font.PLAIN);
-		}
-		graphics.setFont(fnt);
-
-		if (selected) {
-			graphics.setColor(Color.WHITE);
-		} else {
-			graphics.setColor(Color.BLACK);
-		}
-		
-		if (title != null) {
-			int fntHeight = fnt.getHeight();
-			int textTop = y + ((height - fntHeight) / 2);
-			
-			return   graphics.drawText(title, x + PADDING,  textTop , DrawStyle.HCENTER
-					| DrawStyle.TOP | DrawStyle.ELLIPSIS, width - x - (PADDING * 2));
-		}
-		return 0;
-	}
-		
+	
 	protected int drawTextOnFirstRow(Graphics graphics, int x, int y, int width, int height, String title, boolean selected) {
 		int myColor = Color.BLACK;
 		if (selected) {

@@ -225,6 +225,40 @@ public class WelcomeView extends StandardBaseView {
             graphics.setFont(originalFont);
             graphics.setColor(originalColor);
     	}
+    	    	
+    	//SingleLine of Text in the row  
+    	protected int drawSingleLineTextHCentered(Graphics graphics, int x, int y, int width, int height, String title, boolean selected, int fontStyle) {
+    		Font fnt = null;
+    		if(fontStyle != -1 ) {
+    			fnt = Font.getDefault().derive(fontStyle);
+    		} else {
+    			fnt = Font.getDefault().derive(Font.PLAIN);
+    		}
+    		
+    		//find the best test height that fit the width of the row
+    		int fullTextWidth =  fnt.getAdvance(title); //space for the entire mail field
+    		while(fullTextWidth > ( width - x - (PADDING * 2))) {
+    			fnt = fnt.derive(fnt.getStyle(),  fnt.getHeight()-1); 
+    			fullTextWidth =  fnt.getAdvance(title);
+    		}
+
+    		graphics.setFont(fnt);
+
+    		if (selected) {
+    			graphics.setColor(Color.WHITE);
+    		} else {
+    			graphics.setColor(Color.BLACK);
+    		}
+    		
+    		if (title != null) {
+    			int fntHeight = fnt.getHeight();
+    			int textTop = y + ((height - fntHeight) / 2);
+    			
+    			return   graphics.drawText(title, x + 1,  textTop , DrawStyle.HCENTER
+    					| DrawStyle.TOP | DrawStyle.ELLIPSIS, width - x - 2);
+    		}
+    		return 0;
+    	}
     	
 		protected void drawBorder(Graphics graphics, int x, int y, int width, int height) {
 			graphics.setColor(Color.BLACK);

@@ -210,9 +210,9 @@ public class BlogUpdateConn extends BlogConn  {
 			
 			BlogDAO.setBlogIco(blog, null);
 			byte[] iconData = downloadBlavatar(blog.getXmlRpcUrl());
-			if(iconData == null) {
+		/*	if(iconData == null) {
 				iconData = downloadAppleTouchIco();
-			}
+			}*/
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(iconData == null) {
 				if(blog.isWPCOMBlog()) {
