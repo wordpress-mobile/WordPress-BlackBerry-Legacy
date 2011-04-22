@@ -85,8 +85,7 @@ public class WordPressCore {
 		getTasksRunner().quit(); //stop the runner thread
 		timer.cancel(); //cancel the timer
 		NotificationHandler.getInstance().shutdown(); //stop the notification handler
-		//SharingHelper sHelper = SharingHelper.getInstance();
-		//sHelper.removeCHAPIListener();
+		SharingHelperOldDevices.deleteAppIstance();
 		System.exit(0);
 	}
 	

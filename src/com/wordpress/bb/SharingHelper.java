@@ -12,8 +12,6 @@ import javax.microedition.content.RequestListener;
 
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.i18n.ResourceBundleFamily;
-import net.rim.device.api.system.ControlledAccessException;
-import net.rim.device.api.system.RuntimeStore;
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;

@@ -86,34 +86,34 @@ public class SplashScreen extends MainScreen {
 	}
    
    
-   protected void sublayout(int width, int height) {
-	   
-	   if(prevWidth != width) {
-		   Log.trace("Splash Screen size changed");
-		//img size should change here 
-		   getSplashImg(width);
-		   prevWidth = width;
-		   UiApplication.getUiApplication().invokeLater(new Runnable() {
+	protected void sublayout(int width, int height) {
+
+		if(prevWidth != width) {
+			Log.trace("Splash Screen size changed");
+			//img size should change here 
+			getSplashImg(width);
+			prevWidth = width;
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
 					splashImgField.setImage(image);
 				}
 			});
-	   }
-	   
-	   Log.trace("labelFieldSize : " +Ui.convertSize(9, Ui.UNITS_pt, Ui.UNITS_px));
-	   
-	   int fieldsHeight = image.getHeight()+ Ui.convertSize(9, Ui.UNITS_pt, Ui.UNITS_px);
-	   Log.trace("fieldsHeight Height " + fieldsHeight);
-	   
-	   layoutDelegate(width, Math.min(height,fieldsHeight));
-	   setPositionDelegate(0, (height - fieldsHeight )/2);
-	   
-	  // super.sublayout(width, height);
-	   Log.trace("getDelegate().getHeight() " +getDelegate().getHeight());
-	   setExtent(width,  height);
-	   setPosition(0,0);
-	   Log.trace("getHeight() " +getHeight());
-	  }
+		}
+
+		Log.trace("labelFieldSize : " +Ui.convertSize(9, Ui.UNITS_pt, Ui.UNITS_px));
+
+		int fieldsHeight = image.getHeight()+ Ui.convertSize(9, Ui.UNITS_pt, Ui.UNITS_px);
+		Log.trace("fieldsHeight Height " + fieldsHeight);
+
+		layoutDelegate(width, Math.min(height,fieldsHeight));
+		setPositionDelegate(0, (height - fieldsHeight )/2);
+
+		// super.sublayout(width, height);
+		Log.trace("getDelegate().getHeight() " +getDelegate().getHeight());
+		setExtent(width,  height);
+		setPosition(0,0);
+		Log.trace("getHeight() " +getHeight());
+	}
       
    /**
     * Overrides default implementation.  Performs default action if the 

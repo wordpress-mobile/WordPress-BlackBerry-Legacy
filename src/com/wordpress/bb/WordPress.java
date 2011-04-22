@@ -13,6 +13,7 @@ import net.rim.device.api.notification.NotificationsManager;
 import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.Backlight;
 import net.rim.device.api.system.Display;
+import net.rim.device.api.system.RuntimeStore;
 import net.rim.device.api.system.SystemListener;
 import net.rim.device.api.ui.UiApplication;
 
@@ -58,6 +59,7 @@ public class WordPress extends UiApplication implements WordPressResource, Syste
     		// Note that this work must be completed using invokeLater because the 
     		// application has not yet entered the event dispatcher.
     		app.doStartupWorkLater(); 
+    		SharingHelperOldDevices.storeAppIstance(app);
     	}
     	// Enter the event dispatcher.
     	app.enterEventDispatcher(); 
@@ -79,6 +81,7 @@ public class WordPress extends UiApplication implements WordPressResource, Syste
     	//adds the CHAPI sharing to WP 
     	SharingHelper.getInstance().unregisterCHAPI();
     	//SharingHelper.getInstance().registerCHAPI();
+    	SharingHelperOldDevices.getInstance().addGlobalMenuItems(_resources);
 
     	Log.trace("==== Registering WordPress Comments Notification ====");
     	//Define a dummy object that provides the source for the event.
@@ -299,10 +302,9 @@ public class WordPress extends UiApplication implements WordPressResource, Syste
             // application.
         }
     }
-	
+	    
     private void loadApp() {
 		Log.trace("==== loadApp ====");
-		
     	WordPressInfo.initialize();
 		
 		//Check the permission only at the first app startup.

@@ -14,7 +14,6 @@ import net.rim.device.api.ui.component.Status;
 
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
-import com.wordpress.bb.SharingHelper;
 import com.wordpress.io.AppDAO;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.CommentsDAO;

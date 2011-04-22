@@ -9,6 +9,7 @@ import net.rim.blackberry.api.menuitem.ApplicationMenuItemRepository;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.i18n.ResourceBundleFamily;
 import net.rim.device.api.system.ApplicationDescriptor;
+import net.rim.device.api.system.ControlledAccessException;
 import net.rim.device.api.system.RuntimeStore;
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
@@ -82,7 +83,7 @@ public class SharingHelperOldDevices {
 
 	private void newSharing(final Object context) {
 		Screen scr = UiApplication.getUiApplication().getActiveScreen();
-		System.out.println("newSharing: "+scr.getClass().getName());
+		Log.trace("newSharing: "+scr.getClass().getName());
 
 		if (scr instanceof SplashScreen){ //app is in loading wait till completed
 			UiApplication.getUiApplication().invokeLater(new Runnable()
@@ -244,6 +245,57 @@ public class SharingHelperOldDevices {
 		//toString should return the string we want to use as the label of the menuItem
 		public String toString(){
 			return text;
+		}
+	}
+	
+	/**
+	 * Called during shutdown to delete the app references from runtime store
+	 * @param istance
+	 */
+	static synchronized void deleteAppIstance() {
+		//Open the RuntimeStore.
+		RuntimeStore store = RuntimeStore.getRuntimeStore();
+		//Obtain the reference of WordPress for BlackBerry.
+		Object obj = store.get(WordPressInfo.APPLICATION_ID);
+
+		if (obj != null)
+		{    
+			store.remove(WordPressInfo.APPLICATION_ID);
+			Log.trace("App removed from RuntimeStore");
+
+		} else
+		{ //never falls here
+			Log.trace("RuntimeStore is already empty!");
+		}
+	}
+	
+	/**
+	 * Called at startup to store the app references onto runtime store
+	 * @param istance
+	 */
+	static synchronized void storeAppIstance(UiApplication istance) {
+		try{
+			Log.trace(">>> storeAppIstance");
+			//Open the RuntimeStore.
+			RuntimeStore store = RuntimeStore.getRuntimeStore();
+			//Obtain the reference of WordPress for BlackBerry.
+			Object obj = store.get(WordPressInfo.APPLICATION_ID);
+
+			//If obj is null, there is no current reference
+			//to WordPress for BlackBerry.
+			if (obj == null)
+			{    
+				//Store a reference to this instance in the RuntimeStore.
+				store.put(WordPressInfo.APPLICATION_ID, istance);
+				Log.trace("Application References added to the runtimestore");
+			} else
+			{
+				//should never fall here bc the app deregister istance on exit
+				Log.trace("runtimestore not empty, why??");
+				store.replace(WordPressInfo.APPLICATION_ID, UiApplication.getUiApplication());
+			}
+		} catch (ControlledAccessException  e) {
+			Log.trace(e, "Error while accessing the runtime store");
 		}
 	}
 }
