@@ -212,7 +212,7 @@ public class BlogView extends StandardBaseView {
 		}
 		
 		protected void drawBorder(Graphics graphics, int x, int y, int width, int height) {
-			graphics.setColor(Color.BLACK);
+			graphics.setColor(Color.DARKGRAY);
 			graphics.drawLine(x-1, y , x + width-1, y);
 			graphics.drawLine(x-1, y, x-1 , y + height-1); //linea verticale sx
 			graphics.drawLine(x + width, y-1, x + width , y + height-1); //linea verticale dx

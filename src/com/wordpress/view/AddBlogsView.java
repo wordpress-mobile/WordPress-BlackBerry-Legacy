@@ -40,7 +40,7 @@ public class AddBlogsView extends StandardBaseView {
 	    	this.controller=addBlogsController;
 	        
 			//Set the preferred width to the image size or screen width if the image is larger than the screen width.
-	    	EncodedImage classicHeaderImg = EncodedImage.getEncodedImageResource("wp_grey-s.png");
+	    	EncodedImage classicHeaderImg = EncodedImage.getEncodedImageResource("logo-wporg-login.png");
 			int _preferredWidth = -1;
 	        if (classicHeaderImg.getWidth() > Display.getWidth()) {
 	            _preferredWidth = Display.getWidth();

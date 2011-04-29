@@ -39,7 +39,7 @@ public class AddWPCOMBlogsView extends StandardBaseView {
 	    	super(_resources.getString(WordPressResource.MENUITEM_ADDBLOG), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
 	    	this.controller=addBlogsController;           
 			//Set the preferred width to the image size or screen width if the image is larger than the screen width.
-	    	EncodedImage classicHeaderImg = EncodedImage.getEncodedImageResource("wp_blue-s.png");
+	    	EncodedImage classicHeaderImg = EncodedImage.getEncodedImageResource("logo-wpcom-login.png");
 			int _preferredWidth = -1;
 	        if (classicHeaderImg.getWidth() > Display.getWidth()) {
 	            _preferredWidth = Display.getWidth();
@@ -79,7 +79,7 @@ public class AddWPCOMBlogsView extends StandardBaseView {
             if(AccountsController.getAccountsNumber() > 0 ) {
             	ClickableLabelField lblMyAccounts = new ClickableLabelField(_resources.getString(WordPressResource.LABEL_EXISTING_WPCOM_ACCOUNTS)+"...",
             			LabelField.FOCUSABLE | LabelField.ELLIPSIS);
-            	lblMyAccounts.setTextColor(Color.WHITESMOKE);
+            	lblMyAccounts.setTextColor(Color.BLACK);
             	lblMyAccounts.setMargin(2, 5, 5, 5);
             	FieldChangeListener existingAccountListener = new FieldChangeListener() {
             		public void fieldChanged(Field field, int context) {

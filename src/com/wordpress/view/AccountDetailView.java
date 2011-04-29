@@ -41,7 +41,7 @@ public class AccountDetailView extends StandardBaseView {
 			this.accountData = accountData;
             
 			//Set the preferred width to the image size or screen width if the image is larger than the screen width.
-	    	EncodedImage classicHeaderImg = EncodedImage.getEncodedImageResource("wp_blue-s.png");
+	    	EncodedImage classicHeaderImg = EncodedImage.getEncodedImageResource("logo-wpcom-login.png");
 			int _preferredWidth = -1;
 	        if (classicHeaderImg.getWidth() > Display.getWidth()) {
 	            _preferredWidth = Display.getWidth();
@@ -51,13 +51,13 @@ public class AccountDetailView extends StandardBaseView {
 	        	classicHeaderImg = resImg;
 	        }
 	        BitmapField wpClassicHeaderBitmapField =  new BitmapField(classicHeaderImg.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER);
-	        wpClassicHeaderBitmapField.setMargin(5,0,3,0);
+	        //wpClassicHeaderBitmapField.setMargin(2,0,2,0);
 	        add(wpClassicHeaderBitmapField);
 
 	        String user = (String)accountData.get("username");
 	        String pass = (String)accountData.get("passwd");
 	        
-	        userNameField = new ColoredLabelField(_resources.getString(WordPressResource.LABEL_USERNAME)+": " + user, Color.WHITESMOKE);
+	        userNameField = new ColoredLabelField(_resources.getString(WordPressResource.LABEL_USERNAME)+": " + user, Color.BLACK);
 	        userNameField.setMargin(0, 0, 0, 10);
 	        add(userNameField);
 	        

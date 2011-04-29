@@ -40,12 +40,13 @@ public class WelcomeView extends StandardBaseView {
 
 	private MainController mainController = null;
 
-	private  BitmapField wpPromoBitmapField;
-	private  EncodedImage promoImg;
-	
-   private ListField list;
-   private Vector _listData = new Vector();
-   private ListCallBack listFieldCallBack = null;
+	private BitmapField wpPromoBitmapField;
+	private EncodedImage promoImg;
+	private HorizontalFieldManager taglineManager;
+
+	private ListField list;
+	private Vector _listData = new Vector();
+	private ListCallBack listFieldCallBack = null;
 
    public WelcomeView() {
 	   super(MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL | USE_ALL_HEIGHT);
@@ -82,9 +83,9 @@ public class WelcomeView extends StandardBaseView {
 		int fntHeight = fnt.getHeight();
 		fnt = Font.getDefault().derive(Font.BOLD, fntHeight+2, Ui.UNITS_px);
 
-		HorizontalFieldManager taglineManager = new HorizontalFieldManager(Field.FIELD_HCENTER |Field.USE_ALL_WIDTH);
+		taglineManager = new HorizontalFieldManager(Field.FIELD_HCENTER |Field.USE_ALL_WIDTH);
 		LabelField lblField = new ColoredLabelField(_resources.getString(WordPressResource.PROMOSCREEN_TAGLINE), 
-				 Color.WHITESMOKE, Field.USE_ALL_WIDTH | DrawStyle.HCENTER);
+				 Color.BLACK, Field.USE_ALL_WIDTH | DrawStyle.HCENTER);
 		lblField.setFont(fnt);
 		taglineManager.add(lblField);
 		if (width > 320)
@@ -112,6 +113,24 @@ public class WelcomeView extends StandardBaseView {
 	   _listData.addElement(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPCOM_BLOG));
 	   _listData.addElement(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPORG_BLOG));	
 	   list.setSize(_listData.size());
+   }
+   
+   
+   protected void sublayout(int width, int height) {
+	   int topMargin = 5;
+	   if(height > 360) {
+		   int fieldsHeight = _container.getPreferredHeight();
+		   if( list.getPreferredHeight() == 0)
+			   fieldsHeight += (3* (BasicListFieldCallBack.getRowHeightForSingleLineRow()+ BasicListFieldCallBack.SPACE_BETWEEN_ROW));
+		  
+		   if (fieldsHeight < height)
+			   topMargin = (height - fieldsHeight) /2;
+		   
+		   topMargin-= 15;
+		   
+	   }
+	   wpPromoBitmapField.setMargin(topMargin, 0, 0, 0);
+	   super.sublayout(width, height);
    }
 
 	private void defaultItemAction() {
@@ -261,7 +280,7 @@ public class WelcomeView extends StandardBaseView {
     	}
     	
 		protected void drawBorder(Graphics graphics, int x, int y, int width, int height) {
-			graphics.setColor(Color.BLACK);
+			graphics.setColor(Color.DARKGRAY);
 			graphics.drawLine(x-1, y , x + width-1, y);
 			graphics.drawLine(x-1, y, x-1 , y + height-1); //linea verticale sx
 			graphics.drawLine(x + width, y-1, x + width , y + height-1); //linea verticale dx
