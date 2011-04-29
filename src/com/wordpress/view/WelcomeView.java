@@ -85,7 +85,7 @@ public class WelcomeView extends StandardBaseView {
 
 		taglineManager = new HorizontalFieldManager(Field.FIELD_HCENTER |Field.USE_ALL_WIDTH);
 		LabelField lblField = new ColoredLabelField(_resources.getString(WordPressResource.PROMOSCREEN_TAGLINE), 
-				 Color.BLACK, Field.USE_ALL_WIDTH | DrawStyle.HCENTER);
+				0x464646, Field.USE_ALL_WIDTH | DrawStyle.HCENTER);
 		lblField.setFont(fnt);
 		taglineManager.add(lblField);
 		if (width > 320)
