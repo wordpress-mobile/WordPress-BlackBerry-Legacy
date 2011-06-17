@@ -888,7 +888,7 @@ public class PostController extends BlogObjectController {
 
 		if(needSig && signature != null) {
 			Log.trace("adding signature to the post preview");
-			return 	 "<p>"+signature+"</p>"; 
+			return 	 "<p class=\"post-sig\">"+signature+"</p>"; 
 		}
 		return "";
 	}
