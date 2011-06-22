@@ -34,18 +34,20 @@
 		<echo message=" cleanOS47            --> Clean OS 4.7 version"/>
 		<echo message=" cleanOS50            --> Clean OS 5.0 version"/>
 		<echo message=" cleanOS60            --> Clean OS 6.0 version"/>
+		<echo message=" cleanOS7           	 --> Clean OS 7 version"/>
 		<echo message=" cleanTorch           --> Clean Torch version"/>
 		<echo message=" clean                --> Clean all versions"/>
 		<echo message=" releaseOS45          --> "/>
 		<echo message=" releaseOS47          --> "/>
 		<echo message=" releaseOS50          --> "/>
 		<echo message=" releaseOS60          --> "/>
+		<echo message=" releaseOS7          --> "/>
 		<echo message=" releaseTorch         --> "/>
 		<echo message=""/>
 	</target>
 
 
-	<target name="clean" depends="cleanOS45, cleanOS47, cleanOS50, cleanOS60, cleanTorch" />
+	<target name="clean" depends="cleanOS45, cleanOS47, cleanOS50, cleanOS60, cleanOS7, cleanTorch" />
 	
 	<target name="cleanOS45" depends="init">
 		<ant antfile="build/build_single.xml" target="clean">
@@ -68,6 +70,12 @@
 	<target name="cleanOS60" depends="init">
 		<ant antfile="build/build_single.xml" target="clean">
 			<property name="platform"         value="os60"/>
+		</ant>
+	</target>
+	
+	<target name="cleanOS7" depends="init">
+		<ant antfile="build/build_single.xml" target="clean">
+			<property name="platform"         value="os7"/>
 		</ant>
 	</target>
 	
@@ -140,6 +148,20 @@
 			<property name="is_os47_or_above"   value="true" />
 			<property name="is_os50_or_above"   value="true" />
 			<property name="VER_6.0.0"  value="true" />
+			<property name="module.version" value="${release.number}" />
+		</ant>
+	</target>
+
+	<target name="releaseOS7" depends="init, cleanOS7">
+        <property file="build/build.properties" />
+        <property file="build/release.properties" />
+		<ant antfile="build/build_single.xml" target="release">
+			<property name="platform" value="os7" />
+			<property name="rim.home" value="${rim.home.os7}" />
+			<property name="is_os47_or_above"   value="true" />
+			<property name="is_os50_or_above"   value="true" />
+			<property name="VER_6.0.0"  value="true" />
+			<property name="icon"   value="application-icon-92.png" />
 			<property name="module.version" value="${release.number}" />
 		</ant>
 	</target>
@@ -220,6 +242,21 @@
 			<property name="is_os50_or_above"   value="true" />
 			<property name="VER_6.0.0"  value="true" />
 			<property name="is_torch"  value="true" />
+			<property name="module.version" value="${nightly.number}" />
+		</ant>
+	</target>
+	
+	<target name="simulatorOS7" depends="init, cleanOS7">
+		<property file="build/build.properties" />
+        <property file="build/release.properties" />
+		<ant antfile="build/build_single.xml" target="rapc">
+			<property name="platform" value="os7" />
+			<property name="rim.home" value="${rim.home.os7}" />
+			<property name="log_console" value="true" />
+			<property name="is_os47_or_above"   value="true" />
+			<property name="is_os50_or_above"   value="true" />
+			<property name="VER_6.0.0"  value="true" />
+			<property name="icon"   value="application-icon-92.png" />
 			<property name="module.version" value="${nightly.number}" />
 		</ant>
 	</target>

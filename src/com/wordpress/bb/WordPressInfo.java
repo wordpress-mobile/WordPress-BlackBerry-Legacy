@@ -3,6 +3,8 @@ package com.wordpress.bb;
 
 import com.wordpress.utils.PropertyUtils;
 import com.wordpress.utils.log.Log;
+
+import net.rim.blackberry.api.homescreen.HomeScreen;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.ControlledAccessException;
 import net.rim.device.api.system.PersistentObject;
@@ -48,6 +50,9 @@ public final class WordPressInfo {
 
 	private static Bitmap icon = Bitmap.getBitmapResource("application-icon.png");
     private static Bitmap newCommentsIcon = Bitmap.getBitmapResource("application-icon-new.png");
+   
+    private static Bitmap icon92px = Bitmap.getBitmapResource("application-icon-92.png");
+    private static Bitmap newCommentsIcon92px = Bitmap.getBitmapResource("application-icon-new.png");
    
     //keep some configuration data outside the classic app storage model
     private static PersistentObject store;
@@ -102,11 +107,17 @@ public final class WordPressInfo {
     }
    
     public static Bitmap getIcon() {
-    	return icon;
+    	if(HomeScreen.getPreferredIconHeight() > 50)
+    		return icon92px;
+    	else
+    		return icon;
     }
     
     public static Bitmap getNewCommentsIcon() {
-    	return newCommentsIcon;
+    	if(HomeScreen.getPreferredIconHeight() > 50)
+    		return newCommentsIcon92px;
+    	else
+    		return newCommentsIcon;
     }
     
     public static String getLastVersion() {

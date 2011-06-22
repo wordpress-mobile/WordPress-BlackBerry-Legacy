@@ -8,6 +8,7 @@ import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.UiApplication;
 
 import com.wordpress.io.AppDAO;
@@ -134,13 +135,23 @@ public class WordPressCore {
 	 * Tour  9600 Series - 480 x 360 pixels
 	 * Storm 9500 Series - portrait view: 360 x 480 pixels,  landscape view: 480 x 360 pixels
 	 * 
+	 * Torch 9800 has 16-bit color display with a screen resolution of 360 x 480 (portrait) when held vertically.
+	 * Bold 9900 Series has a 32-bit color display (24 bits for color, 8 bits for transparency) with a screen resolution of 640 x 480 (landscape) when held vertically.
+	 * 
+	 * XXXX 9850 800x480
 	 */
 	public Bitmap getBackgroundBitmap() {
-		return Bitmap.getBitmapResource("bg.png");
-/*		 int width = Display.getWidth(); 
+		
+		 int width = Display.getWidth(); 
 		 int height = Display.getHeight();
 		 
-		 if(width == 240 && height == 320 ) {
+		 if(width <= 480 && height <= 480 ) {
+			 return Bitmap.getBitmapResource("bg.png");			 
+		 } else {
+			 return Bitmap.getBitmapResource("bg-800.png");
+		 }
+		 
+		 /*if(width == 240 && height == 320 ) {
 			 
 		 } else if(width == 320 && height == 240) {
 			 
@@ -152,9 +163,7 @@ public class WordPressCore {
 			 
 		 } else {
 			 
-		 }
-
-		return null;*/
+		 }*/
 	}
 
 	public Timer getTimer() {

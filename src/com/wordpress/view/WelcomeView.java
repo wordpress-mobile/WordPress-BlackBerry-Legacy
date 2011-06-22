@@ -65,7 +65,7 @@ public class WelcomeView extends StandardBaseView {
 			 promoImg = EncodedImage.getEncodedImageResource("wp_blue-m.png");	
 		 } else if(width == 360 && height == 480) {
 			  promoImg = EncodedImage.getEncodedImageResource("wp_blue-l.png");
-		 } else if (Display.getHeight() > 480  ) {
+		 } else if (Display.getHeight() >= 480  ) {
 			 promoImg = EncodedImage.getEncodedImageResource("wp_blue-l.png");
 		 } else {
 			 promoImg = EncodedImage.getEncodedImageResource("wp_blue-s.png");	
