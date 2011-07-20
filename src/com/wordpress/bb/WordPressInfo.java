@@ -38,6 +38,10 @@ public final class WordPressInfo {
 	public final static String GOOGLE_GEOCODING_API_URL = "http://maps.google.com/maps/api/geocode/";
 	public static final String GOOGLE_STATIC_MAP_URL = "http://maps.google.com/maps/api/staticmap";
 	
+	public final static String WPCOM_LOGIN_URL = "https://wordpress.com/wp-login.php";
+	public final static String WPCOM_GLOBAL_DASHBOARD = "http://dashboard.wordpress.com/wp-admin/";
+	public final static String WPCOM_READER_URL = "https://wordpress.com/reader/mobile/";
+	
 	public static final int DEFAULT_DOWNLOADED_COMMENTS = 100;
 	
 	/*

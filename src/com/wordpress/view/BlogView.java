@@ -39,13 +39,13 @@ public class BlogView extends StandardBaseView {
 	private static final int mnuStats = 140;
 	private static final int mnuOptions = 150;
 	private static final int mnuRefresh= 160;
-	
+	private static final int mnuDashboard= 170;
 	
 	private int awaitingModeration = 0;
 	private BlogListField list;
 	
 	//main menu entries
-	private int[] mainMenuItems = {mnuPosts, mnuPages, mnuComments, mnuMedia, mnuStats, mnuOptions, mnuRefresh};
+	private int[] mainMenuItems = {mnuPosts, mnuPages, mnuComments, mnuMedia, mnuStats, mnuOptions, mnuRefresh, mnuDashboard};
 	private String[] mainMenuItemsLabel = {
 			_resources.getString(WordPressResource.BUTTON_POSTS),
 			_resources.getString(WordPressResource.BUTTON_PAGES),
@@ -53,7 +53,8 @@ public class BlogView extends StandardBaseView {
 			_resources.getString(WordPressResource.BUTTON_MEDIA),
 			_resources.getString(WordPressResource.BUTTON_STATS),
 			_resources.getString(WordPressResource.BUTTON_OPTIONS),
-			_resources.getString(WordPressResource.BUTTON_REFRESH_BLOG)
+			_resources.getString(WordPressResource.BUTTON_REFRESH_BLOG),
+			_resources.getString(WordPressResource.MENUITEM_DASHBOARD)
 			};
 	      	
 	public BlogView(BlogController _controller) {
@@ -130,6 +131,9 @@ public class BlogView extends StandardBaseView {
 		case (mnuRefresh):
 			controller.refreshBlog();
 			break;
+		case (mnuDashboard):
+			controller.openDashboard();
+			break;
 		default:
 			controller.displayError("There was an error with the request.");
 			break;
@@ -156,6 +160,8 @@ public class BlogView extends StandardBaseView {
 		private Bitmap imgSettings = Bitmap.getBitmapResource("settings.png");
 		private Bitmap imgRefresh = Bitmap.getBitmapResource("refresh.png");
 		private Bitmap imgStats = Bitmap.getBitmapResource("stats.png");  
+		private Bitmap imgDashboard = Bitmap.getBitmapResource("dashboard.png");
+		
 		private Bitmap icon;
 		
 		// We are going to take care of drawing the item.
@@ -187,7 +193,10 @@ public class BlogView extends StandardBaseView {
 			if ( mainMenuItems[index] == mnuRefresh) {
 				icon = imgRefresh;
 			}
-						
+			if ( mainMenuItems[index] == mnuDashboard) {
+				icon = imgDashboard;
+			}
+			
 			Font originalFont = graphics.getFont();
 			int originalColor = graphics.getColor();
 			int height = list.getRowHeight();

@@ -2,6 +2,7 @@ package com.wordpress.controller;
 
 import java.util.Vector;
 
+import net.rim.blackberry.api.browser.URLEncodedPostData;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
@@ -11,6 +12,8 @@ import com.wordpress.io.BlogDAO;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
+import com.wordpress.utils.StringUtils;
+import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -99,6 +102,25 @@ public class BlogController extends BaseController {
 			
 		}
 	 }
+	
+	public void openDashboard() {
+    	
+		String user = currentBlog.getUsername();
+        String pass = currentBlog.getPassword();
+        
+        String cleanURL = currentBlog.getXmlRpcUrl().endsWith("/") ? currentBlog.getXmlRpcUrl() :  currentBlog.getXmlRpcUrl()+"/";
+        String loginURL = StringUtils.replaceLast(cleanURL,"/xmlrpc.php/", "/wp-login.php");
+        String dashboardURL = StringUtils.replaceLast(cleanURL,"/xmlrpc.php/", "/wp-admin/");
+        
+		//create the link
+		URLEncodedPostData urlEncoder = new URLEncodedPostData("UTF-8", false);
+
+		urlEncoder.append("redirect_to", dashboardURL);
+		urlEncoder.append("log", user);
+		urlEncoder.append("pwd", pass);
+		
+		Tools.openNativeBrowser(loginURL, "WordPress for BlackBerry App", null, urlEncoder);
+	}
 	
 	private class RefreshBlogCallBack implements Observer {
 

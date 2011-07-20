@@ -1,5 +1,9 @@
 package com.wordpress.view;
 
+import java.util.Enumeration;
+import java.util.Hashtable;
+
+import net.rim.blackberry.api.browser.URLEncodedPostData;
 import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.CodeModuleGroup;
 import net.rim.device.api.system.CodeModuleGroupManager;
@@ -11,12 +15,12 @@ import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
-import com.wordpress.controller.SignUpBlogController;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.DataCollector;
@@ -106,6 +110,31 @@ public class MainView extends StandardBaseView {
 			return true;
 		}
 	
+    private MenuItem _mobileReaderMenuItem = new MenuItem( _resources, WordPressResource.MENUITEM_SHOW_READER, 1200, 850) {
+        public void run() {
+        	//load the first WP.COM available within the app
+        	Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
+        	Hashtable currentAccount = null;
+        	Enumeration k = applicationAccounts.keys();
+        	 if (k.hasMoreElements()) {
+    			 String key = (String) k.nextElement();
+    			 currentAccount = (Hashtable)applicationAccounts.get(key);
+        	 }
+        	String user = (String)currentAccount.get("username");
+	        String pass = (String)currentAccount.get("passwd");
+			
+			//crate the link
+			URLEncodedPostData urlEncoder = new URLEncodedPostData("UTF-8", false);
+
+			urlEncoder.append("redirect_to", WordPressInfo.WPCOM_READER_URL);
+			urlEncoder.append("log", user);
+			urlEncoder.append("pwd", pass);
+			
+			Tools.openNativeBrowser(WordPressInfo.WPCOM_LOGIN_URL, "WordPress for BlackBerry App", null, urlEncoder);
+        }
+    }; 
+	 
+	 
     private MenuItem _showBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_SHOWBLOG, 1300, 900) {
         public void run() {
         BlogInfo blogSelected = blogListController.getBlogSelected();
@@ -243,6 +272,11 @@ public class MainView extends StandardBaseView {
     	
     	if(Preferences.getIstance().isBackgroundOnClose())
     		menu.add(_exitItem);
+    	
+    	//show the reader menu item when there are WP.com accounts
+    	Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
+    	if(applicationAccounts != null && applicationAccounts.size() > 0)
+    		menu.add(_mobileReaderMenuItem);
     	
     	//add the check for activation menu item if the blog is on pending state
     	/*if(blogListController != null) {
