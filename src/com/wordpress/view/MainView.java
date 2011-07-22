@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.view;
 
 import java.util.Enumeration;
@@ -273,10 +274,12 @@ public class MainView extends StandardBaseView {
     	if(Preferences.getIstance().isBackgroundOnClose())
     		menu.add(_exitItem);
     	
+		//#ifdef VER_6.0.0
     	//show the reader menu item when there are WP.com accounts
     	Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
     	if(applicationAccounts != null && applicationAccounts.size() > 0)
     		menu.add(_mobileReaderMenuItem);
+    	//#endif
     	
     	//add the check for activation menu item if the blog is on pending state
     	/*if(blogListController != null) {
