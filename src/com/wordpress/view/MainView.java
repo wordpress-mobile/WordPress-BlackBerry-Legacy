@@ -274,7 +274,7 @@ public class MainView extends StandardBaseView {
     	if(Preferences.getIstance().isBackgroundOnClose())
     		menu.add(_exitItem);
     	
-		//#ifdef VER_6.0.0
+		//#ifdef VER_6.0.0 | BlackBerrySDK7.0.0
     	//show the reader menu item when there are WP.com accounts
     	Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
     	if(applicationAccounts != null && applicationAccounts.size() > 0)

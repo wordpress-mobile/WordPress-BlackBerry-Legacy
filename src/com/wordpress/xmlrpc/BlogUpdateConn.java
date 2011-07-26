@@ -158,7 +158,7 @@ public class BlogUpdateConn extends BlogConn  {
 			checkConnectionResponse("Error while loading Blog options");
 			
 			//wpcom.getPostFormats  ( blog_id, username, password ) which returns a struct.
-			//http://core.trac.wordpress.org/ticket/1540
+			//http://core.trac.wordpress.org/ticket/15405
 			//http://core.trac.wordpress.org/ticket/17094
 			Hashtable postFormatRequestParameters = new Hashtable();
 			postFormatRequestParameters.put("show-supported", TRUE);
@@ -183,7 +183,7 @@ public class BlogUpdateConn extends BlogConn  {
 						String key = String.valueOf(supportedFormats.elementAt(i));
 						String value = (String) allFormats.get(key);
 						mergedFormats.put(key, value);
-					}
+					}	
 					blog.setPostFormats(mergedFormats);
 				} else {
 					blog.setPostFormats(postFormats);
@@ -196,7 +196,7 @@ public class BlogUpdateConn extends BlogConn  {
 			if(blog.isWPCOMBlog()) {
 				/* 
 				 * The method call  wpcom.getFeatures  ( blog_id, username, password ) which returns a struct.
-				 * Just a simple way to expose data on WPCOM specific features (VideoPress or space upgrade for istance).
+				 * Just a simple way to expose data on WPCOM specific features (VideoPress or space upgrade for instance).
 				 * 
 				 * Right now the only field in the struct is "videopress_enabled", with a boolean value.
 				 * 

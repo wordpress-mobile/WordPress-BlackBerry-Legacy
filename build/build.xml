@@ -160,8 +160,8 @@
 			<property name="rim.home" value="${rim.home.os7}" />
 			<property name="is_os47_or_above"   value="true" />
 			<property name="is_os50_or_above"   value="true" />
-			<property name="VER_6.0.0"  value="true" />
-			<property name="icon"   value="application-icon-92.png" />
+			<property name="BlackBerrySDK7.0.0"  value="true" />
+			<property name="icon"   value="application-icon-92.png" /> <!-- it is not used. the code change the icon -->
 			<property name="module.version" value="${release.number}" />
 		</ant>
 	</target>
@@ -255,8 +255,8 @@
 			<property name="log_console" value="true" />
 			<property name="is_os47_or_above"   value="true" />
 			<property name="is_os50_or_above"   value="true" />
-			<property name="VER_6.0.0"  value="true" />
-			<property name="icon"   value="application-icon-92.png" />
+			<property name="BlackBerrySDK7.0.0"  value="true" />
+			<property name="icon"   value="application-icon-92.png" /><!-- it is not used. the code change the icon -->
 			<property name="module.version" value="${nightly.number}" />
 		</ant>
 	</target>

@@ -137,9 +137,9 @@ public class PostView extends StandardBaseView {
   		outerManagerRowInfos.add(status);
   		
   		//row postFormats, available only if the blog support postFormats
-  		if(post.getBlog().getPostFormats() != null) {
-  			Hashtable postFormats = post.getBlog().getPostFormats();
-  			String postFormat = post.getPostFormat();
+  		Hashtable postFormats = post.getBlog().getPostFormats();
+  		if(postFormats != null) {
+  			String currentItemPostFormat = post.getPostFormat();
   			int selectedPostFormatIndex = 0;
   			Enumeration postFormatsKeys = postFormats.keys();
   			
@@ -149,8 +149,8 @@ public class PostView extends StandardBaseView {
   			for (; postFormatsKeys.hasMoreElements(); ) {
 				String key = (String) postFormatsKeys.nextElement();
 				
-				if(postFormat != null) {
-					if ( postFormat.equalsIgnoreCase(key) )
+				if(currentItemPostFormat != null) {
+					if ( currentItemPostFormat.equalsIgnoreCase(key) )
 						selectedPostFormatIndex = i;
 	  			} else {
 	  				if ( "standard".equalsIgnoreCase(key) )

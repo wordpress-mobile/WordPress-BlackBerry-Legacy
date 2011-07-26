@@ -10,11 +10,11 @@ import net.rim.device.api.system.ControlledAccessException;
 import net.rim.device.api.system.PersistentObject;
 import net.rim.device.api.system.PersistentStore;
 
-//#ifndef VER_6.0.0
+//#ifndef VER_6.0.0 | BlackBerrySDK7.0.0
 /*  avoid Eclipse complaints
 //#endif
 import net.rim.device.api.system.capability.DeviceCapability;
-//#ifndef VER_6.0.0
+//#ifndef VER_6.0.0 | BlackBerrySDK7.0.0
 */
 //#endif
 
@@ -54,9 +54,12 @@ public final class WordPressInfo {
 
 	private static Bitmap icon = Bitmap.getBitmapResource("application-icon.png");
     private static Bitmap newCommentsIcon = Bitmap.getBitmapResource("application-icon-new.png");
-   
+
+    private static Bitmap icon68px = Bitmap.getBitmapResource("application-icon-68.png");
+    private static Bitmap newCommentsIcon68px = Bitmap.getBitmapResource("application-icon-new68.png");
+    
     private static Bitmap icon92px = Bitmap.getBitmapResource("application-icon-92.png");
-    private static Bitmap newCommentsIcon92px = Bitmap.getBitmapResource("application-icon-new.png");
+    private static Bitmap newCommentsIcon92px = Bitmap.getBitmapResource("application-icon-new92.png");
    
     //keep some configuration data outside the classic app storage model
     private static PersistentObject store;
@@ -97,7 +100,7 @@ public final class WordPressInfo {
     	Log.trace("WordPress Info inizialized");
     	isForcelessTouchClickSupported = false;
 
-    	//#ifndef VER_6.0.0
+    	//#ifndef VER_6.0.0 | BlackBerrySDK7.0.0
     	/*  avoid Eclipse complaints
     	//#endif
     	 
@@ -105,23 +108,27 @@ public final class WordPressInfo {
  		// If the device supports forceless clicks, the method returns false
     	isForcelessTouchClickSupported = !(DeviceCapability.isTouchClickSupported());
     	
-    	//#ifndef VER_6.0.0
+    	//#ifndef VER_6.0.0 | BlackBerrySDK7.0.0
     	*/  
     	//#endif
     }
    
     public static Bitmap getIcon() {
-    	if(HomeScreen.getPreferredIconHeight() > 50)
+    	int prefSize = HomeScreen.getPreferredIconHeight();
+    	if( prefSize == 68 )
+    		return icon68px;
+    	else if( prefSize == 92 )
     		return icon92px;
-    	else
-    		return icon;
+    	else return icon;
     }
     
     public static Bitmap getNewCommentsIcon() {
-    	if(HomeScreen.getPreferredIconHeight() > 50)
+    	int prefSize = HomeScreen.getPreferredIconHeight();
+    	if( prefSize == 68 )
+    		return newCommentsIcon68px;
+    	else if( prefSize == 92 )
     		return newCommentsIcon92px;
-    	else
-    		return newCommentsIcon;
+    	else return newCommentsIcon;    
     }
     
     public static String getLastVersion() {
