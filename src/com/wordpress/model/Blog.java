@@ -471,6 +471,7 @@ public class Blog {
 		case BlogInfo.CUSTOM_IMAGE_RESIZE_SETTING:
 			imageResizeWidth = this.getImageResizeWidth().intValue();
 			imageResizeHeight = this.getImageResizeHeight().intValue();
+			return new int[]{imageResizeWidth, imageResizeHeight};
 		default:
 			 return new int[]{0,0}; 
 		}
