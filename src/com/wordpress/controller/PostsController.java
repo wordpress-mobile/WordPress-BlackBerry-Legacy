@@ -6,10 +6,13 @@ import java.util.Vector;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
+import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Post;
+import com.wordpress.task.StopConnTask;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -27,7 +30,10 @@ public class PostsController extends BaseController{
 	private Blog currentBlog;
 	ConnectionInProgressView connectionProgressView=null;
 	
- 
+	protected RecentPostConn loadMoreConnection = null;
+	private boolean isLoadingMore = false;
+	private boolean hasMorePosts = true;
+	 
 	public PostsController(Blog currentBlog) {
 		super();
 		this.currentBlog=currentBlog;
@@ -81,15 +87,7 @@ public class PostsController extends BaseController{
 		}
 				
 		if(selected != -1){
-			
 			Hashtable postData = (Hashtable) currentBlog.getRecentPostTitles().elementAt(selected);
-						
-			/*Post  post = new Post(currentBlog,(String) postData.get("postid"),
-                                      (String) postData.get("title"),
-                                      (String) postData.get("userid"),
-                                      (Date) postData.get("dateCreated"));
-			*/
-	        
 			final GetPostConn connection = new GetPostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
 	        		currentBlog.getPassword(), currentBlog, String.valueOf(postData.get("postid")) );
 	        connection.addObserver(new LoadPostCallBack());  
@@ -99,10 +97,8 @@ public class PostsController extends BaseController{
 					
 			int choice = connectionProgressView.doModal();
 			if(choice==Dialog.CANCEL) {
-				Log.trace("Chiusura della conn dialog tramite cancel");
-				connection.stopConnWork(); //stop the connection if the user click on cancel button
+				WordPressCore.getInstance().getTasksRunner().enqueue(new StopConnTask(connection));
 			}
-			
 		}	     	
 	}	
 
@@ -134,8 +130,7 @@ public class PostsController extends BaseController{
 		    connection.startConnWork(); //starts connection
 		    int choice = connectionProgressView.doModal();
 			if(choice==Dialog.CANCEL) {
-				Log.trace("Chiusura della conn dialog tramite cancel");
-				connection.stopConnWork(); //stop the connection if the user click on cancel button
+				WordPressCore.getInstance().getTasksRunner().enqueue(new StopConnTask(connection));
 			}
     	}
 	}
@@ -174,9 +169,14 @@ public class PostsController extends BaseController{
 	}
 	
 	public void refreshPostsList() {
-		System.out.println(">>>refreshPosts");
+		//stop the load more and reset the variable here
+		if( isLoadingMore ) view.showLoadMoreStatus( false );
+		isLoadingMore = false;
+		hasMorePosts = true;
+		if( loadMoreConnection != null ) loadMoreConnection.stopConnWork();
+				
         final RecentPostConn connection = new RecentPostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
-        		currentBlog.getPassword(), currentBlog);
+        		currentBlog.getPassword(), currentBlog, currentBlog.getMaxPostCount());
         connection.addObserver(new RefreshRecentPostCallBack()); 
         String connMsg=_resources.getString(WordPressResource.CONN_REFRESH_POSTLIST);
         connectionProgressView= new ConnectionInProgressView(connMsg);
@@ -185,11 +185,80 @@ public class PostsController extends BaseController{
 				
 		int choice = connectionProgressView.doModal();
 		if(choice==Dialog.CANCEL) {
-			Log.trace("Chiusura della conn dialog tramite cancel");
-			connection.stopConnWork(); //stop the connection if the user click on cancel button
+			WordPressCore.getInstance().getTasksRunner().enqueue(new StopConnTask(connection));
 		}
 	}
 	
+	public void loadMorePosts() {
+		Log.debug("Ctrl load more posts");
+		if ( hasMorePosts == false || isLoadingMore ) {
+			return;
+		}
+		view.showLoadMoreStatus(true);
+		isLoadingMore = true;
+        int numerberOfPosts = 0;
+        numerberOfPosts = Math.max(currentBlog.getRecentPostTitles().size(), WordPressInfo.DEFAULT_ITEMS_NUMBER);
+        if (hasMorePosts) {
+            numerberOfPosts += WordPressInfo.DEFAULT_ITEMS_NUMBER;
+        } else {
+            //removing this block you will enable the refresh of posts when reached the end of the list and no more posts are available
+            isLoadingMore = false;
+            return;
+        }
+		
+		loadMoreConnection = new RecentPostConn (currentBlog.getXmlRpcUrl(),currentBlog.getUsername(),
+        		currentBlog.getPassword(), currentBlog, numerberOfPosts);
+		loadMoreConnection.addObserver(new LoadMorePostsCallBack());       
+		loadMoreConnection.startConnWork(); //starts connection
+	}
+	
+	private class LoadMorePostsCallBack implements Observer{
+		public void update(Observable observable, final Object object) {
+
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run(){
+					view.showLoadMoreStatus(false);
+				}
+            });
+			
+			int numberOfRequestedPosts = loadMoreConnection.getNumPosts();
+			loadMoreConnection = null;
+			isLoadingMore = false;
+			BlogConnResponse resp = (BlogConnResponse) object;
+			if(resp.isStopped()){
+				
+				return;
+			}
+			if(!resp.isError()) {
+
+				final Vector recentPostTitle= (Vector) resp.getResponseObject();
+				// If we asked for more and we got what we had, there are no more posts to load
+	            if ( numberOfRequestedPosts > WordPressInfo.DEFAULT_ITEMS_NUMBER && (recentPostTitle.size() <= currentBlog.getRecentPostTitles().size()))
+	            {
+	                hasMorePosts = false;
+	            }
+	            else if (recentPostTitle.size() == WordPressInfo.DEFAULT_ITEMS_NUMBER)
+	            {
+	                //we should reset the flag otherwise when you refresh this blog you can't get more than CHUNK_SIZE posts
+	            	 hasMorePosts = true;
+	            }
+	            currentBlog.setRecentPostTitles(recentPostTitle);
+
+				try{
+					BlogDAO.updateBlog(currentBlog);							
+				} catch (final Exception e) {
+				}
+	            
+	            UiApplication.getUiApplication().invokeLater(new Runnable() {
+					public void run(){
+						view.addPostsToScreen(recentPostTitle);
+					}
+	            });
+			} else {
+				hasMorePosts = false; //error response, do not keep downloading more posts
+			}
+		}
+	}
 	
 	class DeletePostCallBack implements Observer {
 
@@ -200,120 +269,103 @@ public class PostsController extends BaseController{
 		}
 
 		public void update(Observable observable, final Object object) {
-			UiApplication.getUiApplication().invokeLater(new Runnable() {
-				public void run() {
+			Log.debug(">>>DeletePostResponse");
 
-					Log.debug(">>>DeletePostResponse");
+			dismissDialog(connectionProgressView);
+			BlogConnResponse resp= (BlogConnResponse) object;
+			if(resp.isStopped()){
+				return;
+			}
+			if(!resp.isError()) {
 
-					dismissDialog(connectionProgressView);
-					BlogConnResponse resp= (BlogConnResponse) object;
-					if(resp.isStopped()){
-						return;
-					}
-					if(!resp.isError()) {
+				Boolean deleteResp = (Boolean) resp.getResponseObject();
+				if(deleteResp.booleanValue()) {
+					//delete ok
 
-						Boolean deleteResp = (Boolean) resp.getResponseObject();
-						if(deleteResp.booleanValue()) {
-							//delete ok
+					Vector recentPostTitles = currentBlog.getRecentPostTitles();
 
-							Vector recentPostTitles = currentBlog.getRecentPostTitles();
-
-							for (int i = 0; i < recentPostTitles.size(); i++) {
-								Hashtable postData = (Hashtable) recentPostTitles.elementAt(i);
-								String tmpPostID =(String) postData.get("postid");
-								if(tmpPostID.equalsIgnoreCase(postID)){
-									recentPostTitles.removeElementAt(i);
-									break;
-								}
-							}			        
-
-							view.refresh(currentBlog.getRecentPostTitles());
-
-							try{
-								BlogDAO.updateBlog(currentBlog);							
-							} catch (final Exception e) {
-								displayError(e,"Error while refreshing blogs");	
-							}
-
-						} else {
-							displayError("Error while deleting Post");
+					for (int i = 0; i < recentPostTitles.size(); i++) {
+						Hashtable postData = (Hashtable) recentPostTitles.elementAt(i);
+						String tmpPostID =(String) postData.get("postid");
+						if(tmpPostID.equalsIgnoreCase(postID)){
+							recentPostTitles.removeElementAt(i);
+							break;
 						}
+					}			        
 
-					} else {  
-						final String respMessage=resp.getResponse();
-						displayError(respMessage);	
+					UiApplication.getUiApplication().invokeLater(new Runnable() {
+						public void run(){
+							view.refresh(currentBlog.getRecentPostTitles());
+						}
+					});
+
+					try{
+						BlogDAO.updateBlog(currentBlog);							
+					} catch (final Exception e) {
+						displayError(e,"Error while refreshing blogs");	
 					}
-
-
-				}//End run 
-			});
+				} else {
+					displayError("Error while deleting Post");
+				}
+			} else {  
+				final String respMessage=resp.getResponse();
+				displayError(respMessage);	
+			}
 		}
 	}
-		
+
 	
 	class RefreshRecentPostCallBack implements Observer{
 		public void update(Observable observable, final Object object) {
-			UiApplication.getUiApplication().invokeLater(new Runnable() {
-				public void run() {
+			Log.trace(">>>loadRecentPostsResponse");
+			dismissDialog(connectionProgressView);
+			BlogConnResponse resp= (BlogConnResponse) object;
 
-					Log.trace(">>>loadRecentPostsResponse");
+			if(resp.isStopped()){
+				return;
+			}
+			if(!resp.isError()) {
+				Vector recentPostTitle= (Vector) resp.getResponseObject();
+				currentBlog.setRecentPostTitles(recentPostTitle);
 
-					dismissDialog(connectionProgressView);
-					BlogConnResponse resp= (BlogConnResponse) object;
-
-					if(resp.isStopped()){
-						return;
-					}
-					if(!resp.isError()) {
-
-						Vector recentPostTitle= (Vector) resp.getResponseObject();
-						currentBlog.setRecentPostTitles(recentPostTitle);
-
+				UiApplication.getUiApplication().invokeLater(new Runnable() {
+					public void run(){
 						view.refresh(currentBlog.getRecentPostTitles());
-
-						try{
-							BlogDAO.updateBlog(currentBlog);							
-						} catch (final Exception e) {
-							displayError(e,"Error while refreshing blogs");	
-						}
-
-
-					} else {
-						final String respMessage=resp.getResponse();
-						displayError(respMessage);	
 					}
-
-
-				}//End run 
-			});
+				});
+				try{
+					BlogDAO.updateBlog(currentBlog);							
+				} catch (final Exception e) {
+					displayError(e,"Error while refreshing blogs");	
+				}
+			} else {
+				final String respMessage=resp.getResponse();
+				displayError(respMessage);	
+			}
 		}
 	}
-
 	
 	//callback for post loading
 	class LoadPostCallBack implements Observer{
 		public void update(Observable observable, final Object object) {
-			UiApplication.getUiApplication().invokeLater(new Runnable() {
-				public void run() {
+			Log.debug(">>>loadPostResponse");
+			dismissDialog(connectionProgressView);
+			BlogConnResponse resp= (BlogConnResponse) object;
+			if(resp.isStopped()){
+				return;
+			}
+			if(!resp.isError()) {
+				final Post post=(Post)resp.getResponseObject();
 
-					Log.debug(">>>loadPostResponse");
-
-					dismissDialog(connectionProgressView);
-					BlogConnResponse resp= (BlogConnResponse) object;
-
-					if(resp.isStopped()){
-						return;
+				UiApplication.getUiApplication().invokeLater(new Runnable() {
+					public void run(){
+						FrontController.getIstance().showPost(post, false);
 					}
-					if(!resp.isError()) {
-						Post post=(Post)resp.getResponseObject();
-						FrontController.getIstance().showPost(post, false);	
-					} else {
-						final String respMessage=resp.getResponse();
-						displayError(respMessage);	
-					}
-
-				}
-			});
+				});
+			} else {
+				final String respMessage=resp.getResponse();
+				displayError(respMessage);	
+			}
 		}
 	}
 }

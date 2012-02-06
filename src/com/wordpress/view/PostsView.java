@@ -9,16 +9,19 @@ import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.Menu;
+import net.rim.device.api.ui.component.NullField;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostsController;
-import com.wordpress.utils.CalendarUtils;
+import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ListActionListener;
-import com.wordpress.view.component.PostsListField;
+import com.wordpress.view.component.ListLoadMoreListener;
+import com.wordpress.view.component.GenericListField;
 
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.Touchscreen;
@@ -26,10 +29,10 @@ import com.wordpress.view.touch.BottomBarItem;
 //#endif
 
 
-public class PostsView extends BaseView implements ListActionListener {
+public class PostsView extends BaseView implements ListActionListener, ListLoadMoreListener {
 	
     private PostsController controller= null;
-    private PostsListField listaPost; 
+    private GenericListField listaPost; 
     private VerticalFieldManager dataScroller;
 	
 	 public PostsView(PostsController _controller, Vector recentPostInfo) {
@@ -82,52 +85,58 @@ public class PostsView extends BaseView implements ListActionListener {
 		}
 	//#endif
 
-	private void buildList(Vector recentPostInfo) {
-        
-		Hashtable elements[]= new Hashtable[0];
 		
+//adapter	
+	private Hashtable[] prepareItemsForList(Vector recentPostInfo){
+		Hashtable elements[]= new Hashtable[0];
+
 		if(recentPostInfo != null) {
 			Hashtable postStatusHash = controller.getBlog().getPostStatusList();
 			elements= new Hashtable[recentPostInfo.size()];
 
 			//Populate the vector with the elements [title, data, title, data ....]
-	        for (int i = 0; i < recentPostInfo.size(); i++) {
-	        	 Hashtable postData = (Hashtable) recentPostInfo.elementAt(i);
-	        	 Hashtable smallPostData = new Hashtable() ;
-	        	 
-	             String title = (String) postData.get("title");
-	             if (title == null || title.length() == 0) {
-	            	 title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
-	             }
-	             smallPostData .put("title", title);
+			for (int i = 0; i < recentPostInfo.size(); i++) {
+				Hashtable postData = (Hashtable) recentPostInfo.elementAt(i);
+				Hashtable smallPostData = new Hashtable() ;
 
-	             Date dateCreated = (Date) postData.get("date_created_gmt");
-	             if (dateCreated != null)
-	            	 smallPostData .put("date_created_gmt", dateCreated);
-	             
-	             if ( postData.get("post_status") != null) {
-	            	 String statusUndecoded = (String) postData.get("post_status");
+				String title = (String) postData.get("title");
+				if (title == null || title.length() == 0) {
+					title = _resources.getString(WordPressResource.LABEL_EMPTYTITLE);
+				}
+				smallPostData .put("title", title);
 
-	            	 String status = (String) postStatusHash.get(statusUndecoded);
+				Date dateCreated = (Date) postData.get("date_created_gmt");
+				if (dateCreated != null)
+					smallPostData .put("date_created_gmt", dateCreated);
 
-	            	 if(status == null && statusUndecoded.equalsIgnoreCase("future")) {
-	            		 status = "Scheduled";
-	            	 } 
-	            	 
-	            	 if(status != null)
-	            		 smallPostData .put("post_status", status);
-	             }
-	             
-	             elements[i]=smallPostData; 
-	         }			
+				if ( postData.get("post_status") != null) {
+					String statusUndecoded = (String) postData.get("post_status");
+
+					String status = (String) postStatusHash.get(statusUndecoded);
+
+					if(status == null && statusUndecoded.equalsIgnoreCase("future")) {
+						status = "Scheduled";
+					} 
+
+					if(status != null)
+						smallPostData .put("post_status", status);
+				}
+
+				elements[i]=smallPostData; 
+			}			
 		}
-						
-		listaPost = new PostsListField(); 	        
+		return elements;
+	}
+
+		
+	private void buildList(Vector recentPostInfo) {
+		Hashtable elements[] = this.prepareItemsForList(recentPostInfo); 				
+		listaPost = new GenericListField(); 	        
 		listaPost.set(elements);
 		listaPost.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_POSTS), DrawStyle.LEFT);
 		listaPost.setDefautActionListener(this);
-		dataScroller.add(listaPost);
-			
+		listaPost.setDefautLoadMoreListener(this);
+		dataScroller.add(listaPost);		
 		dataScroller.invalidate();
 		listaPost.setFocus(); //set the focus over the list
 		
@@ -222,5 +231,17 @@ public class PostsView extends BaseView implements ListActionListener {
         int selectedPost = listaPost.getSelectedIndex();
         controller.editPost(selectedPost); 
 	}
-	
+
+	public void loadMore() {
+		Log.debug("loadMore listener more called" );
+		controller.loadMorePosts();
+	}
+    	
+	public void addPostsToScreen(Vector recentPostInfo){
+		int selectedIndex = listaPost.getSelectedIndex();
+		Hashtable elements[] = this.prepareItemsForList(recentPostInfo);
+		listaPost.resetListItems(elements);
+		listaPost.setFocus();
+		listaPost.setSelectedIndex(selectedIndex);
+    }
 }

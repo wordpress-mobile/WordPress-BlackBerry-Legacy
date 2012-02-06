@@ -42,7 +42,8 @@ public final class WordPressInfo {
 	public final static String WPCOM_GLOBAL_DASHBOARD = "http://dashboard.wordpress.com/wp-admin/";
 	public final static String WPCOM_READER_URL = "https://wordpress.com/reader/mobile/";
 	
-	public static final int DEFAULT_DOWNLOADED_COMMENTS = 100;
+	public static final int DEFAULT_DOWNLOADED_COMMENTS = 20;
+	public static final int DEFAULT_ITEMS_NUMBER = 20;
 	
 	/*
 	 * you can determine whether a device with a touch screen supports forceless clicks 

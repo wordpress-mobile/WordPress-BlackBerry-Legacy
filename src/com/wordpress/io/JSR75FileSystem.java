@@ -1,6 +1,5 @@
 package com.wordpress.io;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -186,7 +185,7 @@ public class JSR75FileSystem  {
    *           if an exception occurs
    */
   public static synchronized byte[] readFile(String filename) throws IOException {
-   Log.debug("Start Loading file: " + filename);
+ //  Log.debug("Start Loading file: " + filename);
 
     FileConnection fconn = null;
     InputStream is = null;
@@ -217,7 +216,7 @@ public class JSR75FileSystem  {
 
       return result;
     } finally {
-      Log.debug("End Loading file: " + filename);
+   //   Log.debug("End Loading file: " + filename);
       FileUtils.closeStream(is);
       FileUtils.closeConnection(fconn);
     }

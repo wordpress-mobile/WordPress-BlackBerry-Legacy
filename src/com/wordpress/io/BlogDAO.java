@@ -360,12 +360,11 @@ public class BlogDAO implements BaseDAO {
 		String blodId= (String)ser.deserialize();
 		String blogName= (String)ser.deserialize();
 		String blodUrl= (String)ser.deserialize();
-		int maxPostCount= ((Integer)ser.deserialize()).intValue();
+		((Integer)ser.deserialize()).intValue(); //not used anymore, was postsMaxNumber
 		boolean isRes=((Boolean)ser.deserialize()).booleanValue();
 
 		blog = new Blog(blodId, blogName, blodUrl, xmlRpcUrl, userName, password);
 		blog.setLoadingState(loadingState);
-		blog.setMaxPostCount(maxPostCount);
 		blog.setResizePhotos(isRes);
 
 

@@ -13,7 +13,7 @@ import com.wordpress.controller.DraftPagesController;
 import com.wordpress.model.Page;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ListActionListener;
-import com.wordpress.view.component.PostsListField;
+import com.wordpress.view.component.GenericListField;
 
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.Touchscreen;
@@ -23,7 +23,7 @@ import com.wordpress.view.touch.BottomBarItem;
 public class DraftPagesView extends BaseView implements ListActionListener {
 	
     private DraftPagesController controller= null;
-	private PostsListField pageListField; 
+	private GenericListField pageListField; 
 	
 	 public DraftPagesView(DraftPagesController  _controller, Page[] pages) {
 	    	super(_controller.getCurrentBlogName());
@@ -66,7 +66,7 @@ public class DraftPagesView extends BaseView implements ListActionListener {
 
 	 private void buildList(Page[] pages) {
 		 removeAllMenuItems();	
-		 pageListField = new PostsListField();
+		 pageListField = new GenericListField();
 		 pageListField.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_DRAFT_PAGES), DrawStyle.LEFT);
 		 pageListField.setDefautActionListener(this);
 		 

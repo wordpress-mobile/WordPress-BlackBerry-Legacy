@@ -32,7 +32,6 @@ public class BlogOptionsView extends StandardBaseView {
     private BlogOptionsController controller= null;
 	private BasicEditField userNameField;
 	private PasswordEditField passwordField;
-	private ObjectChoiceField  maxRecentPost;
 	private BorderedFieldManager rowResizePhotos;
 	private CheckboxField commentNotifications;
 	private CheckboxField enableLocation;
@@ -125,9 +124,6 @@ public class BlogOptionsView extends StandardBaseView {
 				 GUIFactory.getLabel(_resources.getString(WordPressResource.TITLE_MAIN_OPTIONS), Color.BLACK)
 				 );
             mainOptionsRow.add(GUIFactory.createSepatorField());
-            maxRecentPost = new ObjectChoiceField (_resources.getString(WordPressResource.LABEL_MAX_RECENT_BLOG_ITEMS), recentPost,recentPostSelect);
-            maxRecentPost.setMargin(5, 0, 5, 0);
-            mainOptionsRow.add(maxRecentPost);
        		enableLocation = new CheckboxField(_resources.getString(WordPressResource.LABEL_LOCATION_ENABLE), isLocation);
     		commentNotifications = new CheckboxField(_resources.getString(WordPressResource.LABEL_COMMENT_NOTIFICATIONS), isCommentNotifications);
     		mainOptionsRow.add(commentNotifications);
@@ -260,7 +256,7 @@ public class BlogOptionsView extends StandardBaseView {
 						if(context == 0) {
 							AccountsController ctrl = new AccountsController(accountName);
 							ctrl.showView();
-							maxRecentPost.setFocus(); //XXX: trick to avoid issue with ourbuttons
+							commentNotifications.setFocus(); //XXX: trick to avoid issue with ourbuttons
 						}
 					}
 				};
@@ -389,13 +385,10 @@ public class BlogOptionsView extends StandardBaseView {
 				blog.setHTTPAuthUsername(authUserNameField.getText().trim());
 			}
 			
-			int maxPostIndex = maxRecentPost.getSelectedIndex();
-			int valueMaxPostCount = BlogOptionsView.recentsPostValues[maxPostIndex];
 			boolean isResPhotos = resizePhoto.getChecked();
 			blog.setResizePhotos(isResPhotos);
 			blog.setImageResizeWidth(imageResizeWidth);
 			blog.setImageResizeHeight(imageResizeHeight);
-			blog.setMaxPostCount(valueMaxPostCount);
 			blog.setCommentNotifies(commentNotifications.getChecked());
 			blog.setLocation(enableLocation.getChecked());
 			blog.setSignatureEnabled( enableSignature.getChecked() );

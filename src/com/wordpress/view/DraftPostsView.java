@@ -11,7 +11,7 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.DraftPostsController;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ListActionListener;
-import com.wordpress.view.component.PostsListField;
+import com.wordpress.view.component.GenericListField;
 
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.Touchscreen;
@@ -22,7 +22,7 @@ public class DraftPostsView extends BaseView implements ListActionListener {
 	
     private DraftPostsController controller= null;
 
-	private PostsListField listaPost; 
+	private GenericListField listaPost; 
 	
 	 public DraftPostsView(DraftPostsController  _controller, Hashtable[] post) {
 	    	super(_controller.getCurrentBlogName());
@@ -66,7 +66,7 @@ public class DraftPostsView extends BaseView implements ListActionListener {
 
 	private void buildList(Hashtable[] post) {
 		removeAllMenuItems();	
-		listaPost = new PostsListField(); 	        
+		listaPost = new GenericListField(); 	        
 		listaPost.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_DRAFT_POSTS), DrawStyle.LEFT);
 		listaPost.setDefautActionListener(this);
 		

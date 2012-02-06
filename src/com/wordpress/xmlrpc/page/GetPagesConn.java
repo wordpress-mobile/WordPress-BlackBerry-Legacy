@@ -9,12 +9,16 @@ import com.wordpress.xmlrpc.BlogConnResponse;
 public class GetPagesConn extends BlogConn  {
 
 	private final String blogID;
-	private final int maxPages;
+	private final int maxPagesNumber;
+
+	public int getMaxPagesNumber() {
+		return maxPagesNumber;
+	}
 
 	public GetPagesConn(String hint, String userHint, String passwordHint, String blogID, int maxPages) {
 		super(hint, userHint, passwordHint);
 		this.blogID = blogID;
-		this.maxPages = maxPages;
+		this.maxPagesNumber = maxPages;
 	}
 
 	public void run() {
@@ -27,7 +31,7 @@ public class GetPagesConn extends BlogConn  {
 		
 		try{
 			connResponse = new BlogConnResponse();
-	        Vector recentPostTitle = getPages(blogID, this.maxPages);
+	        Vector recentPostTitle = getPages(blogID, this.maxPagesNumber);
 	        
 			connResponse.setResponseObject(recentPostTitle);
 		} catch (Exception cce) {

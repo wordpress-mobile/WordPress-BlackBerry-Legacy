@@ -9,23 +9,24 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.Manager;
+import net.rim.device.api.ui.Touchscreen;
+import net.rim.device.api.ui.VirtualKeyboard;
 import net.rim.device.api.ui.XYRect;
 import net.rim.device.api.ui.component.BasicEditField;
+import net.rim.device.api.ui.component.NullField;
 import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.NotificationHandler;
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.view.component.HeaderField;
-
-//#ifdef IS_OS47_OR_ABOVE
-import net.rim.device.api.ui.VirtualKeyboard;
-import net.rim.device.api.ui.Touchscreen;
+import com.wordpress.view.component.LoadMoreField;
 import com.wordpress.view.touch.BottomBarButtonField;
 import com.wordpress.view.touch.BottomBarItem;
 import com.wordpress.view.touch.BottomBarManager;
-//#endif
 
 /**
  * Base class for all Application Screen
@@ -35,6 +36,7 @@ import com.wordpress.view.touch.BottomBarManager;
 public abstract class BaseView extends MainScreen {
 	
 	protected Field titleField; //main title of the screen
+	protected LoadMoreField loadingMoreField;
 	
 	protected static Bitmap _backgroundBitmap = null; 
 	
@@ -97,6 +99,41 @@ public abstract class BaseView extends MainScreen {
     protected BasicEditField getDescriptionTextField(String text) {
     	return GUIFactory.getDescriptionTextField(text);
     }
+    
+	public void showLoadMoreStatus(boolean show) {
+		if( show ) {
+
+			if ( loadingMoreField == null )
+				loadingMoreField = new LoadMoreField();
+			
+			//#ifdef IS_OS47_OR_ABOVE
+			if ( Touchscreen.isSupported() == true && bottomButtonsManager != null ) {
+				this.setStatus(new NullField());//remove the bottom bar from the manager
+				VerticalFieldManager tmpManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL | Manager.USE_ALL_WIDTH );
+				tmpManager.add(loadingMoreField);
+				tmpManager.add(bottomButtonsManager);
+				this.setStatus(tmpManager);
+			} else {
+				this.setStatus(loadingMoreField);				
+			}
+			//#else
+			this.setStatus(loadingMoreField);
+			//#endif
+		} else {
+			if ( loadingMoreField == null )
+				return;	
+			//#ifdef IS_OS47_OR_ABOVE
+			if ( Touchscreen.isSupported() == true && bottomButtonsManager != null ) {
+				bottomButtonsManager.getManager().deleteAll(); //remove the bottom bar from the tmp manager
+				this.setStatus(bottomButtonsManager);
+			} else {
+				this.setStatus(new NullField());
+			}
+			//#else
+			this.setStatus(new NullField());
+			//#endif
+		}
+	}
     
     /**
      * TOUCHSCREEN ADDED

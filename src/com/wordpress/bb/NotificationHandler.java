@@ -311,7 +311,7 @@ public class NotificationHandler {
 						Log.error("Error while loading comments: "+ (String)vector2Comments.get("error"));
 					}
 					
-					//retrive the previous comments ID List for  current blog
+					//retrieve the previous comments ID List for  current blog
 					String[] newCommentsIDList = new String[commentsFromServer.length];
 					Log.trace("retrived comments from server # "+ commentsFromServer.length);
 					for (int i = 0; i < newCommentsIDList.length; i++) {

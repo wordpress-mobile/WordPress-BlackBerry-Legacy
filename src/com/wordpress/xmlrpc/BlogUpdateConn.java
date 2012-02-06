@@ -8,18 +8,14 @@ import java.util.Vector;
 
 import javax.microedition.rms.RecordStoreException;
 
-import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.system.EncodedImage;
-import net.rim.device.api.system.JPEGEncodedImage;
-
 import org.kxml2.io.KXmlParser;
 import org.kxmlrpc.XmlRpcException;
 import org.xmlpull.v1.XmlPullParser;
 
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
-import com.wordpress.utils.ImageUtils;
 import com.wordpress.utils.MD5;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
@@ -123,14 +119,14 @@ public class BlogUpdateConn extends BlogConn  {
 				blog.setCommentStatusList(commentStatusList);
 			checkConnectionResponse("Error while loading Comment Status");
 						
-			Vector recentPostTitle = getRecentPostTitle(blog.getId(), blog.getMaxPostCount());
+			Vector recentPostTitle = getRecentPostTitle(blog.getId(), WordPressInfo.DEFAULT_ITEMS_NUMBER);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				blog.setRecentPostTitles(recentPostTitle);
 			checkConnectionResponse("Error while loading Recent Post");
 			
 			
-			Vector blogPages = getPages(blog.getId(), blog.getMaxPostCount());
+			Vector blogPages = getPages(blog.getId(), WordPressInfo.DEFAULT_ITEMS_NUMBER);
 			if(connResponse.isStopped()) return; //if the user has stopped the connection
 			if(connResponse.isError() == false )
 				blog.setPages(blogPages);

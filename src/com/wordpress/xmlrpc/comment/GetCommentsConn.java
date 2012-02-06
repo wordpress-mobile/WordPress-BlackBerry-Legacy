@@ -17,6 +17,10 @@ public class GetCommentsConn extends BlogConn  {
 	private int offset=0;
 	private int number=0; 
 	
+	public int getNumber() {
+		return number;
+	}
+
 	public GetCommentsConn(String hint, String blogId, String userHint, String passwordHint,  String postID, String status, int offset, int number){
 		super(hint, userHint, passwordHint);
 		this.blogId = blogId;

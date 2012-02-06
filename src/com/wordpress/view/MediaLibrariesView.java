@@ -15,13 +15,13 @@ import com.wordpress.controller.MediaLibrariesController;
 import com.wordpress.model.MediaLibrary;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ListActionListener;
-import com.wordpress.view.component.PostsListField;
+import com.wordpress.view.component.GenericListField;
 
 public class MediaLibrariesView extends BaseView implements ListActionListener {
 	
     private MediaLibrariesController controller= null;
 
-	private PostsListField listaPost; 
+	private GenericListField listaPost; 
 	
 	 public MediaLibrariesView(MediaLibrariesController  _controller) {
 	    	super(_controller.getCurrentBlogName());
@@ -35,7 +35,7 @@ public class MediaLibrariesView extends BaseView implements ListActionListener {
 		if(listaPost != null) 
 			delete(listaPost);
 		
-		listaPost = new PostsListField(); 	        
+		listaPost = new GenericListField(); 	        
 		listaPost.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_FILE_GROUP), DrawStyle.LEFT);
 		listaPost.setDefautActionListener(this);
 		

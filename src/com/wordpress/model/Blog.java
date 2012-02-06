@@ -8,6 +8,7 @@ import net.rim.device.api.util.Arrays;
 import net.rim.device.api.util.Comparator;
 
 import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AccountsController;
 import com.wordpress.utils.log.Log;
@@ -40,8 +41,6 @@ public class Blog {
 	
 	private boolean isSignatureEnabled=false; //true add a signature at the end of each post
 	private String signature=null;
-
-	private int maxPostCount = 50 ;
 
 	private Category[] categories = null;
 	private Hashtable postStatusList=null; 	
@@ -213,11 +212,7 @@ public class Blog {
 	}
 	
 	public int getMaxPostCount() {
-		return maxPostCount;
-	}
-
-	public void setMaxPostCount(int maxPostCount) {
-		this.maxPostCount = maxPostCount;
+		return WordPressInfo.DEFAULT_ITEMS_NUMBER;
 	}
 
 	public Hashtable getPostStatusList() {

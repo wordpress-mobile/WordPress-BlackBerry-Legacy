@@ -6,8 +6,10 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.Menu;
+import net.rim.device.api.ui.component.NullField;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
@@ -19,8 +21,9 @@ import com.wordpress.model.Comment;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.CommentsListField;
 import com.wordpress.view.component.ListActionListener;
+import com.wordpress.view.component.ListLoadMoreListener;
 
-public class CommentsView extends BaseView implements ListActionListener {
+public class CommentsView extends BaseView implements ListActionListener , ListLoadMoreListener{
 	
     private RecentCommentsController controller= null;
     private VerticalFieldManager dataScroller;
@@ -60,6 +63,7 @@ public class CommentsView extends BaseView implements ListActionListener {
 		commentListController= new CommentsListField(comments, selectedCom, gravatarController);
     	this.commentsList = commentListController.getCommentListField();
     	commentListController.setDefautActionListener(this);
+     	commentListController.setDefautLoadMoreListener(this);
 		dataScroller.add(commentsList);
 		
 		updateSubTitle(comments);
@@ -202,7 +206,7 @@ public class CommentsView extends BaseView implements ListActionListener {
     private MenuItem _refreshCommentsListItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 322000, 100) {
     	public void run() {
     		gravatarController.stopGravatarTask(); //stop task if already running
-    		controller.refreshComments();
+    		controller.loadComments();
     	}
     };
     
@@ -217,6 +221,7 @@ public class CommentsView extends BaseView implements ListActionListener {
     public void refresh(){
     	dataScroller.delete(commentsList);
    		buildList();
+   		this.showLoadMoreStatus(false);
     }
 
 	public boolean onClose()   {
@@ -304,5 +309,33 @@ public class CommentsView extends BaseView implements ListActionListener {
 
 	public BaseController getController() {
 		return this.controller;
+	}
+
+	public void loadMore() {
+		gravatarController.stopGravatarTask(); //stop task if already running
+		controller.loadMoreComments();
+	}
+		
+	public void addCommentsToScreen(){
+		int selectedIndex = commentsList.getSelectedIndex();
+		
+		Comment[] comments = getComments();
+		updateSubTitle(comments);
+		//start the gravatar task
+		Vector emails = new Vector(); //email of the comment author
+		int elementLength = comments.length;
+		for(int count = 0; count < elementLength; ++count) {
+			String authorEmail = comments[count].getAuthorEmail();
+			if (!authorEmail.equalsIgnoreCase(""))
+				emails.addElement(authorEmail);
+		}	
+		if(!gravatarController.isRunning()) {
+			gravatarController.startGravatarTask(emails);
+		}
+   		this.showLoadMoreStatus(false);
+   		
+		commentListController.resetListItems(comments, selectedIndex);
+		commentsList.setSelectedIndex(selectedIndex);
+		commentsList.setFocus();
 	}
 }

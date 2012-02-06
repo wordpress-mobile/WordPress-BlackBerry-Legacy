@@ -12,6 +12,7 @@ import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.TouchGesture;
@@ -32,7 +33,7 @@ import com.wordpress.utils.observer.Observer;
 public class CommentsListField {
     
 	private Vector _listData = new Vector();
-    private ListField _innerListField;
+    private InternalCommentsListField _innerListField;
     private boolean checkBoxVisible = false;
     private ListCallBack listFieldCallBack = null;
 	private GravatarController gvtController;
@@ -41,7 +42,30 @@ public class CommentsListField {
 	public void setDefautActionListener(ListActionListener defautActionListener) {
 		this.defautActionListener = defautActionListener;
 	}
-       
+    
+	public void setDefautLoadMoreListener(ListLoadMoreListener defautLoadMoreListener) {
+		this._innerListField.setDefautLoadMoreListener(defautLoadMoreListener);
+	}
+
+	//Used by Load More
+	public void resetListItems(Comment[] _elements, int selected) {
+		//clear the list
+		while ( _innerListField.isEmpty() == false ) {
+			_innerListField.delete(0);	
+		}
+		_listData = new Vector();
+		
+        //Populate the ListField & Vector with data.
+        for(int count = 0; count < _elements.length; ++count)
+        {
+        	ChecklistData checklistData = new ChecklistData(_elements[count], false);
+        	if ( count == selected )
+        		checklistData.setSelected(true); 
+           _listData.addElement(checklistData);
+           _innerListField.insert(count);
+        }
+	}
+	
    public boolean isCheckBoxVisible() {
 		return checkBoxVisible;
 	}
@@ -91,158 +115,8 @@ public class CommentsListField {
 		}
 	}
 
-	
-/*
-   public void addElement(String label){
-	   int elementLength = _listData.size(); //the field start with 0 index!!
-       _listData.addElement(new ChecklistData(label, true));  
-       _checkList.insert(elementLength);
-   }
-   */
    public CommentsListField(Comment[] _elements, boolean[] _elementsChecked, GravatarController gvtController) {
-		_innerListField = new ListField()
-        {
-			
-			protected void drawFocus(Graphics graphics, boolean on) { } //remove the standard focus highlight
-			
-			private void checkItemAction() {
-				  //Get the index of the selected row.
-                int index = getSelectedIndex();
-                
-                //Get the ChecklistData for this row.
-                ChecklistData data = (ChecklistData)_listData.elementAt(index);
-                
-                //Toggle its status.
-                data.toggleChecked();
-                
-                //Update the Vector with the new ChecklistData.
-                _listData.setElementAt(data, index);
-                
-                //Invalidate the modified row of the ListField.
-                invalidate(index);
-            
-			}
-			
-			private boolean defaultAction() {
-    	   		if (!isCheckBoxVisible()) {
-        			if (defautActionListener != null) {
-        				defautActionListener.actionPerformed();
-        				return true;
-        			} else        			
-        			return false;
-        		} else {
-        			checkItemAction();
-        			return true;
-        		}
-			}
-			
-            /**
-             * Overrides default implementation.  Performs default action if the 
-             * 4ways trackpad was clicked; otherwise, the default action occurs.
-             * 
-             * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
-             */
-        	protected boolean navigationClick(int status, int time) {
-        		Log.trace(">>> navigationClick");
-        		
-        		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
-        			Log.trace("Input came from the trackwheel");
-        			// Input came from the trackwheel
-        			return super.navigationClick(status, time);
-        			
-        		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
-        			Log.trace("Input came from a four way navigation input device");
-        			return defaultAction();
-        		}
-        		
-        		return false;
-        	}
-			
-            // Allow the space bar to toggle the status of the selected row.
-			protected boolean keyChar(char key, int status, int time) {
-				boolean retVal = false;
-				// If the spacebar or enter was pressed...
-				if ((key == Characters.SPACE || key == Characters.ENTER)) {
-					retVal = defaultAction();
-				}// end if keychar
-				return retVal;
-			}
-            
-            
-        	//#ifdef IS_OS47_OR_ABOVE
-        	protected boolean touchEvent(TouchEvent message) {
-    			
-        		if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
-        		{       			
-        			return false;
-        		} 
-    			
-        		int eventCode = message.getEvent();
-        		if(WordPressInfo.isForcelessTouchClickSupported) {
-        			if (eventCode == TouchEvent.GESTURE) {
-        				TouchGesture gesture = message.getGesture();
-        				int gestureCode = gesture.getEvent();
-        				if (gestureCode == TouchGesture.TAP) {
-        					return defaultAction();
-        				}
-        			} 
-        			return false;
-        		} else {
-        			if(eventCode == TouchEvent.CLICK) {
-        				return defaultAction();
-        			}
-        			return false;	
-        		}
-        	}
-        	//#endif
-        	
-            protected int moveFocus(int amount, int status, int time) {
-            	ChecklistData data = null;
-                int oldSelection = getSelectedIndex();
-                if(oldSelection != -1) {
-                	data = (ChecklistData)_listData.elementAt(oldSelection);
-                	data.setSelected(false);
-                	invalidate(oldSelection);
-                }
-
-                // Forward the call
-                int ret = super.moveFocus(amount, status, time);
-                int newSelection = getSelectedIndex();
-                
-                // Get the next enabled item;
-                if(newSelection != -1) {
-	                data = (ChecklistData)_listData.elementAt(newSelection);
-	                data.setSelected(true);
-	                invalidate(newSelection);
-                }
-                //invalidate();
-
-                return ret;
-            }
-            
-            
-            protected void moveFocus(int x, int y, int status, int time) {
-            	ChecklistData data = null;
-                int oldSelection = getSelectedIndex();
-                super.moveFocus(x, y, status, time);
-                int newSelection = getSelectedIndex();
-                
-                if(oldSelection != -1) {
-                	data = (ChecklistData)_listData.elementAt(oldSelection);
-                	data.setSelected(false);
-                	invalidate(oldSelection);
-                }
-                
-                if(newSelection != -1) {
-                	data = (ChecklistData)_listData.elementAt(newSelection);
-                	data.setSelected(true);
-                	invalidate(newSelection);
-                }
-                //invalidate();
-            }
-            
-        };
-        
+		_innerListField = new InternalCommentsListField();
         //Set the ListFieldCallback
         listFieldCallBack = new ListCallBack();
         _innerListField.setCallback(listFieldCallBack);
@@ -250,7 +124,7 @@ public class CommentsListField {
         String emptyListString = resourceBundle.getString(WordPressResource.MESSAGE_NOTHING_TO_SEE_HERE);
         _innerListField.setEmptyString(emptyListString, DrawStyle.LEFT);
         _innerListField.setRowHeight(BasicListFieldCallBack.getRowHeightForDoubleLineRow());
-        
+
         int elementLength = _elements.length;
 	    
         //Populate the ListField & Vector with data.
@@ -429,4 +303,192 @@ public class CommentsListField {
     		}	
     	}
     }
+    
+    
+    private class InternalCommentsListField extends ListField
+    {
+    	private ListLoadMoreListener loadMoreListener;
+    
+    	public void setDefautLoadMoreListener(ListLoadMoreListener defautLoadMoreListener) {
+    		this.loadMoreListener = defautLoadMoreListener;
+    	}
+    	
+    	protected void drawFocus(Graphics graphics, boolean on) { } //remove the standard focus highlight
+		
+		private void checkItemAction() {
+			  //Get the index of the selected row.
+            int index = getSelectedIndex();
+            
+            //Get the ChecklistData for this row.
+            ChecklistData data = (ChecklistData)_listData.elementAt(index);
+            
+            //Toggle its status.
+            data.toggleChecked();
+            
+            //Update the Vector with the new ChecklistData.
+            _listData.setElementAt(data, index);
+            
+            //Invalidate the modified row of the ListField.
+            invalidate(index);
+        
+		}
+		
+		private boolean defaultAction() {
+	   		if (!isCheckBoxVisible()) {
+    			if (defautActionListener != null) {
+    				defautActionListener.actionPerformed();
+    				return true;
+    			} else        			
+    			return false;
+    		} else {
+    			checkItemAction();
+    			return true;
+    		}
+		}
+		
+        /**
+         * Overrides default implementation.  Performs default action if the 
+         * 4ways trackpad was clicked; otherwise, the default action occurs.
+         * 
+         * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
+         */
+    	protected boolean navigationClick(int status, int time) {
+    		Log.trace(">>> navigationClick");
+    		
+    		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
+    			Log.trace("Input came from the trackwheel");
+    			// Input came from the trackwheel
+    			return super.navigationClick(status, time);
+    			
+    		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
+    			Log.trace("Input came from a four way navigation input device");
+    			return defaultAction();
+    		}
+    		
+    		return false;
+    	}
+		
+        // Allow the space bar to toggle the status of the selected row.
+		protected boolean keyChar(char key, int status, int time) {
+			boolean retVal = false;
+			// If the spacebar or enter was pressed...
+			if ((key == Characters.SPACE || key == Characters.ENTER)) {
+				retVal = defaultAction();
+			}// end if keychar
+			return retVal;
+		}
+        
+        
+    	//#ifdef IS_OS47_OR_ABOVE
+    	protected boolean touchEvent(TouchEvent message) {
+			
+    		if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
+    		{       			
+    			return false;
+    		} 
+			
+    		int eventCode = message.getEvent();
+    		if(WordPressInfo.isForcelessTouchClickSupported) {
+    			if (eventCode == TouchEvent.GESTURE) {
+    				TouchGesture gesture = message.getGesture();
+    				int gestureCode = gesture.getEvent();
+    				if (gestureCode == TouchGesture.TAP) {
+    					return defaultAction();
+    				}else {
+        				//is not a click!
+        				checkLoadMore();
+        			}
+    			} 
+    			return false;
+    		} else {
+    			if(eventCode == TouchEvent.CLICK) {
+    				return defaultAction();
+    			} else {
+    				//is not a click!
+    				checkLoadMore();
+    			}
+    			return false;	
+    		}
+    	}
+    	//#endif
+    	
+        protected int moveFocus(int amount, int status, int time) {
+        	ChecklistData data = null;
+            int oldSelection = getSelectedIndex();
+            if(oldSelection != -1) {
+            	data = (ChecklistData)_listData.elementAt(oldSelection);
+            	data.setSelected(false);
+            	invalidate(oldSelection);
+            }
+
+            // Forward the call
+            int ret = super.moveFocus(amount, status, time);
+            int newSelection = getSelectedIndex();
+            
+            // Get the next enabled item;
+            if(newSelection != -1) {
+                data = (ChecklistData)_listData.elementAt(newSelection);
+                data.setSelected(true);
+                invalidate(newSelection);
+            }
+            //invalidate();
+
+            return ret;
+        }
+        
+        
+        protected void moveFocus(int x, int y, int status, int time) {
+        	ChecklistData data = null;
+            int oldSelection = getSelectedIndex();
+            super.moveFocus(x, y, status, time);
+            int newSelection = getSelectedIndex();
+            
+            if(oldSelection != -1) {
+            	data = (ChecklistData)_listData.elementAt(oldSelection);
+            	data.setSelected(false);
+            	invalidate(oldSelection);
+            }
+            
+            if(newSelection != -1) {
+            	data = (ChecklistData)_listData.elementAt(newSelection);
+            	data.setSelected(true);
+            	invalidate(newSelection);
+            }
+            //invalidate();
+        }
+        
+
+    	protected boolean navigationMovement(int dx, int dy, int status, int time) {
+        	Log.debug("dx: "+dx+" dy: "+dy+" status: "+ status+" time: "+time);
+        	if ( dy == 1 ) //moving down in the list 
+        		checkLoadMore();
+        	return super.navigationMovement(dx, dy, status, time);
+        }
+    	
+        private void checkLoadMore() {
+        	if( this.loadMoreListener == null )
+        		return;
+        	
+        	Manager manager = this.getManager();
+        	int managerHeight = manager.getHeight();
+        	int managerContentHeight = manager.getContentHeight();
+        	int managerVerticalScroll = manager.getVerticalScroll();
+        	int managerVirtualHeight = manager.getVirtualHeight();
+
+    		Log.debug("getVirtualHeight: "+managerVirtualHeight+" getVerticalScroll: "+managerVerticalScroll );
+    		Log.debug("getContentHeight: "+managerContentHeight+" getHeight: "+managerHeight);
+        	    	
+    		if( managerVerticalScroll == 0 ||  managerVerticalScroll ==  managerHeight )
+        		return;
+        	
+        	int calculatedVirtualHeight = managerVerticalScroll + managerHeight;
+        	int calculatedVirtuaContentHeight = managerVerticalScroll + managerContentHeight;
+        	
+        	boolean shouldLoadMore =  calculatedVirtualHeight >= managerVirtualHeight;
+        	shouldLoadMore = shouldLoadMore || true == calculatedVirtuaContentHeight >= managerVirtualHeight; //just another check
+        	
+        	if (shouldLoadMore) this.loadMoreListener.loadMore();
+        } 
+        
+    };// End of the internal list field declaration
 } 

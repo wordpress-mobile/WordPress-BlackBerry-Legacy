@@ -34,10 +34,6 @@ public class AnimatedGIFField extends BitmapField
         _image = image;
         _width = image.getWidth();
         _height = image.getHeight();
-
-        //Start the animation thread.
-        _animatorThread = new AnimatorThread(this);
-        _animatorThread.start();
     }
 
     protected void paint(Graphics graphics)
@@ -55,11 +51,21 @@ public class AnimatedGIFField extends BitmapField
         }
     }
 
+    protected void onDisplay()
+    {
+    	//Start the animation thread.
+    	_animatorThread = new AnimatorThread(this);
+    	_animatorThread.start();
+    	super.onDisplay();
+    }
+
+    
     //Stop the animation thread when the screen the field is on is
     //popped off of the display stack.
     protected void onUndisplay()
     {
         _animatorThread.stop();
+        _animatorThread = null;
         super.onUndisplay();
     }
 
@@ -88,6 +94,7 @@ public class AnimatedGIFField extends BitmapField
 
         public void run()
         {
+        	
             while(_keepGoing)
             {
                 //Invalidate the field so that it is redrawn.

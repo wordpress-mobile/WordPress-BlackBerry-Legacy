@@ -12,6 +12,7 @@ import com.wordpress.io.BlogDAO;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
+import com.wordpress.task.StopConnTask;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
@@ -87,19 +88,15 @@ public class BlogController extends BaseController {
 	/** refresh all blog information */
 	public void refreshBlog(){
 		if(currentBlog != null) {
-			
 			final BlogUpdateConn connection = new BlogUpdateConn (currentBlog);       
 	        connection.addObserver(new RefreshBlogCallBack()); 
 	         connectionProgressView= new ConnectionInProgressView(
 	        		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
-	       
 	        connection.startConnWork(); //starts connection
-					
 			int choice = connectionProgressView.doModal();
 			if(choice==Dialog.CANCEL) {
-				connection.stopConnWork(); //stop the connection if the user click on cancel button
+				WordPressCore.getInstance().getTasksRunner().enqueue(new StopConnTask(connection));
 			}
-			
 		}
 	 }
 	

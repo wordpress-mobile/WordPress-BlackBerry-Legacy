@@ -21,7 +21,7 @@ import com.wordpress.io.AppDAO;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ListActionListener;
-import com.wordpress.view.component.PostsListField;
+import com.wordpress.view.component.GenericListField;
 
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.Touchscreen;
@@ -32,7 +32,7 @@ public class AccountsView extends BaseView  implements ListActionListener {
 	
     private AccountsController controller= null;
 	private Hashtable accounts = null;
-	private PostsListField listaAccounts;
+	private GenericListField listaAccounts;
 	
 	 public AccountsView(AccountsController  _controller) {
 			super(_resources.getString(WordPressResource.TITLE_VIEW_ACCOUNTS), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
@@ -116,7 +116,7 @@ public class AccountsView extends BaseView  implements ListActionListener {
 	 
 	private void buildList() {
 		
-		listaAccounts = new PostsListField(); 	        
+		listaAccounts = new GenericListField(); 	        
 		listaAccounts.setEmptyString(_resources.getString(WordPressResource.MESSAGE_NO_ACCOUNTS), DrawStyle.LEADING);
 		listaAccounts.setDefautActionListener(this);
 		

@@ -2,6 +2,7 @@ package com.wordpress.xmlrpc.post;
 
 import java.util.Vector;
 
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.model.Blog;
 import com.wordpress.utils.log.Log;
 import com.wordpress.xmlrpc.BlogConn;
@@ -10,10 +11,16 @@ import com.wordpress.xmlrpc.BlogConnResponse;
 public class RecentPostConn extends BlogConn  {
 	
 	private Blog blog;
+	private int numPosts = WordPressInfo.DEFAULT_ITEMS_NUMBER;
 	
-	public RecentPostConn(String hint,String userHint, String passwordHint, Blog aBlog) {
+	public int getNumPosts() {
+		return numPosts;
+	}
+
+	public RecentPostConn(String hint,String userHint, String passwordHint, Blog aBlog, int numPosts) {
 		super(hint, userHint, passwordHint);
 		this.blog=aBlog;
+		this.numPosts = numPosts;
 		if(aBlog.isHTTPBasicAuthRequired()) {
 			this.setHttp401Password(aBlog.getHTTPAuthPassword());
 			this.setHttp401Username(aBlog.getHTTPAuthUsername());
@@ -28,7 +35,7 @@ public class RecentPostConn extends BlogConn  {
 		try{
 
 			connResponse = new BlogConnResponse();
-	        Vector recentPostTitle = getRecentPostTitle(blog.getId(), blog.getMaxPostCount());
+	        Vector recentPostTitle = getRecentPostTitle(blog.getId(), numPosts);
 			connResponse.setResponseObject(recentPostTitle);
 
 		} catch (Exception cce) {

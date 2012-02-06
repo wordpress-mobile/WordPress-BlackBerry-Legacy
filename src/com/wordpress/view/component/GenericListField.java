@@ -12,6 +12,7 @@ import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.Manager;
 //#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.TouchEvent;
 //#endif
@@ -30,19 +31,22 @@ import com.wordpress.utils.log.Log;
  * @author dercoli
  *
  */
-public class PostsListField extends ObjectListField  {
+public class GenericListField extends ObjectListField  {
 
-	
     private final SimpleDateFormat sdFormat;
 	private Vector _listData = new Vector();
     private ListCallBack listFieldCallBack = null;
     private ListActionListener defautActionListener = null;
+    private ListLoadMoreListener loadMoreListener = null;
     		
 	public void setDefautActionListener(ListActionListener defautActionListener) {
 		this.defautActionListener = defautActionListener;
 	}
+	public void setDefautLoadMoreListener(ListLoadMoreListener defautLoadMoreListener) {
+		this.loadMoreListener = defautLoadMoreListener;
+	}
 
-	public PostsListField() {
+	public GenericListField() {
 		listFieldCallBack = new ListCallBack();
 		// Set the ListFieldCallback
 		setCallback(listFieldCallBack);
@@ -69,6 +73,34 @@ public class PostsListField extends ObjectListField  {
         
         invalidate(); //invalidate this list
 	}
+	
+	public void setSelectedIndex(int index){
+		int oldSelection = getSelectedIndex();
+		if(oldSelection != -1) {
+			ListData data = (ListData)_listData.elementAt(oldSelection);
+			data.setSelected(false);
+		}
+		((ListData)_listData.elementAt(index)).setSelected(true);
+		super.setSelectedIndex(index);
+	}
+	
+	public void resetListItems(Object[] objs) {
+		//clear the list
+		while ( this.isEmpty() == false ) {
+			this.delete(0);	
+		}
+		_listData = new Vector();
+		
+		//Populate the ListField & Vector with data.
+        for(int count = 0; count < objs.length; ++count)
+        {   
+           ListData checklistData = new ListData((Hashtable)objs[count]);
+           _listData.addElement(checklistData);
+           insert(count);
+        } 
+        invalidate(); //invalidate this list
+	}
+	
 	
 	protected void onUnfocus(){
 		super.onUnfocus();
@@ -219,6 +251,39 @@ public class PostsListField extends ObjectListField  {
         }
         
     }
+    
+    protected boolean navigationMovement(int dx, int dy, int status, int time) {
+    	Log.debug("dx: "+dx+" dy: "+dy+" status: "+ status+" time: "+time);
+    	if ( dy == 1 ) //moving down in the list 
+    		checkLoadMore();
+    	return super.navigationMovement(dx, dy, status, time);
+    }
+        
+    private void checkLoadMore() {
+    	if( this.loadMoreListener == null )
+    		return;
+    	
+    	Manager manager = this.getManager();
+    	int managerHeight = manager.getHeight();
+    	int managerContentHeight = manager.getContentHeight();
+    	int managerVerticalScroll = manager.getVerticalScroll();
+    	int managerVirtualHeight = manager.getVirtualHeight();
+
+		Log.debug("getVirtualHeight: "+managerVirtualHeight+" getVerticalScroll: "+managerVerticalScroll );
+		Log.debug("getContentHeight: "+managerContentHeight+" getHeight: "+managerHeight);
+    	    	
+		if( managerVerticalScroll == 0 ||  managerVerticalScroll ==  managerHeight )
+    		return;
+    	
+    	int calculatedVirtualHeight = managerVerticalScroll + managerHeight;
+    	int calculatedVirtuaContentHeight = managerVerticalScroll + managerContentHeight;
+    	
+    	boolean shouldLoadMore =  calculatedVirtualHeight >= managerVirtualHeight;
+    	shouldLoadMore = shouldLoadMore || true == calculatedVirtuaContentHeight >= managerVirtualHeight; //just another check
+    	
+    	if (shouldLoadMore) this.loadMoreListener.loadMore();
+    }
+    
 	 /**
      * Overrides default implementation.  Performs default action if the 
      * 4ways trackpad was clicked; otherwise, the default action occurs.
@@ -282,7 +347,11 @@ public class PostsListField extends ObjectListField  {
 				defautActionListener.actionPerformed();
 				return true;
 			}
+		} else {
+			//is not a click!
+			checkLoadMore();
 		}
+		
 		return super.touchEvent(message);
 	}
 	//#endif

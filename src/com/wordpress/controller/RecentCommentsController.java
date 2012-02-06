@@ -16,6 +16,7 @@ import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.Comment;
 import com.wordpress.task.CommentsTask;
+import com.wordpress.task.StopConnTask;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.Tools;
@@ -37,8 +38,6 @@ public class RecentCommentsController extends BaseController {
 	protected CommentsView view = null;
 	protected Blog currentBlog;
 	protected String postID = null; //no post id
-	protected int offset = 0;
-	protected int number = WordPressInfo.DEFAULT_DOWNLOADED_COMMENTS;
 	
 	public final static String SPAM_STATUS = "spam";
 	public final static String PENDINGS_STATUS = "hold";
@@ -52,6 +51,11 @@ public class RecentCommentsController extends BaseController {
 	protected Comment[] commentList = new Comment[0];
 	protected String postTitle = null;
 	
+	protected GetCommentsConn loadMoreConnection = null;
+	private boolean isLoadingMore = false;
+	private boolean hasMoreComments = true;
+	
+	
 	public RecentCommentsController(Blog currentBlog) {
 		super();
 		this.currentBlog = currentBlog;
@@ -59,7 +63,6 @@ public class RecentCommentsController extends BaseController {
 	}
 	
 	public void showView() {
-		
 		if (isFilterActive()) {
 			//when a filter is applied to the view, comments are loaded from the server and not from cache
 			view= new CommentsView(this, gravatarController, currentBlog.getName());
@@ -69,23 +72,7 @@ public class RecentCommentsController extends BaseController {
 				view.setTitleText(viewTitle);
 			}
 			UiApplication.getUiApplication().pushScreen(view);
-
-			String connMessage = _resources.getString(WordPressResource.CONN_LOADING_COMMENTS);
-			
-			final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
-					currentBlog.getId(), currentBlog.getUsername(), 
-					currentBlog.getPassword(), postID, statusFilter, offset, number);
-			if(currentBlog.isHTTPBasicAuthRequired()) {
-				connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
-				connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
-			}
-	        connection.addObserver(new LoadCommentsCallBack(statusFilter));  
-	        connectionProgressView= new ConnectionInProgressView(connMessage);
-	        connection.startConnWork(); //starts connection
-			int choice = connectionProgressView.doModal();
-			if(choice==Dialog.CANCEL) {
-				connection.stopConnWork(); //stop the connection if the user click on cancel button
-			}
+			showCommentsByType(statusFilter);
 		} else {
 			loadCommentsFromCache();
 			view = new CommentsView(this, gravatarController, currentBlog.getName());
@@ -259,12 +246,12 @@ public class RecentCommentsController extends BaseController {
 	}
 	
 	public void showCommentsByType(String commentsStatus) {
-		gravatarController.stopGravatarTask(); //stop task if already running
+		if ( gravatarController != null ) gravatarController.stopGravatarTask(); //stop task if already running
 		String connMessage = _resources.getString(WordPressResource.CONN_LOADING_COMMENTS);
 
 		final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
 				currentBlog.getId(), currentBlog.getUsername(), 
-				currentBlog.getPassword(), postID, commentsStatus, offset, number);
+				currentBlog.getPassword(), postID, commentsStatus, 0, WordPressInfo.DEFAULT_DOWNLOADED_COMMENTS);
 		if(currentBlog.isHTTPBasicAuthRequired()) {
 			connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
 			connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
@@ -279,12 +266,18 @@ public class RecentCommentsController extends BaseController {
 		}
 	}
 	
-	public void refreshComments() {
-		String connMessage = _resources.getString(WordPressResource.CONN_REFRESH_COMMENTS);
+	public void loadComments() {
+		//stop the load more and reset the variable here
+		if( isLoadingMore ) view.showLoadMoreStatus( false );
+		isLoadingMore = false;
+		hasMoreComments = true;
+		if( loadMoreConnection != null ) loadMoreConnection.stopConnWork();
 		
+		int numberOfComments = WordPressInfo.DEFAULT_DOWNLOADED_COMMENTS;
+		String connMessage = _resources.getString(WordPressResource.CONN_LOADING_COMMENTS);
 		final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
 				currentBlog.getId(), currentBlog.getUsername(), 
-				currentBlog.getPassword(), postID, statusFilter, offset, number);
+				currentBlog.getPassword(), postID, statusFilter, 0, numberOfComments);
 		if(currentBlog.isHTTPBasicAuthRequired()) {
 			connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
 			connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
@@ -295,31 +288,41 @@ public class RecentCommentsController extends BaseController {
         connection.startConnWork(); //starts connection
 		int choice = connectionProgressView.doModal();
 		if(choice==Dialog.CANCEL) {
-			connection.stopConnWork(); //stop the connection if the user click on cancel button
+			WordPressCore.getInstance().getTasksRunner().enqueue(new StopConnTask(connection));
 		}
 	}
 	
 	public void loadMoreComments() {
-		String connMessage = _resources.getString(WordPressResource.CONN_REFRESH_COMMENTS);
+		Log.debug("Ctrl loadMoreComments");
+		if ( hasMoreComments == false || isLoadingMore ) {
+			return;
+		}
+		view.showLoadMoreStatus(true);
+		isLoadingMore = true;
+        int numberOfCommentsToDownload = 0;
+        numberOfCommentsToDownload = Math.max(this.commentList.length, WordPressInfo.DEFAULT_DOWNLOADED_COMMENTS);
+        if (hasMoreComments) {
+            numberOfCommentsToDownload += WordPressInfo.DEFAULT_DOWNLOADED_COMMENTS;
+        } else {
+            //removing this block you will enable the refresh of posts when reached the end of the list and no more posts are available
+            isLoadingMore = false;
+            return;
+        }
+        
+        String connMessage = _resources.getString(WordPressResource.CONN_LOADING_COMMENTS);
 		
-		final GetCommentsConn connection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
+		loadMoreConnection = new GetCommentsConn(currentBlog.getXmlRpcUrl(), 
 				currentBlog.getId(), currentBlog.getUsername(), 
-				currentBlog.getPassword(), postID, statusFilter, commentList.length, number);
+				currentBlog.getPassword(), postID, statusFilter, 0, numberOfCommentsToDownload);
 		if(currentBlog.isHTTPBasicAuthRequired()) {
-			connection.setHttp401Password(currentBlog.getHTTPAuthPassword());
-			connection.setHttp401Username(currentBlog.getHTTPAuthUsername());
+			loadMoreConnection.setHttp401Password(currentBlog.getHTTPAuthPassword());
+			loadMoreConnection.setHttp401Username(currentBlog.getHTTPAuthUsername());
 		}
-        connection.addObserver(new LoadMoreCommentsCallBack());  
+		loadMoreConnection.addObserver(new LoadMoreCommentsCallBack(statusFilter));  
         connectionProgressView= new ConnectionInProgressView(connMessage);
-       
-        connection.startConnWork(); //starts connection
-		int choice = connectionProgressView.doModal();
-		if(choice==Dialog.CANCEL) {
-			connection.stopConnWork(); //stop the connection if the user click on cancel button
-		}
+        loadMoreConnection.startConnWork(); //starts connection
 	}
 	
-		
 	public void refreshView() {
 				
 	}
@@ -597,6 +600,7 @@ public class RecentCommentsController extends BaseController {
 		public void update(Observable observable, final Object object) {
 
 			dismissDialog(connectionProgressView);
+
 			BlogConnResponse resp= (BlogConnResponse) object;
 			Vector respVector= null;
 
@@ -627,7 +631,7 @@ public class RecentCommentsController extends BaseController {
 
 			Hashtable vector2Comments = CommentsDAO.vector2Comments(respVector);
 			commentList =(Comment[]) vector2Comments.get("comments");
-			if(vector2Comments.get("error") != null) {
+			if( vector2Comments.get("error") != null ) {
 				displayErrorAndWait("Error while loading comments: "+ (String)vector2Comments.get("error"));
 			}
 
@@ -652,7 +656,63 @@ public class RecentCommentsController extends BaseController {
 			});
 		}
 	}
-	
+	private class LoadMoreCommentsCallBack implements Observer {
+
+		private final String commentsStatus;
+
+		public LoadMoreCommentsCallBack(String commentsStatus) {
+			super();
+			this.commentsStatus = commentsStatus;
+		}
+		
+		public void update(Observable observable, final Object object) {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run(){
+					view.showLoadMoreStatus(false);
+				}
+            });
+			int numberOfRequestedPosts = loadMoreConnection.getNumber();
+			loadMoreConnection = null;
+			isLoadingMore = false;
+
+			BlogConnResponse resp= (BlogConnResponse) object;
+			Vector respVector= null;
+			if(resp.isStopped()){
+				return;
+			}
+			if(resp.isError()) {
+				hasMoreComments = false; //error response, do not keep downloading more comments
+				return;
+			}
+			respVector = (Vector) resp.getResponseObject(); // the response from wp server
+			statusFilter = commentsStatus; //update the main status only after succeeded conn
+			if(!isFilterActive()) {
+				try{
+					CommentsDAO.storeComments(currentBlog, respVector);
+				} catch (Exception e) {
+				} 
+			}
+			Hashtable vector2Comments = CommentsDAO.vector2Comments(respVector);
+			Comment[] newCommentsList = (Comment[]) vector2Comments.get("comments");
+			// If we asked for more and we got what we had, there are no more posts to load
+            if ( numberOfRequestedPosts > WordPressInfo.DEFAULT_DOWNLOADED_COMMENTS && (newCommentsList.length <= commentList.length))
+            {
+                hasMoreComments = false;
+            }
+            else if (newCommentsList.length == WordPressInfo.DEFAULT_DOWNLOADED_COMMENTS)
+            {
+                //we should reset the flag otherwise when you refresh this blog you can't get more than CHUNK_SIZE posts
+            	hasMoreComments = true;
+            }
+			commentList = newCommentsList;
+		
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run(){
+					view.addCommentsToScreen();
+				}
+            });
+		}
+	}
 	//callback for post reply
 	private class ReplyCommentCallBack implements Observer {
 
@@ -706,70 +766,6 @@ public class RecentCommentsController extends BaseController {
 				final String respMessage=resp.getResponse();
 				displayError(respMessage);	
 			}
-		}
-	}
-	
-	private class LoadMoreCommentsCallBack implements Observer {
-
-		public void update(Observable observable, final Object object) {
-
-			dismissDialog(connectionProgressView);
-			BlogConnResponse resp= (BlogConnResponse) object;
-			Vector respVector= null;
-
-			if(resp.isStopped()){
-				return;
-			}
-
-			if(resp.isError()) {
-				final String respMessage=resp.getResponse();
-				displayError(respMessage);
-				return;
-			}
-
-			respVector = (Vector) resp.getResponseObject(); // the response from wp server
-	
-			Hashtable vector2Comments = CommentsDAO.vector2Comments(respVector);
-			if(vector2Comments.get("error") != null) {
-				displayErrorAndWait("Error while loading comments: "+ (String)vector2Comments.get("error"));
-			}
-			Comment[] newDownloadedComment = (Comment[]) vector2Comments.get("comments");
-			
-			if(newDownloadedComment.length == 0)
-				return;
-			
-			//remove duplicates from the comment list. When duplicates we are keeping the new downloaded comment istance
-			commentList = computeDifference(commentList, newDownloadedComment);
-			Comment[] tmpCommentList = new Comment[commentList.length+newDownloadedComment.length];
-			int k = 0;
-			for (int i = 0; i < commentList.length; i++) {
-				tmpCommentList[k] = commentList[i];
-				k++;
-			}
-			for (int i = 0; i < newDownloadedComment.length; i++) {
-				tmpCommentList[k] = newDownloadedComment[i];
-				k++;
-			}
-			commentList = tmpCommentList;
-			
-			if(!isFilterActive()) {
-				try{
-					CommentsDAO.storeComments(currentBlog, commentList);
-				} catch (IOException e) {
-					displayError(e, "Error while storing comments");
-				} catch (RecordStoreException e) {
-					displayError(e, "Error while storing comments");
-				} catch (Exception e) {
-					displayError(e, "Error while storing comments");
-				} 
-			}
-			
-			UiApplication.getUiApplication().invokeLater(new Runnable() {
-				public void run() {
-					view.refresh();
-				}
-			});
-			
 		}
 	}
 }
