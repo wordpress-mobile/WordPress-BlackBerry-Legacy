@@ -368,7 +368,7 @@ public class CategoriesListField {
             
             //drawXXX(graphics, 0, y, width, listField.getRowHeight());
             drawBackground(graphics, 0, y, w, height, currentRow.isSelected);
-            drawBorder(graphics, 0, y, w, height);
+            drawBorder(graphics, 0, y, w, height, currentRow.isSelected);
             
             int leftImageWidth = 0;
             Bitmap icon = Bitmap.getBitmapResource("category_child.png");

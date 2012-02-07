@@ -29,7 +29,7 @@ public class GUIFactory {
 	}
 
 	public static int BTN_COLOUR_BACKGROUND_FOCUS = 0x21759b;
-	public static int LIST_COLOUR_BACKGROUND_FOCUS = 0x21759b; 	//(0xd3e7f8);
+	public static int LIST_COLOUR_BACKGROUND_FOCUS = 0xe7f3ff; 	
 	
 	public static synchronized BaseButtonField createButton(String label, long style) {
 		LongIntHashtable colourTable = new LongIntHashtable();

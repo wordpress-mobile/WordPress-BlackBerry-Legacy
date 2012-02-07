@@ -18,18 +18,14 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 	protected int focusBgColor = GUIFactory.LIST_COLOUR_BACKGROUND_FOCUS;
 	
 	public final static int SPACE_BETWEEN_ROW = 6; //if you want some space between rows this is the predef dim
-	protected static final int MAX_ROW_HEIGHT = 100;
+	protected static final int MAX_ROW_HEIGHT = 150;
 	protected static final int MIN_ROW_HEIGHT = 42;
-	protected static final int PADDING = 4;
+	protected static final int PADDING = 8;
 		
 	public static int getImageHeightForDoubleLineRow() {
-		return getRowHeightForDoubleLineRow() - 8;
+		return getRowHeightForDoubleLineRow() - ( PADDING * 2 );
 	}
-	
-	public static int getImageHeightForSingleLineRow() {
-		return getRowHeightForSingleLineRow() - 8;
-	}
-	
+		
 	private static int getSecondRowTextHeight() {
 		Font fnt = Font.getDefault();
 		int fntHeight = fnt.getHeight();
@@ -40,11 +36,11 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 		Font fnt = Font.getDefault();
 		int fntHeight = fnt.getHeight();
 
-		int rowH = PADDING + fntHeight + PADDING + getSecondRowTextHeight() + PADDING;
+		int rowH = PADDING + fntHeight + ( PADDING / 2 ) + getSecondRowTextHeight() + PADDING;
 		
 		if(rowH > MAX_ROW_HEIGHT)
 			return MAX_ROW_HEIGHT;
-		else if (rowH < 42)
+		else if (rowH < MIN_ROW_HEIGHT)
 			return MIN_ROW_HEIGHT;
 		else return rowH;
 	}
@@ -57,7 +53,7 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 		
 		if(rowH > MAX_ROW_HEIGHT)
 			return MAX_ROW_HEIGHT;
-		else if (rowH < 42)
+		else if (rowH < MIN_ROW_HEIGHT)
 			return MIN_ROW_HEIGHT;
 		else return rowH;
 	}
@@ -98,15 +94,19 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 		if (selected) {
 			graphics.setColor(this.focusBgColor);
 		} else {
-			graphics.setColor(Color.WHITESMOKE);
+			graphics.setColor(Color.WHITE);
 		}
 		graphics.fillRect(x - 1, y - 1, width + 2, height + 1);
 	}
 
-	protected void drawBorder(Graphics graphics, int x, int y, int width, int height) {
-		graphics.setColor(Color.GRAY);
-		graphics.drawLine(x, y - 1, x + width, y - 1);
-		graphics.drawLine(x, y + height - 1, x + width, y + height - 1);
+	protected void drawBorder(Graphics graphics, int x, int y, int width, int height, boolean isSelected) {
+		/*if ( isSelected ) {
+			graphics.setColor(0xbdd3de);
+		} else {
+			graphics.setColor(Color.DARKGRAY);
+		}*/
+		graphics.setColor(Color.DARKGRAY);
+		graphics.drawLine(x, y + height - 1, x + width, y + height - 1); // the bottom line
 	}
 
 	//SingleLine of Text in the row
@@ -119,11 +119,14 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 		}
 		graphics.setFont(fnt);
 
-		if (selected) {
+	/*	if (selected) {
 			graphics.setColor(Color.WHITE);
 		} else {
 			graphics.setColor(Color.BLACK);
 		}
+		*/
+		
+		graphics.setColor(Color.BLACK);
 		
 		if (title != null) {
 			int fntHeight = fnt.getHeight();
@@ -137,11 +140,12 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 	
 	protected int drawTextOnFirstRow(Graphics graphics, int x, int y, int width, int height, String title, boolean selected) {
 		int myColor = Color.BLACK;
-		if (selected) {
+	/*	if (selected) {
 			myColor=Color.WHITE;
 		} else {
 			myColor= Color.BLACK;
 		}
+		*/
 		return drawTextOnFirstRow(graphics, x, y, width, height, title, myColor);
 	}
 
@@ -158,11 +162,13 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 	protected void drawSecondRowText(Graphics graphics, int x, int y, int width, int height, String status, boolean selected) {
 		int fh = getSecondRowTextHeight();
 		graphics.setFont(Font.getDefault().derive(Font.PLAIN, fh));
-		if (selected) {
+	/*	if (selected) {
 			graphics.setColor(Color.WHITE);
 		} else {
 			graphics.setColor(Color.DARKGRAY);
 		}
+		*/
+		graphics.setColor(Color.DARKGRAY);
 		graphics.drawText(status, x + PADDING, y - PADDING + (height - fh),
 				DrawStyle.LEFT | DrawStyle.TOP | DrawStyle.ELLIPSIS, width - (PADDING * 2));
 	}

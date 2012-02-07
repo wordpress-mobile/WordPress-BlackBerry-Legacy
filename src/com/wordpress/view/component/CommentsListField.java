@@ -183,7 +183,7 @@ public class CommentsListField {
             int height = list.getRowHeight();
             
            	drawBackground(graphics, 0, y, w, height, currentRow.isSelected);
-            drawBorder(graphics, 0, y, w, height);
+        	drawBorder(graphics, 0, y, w, height, currentRow.isSelected);
        
             int leftImageWidth = 0;
             

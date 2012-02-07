@@ -2,7 +2,6 @@ package com.wordpress.view.component;
 
 
 import net.rim.device.api.system.Display;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
@@ -29,10 +28,10 @@ public class HeaderField extends Field {
         super(Field.NON_FOCUSABLE);
         this.title =title;
         this.subTitleFont = Font.getDefault().derive(Font.PLAIN);
-        this.titleFont = Font.getDefault().derive(Font.BOLD);
+        this.titleFont = Font.getDefault().derive(Font.PLAIN);
         
-        upperDrawColors = new int[]{0xebebeb, 0xe2e2e2, 0xe2e2e2, 0xebebeb};
-        this.titleFontColor = 0x464646;
+        upperDrawColors = new int[]{0x464646, 0x414141, 0x414141, 0x464646};
+        this.titleFontColor = 0xcccccc;
 		this.subTitleFontColor = 0x21759b;
             
         this.fieldWidth = Display.getWidth();
@@ -70,15 +69,14 @@ public class HeaderField extends Field {
    
     private void calculateFieldHeight() {
     	if(subTitle == null || subTitle.equalsIgnoreCase(""))
-    		this.fieldHeight =  titleFont.getHeight()+2;
+    		this.fieldHeight =  titleFont.getHeight() + 6;
     	else
-    		this.fieldHeight = titleFont.getHeight() + subTitleFont.getHeight() + 4;
+    		this.fieldHeight = titleFont.getHeight() + subTitleFont.getHeight() + 6 + 2;
     }
     
 	protected void paintBackground(Graphics graphics) {
 		graphics.drawShadedFilledPath(X_PTS, Y_PTS, null, upperDrawColors, null);
-		//graphics.setColor(0xd2d2d2);
-		graphics.setColor(Color.DARKGRAY);
+		graphics.setColor(0x363636);
 		graphics.drawLine(0, Y_PTS[1]-1 , X_PTS[2], Y_PTS[1]-1);
 	}
     
@@ -86,12 +84,12 @@ public class HeaderField extends Field {
         
     	graphics.setFont(titleFont);
         graphics.setColor(titleFontColor);       
-        graphics.drawText(title, 1, 0, DrawStyle.HCENTER | DrawStyle.ELLIPSIS, getWidth());
+        graphics.drawText(title, 1, 3, DrawStyle.HCENTER | DrawStyle.ELLIPSIS, getWidth());
         
         if (subTitle != null && !subTitle.equalsIgnoreCase("")) {
         	graphics.setColor(subTitleFontColor);
         	graphics.setFont(subTitleFont);
-        	graphics.drawText(subTitle, 1, titleFont.getHeight()+2, DrawStyle.HCENTER | DrawStyle.ELLIPSIS, getWidth());
+        	graphics.drawText(subTitle, 1, titleFont.getHeight()+2+3, DrawStyle.HCENTER | DrawStyle.ELLIPSIS, getWidth());
         }
     }
 }

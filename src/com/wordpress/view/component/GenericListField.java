@@ -192,7 +192,7 @@ public class GenericListField extends ObjectListField  {
              
             //drawXXX(graphics, 0, y, width, listField.getRowHeight());
             drawBackground(graphics, 0, y, w, height, currentRow.isSelected);
-            drawBorder(graphics, 0, y, w, height);
+        	drawBorder(graphics, 0, y, w, height, currentRow.isSelected);
                   
             drawTextOnFirstRow(graphics, 0, y, w, height, currentRow.getTitle(), currentRow.isSelected);
             drawSecondRowText(graphics, 0, y, w, height, currentRow.getSubTitle(), currentRow.isSelected);

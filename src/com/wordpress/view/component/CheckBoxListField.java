@@ -345,8 +345,9 @@ public class CheckBoxListField {
             //drawXXX(graphics, 0, y, width, listField.getRowHeight());
             drawBackground(graphics, 0, y, w, height, currentRow.isSelected);
             //check if it is the last row
-            if( (index+1) < list.getSize() )
-            	drawBorder(graphics, 0, y, w, height);
+            if( (index+1) < list.getSize() ) {
+            	drawBorder(graphics, 0, y, w, height, currentRow.isSelected);
+            }
             
             int leftImageWidth = 40; //the image width
             
