@@ -67,6 +67,7 @@
         	<define tag="LOG_CONSOLE" if="log_console" />
         	<define tag="IS_OS47_OR_ABOVE" if="is_os47_or_above" />
         	<define tag="IS_OS50_OR_ABOVE" if="is_os50_or_above" />
+        	<define tag="VER_4.5.0" if="VER_4.5.0" />
         	<define tag="VER_6.0.0" if="VER_6.0.0" />
         	<define tag="BlackBerrySDK7.0.0" if="BlackBerrySDK7.0.0" />
         	<define tag="IS_TORCH" if="is_torch" />

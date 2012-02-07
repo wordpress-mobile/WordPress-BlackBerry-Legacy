@@ -1,6 +1,6 @@
 //#preprocess
 
-package com.rim.device.api.ui;
+package com.wordpress.utils;
 
 import net.rim.device.api.ui.*;
 

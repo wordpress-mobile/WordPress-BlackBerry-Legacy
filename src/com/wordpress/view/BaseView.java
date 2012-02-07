@@ -127,12 +127,13 @@ public abstract class BaseView extends MainScreen {
 				bottomButtonsManager.getManager().deleteAll(); //remove the bottom bar from the tmp manager
 				this.setStatus(bottomButtonsManager);
 			} else {
-				this.setStatus(new NullField());
+				this.setStatus(new NullField(Manager.NON_FOCUSABLE));
 			}
 			//#else
-			this.setStatus(new NullField());
+			this.setStatus(new NullField(Manager.NON_FOCUSABLE));
 			//#endif
 		}
+		
 	}
     
     /**

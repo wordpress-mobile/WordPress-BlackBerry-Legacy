@@ -11,8 +11,8 @@ import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 
-import com.rim.device.api.ui.FieldDimensionUtilities;
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.utils.FieldDimensionUtilities;
 import com.wordpress.utils.log.Log;
 
 public class LoadMoreField extends HorizontalFieldManager {
@@ -26,12 +26,12 @@ public class LoadMoreField extends HorizontalFieldManager {
 	}
 	
 	public LoadMoreField() {
-		this(Manager.USE_ALL_WIDTH);
+		this(Manager.USE_ALL_WIDTH | Manager.NON_FOCUSABLE);
 	}
 
 	public LoadMoreField(long style) {
 		super(style);
-		HorizontalFieldManager tmpContainer = new HorizontalFieldManager();
+		HorizontalFieldManager tmpContainer = new HorizontalFieldManager(Manager.NON_FOCUSABLE);
 		
 		LabelField labelField = new LabelField(_resources.getString(WordPressResource.CONN_LOADING_MORE),  Field.FIELD_HCENTER );
 		Font fnt = Font.getDefault();
