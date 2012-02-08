@@ -40,7 +40,11 @@ public final class WordPressInfo {
 	
 	public final static String WPCOM_LOGIN_URL = "https://wordpress.com/wp-login.php";
 	public final static String WPCOM_GLOBAL_DASHBOARD = "http://dashboard.wordpress.com/wp-admin/";
-	public final static String WPCOM_READER_URL = "https://wordpress.com/reader/mobile/";
+	
+	public final static String readerURL_v3 = "https://en.wordpress.com/reader/mobile/v2/?chrome=no"; 
+	public final static String authorizedHybridHost = "en.wordpress.com"; 
+	public final static String readerTopicsURL = "http://en.wordpress.com/reader/mobile/v2/?template=topics";
+	public final static String readerDetailURL = "https://en.wordpress.com/wp-admin/admin-ajax.php?action=wpcom_load_mobile&template=details&v=2";
 	
 	public static final int DEFAULT_DOWNLOADED_COMMENTS = 20;
 	public static final int DEFAULT_ITEMS_NUMBER = 20;

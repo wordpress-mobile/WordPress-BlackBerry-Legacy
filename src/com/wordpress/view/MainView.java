@@ -5,6 +5,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import net.rim.blackberry.api.browser.URLEncodedPostData;
+import net.rim.device.api.browser.field2.BrowserFieldRequest;
+import net.rim.device.api.io.http.HttpHeaders;
 import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.CodeModuleGroup;
 import net.rim.device.api.system.CodeModuleGroupManager;
@@ -25,10 +27,12 @@ import com.wordpress.controller.MainController;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.DataCollector;
+import com.wordpress.utils.PropertyUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BlogsListField;
 import com.wordpress.view.component.SelectorPopupScreen;
+import com.wordpress.view.reader.WPCOMReaderListView;
 
 public class MainView extends StandardBaseView {
 	
@@ -123,15 +127,8 @@ public class MainView extends StandardBaseView {
         	 }
         	String user = (String)currentAccount.get("username");
 	        String pass = (String)currentAccount.get("passwd");
-			
-			//crate the link
-			URLEncodedPostData urlEncoder = new URLEncodedPostData("UTF-8", false);
-
-			urlEncoder.append("redirect_to", WordPressInfo.WPCOM_READER_URL);
-			urlEncoder.append("log", user);
-			urlEncoder.append("pwd", pass);
-			
-			Tools.openNativeBrowser(WordPressInfo.WPCOM_LOGIN_URL, "WordPress for BlackBerry App", null, urlEncoder);
+			WPCOMReaderListView _browserScreen = new WPCOMReaderListView(user, pass);
+			UiApplication.getUiApplication().pushScreen(_browserScreen);      
         }
     }; 
 	 
@@ -274,12 +271,10 @@ public class MainView extends StandardBaseView {
     	if(Preferences.getIstance().isBackgroundOnClose())
     		menu.add(_exitItem);
     	
-		//#ifdef VER_6.0.0 | BlackBerrySDK7.0.0
     	//show the reader menu item when there are WP.com accounts
     	Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
     	if(applicationAccounts != null && applicationAccounts.size() > 0)
     		menu.add(_mobileReaderMenuItem);
-    	//#endif
     	
     	//add the check for activation menu item if the blog is on pending state
     	/*if(blogListController != null) {

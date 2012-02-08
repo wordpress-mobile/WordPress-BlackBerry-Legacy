@@ -15,6 +15,7 @@ import com.wordpress.utils.log.Log;
 public class HTTPGetConn extends BlogConn  {
 
 	private Hashtable responseHeaders = new Hashtable();
+	private String cookie = null;
 	
 	public HTTPGetConn(String url, String username, String password) {
 		super(url, username, password);
@@ -25,6 +26,11 @@ public class HTTPGetConn extends BlogConn  {
 		return responseHeaders;
 	}
 
+	
+	public void setCookie(String cookie) {
+		this.cookie = cookie;
+	}
+	
 	//we have overrided execute method, because there isn't xml-rpc conn, but only a simple http conn 
 	protected Object execute(String aCommand, Vector aArgs) {
 		isWorking=true;
@@ -47,6 +53,8 @@ public class HTTPGetConn extends BlogConn  {
 					Log.trace("Added the authorized header");
                     conn.setRequestProperty("Authorization", "Basic " + new String(encodedAuthCredential));
 				}
+				if ( cookie != null )
+					conn.setRequestProperty("Cookie", cookie);
 				
 				// List all the response headers from the server.
 	    		// Note: The first call to getHeaderFieldKey() will implicit send
