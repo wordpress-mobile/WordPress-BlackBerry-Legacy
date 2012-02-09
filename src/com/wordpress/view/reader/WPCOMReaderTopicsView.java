@@ -33,7 +33,7 @@ public class WPCOMReaderTopicsView extends WPCOMReaderBase
     
     public WPCOMReaderTopicsView(WPCOMReaderListView parent, BrowserFieldRequest request, String topicsContent)
     {    
-    	super(_resources.getString(WordPressResource.TITLE_SETTINGS_VIEW));
+    	super(_resources.getString(WordPressResource.MENUITEM_READER));
 		this.parent = parent;
     	this.request = request;
 		this.topicsContent = topicsContent;
@@ -68,6 +68,25 @@ public class WPCOMReaderTopicsView extends WPCOMReaderBase
             			_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
             	connectionProgressView.setDialogClosedListener(new ConnectionDialogClosedListener());
             	connectionProgressView.show();
+                
+	    		int res = UiApplication.getUiApplication().invokeLater(new Runnable() {
+	    				public void run() {
+	    					if ( connectionProgressView.isDisplayed())
+	    						UiApplication.getUiApplication().popScreen(connectionProgressView);
+	    					connectionProgressView = null;
+	    				} //end run
+	    			}, 2000, false);
+             
+	    		if ( res == -1 ) { //timer failed, remove the dialog immediately
+                	UiApplication.getUiApplication().invokeLater(new Runnable() {
+	    				public void run() {
+	    					if ( connectionProgressView.isDisplayed())
+	    						UiApplication.getUiApplication().popScreen(connectionProgressView);
+	    					connectionProgressView = null;
+	    				} //end run
+	    			});
+                }
+
             }
             catch(Exception e)
             {                
@@ -110,12 +129,7 @@ public class WPCOMReaderTopicsView extends WPCOMReaderBase
     				} catch (RuntimeException e) {
     					e.printStackTrace();
     				}
-
-    				if ( connectionProgressView != null ) {
-    					UiApplication.getUiApplication().popScreen(connectionProgressView);
-    					connectionProgressView = null;
-    				}
-
+    				
     			} //end run
     		});
     	}
@@ -209,7 +223,7 @@ public class WPCOMReaderTopicsView extends WPCOMReaderBase
 	protected void executeNativeJaveCode(String methodName, Object[] formalParamenters, Class[] formalParametersType) {
 		Log.debug("Trying to call the following method "+ methodName + " on " + this.getClass().getName());
 		if( methodName.equalsIgnoreCase("selectTopic")) {
-			parent.setNewTopicAndRefreshTheReader((String)formalParamenters[0]);
+			parent.setNewTopicAndRefreshTheReader((String)formalParamenters[0], (String)formalParamenters[1]);
 			close();
 		} else {
 			Log.debug("Method not found: " + methodName);

@@ -5,6 +5,7 @@ import javax.microedition.io.InputConnection;
 import net.rim.blackberry.api.browser.URLEncodedPostData;
 import net.rim.device.api.browser.field2.BrowserField;
 import net.rim.device.api.browser.field2.BrowserFieldConfig;
+import net.rim.device.api.browser.field2.BrowserFieldHistory;
 import net.rim.device.api.browser.field2.BrowserFieldListener;
 import net.rim.device.api.browser.field2.BrowserFieldRequest;
 import net.rim.device.api.browser.field2.ProtocolController;
@@ -52,7 +53,7 @@ public class WPCOMReaderListView extends WPCOMReaderBase
      */
     public WPCOMReaderListView(String username, String password)
     {    
-    	super(_resources.getString(WordPressResource.TITLE_SETTINGS_VIEW));
+    	super(_resources.getString(WordPressResource.MENUITEM_READER));
 		this.username = username;
 		this.password = password;
     	
@@ -102,6 +103,24 @@ public class WPCOMReaderListView extends WPCOMReaderBase
             			_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
             	connectionProgressView.setDialogClosedListener(new ConnectionDialogClosedListener());
                 connectionProgressView.show();
+                
+	    		int res = UiApplication.getUiApplication().invokeLater(new Runnable() {
+	    				public void run() {
+	    					if ( connectionProgressView.isDisplayed())
+	    						UiApplication.getUiApplication().popScreen(connectionProgressView);
+	    					connectionProgressView = null;
+	    				} //end run
+	    			}, 2000, false);
+             
+	    		if ( res == -1 ) { //timer failed, remove the dialog immediately
+                	UiApplication.getUiApplication().invokeLater(new Runnable() {
+	    				public void run() {
+	    					if ( connectionProgressView.isDisplayed())
+	    						UiApplication.getUiApplication().popScreen(connectionProgressView);
+	    					connectionProgressView = null;
+	    				} //end run
+	    			});
+                }
             }
             catch(Exception e)
             {                
@@ -119,7 +138,7 @@ public class WPCOMReaderListView extends WPCOMReaderBase
         // Prevent the save dialog from being displayed
         return true;
     }   
-
+    
     private MenuItem _topicsMenuItem = new MenuItem( _resources, WordPressResource.MENUITEM_TOPICS, 100, 100) {
         public void run() {
         	if( topicsPageContent != null ) {
@@ -141,15 +160,27 @@ public class WPCOMReaderListView extends WPCOMReaderBase
         }
     };
     
+    private MenuItem _refreshMenuItem = new MenuItem( _resources, WordPressResource.MENUITEM_REFRESH, 200, 200) {
+    	public void run() {
+    		UiApplication.getUiApplication().invokeLater(new Runnable() {
+    			public void run() {
+    				WPCOMReaderListView.this._browserField.refresh();
+    			}
+    		});
+    	}
+    };
+    
+    
 	public String getCurrentTopic() {
 		return currentTopic;
 	}
 	
-	public void setNewTopicAndRefreshTheReader(final String newTopic) {
+	public void setNewTopicAndRefreshTheReader(final String newTopicID, final String newTopic) {
 		this.currentTopic = newTopic;
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
-				_browserField.getScriptEngine().executeScript("Reader2.load_topic('"+newTopic+"')", null);
+				setTitleText(newTopic);
+				_browserField.getScriptEngine().executeScript("Reader2.load_topic('"+newTopicID+"')", null);
 			} //end run
 		});
 	}
@@ -161,6 +192,7 @@ public class WPCOMReaderListView extends WPCOMReaderBase
     {
         if( _documentLoaded ) {
         	menu.add(_topicsMenuItem);
+        	menu.add(_refreshMenuItem);
         }
         super.makeMenu(menu, instance);
     }
@@ -234,6 +266,13 @@ public class WPCOMReaderListView extends WPCOMReaderBase
 		if( methodName.equalsIgnoreCase("setSelectedTopic")) {
 			this.currentTopic = (String)formalParamenters[0];
 			Log.debug("Current Selected Topic: "+ this.currentTopic);
+		} else if( methodName.equalsIgnoreCase("setTitle")) {
+			final String title = (String)formalParamenters[0];
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					setTitleText(title);
+				} //end run
+			});
 		} else {
 			Log.debug("Method not found: " + methodName);
 		}
@@ -244,7 +283,7 @@ public class WPCOMReaderListView extends WPCOMReaderBase
     	public ListViewProtocolController(BrowserField browserField){ super(browserField); }
 
     	public void handleNavigationRequest(final BrowserFieldRequest request) throws Exception {
-    		Log.info("Requested the following URL: " + request.getURL());
+    		Log.info(" Requested the following URL: " + request.getURL());
     		//Load the details view
     		if ( request.getURL().equalsIgnoreCase(WordPressInfo.readerDetailURL) ) {
     			 Object executeScript = _browserField.getScriptEngine().executeScript("Reader2.last_selected_item", null); 
@@ -257,7 +296,7 @@ public class WPCOMReaderListView extends WPCOMReaderBase
 					}
 				});
     		} else {
-    			//Load the URL in the current View. Used upon redirect on the login form... 
+    			//Load the URL in the current View. 
     			try {
     				final InputConnection ic = handleResourceRequest(request);
     				UiApplication.getUiApplication().invokeLater(new Runnable() {
@@ -297,15 +336,6 @@ public class WPCOMReaderListView extends WPCOMReaderBase
     		if( browserField.getDocumentUrl() != null && browserField.getDocumentUrl().startsWith(WordPressInfo.readerURL_v3)) {
     			//the browser has loaded the login form and authenticated the user...
     			_documentLoaded = true;
-	    		if ( connectionProgressView != null ) {
-	    			UiApplication.getUiApplication().invokeLater(new Runnable() {
-	    				public void run() {
-	    					//connectionProgressView.close();
-	    					UiApplication.getUiApplication().popScreen(connectionProgressView);
-	    					connectionProgressView = null;
-	    				} //end run
-	    			});
-	    		}
 	    		//Add the protocol controller to intercept clicks on the browser
 	    		browserField.getConfig().setProperty(BrowserFieldConfig.CONTROLLER, new ListViewProtocolController(browserField));
 	    		//Load the topics page and cache it
@@ -326,25 +356,27 @@ public class WPCOMReaderListView extends WPCOMReaderBase
     	 */
     	public boolean keyChar(final char key, int status, int time)
     	{            
-    		if(key == Characters.ESCAPE)
+    		if(key == 'p' || key == Characters.ESCAPE)
     		{
     			Runnable previousRunnable = new Runnable()
     			{
     				public void run()
     				{
-						synchronized(Application.getEventLock()) 
-						{
-							close();
-						}
+    					if(key == Characters.ESCAPE)
+    					{
+    						synchronized(Application.getEventLock()) 
+    						{
+    							close();
+    						}
+    					}
     				}
     			};
     			new Thread(previousRunnable).start();
     			return true;
     		}
-    		return false;            
+    		return false;             
     	}
 
-        
        /**
         * @see KeyListener#keyDown(int, int)
         */

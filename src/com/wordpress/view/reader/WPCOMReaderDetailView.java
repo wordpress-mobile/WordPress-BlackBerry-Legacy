@@ -42,7 +42,7 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
      */
     public WPCOMReaderDetailView(BrowserFieldRequest request, String currentItem)
     {    
-    	super(_resources.getString(WordPressResource.TITLE_SETTINGS_VIEW));
+    	super(_resources.getString(WordPressResource.MENUITEM_READER));
     	
     	this.request = request;
 		this.currentItem = currentItem;
@@ -64,23 +64,40 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
      */
     protected void onUiEngineAttached(boolean attached)
     {
-        if(attached)
-        {
-            try
-            {
-                _browserField.requestContent(request);
-                connectionProgressView = new ConnectionInProgressView(
-            			_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
-            	connectionProgressView.setDialogClosedListener(new ConnectionDialogClosedListener());
-                connectionProgressView.show();
-            }
-            catch(Exception e)
-            {                
-                deleteAll();
-                add(new LabelField("ERROR:\n\n"));
-                add(new LabelField(e.getMessage()));
-            }
-        }
+    	if(attached)
+    	{
+    		try
+    		{
+    			_browserField.requestContent(request);
+    			connectionProgressView = new ConnectionInProgressView(
+    					_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
+    			connectionProgressView.setDialogClosedListener(new ConnectionDialogClosedListener());
+    			connectionProgressView.show();
+    			int res = UiApplication.getUiApplication().invokeLater(new Runnable() {
+    				public void run() {
+    					if ( connectionProgressView.isDisplayed())
+    						UiApplication.getUiApplication().popScreen(connectionProgressView);
+    					connectionProgressView = null;
+    				} //end run
+    			}, 2000, false);
+
+    			if ( res == -1 ) { //timer failed, remove the dialog immediately
+    				UiApplication.getUiApplication().invokeLater(new Runnable() {
+    					public void run() {
+    						if ( connectionProgressView.isDisplayed())
+    							UiApplication.getUiApplication().popScreen(connectionProgressView);
+    						connectionProgressView = null;
+    					} //end run
+    				});
+    			}
+    		}
+    		catch(Exception e)
+    		{                
+    			deleteAll();
+    			add(new LabelField("ERROR:\n\n"));
+    			add(new LabelField(e.getMessage()));
+    		}
+    	}
     }
     
     
@@ -93,7 +110,7 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
         return true;
     }   
 
-      
+    
     /**
      * A class to listen for BrowserField events
      */
@@ -103,14 +120,6 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
     		Log.debug("DetailView has loaded the following URL : " + browserField.getDocumentUrl() );
     		//the browser has loaded the login form and authenticated the user...
     		_documentLoaded = true;
-    		if ( connectionProgressView != null ) {
-    			UiApplication.getUiApplication().invokeLater(new Runnable() {
-    				public void run() {
-    					UiApplication.getUiApplication().popScreen(connectionProgressView);
-    					connectionProgressView = null;
-    				} //end run
-    			});
-    		} 
     		if ( request.getURL().startsWith(WordPressInfo.readerDetailURL) ) {
     			UiApplication.getUiApplication().invokeLater(new Runnable() {
     				public void run() {

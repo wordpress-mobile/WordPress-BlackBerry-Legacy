@@ -87,64 +87,47 @@ public abstract class WPCOMReaderBase extends BaseView {
 	        browserField.extendScriptEngine("BlackBerry.callNative", callNative);        
 	    }
 		
-		protected void callNative(String payload) {
-			String jsonString = payload.substring(0, payload.indexOf("&wpcom-hybrid-auth-token="));
-			String wpcom_hybrid_auth_token= payload.substring(payload.indexOf("&wpcom-hybrid-auth-token="), payload.length() );
-			wpcom_hybrid_auth_token = StringUtils.replaceLast(wpcom_hybrid_auth_token, "&wpcom-hybrid-auth-token=", "");
+	    protected void callNative(String payload) {
+	    	try {
+	    		String jsonString = payload.substring(0, payload.indexOf("&wpcom-hybrid-auth-token="));
+	    		String wpcom_hybrid_auth_token= payload.substring(payload.indexOf("&wpcom-hybrid-auth-token="), payload.length() );
+	    		wpcom_hybrid_auth_token = StringUtils.replaceLast(wpcom_hybrid_auth_token, "&wpcom-hybrid-auth-token=", "");
 
-			WPCOMReaderBase parentClass = WPCOMReaderBase.this;
+	    		WPCOMReaderBase parentClass = WPCOMReaderBase.this;
 
-			if ( ! wpcom_hybrid_auth_token.equals( parentClass.getHybridAuthToken() ) ) {
-				//Token miss-match
-				Log.error(  "Remote native call failed : Token missmatch" );
-				return;
-			}
+	    		if ( ! wpcom_hybrid_auth_token.equals( parentClass.getHybridAuthToken() ) ) {
+	    			//Token miss-match
+	    			Log.error(  "Remote native call failed : Token missmatch" );
+	    			return;
+	    		}
 
-			//Call the right methods by using reflection. Oh Java, we love you.
-			try {
-				JSONArray methodsToCall = (JSONArray) new JSONTokener(jsonString).nextValue();
-				//a single call from the JS code can contain the invocation of more than one native method
-				for (int i = 0; i < methodsToCall.length(); i++) { 
+	    		JSONArray methodsToCall = (JSONArray) new JSONTokener(jsonString).nextValue();
+	    		//a single call from the JS code can contain the invocation of more than one native method
+	    		for (int i = 0; i < methodsToCall.length(); i++) { 
 
-					JSONObject currentMethodToCall = methodsToCall.getJSONObject(i);
-					String methodName = currentMethodToCall.getString("method");
-					JSONArray args = currentMethodToCall.getJSONArray("args");
+	    			JSONObject currentMethodToCall = methodsToCall.getJSONObject(i);
+	    			String methodName = currentMethodToCall.getString("method");
+	    			JSONArray args = currentMethodToCall.getJSONArray("args");
 
-					Object[] formalParameters = new Object[args.length()];   //declares the parameters to be passed to the method
-					Class[] formalParametersType = new Class[args.length()]; //declares the parameters type the method takes
+	    			Object[] formalParameters = new Object[args.length()];   //declares the parameters to be passed to the method
+	    			Class[] formalParametersType = new Class[args.length()]; //declares the parameters type the method takes
 
-					for (int j = 0; j < args.length(); j++) {
-						formalParameters[j] = args.getString(j); //We know that for now only String parameters are allowed
-						formalParametersType[j] = String.class;
-					}
-					
-					//WTF!! No Reflection API on BB. WE need another way to call Java method
-					this.executeNativeJaveCode(methodName, formalParameters, formalParametersType);
-					
-				/*	//call the java method by using reflection
-					java.lang.reflect.Method method;
-					try {
-						method = parentClass.getClass().getMethod( methodName, formalParametersType );
-						method.invoke( parentClass, formalParameters );
-					} catch (SecurityException e) {
-						Log.e(parentClass.getClass().getName(), "Exception getting method name", e); 
-					} catch (NoSuchMethodException e) {
-						//This could happen when the JS code try to call a method not defined in the class. For ex when it is calling a method for the iOS app.
-						Log.w(parentClass.getClass().getName(), "Method not found in the class", e);
-					}
-					catch (IllegalArgumentException e) {
-						Log.e(parentClass.getClass().getName(), "Method called with invalid arguments", e);
-					} catch (IllegalAccessException e) {
-						Log.e(parentClass.getClass().getName(), "Method is not accessible", e);
-					} catch (InvocationTargetException e) {
-						Log.e(parentClass.getClass().getName(), "Object can't call this method", e);
-					} */
-				}
-				
-			} catch (JSONException e) {
-				Log.error( "Calling native call from JS failed: "+ e.getMessage() );
-			}
-		}
+	    			for (int j = 0; j < args.length(); j++) {
+	    				formalParameters[j] = args.getString(j); //We know that for now only String parameters are allowed
+	    				formalParametersType[j] = String.class;
+	    			}
+
+	    			//Execute a single JS->Native method invocation
+	    			try {
+	    				this.executeNativeJaveCode(methodName, formalParameters, formalParametersType);
+	    			} catch (Exception e) {
+	    				Log.error( e, "Error while calling the native method "+ methodName + " with the following parameters "+formalParameters.toString()  );
+	    			}
+	    		}
+	    	} catch (JSONException e) {
+	    		Log.error( "Error while parsing the native call JSON string: "+ e.getMessage() );
+	    	}
+	    }
 		
 		protected abstract void executeNativeJaveCode(String methodName, Object[] formalParamenters, Class[] formalParametersType);
 		

@@ -115,7 +115,7 @@ public class MainView extends StandardBaseView {
 			return true;
 		}
 	
-    private MenuItem _mobileReaderMenuItem = new MenuItem( _resources, WordPressResource.MENUITEM_SHOW_READER, 1200, 850) {
+    private MenuItem _mobileReaderMenuItem = new MenuItem( _resources, WordPressResource.MENUITEM_READER, 1200, 850) {
         public void run() {
         	//load the first WP.COM available within the app
         	Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
