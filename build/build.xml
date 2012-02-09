@@ -190,6 +190,7 @@
 			<property name="rim.home" value="${rim.home.os45}" />
 			<property name="log_console" value="true"/>
 			<property name="module.version" value="${nightly.number}" />
+			<property name="VER_4.5.0"  value="true" />
 		</ant>
 	</target>
 		

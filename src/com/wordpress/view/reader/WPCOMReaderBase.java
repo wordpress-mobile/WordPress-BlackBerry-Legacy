@@ -1,9 +1,8 @@
-package com.wordpress.view.reader;
+//#preprocess
 
-import org.json.me.JSONArray;
-import org.json.me.JSONException;
-import org.json.me.JSONObject;
-import org.json.me.JSONTokener;
+//#ifdef BlackBerrySDK7.0.0
+
+package com.wordpress.view.reader;
 
 import net.rim.blackberry.api.browser.URLEncodedPostData;
 import net.rim.device.api.browser.field2.BrowserField;
@@ -101,13 +100,13 @@ public abstract class WPCOMReaderBase extends BaseView {
 	    			return;
 	    		}
 
-	    		JSONArray methodsToCall = (JSONArray) new JSONTokener(jsonString).nextValue();
+	    		org.json.me.JSONArray methodsToCall = (org.json.me.JSONArray) new org.json.me.JSONTokener(jsonString).nextValue();
 	    		//a single call from the JS code can contain the invocation of more than one native method
 	    		for (int i = 0; i < methodsToCall.length(); i++) { 
 
-	    			JSONObject currentMethodToCall = methodsToCall.getJSONObject(i);
+	    			org.json.me.JSONObject currentMethodToCall = methodsToCall.getJSONObject(i);
 	    			String methodName = currentMethodToCall.getString("method");
-	    			JSONArray args = currentMethodToCall.getJSONArray("args");
+	    			org.json.me.JSONArray args = currentMethodToCall.getJSONArray("args");
 
 	    			Object[] formalParameters = new Object[args.length()];   //declares the parameters to be passed to the method
 	    			Class[] formalParametersType = new Class[args.length()]; //declares the parameters type the method takes
@@ -124,7 +123,7 @@ public abstract class WPCOMReaderBase extends BaseView {
 	    				Log.error( e, "Error while calling the native method "+ methodName + " with the following parameters "+formalParameters.toString()  );
 	    			}
 	    		}
-	    	} catch (JSONException e) {
+	    	} catch (org.json.me.JSONException e) {
 	    		Log.error( "Error while parsing the native call JSON string: "+ e.getMessage() );
 	    	}
 	    }
@@ -149,3 +148,5 @@ public abstract class WPCOMReaderBase extends BaseView {
 		}
 	
 }
+
+//#endif

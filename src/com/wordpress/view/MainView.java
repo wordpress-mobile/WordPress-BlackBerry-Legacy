@@ -4,21 +4,23 @@ package com.wordpress.view;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import net.rim.blackberry.api.browser.URLEncodedPostData;
-import net.rim.device.api.browser.field2.BrowserFieldRequest;
-import net.rim.device.api.io.http.HttpHeaders;
 import net.rim.device.api.system.ApplicationDescriptor;
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.CodeModuleGroup;
 import net.rim.device.api.system.CodeModuleGroupManager;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.container.MainScreen;
 
+import net.rim.device.api.ui.toolbar.ToolbarButtonField;
+import net.rim.device.api.ui.toolbar.ToolbarManager;
+import net.rim.device.api.ui.toolbar.ToolbarSpacer;
+
 import com.wordpress.bb.WordPressCore;
-import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.BaseController;
@@ -27,12 +29,20 @@ import com.wordpress.controller.MainController;
 import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.DataCollector;
-import com.wordpress.utils.PropertyUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BlogsListField;
 import com.wordpress.view.component.SelectorPopupScreen;
+
+//#ifdef BlackBerrySDK7.0.0
+import net.rim.device.api.ui.image.Image;
+import net.rim.device.api.ui.image.ImageFactory;
+import net.rim.device.api.util.StringProvider;
+import net.rim.device.api.command.Command;
+import net.rim.device.api.command.CommandHandler;
+import net.rim.device.api.command.ReadOnlyCommandMetadata;
 import com.wordpress.view.reader.WPCOMReaderListView;
+//#endif
 
 public class MainView extends StandardBaseView {
 	
@@ -53,6 +63,51 @@ public class MainView extends StandardBaseView {
 		addMenuItem(_setupItem);
 		addMenuItem(_accountItem);
 		addMenuItem(_updateItem);
+		
+		//#ifdef BlackBerrySDK7.0.0
+		
+		if (ToolbarManager.isToolbarSupported()) 
+		{
+
+			ToolbarManager manager = new ToolbarManager();
+			setToolbar(manager);
+
+			try 
+			{
+				Bitmap myBitmap = Bitmap.getBitmapResource("folder_yellow_open_32.png");
+				Image myImage = ImageFactory.createImage(myBitmap);
+
+				/*
+				 * To create more buttons, Repeat the following lines 
+				 * up until manager.add() 
+				 */
+				ToolbarButtonField button1 = new ToolbarButtonField(myImage, new StringProvider("butn1"));
+				button1.setCommandContext(new Object()
+				{
+					public String toString()
+					{
+						return "Button1"; 
+					}          
+				});
+
+				button1.setCommand(new Command(new CommandHandler()
+				{         
+					public void execute(ReadOnlyCommandMetadata metadata, Object context)
+					{
+						Dialog.alert("Executing command for " + context.toString());
+					}           
+				}));
+
+				manager.add(new ToolbarSpacer(0));
+				manager.add(button1);
+			}
+			catch (Exception e)
+			{
+				System.out.println(e.getMessage());
+			}
+		} 
+		//#endif
+        
 	}
 	
 	 public void setupUpBlogsView() {
@@ -114,7 +169,8 @@ public class MainView extends StandardBaseView {
 			} 
 			return true;
 		}
-	
+
+	//#ifdef BlackBerrySDK7.0.0
     private MenuItem _mobileReaderMenuItem = new MenuItem( _resources, WordPressResource.MENUITEM_READER, 1200, 850) {
         public void run() {
         	//load the first WP.COM available within the app
@@ -131,7 +187,7 @@ public class MainView extends StandardBaseView {
 			UiApplication.getUiApplication().pushScreen(_browserScreen);      
         }
     }; 
-	 
+	//#endif
 	 
     private MenuItem _showBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_SHOWBLOG, 1300, 900) {
         public void run() {
@@ -271,10 +327,14 @@ public class MainView extends StandardBaseView {
     	if(Preferences.getIstance().isBackgroundOnClose())
     		menu.add(_exitItem);
     	
+    	//#ifdef BlackBerrySDK7.0.0
+    	
     	//show the reader menu item when there are WP.com accounts
     	Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
     	if(applicationAccounts != null && applicationAccounts.size() > 0)
     		menu.add(_mobileReaderMenuItem);
+    	
+    	//#endif
     	
     	//add the check for activation menu item if the blog is on pending state
     	/*if(blogListController != null) {

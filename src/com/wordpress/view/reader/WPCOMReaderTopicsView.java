@@ -1,3 +1,7 @@
+//#preprocess
+
+//#ifdef BlackBerrySDK7.0.0
+
 package com.wordpress.view.reader;
 
 import net.rim.device.api.browser.field2.BrowserField;
@@ -230,3 +234,5 @@ public class WPCOMReaderTopicsView extends WPCOMReaderBase
 		}
     }
 }
+
+//#endif

@@ -10,8 +10,10 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
+//#ifdef IS_OS47_OR_ABOVE
 import net.rim.device.api.ui.Touchscreen;
 import net.rim.device.api.ui.VirtualKeyboard;
+//#endif
 import net.rim.device.api.ui.XYRect;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.NullField;
@@ -24,9 +26,11 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.view.component.HeaderField;
 import com.wordpress.view.component.LoadMoreField;
+//#ifdef IS_OS47_OR_ABOVE
 import com.wordpress.view.touch.BottomBarButtonField;
 import com.wordpress.view.touch.BottomBarItem;
 import com.wordpress.view.touch.BottomBarManager;
+//#endif
 
 /**
  * Base class for all Application Screen

@@ -148,7 +148,7 @@ public class BlogsListField {
     			
     			if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
     			{       			
-    				return true; //we are return true bc we are eating the event even if it outside the list
+    				return false; 
     			} 
     			
     			int eventCode = message.getEvent();

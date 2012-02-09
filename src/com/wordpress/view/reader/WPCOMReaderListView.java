@@ -1,3 +1,7 @@
+//#preprocess
+
+//#ifdef BlackBerrySDK7.0.0
+
 package com.wordpress.view.reader;
 
 import javax.microedition.io.InputConnection;
@@ -416,3 +420,5 @@ public class WPCOMReaderListView extends WPCOMReaderBase
 
 
 }
+
+//#endif

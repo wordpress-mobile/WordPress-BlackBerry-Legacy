@@ -11,9 +11,6 @@ import javax.microedition.location.Location;
 import javax.microedition.location.LocationException;
 import javax.microedition.location.QualifiedCoordinates;
 
-import org.json.me.JSONArray;
-import org.json.me.JSONObject;
-
 import net.rim.blackberry.api.browser.URLEncodedPostData;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
@@ -222,7 +219,7 @@ public class PostController extends BlogObjectController {
 
 					Vector searchplace = new Vector();
 
-					JSONObject jsonRespObj = new JSONObject(new String(response));
+					org.json.me.JSONObject jsonRespObj = new org.json.me.JSONObject(new String(response));
 					
 					String jsonResponseCode = jsonRespObj.getString("status");
 					if(!jsonResponseCode.equalsIgnoreCase("OK")) {
@@ -231,12 +228,12 @@ public class PostController extends BlogObjectController {
 					}
 					
 
-					JSONArray jsonResults = jsonRespObj.getJSONArray("results");
+					org.json.me.JSONArray jsonResults = jsonRespObj.getJSONArray("results");
 					for (int x = 0; x < jsonResults.length(); ++x) {
-						JSONObject jsonPlace = jsonResults.getJSONObject(x);
+						org.json.me.JSONObject jsonPlace = jsonResults.getJSONObject(x);
 						String name = jsonPlace.getString("formatted_address");
-						JSONObject geometry  = jsonPlace.getJSONObject("geometry");
-						JSONObject location =  geometry.getJSONObject("location");
+						org.json.me.JSONObject geometry  = jsonPlace.getJSONObject("geometry");
+						org.json.me.JSONObject location =  geometry.getJSONObject("location");
 						double lat = location.getDouble("lat");
 						double lng = location.getDouble("lng");
 						Hashtable result = new Hashtable();

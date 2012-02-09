@@ -1,3 +1,7 @@
+//#preprocess
+
+//#ifdef BlackBerrySDK7.0.0
+
 package com.wordpress.view.reader;
 
 import net.rim.device.api.browser.field2.BrowserField;
@@ -227,3 +231,5 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
 		Log.debug("Trying to call the following method "+ methodName + " on " + this.getClass().getName());
     }
 }
+
+//#endif
