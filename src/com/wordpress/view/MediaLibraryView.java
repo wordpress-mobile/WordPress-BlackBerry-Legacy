@@ -12,7 +12,7 @@ import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.component.SeparatorField;
 
-//#ifdef IS_OS47_OR_ABOVE
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.VirtualKeyboard;
 //#endif
 
@@ -37,7 +37,7 @@ public class MediaLibraryView extends MediaView {
     	super(_controller);  	
 		this.entry = entry;
                 
-    	//#ifdef IS_OS47_OR_ABOVE
+    	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
     	VirtualKeyboard virtKbd = getVirtualKeyboard();
     	if(virtKbd != null)
     		virtKbd.setVisibility(VirtualKeyboard.HIDE);
@@ -47,7 +47,7 @@ public class MediaLibraryView extends MediaView {
     	BorderedFieldManager outerManagerRowInfo = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
          		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);
 		title = new BasicEditField(_resources.getString(WordPressResource.LABEL_TITLE)+": ", entry.getTitle(), 100, Field.EDITABLE) {
-	    	//#ifdef IS_OS47_OR_ABOVE
+	    	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 			protected void onUnfocus() {
 				super.onUnfocus();
 				VirtualKeyboard virtKbd = getVirtualKeyboard();

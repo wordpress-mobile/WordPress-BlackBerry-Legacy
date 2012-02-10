@@ -16,10 +16,6 @@ import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.container.MainScreen;
 
-import net.rim.device.api.ui.toolbar.ToolbarButtonField;
-import net.rim.device.api.ui.toolbar.ToolbarManager;
-import net.rim.device.api.ui.toolbar.ToolbarSpacer;
-
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AccountsController;
@@ -41,6 +37,9 @@ import net.rim.device.api.util.StringProvider;
 import net.rim.device.api.command.Command;
 import net.rim.device.api.command.CommandHandler;
 import net.rim.device.api.command.ReadOnlyCommandMetadata;
+import net.rim.device.api.ui.toolbar.ToolbarButtonField;
+import net.rim.device.api.ui.toolbar.ToolbarManager;
+import net.rim.device.api.ui.toolbar.ToolbarSpacer;
 import com.wordpress.view.reader.WPCOMReaderListView;
 //#endif
 
@@ -98,7 +97,7 @@ public class MainView extends StandardBaseView {
 					}           
 				}));
 
-				manager.add(new ToolbarSpacer(0));
+				//manager.add(new ToolbarSpacer(0));
 				manager.add(button1);
 			}
 			catch (Exception e)

@@ -25,7 +25,7 @@ import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
 
-//#ifdef IS_OS47_OR_ABOVE
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.TouchEvent;
 import com.wordpress.view.touch.BottomBarItem;
 import net.rim.device.api.ui.Touchscreen;
@@ -114,7 +114,7 @@ public class MediaView extends StandardBaseView {
     	
 		//end setting up the no media box
 		
-    	//#ifdef IS_OS47_OR_ABOVE
+    	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
     	initUpBottomBar();
     	//#endif
 
@@ -125,7 +125,7 @@ public class MediaView extends StandardBaseView {
         
     }
     	
-	//#ifdef IS_OS47_OR_ABOVE
+	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 	private void initUpBottomBar() {
 		if (Touchscreen.isSupported() == false) return;
 		
@@ -169,7 +169,7 @@ public class MediaView extends StandardBaseView {
     		}
     	}
     	
-	    //#ifdef IS_OS47_OR_ABOVE
+	    //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		if(count == 0) {
 			setBottomBarButtonState(3, false); //disable the delete btn
 		} else
@@ -595,7 +595,7 @@ public class MediaView extends StandardBaseView {
             }
 			
 			
-        	//#ifdef IS_OS47_OR_ABOVE
+        	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
         	protected boolean touchEvent(TouchEvent message) {
         		Log.trace(">>> touchEvent");
                 boolean isOutOfBounds = false;

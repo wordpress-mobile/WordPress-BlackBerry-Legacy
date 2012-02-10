@@ -45,7 +45,7 @@ import com.wordpress.view.component.MarkupToolBarTextFieldMediator;
 import com.wordpress.view.container.BorderedFieldManager;
 import com.wordpress.view.dialog.InquiryView;
 
-//#ifdef IS_OS47_OR_ABOVE
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.VirtualKeyboard;
 //#endif
 
@@ -255,7 +255,7 @@ public class PostView extends StandardBaseView {
 							} catch (Exception e) {
 								Log.error(e, "Error while invoking BlackBerry Maps - starting google maps");
 								//start google maps if bb maps fails
-							  	//#ifdef IS_OS47_OR_ABOVE
+							  	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 						    	VirtualKeyboard virtKbd = getVirtualKeyboard();
 						    	if(virtKbd != null)
 						    		virtKbd.setVisibility(VirtualKeyboard.HIDE);

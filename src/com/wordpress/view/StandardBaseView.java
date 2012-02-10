@@ -7,7 +7,7 @@ import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
-//#ifdef IS_OS47_OR_ABOVE
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.Touchscreen;
 //#endif
 
@@ -52,7 +52,7 @@ public abstract class StandardBaseView extends BaseView {
     			if ( titleField != null ) {
     				titleFieldHeight = titleField.getHeight();
     			}
-    		    //#ifdef IS_OS47_OR_ABOVE
+    		    //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
     			if (Touchscreen.isSupported() == true && bottomButtonsManager != null && isBottomBarVisible) {
     				titleFieldHeight += bottomButtonsManager.getHeight();
     			}  			   				

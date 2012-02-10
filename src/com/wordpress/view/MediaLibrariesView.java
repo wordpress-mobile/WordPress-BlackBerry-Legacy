@@ -5,7 +5,7 @@ import java.util.Hashtable;
 
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.MenuItem;
-//#ifdef IS_OS47_OR_ABOVE
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.Touchscreen;
 import com.wordpress.view.touch.BottomBarItem;
 //#endif
@@ -65,7 +65,7 @@ public class MediaLibrariesView extends BaseView implements ListActionListener {
 		} 
 		addMenuItem(_newMediaLibrary);
 		
-        //#ifdef IS_OS47_OR_ABOVE
+        //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		if (Touchscreen.isSupported() == true) {
 			int numberOfButtons = 1;
 			if( (mediaLibrary != null) && mediaLibrary.length > 0 ){
@@ -82,7 +82,7 @@ public class MediaLibrariesView extends BaseView implements ListActionListener {
 		add(listaPost);
 	}
 	
-	//#ifdef IS_OS47_OR_ABOVE	
+	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0	
 	protected void bottomBarActionPerformed(int mnuItem) {
 		switch (mnuItem) {
 		case 0:

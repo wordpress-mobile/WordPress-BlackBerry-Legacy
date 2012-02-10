@@ -10,7 +10,7 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
-//#ifdef IS_OS47_OR_ABOVE
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.Touchscreen;
 import net.rim.device.api.ui.VirtualKeyboard;
 //#endif
@@ -26,7 +26,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.view.component.HeaderField;
 import com.wordpress.view.component.LoadMoreField;
-//#ifdef IS_OS47_OR_ABOVE
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import com.wordpress.view.touch.BottomBarButtonField;
 import com.wordpress.view.touch.BottomBarItem;
 import com.wordpress.view.touch.BottomBarManager;
@@ -110,7 +110,7 @@ public abstract class BaseView extends MainScreen {
 			if ( loadingMoreField == null )
 				loadingMoreField = new LoadMoreField();
 			
-			//#ifdef IS_OS47_OR_ABOVE
+			//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 			if ( Touchscreen.isSupported() == true && bottomButtonsManager != null ) {
 				this.setStatus(new NullField());//remove the bottom bar from the manager
 				VerticalFieldManager tmpManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL | Manager.USE_ALL_WIDTH );
@@ -126,7 +126,7 @@ public abstract class BaseView extends MainScreen {
 		} else {
 			if ( loadingMoreField == null )
 				return;	
-			//#ifdef IS_OS47_OR_ABOVE
+			//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 			if ( Touchscreen.isSupported() == true && bottomButtonsManager != null ) {
 				bottomButtonsManager.getManager().deleteAll(); //remove the bottom bar from the tmp manager
 				this.setStatus(bottomButtonsManager);
@@ -143,7 +143,7 @@ public abstract class BaseView extends MainScreen {
     /**
      * TOUCHSCREEN ADDED
      */
-  //#ifdef IS_OS47_OR_ABOVE         
+  //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0         
 	private Field hoverField;
 	protected BottomBarManager bottomButtonsManager = null; 
 	protected volatile boolean isBottomBarVisible = false;

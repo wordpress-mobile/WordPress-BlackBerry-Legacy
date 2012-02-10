@@ -21,7 +21,7 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
-//#ifdef IS_OS47_OR_ABOVE
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.TouchGesture;
 import net.rim.device.api.ui.TouchEvent;
 //#endif
@@ -600,7 +600,7 @@ public class RimFileBrowser extends PopupScreen {
         
     	
         
-    	//#ifdef IS_OS47_OR_ABOVE
+    	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
     	protected boolean touchEvent(TouchEvent message) {
     		
     		/*if(!this.getContentRect().contains(message.getX(1), message.getY(1)))

@@ -23,7 +23,7 @@ import com.wordpress.view.component.ListActionListener;
 import com.wordpress.view.component.ListLoadMoreListener;
 import com.wordpress.view.component.GenericListField;
 
-//#ifdef IS_OS47_OR_ABOVE
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.Touchscreen;
 import com.wordpress.view.touch.BottomBarItem;
 //#endif
@@ -43,7 +43,7 @@ public class PostsView extends BaseView implements ListActionListener, ListLoadM
 	        dataScroller = new VerticalFieldManager(VerticalFieldManager.VERTICAL_SCROLL
 	                 | VerticalFieldManager.VERTICAL_SCROLLBAR);
 	        	
-	        //#ifdef IS_OS47_OR_ABOVE
+	        //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 	        	initUpBottomBar();
 	        //#endif
 	        
@@ -52,7 +52,7 @@ public class PostsView extends BaseView implements ListActionListener, ListLoadM
 	 }
 	 
 	 
-	//#ifdef IS_OS47_OR_ABOVE
+	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		private void initUpBottomBar() {
 			if (Touchscreen.isSupported() == false) return;
 			
@@ -140,7 +140,7 @@ public class PostsView extends BaseView implements ListActionListener, ListLoadM
 		dataScroller.invalidate();
 		listaPost.setFocus(); //set the focus over the list
 		
-	    //#ifdef IS_OS47_OR_ABOVE
+	    //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		if(elements.length == 0) {
 			setBottomBarButtonState(1, false); //disable the delete btn
 		} else

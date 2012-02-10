@@ -28,7 +28,7 @@ import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.component.WebBitmapField;
 import com.wordpress.view.container.TableLayoutManager;
 
-//#ifdef IS_OS47_OR_ABOVE
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.Touchscreen;
 import com.wordpress.view.touch.BottomBarItem;
 import net.rim.device.api.ui.decor.BackgroundFactory;
@@ -62,7 +62,7 @@ public class StatsView extends BaseView {
 		
 		add(scrollerData);
 		
-		//#ifdef IS_OS47_OR_ABOVE
+		//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		initUpBottomBar();
 		//#endif
 		
@@ -220,7 +220,7 @@ public class StatsView extends BaseView {
 				if(controller.getType() != StatsController.TYPE_VIEW) {
 					currentLabelField = GUIFactory.getLabel(String.valueOf(counter), LabelField.FOCUSABLE |  DrawStyle.ELLIPSIS);
 					outerTable.add(currentLabelField);
-					//#ifdef IS_OS47_OR_ABOVE
+					//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 					if(counter % 2 != 0)
 						currentLabelField.setBackground(BackgroundFactory.createSolidBackground(0xf5f5f5));
 					else
@@ -246,7 +246,7 @@ public class StatsView extends BaseView {
 						outerTable.add(currentLabelField);
 					}
 					
-					//#ifdef IS_OS47_OR_ABOVE
+					//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 					if(counter % 2 != 0)
 						currentLabelField.setBackground(BackgroundFactory.createSolidBackground(0xf5f5f5));
 					else
@@ -616,7 +616,7 @@ public class StatsView extends BaseView {
 	 };
 	private VerticalFieldManager scrollerData;
 	
-	//#ifdef IS_OS47_OR_ABOVE
+	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 	private void initUpBottomBar() {
 		if (Touchscreen.isSupported() == false) return;
 

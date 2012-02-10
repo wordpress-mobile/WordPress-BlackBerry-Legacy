@@ -235,7 +235,7 @@ public class WordPress extends UiApplication implements WordPressResource, Syste
         	original.getPermission( ApplicationPermissions.PERMISSION_WIFI ) == ApplicationPermissions.VALUE_ALLOW  )
         {
 
-        	//#ifdef IS_OS47_OR_ABOVE
+        	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 
         	//check additional permissions for BB OS4.7 or higher
         	if( 
@@ -272,7 +272,7 @@ public class WordPress extends UiApplication implements WordPressResource, Syste
         permRequest.addPermission( ApplicationPermissions.PERMISSION_WIFI );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_MEDIA );
         
-    	//#ifdef IS_OS47_OR_ABOVE
+    	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
         permRequest.addPermission( ApplicationPermissions.PERMISSION_LOCATION_DATA );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_ORGANIZER_DATA  );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_CROSS_APPLICATION_COMMUNICATION  );

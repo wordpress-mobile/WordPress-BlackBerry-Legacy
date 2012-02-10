@@ -10,11 +10,11 @@ import net.rim.device.api.system.ControlledAccessException;
 import net.rim.device.api.system.PersistentObject;
 import net.rim.device.api.system.PersistentStore;
 
-//#ifndef VER_6.0.0 | BlackBerrySDK7.0.0
+//#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 /*  avoid Eclipse complaints
 //#endif
 import net.rim.device.api.system.capability.DeviceCapability;
-//#ifndef VER_6.0.0 | BlackBerrySDK7.0.0
+//#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 */
 //#endif
 
@@ -105,15 +105,15 @@ public final class WordPressInfo {
     	Log.trace("WordPress Info inizialized");
     	isForcelessTouchClickSupported = false;
 
-    	//#ifndef VER_6.0.0 | BlackBerrySDK7.0.0
+    	//#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
     	/*  avoid Eclipse complaints
     	//#endif
     	 
-    	 //this code is executed only when the tag VER_6.0.0 is defined
+    	 //this code is executed only when the tag BlackBerrySDK6.0.0 is defined
  		// If the device supports forceless clicks, the method returns false
     	isForcelessTouchClickSupported = !(DeviceCapability.isTouchClickSupported());
     	
-    	//#ifndef VER_6.0.0 | BlackBerrySDK7.0.0
+    	//#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
     	*/  
     	//#endif
     }

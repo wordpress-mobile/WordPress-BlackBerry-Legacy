@@ -9,7 +9,7 @@ import java.util.Vector;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.blackberry.api.homescreen.HomeScreen;
-//#ifdef IS_OS47_OR_ABOVE
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.blackberry.api.messagelist.ApplicationIcon;
 import net.rim.blackberry.api.messagelist.ApplicationIndicator;
 import net.rim.blackberry.api.messagelist.ApplicationIndicatorRegistry;
@@ -100,7 +100,7 @@ public class NotificationHandler {
 		Log.trace("NotificationHandler stopped");
 		cancelNotification();
 		stopInnerTask();
-		//#ifdef IS_OS47_OR_ABOVE
+		//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		try{
 			ApplicationIndicatorRegistry reg = ApplicationIndicatorRegistry.getInstance();    
 			if ( reg.getApplicationIndicator() != null ) 
@@ -140,13 +140,13 @@ public class NotificationHandler {
 			HomeScreen.updateIcon(WordPressInfo.getIcon());
 		}
 		
-		//#ifdef IS_OS47_OR_ABOVE
+		//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		updateApplicationIndicator();
 		//#endif
 	}
 
 	private void updateApplicationIndicator() {
-		//#ifdef IS_OS47_OR_ABOVE
+		//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		try{
 			ApplicationIndicatorRegistry reg = ApplicationIndicatorRegistry.getInstance();
 			ApplicationIndicator indicator = null;
@@ -243,7 +243,7 @@ public class NotificationHandler {
 				} else {
 					UiApplication.getUiApplication().invokeLater(new Runnable() {
 						public void run() {
-							//#ifdef IS_OS47_OR_ABOVE
+							//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 							updateApplicationIndicator();
 							//#endif
 							MainController.getIstance().refreshView(); //update the main view

@@ -439,7 +439,7 @@ public abstract class BlogObjectController extends BaseController {
 			html = StringUtils.replaceAll(html, "!$categories$!", ""); //The pages have no categories
 		}
 		
-		//#ifdef IS_OS50_OR_ABOVE
+		//#ifdef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		try {
 			UiApplication.getUiApplication().pushScreen(new PreviewView(html.getBytes("UTF-8"), "text/html; charset=UTF-8"));
 		} catch (UnsupportedEncodingException e) {

@@ -23,7 +23,7 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ListActionListener;
 import com.wordpress.view.component.GenericListField;
 
-//#ifdef IS_OS47_OR_ABOVE
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.Touchscreen;
 import com.wordpress.view.touch.BottomBarItem;
 //#endif
@@ -42,7 +42,7 @@ public class AccountsView extends BaseView  implements ListActionListener {
 	    	buildList();
 	 }
 	 
-	 //#ifdef IS_OS47_OR_ABOVE
+	 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 	 private void initUpBottomBar(int size) {
 		 if (Touchscreen.isSupported() == false) return;
 
@@ -126,7 +126,7 @@ public class AccountsView extends BaseView  implements ListActionListener {
         	//listaPost.set(new Object[0]);
         }
         	
-        //#ifdef IS_OS47_OR_ABOVE
+        //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		int size = 0;
 		if ((accounts != null)  && accounts.size() > 0)
 			size = 3;

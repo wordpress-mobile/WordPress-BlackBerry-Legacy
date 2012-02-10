@@ -33,7 +33,7 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 
 
-//#ifdef IS_OS50_OR_ABOVE
+//#ifdef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.browser.field2.BrowserField;
 import net.rim.device.api.browser.field2.BrowserFieldConfig;
 //#endif
@@ -79,7 +79,7 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 			//never fall here
 		}
 		
-		//#ifdef IS_OS50_OR_ABOVE
+		//#ifdef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		
 		BrowserFieldConfig myBrowserFieldConfig = new BrowserFieldConfig();
 		myBrowserFieldConfig.setProperty(BrowserFieldConfig.NAVIGATION_MODE,BrowserFieldConfig.NAVIGATION_MODE_POINTER);
@@ -120,7 +120,7 @@ public class PreviewView  extends BaseView implements RenderingApplication {
         //#endif
 	}
 	
-	//#ifndef IS_OS50_OR_ABOVE
+	//#ifndef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 	//local preview on devices running OS < 5.0
 	public PreviewView(String html) {
 		super(_resources.getString(WordPressResource.TITLE_PREVIEW));
@@ -390,7 +390,7 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 	
 
 	
-	//#ifndef IS_OS50_OR_ABOVE
+	//#ifndef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		    
 	protected void makeMenu(Menu menu, int instance) {
 		menu.deleteAll();

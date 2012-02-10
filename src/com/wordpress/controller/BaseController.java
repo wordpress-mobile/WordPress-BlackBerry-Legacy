@@ -12,7 +12,7 @@ import com.wordpress.view.dialog.ErrorView;
 import com.wordpress.view.dialog.InfoView;
 import com.wordpress.view.dialog.InquiryView;
 
-//#ifdef IS_OS47_OR_ABOVE
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.VirtualKeyboard;
 //#endif
 
@@ -47,7 +47,7 @@ public abstract class BaseController {
 	}
 	
 	private void _displayError(final String msg) {
-	  	//#ifdef IS_OS47_OR_ABOVE
+	  	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		Screen scr = UiApplication.getUiApplication().getActiveScreen();
 		if(scr != null) {
 	    	VirtualKeyboard virtKbd = scr.getVirtualKeyboard();
@@ -81,7 +81,7 @@ public abstract class BaseController {
 	}
 	
 	private void _displayErrorAndWait(final String msg) {
-		//#ifdef IS_OS47_OR_ABOVE
+		//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		Screen scr = UiApplication.getUiApplication().getActiveScreen();
 		if(scr != null) {
 			VirtualKeyboard virtKbd = scr.getVirtualKeyboard();

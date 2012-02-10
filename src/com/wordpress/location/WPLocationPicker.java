@@ -1,6 +1,6 @@
 //#preprocess
 
-//#ifdef IS_OS50_OR_ABOVE
+//#ifdef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 
 package com.wordpress.location;
 

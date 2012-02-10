@@ -16,7 +16,7 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
-//#ifdef IS_OS47_OR_ABOVE
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.VirtualKeyboard;
 import net.rim.device.api.ui.TouchGesture;
 import net.rim.device.api.ui.TouchEvent;
@@ -67,7 +67,7 @@ public class CommentView extends StandardBaseView {
 			this.commentStatusList = controller.getCommentStatusList();
 			this.gvtCtrl = gvtCtrl;
 			
-		  	//#ifdef IS_OS47_OR_ABOVE
+		  	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 	    	VirtualKeyboard virtKbd = getVirtualKeyboard();
 	    	if(virtKbd != null)
 	    		virtKbd.setVisibility(VirtualKeyboard.HIDE);
@@ -654,7 +654,7 @@ public class CommentView extends StandardBaseView {
 				return super.keyChar(c, status, time);
 			}
 
-			//#ifdef IS_OS47_OR_ABOVE
+			//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 			protected boolean touchEvent(TouchEvent message) {
 				Log.trace(">>> touchEvent");
 				int eventCode = message.getEvent();
@@ -683,7 +683,7 @@ public class CommentView extends StandardBaseView {
 	}
     
     
-	//#ifdef IS_OS47_OR_ABOVE
+	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
     protected boolean touchEvent(TouchEvent message) {
     	Log.trace(">>> touchEvent");
     	int eventCode = message.getEvent();

@@ -8,7 +8,7 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
-//#ifdef IS_OS47_OR_ABOVE
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.VirtualKeyboard;
 //#endif
 import net.rim.device.api.ui.component.BasicEditField;
@@ -84,7 +84,7 @@ public class AddWPCOMBlogsView extends StandardBaseView {
             	FieldChangeListener existingAccountListener = new FieldChangeListener() {
             		public void fieldChanged(Field field, int context) {
             			if(context == 0) {
-            		    	//#ifdef IS_OS47_OR_ABOVE
+            		    	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
         			    	VirtualKeyboard virtKbd = getVirtualKeyboard();
         			    	if(virtKbd != null)
         			    		virtKbd.setVisibility(VirtualKeyboard.HIDE);
@@ -124,7 +124,7 @@ public class AddWPCOMBlogsView extends StandardBaseView {
 		) {
 			return;
 		}
-		//#ifdef IS_OS47_OR_ABOVE
+		//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		VirtualKeyboard virtKbd = getVirtualKeyboard();
 		if(virtKbd != null)
 			virtKbd.setVisibility(VirtualKeyboard.HIDE);

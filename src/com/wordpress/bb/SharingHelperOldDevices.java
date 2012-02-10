@@ -74,7 +74,7 @@ public class SharingHelperOldDevices {
 				new ShareToWordPressMenuItem(10000, _resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS)),
 				ApplicationDescriptor.currentApplicationDescriptor());
 		
-		//#ifdef IS_OS47_OR_ABOVE
+		//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_CAMERA_PREVIEW,
 				new ShareToWordPressMenuItem(10000, _resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS)), 
 				ApplicationDescriptor.currentApplicationDescriptor());

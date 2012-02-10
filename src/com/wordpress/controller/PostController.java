@@ -47,7 +47,7 @@ import com.wordpress.xmlrpc.post.EditPostConn;
 import com.wordpress.xmlrpc.post.NewPostConn;
 
 
-//#ifdef IS_OS50_OR_ABOVE
+//#ifdef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.lbs.picker.AbstractLocationPicker;
 import net.rim.device.api.lbs.picker.LocationPicker;
 import net.rim.device.api.lbs.picker.LocationPicker.Picker;
@@ -87,7 +87,7 @@ public class PostController extends BlogObjectController {
 	}
 		
 	public void startGeoTagging() {
-		//#ifdef IS_OS50_OR_ABOVE
+		//#ifdef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		try{
 			WPLocationPicker locationPicker = new WPLocationPicker();
 			locationPicker.setListener(new WPLocationPickerListener());
@@ -106,7 +106,7 @@ public class PostController extends BlogObjectController {
 		//#endif
 	}
 	
-	//#ifdef IS_OS50_OR_ABOVE 
+	//#ifdef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0 
 	private class WPLocationPickerListener implements LocationPicker.Listener {
 	
 		public void locationPicked(Picker picker, Landmark location) {

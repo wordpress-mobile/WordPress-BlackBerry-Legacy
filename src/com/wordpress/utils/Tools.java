@@ -209,7 +209,7 @@ public class Tools {
     	// now launch the URL
     	browserSession.displayPage(URL);
     	
-    	//#ifndef VER_6.0.0 | IS_OS50_OR_ABOVE | BlackBerrySDK7.0.0
+    	//#ifndef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
     	
     	// The following line is a work around to the issue found in
     	// version 4.2.0
@@ -227,7 +227,7 @@ public class Tools {
     	// now launch the URL
     	browserSession.displayPage(URL, referrer, requestHeaders, postData);
     	
-    	//#ifndef VER_6.0.0 | IS_OS50_OR_ABOVE | BlackBerrySDK7.0.0
+    	//#ifndef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
     	
     	// The following line is a work around to the issue found in
     	// version 4.2.0

@@ -84,6 +84,8 @@ public class WPCOMReaderListView extends WPCOMReaderBase
         BrowserFieldConfig config = getReaderBrowserDefaultConfig();
         _browserField = new BrowserField(config);
         _browserField.addListener(new InnerBrowserListener());
+    	//Add the protocol controller to intercept clicks on the browser
+		_browserField.getConfig().setProperty(BrowserFieldConfig.CONTROLLER, new ListViewProtocolController(_browserField));
         try {
 			extendJavaScript(_browserField);
 		} catch (Exception e) {
@@ -168,7 +170,8 @@ public class WPCOMReaderListView extends WPCOMReaderBase
     	public void run() {
     		UiApplication.getUiApplication().invokeLater(new Runnable() {
     			public void run() {
-    				WPCOMReaderListView.this._browserField.refresh();
+    				BrowserFieldRequest request = new BrowserFieldRequest(WPCOMReaderListView.this.getAuthorizeHybridURL( WordPressInfo.readerURL_v3 ));
+    				WPCOMReaderListView.this._browserField.requestContent(request);
     			}
     		});
     	}
@@ -340,8 +343,6 @@ public class WPCOMReaderListView extends WPCOMReaderBase
     		if( browserField.getDocumentUrl() != null && browserField.getDocumentUrl().startsWith(WordPressInfo.readerURL_v3)) {
     			//the browser has loaded the login form and authenticated the user...
     			_documentLoaded = true;
-	    		//Add the protocol controller to intercept clicks on the browser
-	    		browserField.getConfig().setProperty(BrowserFieldConfig.CONTROLLER, new ListViewProtocolController(browserField));
 	    		//Load the topics page and cache it
 	    		loadAndCacheTopicsPage();
 	    		//Load the detail page and cache it

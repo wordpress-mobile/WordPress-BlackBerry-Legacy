@@ -1,6 +1,6 @@
 //#preprocess
 
-//#ifndef VER_6.0.0 | BlackBerrySDK7.0.0
+//#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 
 package org.json.me;
 
