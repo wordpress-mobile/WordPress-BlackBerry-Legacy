@@ -161,7 +161,7 @@ public class TableLayoutManager extends Manager
 
                 int[] rowHeights = new int[rows];
                 Arrays.fill(rowHeights, -1);
-
+                _columns = _columnStyles.length;
                 for (int i = 0; i < _columns; i++)
                 {
                         for (int j = 0; j < rows; j++)

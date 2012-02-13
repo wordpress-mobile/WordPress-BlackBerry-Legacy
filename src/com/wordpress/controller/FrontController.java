@@ -54,16 +54,7 @@ public class FrontController {
 		NotificationController ctrl = new NotificationController(blogs);
 		ctrl.showView();		
 	}
-	
-	/**
-	 * show blog  view
-	 */
-	public void showBlog(BlogInfo currentBlog){
-		BlogController ctrl=new BlogController(currentBlog);
-		ctrl.showView();
-	}
-	
-	
+		
 	/**
 	 * show blog options view
 	 */

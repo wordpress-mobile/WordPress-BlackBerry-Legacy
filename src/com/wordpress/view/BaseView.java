@@ -10,10 +10,6 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
-//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
-import net.rim.device.api.ui.Touchscreen;
-import net.rim.device.api.ui.VirtualKeyboard;
-//#endif
 import net.rim.device.api.ui.XYRect;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.NullField;
@@ -24,12 +20,22 @@ import com.wordpress.bb.NotificationHandler;
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
+
+//#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+import com.wordpress.view.component.HeaderFieldNew;
+//#elseif
 import com.wordpress.view.component.HeaderField;
+//#endif
+
 import com.wordpress.view.component.LoadMoreField;
+import com.wordpress.view.component.WordPressTitleBar;
+
 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import com.wordpress.view.touch.BottomBarButtonField;
 import com.wordpress.view.touch.BottomBarItem;
 import com.wordpress.view.touch.BottomBarManager;
+import net.rim.device.api.ui.Touchscreen;
+import net.rim.device.api.ui.VirtualKeyboard;
 //#endif
 
 /**
@@ -86,18 +92,23 @@ public abstract class BaseView extends MainScreen {
     
     //create the title filed
 	protected Field getTitleField(String title) {
-		HeaderField headerField = new HeaderField(title);
+		Field headerField = null;
+		//#ifdef  BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+		 headerField = new HeaderFieldNew(title);
+		//#elseif
+		 headerField = new HeaderField(title);
+		//#endif
 		return (Field)headerField;
 	}
 	
 	public void setTitleText(String title){
 		if(titleField!= null)
-			((HeaderField)titleField).setTitle(title);
+			((WordPressTitleBar)titleField).setTitle(title);
 	}
 	
 	public void setSubTitleText(String title){
 		if(titleField!= null)
-			((HeaderField)titleField).setSubTitle(title);
+			((WordPressTitleBar)titleField).setSubTitle(title);
 	}
 	
     protected BasicEditField getDescriptionTextField(String text) {

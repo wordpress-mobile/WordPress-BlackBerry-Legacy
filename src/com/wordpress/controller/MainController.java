@@ -184,34 +184,30 @@ public class MainController extends BaseController implements TaskProgressListen
 	}
 		
 	public void deleteBlog(BlogInfo selectedBlog) {
-		if (selectedBlog.getState() == BlogInfo.STATE_LOADING || selectedBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
-			displayMessage(_resources.getString(WordPressResource.MESSAGE_LOADING_BLOGS));
-		} else {
-			try {
-				
-				int result=this.askQuestion(_resources.getString(WordPressResource.MESSAGE_DELETE_BLOG));   
-		    	if(Dialog.YES!=result) return;
-				
-				BlogDAO.removeBlog(selectedBlog);
-				
-	    		for (int i = 0; i < applicationBlogs.size(); i++) {
-	    			
-	    			BlogInfo currentBlog = (BlogInfo) applicationBlogs.elementAt(i);
-	    							
-	    			if (selectedBlog.equals(currentBlog) ) {
-	    				applicationBlogs.removeElementAt(i);
-	    				//ping the stats endpoint with new blog #
-	    				DataCollector dtc = new DataCollector();
-	    				dtc.pingStatsEndpoint(applicationBlogs.size());
-	    				return;
-	    			}
-	    		}
-				
-			} catch (IOException e) {
-				displayError(e, "Error while deleting the blog");
-			} catch (RecordStoreException e) {
-				displayError(e, "Error while deleting the blog");
+		try {
+
+			int result=this.askQuestion(_resources.getString(WordPressResource.MESSAGE_DELETE_BLOG));   
+			if(Dialog.YES!=result) return;
+
+			BlogDAO.removeBlog(selectedBlog);
+
+			for (int i = 0; i < applicationBlogs.size(); i++) {
+
+				BlogInfo currentBlog = (BlogInfo) applicationBlogs.elementAt(i);
+
+				if (selectedBlog.equals(currentBlog) ) {
+					applicationBlogs.removeElementAt(i);
+					//ping the stats endpoint with new blog #
+					DataCollector dtc = new DataCollector();
+					dtc.pingStatsEndpoint(applicationBlogs.size());
+					return;
+				}
 			}
+
+		} catch (IOException e) {
+			displayError(e, "Error while deleting the blog");
+		} catch (RecordStoreException e) {
+			displayError(e, "Error while deleting the blog");
 		}
 	}
 	
@@ -245,7 +241,7 @@ public class MainController extends BaseController implements TaskProgressListen
 	    		dtc.pingStatsEndpoint(applicationBlogs.size());
 
 	    		//update the view
-	    		this.view.refreshBlogList();
+	    		this.view.refreshMainView();
 			} catch (IOException e) {
 				displayError(e, "Error while deleting the blog");
 			} catch (RecordStoreException e) {
@@ -303,13 +299,13 @@ public class MainController extends BaseController implements TaskProgressListen
 			//start the check here
 			displayMessage(_resources.getString(WordPressResource.MESSAGE_PENDING_ACTIVATION_BLOG));
 		} else {
-			FrontController.getIstance().showBlog(selectedBlog);
+			
 		}
 	}
 			
 	public void refreshView() {
 		Log.debug("Refreshing main view...");
-		view.refreshBlogList();
+		view.refreshMainView();
 	}	
 	
 	// Utility routine to ask question about exit application
@@ -345,10 +341,6 @@ public class MainController extends BaseController implements TaskProgressListen
 			view.setBlogItemViewState(blogI);			
 		}
 	}*/
-	
-	public void updateBlogListEntry(BlogInfo blogInfo){
-		view.setBlogItemViewState(blogInfo); 
-	}
 	
 	//listener for the adding blogs task
 	public void taskComplete(Object obj) {

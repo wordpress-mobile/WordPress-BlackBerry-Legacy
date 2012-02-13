@@ -9,7 +9,6 @@ import javax.microedition.io.InputConnection;
 import net.rim.blackberry.api.browser.URLEncodedPostData;
 import net.rim.device.api.browser.field2.BrowserField;
 import net.rim.device.api.browser.field2.BrowserFieldConfig;
-import net.rim.device.api.browser.field2.BrowserFieldHistory;
 import net.rim.device.api.browser.field2.BrowserFieldListener;
 import net.rim.device.api.browser.field2.BrowserFieldRequest;
 import net.rim.device.api.browser.field2.ProtocolController;
@@ -417,8 +416,6 @@ public class WPCOMReaderListView extends WPCOMReaderBase
             return false;
         }
     }
-
-
 
 }
 

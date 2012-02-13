@@ -1,3 +1,6 @@
+//#preprocessor
+
+//#ifndef  BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 package com.wordpress.view.component;
 
 
@@ -7,7 +10,7 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 
-public class HeaderField extends Field {
+public class HeaderField extends Field implements WordPressTitleBar {
 
 	private String title;
 	private Font titleFont;
@@ -93,3 +96,5 @@ public class HeaderField extends Field {
         }
     }
 }
+
+//#endif
