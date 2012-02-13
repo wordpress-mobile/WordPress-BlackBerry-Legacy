@@ -275,6 +275,8 @@ public class BlogOptionsView extends StandardBaseView {
     		buttonsManager.add(buttonBACK);
     		add(buttonsManager);
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
+    		
+    		controller.bumpScreenViewStats("com/wordpress/view/BlogOptionsView", "Blog Options Screen", "", null, "");
 	}
 
 	 private FieldChangeListener listenerBackButton = new FieldChangeListener() {

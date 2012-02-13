@@ -74,6 +74,7 @@ public class GoogleMapView extends StandardBaseView {
 		changeMap();
 		add(mapContainer);
 		buttonZoomIn.setFocus();
+		controller.bumpScreenViewStats("com/wordpress/view/GoogleMapView", "GoogleMap Screen", "", null, "");
 	}
 	
 	

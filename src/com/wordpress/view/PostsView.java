@@ -49,6 +49,7 @@ public class PostsView extends BaseView implements ListActionListener, ListLoadM
 	        
 			add(dataScroller);
 			buildList(recentPostInfo);
+			controller.bumpScreenViewStats("com/wordpress/view/PostsView", "Posts list Screen", "", null, "");
 	 }
 	 
 	 

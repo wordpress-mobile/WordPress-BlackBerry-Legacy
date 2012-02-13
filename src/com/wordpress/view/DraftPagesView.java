@@ -30,6 +30,7 @@ public class DraftPagesView extends BaseView implements ListActionListener {
 	    	this.setSubTitleText(_resources.getString(WordPressResource.MENUITEM_LOCALDRAFTS));  
 	    	this.controller=_controller;
 	        buildList(pages);
+	        controller.bumpScreenViewStats("com/wordpress/view/DraftPagesView", "Draft Pages Screen", "", null, "");
 	 }
 	 
 	 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0

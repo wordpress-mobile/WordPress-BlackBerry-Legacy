@@ -115,6 +115,7 @@ public class AddWPCOMBlogsView extends StandardBaseView {
     		add(buttonsManager); 
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
     		addMenuItem(_addBlogItem);
+    		this.controller.bumpScreenViewStats("com/wordpress/view/AddWPCOMBlogsView", "AddWPCOMBlogs Screen", "", null, "");
 	}
 	 
 

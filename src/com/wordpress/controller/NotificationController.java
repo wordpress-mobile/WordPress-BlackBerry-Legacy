@@ -18,25 +18,25 @@ public class NotificationController extends BaseController {
 	private BlogInfo[] blogsList = new BlogInfo[0];
     private Preferences mPrefs = Preferences.getIstance();
     
-	public NotificationController(BlogInfo[] blogs) {
-		super();
-	   	try {
-	   			blogsList = blogs;
-				String[] blogName = new String[blogs.length];
-				boolean[] blogSelected = new boolean[blogs.length];
-				
-				for (int i = 0; i < blogs.length; i++) {
-					BlogInfo blogInfo = blogs[i];
-					blogName[i] = blogInfo.getName();
-					blogSelected[i] = blogInfo.isCommentNotifies();
-				}
+    public NotificationController(BlogInfo[] blogs) {
+    	super();
+    	try {
+    		blogsList = blogs;
+    		String[] blogName = new String[blogs.length];
+    		boolean[] blogSelected = new boolean[blogs.length];
 
-				this.view= new NotificationView(this, blogName, blogSelected);
-				
-			} catch (Exception e) {
-				Log.error(e, "Error while reading stored blog");
-			}
-	}
+    		for (int i = 0; i < blogs.length; i++) {
+    			BlogInfo blogInfo = blogs[i];
+    			blogName[i] = blogInfo.getName();
+    			blogSelected[i] = blogInfo.isCommentNotifies();
+    		}
+
+    		this.view= new NotificationView(this, blogName, blogSelected);
+
+    	} catch (Exception e) {
+    		Log.error(e, "Error while reading stored blog");
+    	}
+    }
 	
 	public void saveSettings(boolean[] selected, int updateIntervalIndex) {
 		Log.trace(">>> NotificationController.saveSettings");

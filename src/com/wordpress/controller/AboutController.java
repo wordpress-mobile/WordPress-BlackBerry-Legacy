@@ -11,7 +11,6 @@ public class AboutController extends BaseController {
 	public AboutController() {
 		super();
 		aboutView=new AboutView(this);
-	
 	}
 	
 	public void showView(){

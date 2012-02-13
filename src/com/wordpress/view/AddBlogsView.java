@@ -100,6 +100,7 @@ public class AddBlogsView extends StandardBaseView {
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
 
     		addMenuItem(_addBlogItem);
+    		this.controller.bumpScreenViewStats("com/wordpress/view/AddWPORGBlogsView", "AddWPORGBlogs Screen", "", null, "");
 	}
 
 	private void addBlog() {

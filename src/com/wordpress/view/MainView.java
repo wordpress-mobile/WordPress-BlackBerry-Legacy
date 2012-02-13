@@ -116,6 +116,8 @@ public class MainView extends StandardBaseView {
 		addMenuItem(_setupItem);
 		addMenuItem(_accountItem);
 		addMenuItem(_updateItem);
+		
+		mainController.bumpScreenViewStats("com/wordpress/view/MainView", "MainView Screen", "", null, "");
 	}
 	
 	private void createTableAndSelector( BlogInfo[] blogCaricati ) {

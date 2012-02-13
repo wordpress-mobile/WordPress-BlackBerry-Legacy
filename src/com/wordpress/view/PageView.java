@@ -165,6 +165,7 @@ public class PageView extends StandardBaseView {
 		addMenuItem(_photosItem);
 		addMenuItem(_settingsItem);
 		addMenuItem(_customFieldsMenuItem);
+		controller.bumpScreenViewStats("com/wordpress/view/PageView", "PageView Screen", "", null, "");
     }
     
     

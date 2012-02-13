@@ -107,6 +107,7 @@ public class CustomFieldsView extends StandardBaseView {
 		
 		_fieldName.setFocus();
 		setDirty(false);
+		controller.bumpScreenViewStats("com/wordpress/view/CustomFieldsView", "CustomFields Detail Screen", "", null, "");
     }
     
        

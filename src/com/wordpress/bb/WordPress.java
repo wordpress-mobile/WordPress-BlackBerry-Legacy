@@ -1,8 +1,13 @@
 //#preprocess
 package com.wordpress.bb;
 
+import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import com.webtrends.mobile.analytics.IllegalWebtrendsParameterValueException;
+import com.webtrends.mobile.analytics.rim.WebtrendsConfigurator;
+import com.webtrends.mobile.analytics.rim.WebtrendsDataCollector;
 
 import net.rim.blackberry.api.homescreen.HomeScreen;
 import net.rim.device.api.applicationcontrol.ApplicationPermissions;
@@ -10,8 +15,10 @@ import net.rim.device.api.applicationcontrol.ApplicationPermissionsManager;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.notification.NotificationsConstants;
 import net.rim.device.api.notification.NotificationsManager;
+import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.Backlight;
+import net.rim.device.api.system.CodeModuleManager;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.RuntimeStore;
 import net.rim.device.api.system.SystemListener;
@@ -22,6 +29,7 @@ import com.wordpress.io.AppDAO;
 import com.wordpress.io.BaseDAO;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.Preferences;
+import com.wordpress.task.TaskImpl;
 import com.wordpress.utils.PropertyUtils;
 import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.Appender;
@@ -40,6 +48,9 @@ public class WordPress extends UiApplication implements WordPressResource, Syste
     private SplashScreen loadingScreen = null;
     private MainController mainScreen = null;
     private boolean isSDCardNotFound = false;
+    //Flag that is used to check whether the application is starting for the first time, 
+    //or if it's a move from the background to foreground.
+    private boolean AppStartHappened = false;
     
     static {
         //retrieve a reference to the ResourceBundle for localization support
@@ -210,7 +221,6 @@ public class WordPress extends UiApplication implements WordPressResource, Syste
 	}
     
 	public WordPress(){
-	
 	}
 	
 	  /**
@@ -374,6 +384,18 @@ public class WordPress extends UiApplication implements WordPressResource, Syste
     		if (appPrefs.getUpdateTimeIndex() != 0)
     			NotificationHandler.getInstance().setCommentsNotification(true, appPrefs.getUpdateTimeIndex());
     	} catch (Exception e) {
+    		//Creates a Hashtable object containing the exception that is thrown by the application
+    		Hashtable customParams = new Hashtable();
+    		customParams.put("WT.er", e.getMessage());    
+    		try
+    		{
+    			WebtrendsDataCollector.getInstance().onApplicationError("", customParams);
+    		}
+    		catch (IllegalWebtrendsParameterValueException err)
+    		{
+    			WebtrendsDataCollector.getLog().e(err.getMessage());
+    		}
+    		
     		timer.cancel();
     		final String excMsg;
 
@@ -388,7 +410,7 @@ public class WordPress extends UiApplication implements WordPressResource, Syste
     		ErrorView errView = new ErrorView("Startup Error:"+excMsg);
     		errView.doModal();
     		try {
-    			if (loadingScreen != null) 
+    			if (loadingScreen != null && loadingScreen.isDisplayed() ) 
     				popScreen(loadingScreen);
     		} catch (Exception e2) {
     			Log.error(e2, "Splash Screen is not on the stack!");
@@ -414,7 +436,8 @@ public class WordPress extends UiApplication implements WordPressResource, Syste
 				}
 				
 			    try {
-					popScreen(loadingScreen);
+			    	if (loadingScreen != null && loadingScreen.isDisplayed() ) 
+			    		popScreen(loadingScreen);
 				} catch (Exception e) {
 					Log.error(e, "Splash Screen is not on the stack!");
 				}
@@ -434,4 +457,45 @@ public class WordPress extends UiApplication implements WordPressResource, Syste
    public void powerOff() {
    }
   
+   public void activate(){
+	   super.activate();
+	   if(AppStartHappened)
+	   {
+		   WordPressCore.getInstance().getTasksRunner().enqueue( new TaskImpl() {
+			   public void execute() {
+				   try {
+					   WebtrendsDataCollector.getInstance().onApplicationForeground("", null);
+				   } catch (IllegalWebtrendsParameterValueException e) {
+					   e.printStackTrace();
+				   }
+			   }
+		   }
+		   );
+	   } else {
+			try {
+				WebtrendsConfigurator.LoadConfigFile(new AnalyticsConfig());
+				WebtrendsDataCollector wtDC = WebtrendsDataCollector.getInstance();
+				wtDC.Initialize();
+				wtDC.onApplicationStart( "", null);
+			} catch (IllegalWebtrendsParameterValueException e) {
+				e.printStackTrace();
+			}
+		   AppStartHappened=true;
+	   }
+
+   }
+
+   public void deactivate(){
+	   super.deactivate();
+	   WordPressCore.getInstance().getTasksRunner().enqueue( new TaskImpl() {
+		   public void execute() {
+			   try {
+				   WebtrendsDataCollector.getInstance().onApplicationBackground("", null);
+			   } catch (IllegalWebtrendsParameterValueException e) {
+				   e.printStackTrace();
+			   }
+		   }
+	   }
+	   );
+   }
 }

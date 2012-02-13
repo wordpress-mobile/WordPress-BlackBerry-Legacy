@@ -40,6 +40,7 @@ public class AccountsView extends BaseView  implements ListActionListener {
     		this.accounts = MainController.getIstance().getApplicationAccounts();
 			addMenuItem(_newAccountItem);
 	    	buildList();
+	    	controller.bumpScreenViewStats("com/wordpress/view/AccountsView", "Accounts Screen", "", null, "");
 	 }
 	 
 	 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0

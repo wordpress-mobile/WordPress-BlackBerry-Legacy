@@ -123,6 +123,7 @@ public class MediaView extends StandardBaseView {
         addMenuItem(_addPhotoItem);
         addMenuItem(_addVideoItem);
         
+        controller.bumpScreenViewStats("com/wordpress/view/MediaView", "Media Items Screen", "", null, "");
     }
     	
 	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0

@@ -54,6 +54,7 @@ public class ExcerptView extends StandardBaseView {
 		add(buttonsManager); 
         
         add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
+        controller.bumpScreenViewStats("com/wordpress/view/ExcerptView", "Excerpt Screen", "", null, "");
     }
     
 	private FieldChangeListener listenerOkButton = new FieldChangeListener() {

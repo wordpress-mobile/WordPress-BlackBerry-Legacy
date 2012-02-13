@@ -12,6 +12,8 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.Status;
 
+import com.webtrends.mobile.analytics.IllegalWebtrendsParameterValueException;
+import com.webtrends.mobile.analytics.rim.WebtrendsDataCollector;
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.AppDAO;
@@ -23,6 +25,8 @@ import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Comment;
 import com.wordpress.model.Preferences;
 import com.wordpress.task.LoadBlogsDataTask;
+import com.wordpress.task.StopConnTask;
+import com.wordpress.task.TaskImpl;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.DataCollector;
 import com.wordpress.utils.Queue;

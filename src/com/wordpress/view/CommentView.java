@@ -161,6 +161,7 @@ public class CommentView extends StandardBaseView {
 			addMenuItem(_replyCommentItem);
 			
 			setViewValues(comment);
+			controller.bumpScreenViewStats("com/wordpress/view/CommentDetailView", "Comment Detail Screen", "", null, "");
 	 }
 
 	 //refresh the view with the new comment content

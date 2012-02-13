@@ -41,6 +41,7 @@ public class CommentsView extends BaseView implements ListActionListener , ListL
 	                 | VerticalFieldManager.VERTICAL_SCROLLBAR);
 			add(dataScroller);
 			buildList();
+			controller.bumpScreenViewStats("com/wordpress/view/CommentsView", "Comments Screen", "", null, "");
 	 }
 
 	//create the list. if comments is null you can't manage comments 

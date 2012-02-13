@@ -104,6 +104,7 @@ public class PreferencesView extends StandardBaseView {
             add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
 
     		addMenuItem(_saveItem);
+    		controller.bumpScreenViewStats("com/wordpress/view/PreferencesView", "Preferences Screen", "", null, "");
 	 }
 	 
 

@@ -35,6 +35,7 @@ public class ContactSupportView extends BaseView {
     	} else {
     		addWPCOMFields();
     	}
+    	controller.bumpScreenViewStats("com/wordpress/view/ContactSupportView", "Contact Support Screen", "", null, "");
     }
     
     private void addWPORGFields(){

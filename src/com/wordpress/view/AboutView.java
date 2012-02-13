@@ -92,6 +92,7 @@ public class AboutView extends BaseView {
     	bf.setMargin(5, 0, 2, 10);
     	add(bf);
     	add(new LabelField("",Field.FOCUSABLE));
+    	controller.bumpScreenViewStats("com/wordpress/view/AboutView", "About Screen", "", null, "");
     }
     
 	public boolean onMenu(int instance) {

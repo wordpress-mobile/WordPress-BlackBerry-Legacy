@@ -83,6 +83,7 @@ public class AccountDetailView extends StandardBaseView {
     		add(buttonsManager); 
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
     	//	addMenuItem(_addBlogItem);
+    		controller.bumpScreenViewStats("com/wordpress/view/AccountDetailView", "Account Detail Screen", "", null, "");
 	}
 	 		
 	private FieldChangeListener listenerOkButton = new FieldChangeListener() {

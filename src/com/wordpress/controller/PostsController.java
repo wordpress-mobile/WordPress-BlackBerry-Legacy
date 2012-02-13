@@ -135,7 +135,6 @@ public class PostsController extends BaseController{
     	}
 	}
 	
-			
 	public void showDraftPosts(){
 		if(!checkUserRights()){
 			displayMessage(_resources.getString(WordPressResource.ERROR_YOU_CANNOT_MANAGEPOST));
@@ -145,7 +144,6 @@ public class PostsController extends BaseController{
 			FrontController.getIstance().showDraftPostsView(currentBlog);
 		}
 	}
-		
 
 	public void newPost() {
 		if(!checkUserRights()){

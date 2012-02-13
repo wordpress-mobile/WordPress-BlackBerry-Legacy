@@ -29,6 +29,7 @@ public class DraftPostsView extends BaseView implements ListActionListener {
 	    	this.setSubTitleText(_resources.getString(WordPressResource.MENUITEM_LOCALDRAFTS));  
 	    	this.controller=_controller;
 	        buildList(post);
+	        controller.bumpScreenViewStats("com/wordpress/view/DraftPostsView", "Draft Posts Screen", "", null, "");
 	 }
 
 	 

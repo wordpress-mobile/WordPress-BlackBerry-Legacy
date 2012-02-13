@@ -72,6 +72,7 @@ public class NotificationView extends StandardBaseView {
     		buttonsManager.add(buttonBACK);
     		add(buttonsManager);
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
+    		controller.bumpScreenViewStats("com/wordpress/view/NotificationView", "Notifications Screen", "", null, "");
 	}
 
 	 

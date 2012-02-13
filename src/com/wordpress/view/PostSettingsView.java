@@ -104,6 +104,8 @@ public class PostSettingsView extends StandardBaseView {
 		add(buttonsManager); 
         
         add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
+        
+        controller.bumpScreenViewStats("com/wordpress/view/PostSettingsView", "PostSettings Screen", "", null, "");
     }
     
     private FieldChangeListener listenerOkButton = new FieldChangeListener() {

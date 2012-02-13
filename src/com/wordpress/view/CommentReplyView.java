@@ -133,6 +133,7 @@ public class CommentReplyView extends StandardBaseView {
 
         addMenuItem(_replyCommentItem);
         replyContent.setFocus(); //set the focus on the appropriate element
+        controller.bumpScreenViewStats("com/wordpress/view/CommentReplyView", "Comment Reply Screen", "", null, "");
     }
     
 	private MenuItem _replyCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 80000, 1000) {

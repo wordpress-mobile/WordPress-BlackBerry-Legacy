@@ -34,6 +34,7 @@ public class PostCategoriesView extends BaseView {
     	this.chkField= checkBoxController.get_checkList();
     	add(chkField);
     	addMenuItem(_newCategoryContextMenuItem);
+    	controller.bumpScreenViewStats("com/wordpress/view/PostCategoriesView", "PostCategories Screen", "", null, "");
     }
     
     private MenuItem _newCategoryContextMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_POST_NEWCATEGORY, 200, 100) {

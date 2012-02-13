@@ -113,6 +113,8 @@ public class WelcomeView extends StandardBaseView {
 	   _listData.addElement(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPCOM_BLOG));
 	   _listData.addElement(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPORG_BLOG));	
 	   list.setSize(_listData.size());
+	   
+	   mainController.bumpScreenViewStats("com/wordpress/view/WelcomeView", "Welcome Screen", "", null, "");
    }
    
    

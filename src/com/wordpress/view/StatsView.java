@@ -73,7 +73,8 @@ public class StatsView extends BaseView {
 		addMenuItem(_clicksItem);
 		addMenuItem(_videoPlayItem);
 		
-		updateSubTitle(); 
+		updateSubTitle();
+		controller.bumpScreenViewStats("com/wordpress/view/StatsView", "Stats View", "", null, "");
 	}
 	
 	public void setStatsData(byte[] data) {

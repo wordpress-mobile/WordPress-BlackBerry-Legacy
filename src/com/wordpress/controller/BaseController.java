@@ -1,12 +1,18 @@
 //#preprocess
 package com.wordpress.controller;
 
+import java.util.Hashtable;
+
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
+import com.webtrends.mobile.analytics.IllegalWebtrendsParameterValueException;
+import com.webtrends.mobile.analytics.rim.WebtrendsDataCollector;
+import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.task.TaskImpl;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.ErrorView;
 import com.wordpress.view.dialog.InfoView;
@@ -29,7 +35,53 @@ public abstract class BaseController {
   abstract 	public void showView();
   abstract 	public void refreshView();
   
+  /**
+   * Tracks instances that a user views a screen in an application. 
+   * 
+   * @param eventPath - The hierarchical location of where an object or screen is located in an application (for example, "mainscreen/optionscreen/samplemedia").
+   * @param eventDesc - The name of the screen where the event occurs.
+   * @param eventType - The event type.
+   * @param customData - A hashtable containing custom metadata. Custom metadata is not supported for this method, so specify null.
+   * @param contentGroup - A category name for the screen (for example, "sports" or "music").
+   */
+  public synchronized void bumpScreenViewStats(final String eventPath, final String eventDesc, 
+		  final String eventType, final Hashtable customData, final String contentGroup) {
 
+	  WordPressCore.getInstance().getTasksRunner().enqueue( new TaskImpl() {
+		  public void execute() {
+			  try
+			  {
+				  WebtrendsDataCollector.getInstance().onScreenView(eventPath, eventDesc, eventType, customData, contentGroup);
+			  }
+			  catch (IllegalWebtrendsParameterValueException err)
+			  {
+				  WebtrendsDataCollector.getLog().e(err.getMessage());
+			  }
+
+		  }
+	  }
+	  );
+  }
+  
+  public synchronized void bumpErrorStats(final String error){
+	  WordPressCore.getInstance().getTasksRunner().enqueue( new TaskImpl() {
+		  public void execute() {
+			  //Creates a Hashtable object containing the exception that is thrown by the application
+			  Hashtable customParams = new Hashtable();
+			  customParams.put("WT.er", error);    
+			  try
+			  {
+				  WebtrendsDataCollector.getInstance().onApplicationError("", customParams);
+			  }
+			  catch (IllegalWebtrendsParameterValueException err)
+			  {
+				  WebtrendsDataCollector.getLog().e(err.getMessage());
+			  }
+		  }
+	  }
+	  );
+  }
+  
 	// Utility routine to display errors
 	public synchronized void displayError(final Exception e, String message) {
 		if(e != null && e.getMessage()!= null ) {
@@ -47,6 +99,7 @@ public abstract class BaseController {
 	}
 	
 	private void _displayError(final String msg) {
+		bumpErrorStats(msg);
 	  	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		Screen scr = UiApplication.getUiApplication().getActiveScreen();
 		if(scr != null) {
@@ -81,6 +134,8 @@ public abstract class BaseController {
 	}
 	
 	private void _displayErrorAndWait(final String msg) {
+		bumpErrorStats(msg);
+		
 		//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		Screen scr = UiApplication.getUiApplication().getActiveScreen();
 		if(scr != null) {

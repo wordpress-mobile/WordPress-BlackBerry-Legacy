@@ -326,6 +326,9 @@ public class PostView extends StandardBaseView {
 		
 		//move the focus to the title Field
 		title.setFocus();
+		
+		
+		controller.bumpScreenViewStats("com/wordpress/view/PostView", "Post Screen", "", null, "");
     }
     
     //set the photos number label text

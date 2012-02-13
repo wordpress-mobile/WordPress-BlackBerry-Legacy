@@ -49,6 +49,7 @@ public class PagesView extends BaseView implements ListActionListener, ListLoadM
 		
 			add(dataScroller);
 			buildList(pages);
+			controller.bumpScreenViewStats("com/wordpress/view/PagesView", "Pages List Screen", "", null, "");
 	 }
 	 
 	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
@@ -171,7 +172,7 @@ public class PagesView extends BaseView implements ListActionListener, ListLoadM
     
     private MenuItem _draftPageMenuItem = new MenuItem( _resources, WordPressResource.MENUITEM_LOCALDRAFTS, 210, 10) {
         public void run() {
-    	 controller.showDraftPages(); 
+    	 controller.showDraftPages();
         }
     };
  

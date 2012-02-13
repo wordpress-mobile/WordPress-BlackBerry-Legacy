@@ -59,6 +59,7 @@ public class NewCategoryView extends StandardBaseView {
 		this.add(rowTitle);
 		this.add(rowParent);
         addMenuItem(_newCategoryContextMenuItem);
+        controller.bumpScreenViewStats("com/wordpress/view/NewCategoryView", "New Category Screen", "", null, "");
     }
     
     private MenuItem _newCategoryContextMenuItem = new MenuItem(_resources, WordPressResource.MENUITEM_POST_NEWCATEGORY, 10, 2) {

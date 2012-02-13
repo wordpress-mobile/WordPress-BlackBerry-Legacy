@@ -26,6 +26,7 @@ import net.rim.device.api.ui.component.Status;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
+import com.wordpress.controller.MainController;
 import com.wordpress.utils.LocalHttpConn;
 import com.wordpress.utils.SecondaryResourceFetchThread;
 import com.wordpress.utils.StringUtils;
@@ -118,6 +119,8 @@ public class PreviewView  extends BaseView implements RenderingApplication {
         
         thread.start();  
         //#endif
+	
+        MainController.getIstance().bumpScreenViewStats("com/wordpress/view/PreviewView", "Preview Screen", "", null, "");
 	}
 	
 	//#ifndef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0

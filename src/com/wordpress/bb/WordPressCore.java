@@ -7,10 +7,13 @@ import javax.microedition.io.file.FileSystemListener;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.i18n.ResourceBundle;
+import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.UiApplication;
 
+import com.webtrends.mobile.analytics.IllegalWebtrendsParameterValueException;
+import com.webtrends.mobile.analytics.rim.WebtrendsDataCollector;
 import com.wordpress.io.AppDAO;
 import com.wordpress.task.AsyncRunner;
 import com.wordpress.task.Task;
@@ -87,6 +90,11 @@ public class WordPressCore {
 		timer.cancel(); //cancel the timer
 		NotificationHandler.getInstance().shutdown(); //stop the notification handler
 		SharingHelperOldDevices.deleteAppIstance();
+		try {
+			WebtrendsDataCollector.getInstance().onApplicationTerminate( "", null);
+		} catch (IllegalWebtrendsParameterValueException e) {
+			e.printStackTrace();
+		}
 		System.exit(0);
 	}
 	
