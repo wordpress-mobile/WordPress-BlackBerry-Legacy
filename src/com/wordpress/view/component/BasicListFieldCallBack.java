@@ -119,15 +119,12 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 		}
 		graphics.setFont(fnt);
 
-	/*	if (selected) {
+		if (selected) {
 			graphics.setColor(Color.WHITE);
 		} else {
 			graphics.setColor(Color.BLACK);
 		}
-		*/
-		
-		graphics.setColor(Color.BLACK);
-		
+
 		if (title != null) {
 			int fntHeight = fnt.getHeight();
 			int textTop = y + ((height - fntHeight) / 2);
@@ -140,12 +137,11 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 	
 	protected int drawTextOnFirstRow(Graphics graphics, int x, int y, int width, int height, String title, boolean selected) {
 		int myColor = Color.BLACK;
-	/*	if (selected) {
+		if (selected) {
 			myColor=Color.WHITE;
 		} else {
 			myColor= Color.BLACK;
 		}
-		*/
 		return drawTextOnFirstRow(graphics, x, y, width, height, title, myColor);
 	}
 
@@ -162,13 +158,13 @@ public abstract class BasicListFieldCallBack implements ListFieldCallback {
 	protected void drawSecondRowText(Graphics graphics, int x, int y, int width, int height, String status, boolean selected) {
 		int fh = getSecondRowTextHeight();
 		graphics.setFont(Font.getDefault().derive(Font.PLAIN, fh));
-	/*	if (selected) {
+	
+		if (selected) {
 			graphics.setColor(Color.WHITE);
 		} else {
 			graphics.setColor(Color.DARKGRAY);
 		}
-		*/
-		graphics.setColor(Color.DARKGRAY);
+		
 		graphics.drawText(status, x + PADDING, y - PADDING + (height - fh),
 				DrawStyle.LEFT | DrawStyle.TOP | DrawStyle.ELLIPSIS, width - (PADDING * 2));
 	}

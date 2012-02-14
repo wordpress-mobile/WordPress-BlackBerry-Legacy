@@ -16,6 +16,7 @@ import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.GIFEncodedImage;
 import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
+import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
@@ -23,11 +24,16 @@ import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.XYEdges;
+import net.rim.device.api.ui.XYRect;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.Dialog;
+import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.Menu;
+import net.rim.device.api.ui.component.NullField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.decor.BorderFactory;
 
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressInfo;
@@ -38,6 +44,8 @@ import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
 import com.wordpress.controller.MediaLibrariesController;
 import com.wordpress.controller.PagesController;
+import com.wordpress.controller.PostsController;
+import com.wordpress.controller.RecentCommentsController;
 import com.wordpress.controller.StatsController;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.CommentsDAO;
@@ -73,11 +81,16 @@ public class MainView extends StandardBaseView {
 	
     private MainController mainController = null;
     private BlogInfo currentBlog = null;
-    private TableLayoutManager	blogSelectorRow;
-    private ObjectChoiceField blogSelectorField;
     private WelcomeField wft;
-	private TableLayoutManager blogActionTable;
-	private Field blogIconField;
+    
+    private TableLayoutManager	blogSelectorRow;
+    private Field blogIconField;
+    private ObjectChoiceField blogSelectorField;
+    
+    private TableLayoutManager actionsTable;
+    final int actionsTableMargin = 10; //margin outside the table
+    final int actionsTableItemHorizontalPadding = 10; // Horizontal padding between items
+    final int actionsTableItemVerticalPadding = 10; // Vertical padding between items
     
 	//Deafult icons used to show the status of the blog
 	private Bitmap imgImportant = Bitmap.getBitmapResource("important.png");
@@ -139,78 +152,93 @@ public class MainView extends StandardBaseView {
 				10,
 				Manager.USE_ALL_WIDTH
 		);
-		blogSelectorField = new ObjectChoiceField(" ", choices, iSetTo, FIELD_HCENTER | FIELD_VCENTER | USE_ALL_WIDTH);
-		blogSelectorField.setChangeListener(new BlogSelectorChangeListener());
+		
 		blogIconField = createBlogIconField( blogCaricati[iSetTo] );
 		blogSelectorRow.add( blogIconField );
+
+		blogSelectorField = new ObjectChoiceField(" ", choices, iSetTo, FIELD_HCENTER | FIELD_VCENTER | USE_ALL_WIDTH);
+		blogSelectorField.setChangeListener(new BlogSelectorChangeListener());
 		blogSelectorRow.add(blogSelectorField );
-		blogSelectorRow.setMargin(0, 10, 0 , 10);
+		//blogSelectorRow.setMargin(0, 10, 0 , 10);
 		//if ( blogCaricati.length == 0 ) blogSelectorField.setEditable(false);			
 		add( blogSelectorRow );
 		
-		blogActionTable = new TableLayoutManager(
+		
+		actionsTable = new TableLayoutManager(
 				new int[] {
 						TableLayoutManager.SPLIT_REMAINING_WIDTH,
 						TableLayoutManager.SPLIT_REMAINING_WIDTH,
 						TableLayoutManager.SPLIT_REMAINING_WIDTH,
 				}, 
-				new int[] { 2, 2, 2 },
-				10,
+				new int[] { 2, 2, 2 }, //not used in this configuration
+				actionsTableItemHorizontalPadding,
 				Manager.USE_ALL_WIDTH
 		);
 
 		//XYEdges edgesFour = new XYEdges(4, 4, 4, 4);
-		//blogActionTable.setBorder( BorderFactory.createRoundedBorder(edgesFour) );
-/*
-		for (int i = 0; i < blogTableItemsBitmap.length ; i ++) {
-			VerticalFieldManager vTmp = new VerticalFieldManager(Manager.USE_ALL_WIDTH | Manager.NO_HORIZONTAL_SCROLL | Manager.NO_VERTICAL_SCROLL | FIELD_HCENTER | FIELD_VCENTER );
-			vTmp.add( new BitmapField(blogTableItemsBitmap[i], Field.NON_FOCUSABLE | FIELD_HCENTER | FIELD_VCENTER ) ) ;
-			vTmp.add(new LabelField(blogTableItemsLabel[i],  FIELD_HCENTER | FIELD_VCENTER | Field.FOCUSABLE ) );
-			blogActionTable.add(vTmp);	
-		}
-		*/
+		//actionsTable.setBorder( BorderFactory.createRoundedBorder(edgesFour) );
 		
-		//Add posts
-		blogActionTable.add( new ActionTableItem(getItemBitmap(mnuPosts), getItemLabel(mnuPosts), mnuPosts ) );
-		blogActionTable.add( new ActionTableItem(getItemBitmap(mnuPages), getItemLabel(mnuPages), mnuPages ) );
-		blogActionTable.add( new ActionTableItem(getItemBitmap(mnuComments), getItemLabel(mnuComments), mnuComments ) );
-		blogActionTable.add( new ActionTableItem(getItemBitmap(mnuStats), getItemLabel(mnuStats), mnuStats ) );
-		blogActionTable.add( new ActionTableItem(getItemBitmap(mnuOptions), getItemLabel(mnuOptions), mnuOptions ) );
-		blogActionTable.add( new ActionTableItem(getItemBitmap(mnuMedia), getItemLabel(mnuMedia), mnuMedia ) );
-		blogActionTable.add( new ActionTableItem(getItemBitmap(mnuRefresh), getItemLabel(mnuRefresh), mnuRefresh ) );
-		blogActionTable.add( new ActionTableItem(getItemBitmap(mnuDashboard), getItemLabel(mnuDashboard), mnuDashboard ) );
+		actionsTable.add( new ActionTableItem( mnuPosts, getItemLabel(mnuPosts), mnuPosts ) );
+		actionsTable.add( new ActionTableItem( mnuPages, getItemLabel(mnuPages), mnuPages ) );
+		actionsTable.add( new ActionTableItem( mnuComments, getItemLabel(mnuComments), mnuComments ) );
+		
+		actionsTable.add( new ActionTableItemNullField() );
+		actionsTable.add( new ActionTableItemNullField() );
+		actionsTable.add( new ActionTableItemNullField() );
+		
+		actionsTable.add( new ActionTableItem( mnuStats,  getItemLabel(mnuStats), mnuStats ) );
+		actionsTable.add( new ActionTableItem( mnuOptions, getItemLabel(mnuOptions), mnuOptions ) );
+		actionsTable.add( new ActionTableItem( mnuMedia,  getItemLabel(mnuMedia), mnuMedia ) );
+		
+		actionsTable.add( new ActionTableItemNullField() );
+		actionsTable.add( new ActionTableItemNullField() );
+		actionsTable.add( new ActionTableItemNullField() );
+		
+		actionsTable.add( new ActionTableItem( mnuRefresh, getItemLabel(mnuRefresh), mnuRefresh ) );
+		actionsTable.add( new ActionTableItem( mnuDashboard, getItemLabel(mnuDashboard), mnuDashboard ) );
 		
 		//#ifdef BlackBerrySDK7.0.0
 		if ( currentBlog != null && currentBlog.isWPCOMBlog() )
-			blogActionTable.add( new ActionTableItem(getItemBitmap(mnuReader), getItemLabel(mnuReader), mnuReader ) );
+			actionsTable.add( new ActionTableItem( mnuReader, getItemLabel(mnuReader), mnuReader ) );
 		//#endif
 		
-		add( blogActionTable );
+		add( actionsTable );
 	}
 	
-	private Bitmap getItemBitmap(int type) {
-		switch (type) {
-		case (mnuPosts):
-			return Bitmap.getBitmapResource("write_post.png");
-		case (mnuPages):
-			return Bitmap.getBitmapResource("write_page.png");
-		case (mnuComments):
-			return Bitmap.getBitmapResource("comments.png");
-		case (mnuMedia):
-			return Bitmap.getBitmapResource("media_library.png");
-		case (mnuStats):
-			return	Bitmap.getBitmapResource("stats.png");
-		case (mnuOptions):
-			return Bitmap.getBitmapResource("settings.png");
-		case (mnuRefresh):
-			return Bitmap.getBitmapResource("refresh.png");
-		case (mnuDashboard):
-			return Bitmap.getBitmapResource("dashboard.png");
-		case (mnuReader):
-			return Bitmap.getBitmapResource("dashboard.png");
-		default:
-			return null;
-		}
+	/**
+	 * 
+	 * This method is called when the app asks the blavatar to the Gravatar service
+	 * 
+	 * Pearl 8220 - 240 x 320 pixels
+	 * Curve 8300 Series, 8800 Series, 8700 Series - 320 x 240 pixels
+	 * Curve 8350i - 320 x 240 pixels
+	 * Curve 8900 - 480 x 360 pixels
+	 * Bold  9000 Series - 480 x 320 pixels
+	 * Bold  9900 Series - 640 x 480
+	 * Tour  9600 Series - 480 x 360 pixels
+	 * Storm 9500 Series - portrait view: 360 x 480 pixels,  landscape view: 480 x 360 pixels
+	 * Torch 9800 360 x 480 (portrait) when held vertically.
+	 * Torch 9810 - 640 x 480
+	 * Torch2 9850/9860  - 800 x 480
+	 * 
+	 */
+	public static int getBlogIconSize() {
+		 int width = Display.getWidth(); 
+		 int height = Display.getHeight();
+		 
+		 if( ( width == 240 && height == 320 ) || ( width == 320 && height == 240 ) ) {
+			 return 48;
+		 } else if( ( width == 480 && height == 320 ) ||  ( width == 320 && height == 480 ) ) { 
+			 return 64;
+		 } else if( ( width == 480 && height == 360 ) || ( width == 360 && height == 480) ) {
+			 return 64;
+		 } else if( ( width == 480 && height == 640 ) || ( width == 640 && height == 480 ) ) {
+			 return 72;		 
+		 } else if( ( width == 800 && height == 480 ) || ( width == 800 && height == 480 ) ){
+			 return 72;
+		 } else {
+			 return 48;
+		 }
 	}
 	
 	private String getItemLabel(int type) {
@@ -239,14 +267,22 @@ public class MainView extends StandardBaseView {
 	}
 	
 	 private boolean tableOrMenuItemSelected(int selection) {
-		 switch (selection) {
-		 case mnuPosts:
-			 try {
-				 FrontController.getIstance().showPostsView(BlogDAO.getBlog(currentBlog));
-			 } catch (Exception e) {
-				 mainController.displayError(e, "Cannot load the blog data");
-			 }
-			 break;
+		 if ( currentBlog == null ) return true;
+		 
+		if (currentBlog.getState() == BlogInfo.STATE_LOADING || currentBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) {
+			mainController.displayMessage(_resources.getString(WordPressResource.MESSAGE_LOADING_BLOGS));
+			return true;
+		} 
+		 
+		switch (selection) {
+		case mnuPosts:
+			try {
+				PostsController ctrl = new PostsController(BlogDAO.getBlog(currentBlog));
+				ctrl.showView();
+			} catch (Exception e) {
+				mainController.displayError(e, "Cannot load the blog data");
+			}
+			break;
 		 case mnuPages:
 			 try {
 				 PagesController ctrl= new PagesController(BlogDAO.getBlog(currentBlog));
@@ -257,7 +293,8 @@ public class MainView extends StandardBaseView {
 			 break;
 		 case mnuComments:
 			 try {
-				 FrontController.getIstance().showCommentsView(BlogDAO.getBlog(currentBlog));
+				 RecentCommentsController ctrl=new RecentCommentsController(BlogDAO.getBlog(currentBlog));
+				 ctrl.showView();
 			 } catch (Exception e) {
 				 mainController.displayError(e, "Cannot load the blog data");
 			 }
@@ -391,7 +428,7 @@ public class MainView extends StandardBaseView {
 					if ( UiApplication.getUiApplication().isEventThread() ) {
 						if ( blogSelectorRow.getManager() != null ) {
 							delete( blogSelectorRow );
-							delete( blogActionTable );
+							delete( actionsTable );
 						}
 						add(wft);
 					} else {
@@ -399,7 +436,7 @@ public class MainView extends StandardBaseView {
 							public void run() {
 								if ( blogSelectorRow.getManager() != null ) {
 									delete( blogSelectorRow );
-									delete( blogActionTable );
+									delete( actionsTable );
 								}
 								add(wft);
 							}
@@ -448,27 +485,25 @@ public class MainView extends StandardBaseView {
 		 } 
 		 return new BitmapField( icon, Field.NON_FOCUSABLE | FIELD_HCENTER | FIELD_VCENTER );
 	 }
-	 
-	 
+	 	 
 	 protected void sublayout(int width, int height) {
-		 if( blogActionTable != null ) {
+		 if( actionsTable != null ) {
 			 int availableHeight = Display.getHeight();
 			 availableHeight -= titleField.getPreferredHeight();
 			 availableHeight -= blogSelectorRow.getPreferredHeight();
-			 int fieldsHeight = blogActionTable.getPreferredHeight();
+			 int fieldsHeight = actionsTable.getPreferredHeight();
 
 			 if (fieldsHeight < availableHeight) {
 				 int topMargin = ( availableHeight - fieldsHeight ) / 2;
-				 blogActionTable.setMargin(topMargin, 10, 10 , 10);
+				 actionsTable.setMargin(topMargin, actionsTableMargin, actionsTableMargin , actionsTableMargin);
 			 } else {
-				 blogActionTable.setMargin(10, 10, 10 , 10);
+				 actionsTable.setMargin(actionsTableMargin, actionsTableMargin, actionsTableMargin , actionsTableMargin);
 			 }
 
 			 super.sublayout(width, height);
 		 }
 	 }
-	  
-
+	 
 	 //update the view of blog list entry
 	 public synchronized void setBlogItemViewState(BlogInfo blogInfo) {
 		 //if ( blogIconField == null) return;
@@ -788,48 +823,147 @@ public class MainView extends StandardBaseView {
 	
 	private class ActionTableItem extends BitmapField {
 
-		private String label;
+		private final int bitmapType;
+		private final String label;
+		private final int menuIndex;
+		private final int PADDING = 2;
+		private int actionTableIconSize = -1;
+
 		private Bitmap bmp;
 		Font myFont = null;
-		private int PADDING = 2;
 
-		private int fieldHeight , fieldWidth = 0;
+		private int maxItemWidth = 0;
+		private int fieldHeight, fieldWidth = 0;
 		private int bitmapWidth , bitmapHeight;
 		private int labelAdvice;
-		private final int context;
 
-		public ActionTableItem(Bitmap bmp,String text, int context)
+		public ActionTableItem(int bitmapType, String text, int menuIndex)
 		{
-			super(bmp, Field.FOCUSABLE | FIELD_HCENTER | FIELD_VCENTER | USE_ALL_WIDTH );
-			label = text;
-			this.bmp = bmp;
-			this.context = context;
-			bitmapWidth = bmp.getWidth();
-			bitmapHeight = bmp.getHeight();
+			super(Bitmap.getBitmapResource("folder_yellow_open"), Field.FOCUSABLE | FIELD_HCENTER | FIELD_VCENTER | USE_ALL_WIDTH );
+			this.bitmapType = bitmapType;
+			this.label = text;
+			this.menuIndex = menuIndex;
+					
 			myFont = Font.getDefault().derive(Font.PLAIN);
 			labelAdvice = myFont.getAdvance(label);
-			fieldWidth = Math.max( labelAdvice, bitmapWidth ) + 20 ;
-			fieldHeight = ( 2 * PADDING ) + bitmapHeight + PADDING + myFont.getHeight() + ( 2* PADDING );
+			
+			//FIXME: This code should be remove asap. It is called from the manager bf the layout occurs.
+			/* Margin + Icon1 padding Icon2 padding Icon3 + Margin */
+			int rr = Display.getWidth() - ( 2 * 10 ) - ( 2 * 10 );
+			rr = rr / 3; //Max image width!
+			if ( rr < 96 ) {
+				if ( rr > 48 )
+				rr = 48;
+			else if ( rr >= 32 )
+				rr = 32;
+			} else 
+				rr = 0;
+			fieldHeight = ( 2 * PADDING ) + this.getBitmapz(rr).getHeight() + PADDING + myFont.getHeight() + ( 2* PADDING );
 		}
+		
 		public int getPreferredWidth() {
-			return fieldWidth;
+			return maxItemWidth > 0 ? maxItemWidth : fieldWidth;
 		}
+		
 		public int getPreferredHeight() {
 			return fieldHeight;
 		}
-		protected void paint(Graphics graphics) {
-			int xOffset = ( fieldWidth -  bitmapWidth ) / 2 ;
-			graphics.drawBitmap(xOffset, ( 2 * PADDING ), bitmapWidth, bitmapHeight, bmp, 0, 0);
-			graphics.setColor(Color.BLACK);
-			xOffset = ( fieldWidth - labelAdvice ) / 2 ;
-			graphics.setFont(myFont);
-			int yOffset =  ( 2 * PADDING ) + bitmapHeight + PADDING;
-			graphics.drawText(label, xOffset, yOffset);
+		
+		protected void drawFocus( Graphics graphics, boolean on ) 
+		{
+			if (on) {
+				int prevColor = graphics.getColor();
+				try {
+					XYRect rect = new XYRect();
+					getFocusRect(rect);
+					graphics.setColor(GUIFactory.BTN_COLOUR_BACKGROUND_FOCUS);
+					graphics.fillRoundRect(rect.x, rect.y, rect.width, rect.height, 20, 20); 
+				} finally {
+					graphics.setColor(prevColor);
+				}
+			} else {
+				super.drawFocus(graphics, on);
+			}
+			paint(graphics);
 		}
-		protected void layout(int width, int height) {
-			super.layout(fieldWidth, fieldHeight);
+
+		protected void paint(Graphics graphics) {
+
+			int availableWidthForChieldFields = maxItemWidth - ( 4 * PADDING ); //Do not use all the width available
+			int xOffset = ( availableWidthForChieldFields -  bitmapWidth ) / 2 ;
+			xOffset += 2 * PADDING;
+			graphics.drawBitmap(xOffset, ( 2 * PADDING ), bitmapWidth, bitmapHeight, bmp, 0, 0);
+
+			int prevColor = graphics.getColor();
+			try {
+				if ( isFocus() || graphics.isDrawingStyleSet( Graphics.DRAWSTYLE_FOCUS ) )
+					graphics.setColor( Color.WHITE );
+				else
+					graphics.setColor(Color.BLACK);
+				graphics.setFont(myFont);
+				xOffset = ( availableWidthForChieldFields - labelAdvice ) / 2 ;		
+				if ( xOffset < 0 ) xOffset = 0;
+				xOffset += 2 * PADDING;
+				int yOffset =  ( 2 * PADDING ) + bitmapHeight + PADDING;
+				graphics.drawText( label, xOffset, yOffset, DrawStyle.ELLIPSIS, availableWidthForChieldFields );
+			} finally {
+				graphics.setColor(prevColor);
+			}
+
 		}
 		
+		protected void layout(int width, int height) {
+			maxItemWidth = width;
+			
+			int newIconSize = actionTableIconSize;
+			// set the icon dimensions
+			if ( maxItemWidth < 96 ) {
+				if ( maxItemWidth > 48 )
+				newIconSize = 48;
+			else if ( maxItemWidth >= 32 )
+				newIconSize = 32;
+			} else 
+				newIconSize = 0;		
+			
+			if( newIconSize != actionTableIconSize ) {
+				actionTableIconSize = newIconSize;
+				this.bmp = this.getBitmapz(actionTableIconSize);
+				this.setBitmap(bmp); //just to make sure...
+				bitmapWidth = bmp.getWidth();
+				bitmapHeight = bmp.getHeight();
+				fieldWidth = Math.max( labelAdvice, bitmapWidth ) + 20 ;
+				fieldHeight = ( 2 * PADDING ) + bitmapHeight + PADDING + myFont.getHeight() + ( 2* PADDING );
+			}
+			
+			super.layout(width, fieldHeight);
+		}
+		
+		private Bitmap getBitmapz(int sizePrefix) {
+			String size = sizePrefix > 0 ? "_"+sizePrefix+".png" : ".png";
+			switch ( bitmapType ) {
+			case (mnuPosts):
+				return Bitmap.getBitmapResource("dashboard_icon_posts"+size);
+			case (mnuPages):
+				return Bitmap.getBitmapResource("dashboard_icon_pages"+size);
+			case (mnuComments):
+				return Bitmap.getBitmapResource("dashboard_icon_comments"+size);
+			case (mnuMedia):
+				return Bitmap.getBitmapResource("dashboard_icon_posts"+size);
+			case (mnuStats):
+				return Bitmap.getBitmapResource("dashboard_icon_stats"+size);
+			case (mnuOptions):
+				return Bitmap.getBitmapResource("dashboard_icon_settings"+size);
+			case (mnuRefresh):
+				return Bitmap.getBitmapResource("dashboard_icon_refresh"+size);
+			case (mnuDashboard):
+				return Bitmap.getBitmapResource("dashboard_icon_subs"+size);
+			case (mnuReader):
+				return Bitmap.getBitmapResource("dashboard_icon_subs"+size);
+			default:
+				return null;
+			}
+
+		}
 		  /**
 	     * Overrides default implementation.  Performs the show blog action if the 
 	     * 4ways trackpad was clicked; otherwise, the default action occurs.
@@ -846,7 +980,7 @@ public class MainView extends StandardBaseView {
 				
 			} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
 				Log.trace("Input came from a four way navigation input device");
-				return tableOrMenuItemSelected( context );
+				return tableOrMenuItemSelected( menuIndex );
 			}
 			return super.navigationClick(status, time);
 		}
@@ -861,7 +995,7 @@ public class MainView extends StandardBaseView {
 			Log.trace(">>> keyChar");
 			// Close this screen if escape is selected.
 			if (c == Characters.ENTER) {
-				return tableOrMenuItemSelected( context );
+				return tableOrMenuItemSelected( menuIndex );
 			}
 			
 			return super.keyChar(c, status, time);
@@ -890,14 +1024,14 @@ public class MainView extends StandardBaseView {
 					TouchGesture gesture = message.getGesture();
 					int gestureCode = gesture.getEvent();
 					if (gestureCode == TouchGesture.TAP) {
-						tableOrMenuItemSelected( context );
+						tableOrMenuItemSelected( menuIndex );
 						return true;
 					}
 				} 
 				return false;
 			} else {
 				if(eventCode == TouchEvent.CLICK) {
-					tableOrMenuItemSelected( context );
+					tableOrMenuItemSelected( menuIndex );
 					return true;
 				}else if(eventCode == TouchEvent.DOWN) {
 				} else if(eventCode == TouchEvent.UP) {
@@ -911,4 +1045,32 @@ public class MainView extends StandardBaseView {
 		}
 		//#endif
 	}
+	
+	private class ActionTableItemNullField extends LabelField {
+		
+		public ActionTableItemNullField() {
+			this(Field.NON_FOCUSABLE);
+		}
+
+		public ActionTableItemNullField(long style) {
+			super("A", style);
+		}
+
+		protected void paint(Graphics graphics) {
+			
+		}
+		
+		protected void layout(int width, int height) {
+			super.layout(actionsTableItemVerticalPadding, actionsTableItemVerticalPadding);
+		}
+		
+		public int getPreferredWidth() {
+			return actionsTableItemVerticalPadding;
+		}
+		
+		public int getPreferredHeight() {
+			return actionsTableItemVerticalPadding;
+		}
+	}
+	
 }

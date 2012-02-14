@@ -13,12 +13,14 @@ import org.kxmlrpc.XmlRpcException;
 import org.xmlpull.v1.XmlPullParser;
 
 import com.wordpress.bb.WordPressInfo;
+import com.wordpress.controller.MainController;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.utils.MD5;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.MainView;
 import com.wordpress.view.component.BasicListFieldCallBack;
 
 public class BlogUpdateConn extends BlogConn  {
@@ -263,9 +265,9 @@ public class BlogUpdateConn extends BlogConn  {
 			}
 			
 			if(emailOrSiteAddress.indexOf('@') != -1) //email 
-				imageConnection = new HTTPGetConn("http://gravatar.com/avatar/"+hashAuthorEmail+"?s="+BasicListFieldCallBack.getImageHeightForDoubleLineRow()+"&d=404", "", "");
+				imageConnection = new HTTPGetConn("http://gravatar.com/avatar/"+hashAuthorEmail+"?s="+MainView.getBlogIconSize()+"&d=404", "", "");
 			else
-				imageConnection = new HTTPGetConn("http://gravatar.com/blavatar/"+hashAuthorEmail+"?s="+BasicListFieldCallBack.getImageHeightForDoubleLineRow()+"&d=404", "", ""); 
+				imageConnection = new HTTPGetConn("http://gravatar.com/blavatar/"+hashAuthorEmail+"?s="+MainView.getBlogIconSize()+"&d=404", "", ""); 
 			responseImg = imageConnection.execute("", null); //starts connection without make another thread
 			if(connResponse.isStopped()) return null; //if the user has stopped the connection
 

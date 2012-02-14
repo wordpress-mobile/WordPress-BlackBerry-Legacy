@@ -63,16 +63,7 @@ public class FrontController {
 		ctrl.showView();
 	}
 	
-	
-	/**
-	 * show posts view
-	 */
-	public void showPostsView(Blog currentBlog){
-		PostsController ctrl=new PostsController(currentBlog);
-		ctrl.showView();
-	}
-	
-	
+		
 	/**
 	 * show draft post view
 	 */
@@ -123,15 +114,6 @@ public class FrontController {
 		ctrl.showView();
 	}
 	
-	
-	/**
-	 * show comments view
-	 */
-	public void showCommentsView(Blog currentBlog){
-		RecentCommentsController ctrl=new RecentCommentsController(currentBlog);
-		ctrl.showView();
-	}
-	
 	/*
 	 * show comments by post view
 	 */
@@ -141,7 +123,6 @@ public class FrontController {
 		ctrl.setPostTitle(postTitle);
 		ctrl.showView();
 	}
-	
 
 	/**
 	 * pop 1 screen out of the stack and refresh the view.
