@@ -117,8 +117,14 @@ public class PostsView extends BaseView implements ListActionListener, ListLoadM
 						status = "Scheduled";
 					} 
 
-					if(status != null)
+					if(status != null) {
+					/*	if( postData.get("sticky") != null) {
+							boolean sticky =((Boolean)postData.get("sticky")).booleanValue();
+							if ( sticky )
+								status += " "+ " Sticky";
+						}*/
 						smallPostData .put("post_status", status);
+					}
 				}
 
 				elements[i]=smallPostData; 

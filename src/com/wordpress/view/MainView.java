@@ -24,16 +24,13 @@ import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.XYEdges;
 import net.rim.device.api.ui.XYRect;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.Menu;
-import net.rim.device.api.ui.component.NullField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.container.MainScreen;
-import net.rim.device.api.ui.decor.BorderFactory;
 
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressInfo;
@@ -851,13 +848,7 @@ public class MainView extends StandardBaseView {
 			/* Margin + Icon1 padding Icon2 padding Icon3 + Margin */
 			int rr = Display.getWidth() - ( 2 * 10 ) - ( 2 * 10 );
 			rr = rr / 3; //Max image width!
-			if ( rr < 96 ) {
-				if ( rr > 48 )
-				rr = 48;
-			else if ( rr >= 32 )
-				rr = 32;
-			} else 
-				rr = 0;
+			rr = findBitmapSizeThatFits(rr);
 			fieldHeight = ( 2 * PADDING ) + this.getBitmapz(rr).getHeight() + PADDING + myFont.getHeight() + ( 2* PADDING );
 		}
 		
@@ -889,7 +880,7 @@ public class MainView extends StandardBaseView {
 
 		protected void paint(Graphics graphics) {
 
-			int availableWidthForChieldFields = maxItemWidth - ( 4 * PADDING ); //Do not use all the width available
+			int availableWidthForChieldFields = maxItemWidth - ( 4 * PADDING ); //Do not use all the width available. see findBitmapSizeThatFits.
 			int xOffset = ( availableWidthForChieldFields -  bitmapWidth ) / 2 ;
 			xOffset += 2 * PADDING;
 			graphics.drawBitmap(xOffset, ( 2 * PADDING ), bitmapWidth, bitmapHeight, bmp, 0, 0);
@@ -916,26 +907,31 @@ public class MainView extends StandardBaseView {
 			maxItemWidth = width;
 			
 			int newIconSize = actionTableIconSize;
-			// set the icon dimensions
-			if ( maxItemWidth < 96 ) {
-				if ( maxItemWidth > 48 )
-				newIconSize = 48;
-			else if ( maxItemWidth >= 32 )
-				newIconSize = 32;
-			} else 
-				newIconSize = 0;		
-			
+			newIconSize = findBitmapSizeThatFits(maxItemWidth);
+
 			if( newIconSize != actionTableIconSize ) {
 				actionTableIconSize = newIconSize;
 				this.bmp = this.getBitmapz(actionTableIconSize);
 				this.setBitmap(bmp); //just to make sure...
 				bitmapWidth = bmp.getWidth();
 				bitmapHeight = bmp.getHeight();
-				fieldWidth = Math.max( labelAdvice, bitmapWidth ) + 20 ;
+				fieldWidth = Math.max( labelAdvice, bitmapWidth ) + 20 ; //not sure that it is used
 				fieldHeight = ( 2 * PADDING ) + bitmapHeight + PADDING + myFont.getHeight() + ( 2* PADDING );
 			}
 			
 			super.layout(width, fieldHeight);
+		}
+		
+		private int findBitmapSizeThatFits( int cellSize ) {
+			int horizontalPadding = ( 4 * PADDING ); //the padding around the content of the cell 
+			if( cellSize >= 96 + horizontalPadding  ) { 
+				return 96;
+			} else if( cellSize >= 72 + horizontalPadding  ) {
+				return 72;
+ 			} else if( cellSize >= 64 + horizontalPadding  ) {
+				return 64;
+ 			} else
+ 				return 48;
 		}
 		
 		private Bitmap getBitmapz(int sizePrefix) {
@@ -956,15 +952,15 @@ public class MainView extends StandardBaseView {
 			case (mnuRefresh):
 				return Bitmap.getBitmapResource("dashboard_icon_refresh"+size);
 			case (mnuDashboard):
-				return Bitmap.getBitmapResource("dashboard_icon_subs"+size);
+				return Bitmap.getBitmapResource("dashboard_icon_dashboard"+size);
 			case (mnuReader):
 				return Bitmap.getBitmapResource("dashboard_icon_subs"+size);
 			default:
 				return null;
 			}
-
 		}
-		  /**
+
+		/**
 	     * Overrides default implementation.  Performs the show blog action if the 
 	     * 4ways trackpad was clicked; otherwise, the default action occurs.
 	     * 

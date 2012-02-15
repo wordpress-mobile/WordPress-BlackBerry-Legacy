@@ -23,7 +23,6 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.Dialog;
-import net.rim.device.api.ui.component.EditField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
@@ -39,6 +38,7 @@ import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.ClickableLabelField;
 import com.wordpress.view.component.ColoredLabelField;
+import com.wordpress.view.component.DisabledCheckBoxField;
 import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.component.MarkupToolBar;
 import com.wordpress.view.component.MarkupToolBarTextFieldMediator;
@@ -57,11 +57,12 @@ public class PostView extends StandardBaseView {
 	private BasicEditField title;
 	private HtmlTextField bodyTextBox;
 	private BasicEditField tags;
-	private ObjectChoiceField status;
+	public ObjectChoiceField status;
 	private ObjectChoiceField postFormatField;
 	private ClickableLabelField categories;
 	private ClickableLabelField lblPhotoNumber;
 	final BorderedFieldManager locationManager;
+	public DisabledCheckBoxField isStickyField;
 	private CheckboxField enableLocation;
 	private CheckboxField isLocationPublic;
 	private ClickableLabelField showGMaps;
@@ -132,9 +133,52 @@ public class PostView extends StandardBaseView {
         outerManagerRowInfos.add(tags);
         
         //row status
-  		status = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":", controller.getStatusLabels(), controller.getPostStatusFieldIndex(), FIELD_VCENTER);
+        status = new ObjectChoiceField(_resources.getString(WordPressResource.LABEL_POST_STATUS)+":", controller.getStatusLabels(), controller.getPostStatusFieldIndex(), FIELD_VCENTER);
   		status.setMargin(0, 5, 5, 5);
   		outerManagerRowInfos.add(status);
+  		//handle the special case of password protected post
+  		if ( post.getPassword() != null && ! post.getPassword().trim().equals("") ) {
+  			post.setStatus("publish");
+			status.setChoices(new String[]{"Password Protected"});
+			status.setSelectedIndex(0);
+  		}
+  		status.setChangeListener(new FieldChangeListener() {
+			public void fieldChanged(Field field, int context) {
+				int selectedStatusID = status.getSelectedIndex();
+				String newState = controller.getStatusKeys()[selectedStatusID];
+				if ( newState.equals("private") ) {
+					isStickyField.setChecked(false);
+					isStickyField.setEnablez(false);
+				} else {
+					if(  post.getPassword() != null && ! post.getPassword().trim().equals("") ) {
+						isStickyField.setChecked(false);
+						isStickyField.setEnablez(false);
+			  		} else {
+			  			isStickyField.setEnablez(true);
+			  		}
+				}
+			}
+			
+		});
+  		
+  		//row sticky
+  		isStickyField = new DisabledCheckBoxField( _resources.getString(WordPressResource.LABEL_POST_STICKY), post.isSticky() );
+  		//set the sticky field disabled for private post or for post with password
+  		if( ( post.getStatus() != null && ( post.getStatus().equalsIgnoreCase("private") ) ) 
+  				||
+  			post.getPassword() != null && ! post.getPassword().trim().equals("") ) {
+  			isStickyField.setChecked(false);
+  			isStickyField.setEnablez(false);
+  		}
+  		isStickyField.setChangeListener(new FieldChangeListener() {
+  			public void fieldChanged(Field field, int context) {
+  				if ( isStickyField.isEnabled == false ) { //hack the isSticky field to keep it unchecked when it's disabled
+  					isStickyField.setChecked( false );
+  				}
+  			}
+  		});
+  		outerManagerRowInfos.add(isStickyField);
+  		
   		
   		//row postFormats, available only if the blog support postFormats
   		Hashtable postFormats = post.getBlog().getPostFormats();
@@ -528,6 +572,14 @@ public class PostView extends StandardBaseView {
 			Log.trace("tags dirty");
 		}
 		
+		//When the password is set we should set the status to publish
+		if ( post.getPassword() != null && ! post.getPassword().trim().equals("") ) {
+			post.setStatus("publish");
+			
+			if ( status.isDirty() )
+				controller.setObjectAsChanged(true);
+		}
+		else
 		if(status.isDirty()) {
 			int selectedStatusID = status.getSelectedIndex();
 			String newState= controller.getStatusKeys()[selectedStatusID];
@@ -562,6 +614,10 @@ public class PostView extends StandardBaseView {
 			post.setLocationPublic(isLocationPublic.getChecked());
 			controller.setObjectAsChanged(true);
 		}
+		if(isStickyField.isDirty()) {
+			post.setSticky(isStickyField.getChecked());
+			controller.setObjectAsChanged(true);
+		}
 	}
 
 	public boolean onClose()   {
@@ -576,4 +632,6 @@ public class PostView extends StandardBaseView {
 	public BaseController getController() {
 		return controller;
 	}
+	
+	
 }

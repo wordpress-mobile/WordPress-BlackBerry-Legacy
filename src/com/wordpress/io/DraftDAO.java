@@ -213,6 +213,8 @@ public class DraftDAO implements BaseDAO{
 		if(postFormat != null) {
 			content.put("wp_post_format", postFormat);
 		}
+		
+		content.put("sticky", new Boolean(post.isSticky()));
 		return content;
 	}	
 	
@@ -288,6 +290,11 @@ public class DraftDAO implements BaseDAO{
 			post.setPostFormat((String)postData.get("wp_post_format"));
 		}
 
+		if(postData.get("sticky") != null) {
+			boolean sticky =((Boolean)postData.get("sticky")).booleanValue();
+			post.setSticky(sticky);
+		}
+		
         return post;
 	}
 }

@@ -131,6 +131,7 @@ LABEL_POST_CONTENT#0="Post Content";
 LABEL_POST_FORMATS#0="Formats";
 LABEL_POST_PUBLISHEDON#0="Published On";
 LABEL_POST_STATUS#0="Status";
+LABEL_POST_STICKY#0="Stick this post to the front page";
 LABEL_POST_TAGS#0="Tags";
 LABEL_QUARTER#0="Quarter";
 LABEL_RESIZEPHOTOS#0="Resize Photos";

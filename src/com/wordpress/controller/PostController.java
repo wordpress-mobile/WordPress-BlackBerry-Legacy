@@ -752,6 +752,18 @@ public class PostController extends BlogObjectController {
 				setObjectAsChanged(true);
 			}
 		}
+		
+		if ( password != null && ! password.trim().equals("") ) {
+			view.isStickyField.setChecked(false);
+			view.isStickyField.setEnablez(false);
+			view.status.setSelectedIndex(0);
+			view.status.setChoices(new String[]{"Password Protected"});
+		} else {
+			view.isStickyField.setEnablez(true);
+			post.setStatus("draft");
+			view.status.setChoices(this.getStatusLabels());
+			view.status.setSelectedIndex( getPostStatusFieldIndex() );
+		}
 	}
 	
 	public boolean isPingbacksAndTrackbacksAllowed(){

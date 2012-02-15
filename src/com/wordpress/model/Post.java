@@ -30,6 +30,7 @@ public class Post extends BlogEntry {
 	private boolean isLocation = false; //true when per-post location setting is active
 	private boolean isLocationPublic = true; //true when location setting is public
 	private String postFormat = null;
+	private boolean isSticky = false;
 
 	public Post(Blog aBlog) {
 		blog = aBlog;
@@ -192,5 +193,13 @@ public class Post extends BlogEntry {
 
 	public void setPostFormat(String postFormat) {
 		this.postFormat = postFormat;
+	}
+
+	public boolean isSticky() {
+		return isSticky;
+	}
+
+	public void setSticky(boolean isSticky) {
+		this.isSticky = isSticky;
 	}	
 }
