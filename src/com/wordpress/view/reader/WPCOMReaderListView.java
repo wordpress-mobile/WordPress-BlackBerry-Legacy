@@ -4,6 +4,8 @@
 
 package com.wordpress.view.reader;
 
+import java.util.Vector;
+
 import javax.microedition.io.InputConnection;
 
 import net.rim.blackberry.api.browser.URLEncodedPostData;
@@ -12,6 +14,8 @@ import net.rim.device.api.browser.field2.BrowserFieldConfig;
 import net.rim.device.api.browser.field2.BrowserFieldListener;
 import net.rim.device.api.browser.field2.BrowserFieldRequest;
 import net.rim.device.api.browser.field2.ProtocolController;
+import net.rim.device.api.io.transport.ConnectionFactory;
+import net.rim.device.api.io.transport.TransportInfo;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.KeyListener;
@@ -27,6 +31,7 @@ import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.MainController;
+import com.wordpress.model.Preferences;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -103,11 +108,16 @@ public class WPCOMReaderListView extends WPCOMReaderBase
         {
             try
             {
-                _browserField.displayContent(contentToLoad, "");
+              
                 connectionProgressView = new ConnectionInProgressView(
             			_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
             	connectionProgressView.setDialogClosedListener(new ConnectionDialogClosedListener());
                 connectionProgressView.show();
+
+                //Set the connection configuration after the dialog, since it is time consuming task. 
+                this.setPreferredConnectionTypes(_browserField);
+                    
+                _browserField.displayContent(contentToLoad, "");
                 
 	    		int res = UiApplication.getUiApplication().invokeLater(new Runnable() {
 	    				public void run() {

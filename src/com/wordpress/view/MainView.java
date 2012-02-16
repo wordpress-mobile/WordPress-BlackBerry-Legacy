@@ -29,7 +29,6 @@ import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.Menu;
-import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.bb.WordPressCore;
@@ -57,6 +56,7 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.component.AnimatedGIFField;
+import com.wordpress.view.component.BlogSelectorField;
 import com.wordpress.view.component.SelectorPopupScreen;
 import com.wordpress.view.component.WelcomeField;
 import com.wordpress.view.container.TableLayoutManager;
@@ -81,8 +81,8 @@ public class MainView extends StandardBaseView {
     private WelcomeField wft;
     
     private TableLayoutManager	blogSelectorRow;
-    private Field blogIconField;
-    private ObjectChoiceField blogSelectorField;
+    private BitmapField blogIconField;
+    private BlogSelectorField blogSelectorField;
     
     private TableLayoutManager actionsTable;
     final int actionsTableMargin = 10; //margin outside the table
@@ -145,21 +145,23 @@ public class MainView extends StandardBaseView {
 						TableLayoutManager.USE_PREFERRED_SIZE,
 						TableLayoutManager.SPLIT_REMAINING_WIDTH
 				}, 
-				new int[] {  2, 2 },
+				new int[] { 2, 2 },
 				10,
-				Manager.USE_ALL_WIDTH
+				Manager.USE_ALL_WIDTH | Manager.FIELD_HCENTER
 		);
 		
 		blogIconField = createBlogIconField( blogCaricati[iSetTo] );
 		blogSelectorRow.add( blogIconField );
-
-		blogSelectorField = new ObjectChoiceField(" ", choices, iSetTo, FIELD_HCENTER | FIELD_VCENTER | USE_ALL_WIDTH);
+		blogSelectorField = new BlogSelectorField( choices, iSetTo, FOCUSABLE | USE_ALL_WIDTH );
+		blogSelectorField.setFieldMaxHeight( getBlogIconSize() ); //set the field with the same height of the icon
 		blogSelectorField.setChangeListener(new BlogSelectorChangeListener());
-		blogSelectorRow.add(blogSelectorField );
-		//blogSelectorRow.setMargin(0, 10, 0 , 10);
-		//if ( blogCaricati.length == 0 ) blogSelectorField.setEditable(false);			
-		add( blogSelectorRow );
+		blogSelectorRow.add( blogSelectorField );
+		blogSelectorRow.setMargin(5, 5, 0, 5);
 		
+		//XYEdges edgesFour = new XYEdges(4, 4, 4, 4);
+		//blogSelectorRow.setBorder( BorderFactory.createRoundedBorder(edgesFour) );
+		
+		add( blogSelectorRow );
 		
 		actionsTable = new TableLayoutManager(
 				new int[] {
@@ -172,9 +174,6 @@ public class MainView extends StandardBaseView {
 				Manager.USE_ALL_WIDTH
 		);
 
-		//XYEdges edgesFour = new XYEdges(4, 4, 4, 4);
-		//actionsTable.setBorder( BorderFactory.createRoundedBorder(edgesFour) );
-		
 		actionsTable.add( new ActionTableItem( mnuPosts, getItemLabel(mnuPosts), mnuPosts ) );
 		actionsTable.add( new ActionTableItem( mnuPages, getItemLabel(mnuPages), mnuPages ) );
 		actionsTable.add( new ActionTableItem( mnuComments, getItemLabel(mnuComments), mnuComments ) );
@@ -375,15 +374,26 @@ public class MainView extends StandardBaseView {
 		 return true;
 	 }
 	
-	private class BlogSelectorChangeListener implements FieldChangeListener {
+	 private class BlogSelectorChangeListener implements FieldChangeListener {
 
-		public void fieldChanged(Field field, int context) {
-			//if ( context == FieldChangeListener.PROGRAMMATIC )
-			int selectedIndex = blogSelectorField.getSelectedIndex();
-			currentBlog = mainController.getApplicationBlogs()[selectedIndex];
-			updateBlogIconField(currentBlog);
-		}
-	}
+		 public void fieldChanged(Field field, int context) {
+			 if ( context == 0 ) {
+				 final SelectorPopupScreen selScr = new SelectorPopupScreen("Choose...", blogSelectorField.getChoices());
+				 UiApplication.getUiApplication().invokeAndWait(new Runnable() {
+					 public void run() {
+						 selScr.pickItem();
+					 }
+				 });
+				 int selectedIndex = selScr.getSelectedItem();
+				 if ( selectedIndex != -1 ) {
+					 currentBlog = mainController.getApplicationBlogs()[selectedIndex];
+					 updateBlogIconField(currentBlog);
+					 blogSelectorField.setSelectedIndex(selectedIndex);
+					 actionsTable.invalidate();
+				 }
+			 }
+		 }
+	 }
 	
 	public void refreshMainView() {
 		synchronized (this) {
@@ -412,6 +422,7 @@ public class MainView extends StandardBaseView {
 							blogSelectorField.setChoices(choices);
 							blogSelectorField.setSelectedIndex(sel);
 							updateBlogIconField(currentBlog);
+							actionsTable.invalidate();
 						}
 					});
 				}
@@ -445,13 +456,13 @@ public class MainView extends StandardBaseView {
 	}
 	
 	private void updateBlogIconField(BlogInfo blogToUpdate){
-		Field blogIconField2 = createBlogIconField( blogToUpdate );
+		BitmapField blogIconField2 = createBlogIconField( blogToUpdate );
 		blogSelectorRow.replace(blogIconField, blogIconField2);
 		blogIconField = blogIconField2;
 		blogSelectorRow.invalidate();
 	}
 	
-	 private Field createBlogIconField( BlogInfo currentRow ){
+	 private BitmapField createBlogIconField( BlogInfo currentRow ){
 		 int stato = currentRow.getState();
 		 Bitmap icon = null;
 		 if(stato == BlogInfo.STATE_PENDING_ACTIVATION) {
@@ -467,6 +478,9 @@ public class MainView extends StandardBaseView {
 			 if(currentRow.getBlogIcon() != null) {
 				 try {
 					 icon =  Bitmap.createBitmapFromPNG(currentRow.getBlogIcon(), 0, -1);
+					// BitmapField  test = new BitmapField( icon, Field.NON_FOCUSABLE | FIELD_HCENTER | FIELD_VCENTER );
+					// test.setBorder(BorderFactory.createRoundedBorder(new XYEdges(6,6,6,6)));
+					// return test;
 				 } catch (Exception e) {
 					 Log.error("no valid shortcut ico found in the blog obj");
 				 }
@@ -506,7 +520,7 @@ public class MainView extends StandardBaseView {
 		 //if ( blogIconField == null) return;
 		 if ( currentBlog != null && currentBlog.equals(blogInfo)) {
 			 currentBlog = blogInfo;
-			 final Field blogIconField2 = createBlogIconField( blogInfo );
+			 final BitmapField blogIconField2 = createBlogIconField( blogInfo );
 			 UiApplication.getUiApplication().invokeLater(new Runnable() {
 				 public void run() {
 					 blogSelectorRow.replace(blogIconField, blogIconField2);
@@ -834,6 +848,8 @@ public class MainView extends StandardBaseView {
 		private int bitmapWidth , bitmapHeight;
 		private int labelAdvice;
 
+		private boolean focusableFlag = true;
+		
 		public ActionTableItem(int bitmapType, String text, int menuIndex)
 		{
 			super(Bitmap.getBitmapResource("folder_yellow_open"), Field.FOCUSABLE | FIELD_HCENTER | FIELD_VCENTER | USE_ALL_WIDTH );
@@ -860,6 +876,10 @@ public class MainView extends StandardBaseView {
 			return fieldHeight;
 		}
 		
+		public boolean isFocusable() {
+			return focusableFlag;
+		}
+		
 		protected void drawFocus( Graphics graphics, boolean on ) 
 		{
 			if (on) {
@@ -879,7 +899,11 @@ public class MainView extends StandardBaseView {
 		}
 
 		protected void paint(Graphics graphics) {
-
+			if( bitmapType == mnuReader &&  currentBlog != null && ! currentBlog.isWPCOMBlog() ) {
+				focusableFlag = false;
+				return;
+			}
+			focusableFlag = true;
 			int availableWidthForChieldFields = maxItemWidth - ( 4 * PADDING ); //Do not use all the width available. see findBitmapSizeThatFits.
 			int xOffset = ( availableWidthForChieldFields -  bitmapWidth ) / 2 ;
 			xOffset += 2 * PADDING;

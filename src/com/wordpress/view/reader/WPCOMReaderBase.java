@@ -4,14 +4,19 @@
 
 package com.wordpress.view.reader;
 
+import java.util.Vector;
+
 import net.rim.blackberry.api.browser.URLEncodedPostData;
 import net.rim.device.api.browser.field2.BrowserField;
 import net.rim.device.api.browser.field2.BrowserFieldConfig;
+import net.rim.device.api.io.transport.ConnectionFactory;
+import net.rim.device.api.io.transport.TransportInfo;
 import net.rim.device.api.script.ScriptableFunction;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.DialogClosedListener;
 
 import com.wordpress.bb.WordPressInfo;
+import com.wordpress.model.Preferences;
 import com.wordpress.utils.PropertyUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.Tools;
@@ -44,6 +49,38 @@ public abstract class WPCOMReaderBase extends BaseView {
         config.setProperty(BrowserFieldConfig.NAVIGATION_MODE, BrowserFieldConfig.NAVIGATION_MODE_POINTER);
 		return config;
 	}  
+	
+	/* DO NOT USE ALL THE CONNECTIONS AVAILABLE ON THE DEVICE, BUT USE THE CONNECTIONS SELECTED IN THE PREFERENCES SCREEN */
+	protected void setPreferredConnectionTypes( BrowserField myBrowserField ) {
+		//Note: new ConnectionFactory() is time consuming task... 
+        BrowserFieldConfig myBrowserFieldConfig = myBrowserField.getConfig();
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        Preferences userPreferences = Preferences.getIstance();
+        Vector preferredConnectionType = new Vector();
+        if( userPreferences.isWiFiConnectionPermitted() ) 
+        	preferredConnectionType.addElement(new Integer(TransportInfo.TRANSPORT_TCP_WIFI));
+        if( userPreferences.isTcpConnectionPermitted() ) 
+        	preferredConnectionType.addElement(new Integer(TransportInfo.TRANSPORT_TCP_CELLULAR));
+        if( userPreferences.isBlackBerryInternetServicePermitted() ) 
+        	preferredConnectionType.addElement(new Integer(TransportInfo.TRANSPORT_BIS_B));
+        if( userPreferences.isBESConnectionPermitted() ) 
+        	preferredConnectionType.addElement(new Integer(TransportInfo.TRANSPORT_MDS));                
+        if( userPreferences.isUserConnectionWap() ) 
+        	preferredConnectionType.addElement(new Integer(TransportInfo.TRANSPORT_WAP));                
+        if( userPreferences.isServiceBookConnectionPermitted() ) 
+        	preferredConnectionType.addElement(new Integer(TransportInfo.TRANSPORT_WAP2));                
+
+        //Array of connection methods
+        int[] trasportTypes = new int[preferredConnectionType.size()];
+        
+        for ( int i=0; i < preferredConnectionType.size(); i++ ){
+        	trasportTypes[i] = ((Integer)preferredConnectionType.elementAt(i)).intValue();
+        }
+        //Set the Factory connection preferences
+        connectionFactory.setPreferredTransportTypes(trasportTypes); 
+        //Set the Factory in the configuration of the BrowserField
+        myBrowserFieldConfig.setProperty(BrowserFieldConfig.CONNECTION_FACTORY, connectionFactory);
+	}
 	
 	public String getAuthorizeHybridURL(String URL) {
 			

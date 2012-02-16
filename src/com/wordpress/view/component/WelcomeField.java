@@ -273,17 +273,13 @@ public class WelcomeField extends VerticalFieldManager {
 			}
 
 			graphics.setFont(fnt);
-
-			/*
-	    		if (selected) {
-	    			graphics.setColor(Color.WHITE);
-	    		} else {
-	    			graphics.setColor(Color.BLACK);
-	    		}
-			 */
-
-			graphics.setColor(Color.BLACK);
-
+			
+			if (selected) {
+				graphics.setColor(Color.WHITE);
+			} else {
+				graphics.setColor(Color.BLACK);
+			}
+			
 			if (title != null) {
 				int fntHeight = fnt.getHeight();
 				int textTop = y + ((height - fntHeight) / 2);

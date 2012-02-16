@@ -4,11 +4,15 @@
 
 package com.wordpress.view.reader;
 
+import java.util.Vector;
+
 import net.rim.device.api.browser.field2.BrowserField;
 import net.rim.device.api.browser.field2.BrowserFieldConfig;
 import net.rim.device.api.browser.field2.BrowserFieldHistory;
 import net.rim.device.api.browser.field2.BrowserFieldListener;
 import net.rim.device.api.browser.field2.BrowserFieldRequest;
+import net.rim.device.api.io.transport.ConnectionFactory;
+import net.rim.device.api.io.transport.TransportInfo;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.KeyListener;
@@ -22,6 +26,7 @@ import org.w3c.dom.Document;
 import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
+import com.wordpress.model.Preferences;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 
@@ -72,11 +77,16 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
     	{
     		try
     		{
-    			_browserField.requestContent(request);
+    		
     			connectionProgressView = new ConnectionInProgressView(
     					_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
     			connectionProgressView.setDialogClosedListener(new ConnectionDialogClosedListener());
     			connectionProgressView.show();
+    			
+    			this.setPreferredConnectionTypes(_browserField);
+    			
+            	_browserField.requestContent(request);
+                
     			int res = UiApplication.getUiApplication().invokeLater(new Runnable() {
     				public void run() {
     					if ( connectionProgressView.isDisplayed())

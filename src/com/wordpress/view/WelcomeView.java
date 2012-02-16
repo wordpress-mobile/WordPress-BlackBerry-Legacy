@@ -265,15 +265,11 @@ public class WelcomeView extends StandardBaseView {
 
     		graphics.setFont(fnt);
 
-    		/*
     		if (selected) {
     			graphics.setColor(Color.WHITE);
     		} else {
     			graphics.setColor(Color.BLACK);
     		}
-    		*/
-    		
-    		graphics.setColor(Color.BLACK);
     		
     		if (title != null) {
     			int fntHeight = fnt.getHeight();
