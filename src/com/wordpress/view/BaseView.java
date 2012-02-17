@@ -17,7 +17,7 @@ import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
 import com.wordpress.bb.NotificationHandler;
-import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 
@@ -57,7 +57,7 @@ public abstract class BaseView extends MainScreen {
 		//retrieve a reference to the ResourceBundle for localization support
 		_resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
 		//retrive the bg image based on the screen dimensions
-		_backgroundBitmap = WordPressCore.getInstance().getBackgroundBitmap();
+		_backgroundBitmap = WordPressInfo.getBackgroundBitmap();
 	}
 	
 	public BaseView(long style) {

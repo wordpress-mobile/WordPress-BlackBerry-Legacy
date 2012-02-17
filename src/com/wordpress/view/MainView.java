@@ -378,7 +378,7 @@ public class MainView extends StandardBaseView {
 
 		 public void fieldChanged(Field field, int context) {
 			 if ( context == 0 ) {
-				 final SelectorPopupScreen selScr = new SelectorPopupScreen("Choose...", blogSelectorField.getChoices());
+				 final SelectorPopupScreen selScr = new SelectorPopupScreen( _resources.getString(WordPressResource.TITLE_BLOG_SELECTOR_POPUP), blogSelectorField.getChoices());
 				 UiApplication.getUiApplication().invokeAndWait(new Runnable() {
 					 public void run() {
 						 selScr.pickItem();
@@ -697,11 +697,12 @@ public class MainView extends StandardBaseView {
         	WordPressCore.getInstance().exitWordPress();
         }
     };
-       
-    
+             
     //Override the makeMenu method so we can add a custom menu item
     protected void makeMenu(Menu menu, int instance)
     {
+    	
+    	if ( instance == Menu.INSTANCE_CONTEXT ) return; // Do not show the popup menu on this screen
 
     	if( currentBlog != null ) {
     		menu.add(_showBlogPosts);
@@ -903,6 +904,13 @@ public class MainView extends StandardBaseView {
 				focusableFlag = false;
 				return;
 			}
+			
+			String currentLbl = label;
+			if( bitmapType == mnuComments && currentBlog.getAwaitingModeration() > 0 ) {
+				currentLbl = "(" + currentBlog.getAwaitingModeration() + ") " + currentLbl; 
+				labelAdvice = myFont.getAdvance(currentLbl);
+			}
+			
 			focusableFlag = true;
 			int availableWidthForChieldFields = maxItemWidth - ( 4 * PADDING ); //Do not use all the width available. see findBitmapSizeThatFits.
 			int xOffset = ( availableWidthForChieldFields -  bitmapWidth ) / 2 ;
@@ -920,7 +928,7 @@ public class MainView extends StandardBaseView {
 				if ( xOffset < 0 ) xOffset = 0;
 				xOffset += 2 * PADDING;
 				int yOffset =  ( 2 * PADDING ) + bitmapHeight + PADDING;
-				graphics.drawText( label, xOffset, yOffset, DrawStyle.ELLIPSIS, availableWidthForChieldFields );
+				graphics.drawText( currentLbl, xOffset, yOffset, DrawStyle.ELLIPSIS, availableWidthForChieldFields );
 			} finally {
 				graphics.setColor(prevColor);
 			}

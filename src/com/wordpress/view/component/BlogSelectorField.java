@@ -17,6 +17,7 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.XYRect;
 import net.rim.device.api.ui.component.LabelField;
+import net.rim.device.api.ui.component.Menu;
 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.TouchEvent;
 //#endif
@@ -36,7 +37,8 @@ public class BlogSelectorField extends LabelField {
 	private String[] choices;
 	private String label;
 	
-    protected Bitmap dropDownBitmap = Bitmap.getBitmapResource("drop_down_arrow.png"); 
+    protected Bitmap dropDownBitmap = Bitmap.getBitmapResource("drop_down_arrow.png");
+    protected Bitmap dropDownBitmapFocus = Bitmap.getBitmapResource("drop_down_arrow_white.png");
 	private final int PADDING = 6;
 	private int fieldMaxHeight = 0;
 	private int fieldMaxWeight = 0;
@@ -52,7 +54,7 @@ public class BlogSelectorField extends LabelField {
     protected void makeContextMenu(ContextMenu contextMenu) {
       //remove the context menu
     }
-	
+    
 	public void setFieldMaxHeight(int fieldMaxHeight) {
 		this.fieldMaxHeight = fieldMaxHeight;
 	}
@@ -154,13 +156,14 @@ public class BlogSelectorField extends LabelField {
     public void paint(Graphics g) {		 
     	int oldColour = g.getColor();
     	try {           
-
+    		Bitmap currentDropDownBitmap = g.isDrawingStyleSet( Graphics.DRAWSTYLE_FOCUS ) ? dropDownBitmapFocus : dropDownBitmap;
+    		
     		//Draw the drop down menu bitmap
-    		int imageWidth = dropDownBitmap.getWidth();
-    		int imageHeight = dropDownBitmap.getHeight();
+    		int imageWidth = currentDropDownBitmap.getWidth();
+    		int imageHeight = currentDropDownBitmap.getHeight();
     		int imageY =  (this.fieldMaxHeight - imageHeight) / 2; 		
     		int imageX = this.fieldMaxWeight  - ( imageWidth + PADDING + PADDING ); 
-    		g.drawBitmap(imageX, imageY, imageWidth, imageHeight, dropDownBitmap, 0, 0);
+    		g.drawBitmap(imageX, imageY, imageWidth, imageHeight, currentDropDownBitmap, 0, 0);
     		
     		Font fnt = Font.getDefault().derive(Font.PLAIN);
     		int fullTextWidth = fnt.getAdvance(label);

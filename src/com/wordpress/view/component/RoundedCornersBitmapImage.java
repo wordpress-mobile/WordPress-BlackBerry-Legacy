@@ -7,12 +7,15 @@ import net.rim.device.api.ui.component.BitmapField;
 
 public class RoundedCornersBitmapImage extends BitmapField{
 	
+	private final Bitmap icon;
+
 	public RoundedCornersBitmapImage(Bitmap icon, long l) {
 		super(icon, l);
+		this.icon = icon;
 	}
 
 	protected void paint(Graphics graphics) {
-		Bitmap bmp = this.getBitmap();
+		Bitmap bmp = icon;
 
 		//http://supportforums.blackberry.com/t5/Java-Development/Rounded-rectangle-clipping-area/td-p/508349
 		

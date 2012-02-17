@@ -153,7 +153,7 @@ public class NotificationHandler {
 			if ( reg.getApplicationIndicator() != null ) {
 				indicator = reg.getApplicationIndicator();
 			} else {
-				EncodedImage image = EncodedImage.getEncodedImageResource("wpmini-blue.png");
+				EncodedImage image = WordPressInfo.getBannerIndicator();
 				ApplicationIcon icon = new ApplicationIcon( image );				
 				indicator = reg.register( icon, false, true);				
 				indicator.setIcon(icon);
