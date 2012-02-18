@@ -65,7 +65,7 @@
         	<!-- define preprocessor tag -->
         	<!-- define tag="DEBUG" if="debug"/ --> 
         	<define tag="LOG_CONSOLE" if="log_console" />
-        	<define tag="VER_4.5.0" if="VER_4.5.0" />
+        	<define tag="BlackBerrySDK4.5.0" if="BlackBerrySDK4.5.0" />
         	<define tag="VER_4.7.0" if="VER_4.7.0" />
         	<define tag="BlackBerrySDK5.0.0" if="BlackBerrySDK5.0.0" />
         	<define tag="BlackBerrySDK6.0.0" if="BlackBerrySDK6.0.0" />

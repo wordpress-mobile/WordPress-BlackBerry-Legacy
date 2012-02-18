@@ -167,7 +167,7 @@ public class BlogSelectorField extends LabelField {
     		
     		Font fnt = Font.getDefault().derive(Font.PLAIN);
     		int fullTextWidth = fnt.getAdvance(label);
-    		int maxFontHeight = fnt.getHeight() * 2 ; //Set the max hight of the font to double of the device font height. We don't want giants here! 
+    		int maxFontHeight = fnt.getHeight() * 2 ; //Set the max height of the font to double of the device font height. We don't want giants here! 
     		//int maxFontSizeInPixel = Ui.convertSize(21, Ui.UNITS_pt, Ui.UNITS_px);
     		
     		int availableWidthForText =  this.fieldMaxWeight - imageWidth - (PADDING * 3) - 2; // PAD + text + ( 2 px ) + IMG + PAD + PAD

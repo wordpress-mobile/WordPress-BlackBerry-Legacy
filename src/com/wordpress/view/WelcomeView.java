@@ -99,6 +99,20 @@ public class WelcomeView extends StandardBaseView {
 	   list = new ListField()
 	   {
 		   protected void drawFocus(Graphics graphics, boolean on) { } //remove the standard focus highlight
+	   
+		   //#ifdef BlackBerrySDK4.5.0
+		   protected void moveFocus(int x, int y, int status, int time) {
+			   super.moveFocus(x, y, status, time);
+			   this.invalidate();
+		   }
+		   
+		   protected int moveFocus(int amount, int status, int time) {
+			   int ret = super.moveFocus(amount, status, time);
+			   this.invalidate();
+			   return ret;
+		   }
+		   //#endif
+	   
 	   };
 
 	   //Set the ListFieldCallback

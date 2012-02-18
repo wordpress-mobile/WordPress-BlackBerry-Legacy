@@ -37,14 +37,14 @@ public abstract class StandardBaseView extends BaseView {
 		
 	  	VerticalFieldManager internalManager = new VerticalFieldManager( Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR ) {
     		public void paintBackground( Graphics g ) {
-    		/*	g.clear();
+    			g.clear();
     			int color = g.getColor();
     			g.setColor(0xefebef);
     			//g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
     			g.fillRect( 0, 0, Display.getWidth(), Display.getHeight() );
-    			g.setColor( color );*/
-    			g.clear();
-    			g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
+    			g.setColor( color );
+    		//	g.clear();
+    		//	g.drawBitmap(0, 0, Display.getWidth(), Display.getHeight(), _backgroundBitmap, 0, 0);
     		}
     		
     		protected void sublayout( int maxWidth, int maxHeight ) {

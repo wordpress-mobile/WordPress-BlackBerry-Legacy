@@ -156,7 +156,11 @@ public class MainView extends StandardBaseView {
 		blogSelectorField.setFieldMaxHeight( getBlogIconSize() ); //set the field with the same height of the icon
 		blogSelectorField.setChangeListener(new BlogSelectorChangeListener());
 		blogSelectorRow.add( blogSelectorField );
-		blogSelectorRow.setMargin(5, 5, 0, 5);
+		//#ifdef BlackBerrySDK4.5.0
+		blogSelectorRow.setMargin(5, 0, 0, 0);
+        //#else
+        blogSelectorRow.setMargin(5, 5, 0, 5);
+        //#endif
 		
 		//XYEdges edgesFour = new XYEdges(4, 4, 4, 4);
 		//blogSelectorRow.setBorder( BorderFactory.createRoundedBorder(edgesFour) );
@@ -503,16 +507,25 @@ public class MainView extends StandardBaseView {
 			 availableHeight -= titleField.getPreferredHeight();
 			 availableHeight -= blogSelectorRow.getPreferredHeight();
 			 int fieldsHeight = actionsTable.getPreferredHeight();
-
-			 if (fieldsHeight < availableHeight) {
-				 int topMargin = ( availableHeight - fieldsHeight ) / 2;
-				 actionsTable.setMargin(topMargin, actionsTableMargin, actionsTableMargin , actionsTableMargin);
-			 } else {
-				 actionsTable.setMargin(actionsTableMargin, actionsTableMargin, actionsTableMargin , actionsTableMargin);
-			 }
-
-			 super.sublayout(width, height);
+			 
+			 //#ifdef BlackBerrySDK4.5.0
+			 	//Ref: #216
+				 if (fieldsHeight < availableHeight) {
+					 int topMargin = ( availableHeight - fieldsHeight ) / 2;
+					 actionsTable.setMargin(topMargin, 0, 0 , 0);
+				 } else {
+					 actionsTable.setMargin(actionsTableMargin, 0, 0 , 0);
+				 }
+			 //#else
+				 if (fieldsHeight < availableHeight) {
+					 int topMargin = ( availableHeight - fieldsHeight ) / 2;
+					 actionsTable.setMargin(topMargin, actionsTableMargin, actionsTableMargin , actionsTableMargin);
+				 } else {
+					 actionsTable.setMargin(actionsTableMargin, actionsTableMargin, actionsTableMargin , actionsTableMargin);
+				 }
+			 //#endif
 		 }
+		 super.sublayout(width, height);
 	 }
 	 
 	 //update the view of blog list entry

@@ -4,7 +4,7 @@ package com.wordpress.utils;
 
 import net.rim.device.api.ui.*;
 
-//#ifndef VER_4.1.0 | VER_4.2.0 | VER_4.2.1 | VER_4.3.0 | VER_4.5.0
+//#ifndef VER_4.1.0 | VER_4.2.0 | VER_4.2.1 | VER_4.3.0 | BlackBerrySDK4.5.0
 import net.rim.device.api.ui.decor.*;
 //#endif
 
@@ -17,7 +17,7 @@ public class FieldDimensionUtilities
     {
         int width = 0;
 
-      //#ifdef VER_4.1.0 | VER_4.2.0 | VER_4.2.1 | VER_4.3.0 | VER_4.5.0
+      //#ifdef VER_4.1.0 | VER_4.2.0 | VER_4.2.1 | VER_4.3.0 | BlackBerrySDK4.5.0
         width = field.getWidth() - field.getContentWidth() - field.getPaddingLeft() - field.getPaddingRight();
       //#else
         Border border = field.getBorder();
@@ -32,7 +32,7 @@ public class FieldDimensionUtilities
     {
         int height = 0;
         
-      //#ifdef VER_4.1.0 | VER_4.2.0 | VER_4.2.1 | VER_4.3.0 | VER_4.5.0
+      //#ifdef VER_4.1.0 | VER_4.2.0 | VER_4.2.1 | VER_4.3.0 | BlackBerrySDK4.5.0
         height = field.getWidth() - field.getContentHeight() - field.getPaddingTop() - field.getPaddingBottom();
       //#else
         Border border = field.getBorder();
@@ -46,7 +46,7 @@ public class FieldDimensionUtilities
     public static int getBorderAndPaddingWidth( Field field )
     {
         int width = 0;
-      //#ifdef VER_4.1.0 | VER_4.2.0 | VER_4.2.1 | VER_4.3.0 | VER_4.5.0
+      //#ifdef VER_4.1.0 | VER_4.2.0 | VER_4.2.1 | VER_4.3.0 | BlackBerrySDK4.5.0
         width = field.getWidth() - field.getContentWidth();
       //#else
         width = field.getPaddingLeft() + field.getPaddingRight();
@@ -61,7 +61,7 @@ public class FieldDimensionUtilities
     public static int getBorderAndPaddingHeight( Field field )
     {
         int height = 0;
-      //#ifdef VER_4.1.0 | VER_4.2.0 | VER_4.2.1 | VER_4.3.0 | VER_4.5.0
+      //#ifdef VER_4.1.0 | VER_4.2.0 | VER_4.2.1 | VER_4.3.0 | BlackBerrySDK4.5.0
         height = field.getHeight() - field.getContentHeight();
       //#else
         height = field.getPaddingTop() + field.getPaddingBottom();
