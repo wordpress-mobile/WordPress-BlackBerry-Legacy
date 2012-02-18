@@ -100,9 +100,26 @@ public class BlogSelectorField extends LabelField {
             invalidate();
         }
     }
+    
+    private void paintBackgroundSingle( Graphics g) {
     	
+    	if ( ! g.isDrawingStyleSet( Graphics.DRAWSTYLE_FOCUS ) ) return;  
+    	
+    	int oldColour = g.getBackgroundColor();
+    	int oldAlpha = g.getGlobalAlpha();
+    	try {
+    		XYRect rect = new XYRect();
+			getFocusRect(rect);
+			g.setColor( getColour( COLOUR_BACKGROUND_FOCUS ) );
+			g.fillRoundRect(rect.x, rect.y, rect.width, rect.height, 5, 5); 
+      	} finally {
+    		g.setBackgroundColor( oldColour );
+    		g.setGlobalAlpha( oldAlpha );
+    	}
+    }
     protected void paintBackground( Graphics g)
     {
+    	if ( choices.length <= 1 ) { paintBackgroundSingle(g); return; }
     	int oldColour = g.getBackgroundColor();
     	int oldAlpha = g.getGlobalAlpha();
     	try {
@@ -153,7 +170,40 @@ public class BlogSelectorField extends LabelField {
         }
     }
 
-    public void paint(Graphics g) {		 
+    private void paintSingle(Graphics g) {		 
+    	int oldColour = g.getColor();
+    	try {           
+    	
+    		Font fnt = Font.getDefault().derive(Font.PLAIN);
+    		int fullTextWidth = fnt.getAdvance(label);
+    		int maxFontHeight = fnt.getHeight() * 2 ; //Set the max height of the font to double of the device font height. We don't want giants here! 
+    		//int maxFontSizeInPixel = Ui.convertSize(21, Ui.UNITS_pt, Ui.UNITS_px);
+    		
+    		int availableWidthForText =  this.fieldMaxWeight - (PADDING * 2) ; // PAD + text + PAD
+    		int availableHeightForText =  this.fieldMaxHeight - (PADDING * 2);
+    		
+    		//Iterate to find the best font size height that fit the width of the row
+    		if( fullTextWidth < availableWidthForText && fnt.getHeight() < availableHeightForText && fnt.getHeight() <  maxFontHeight )  {
+    			while(  fullTextWidth < availableWidthForText && fnt.getHeight() < availableHeightForText && fnt.getHeight() <  maxFontHeight ) {
+    				fnt = fnt.derive( fnt.getStyle(),  fnt.getHeight() + 1 ); 
+    				fullTextWidth =  fnt.getAdvance(label);
+    			}
+    			fnt = fnt.derive( fnt.getStyle(),  fnt.getHeight() - 1 );
+    		} else {
+    			//nothing for now
+    		}
+    		g.setFont(fnt);
+    		g.setColor( g.isDrawingStyleSet( Graphics.DRAWSTYLE_FOCUS ) ? getColour( COLOUR_TEXT_FOCUS ) : Color.BLACK );
+    		int textTop =  (this.fieldMaxHeight - fnt.getHeight()) / 2;
+    		g.drawText( label, PADDING, textTop , DrawStyle.TOP | DrawStyle.ELLIPSIS, availableWidthForText);
+    		
+    	} finally {
+    		g.setColor( oldColour );
+    	}
+    }	 
+    
+    public void paint(Graphics g) {
+    	if ( choices.length <= 1 ) { paintSingle(g); return; }
     	int oldColour = g.getColor();
     	try {           
     		Bitmap currentDropDownBitmap = g.isDrawingStyleSet( Graphics.DRAWSTYLE_FOCUS ) ? dropDownBitmapFocus : dropDownBitmap;
@@ -202,6 +252,7 @@ public class BlogSelectorField extends LabelField {
     }
          
 	 protected void performDefaultActionOnItem() {
+		 if( choices.length <= 1 ) return;
 		 _pressed = true;
 		 invalidate();
 		 fieldChangeNotify( 0 );

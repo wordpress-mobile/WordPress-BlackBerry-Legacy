@@ -158,6 +158,8 @@ public class MainView extends StandardBaseView {
 		blogSelectorRow.add( blogSelectorField );
 		//#ifdef BlackBerrySDK4.5.0
 		blogSelectorRow.setMargin(5, 0, 0, 0);
+		blogIconField.setMargin(0, 0, 0, 5);
+		blogSelectorField.setMargin(0, 5, 0, 0);
         //#else
         blogSelectorRow.setMargin(5, 5, 0, 5);
         //#endif
@@ -461,6 +463,9 @@ public class MainView extends StandardBaseView {
 	
 	private void updateBlogIconField(BlogInfo blogToUpdate){
 		BitmapField blogIconField2 = createBlogIconField( blogToUpdate );
+		//#ifdef BlackBerrySDK4.5.0
+		blogIconField2.setMargin(0, 0, 0, 5);
+        //#endif
 		blogSelectorRow.replace(blogIconField, blogIconField2);
 		blogIconField = blogIconField2;
 		blogSelectorRow.invalidate();
@@ -534,6 +539,9 @@ public class MainView extends StandardBaseView {
 		 if ( currentBlog != null && currentBlog.equals(blogInfo)) {
 			 currentBlog = blogInfo;
 			 final BitmapField blogIconField2 = createBlogIconField( blogInfo );
+			//#ifdef BlackBerrySDK4.5.0
+				blogIconField2.setMargin(0, 0, 0, 5);
+	        //#endif
 			 UiApplication.getUiApplication().invokeLater(new Runnable() {
 				 public void run() {
 					 blogSelectorRow.replace(blogIconField, blogIconField2);
