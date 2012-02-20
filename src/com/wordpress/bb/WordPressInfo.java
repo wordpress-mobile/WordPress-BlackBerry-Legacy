@@ -164,50 +164,6 @@ public final class WordPressInfo {
     		return EncodedImage.getEncodedImageResource("wordpress-logo-21-blue.png");
     }
     
-    
-	/**
-	 * 
-	 * Screen dimensions @see MainView:getBlogIconSize
-	 * 
-	 * Pearl 8220 - 240 x 320 pixels
-	 * Curve 8300 Series, 8800 Series, 8700 Series - 320 x 240 pixels
-	 * Curve 8350i - 320 x 240 pixels
-	 * Curve 8900 - 480 x 360 pixels
-	 * Bold  9000 Series - 480 x 320 pixels
-	 * Bold  9900 Series - 640 x 480
-	 * Tour  9600 Series - 480 x 360 pixels
-	 * Storm 9500 Series - portrait view: 360 x 480 pixels,  landscape view: 480 x 360 pixels
-	 * Torch 9800 360 x 480 (portrait) when held vertically.
-	 * Torch 9810 - 640 x 480
-	 * Torch2 9850/9860  - 800 x 480
-	 * 
-	 */
-	public static Bitmap getBackgroundBitmap() {
-		
-		 int width = Display.getWidth(); 
-		 int height = Display.getHeight();
-		 
-		 if(width <= 480 && height <= 480 ) {
-			 return Bitmap.getBitmapResource("bg.png");			 
-		 } else {
-			 return Bitmap.getBitmapResource("bg-800.png");
-		 }
-		 
-		 /*if(width == 240 && height == 320 ) {
-			 
-		 } else if(width == 320 && height == 240) {
-			 
-		 } else if(width == 480 && height == 320) { 
-			 
-		 } else if(width == 480 && height == 360) {
-			 
-		 } else if(width == 360 && height == 480) {
-			 
-		 } else {
-			 
-		 }*/
-	}
-    
     public static Bitmap getIcon() {
     	int prefSize = HomeScreen.getPreferredIconHeight();
     	if( prefSize == 68 )

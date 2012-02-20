@@ -48,16 +48,12 @@ public abstract class BaseView extends MainScreen {
 	protected Field titleField; //main title of the screen
 	protected LoadMoreField loadingMoreField;
 	
-	protected static Bitmap _backgroundBitmap = null; 
-	
 	//create a variable to store the ResourceBundle for localization support
 	protected static ResourceBundle _resources;
 	
 	static {
 		//retrieve a reference to the ResourceBundle for localization support
 		_resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
-		//retrive the bg image based on the screen dimensions
-		_backgroundBitmap = WordPressInfo.getBackgroundBitmap();
 	}
 	
 	public BaseView(long style) {

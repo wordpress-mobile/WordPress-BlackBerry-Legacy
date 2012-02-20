@@ -1,6 +1,3 @@
-//#preprocess
-
-//#ifdef UNUSED
 package com.wordpress.utils;
 
 import javax.microedition.lcdui.Image;
@@ -946,4 +943,3 @@ public class ImageManipulator {
 		this.setScaleY(scale);
 	}
 }
-//#endif

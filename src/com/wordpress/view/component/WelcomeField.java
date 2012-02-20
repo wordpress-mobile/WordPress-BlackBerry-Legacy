@@ -71,19 +71,19 @@ public class WelcomeField extends VerticalFieldManager {
 		int height = Display.getHeight();
 
 		if(width == 240 && height == 320 ) {
-			promoImg = EncodedImage.getEncodedImageResource("wp_blue-m.png");			 
+			promoImg = EncodedImage.getEncodedImageResource("wordpress-logo-100-blue.png");			 
 		} else if(width == 320 && height == 240) {
-			promoImg = EncodedImage.getEncodedImageResource("wp_blue-s.png");
+			promoImg = EncodedImage.getEncodedImageResource("wordpress-logo-50-blue.png");
 		} else if(width == 480 && height == 320) { 
-			promoImg = EncodedImage.getEncodedImageResource("wp_blue-m.png");	 
+			promoImg = EncodedImage.getEncodedImageResource("wordpress-logo-100-blue.png");	 
 		} else if(width == 480 && height == 360) {
-			promoImg = EncodedImage.getEncodedImageResource("wp_blue-m.png");	
+			promoImg = EncodedImage.getEncodedImageResource("wordpress-logo-100-blue.png");	
 		} else if(width == 360 && height == 480) {
-			promoImg = EncodedImage.getEncodedImageResource("wp_blue-l.png");
+			promoImg = EncodedImage.getEncodedImageResource("wordpress-logo-150-blue.png");
 		} else if (Display.getHeight() >= 480  ) {
-			promoImg = EncodedImage.getEncodedImageResource("wp_blue-l.png");
+			promoImg = EncodedImage.getEncodedImageResource("wordpress-logo-150-blue.png");
 		} else {
-			promoImg = EncodedImage.getEncodedImageResource("wp_blue-s.png");	
+			promoImg = EncodedImage.getEncodedImageResource("wordpress-logo-50-blue.png");	
 		}
 
 		wpPromoBitmapField =  new BitmapField(promoImg.getBitmap(), Field.FIELD_HCENTER | Field.FIELD_VCENTER) {

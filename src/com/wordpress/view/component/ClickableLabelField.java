@@ -19,7 +19,7 @@ import net.rim.device.api.ui.TouchEvent;
 public class ClickableLabelField extends LabelField {
 	
 	protected ResourceBundle _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
-	protected int textColor = Color.GRAY;
+	protected int textColor = Color.BLUE;
 	protected String contextMenuItemLabel = _resources.getString(WordPressResource.MENUITEM_OPEN);
 	
 	public ClickableLabelField(String text,  long style) {

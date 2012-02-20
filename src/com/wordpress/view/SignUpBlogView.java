@@ -77,7 +77,7 @@ public class SignUpBlogView extends StandardBaseView {
 	    	this.controller=addBlogsController;
 	    	
 			//Set the preferred width to the image size or screen width if the image is larger than the screen width.
-	    	EncodedImage classicHeaderImg = EncodedImage.getEncodedImageResource("wp_blue-s.png");
+	    	EncodedImage classicHeaderImg = EncodedImage.getEncodedImageResource("wordpress-logo-50-blue.png");
 			int _preferredWidth = -1;
 	        if (classicHeaderImg.getWidth() > Display.getWidth()) {
 	            _preferredWidth = Display.getWidth();

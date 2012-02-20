@@ -6,6 +6,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import net.rim.blackberry.api.browser.URLEncodedPostData;
+import net.rim.device.api.math.Fixed32;
 import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
@@ -50,6 +51,7 @@ import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Preferences;
 import com.wordpress.task.StopConnTask;
 import com.wordpress.utils.DataCollector;
+import com.wordpress.utils.ImageManipulator;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
@@ -91,9 +93,8 @@ public class MainView extends StandardBaseView {
     
 	//Deafult icons used to show the status of the blog
 	private Bitmap imgImportant = Bitmap.getBitmapResource("important.png");
-	private Bitmap imgQueue = Bitmap.getBitmapResource("enqueued.png");
-	private Bitmap wp_blue = Bitmap.getBitmapResource("wp_blue-m.png");
-	private Bitmap wp_grey = Bitmap.getBitmapResource("wp_grey-m.png");
+	private Bitmap wp_blue = Bitmap.getBitmapResource("wordpress-logo-100-blue.png");
+	private Bitmap wp_grey = Bitmap.getBitmapResource("wordpress-logo-100-grey.png");
 	private Bitmap pendingActivation = Bitmap.getBitmapResource("pending_activation.png"); //not yet used
 
 	private final int mnuPosts = 100;
@@ -209,7 +210,7 @@ public class MainView extends StandardBaseView {
 	
 	/**
 	 * 
-	 * This method is called when the app asks the blavatar to the Gravatar service
+	 * This method is also called when the app asks the blavatar to the Gravatar service
 	 * 
 	 * Pearl 8220 - 240 x 320 pixels
 	 * Curve 8300 Series, 8800 Series, 8700 Series - 320 x 240 pixels
@@ -227,7 +228,6 @@ public class MainView extends StandardBaseView {
 	public static int getBlogIconSize() {
 		 int width = Display.getWidth(); 
 		 int height = Display.getHeight();
-		 
 		 if( ( width == 240 && height == 320 ) || ( width == 320 && height == 240 ) ) {
 			 return 48;
 		 } else if( ( width == 480 && height == 320 ) ||  ( width == 320 && height == 480 ) ) { 
@@ -473,14 +473,18 @@ public class MainView extends StandardBaseView {
 	
 	 private BitmapField createBlogIconField( BlogInfo currentRow ){
 		 int stato = currentRow.getState();
+		 int maxIconWidth = getBlogIconSize();
 		 Bitmap icon = null;
 		 if(stato == BlogInfo.STATE_PENDING_ACTIVATION) {
 			 icon = pendingActivation;
-		 } else if (stato == BlogInfo.STATE_LOADING) { 
-			GIFEncodedImage _theImage= (GIFEncodedImage)EncodedImage.getEncodedImageResource("loading-gif.bin");
-			return  new AnimatedGIFField(_theImage, Field.NON_FOCUSABLE | FIELD_HCENTER | FIELD_VCENTER );
-		 } else if (stato == BlogInfo.STATE_ADDED_TO_QUEUE) {
-			 icon = imgQueue; 
+		 } else if ( stato == BlogInfo.STATE_LOADING || stato == BlogInfo.STATE_ADDED_TO_QUEUE ) { 
+			GIFEncodedImage _theImage= (GIFEncodedImage)EncodedImage.getEncodedImageResource("loading-blog-gif.bin");
+			AnimatedGIFField animatedBitmapField = new AnimatedGIFField(_theImage, Field.NON_FOCUSABLE | FIELD_HCENTER | FIELD_VCENTER ); 
+			if( _theImage.getWidth() < maxIconWidth ) { //we know that the loading div is small
+				int mar = ( maxIconWidth - _theImage.getWidth() ) / 2; 
+				animatedBitmapField.setMargin(mar, mar, mar, mar);
+			}
+			return animatedBitmapField;
 		 } else if (stato == BlogInfo.STATE_LOADED_WITH_ERROR ||  stato == BlogInfo.STATE_ERROR) {
 			 icon = imgImportant;
 		 } else if( stato == BlogInfo.STATE_LOADED ) {
@@ -503,6 +507,19 @@ public class MainView extends StandardBaseView {
 				 }
 			 }
 		 } 
+		 
+		 if( icon.getWidth() != maxIconWidth ) {
+			// Calculate the new scale based on the region sizes
+				// Scale / Zoom
+				// 0.1 = 1000%
+				// 0.5 = 200%
+				// 1 = 100%
+				// 2 = 50%
+				// 4 = 25%
+			int	resultantScaleX = Fixed32.div(Fixed32.toFP(maxIconWidth), Fixed32.toFP(icon.getWidth()));
+			icon = ImageManipulator.scale(icon, resultantScaleX);
+		 }
+	 
 		 return new BitmapField( icon, Field.NON_FOCUSABLE | FIELD_HCENTER | FIELD_VCENTER );
 	 }
 	 	 

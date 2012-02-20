@@ -79,7 +79,6 @@ public class AddWPCOMBlogsView extends StandardBaseView {
             if(AccountsController.getAccountsNumber() > 0 ) {
             	ClickableLabelField lblMyAccounts = new ClickableLabelField(_resources.getString(WordPressResource.LABEL_EXISTING_WPCOM_ACCOUNTS)+"...",
             			LabelField.FOCUSABLE | LabelField.ELLIPSIS);
-            	lblMyAccounts.setTextColor(Color.BLACK);
             	lblMyAccounts.setMargin(2, 5, 5, 5);
             	FieldChangeListener existingAccountListener = new FieldChangeListener() {
             		public void fieldChanged(Field field, int context) {
