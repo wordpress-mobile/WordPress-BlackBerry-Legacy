@@ -4,14 +4,11 @@
 
 package com.wordpress.view.reader;
 
-import java.util.Vector;
 
 import net.rim.device.api.browser.field2.BrowserField;
 import net.rim.device.api.browser.field2.BrowserFieldConfig;
 import net.rim.device.api.browser.field2.BrowserFieldListener;
 import net.rim.device.api.browser.field2.BrowserFieldRequest;
-import net.rim.device.api.io.transport.ConnectionFactory;
-import net.rim.device.api.io.transport.TransportInfo;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.KeyListener;
@@ -24,7 +21,6 @@ import org.w3c.dom.Document;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
-import com.wordpress.model.Preferences;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 
@@ -32,7 +28,6 @@ import com.wordpress.view.dialog.ConnectionInProgressView;
 public class WPCOMReaderTopicsView extends WPCOMReaderBase
 {
     private BrowserField _browserField;    
-    private boolean _documentLoaded = false;
     
     private ConnectionInProgressView connectionProgressView = null;
 	private BrowserFieldRequest request = null;
@@ -128,7 +123,6 @@ public class WPCOMReaderTopicsView extends WPCOMReaderBase
     	public void documentLoaded(BrowserField browserField, Document document) {
     		Log.debug("Topics View has loaded the following URL : " + browserField.getDocumentUrl() );
     		//the browser has loaded the login form and authenticated the user...
-    		_documentLoaded = true;
     		UiApplication.getUiApplication().invokeLater(new Runnable() {
     			public void run() {
 

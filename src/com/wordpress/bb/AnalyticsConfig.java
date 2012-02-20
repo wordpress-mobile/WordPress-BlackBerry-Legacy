@@ -16,7 +16,7 @@ public class AnalyticsConfig extends WebtrendsConfig {
 	}
 
 	public String wt_dc_dcsid() {
-		return ""; 
+		return "dcs8q90jk6dv0hw07bgukqn2e_5f4e"; 
 	}
 	
     // Set this value to "true" if you want to enable application logging.
@@ -31,7 +31,7 @@ public class AnalyticsConfig extends WebtrendsConfig {
     
     // Set this value to "false" if you want to disable the Webtrends library.
     public String wt_dc_enabled() {
-        return "false";
+        return "true";
     }
 
 	public String wt_dc_timezone() {

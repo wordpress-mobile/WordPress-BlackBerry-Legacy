@@ -11,11 +11,14 @@ import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.PersistentObject;
 import net.rim.device.api.system.PersistentStore;
+import net.rim.device.api.ui.toolbar.ToolbarManager;
+
 
 //#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 /*  avoid Eclipse complaints
 //#endif
 import net.rim.device.api.system.capability.DeviceCapability;
+import net.rim.device.api.ui.toolbar.ToolbarManager;
 //#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 */
 //#endif
@@ -59,6 +62,8 @@ public final class WordPressInfo {
 	 */
 	public static boolean isForcelessTouchClickSupported; //If the device supports forceless clicks (BB 6.0 or higher)
 
+	public static boolean isToolbarSupported = true;
+	
 	private static Bitmap icon = Bitmap.getBitmapResource("application-icon.png");
     private static Bitmap newCommentsIcon = Bitmap.getBitmapResource("application-icon-new.png");
 
@@ -117,6 +122,11 @@ public final class WordPressInfo {
     	
     	//#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
     	*/  
+    	//#endif
+    	
+    	
+    	//#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0   
+    	isToolbarSupported = ToolbarManager.isToolbarSupported();
     	//#endif
     }
    

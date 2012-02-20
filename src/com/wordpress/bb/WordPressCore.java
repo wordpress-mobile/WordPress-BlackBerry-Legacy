@@ -7,8 +7,6 @@ import javax.microedition.io.file.FileSystemListener;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.i18n.ResourceBundle;
-import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.UiApplication;
 
 import com.webtrends.mobile.analytics.IllegalWebtrendsParameterValueException;
@@ -18,6 +16,7 @@ import com.wordpress.task.AsyncRunner;
 import com.wordpress.task.Task;
 import com.wordpress.task.TasksRunner;
 import com.wordpress.utils.Queue;
+import com.wordpress.utils.conn.ConnectionManager;
 import com.wordpress.utils.log.FileAppender;
 import com.wordpress.utils.log.Log;
 
@@ -84,16 +83,17 @@ public class WordPressCore {
 	
 	public void exitWordPress() {	
 		Log.debug("closing app...");
+		try {
+			WebtrendsDataCollector.getInstance().onApplicationTerminate("", null);
+		} catch (IllegalWebtrendsParameterValueException e) {
+			e.printStackTrace();
+		}
 		UiApplication.getUiApplication().removeFileSystemListener(sdCardListener);
 		getTasksRunner().quit(); //stop the runner thread
 		timer.cancel(); //cancel the timer
 		NotificationHandler.getInstance().shutdown(); //stop the notification handler
 		SharingHelperOldDevices.deleteAppIstance();
-		try {
-			WebtrendsDataCollector.getInstance().onApplicationTerminate( "", null);
-		} catch (IllegalWebtrendsParameterValueException e) {
-			e.printStackTrace();
-		}
+		UiApplication.getUiApplication().removeGlobalEventListener( ConnectionManager.getInstance() ); //see WordPress.java : addGlobalEventListener( _manager );  
 		System.exit(0);
 	}
 	

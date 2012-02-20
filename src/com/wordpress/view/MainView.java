@@ -106,6 +106,7 @@ public class MainView extends StandardBaseView {
 	private final int mnuRefresh = 160;
 	private final int mnuDashboard = 170;
 	private final int mnuReader = 180;
+	private final int mnuNewPhoto = 190;
 
 	public MainView(MainController mainController) {
 		super( "WordPress", MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL | USE_ALL_HEIGHT);
@@ -189,9 +190,9 @@ public class MainView extends StandardBaseView {
 		actionsTable.add( new ActionTableItemNullField() );
 		actionsTable.add( new ActionTableItemNullField() );
 		
-		actionsTable.add( new ActionTableItem( mnuStats,  getItemLabel(mnuStats), mnuStats ) );
+		actionsTable.add( new ActionTableItem( mnuNewPhoto,  getItemLabel(mnuNewPhoto), mnuNewPhoto ) );
 		actionsTable.add( new ActionTableItem( mnuOptions, getItemLabel(mnuOptions), mnuOptions ) );
-		actionsTable.add( new ActionTableItem( mnuMedia,  getItemLabel(mnuMedia), mnuMedia ) );
+		actionsTable.add( new ActionTableItem( mnuStats,  getItemLabel(mnuStats), mnuStats ) );
 		
 		actionsTable.add( new ActionTableItemNullField() );
 		actionsTable.add( new ActionTableItemNullField() );
@@ -263,6 +264,8 @@ public class MainView extends StandardBaseView {
 			return _resources.getString(WordPressResource.MENUITEM_DASHBOARD);
 		case (mnuReader):
 			return _resources.getString(WordPressResource.MENUITEM_READER);
+		case (mnuNewPhoto):
+			return "Quick Photo";
 		default:
 			return null;
 		}
@@ -356,7 +359,8 @@ public class MainView extends StandardBaseView {
 				 mainController.displayError(e, "Cannot load the blog data");
 			 }
 			 break;
-			 
+		 case mnuNewPhoto:
+			 break;
 		//#ifdef BlackBerrySDK7.0.0
 		 case mnuReader:
 	        	//load the first WP.COM available within the app
@@ -587,6 +591,13 @@ public class MainView extends StandardBaseView {
 			 tableOrMenuItemSelected(mnuStats);
 		 }
 	 };
+	 private MenuItem _showBlogMedia = new MenuItem( _resources, WordPressResource.BUTTON_MEDIA, 1325, 900) {
+		 public void run() {
+			 if ( currentBlog == null ) return; 
+			 tableOrMenuItemSelected(mnuMedia);
+		 }
+	 };
+	 
 	 private MenuItem _showBlogStats = new MenuItem( _resources, WordPressResource.BUTTON_STATS, 1330, 900) {
 		 public void run() {
 			 if ( currentBlog == null ) return; 
@@ -747,6 +758,7 @@ public class MainView extends StandardBaseView {
     		menu.add(_showBlogPages);
     		menu.add(_showBlogComments);
     		menu.add(_showBlogStats);
+    		menu.add(_showBlogMedia);
     		menu.add(_refreshBlog);
     		menu.add(_showBlogOptions);
     		menu.add(_showBlogDashBoard);
@@ -1025,6 +1037,8 @@ public class MainView extends StandardBaseView {
 				return Bitmap.getBitmapResource("dashboard_icon_dashboard"+size);
 			case (mnuReader):
 				return Bitmap.getBitmapResource("dashboard_icon_subs"+size);
+			case (mnuNewPhoto):
+				return Bitmap.getBitmapResource("dashboard_icon_photo"+size);
 			default:
 				return null;
 			}

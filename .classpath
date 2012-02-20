@@ -3,6 +3,11 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/kxml2-2.3.0.jar"/>
 	<classpathentry kind="src" path=".locale_interfaces"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/net.rim.ejde.BlackBerryVMInstallType/BlackBerry JRE 5.0.0"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/net.rim.ejde.BlackBerryVMInstallType/BlackBerry JRE 7.0.0"/>
+	<classpathentry exported="true" kind="lib" path="lib/AnalyticsService_v1.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/E:/Users/daniloercoli/Dropbox/Projects/WP4BB/AnalyticsService-v1.0SDK/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

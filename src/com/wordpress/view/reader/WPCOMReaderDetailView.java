@@ -4,15 +4,13 @@
 
 package com.wordpress.view.reader;
 
-import java.util.Vector;
+import javax.microedition.io.InputConnection;
 
 import net.rim.device.api.browser.field2.BrowserField;
 import net.rim.device.api.browser.field2.BrowserFieldConfig;
-import net.rim.device.api.browser.field2.BrowserFieldHistory;
 import net.rim.device.api.browser.field2.BrowserFieldListener;
 import net.rim.device.api.browser.field2.BrowserFieldRequest;
-import net.rim.device.api.io.transport.ConnectionFactory;
-import net.rim.device.api.io.transport.TransportInfo;
+import net.rim.device.api.browser.field2.ProtocolController;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.KeyListener;
@@ -26,23 +24,17 @@ import org.w3c.dom.Document;
 import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
-import com.wordpress.model.Preferences;
+import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.dialog.ConnectionInProgressView;
 
-
-/**
- * The MainScreen class for the Browser Field 2 Demo application 
- */
 public class WPCOMReaderDetailView extends WPCOMReaderBase
 {
     private BrowserField _browserField;    
-    private boolean _documentLoaded = false;
     
     private ConnectionInProgressView connectionProgressView = null;
 	private BrowserFieldRequest request = null;
 	private final String currentItem;
-
     
     /**
      * Creates a new BrowserFieldScreen object
@@ -59,6 +51,7 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
         BrowserFieldConfig config = getReaderBrowserDefaultConfig();
         _browserField = new BrowserField(config);
         _browserField.addListener(new InnerBrowserListener());
+        _browserField.getConfig().setProperty(BrowserFieldConfig.CONTROLLER, new DetailViewProtocolController(_browserField));
         try {
 			extendJavaScript(_browserField);
 		} catch (Exception e) {
@@ -124,6 +117,33 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
         return true;
     }   
 
+    private class DetailViewProtocolController extends ProtocolController {
+
+    	public DetailViewProtocolController(BrowserField browserField){ super(browserField); }
+
+    	public void handleNavigationRequest(final BrowserFieldRequest request) throws Exception {
+    		Log.info("DetailView requested the following URL: " + request.getURL());
+    		//Load the details view
+    		if ( request.getURL().equalsIgnoreCase(WordPressInfo.readerDetailURL) ) {
+    			//Load the URL in the current View. 
+    			try {
+    				final InputConnection ic = handleResourceRequest(request);
+    				UiApplication.getUiApplication().invokeLater(new Runnable() {
+    					public void run() {
+    						_browserField.setFocus();
+    						_browserField.displayContent(ic, request.getURL());  
+    					}
+    				});
+    			} catch (Exception e) { 
+    				Log.error(e, "handleNavigationRequest");
+    			}
+    		} else {
+    			Tools.openNativeBrowser(request.getURL());
+    		}
+    	}
+    };
+    
+    
     
     /**
      * A class to listen for BrowserField events
@@ -133,7 +153,6 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
     	public void documentLoaded(BrowserField browserField, Document document) {
     		Log.debug("DetailView has loaded the following URL : " + browserField.getDocumentUrl() );
     		//the browser has loaded the login form and authenticated the user...
-    		_documentLoaded = true;
     		if ( request.getURL().startsWith(WordPressInfo.readerDetailURL) ) {
     			UiApplication.getUiApplication().invokeLater(new Runnable() {
     				public void run() {
@@ -164,28 +183,10 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
                 {
                     public void run()
                     {
-                        try
-                        {
-                            BrowserFieldHistory browserFieldHistory = WPCOMReaderDetailView.this._browserField.getHistory();
-                            if(browserFieldHistory.canGoBack())
-                            {
-                                browserFieldHistory.goBack();
-                            }
-                            else
-                            {
-                                if(key == Characters.ESCAPE)
-                                {
-                                    synchronized(Application.getEventLock()) 
-                                    {
-                                        close();
-                                    }
-                                }
-                            }
-                        }
-                        catch(Exception e)
-                        {                            
-                            System.out.println("Error executing js:previous(): " + e.getMessage());                                      
-                        }
+                    	synchronized(Application.getEventLock()) 
+                    	{
+                    		close();
+                    	}
                     }
                 };
                 new Thread(previousRunnable).start();
@@ -233,7 +234,6 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
 
 
 	public BaseController getController() {
-		// TODO Auto-generated method stub
 		return null;
 	}
     

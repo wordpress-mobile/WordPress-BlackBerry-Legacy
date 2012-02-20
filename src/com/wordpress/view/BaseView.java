@@ -191,7 +191,7 @@ public abstract class BaseView extends MainScreen {
 	}
 	
 	protected void initializeBottomBar(BottomBarItem[] items) {
-		if (Touchscreen.isSupported() == false) return;
+		if (Touchscreen.isSupported() == false || WordPressInfo.isToolbarSupported == false ) return;
 		
 		bottomButtonsManager = new BottomBarManager();
 		int len = Math.min(items.length, 5);
