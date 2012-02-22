@@ -7,11 +7,9 @@ import com.wordpress.utils.log.Log;
 import net.rim.blackberry.api.homescreen.HomeScreen;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.ControlledAccessException;
-import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.PersistentObject;
 import net.rim.device.api.system.PersistentStore;
-import net.rim.device.api.ui.toolbar.ToolbarManager;
 
 
 //#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0

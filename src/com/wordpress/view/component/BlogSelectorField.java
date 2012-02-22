@@ -17,7 +17,6 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.XYRect;
 import net.rim.device.api.ui.component.LabelField;
-import net.rim.device.api.ui.component.Menu;
 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.TouchEvent;
 //#endif
@@ -103,14 +102,12 @@ public class BlogSelectorField extends LabelField {
     
     private void paintBackgroundSingle( Graphics g) {
     	
-    	if ( ! g.isDrawingStyleSet( Graphics.DRAWSTYLE_FOCUS ) ) return;  
-    	
     	int oldColour = g.getBackgroundColor();
     	int oldAlpha = g.getGlobalAlpha();
     	try {
     		XYRect rect = new XYRect();
 			getFocusRect(rect);
-			g.setColor( getColour( COLOUR_BACKGROUND_FOCUS ) );
+			g.setColor( g.isDrawingStyleSet( Graphics.DRAWSTYLE_FOCUS ) ? getColour( COLOUR_BACKGROUND_FOCUS ) : getColour( COLOUR_BACKGROUND ) );
 			g.fillRoundRect(rect.x, rect.y, rect.width, rect.height, 5, 5); 
       	} finally {
     		g.setBackgroundColor( oldColour );
@@ -193,7 +190,7 @@ public class BlogSelectorField extends LabelField {
     			//nothing for now
     		}
     		g.setFont(fnt);
-    		g.setColor( g.isDrawingStyleSet( Graphics.DRAWSTYLE_FOCUS ) ? getColour( COLOUR_TEXT_FOCUS ) : Color.BLACK );
+    		g.setColor( g.isDrawingStyleSet( Graphics.DRAWSTYLE_FOCUS ) ? getColour( COLOUR_TEXT_FOCUS ) : getColour( COLOUR_TEXT ) );
     		int textTop =  (this.fieldMaxHeight - fnt.getHeight()) / 2;
     		g.drawText( label, PADDING, textTop , DrawStyle.TOP | DrawStyle.ELLIPSIS, availableWidthForText);
     		
@@ -252,7 +249,6 @@ public class BlogSelectorField extends LabelField {
     }
          
 	 protected void performDefaultActionOnItem() {
-		 if( choices.length <= 1 ) return;
 		 _pressed = true;
 		 invalidate();
 		 fieldChangeNotify( 0 );

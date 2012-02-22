@@ -1,6 +1,9 @@
 package com.wordpress.utils;
 
+import java.util.Vector;
+
 import net.rim.device.api.system.CodeModuleManager;
+import net.rim.device.api.util.StringUtilities;
 
 
 public class MultimediaUtils {
@@ -45,15 +48,68 @@ public class MultimediaUtils {
 		return lines;
 	}
 
-	public static String[] getSupportedPhotoFormat(){
-		/*String formatiSuportati=System.getProperty("video.snapshot.encodings");
-		formatiSuportati="default "+formatiSuportati;
-		String[] lines=StringUtils.split(formatiSuportati, " ");
-		return lines;
-		*/
-		String[] choices = {"SuperFine 1600x1200", "Fine 1600x1200", "Normal 1600x1200", "SuperFine 1024x768", 
-				"Fine 1024x768", "Normal 1024x768", "SuperFine 640x480", "Fine 640x480", "Normal 640x480"};
-		return choices;
+	public static ImageEncodingProperties[] getSupportedPhotoFormat() throws Exception {
+		ImageEncodingProperties[] _encodings;
+
+		// Retrieve the list of valid encodings
+		String encodingString = System.getProperty("video.snapshot.encodings");
+
+		// Extract the properties as an array of word
+		String[] properties = StringUtilities.stringToKeywords(encodingString);
+
+		// The list of encodings
+		Vector encodingList = new Vector();
+
+		// Strings representing the three properties of an encoding as
+		// returned by System.getProperty().
+		String encoding = "encoding";
+		String width = "width";
+		String height = "height";            
+
+		ImageEncodingProperties temp = null;
+
+		for(int i = 0; i < properties.length ; ++i)
+		{
+			if( properties[i].equals(encoding))
+			{
+				if(temp != null && temp.isComplete())
+				{
+					// Add a new encoding to the list if it
+					// has been properly set.
+					encodingList.addElement( temp );
+				}
+				temp = new ImageEncodingProperties();
+
+				// Set the new encoding's format
+				++i;
+				temp.setFormat(properties[i]);
+			}
+			else if( properties[i].equals(width))
+			{
+				// Set the new encoding's width
+				++i;
+				temp.setWidth(properties[i]);
+			}
+			else if( properties[i].equals(height))
+			{
+				// Set the new encoding's height
+				++i;
+				temp.setHeight(properties[i]);
+			}                
+		}
+
+		// If there is a leftover complete encoding, add it
+		if(temp != null && temp.isComplete())
+		{
+			encodingList.addElement( temp );
+		}
+
+		// Convert the Vector to an array for later use
+		_encodings = new ImageEncodingProperties[encodingList.size()];
+
+		encodingList.copyInto((Object[])_encodings);
+
+		return _encodings;
 	}
 	
 	/**

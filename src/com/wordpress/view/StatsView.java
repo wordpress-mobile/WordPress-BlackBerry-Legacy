@@ -219,7 +219,7 @@ public class StatsView extends BaseView {
 				LabelField currentLabelField = null;
 				
 				if(controller.getType() != StatsController.TYPE_VIEW) {
-					currentLabelField = GUIFactory.getLabel(String.valueOf(counter), LabelField.FOCUSABLE |  DrawStyle.ELLIPSIS);
+					currentLabelField = GUIFactory.getLabel(String.valueOf(counter), Color.GRAY, LabelField.FOCUSABLE |  DrawStyle.ELLIPSIS);
 					outerTable.add(currentLabelField);
 					//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 					if(counter % 2 != 0)

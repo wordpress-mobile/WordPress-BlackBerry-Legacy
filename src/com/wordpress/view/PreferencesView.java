@@ -357,7 +357,7 @@ public class PreferencesView extends StandardBaseView {
          add(optManager);
 	 }
 	 
-	 
+	 /*
 	 private void addMultimediaOption() {
 		 
 		 BorderedFieldManager multimediaOptManager = new BorderedFieldManager(
@@ -426,7 +426,7 @@ public class PreferencesView extends StandardBaseView {
 		 }
 		 add(multimediaOptManager);	
 	 }
-	 
+	 */
 
 	 //create a menu item for users click to save
 	    private MenuItem _saveItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVE, 1000, 10) {

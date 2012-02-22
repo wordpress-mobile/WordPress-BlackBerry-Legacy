@@ -55,12 +55,22 @@
         <copy tofile="${dir.output.rapc}/${icon}"
               file="${basedir}/src/${icon}"/>
     	
+    	<patternset id="non.4.5.0.sources">
+    	  <exclude name="com/wordpress/quickphoto/*" if="BlackBerrySDK4.5.0"/>
+    	</patternset>
+    	<patternset id="non.4.7.0.sources">
+    	  <exclude name="com/wordpress/quickphoto/*" if="VER_4.7.0"/>
+    	</patternset>
+    	<patternset id="non.5.0.0.sources">
+    	  <exclude name="com/wordpress/quickphoto/*" if="BlackBerrySDK5.0.0"/>
+    	</patternset>
+    	
         <rapc jdehome="${rim.home}" quiet="true"
-            srcdir="${dir.src}"
             destdir="${dir.output.rapc}"
             output="${module.name}"
             verbose="true"
             nodebug="false">
+          <!--  srcdir="${dir.src}"  attribute of the rapc tag -->
         	
         	<!-- define preprocessor tag -->
         	<!-- define tag="DEBUG" if="debug"/ --> 
@@ -93,8 +103,11 @@
         	</jdp>
         	<src>
            		<fileset dir="${dir.src}">
-            		   	<include name="**/*java"/>
-            		</fileset>
+            		<include name="**/*"/>
+           			<patternset refid="non.4.5.0.sources"/>
+           			<patternset refid="non.4.7.0.sources"/>
+            	    <patternset refid="non.5.0.0.sources"/>
+            	</fileset>
         		<fileset dir="${dir.lib}">
         		   	<include name="**/*.jar"/>
         		</fileset>

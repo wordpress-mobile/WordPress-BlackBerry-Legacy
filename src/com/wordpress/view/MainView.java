@@ -24,6 +24,7 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
+import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.XYRect;
 import net.rim.device.api.ui.component.BitmapField;
@@ -48,10 +49,12 @@ import com.wordpress.io.BlogDAO;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
 import com.wordpress.model.BlogInfo;
+import com.wordpress.model.Post;
 import com.wordpress.model.Preferences;
 import com.wordpress.task.StopConnTask;
 import com.wordpress.utils.DataCollector;
 import com.wordpress.utils.ImageManipulator;
+import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
@@ -67,6 +70,12 @@ import com.wordpress.view.dialog.ConnectionInProgressView;
 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.TouchGesture;
 import net.rim.device.api.ui.TouchEvent;
+//#endif
+
+//#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+import com.wordpress.quickphoto.QuickPhotoScreen;
+import net.rim.device.api.ui.UiEngineInstance;
+import net.rim.device.api.ui.TransitionContext;
 //#endif
 
 //#ifdef BlackBerrySDK7.0.0
@@ -190,7 +199,14 @@ public class MainView extends StandardBaseView {
 		actionsTable.add( new ActionTableItemNullField() );
 		actionsTable.add( new ActionTableItemNullField() );
 		
-		actionsTable.add( new ActionTableItem( mnuNewPhoto,  getItemLabel(mnuNewPhoto), mnuNewPhoto ) );
+		//#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+		if( MultimediaUtils.isPhotoCaptureSupported() )
+			actionsTable.add( new ActionTableItem( mnuNewPhoto,  getItemLabel(mnuNewPhoto), mnuNewPhoto ) );
+		else
+			actionsTable.add( new ActionTableItem( mnuMedia,  getItemLabel(mnuMedia), mnuMedia ) );
+		//#elseif
+		actionsTable.add( new ActionTableItem( mnuMedia,  getItemLabel(mnuMedia), mnuMedia ) );
+		//#endif		
 		actionsTable.add( new ActionTableItem( mnuOptions, getItemLabel(mnuOptions), mnuOptions ) );
 		actionsTable.add( new ActionTableItem( mnuStats,  getItemLabel(mnuStats), mnuStats ) );
 		
@@ -265,7 +281,7 @@ public class MainView extends StandardBaseView {
 		case (mnuReader):
 			return _resources.getString(WordPressResource.MENUITEM_READER);
 		case (mnuNewPhoto):
-			return "Quick Photo";
+			return _resources.getString(WordPressResource.MENUITEM_QUICKPHOTO);
 		default:
 			return null;
 		}
@@ -359,24 +375,45 @@ public class MainView extends StandardBaseView {
 				 mainController.displayError(e, "Cannot load the blog data");
 			 }
 			 break;
+			 //#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		 case mnuNewPhoto:
+			 try {
+				 Post quikPost = new Post(BlogDAO.getBlog(currentBlog));
+				 QuickPhotoScreen quikScreen = new QuickPhotoScreen(quikPost);
+				 UiEngineInstance engine = Ui.getUiEngineInstance();
+				 TransitionContext transitionContextIn;
+				 transitionContextIn = new TransitionContext(TransitionContext.TRANSITION_SLIDE);
+				 transitionContextIn.setIntAttribute(TransitionContext.ATTR_DURATION, 750);
+				 transitionContextIn.setIntAttribute(TransitionContext.ATTR_DIRECTION, TransitionContext.DIRECTION_LEFT);   
+				 engine.setTransition(this, quikScreen, UiEngineInstance.TRIGGER_PUSH, transitionContextIn);
+				 UiApplication.getUiApplication().pushScreen(quikScreen);
+			 } catch (Exception e) {
+				 mainController.displayError(e, "Cannot load the blog data");
+			 }
 			 break;
-		//#ifdef BlackBerrySDK7.0.0
+			 //#endif 
+			 //#ifdef BlackBerrySDK7.0.0
 		 case mnuReader:
-	        	//load the first WP.COM available within the app
-	        	Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
-	        	Hashtable currentAccount = null;
-	        	Enumeration k = applicationAccounts.keys();
-	        	 if (k.hasMoreElements()) {
-	    			 String key = (String) k.nextElement();
-	    			 currentAccount = (Hashtable)applicationAccounts.get(key);
-	        	 }
-	        	String user2 = (String)currentAccount.get("username");
-		        String pass2 = (String)currentAccount.get("passwd");
-				WPCOMReaderListView _browserScreen = new WPCOMReaderListView(user2, pass2);
-				UiApplication.getUiApplication().pushScreen(_browserScreen); 
+			 //load the first WP.COM available within the app
+			 Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
+			 Hashtable currentAccount = null;
+			 Enumeration k = applicationAccounts.keys();
+			 if (k.hasMoreElements()) {
+				 String key = (String) k.nextElement();
+				 currentAccount = (Hashtable)applicationAccounts.get(key);
+			 }
+			 String user2 = (String)currentAccount.get("username");
+			 String pass2 = (String)currentAccount.get("passwd");
+			 WPCOMReaderListView _browserScreen = new WPCOMReaderListView(user2, pass2);
+			 UiEngineInstance engine = Ui.getUiEngineInstance();
+			 TransitionContext transitionContextIn;
+			 transitionContextIn = new TransitionContext(TransitionContext.TRANSITION_SLIDE);
+			 transitionContextIn.setIntAttribute(TransitionContext.ATTR_DURATION, 750);
+			 transitionContextIn.setIntAttribute(TransitionContext.ATTR_DIRECTION, TransitionContext.DIRECTION_LEFT);   
+			 engine.setTransition(this, _browserScreen, UiEngineInstance.TRIGGER_PUSH, transitionContextIn);
+			 UiApplication.getUiApplication().pushScreen(_browserScreen); 
 			 break;
-		//#endif
+			 //#endif
 			 
 		 default:
 			 break;
@@ -388,19 +425,38 @@ public class MainView extends StandardBaseView {
 
 		 public void fieldChanged(Field field, int context) {
 			 if ( context == 0 ) {
-				 final SelectorPopupScreen selScr = new SelectorPopupScreen( _resources.getString(WordPressResource.TITLE_BLOG_SELECTOR_POPUP), blogSelectorField.getChoices());
-				 UiApplication.getUiApplication().invokeAndWait(new Runnable() {
-					 public void run() {
-						 selScr.pickItem();
+
+				 if( blogSelectorField.getChoices().length == 1 ) {
+					 //One blog only, open the blog in the browser
+					 String user = currentBlog.getUsername();
+					 String pass = currentBlog.getPassword();
+					 String cleanURL = currentBlog.getXmlRpcUrl().endsWith("/") ? currentBlog.getXmlRpcUrl() :  currentBlog.getXmlRpcUrl()+"/";
+					 String loginURL = StringUtils.replaceLast(cleanURL,"/xmlrpc.php/", "/wp-login.php");
+					 //create the link
+					 URLEncodedPostData urlEncoder = new URLEncodedPostData("UTF-8", false);
+
+					 urlEncoder.append("redirect_to", currentBlog.getBlogURL());
+					 urlEncoder.append("log", user);
+					 urlEncoder.append("pwd", pass);
+
+					 Tools.openNativeBrowser(loginURL, "WordPress for BlackBerry App", null, urlEncoder);
+				 } else {
+					 final SelectorPopupScreen selScr = new SelectorPopupScreen( _resources.getString(WordPressResource.TITLE_BLOG_SELECTOR_POPUP), blogSelectorField.getChoices());
+					 UiApplication.getUiApplication().invokeAndWait(new Runnable() {
+						 public void run() {
+							 selScr.pickItem();
+						 }
+					 });
+					 int selectedIndex = selScr.getSelectedItem();
+					 if ( selectedIndex != -1 ) {
+						 currentBlog = mainController.getApplicationBlogs()[selectedIndex];
+						 updateBlogIconField(currentBlog);
+						 blogSelectorField.setSelectedIndex(selectedIndex);
+						 actionsTable.invalidate();
 					 }
-				 });
-				 int selectedIndex = selScr.getSelectedItem();
-				 if ( selectedIndex != -1 ) {
-					 currentBlog = mainController.getApplicationBlogs()[selectedIndex];
-					 updateBlogIconField(currentBlog);
-					 blogSelectorField.setSelectedIndex(selectedIndex);
-					 actionsTable.invalidate();
+
 				 }
+				 
 			 }
 		 }
 	 }

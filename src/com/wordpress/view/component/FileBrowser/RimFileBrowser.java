@@ -32,6 +32,7 @@ import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.PopupScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
+import net.rim.device.api.util.Comparator;
 
 
 import com.wordpress.bb.WordPressCore;
@@ -398,10 +399,11 @@ public class RimFileBrowser extends PopupScreen {
         return entry.endsWith("/");
     }
 
-    private Enumeration getFileEntries() {
+    private String[] getFileEntries() {
     	
     	Vector files = new Vector();
     	Enumeration entries = null;
+    	boolean shouldSortByDate = false;
     	
     	try {
     		if (ROOT.equals(currDirName)) {
@@ -411,9 +413,11 @@ public class RimFileBrowser extends PopupScreen {
     			fileConn = (FileConnection)Connector.open("file://" + currDirName, Connector.READ);
     			entries = fileConn.list();
     			fileConn.close();
+    			shouldSortByDate = true;
     		}
     	} catch (Exception e) {
     		Log.error(e, "Cannot get file list");
+    		shouldSortByDate = false; 
     	}
     	
     	// Filter out directories
@@ -434,10 +438,71 @@ public class RimFileBrowser extends PopupScreen {
     			}
     		}
     	}
-    	entries = files.elements();
-    	return entries;
+    	
+    	String[] filesList = new String[files.size()];
+    	files.copyInto(filesList);
+    	if( shouldSortByDate == false ) {
+    		return filesList;
+    	}
+    	
+    	files = null;
+    	entries = null;
+
+    	//sort files by date here
+    	net.rim.device.api.util.SimpleSortingVector sortableVector = new net.rim.device.api.util.SimpleSortingVector();   	
+    	FileConnection fileConn = null;
+    	try {
+    		
+    		for (int i = 0; i < filesList.length; i++) {
+    			String entry = filesList[i];
+    			fileConn = (FileConnection)Connector.open("file://" + currDirName + entry, Connector.READ);
+    			SortableFile tmpSortable = new SortableFile(fileConn.getName(), fileConn.lastModified());
+    			sortableVector.addElement(tmpSortable);
+    			fileConn.close();
+    		}
+    		
+    		sortableVector.setSortComparator(new LastModificationDateComparator());
+    		sortableVector.reSort();
+    		
+    		//get the fileName only
+    		String[] filesOrderder = new String[sortableVector.size()];
+    		entries = sortableVector.elements();
+    		int i = 0;
+    		while ( entries != null && entries.hasMoreElements() ) {
+    			SortableFile entry = (SortableFile)entries.nextElement();
+    			filesOrderder[i]= entry.fileName;
+    			i++;
+    		}
+    		return filesOrderder;
+    		
+    	} catch (IOException e) {
+    		  Log.trace(e, "Error while sorting files");
+    		return filesList; //In case of error return the original list
+    	}
     }
 
+    private class LastModificationDateComparator implements Comparator {
+    	public int compare(Object o1, Object o2) {
+    		SortableFile otherObj1 = (SortableFile) o1;
+    		SortableFile otherObj2 = (SortableFile) o2;
+    		if ( otherObj1.lastMoficationDate > otherObj2.lastMoficationDate ) 
+    			return -1; //note: reversed order
+    		else if (  otherObj1.lastMoficationDate == otherObj2.lastMoficationDate ) 
+    			return 0;
+    		else 
+    			return 1;
+    	}
+
+    }
+    private class SortableFile {
+    	public long lastMoficationDate = 0L;
+    	public String fileName;
+    	public SortableFile(String fileName, long lastMod ) {
+    		this.fileName = fileName;
+    		this.lastMoficationDate = lastMod;
+    	}
+    }
+    
     private Enumeration getDirectoryEntries() {
 
         Enumeration entries = null;
@@ -660,10 +725,10 @@ public class RimFileBrowser extends PopupScreen {
             }
             
             // Add the files
-            Enumeration files = getFileEntries();
+            String[] files = getFileEntries();
           
             // Now add the separator only if there are directory and files 
-            if(files.hasMoreElements())
+            if(files.length > 0)
                 if(count > 0) {
 	                insert(0);
 	                FileBrowserListItem separator = new FileBrowserListItem(null, null);
@@ -672,8 +737,8 @@ public class RimFileBrowser extends PopupScreen {
     	            count++;
                 }
             
-            while(files.hasMoreElements()) {
-                String file = (String)files.nextElement();
+            for (int i = 0; i < files.length; i++) {
+                String file = (String)files[i];
                 // We need to add a new entry in the list
                 insert(0);
                 FileBrowserListItem item = new FileBrowserListItem(file, null);
