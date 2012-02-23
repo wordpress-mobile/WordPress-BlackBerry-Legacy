@@ -29,6 +29,7 @@ public class WordPressCore {
 	private Vector applicationBlogs = new Vector();
 	
 	private String lastFileBrowserPath = null; //store the last path opened in the file browser
+	private boolean isBulkCommentsModerationEnabled = false;
 		
 	//create a variable to store the ResourceBundle for localization support
     private final ResourceBundle _resources;
@@ -148,4 +149,13 @@ public class WordPressCore {
 		this.lastFileBrowserPath = lastFileBrowserPath;
 	}	
 
+	public boolean isBulkCommentsModerationEnabled() {
+		return isBulkCommentsModerationEnabled;
+	}
+
+	public void setBulkCommentsModerationEnabled(
+			boolean isBulkCommentsModerationEnabled) {
+		this.isBulkCommentsModerationEnabled = isBulkCommentsModerationEnabled;
+	}
+	
 }

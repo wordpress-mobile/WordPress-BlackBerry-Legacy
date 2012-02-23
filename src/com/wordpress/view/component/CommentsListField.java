@@ -73,6 +73,7 @@ public class CommentsListField {
 	public void setCheckBoxVisible(boolean checkBoxVisible) {
 		this.checkBoxVisible = checkBoxVisible;
 		_innerListField.invalidate(); //invalidate all list
+		WordPressCore.getInstance().setBulkCommentsModerationEnabled(checkBoxVisible); //store the settings
 	}
 
 	public boolean[] getSelected(){

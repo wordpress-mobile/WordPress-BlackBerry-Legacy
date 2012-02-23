@@ -11,6 +11,7 @@ import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
+import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.RecentCommentsController;
@@ -81,6 +82,9 @@ public class CommentsView extends BaseView implements ListActionListener , ListL
 		if(!gravatarController.isRunning()) {
 			gravatarController.startGravatarTask(emails);
 		}
+		
+		if ( WordPressCore.getInstance().isBulkCommentsModerationEnabled())
+			commentListController.setCheckBoxVisible(true);
 	}
 	
 	private Comment[] getComments() {
