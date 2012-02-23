@@ -96,7 +96,6 @@ LABEL_LOCATION_ENABLE#0="Abilita Posizionamento";
 LABEL_LOCATION_PUBLIC#0="La posizione è pubblica";
 LABEL_MAX_RECENT_BLOG_ITEMS#0="Numero di Post e Pagine da scaricare";
 LABEL_MONTHS#0="Mesi";
-LABEL_MULTIMEDIATYPE#0="Scegli il tipo di multimedia";
 LABEL_NAME#0="Nome";
 LABEL_NO_CATEGORY#0="Non categorizzato";
 LABEL_PAGE_ORDER#0="Ordinamento di pagina";

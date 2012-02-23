@@ -96,7 +96,6 @@ LABEL_LOCATION_ENABLE#0="Enable Location";
 LABEL_LOCATION_PUBLIC#0="A localização deste post é pública";
 LABEL_MAX_RECENT_BLOG_ITEMS#0="Recent Posts and Pages";
 LABEL_MONTHS#0="Months";
-LABEL_MULTIMEDIATYPE#0="Escolha o tipo de media";
 LABEL_NAME#0="Nome";
 LABEL_NO_CATEGORY#0="Sem categoria";
 LABEL_PAGE_ORDER#0="Ordem da Página";

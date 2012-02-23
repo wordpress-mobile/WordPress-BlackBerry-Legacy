@@ -287,7 +287,7 @@ public abstract class BlogObjectController extends BaseController {
 		} 
 		
 		//when user want to add an audio the app doesn't show the rec-or-library popup
-		if(mediaType != AUDIO) {		
+		if( mediaType != AUDIO ) {		
 	    	MultimediaPopupScreen multimediaPopupScreen = new MultimediaPopupScreen(mediaType);
 	    	UiApplication.getUiApplication().pushModalScreen(multimediaPopupScreen); //modal screen...
 			response = multimediaPopupScreen.getResponse();

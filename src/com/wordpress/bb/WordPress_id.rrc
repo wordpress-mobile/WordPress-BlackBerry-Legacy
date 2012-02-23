@@ -96,7 +96,6 @@ LABEL_LOCATION_ENABLE#0="Enable Location";
 LABEL_LOCATION_PUBLIC#0="Lokasi Publik";
 LABEL_MAX_RECENT_BLOG_ITEMS#0="Recent Posts and Pages";
 LABEL_MONTHS#0="Months";
-LABEL_MULTIMEDIATYPE#0="Tentukan Tipe Multimedia";
 LABEL_NAME#0="Nama";
 LABEL_NO_CATEGORY#0="Tidak Berkategori";
 LABEL_PAGE_ORDER#0="Urutan Halaman";

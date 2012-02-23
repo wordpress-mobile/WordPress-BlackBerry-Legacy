@@ -96,7 +96,6 @@ LABEL_LOCATION_ENABLE#0="Enable Location";
 LABEL_LOCATION_PUBLIC#0="This post's location is public";
 LABEL_MAX_RECENT_BLOG_ITEMS#0="Recent Posts and Pages";
 LABEL_MONTHS#0="Months";
-LABEL_MULTIMEDIATYPE#0="Wybierz typ medium";
 LABEL_NAME#0="Nazwa";
 LABEL_NO_CATEGORY#0="Uncategorized";
 LABEL_PAGE_ORDER#0="Kolejno\u015B\u0107 stron";

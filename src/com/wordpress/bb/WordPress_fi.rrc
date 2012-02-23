@@ -96,7 +96,6 @@ LABEL_LOCATION_ENABLE#0="Salli sijainti";
 LABEL_LOCATION_PUBLIC#0="Tämän artikkelin sijainti on julkinen.";
 LABEL_MAX_RECENT_BLOG_ITEMS#0="Viimeisimmät artikkelit ja sivut";
 LABEL_MONTHS#0="Kuukaudet";
-LABEL_MULTIMEDIATYPE#0="Valitse multimediatyyppi";
 LABEL_NAME#0="Nimi";
 LABEL_NO_CATEGORY#0="Ei kategoriaa";
 LABEL_PAGE_ORDER#0="Sivujärjestys";

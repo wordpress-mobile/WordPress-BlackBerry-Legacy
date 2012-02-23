@@ -169,7 +169,7 @@ public class TableLayoutManager extends Manager
         int[] rowHeights = new int[rows];
         Arrays.fill(rowHeights, -1);
         
-        _columns = _columnStyles.length;
+        _columns = _columnStyles.length; /* TODO: update the copy from RIM  */
         for (int i = 0; i < _columns; i++)
         {
             for (int j = 0; j < rows; j++)
@@ -198,7 +198,12 @@ public class TableLayoutManager extends Manager
     protected void sublayout(int layoutWidth, int layoutHeight)
     {
         int numberFields = getFieldCount();
-        if (numberFields == 0) return;
+        if (numberFields == 0) {   /* TODO: update the copy from RIM  */
+        	if ( this._columnStyles != null ) { //At least one field was added and removed from this manager
+        		setExtent( 0 ,  0 );
+        	} 
+        	return; 
+        }
         layoutWidth -= getPaddingLeft() + getPaddingRight();
         layoutHeight -= getPaddingTop() + getPaddingBottom();
         _columns = _columnStyles.length;

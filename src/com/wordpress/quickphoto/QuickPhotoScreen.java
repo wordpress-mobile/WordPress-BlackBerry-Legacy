@@ -1,5 +1,5 @@
+//#preprocess
 package com.wordpress.quickphoto;
-
 
 import java.io.IOException;
 import java.util.Vector;
@@ -70,6 +70,9 @@ import com.wordpress.xmlrpc.post.NewPostConn;
 
 public class QuickPhotoScreen extends StandardBaseView implements CameraScreenListener {
 	 
+	private static final int PHOTO_RESIZE_HEIGHT = 800;
+	private static final int PHOTO_RESIZE_WIDTH = 800;
+	private static final int PREVIEW_THUMB_SIZE = 96;
 	private Post post;
 	private BasicEditField title;
 	private HtmlTextField bodyTextBox;
@@ -138,22 +141,7 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 			buttonZoomIn.setChangeListener(
 					new FieldChangeListener() {
 						public void fieldChanged(Field field, int context) {
-							UiApplication.getUiApplication().invokeLater(new Runnable()
-							{
-								public void run()
-								{  
-									CameraScreen screen = new CameraScreen();
-									screen.setListener(QuickPhotoScreen.this);
-									//define the screen transition
-									UiEngineInstance engine = Ui.getUiEngineInstance();
-									TransitionContext transitionContextIn;
-									transitionContextIn = new TransitionContext(TransitionContext.TRANSITION_SLIDE);
-									transitionContextIn.setIntAttribute(TransitionContext.ATTR_DURATION, 500);
-									transitionContextIn.setIntAttribute(TransitionContext.ATTR_DIRECTION, TransitionContext.DIRECTION_LEFT);   
-									engine.setTransition(null, screen, UiEngineInstance.TRIGGER_PUSH, transitionContextIn);
-									UiApplication.getUiApplication().pushScreen( screen );  
-								}
-							});
+							showCameraScreen();
 						}
 					}
 			);
@@ -163,7 +151,6 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 			buttonZoomOut.setChangeListener(
 					new FieldChangeListener() {
 						public void fieldChanged(Field field, int context) {
-
 							String imageExtensions[] = MultimediaUtils.getSupportedWordPressImageFormat();
 							final RimFileBrowser oldFileBrowser = new RimFileBrowser(imageExtensions, false);
 							oldFileBrowser.setListener(new QuickPhotoFileBrowserListener(PHOTO));
@@ -208,24 +195,36 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 			add(rowContent);
 	        add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
 	        
-	        UiApplication.getUiApplication().invokeLater(new Runnable()
-	        {
-	        	public void run()
-	        	{  
-	        		CameraScreen screen = new CameraScreen();
-	        		screen.setListener(QuickPhotoScreen.this);
-	        		//define the screen transition
-	        		UiEngineInstance engine = Ui.getUiEngineInstance();
-	        		TransitionContext transitionContextIn;
-	        		transitionContextIn = new TransitionContext(TransitionContext.TRANSITION_SLIDE);
-	        		transitionContextIn.setIntAttribute(TransitionContext.ATTR_DURATION, 500);
-	        		transitionContextIn.setIntAttribute(TransitionContext.ATTR_DIRECTION, TransitionContext.DIRECTION_LEFT);   
-	        		engine.setTransition(null, screen, UiEngineInstance.TRIGGER_PUSH, transitionContextIn);
-	        		UiApplication.getUiApplication().pushScreen( screen );  
-	        	}
-	        });
+	        showCameraScreen();
+	        MainController.getIstance().bumpScreenViewStats("com/wordpress/quickphoto/QuickPhotoScreen", "Quick Main Screen", "", null, "");
 	 }
 
+	private void showCameraScreen() {
+        UiApplication.getUiApplication().invokeLater(new Runnable()
+        {
+        	public void run()
+        	{  
+        		CameraScreen screen = new CameraScreen();
+        		screen.setListener(QuickPhotoScreen.this);
+        		//define the screen transition
+        		UiEngineInstance engine = Ui.getUiEngineInstance();
+        		TransitionContext transitionContextIn;
+        		transitionContextIn = new TransitionContext(TransitionContext.TRANSITION_SLIDE);
+        		transitionContextIn.setIntAttribute(TransitionContext.ATTR_DURATION, 500);
+        		transitionContextIn.setIntAttribute(TransitionContext.ATTR_DIRECTION, TransitionContext.DIRECTION_LEFT);   
+        		engine.setTransition(null, screen, UiEngineInstance.TRIGGER_PUSH, transitionContextIn);
+        		UiApplication.getUiApplication().pushScreen( screen );  
+        	}
+        });
+	}
+	
+	private void removeBitmapField(PreviewBitmap thumb){
+		mediaTableContainer.delete(thumb);
+		Vector mediaObjects = post.getMediaObjects();
+		mediaObjects.removeElement(thumb.getMediaObj());
+		mediaTableContainer.invalidate();
+		rowImages.invalidate();
+	}
 	
     /**
      * @see Screen#makeMenu(Menu, int)
@@ -233,19 +232,17 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
     protected void makeMenu(Menu menu, int instance)
     {
         super.makeMenu(menu, instance);
-        if( this.isDirty() )
-        	menu.add(_submitPostItem);
+        if( this.isDirty() && instance != Menu.INSTANCE_CONTEXT ) {
+        	menu.add( _submitPostItem );
+        	menu.add( _saveDraftPostItem );
+        }
         
         if ( instance == Menu.INSTANCE_CONTEXT ) {
         	if (post.getMediaObjects() != null &&  post.getMediaObjects().size() > 0 &&  this.getLeafFieldWithFocus() instanceof PreviewBitmap ) {
         		final PreviewBitmap focusedBitmap =  (PreviewBitmap) this.getLeafFieldWithFocus();
         		menu.add( new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_REMOVE, 130, 10) {
     	        	public void run() {
-    	        		mediaTableContainer.delete(focusedBitmap);
-    	        		Vector mediaObjects = post.getMediaObjects();
-    	        		mediaObjects.removeElement(focusedBitmap.getMediaObj());
-    	        		mediaTableContainer.invalidate();
-    	        		rowImages.invalidate();
+    	        		removeBitmapField(focusedBitmap);
     	        	}
     	        });
         	}
@@ -316,7 +313,7 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 		if( readFile == null ) return;
 		EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
 		//find the photo size
-		int scale = ImageUtils.findBestImgScale(img.getWidth(), img.getHeight(), 96, 96);
+		int scale = ImageUtils.findBestImgScale(img.getWidth(), img.getHeight(), PREVIEW_THUMB_SIZE, PREVIEW_THUMB_SIZE);
 		if(scale > 1)
 			img.setScale(scale); //set the scale
 		final Bitmap bitmapRescale = img.getBitmap();
@@ -331,13 +328,13 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 			}
 		});
 		mediaObjects.addElement(mediaObj);
-		mediaObj.setResizeWidth(new Integer(800));
-		mediaObj.setResizeHeight(new Integer(800));	
+		mediaObj.setResizeWidth(new Integer(PHOTO_RESIZE_WIDTH));
+		mediaObj.setResizeHeight(new Integer(PHOTO_RESIZE_HEIGHT));	
 	}
 	
 	
     //send post to blog
-    private MenuItem _submitPostItem = new MenuItem("Publish", 1000, 100) {
+    private MenuItem _submitPostItem = new MenuItem(_resources, WordPressResource.MENUITEM_PUBLISH, 1000, 100) {
 
 		public void run() {
     		try {
@@ -352,7 +349,7 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
     			int draftFolder = DraftDAO.storePost(post, -1);
     			connectionProgressView = new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
     			sendTask = new SendToBlogTask(post, draftFolder, connection);
-    			sendTask.setProgressListener(new SubmitPostTaskListener());
+    			sendTask.setProgressListener(new QuickPhotoPublishTaskListener());
     			//push into the Runner
     			WordPressCore.getInstance().getTasksRunner().enqueue(sendTask);
     			
@@ -373,16 +370,25 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
     	}
     };
 	
-    
+    private MenuItem _saveDraftPostItem = new MenuItem(_resources, WordPressResource.MENUITEM_SAVEDRAFT, 1100, 100) {
+		public void run() {
+    		try {
+    			updateModel();
+    			post.setStatus("publish");
+    			DraftDAO.storePost(post, -1);
+    			close();
+    		} catch (Exception e) {
+    			MainController.getIstance().displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_POST));
+    		}
+    	}
+    };
 
     private class QuickPhotoFileBrowserListener implements RimFileBrowserListener {
-
-    	int type = -1;
-
+    	//Type is not used at the moment. It will be used later when we add Videos
+    	//int type = -1; 
     	public QuickPhotoFileBrowserListener(int multimediaFileType) {
-    		type = multimediaFileType;			
+    		//type = multimediaFileType;			
     	}
-
     	public void selectionDone(String theFile) {
     		Log.trace("[OldFileBrowserListener.selectionDone]");
     		Log.trace("filename: " + theFile);
@@ -392,14 +398,14 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
     			if(!theFile.startsWith("file://")) {
     				theFile = "file://"+ theFile;
     			} 
-    			mediaItemTaken(theFile );	
+    			mediaItemTaken(theFile);	
     		}	
     	}
     }
     
     
 	//listener on send post to blog
-	private class SubmitPostTaskListener implements TaskProgressListener {
+	private class QuickPhotoPublishTaskListener implements TaskProgressListener {
 
 		public void taskComplete(Object obj) {			
 
@@ -446,35 +452,28 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 			this.mediaObj = mediaObj;
 		}
 
-		private void openMediaItemUsingCHAPI() {
+		private void openImage() {
 			byte[] readFile = null;
 			try {
 				readFile = JSR75FileSystem.readFile(mediaObj.getFilePath());
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				
+				MainController.getIstance().displayError(e, "Sorry, we can't read the image data from disk.");
 			}
 			if( readFile == null ) return;
 			final EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
-			          ZoomScreen zoomableImg = new ZoomScreen(img);
+			          ZoomScreen zoomableImg = new QuickPhotoZoomScreen(img);
 			          UiApplication.getUiApplication().pushScreen(zoomableImg);
 				}
 			});
 		}
 		
-	   
 	    protected void makeContextMenu(ContextMenu contextMenu) {
 	       
 	    	contextMenu.addItem( new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_REMOVE, 130, 10) {
 	        	public void run() {
-	        		mediaTableContainer.delete(PreviewBitmap.this);
-	        		Vector mediaObjects = post.getMediaObjects();
-	        		mediaObjects.removeElement(mediaObj);
-	        		mediaTableContainer.invalidate();
-	        		rowImages.invalidate();
+	        		removeBitmapField(PreviewBitmap.this);
 	        	}
 	        });
 	    	
@@ -497,7 +496,7 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 
 			} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
 				Log.trace("Input came from a four way navigation input device");
-				openMediaItemUsingCHAPI();
+				openImage();
 				return true;
 			}
 			return super.navigationClick(status, time);
@@ -509,16 +508,14 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 			//If the spacebar was pressed...
 			if (key == Characters.SPACE || key == Characters.ENTER)
 			{
-				openMediaItemUsingCHAPI();
+				openImage();
 				return true;
 			}
 			return false;
 		}
-
-
-		//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+		
 		protected boolean touchEvent(TouchEvent message) {
-			Log.trace(">>> touchEvent");
+			//Log.trace(">>> touchEvent");
 			boolean isOutOfBounds = false;
 			int x = message.getX(1);
 			int y = message.getY(1);
@@ -531,24 +528,40 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 			//DOWN, UP, CLICK, UNCLICK, MOVE, and CANCEL. An additional event, GESTURE
 			int eventCode = message.getEvent();
 			if(eventCode == TouchEvent.CLICK) {
-				Log.trace("TouchEvent.CLICK");
-				openMediaItemUsingCHAPI();
+				//Log.trace("TouchEvent.CLICK");
+				openImage();
 				return true;
 			}else if(eventCode == TouchEvent.DOWN) {
-				Log.trace("TouchEvent.CLICK");
+				//Log.trace("TouchEvent.CLICK");
 			} else if(eventCode == TouchEvent.UP) {
-				Log.trace("TouchEvent.UP");
+				//Log.trace("TouchEvent.UP");
 			} else if(eventCode == TouchEvent.UNCLICK) {
-				Log.trace("TouchEvent.UNCLICK");
+				//Log.trace("TouchEvent.UNCLICK");
 				//return true; //consume the event: avoid context menu!!
 			} else if(eventCode == TouchEvent.CANCEL) {
-				Log.trace("TouchEvent.CANCEL");
+				//Log.trace("TouchEvent.CANCEL");
 			}
 
-			return false; 
-			//return super.touchEvent(message);
+			//return false; 
+			return super.touchEvent(message);
+		}			
+	}
+
+	//ZoomScreen that calls close() on itself when the zoom level is nearToFit and the user hit back.
+	private class QuickPhotoZoomScreen extends ZoomScreen {
+		public QuickPhotoZoomScreen(EncodedImage encodedImage){
+			super(encodedImage);
+			//#ifdef BlackBerrySDK7.0.0
+			// Initialize the zoom screen to be zoomed all the way out
+			setViewableArea(0, 0, 0);
+			//#endif    
 		}
-		//#endif
-			
+		/**
+		 * @see ZoomScreen#zoomedOutNearToFit()
+		 */ 
+		public void zoomedOutNearToFit()
+		{            
+			close();
+		}
 	}
 }

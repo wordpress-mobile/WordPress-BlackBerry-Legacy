@@ -96,7 +96,6 @@ LABEL_LOCATION_ENABLE#0="Positionsangaben erlauben";
 LABEL_LOCATION_PUBLIC#0="Der Standort, an dem dieser Artikel erstellt wurde, ist öffentlich sichtbar";
 LABEL_MAX_RECENT_BLOG_ITEMS#0="Neue Artikel und Seiten";
 LABEL_MONTHS#0="Monate";
-LABEL_MULTIMEDIATYPE#0="Wählen Sie den Multimedia Typen aus.";
 LABEL_NAME#0="Name";
 LABEL_NO_CATEGORY#0="Unkategorisiert";
 LABEL_PAGE_ORDER#0="Seitenreihenfolge";

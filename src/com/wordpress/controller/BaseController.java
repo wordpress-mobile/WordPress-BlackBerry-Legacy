@@ -86,19 +86,19 @@ public abstract class BaseController {
 	public synchronized void displayError(final Exception e, String message) {
 		if(e != null && e.getMessage()!= null ) {
 			Log.error(e, message);
-			_displayError(message + "\n" + e.getMessage());
+			_displayError(e, message + "\n" + e.getMessage());
 		} else {
-			_displayError(message);			
+			_displayError(null, message);			
 		}
 	}
 	
 	// Utility routine to display errors
 	public synchronized void displayError(final String msg) {
 		Log.error(msg);
-		_displayError(msg);
+		_displayError(null, msg);
 	}
 	
-	private void _displayError(final String msg) {
+	private void _displayError(final Exception e, final String msg) {
 		bumpErrorStats(msg);
 	  	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		Screen scr = UiApplication.getUiApplication().getActiveScreen();
@@ -111,7 +111,11 @@ public abstract class BaseController {
 		
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
-				ErrorView errView = new ErrorView(msg);
+				ErrorView errView;
+				if( e != null )
+					errView = new ErrorView(msg, e);
+				else
+					errView = new ErrorView(msg);
 				errView.doModal();
 			}
 		});

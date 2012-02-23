@@ -28,8 +28,6 @@ import net.rim.device.api.ui.component.RichTextField;
 import net.rim.device.api.ui.container.MainScreen;
 
 import javax.microedition.amms.control.camera.ZoomControl;
-
-//#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.input.InputSettings;
 import net.rim.device.api.ui.input.NavigationDeviceSettings;
 import net.rim.device.api.ui.menu.SubMenu;
@@ -39,7 +37,7 @@ import net.rim.device.api.command.CommandHandler;
 import net.rim.device.api.command.ReadOnlyCommandMetadata;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.amms.control.camera.EnhancedFocusControl;
-//#endif
+
 
 //#ifdef BlackBerrySDK7.0.0
 import net.rim.device.api.amms.control.camera.FeatureControl;
@@ -94,11 +92,11 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
         {
             // Something is wrong, indicate that there are no encoding options
             _encodings = null;
-            MainController.getIstance().displayError(e.toString());
+            MainController.getIstance().displayError(e, "Unable to initialize camera encodings");
         }    
         
         // If the field was constructed successfully, create the UI
-        if(_videoField != null)
+        if( _videoField != null )
         {
             // Add the video field to the screen
             add(_videoField);
@@ -117,14 +115,10 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
             	}               
             };          
             
-            //#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
-
             // Allow the screen to capture trackpad swipes
             InputSettings settings = NavigationDeviceSettings.createEmptySet();
             settings.set(NavigationDeviceSettings.DETECT_SWIPE, 1);
             addInputSettings(settings);
-
-            //#endif
             
         }
         // If not, display an error message to the user
@@ -146,21 +140,9 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
     	}
     }
     
-    /**
-     * @see Screen#onUiEngineAttached(boolean)     
-     */
-    protected void onUiEngineAttached(boolean attached)
-    {
-        if(attached)
-        {
-        	Log.trace("CameraScreen - OnDisplay");
-        }
-    }
-    
     public void setListener(CameraScreenListener listener) {
 		this.listener = listener;
 	}
-
     
     /**
      * @see Screen#makeMenu(Menu, int)
@@ -168,27 +150,29 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
     protected void makeMenu(Menu menu, int instance)
     {
         super.makeMenu(menu, instance);
-        
-        //#ifdef BlackBerrySDK7.0.0
-        if(_efc.isAutoFocusLocked())
-        {
-            menu.add(_turnOffAutoFocusMenuItem);
+        if ( _videoField != null ) {
+	        //#ifdef BlackBerrySDK7.0.0
+	        if(_efc.isAutoFocusLocked())
+	        {
+	            menu.add(_turnOffAutoFocusMenuItem);
+	        }
+	        else
+	        {
+	            menu.add(_turnOnAutoFocusMenuItem);
+	        }   
+	        //#endif
+	        
+	        menu.add(_encodingMenuItem);
         }
-        else
-        {
-            menu.add(_turnOnAutoFocusMenuItem);
-        }   
-        //#endif
-        
-        menu.add(_encodingMenuItem);
     }
-    
     
     /**
      * Takes a picture with the selected encoding settings
      */   
     private void takePicture()
     {
+    	if ( _videoField == null ) return;
+    	
         try
         {
             // A null encoding indicates that the camera should
@@ -207,7 +191,7 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
         }
         catch(Exception e)
         {
-        	MainController.getIstance().displayError("ERROR " + e.getClass() + ":  " + e.getMessage());
+        	MainController.getIstance().displayError(e, "Unable to take a picture");
         }  
     }
     
@@ -250,7 +234,7 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
         }
         catch(Exception e)
         {
-        	MainController.getIstance().displayError("ERROR " + e.getClass() + ":  " + e.getMessage());
+        	MainController.getIstance().displayError("Unable to initialize camera");
         }
     }
     
@@ -298,41 +282,40 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
         return true;
     }
     
-    //#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
-      protected boolean touchEvent(TouchEvent event)
-      {
-          if(event.getEvent() == TouchEvent.GESTURE)
-          {
-              TouchGesture gesture = event.getGesture();
-              
-              // Handle only trackpad swipe gestures
-              if(gesture.getEvent() == TouchGesture.NAVIGATION_SWIPE)
-              {
-                  final int direction = gesture.getSwipeDirection();
-                  
-                  UiApplication.getApplication().invokeLater(new Runnable()
-                  {
-                      public void run()
-                      {
-                          // Determine the direction of the swipe
-                          if(direction == TouchGesture.SWIPE_NORTH)
-                          {
-                              _zoomControl.setDigitalZoom(ZoomControl.NEXT);
-                          }
-                          else if(direction == TouchGesture.SWIPE_SOUTH)
-                          {
-                              _zoomControl.setDigitalZoom(ZoomControl.PREVIOUS);
-                          }
-                      }
-                  });
-                  
-                  return true;
-              }
-          }
-          
-          return false;
-      }
-    //#endif  
+ 
+    protected boolean touchEvent(TouchEvent event)
+    {
+    	if(event.getEvent() == TouchEvent.GESTURE)
+    	{
+    		TouchGesture gesture = event.getGesture();
+
+    		// Handle only trackpad swipe gestures
+    		if(gesture.getEvent() == TouchGesture.NAVIGATION_SWIPE)
+    		{
+    			final int direction = gesture.getSwipeDirection();
+
+    			UiApplication.getApplication().invokeLater(new Runnable()
+    			{
+    				public void run()
+    				{
+    					// Determine the direction of the swipe
+    					if(direction == TouchGesture.SWIPE_NORTH)
+    					{
+    						_zoomControl.setDigitalZoom(ZoomControl.NEXT);
+    					}
+    					else if(direction == TouchGesture.SWIPE_SOUTH)
+    					{
+    						_zoomControl.setDigitalZoom(ZoomControl.PREVIOUS);
+    					}
+    				}
+    			});
+
+    			return true;
+    		}
+    	}
+
+    	return false;
+    }
     
     /**
      * @see net.rim.device.api.ui.Screen#close()
@@ -348,9 +331,9 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
             }
             catch(Exception e)
             {
+            	Log.error(e, "Error while closing the CameraScreen");
             }
         }    
-
         super.close();
     }
 
@@ -418,8 +401,6 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
     };
     
     
-    
-    
     /**
      * This method allows an array of menu items to be added to the submenu
      * which then gets added to the parent menu.
@@ -455,7 +436,7 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
      * supported on the device.
      */
     private void buildFocusModeMenuItems()
-    {        
+    {       
         if(_efc != null)
         {
             // Use a Vector to store each of the focus (sub)menu items
@@ -743,4 +724,18 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
 	public void mediaItemTaken(final String filePath) {
 		this.mediaFilePath = filePath;
 	}
+	/*
+    public void paint(Graphics g) {
+    	super.paint(g);
+    	int oldColour = g.getColor();
+    	int oldAlpha = g.getGlobalAlpha();
+    	try {
+    		g.setGlobalAlpha(125);
+    		g.setColor(Color.BLACK);
+    		g.drawRect( (Display.getWidth() - 200) / 2, (Display.getHeight() - 200) / 2, 200, 200);
+    	} finally {
+    		g.setColor( oldColour );
+    		g.setGlobalAlpha(oldAlpha);
+    	}
+    }*/
 }

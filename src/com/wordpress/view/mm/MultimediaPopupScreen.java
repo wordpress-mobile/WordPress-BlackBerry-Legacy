@@ -7,8 +7,6 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
-import net.rim.device.api.ui.component.LabelField;
-import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.PopupScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
@@ -46,15 +44,12 @@ public class MultimediaPopupScreen extends PopupScreen {
     
     private void buildVideoUI()
     {
-        LabelField question = new LabelField(_resources.getString(WordPressResource.LABEL_MULTIMEDIATYPE));
-        add(question);
-        add(new SeparatorField());
-        
+
         HorizontalFieldManager hManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
         if(MultimediaUtils.isVideoRecordingSupported()) {
 	    	Bitmap _bitmapCamera = Bitmap.getBitmapResource("video_rec.png");
 	    	bitmapFieldCamera = new BitmapField(_bitmapCamera, Field.NON_FOCUSABLE | Field.FIELD_HCENTER | Field.FIELD_VCENTER | Field.USE_ALL_HEIGHT);
-	    	buttonCamera= new ButtonField(_resources.getString(WordPressResource.LABEL_VIDEO_REC));
+	    	buttonCamera= new ButtonField(_resources.getString(WordPressResource.QUESTION_ADD_VIDEO_FROM) + " " + _resources.getString(WordPressResource.LABEL_VIDEO_REC));
 	    	buttonCamera.setChangeListener(listenerButtonVideo);
 	    	hManager.add(bitmapFieldCamera);
 	    	hManager.add(buttonCamera);
@@ -63,12 +58,11 @@ public class MultimediaPopupScreen extends PopupScreen {
         HorizontalFieldManager hManager2 = new HorizontalFieldManager(Field.FIELD_HCENTER);
     	Bitmap _bitmapBrowser = Bitmap.getBitmapResource("folder_yellow_open_32.png");
     	bitmapBrowser = new BitmapField(_bitmapBrowser, Field.NON_FOCUSABLE | Field.FIELD_HCENTER | Field.FIELD_VCENTER | Field.USE_ALL_HEIGHT);
-    	buttonBrowser= new ButtonField(_resources.getString(WordPressResource.LABEL_VIDEO_ADD_FROM_LIB));
+    	buttonBrowser= new ButtonField(_resources.getString(WordPressResource.QUESTION_ADD_VIDEO_FROM) + " " +_resources.getString(WordPressResource.LABEL_VIDEO_ADD_FROM_LIB));
     	buttonBrowser.setChangeListener(listenerButtonVideo);
     	hManager2.add(bitmapBrowser);
     	hManager2.add(buttonBrowser);
     	
-
         add(hManager);
         add(hManager2);
     }
@@ -76,15 +70,11 @@ public class MultimediaPopupScreen extends PopupScreen {
     private void buildPhotoUI()
     {
               
-        LabelField question = new LabelField(_resources.getString(WordPressResource.LABEL_MULTIMEDIATYPE));
-        add(question);
-        add(new SeparatorField());
-        
         HorizontalFieldManager hManager = new HorizontalFieldManager(Field.FIELD_HCENTER);
         if(MultimediaUtils.isPhotoCaptureSupported()) {
 	    	Bitmap _bitmapCamera = Bitmap.getBitmapResource("camera.png");
 	    	bitmapFieldCamera = new BitmapField(_bitmapCamera, Field.NON_FOCUSABLE | Field.FIELD_HCENTER | Field.FIELD_VCENTER | Field.USE_ALL_HEIGHT);
-	    	buttonCamera= new ButtonField(_resources.getString(WordPressResource.LABEL_PHOTO_TAKE_FROM_CAMERA));
+	    	buttonCamera= new ButtonField(_resources.getString(WordPressResource.QUESTION_ADD_PHOTO_FROM) + " " + _resources.getString(WordPressResource.LABEL_PHOTO_TAKE_FROM_CAMERA));
 	    	buttonCamera.setChangeListener(listenerButtonPhoto);
 	    	hManager.add(bitmapFieldCamera);
 	    	hManager.add(buttonCamera);
@@ -93,11 +83,10 @@ public class MultimediaPopupScreen extends PopupScreen {
         HorizontalFieldManager hManager2 = new HorizontalFieldManager(Field.FIELD_HCENTER);
     	Bitmap _bitmapBrowser = Bitmap.getBitmapResource("folder_yellow_open_32.png");
     	bitmapBrowser = new BitmapField(_bitmapBrowser, Field.NON_FOCUSABLE | Field.FIELD_HCENTER | Field.FIELD_VCENTER | Field.USE_ALL_HEIGHT);
-    	buttonBrowser= new ButtonField(_resources.getString(WordPressResource.LABEL_PHOTO_ADD_FROM_LIB));
+    	buttonBrowser= new ButtonField(_resources.getString(WordPressResource.QUESTION_ADD_PHOTO_FROM) + " " + _resources.getString(WordPressResource.LABEL_PHOTO_ADD_FROM_LIB));
     	buttonBrowser.setChangeListener(listenerButtonPhoto);
     	hManager2.add(bitmapBrowser);
     	hManager2.add(buttonBrowser);
-    	
 
         add(hManager);
         add(hManager2);

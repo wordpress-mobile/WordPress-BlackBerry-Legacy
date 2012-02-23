@@ -96,7 +96,6 @@ LABEL_LOCATION_ENABLE#0="Habilitar ubicación";
 LABEL_LOCATION_PUBLIC#0="La ubicación de esta entrada es pública";
 LABEL_MAX_RECENT_BLOG_ITEMS#0="Entradas y páginas recientes";
 LABEL_MONTHS#0="Meses";
-LABEL_MULTIMEDIATYPE#0="Elije el tipo de multimedia";
 LABEL_NAME#0="Nombre";
 LABEL_NO_CATEGORY#0="Sin categoría";
 LABEL_PAGE_ORDER#0="Orden de páginas";
