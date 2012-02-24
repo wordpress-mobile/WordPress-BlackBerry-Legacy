@@ -125,19 +125,19 @@ public abstract class BaseController {
 	// Utility routine to display errors
 	public synchronized void displayErrorAndWait(final String msg) {
 		Log.error(msg);
-		_displayErrorAndWait(msg);
+		_displayErrorAndWait(null, msg);
 	}
 
 	public synchronized void displayErrorAndWait(final Exception e, String message) {
 		if(e != null && e.getMessage()!= null ) {
 			Log.error(e, message);
-			_displayErrorAndWait(message + "\n" + e.getMessage());
+			_displayErrorAndWait(e, message + "\n" + e.getMessage());
 		} else {
-			_displayErrorAndWait(message);			
+			_displayErrorAndWait(null, message);			
 		}
 	}
 	
-	private void _displayErrorAndWait(final String msg) {
+	private void _displayErrorAndWait(final Exception e, final String msg) {
 		bumpErrorStats(msg);
 		
 		//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
@@ -150,7 +150,11 @@ public abstract class BaseController {
 		//#endif
 		UiApplication.getUiApplication().invokeAndWait(new Runnable() {
 			public void run() {
-				ErrorView errView = new ErrorView(msg);
+				ErrorView errView;
+				if( e != null )
+					errView = new ErrorView(msg, e);
+				else
+					errView = new ErrorView(msg);
 				errView.doModal();
 			}
 		});

@@ -61,7 +61,7 @@ public class WelcomeField extends VerticalFieldManager {
 	}
 
 	public WelcomeField( ) {
-		this(MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
+		this(MainScreen.VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL | Manager.USE_ALL_HEIGHT );
 	}
 
 	public WelcomeField(long style) {
@@ -143,6 +143,12 @@ public class WelcomeField extends VerticalFieldManager {
 		list.setSize(_listData.size());
 	}
 
+    public void paint(Graphics graphics)
+	 {
+		 graphics.setBackgroundColor(0xefebef);
+		 graphics.clear();
+		 super.paint(graphics);
+	 }
 	
 	  protected void sublayout(int width, int height) {
 		   int topMargin = 15;

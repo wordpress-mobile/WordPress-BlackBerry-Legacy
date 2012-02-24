@@ -185,13 +185,13 @@ public abstract class BaseView extends MainScreen {
 	}
 	
 	protected void setBottomBarButtonState(int pos, boolean editable) {	
-		if (Touchscreen.isSupported() == false) return;
+		if ( WordPressInfo.isTouchscreenSupported == false || WordPressInfo.isToolbarSupported == false ) return;
 		BottomBarButtonField btn = (BottomBarButtonField) bottomButtonsManager.getField(pos);
 		btn.setEditable(editable);
 	}
 	
 	protected void initializeBottomBar(BottomBarItem[] items) {
-		if (Touchscreen.isSupported() == false || WordPressInfo.isToolbarSupported == false ) return;
+		if ( WordPressInfo.isTouchscreenSupported == false || WordPressInfo.isToolbarSupported == false ) return;
 		
 		bottomButtonsManager = new BottomBarManager();
 		int len = Math.min(items.length, 5);
@@ -244,7 +244,7 @@ public abstract class BaseView extends MainScreen {
 	protected void paint(Graphics graphics) {
 		super.paint(graphics);
 		
-		if (Touchscreen.isSupported()) 
+		if ( WordPressInfo.isTouchscreenSupported ) 
 		if(hoverField != null && hoverField instanceof BottomBarButtonField) {
 			
 			String tooltip = ((BottomBarButtonField)hoverField).getTooltip();

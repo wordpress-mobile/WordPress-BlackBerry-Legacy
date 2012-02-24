@@ -11,14 +11,13 @@ import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.PersistentObject;
 import net.rim.device.api.system.PersistentStore;
 
-
-//#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
-/*  avoid Eclipse complaints
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0 
+import net.rim.device.api.ui.Touchscreen;
 //#endif
+
+//#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.system.capability.DeviceCapability;
 import net.rim.device.api.ui.toolbar.ToolbarManager;
-//#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
-*/
 //#endif
 
 
@@ -59,8 +58,8 @@ public final class WordPressInfo {
 	 * If the device has a SurePress touch screen, the method returns true.
 	 */
 	public static boolean isForcelessTouchClickSupported; //If the device supports forceless clicks (BB 6.0 or higher)
-
-	public static boolean isToolbarSupported = true;
+	public static boolean isToolbarSupported;
+	public static boolean isTouchscreenSupported;
 	
 	private static Bitmap icon = Bitmap.getBitmapResource("application-icon.png");
     private static Bitmap newCommentsIcon = Bitmap.getBitmapResource("application-icon-new.png");
@@ -108,23 +107,30 @@ public final class WordPressInfo {
      */
     public static synchronized void initialize() {
     	Log.trace("WordPress Info inizialized");
-    	isForcelessTouchClickSupported = false;
 
-    	//#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
-    	/*  avoid Eclipse complaints
-    	//#endif
-    	 
-    	 //this code is executed only when the tag BlackBerrySDK6.0.0 is defined
- 		// If the device supports forceless clicks, the method returns false
-    	isForcelessTouchClickSupported = !(DeviceCapability.isTouchClickSupported());
-    	
-    	//#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
-    	*/  
+    	 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0 
+    	isTouchscreenSupported = Touchscreen.isSupported();
+    	//#elseif
+    	isTouchscreenSupported = false;
     	//#endif
     	
     	
-    	//#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0   
+    	//#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+    	
+    	if( isTouchscreenSupported )
+    		isForcelessTouchClickSupported = !(DeviceCapability.isTouchClickSupported());  	// If the device supports forceless clicks, the method returns false
+    	else
+    		isForcelessTouchClickSupported = false;
+    	
     	isToolbarSupported = ToolbarManager.isToolbarSupported();
+    	
+    	//#elseif
+    	
+    	isForcelessTouchClickSupported = false;// on Touchscreen devices (Storm only?) running OS5 or lower Toolbar is always supported and forceless click is not supported 
+    	//toolbar is always supported on older devices. Documentation doesn't say nothing about ToolBar and Touch capabilities
+    	//so we need to assume that things are not related to each other.
+    	isToolbarSupported = true; 
+    	
     	//#endif
     }
    

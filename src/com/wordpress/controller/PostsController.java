@@ -48,7 +48,7 @@ public class PostsController extends BaseController{
 	}
 		
 	public void showView(){
-		this.view= new PostsView(this,currentBlog.getRecentPostTitles());
+		this.view = new PostsView(this,currentBlog.getRecentPostTitles());
 		UiApplication.getUiApplication().pushScreen(view);
 	}
 	
