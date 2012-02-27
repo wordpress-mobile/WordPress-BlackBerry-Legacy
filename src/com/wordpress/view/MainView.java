@@ -29,7 +29,6 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.XYRect;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.Dialog;
-import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.container.MainScreen;
 
@@ -98,15 +97,13 @@ public class MainView extends BaseView {
     private MainViewInternalFieldManager mainContentContainer;
     
     private TableLayoutManager actionsTable;
-    final int actionsTableMargin = 10; //margin outside the table
+    final int actionsTableNumberOfRows = 3;
     final int actionsTableItemHorizontalPadding = 10; // Horizontal padding between items
-    final int actionsTableItemVerticalPadding = 10; // Vertical padding between items
-    
-	//Deafult icons used to show the status of the blog
+	//Default icons used as blog's status
 	private Bitmap imgImportant = Bitmap.getBitmapResource("important.png");
 	private Bitmap wp_blue = Bitmap.getBitmapResource("wordpress-logo-100-blue.png");
 	private Bitmap wp_grey = Bitmap.getBitmapResource("wordpress-logo-100-grey.png");
-	private Bitmap pendingActivation = Bitmap.getBitmapResource("pending_activation.png"); //not yet used
+	private Bitmap pendingActivation = Bitmap.getBitmapResource("pending_activation.png"); //not used yet
 
 	private final int mnuPosts = 100;
 	private final int mnuPages = 110;
@@ -905,6 +902,7 @@ public class MainView extends BaseView {
 		private final String label;
 		private final int menuIndex;
 		private final int PADDING = 5;
+		private final int VPADDING_IMAGE_TEXT = 0;
 
 		private Bitmap bmp;
 		Font myFont = null;
@@ -963,17 +961,24 @@ public class MainView extends BaseView {
 				return;
 			}
 			
+			focusableFlag = true;
+
 			String currentLbl = label;
 			if( bitmapType == mnuComments && currentBlog.getAwaitingModeration() > 0 ) {
 				currentLbl = "(" + currentBlog.getAwaitingModeration() + ") " + currentLbl; 
 				labelAdvice = myFont.getAdvance(currentLbl);
 			}
 			
-			focusableFlag = true;
 			int availableWidthForChildFields = fieldWidth - ( 2 * PADDING ); //Do not use all the width available. see findBitmapSizeThatFits.
-			int xOffset = ( availableWidthForChildFields -  bitmapWidth ) / 2 ;
-			xOffset += PADDING;
-			graphics.drawBitmap(xOffset, PADDING,  bitmapWidth, bitmapHeight, bmp, 0, 0);
+			//int availableHeightForChildFields = fieldHeight - ( 2 * PADDING );
+			
+			int imageHeight = getAvailableHeightForTheIcon();
+			int textMaxHeight = getAvailableHeightForText();
+			int totalHeightOfItems = imageHeight + VPADDING_IMAGE_TEXT + textMaxHeight; //ICON + PADDING + TEXT SPACE
+								
+			int xOffset = ( fieldWidth - bitmapWidth ) / 2 ;
+			int yOffset = ( fieldHeight - totalHeightOfItems ) / 2;
+			graphics.drawBitmap(xOffset, yOffset,  bitmapWidth, bitmapHeight, bmp, 0, 0);
 
 			int prevColor = graphics.getColor();
 			try {
@@ -983,37 +988,47 @@ public class MainView extends BaseView {
 					graphics.setColor(Color.BLACK);
 				graphics.setFont(myFont);
 				
-				int availableHeightForText = getHeightAvailableForTheText();
-				while ( myFont.getHeight() > availableHeightForText ) {
+				while ( availableWidthForChildFields < myFont.getAdvance(currentLbl) ) {
+					myFont = myFont.derive( myFont.getStyle(),  myFont.getHeight() - 1 ); 
+				}
+				while (  myFont.getHeight() > textMaxHeight ) {
 					myFont = myFont.derive( myFont.getStyle(),  myFont.getHeight() - 1 ); 
 				}
 				labelAdvice = myFont.getAdvance(currentLbl);
-				xOffset = ( availableWidthForChildFields - labelAdvice ) / 2 ;		
+				
+				xOffset = ( fieldWidth - labelAdvice ) / 2 ;		
 				if ( xOffset < 0 ) xOffset = 0;
-				int yOffset =  PADDING + bitmapHeight + PADDING;
-				graphics.drawText( currentLbl, xOffset, yOffset, DrawStyle.ELLIPSIS | DrawStyle.VCENTER, availableWidthForChildFields );
+				yOffset =  yOffset + bitmapHeight + VPADDING_IMAGE_TEXT;
+				
+				graphics.drawText( currentLbl, xOffset, yOffset, DrawStyle.ELLIPSIS | DrawStyle.TOP, availableWidthForChildFields );
+
 			} finally {
 				graphics.setColor(prevColor);
 			}
 		}
-	
-		private int getHeightAvailableForTheText() {
+
+		
+		private int getAvailableHeightForText() {
 			if ( fieldHeight == 0 ) return 0;
-			return fieldHeight - getHeightAvailableForTheIcon() - PADDING; //the space between icon and text
+			
+			int textMaxH = Math.min(fieldHeight, fieldWidth) - ( PADDING * 2 );
+			textMaxH = textMaxH  / 3; // the text is 1/3 of the remaining space minus the V_PADDING
+			return textMaxH - VPADDING_IMAGE_TEXT;
 		}
+
 		
-		
-		private int getHeightAvailableForTheIcon() {
+		private int getAvailableHeightForTheIcon() {
 			if ( fieldHeight == 0 ) return 0;
-			int imageHeight = fieldHeight - ( PADDING * 2 );
+			
+			int imageHeight = Math.min(fieldHeight, fieldWidth) - ( PADDING * 2 );
 			imageHeight = ( imageHeight * 2 ) / 3; // the icon is 2/3 of the remaining space
 			return imageHeight;
 		}
 		
 		protected void layout(int width, int height) {
 			fieldWidth = width;
-			fieldHeight = mainContentContainer.getHeightAvailableForTheGrid() / 3; //FIXME: soon!!!
-			int imageHeight = getHeightAvailableForTheIcon();
+			fieldHeight = mainContentContainer.getHeightAvailableForTheGrid() / actionsTableNumberOfRows; //FIXME: soon!!!
+			int imageHeight = getAvailableHeightForTheIcon();
 			bmp = this.getBitmapz(imageHeight);
 			this.setBitmap(bmp); //just to make sure...
 			bitmapWidth = bmp.getWidth();
@@ -1160,33 +1175,5 @@ public class MainView extends BaseView {
 			}
 		}
 		//#endif
-	}
-	
-	private class ActionTableItemNullField extends LabelField {
-		
-		public ActionTableItemNullField() {
-			this(Field.NON_FOCUSABLE);
-		}
-
-		public ActionTableItemNullField(long style) {
-			super("A", style);
-		}
-
-		protected void paint(Graphics graphics) {
-			
-		}
-		
-		protected void layout(int width, int height) {
-			super.layout(actionsTableItemVerticalPadding, actionsTableItemVerticalPadding);
-		}
-		
-		public int getPreferredWidth() {
-			return actionsTableItemVerticalPadding;
-		}
-		
-		public int getPreferredHeight() {
-			return actionsTableItemVerticalPadding;
-		}
-	}
-	
+	}	
 }
