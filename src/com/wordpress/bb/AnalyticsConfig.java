@@ -16,7 +16,7 @@ public class AnalyticsConfig extends WebtrendsConfig {
 	}
 
 	public String wt_dc_dcsid() {
-		return "dcs8q90jk6dv0hw07bgukqn2e_5f4e"; 
+		return ""; 
 	}
 	
     // Set this value to "true" if you want to enable application logging.
