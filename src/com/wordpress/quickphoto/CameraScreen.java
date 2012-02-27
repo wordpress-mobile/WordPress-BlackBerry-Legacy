@@ -13,7 +13,9 @@ import com.wordpress.utils.ImageEncodingProperties;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.log.Log;
 
+import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.EncodedImage;
+import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.Screen;
@@ -27,6 +29,7 @@ import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.component.RichTextField;
 import net.rim.device.api.ui.container.MainScreen;
 
+import javax.microedition.amms.control.camera.FlashControl;
 import javax.microedition.amms.control.camera.ZoomControl;
 import net.rim.device.api.ui.input.InputSettings;
 import net.rim.device.api.ui.input.NavigationDeviceSettings;
@@ -92,7 +95,8 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
         {
             // Something is wrong, indicate that there are no encoding options
             _encodings = null;
-            MainController.getIstance().displayError(e, "Unable to initialize camera encodings");
+            //Do not show errors here. Default enconding will be used.
+          //  MainController.getIstance().displayError(e, "Unable to initialize camera encodings");
         }    
         
         // If the field was constructed successfully, create the UI
@@ -149,7 +153,10 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
      */
     protected void makeMenu(Menu menu, int instance)
     {
-        super.makeMenu(menu, instance);
+           	
+    	if ( instance == Menu.INSTANCE_CONTEXT ) return;
+    	
+    	super.makeMenu(menu, instance);
         if ( _videoField != null ) {
 	        //#ifdef BlackBerrySDK7.0.0
 	        if(_efc.isAutoFocusLocked())
@@ -210,6 +217,14 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
 
             // Get the video control
             _videoControl = (VideoControl)_player.getControl( "VideoControl" );
+            
+            try {
+				FlashControl flashControl = (FlashControl) _player.getControl("javax.microedition.amms.control.camera.FlashControl");
+				if( flashControl != null )
+					flashControl.setMode(FlashControl.AUTO);
+			} catch (Exception e) {
+				Log.error(e, "Can't set/get the Flash Control");
+			}
 
             if (_videoControl != null)
             {
@@ -223,7 +238,7 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
 
             // Set the player to the STARTED state (see Player javadoc)
             _player.start();
-            
+                       
             //#ifdef BlackBerrySDK7.0.0
             // Enable auto-focus for the camera
             _efc = (EnhancedFocusControl)_player.getControl("net.rim.device.api.amms.control.camera.EnhancedFocusControl");
@@ -288,9 +303,17 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
     	if(event.getEvent() == TouchEvent.GESTURE)
     	{
     		TouchGesture gesture = event.getGesture();
-
-    		// Handle only trackpad swipe gestures
-    		if(gesture.getEvent() == TouchGesture.NAVIGATION_SWIPE)
+    		int gestureCode = gesture.getEvent();
+    		if (gestureCode == TouchGesture.TAP) {
+    			UiApplication.getApplication().invokeLater(new Runnable()
+    			{
+    				public void run()
+    				{ 
+    					takePicture();
+    				}
+    			});
+    			return true;     
+    		} else if(gesture.getEvent() == TouchGesture.NAVIGATION_SWIPE)  // Handle only trackpad swipe gestures
     		{
     			final int direction = gesture.getSwipeDirection();
 
@@ -316,7 +339,7 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
 
     	return false;
     }
-    
+
     /**
      * @see net.rim.device.api.ui.Screen#close()
      */
@@ -338,9 +361,60 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
     }
 
     
+	/**
+     * Overrides default implementation.  Performs the show blog action if the 
+     * 4ways trackpad was clicked; otherwise, the default action occurs.
+     * 
+     * @see net.rim.device.api.ui.Screen#navigationClick(int,int)
+     */
+	protected boolean navigationClick(int status, int time) {
+		Log.trace(">>> navigationClick");
+		
+		if ((status & KeypadListener.STATUS_TRACKWHEEL) == KeypadListener.STATUS_TRACKWHEEL) {
+			Log.trace("Input came from the trackwheel");
+			// Input came from the trackwheel
+			return super.navigationClick(status, time);
+			
+		} else if ((status & KeypadListener.STATUS_FOUR_WAY) == KeypadListener.STATUS_FOUR_WAY) {
+			Log.trace("Input came from a four way navigation input device");
+			UiApplication.getApplication().invokeLater(new Runnable()
+			{
+				public void run()
+				{ 
+					takePicture();
+				}
+			});
+			return true;  
+		}
+		return super.navigationClick(status, time);
+	}
+	
+    /**
+     * Overrides default.  Enter key will take show blog action on selected blog.
+     *  
+     * @see net.rim.device.api.ui.Screen#keyChar(char,int,int)
+     * 
+     */
+	protected boolean keyChar(char c, int status, int time) {
+		Log.trace(">>> keyChar");
+		// Close this screen if escape is selected.
+		if (c == Characters.ENTER) {
+			UiApplication.getApplication().invokeLater(new Runnable()
+			{
+				public void run()
+				{ 
+					takePicture();
+				}
+			});
+			return true;  
+		}
+		return super.keyChar(c, status, time);
+	}
+    
     /**
      * @see net.rim.device.api.ui.Screen#invokeAction(int)
      */   
+ /*
     protected boolean invokeAction(int action)
     {
         boolean handled = super.invokeAction(action); 
@@ -356,6 +430,7 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
               
         return handled;                
     }
+    */
     
     //#ifdef BlackBerrySDK7.0.0
     

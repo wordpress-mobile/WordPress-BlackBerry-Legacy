@@ -252,7 +252,8 @@ public class WordPress extends UiApplication implements WordPressResource, Syste
         		original.getPermission( ApplicationPermissions.PERMISSION_INTERNET ) == ApplicationPermissions.VALUE_ALLOW &&
         		original.getPermission( ApplicationPermissions.PERMISSION_LOCATION_DATA ) == ApplicationPermissions.VALUE_ALLOW &&
         		original.getPermission( ApplicationPermissions.PERMISSION_ORGANIZER_DATA  ) == ApplicationPermissions.VALUE_ALLOW &&
-        		original.getPermission( ApplicationPermissions.PERMISSION_CROSS_APPLICATION_COMMUNICATION  ) == ApplicationPermissions.VALUE_ALLOW
+        		original.getPermission( ApplicationPermissions.PERMISSION_CROSS_APPLICATION_COMMUNICATION  ) == ApplicationPermissions.VALUE_ALLOW &&
+        		original.getPermission( ApplicationPermissions.PERMISSION_RECORDING ) == ApplicationPermissions.VALUE_ALLOW 
         	) {
         		return;
         	}

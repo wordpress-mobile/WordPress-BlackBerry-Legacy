@@ -1027,7 +1027,7 @@ public class MainView extends BaseView {
 		
 		protected void layout(int width, int height) {
 			fieldWidth = width;
-			fieldHeight = mainContentContainer.getHeightAvailableForTheGrid() / actionsTableNumberOfRows; //FIXME: soon!!!
+			fieldHeight = mainContentContainer.getHeightAvailableForTheGrid() / actionsTableNumberOfRows;
 			int imageHeight = getAvailableHeightForTheIcon();
 			bmp = this.getBitmapz(imageHeight);
 			this.setBitmap(bmp); //just to make sure...
