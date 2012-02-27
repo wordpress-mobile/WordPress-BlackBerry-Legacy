@@ -119,6 +119,9 @@ public final class ImageScreen extends ZoomScreen
     
     public void paint(Graphics g) {
     	super.paint(g);
+    	
+    	if( WordPressInfo.isTouchscreenSupported == false ) return;
+
     	int oldColour = g.getColor();
     	int oldAlpha = g.getGlobalAlpha();
     	try {
