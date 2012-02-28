@@ -110,7 +110,7 @@ public class MainView extends BaseView {
 	private final int mnuComments = 120;
 	private final int mnuMedia = 130;
 	private final int mnuStats = 140;
-	private final int mnuOptions = 150;
+	private final int mnuSettings = 150;
 	private final int mnuRefresh = 160;
 	private final int mnuDashboard = 170;
 	private final int mnuReader = 180;
@@ -133,7 +133,7 @@ public class MainView extends BaseView {
         addMenuItem(_bugReportItem);
         addMenuItem(_aboutItem);
 		addMenuItem(_addBlogItem);
-		addMenuItem(_setupItem);
+		addMenuItem(_appSettingsItem);
 		addMenuItem(_accountItem);
 		addMenuItem(_updateItem);
 		
@@ -186,23 +186,18 @@ public class MainView extends BaseView {
 		);
 		actionsTable.setMargin(5, 5, 5, 5);
 		
-		actionsTable.add( new ActionTableItem( mnuPosts, getItemLabel(mnuPosts), mnuPosts ) );
-		actionsTable.add( new ActionTableItem( mnuPages, getItemLabel(mnuPages), mnuPages ) );
-		actionsTable.add( new ActionTableItem( mnuComments, getItemLabel(mnuComments), mnuComments ) );
-		
 		//#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		if( MultimediaUtils.isPhotoCaptureSupported() )
 			actionsTable.add( new ActionTableItem( mnuNewPhoto,  getItemLabel(mnuNewPhoto), mnuNewPhoto ) );
-		else
-			actionsTable.add( new ActionTableItem( mnuMedia,  getItemLabel(mnuMedia), mnuMedia ) );
-		//#elseif
-		actionsTable.add( new ActionTableItem( mnuMedia,  getItemLabel(mnuMedia), mnuMedia ) );
 		//#endif		
-		actionsTable.add( new ActionTableItem( mnuOptions, getItemLabel(mnuOptions), mnuOptions ) );
-		actionsTable.add( new ActionTableItem( mnuStats,  getItemLabel(mnuStats), mnuStats ) );
 		
-		actionsTable.add( new ActionTableItem( mnuRefresh, getItemLabel(mnuRefresh), mnuRefresh ) );
+		actionsTable.add( new ActionTableItem( mnuPosts, getItemLabel(mnuPosts), mnuPosts ) );
+		actionsTable.add( new ActionTableItem( mnuComments, getItemLabel(mnuComments), mnuComments ) );
+		actionsTable.add( new ActionTableItem( mnuPages, getItemLabel(mnuPages), mnuPages ) );
+		actionsTable.add( new ActionTableItem( mnuStats,  getItemLabel(mnuStats), mnuStats ) );	
+		actionsTable.add( new ActionTableItem( mnuSettings, getItemLabel(mnuSettings), mnuSettings ) );
 		actionsTable.add( new ActionTableItem( mnuDashboard, getItemLabel(mnuDashboard), mnuDashboard ) );
+		actionsTable.add( new ActionTableItem( mnuRefresh, getItemLabel(mnuRefresh), mnuRefresh ) );
 		
 		//#ifdef BlackBerrySDK7.0.0
 		if ( currentBlog != null && currentBlog.isWPCOMBlog() )
@@ -261,7 +256,7 @@ public class MainView extends BaseView {
 			return _resources.getString(WordPressResource.BUTTON_MEDIA);
 		case (mnuStats):
 			return _resources.getString(WordPressResource.BUTTON_STATS);
-		case (mnuOptions):
+		case (mnuSettings):
 			return _resources.getString(WordPressResource.BUTTON_SETTINGS);
 		case (mnuRefresh):
 			return _resources.getString(WordPressResource.BUTTON_REFRESH_BLOG);
@@ -309,7 +304,7 @@ public class MainView extends BaseView {
 			StatsController sctrl = new StatsController(tmpblog);
 			sctrl.showView();
 			break;
-		case mnuOptions:
+		case mnuSettings:
 			FrontController.getIstance().showBlogOptions(tmpblog);
 			break;
 		case mnuRefresh:
@@ -612,7 +607,7 @@ public class MainView extends BaseView {
 	 private MenuItem _showBlogSettings = new MenuItem( _resources, WordPressResource.BUTTON_SETTINGS, 1340, 900) {
 		 public void run() {
 			 if ( currentBlog == null ) return;
-			 tableOrMenuItemSelected(mnuOptions);
+			 tableOrMenuItemSelected(mnuSettings);
 		 }
 	 };
 	 private MenuItem _refreshBlog = new MenuItem( _resources, WordPressResource.BUTTON_REFRESH_BLOG, 1350, 900) {
@@ -669,7 +664,7 @@ public class MainView extends BaseView {
     };
    
     
-    private MenuItem _setupItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETUP, 100300, 1000) {
+    private MenuItem _appSettingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETUP, 100300, 1000) {
         public void run() {
         	FrontController.getIstance().showSetupView();
         }
@@ -1061,7 +1056,7 @@ public class MainView extends BaseView {
 			case (mnuStats):
 				unscaledBitmap = Bitmap.getBitmapResource("dashboard_icon_stats"+size);
 			break;
-			case (mnuOptions):
+			case (mnuSettings):
 				unscaledBitmap = Bitmap.getBitmapResource("dashboard_icon_settings"+size);
 			break;
 			case (mnuRefresh):

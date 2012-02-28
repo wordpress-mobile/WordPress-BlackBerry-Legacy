@@ -16,10 +16,10 @@ import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
-import net.rim.device.api.ui.TouchGesture;
 import net.rim.device.api.ui.XYRect;
 import net.rim.device.api.ui.component.LabelField;
 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+import net.rim.device.api.ui.TouchGesture;
 import net.rim.device.api.ui.TouchEvent;
 //#endif
 import net.rim.device.api.util.LongIntHashtable;

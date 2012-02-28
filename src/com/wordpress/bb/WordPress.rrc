@@ -9,7 +9,6 @@ BUTTON_BACK#0="Back";
 BUTTON_COMMENTS#0="Comments";
 BUTTON_MEDIA#0="Phone Media";
 BUTTON_OK#0="Ok";
-BUTTON_OPTIONS#0="Options";
 BUTTON_PAGES#0="Pages";
 BUTTON_POSTS#0="Posts";
 BUTTON_REFRESH_BLOG#0="Refresh";

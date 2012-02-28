@@ -7,7 +7,6 @@ BUTTON_BACK#0="Atrás";
 BUTTON_COMMENTS#0="Comentarios";
 BUTTON_MEDIA#0="Mediateca del teléfono";
 BUTTON_OK#0="Ok";
-BUTTON_OPTIONS#0="Opciones";
 BUTTON_PAGES#0="Páginas";
 BUTTON_POSTS#0="Anuncios";
 BUTTON_REFRESH_BLOG#0="Regenerar";

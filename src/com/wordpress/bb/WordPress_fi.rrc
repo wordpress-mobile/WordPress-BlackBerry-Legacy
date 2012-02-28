@@ -7,7 +7,6 @@ BUTTON_BACK#0="Takaisin";
 BUTTON_COMMENTS#0="Kommentit";
 BUTTON_MEDIA#0="Puhelinmedia";
 BUTTON_OK#0="OK";
-BUTTON_OPTIONS#0="Asetukset";
 BUTTON_PAGES#0="Sivut";
 BUTTON_POSTS#0="Artikkelit";
 BUTTON_REFRESH_BLOG#0="Päivitä";

@@ -7,7 +7,6 @@ BUTTON_BACK#0="Indietro";
 BUTTON_COMMENTS#0="Commenti";
 BUTTON_MEDIA#0="Files Locali";
 BUTTON_OK#0="Ok";
-BUTTON_OPTIONS#0="Opzioni";
 BUTTON_PAGES#0="Pagine";
 BUTTON_POSTS#0="Articoli";
 BUTTON_REFRESH_BLOG#0="Aggiorna";
