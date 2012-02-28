@@ -88,7 +88,7 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 	public QuickPhotoScreen(Post _post) {
 	    	super(_resources.getString(WordPressResource.TITLE_POSTVIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 			this.post = _post;
-			
+			post.setPostFormat("image"); //set the image post format
 	        //row title
 	    	BorderedFieldManager rowTitle = new BorderedFieldManager(Manager.NO_HORIZONTAL_SCROLL
 	         		| Manager.NO_VERTICAL_SCROLL | BorderedFieldManager.BOTTOM_BORDER_NONE);

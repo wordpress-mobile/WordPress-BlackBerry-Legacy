@@ -366,14 +366,8 @@ public abstract class BlogObjectController extends BaseController {
 		} 
 	}
 	
-	public void startRemotePreview(String objectLink, String title, String content, String tags, String categories){
-		if(objectLink != null && objectLink.trim().length() > 0) {
-			 Tools.openURL(objectLink);
-		}	
-	}
-	
 	//uses the WP login form to access to the post preview page
-	public void startRemotePrivatePostPreview(String objectLink, String title, String content, String tags, String categories){
+	public void startRemotePreview(String objectLink, String title, String content, String tags, String categories){
 		if(objectLink != null && objectLink.trim().length() > 0) {
 			//get the xmlrpc endpoint and try to discover the login file
 			String xmlRpcURL = this.blog.getXmlRpcUrl();

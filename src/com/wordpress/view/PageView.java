@@ -227,19 +227,8 @@ public class PageView extends StandardBaseView {
     			//3. page main screen is just changed
     			controller.startLocalPreview(title.getText(), bodyTextBox.getText(), "", "");
     		} else {
-    			if ( "draft".equalsIgnoreCase(page.getPageStatus()) || "private".equalsIgnoreCase(page.getPageStatus()) ) {
-    				controller.startRemotePrivatePostPreview(page.getPermaLink(), title.getText(), bodyTextBox.getText(), "", "");
-    			} else {
-    				//4. page synched with the blog
-    				Date righNowDate = new Date();//this date is NOT at GMT timezone 
-    				long righNow = CalendarUtils.adjustTimeFromDefaultTimezone(righNowDate.getTime());
-    				Date postDate = page.getDateCreatedGMT();
-    				long postDateLong = postDate.getTime();
-    				if(righNow > postDateLong)
-    					controller.startRemotePreview(page.getPermaLink(), title.getText(), bodyTextBox.getText(), "", "");
-    				else
-    					controller.startRemotePrivatePostPreview(page.getPermaLink(), title.getText(), bodyTextBox.getText(), "", "");
-    			}
+    			//4. Page already synched with the server. We should ALWAYS use the blog login form...
+   				controller.startRemotePreview(page.getPermaLink(), title.getText(), bodyTextBox.getText(), "", "");
     		}
     	}
     };

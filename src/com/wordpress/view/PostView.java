@@ -454,21 +454,8 @@ public class PostView extends StandardBaseView {
         		//3.post is just changed
         		controller.startLocalPreview(title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel); 
     		} else {
-    			//4. post synched with the blog
-    			if( "private".equalsIgnoreCase(post.getStatus()) || "draft".equalsIgnoreCase(post.getStatus()) 
-    					||  "pending".equalsIgnoreCase(post.getStatus()) ) {
-    				controller.startRemotePrivatePostPreview(post.getPermaLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
-    			} else {
-    				//check if is published or scheduled
-    				Date righNowDate = new Date();//this date is NOT at GMT timezone 
-    				long righNow = CalendarUtils.adjustTimeFromDefaultTimezone(righNowDate.getTime());
-    				Date postDate = post.getAuthoredOn();//this date is GMT date
-    				long postDateLong = postDate.getTime();
-    				if(righNow > postDateLong)
-    					controller.startRemotePreview(post.getPermaLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
-    				else
-    					controller.startRemotePrivatePostPreview(post.getPermaLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
-    			}
+    			//4. Post is already synched with the server. We should ALWAYS use the blog login form...
+   				controller.startRemotePreview(post.getPermaLink(), title.getText(), bodyTextBox.getText(), tags.getText(), categoriesLabel);
     		}
         }
     };
