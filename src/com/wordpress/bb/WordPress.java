@@ -91,7 +91,7 @@ public class WordPress extends UiApplication implements WordPressResource, Syste
 
     	//adds the CHAPI sharing to WP 
     	SharingHelper.getInstance().unregisterCHAPI();
-    	//SharingHelper.getInstance().registerCHAPI();
+    	SharingHelper.getInstance().registerCHAPI();
     	//SharingHelperOldDevices.getInstance().addGlobalMenuItems(_resources);
 
     	Log.trace("==== Registering WordPress Comments Notification ====");

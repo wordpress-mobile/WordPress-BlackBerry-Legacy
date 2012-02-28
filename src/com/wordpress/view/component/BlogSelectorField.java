@@ -1,6 +1,7 @@
 //#preprocess
 package com.wordpress.view.component;
 
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.GUIFactory;
@@ -15,6 +16,7 @@ import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.TouchGesture;
 import net.rim.device.api.ui.XYRect;
 import net.rim.device.api.ui.component.LabelField;
 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
@@ -305,24 +307,37 @@ public class BlogSelectorField extends LabelField {
   	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
   	protected boolean touchEvent(TouchEvent message) {
   		int eventCode = message.getEvent();
-  		Log.trace(">>> touchEvent - "+ eventCode);
   		// Get the screen coordinates of the touch event
-        int x = message.getX(1);
-        int y = message.getY(1);
-        // Check to ensure point is within this field
-        if(x < 0 || y < 0 || x > getExtent().width || y > getExtent().height) {
-            return false;
-        }
-  		if(eventCode == TouchEvent.CLICK) {
-  			Log.trace("TouchEvent.CLICK");
-  			performDefaultActionOnItem();
-  			return true;
-  		} else if ( eventCode == TouchEvent.UNCLICK) {
-  	        _pressed = false;
-  	        invalidate();
-  	        return true;
+  		int x = message.getX(1);
+  		int y = message.getY(1);
+  		// Check to ensure point is within this field
+  		if(x < 0 || y < 0 || x > getExtent().width || y > getExtent().height) {
+  			return false;
   		}
 
+  		if(WordPressInfo.isForcelessTouchClickSupported) {
+  			if (eventCode == TouchEvent.GESTURE) {
+  				TouchGesture gesture = message.getGesture();
+  				int gestureCode = gesture.getEvent();
+  				if (gestureCode == TouchGesture.TAP) {
+  					performDefaultActionOnItem();
+  					return true;
+  				} else if ( gestureCode == TouchGesture.HOVER ) {
+  					//do not show the context menu
+  					return true;
+  				}
+  			} 
+  			return false;
+  		} else {
+  			if(eventCode == TouchEvent.CLICK) {
+  				performDefaultActionOnItem();
+  				return true;
+  			} else if ( eventCode == TouchEvent.UNCLICK) {
+  				_pressed = false;
+  				invalidate();
+  				return true;
+  			}
+  		}
   		//return false;
   		return super.touchEvent(message);
   	}

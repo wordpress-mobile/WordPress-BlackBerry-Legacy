@@ -263,10 +263,7 @@ public class SharingHelperOldDevices {
 			store.remove(WordPressInfo.APPLICATION_ID);
 			Log.trace("App removed from RuntimeStore");
 
-		} else
-		{ //never falls here
-			Log.trace("RuntimeStore is already empty!");
-		}
+		} 
 	}
 	
 	/**

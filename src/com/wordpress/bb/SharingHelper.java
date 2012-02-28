@@ -36,7 +36,7 @@ public class SharingHelper implements RequestListener{
 	 * This is due to the startup sequence that uses different threads... 
 	 * Keep in mind that you should remove manually the listener from the CHAPI server at application exist. 
 	 * Otherwise, the CHAPI server retain a reference to this class, and at next startup you have already 
-	 * a listener in the place. 
+	 * a listener in place. 
 	 */
 	
 	private static SharingHelper instance;
@@ -63,7 +63,7 @@ public class SharingHelper implements RequestListener{
     };
     
     private Invocation pending;
-    private ContentHandlerServer server;
+  
     
 	public static SharingHelper getInstance() {
 		if (instance == null) {
@@ -80,7 +80,7 @@ public class SharingHelper implements RequestListener{
 	
 	public void removeCHAPIListener() {
 		try {
-			server = Registry.getServer(CHAPI_CLASS_NAME);
+			ContentHandlerServer server = Registry.getServer(CHAPI_CLASS_NAME);
 			server.setListener(null);  //set the listener 
 		} catch (ContentHandlerException e) {
 			Log.error(e,"Error removing  CHAPI listener" );
@@ -92,6 +92,8 @@ public class SharingHelper implements RequestListener{
 	protected void unregisterCHAPI() {
 		Log.trace("CHAPI unregister");
 		try {
+		    final ContentHandlerServer contentHandlerServer = Registry.getServer(CHAPI_CLASS_NAME);
+		    contentHandlerServer.setListener(null);
 			Registry registry = Registry.getRegistry(CHAPI_CLASS_NAME);
 			registry.unregister(CHAPI_CLASS_NAME);
 		} catch (Throwable t) {
@@ -132,11 +134,11 @@ public class SharingHelper implements RequestListener{
 	
 	public void addCHAPIListener() {
 		try {
-			server = Registry.getServer(CHAPI_CLASS_NAME);
+			ContentHandlerServer server = Registry.getServer(CHAPI_CLASS_NAME);
 			//pending = server.getRequest(false); //check if a request is already there
 			server.setListener(this);           //set the listener 
 		} catch (ContentHandlerException e) {
-			Log.error(e,"Error during SharingHelp init" );
+			Log.error(e,"Error during while adding the listener to the ContentHandlerServer" );
 		}
 	}
 	
@@ -144,18 +146,22 @@ public class SharingHelper implements RequestListener{
 		Log.trace(">>> invocationRequestNotify");
 		pending = handler.getRequest(false);
 		if(pending != null) {
-			processRequest();
+			try {
+				processRequest();
+			} catch (ContentHandlerException e) {
+				Log.error(e, "invocationRequestNotify error" );
+			}
 		}
 		Log.trace("<<< invocationRequestNotify");
 	}
 	
-	public void checkPendingRequest() {
+	public void checkPendingRequest() throws ContentHandlerException {
 		if(pending != null) {
 			processRequest();
 		}
 	}
 	
-	private void processRequest() {
+	private void processRequest() throws ContentHandlerException {
 		Log.trace(">>> processRequest");
 		String filename = null;
 		String type = null;
@@ -164,6 +170,7 @@ public class SharingHelper implements RequestListener{
 			filename = pending.getURL();
 			type = pending.getType();				
 		}
+		ContentHandlerServer server = Registry.getServer(CHAPI_CLASS_NAME);
 		server.finish(pending, Invocation.OK);
 			
 		Screen scr = UiApplication.getUiApplication().getActiveScreen();

@@ -94,6 +94,7 @@ public class WordPressCore {
 		timer.cancel(); //cancel the timer
 		NotificationHandler.getInstance().shutdown(); //stop the notification handler
 		SharingHelperOldDevices.deleteAppIstance();
+		SharingHelper.getInstance().removeCHAPIListener();
 		UiApplication.getUiApplication().removeGlobalEventListener( ConnectionManager.getInstance() ); //see WordPress.java : addGlobalEventListener( _manager );  
 		System.exit(0);
 	}

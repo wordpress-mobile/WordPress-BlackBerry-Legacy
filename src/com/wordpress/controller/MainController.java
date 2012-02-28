@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.TimerTask;
 import java.util.Vector;
 
+import javax.microedition.content.ContentHandlerException;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.ControlledAccessException;
@@ -12,8 +13,7 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.Status;
 
-import com.webtrends.mobile.analytics.IllegalWebtrendsParameterValueException;
-import com.webtrends.mobile.analytics.rim.WebtrendsDataCollector;
+import com.wordpress.bb.SharingHelper;
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.AppDAO;
@@ -25,8 +25,6 @@ import com.wordpress.model.BlogInfo;
 import com.wordpress.model.Comment;
 import com.wordpress.model.Preferences;
 import com.wordpress.task.LoadBlogsDataTask;
-import com.wordpress.task.StopConnTask;
-import com.wordpress.task.TaskImpl;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.DataCollector;
 import com.wordpress.utils.Queue;
@@ -148,10 +146,14 @@ public class MainController extends BaseController implements TaskProgressListen
 		this.view=new MainView(this); //main view init here!.	
 		UiApplication.getUiApplication().pushScreen(this.view);
 	
-		//CHAPI "post startup" registration
-		//SharingHelper sHelper = SharingHelper.getInstance();
-		//sHelper.addCHAPIListener();
-		//sHelper.checkPendingRequest();
+		//CHAPI "post startup" 
+		SharingHelper sHelper = SharingHelper.getInstance();
+		sHelper.addCHAPIListener();
+		try {
+			sHelper.checkPendingRequest();
+		} catch (ContentHandlerException e1) {
+			Log.error(e1, "Error while accessing the CHAPI pending requests");
+		}
 		
 		//stats and update stuff!
 		try {

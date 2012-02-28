@@ -13,6 +13,7 @@ import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.Menu;
 
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.MainController;
@@ -92,15 +93,15 @@ public class ContactSupportView extends BaseView {
     			if(context == 0) {
     				try{
     					Message m = new Message();
-    					Address a = new Address("support@wordpress.com", "WordPress Support Team");
+    					Address a = new Address(WordPressInfo.SUPPORT_EMAIL_ADDRESS, "WordPress Support Team");
     					Address[] addresses = {a};
     					m.addRecipients(net.rim.blackberry.api.mail.Message.RecipientType.TO, addresses);
 
     					String manufacturer = "Manufacturer: " + 
     					(DeviceInfo.getManufacturerName() == null ? " n.a." : DeviceInfo.getManufacturerName());
     					String deviceName =  "Device Name: " + (DeviceInfo.getDeviceName() == null ? " n.a." : DeviceInfo.getDeviceName()); 
+    					String deviceSoftwareVersion = "Software Version (OS Version): " + (DeviceInfo.getSoftwareVersion() == null ? " n.a." : DeviceInfo.getSoftwareVersion());
     					String platformVersion = "Platform Version: " + (DeviceInfo.getPlatformVersion() == null ? " n.a." : DeviceInfo.getPlatformVersion()); 
-    					String deviceSoftwareVersion = "Software Version: " + (DeviceInfo.getSoftwareVersion() == null ? " n.a." : DeviceInfo.getSoftwareVersion());
     					String currentNetworkName = "Network Name: " + (RadioInfo.getCurrentNetworkName() == null ? " n.a." : RadioInfo.getCurrentNetworkName());
 
     					StringBuffer mailContent = new StringBuffer();
