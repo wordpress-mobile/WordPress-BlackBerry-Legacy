@@ -262,7 +262,7 @@ public class MainView extends BaseView {
 		case (mnuStats):
 			return _resources.getString(WordPressResource.BUTTON_STATS);
 		case (mnuOptions):
-			return _resources.getString(WordPressResource.BUTTON_OPTIONS);
+			return _resources.getString(WordPressResource.BUTTON_SETTINGS);
 		case (mnuRefresh):
 			return _resources.getString(WordPressResource.BUTTON_REFRESH_BLOG);
 		case (mnuDashboard):
@@ -609,7 +609,7 @@ public class MainView extends BaseView {
 			 tableOrMenuItemSelected(mnuStats);
 		 }
 	 };
-	 private MenuItem _showBlogOptions = new MenuItem( _resources, WordPressResource.BUTTON_OPTIONS, 1340, 900) {
+	 private MenuItem _showBlogSettings = new MenuItem( _resources, WordPressResource.BUTTON_SETTINGS, 1340, 900) {
 		 public void run() {
 			 if ( currentBlog == null ) return;
 			 tableOrMenuItemSelected(mnuOptions);
@@ -773,7 +773,7 @@ public class MainView extends BaseView {
     		menu.add(_showBlogStats);
     		menu.add(_showBlogMedia);
     		menu.add(_refreshBlog);
-    		menu.add(_showBlogOptions);
+    		menu.add(_showBlogSettings);
     		menu.add(_showBlogDashBoard);
     		menu.add(_notificationItem);
     		menu.add(_deleteBlogItem);

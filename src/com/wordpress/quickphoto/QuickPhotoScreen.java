@@ -231,13 +231,13 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
      */
     protected void makeMenu(Menu menu, int instance)
     {
-        super.makeMenu(menu, instance);
+       
         if( this.isDirty() && instance != Menu.INSTANCE_CONTEXT ) {
         	menu.add( _submitPostItem );
         	menu.add( _saveDraftPostItem );
         }
         
-        if ( instance == Menu.INSTANCE_CONTEXT ) {
+     /*   if ( instance == Menu.INSTANCE_CONTEXT ) {
         	if (post.getMediaObjects() != null &&  post.getMediaObjects().size() > 0 &&  this.getLeafFieldWithFocus() instanceof PreviewBitmap ) {
         		final PreviewBitmap focusedBitmap =  (PreviewBitmap) this.getLeafFieldWithFocus();
         		menu.add( new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA_REMOVE, 130, 10) {
@@ -246,7 +246,8 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
     	        	}
     	        });
         	}
-        }
+        }*/
+        super.makeMenu(menu, instance);
     }
 	
 	public boolean isDirty() {
