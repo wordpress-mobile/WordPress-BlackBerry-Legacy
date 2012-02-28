@@ -70,8 +70,8 @@ import com.wordpress.xmlrpc.post.NewPostConn;
 
 public class QuickPhotoScreen extends StandardBaseView implements CameraScreenListener {
 	 
-	private static final int PHOTO_RESIZE_HEIGHT = 800;
-	private static final int PHOTO_RESIZE_WIDTH = 800;
+	private static final int PHOTO_RESIZE_HEIGHT = 768;
+	private static final int PHOTO_RESIZE_WIDTH = 1024;
 	private static final int PREVIEW_THUMB_SIZE = 96;
 	private Post post;
 	private BasicEditField title;
