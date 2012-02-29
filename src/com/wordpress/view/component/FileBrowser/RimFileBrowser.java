@@ -667,32 +667,34 @@ public class RimFileBrowser extends PopupScreen {
         
     	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
     	protected boolean touchEvent(TouchEvent message) {
-    		
+
     		/*if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
     		{       			
     			return false;
     		} */
-    		
-			int eventCode = message.getEvent();
-			
-			if(WordPressInfo.isForcelessTouchClickSupported) {
-				if (eventCode == TouchEvent.GESTURE) {
-					TouchGesture gesture = message.getGesture();
-					int gestureCode = gesture.getEvent();
-					if (gestureCode == TouchGesture.TAP) {
-						performDefaultActionOnItem();
-						return true;
-					}
-				} 
-				return false;
-			} else {
-	    		if(eventCode == TouchEvent.UNCLICK) {
-	    			Log.trace("TouchEvent.UNCLICK");
-	    			performDefaultActionOnItem();
-	    			return true;
-				} 
-				return false; 
-			}
+
+    		int eventCode = message.getEvent();
+
+    		if(WordPressInfo.isForcelessTouchClickSupported) {
+    			if (eventCode == TouchEvent.GESTURE) {
+    				TouchGesture gesture = message.getGesture();
+    				int gestureCode = gesture.getEvent();
+    				if (gestureCode == TouchGesture.TAP) {
+    					performDefaultActionOnItem();
+    					return true;
+    				} else if (gestureCode == TouchGesture.HOVER) {
+    					return true;
+    				}
+    			} 
+    		} else {
+    			if(eventCode == TouchEvent.UNCLICK) {
+    				Log.trace("TouchEvent.UNCLICK");
+    				performDefaultActionOnItem();
+    				return true;
+    			} 
+    		}
+
+    		return false; 
     	}
     	//#endif
     	

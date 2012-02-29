@@ -226,16 +226,18 @@ public class CategoriesListField {
 						if (gestureCode == TouchGesture.TAP) {
 							defaultItemAction();
 							return true;
-						}
+		    			} else if (gestureCode == TouchGesture.HOVER) {
+		    				return true;
+		    			}
 					} 
-					return false;
 				} else {
 					if (eventCode == TouchEvent.CLICK) {
 						defaultItemAction();
 						return true;
 					} 
-					return false;
 				}
+				
+				return false;
 			}
         	//#endif
             

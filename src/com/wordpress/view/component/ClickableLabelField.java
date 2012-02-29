@@ -1,6 +1,7 @@
 //#preprocess
 package com.wordpress.view.component;
 
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.utils.log.Log;
 
@@ -14,6 +15,7 @@ import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.component.LabelField;
 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.TouchEvent;
+import net.rim.device.api.ui.TouchGesture;
 //#endif
 
 public class ClickableLabelField extends LabelField {
@@ -108,13 +110,23 @@ public class ClickableLabelField extends LabelField {
         if(x < 0 || y < 0 || x > getExtent().width || y > getExtent().height) {
             return false;
         }
-  		if(eventCode == TouchEvent.CLICK) {
-  			Log.trace("TouchEvent.CLICK");
-  			performDefaultActionOnItem();
-  			return true;
-  		}
-
-  		//return false;
+        if(WordPressInfo.isForcelessTouchClickSupported) {
+        	if (eventCode == TouchEvent.GESTURE) {
+        		TouchGesture gesture = message.getGesture();
+        		int gestureCode = gesture.getEvent();
+        		if (gestureCode == TouchGesture.TAP) {
+        			performDefaultActionOnItem();
+        			return true;
+        		} else if (gestureCode == TouchGesture.HOVER) {
+        			return true;
+        		}
+        	} 
+        } else {
+        	if(eventCode == TouchEvent.CLICK) {
+        		performDefaultActionOnItem();
+        		return true;
+        	}
+        }
   		return super.touchEvent(message);
   	}
   	//#endif

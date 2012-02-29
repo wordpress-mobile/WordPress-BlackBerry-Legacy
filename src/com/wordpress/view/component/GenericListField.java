@@ -15,11 +15,13 @@ import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.TouchEvent;
+import net.rim.device.api.ui.TouchGesture;
 //#endif
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ObjectListField;
 
 import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.utils.CalendarUtils;
 import com.wordpress.utils.log.Log;
@@ -326,33 +328,56 @@ public class GenericListField extends ObjectListField  {
         return retVal;
     }
     
-	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
-	protected boolean touchEvent(TouchEvent message) {
-		Log.trace(">>> touchEvent");
-		int eventCode = message.getEvent();
-		if (eventCode == TouchEvent.CLICK) {
-			 boolean isOutOfBounds = false;
-	        int x = message.getX(1);
-	        int y = message.getY(1);
-			// Check to ensure point is within this field
-	        if(x < 0 || y < 0 || x > getExtent().width || y > getExtent().height) {
-	            isOutOfBounds = true;
-	        }
-			if(isOutOfBounds)
-    		{       			
-    			return true; //consume
-    		}  
-			
-			if (this.defautActionListener != null) {
-				defautActionListener.actionPerformed();
-				return true;
-			}
-		} else {
-			//is not a click!
-			checkLoadMore();
-		}
-		
-		return super.touchEvent(message);
-	}
-	//#endif
+    //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+    protected boolean touchEvent(TouchEvent message) {
+    	Log.trace(">>> touchEvent");
+    	int eventCode = message.getEvent();
+    	
+		if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
+		{       			
+			return false;
+		} 
+    	
+    /*	boolean isOutOfBounds = false;
+    	int x = message.getX(1);
+    	int y = message.getY(1);
+    	// Check to ensure point is within this field
+    	if(x < 0 || y < 0 || x > getExtent().width || y > getExtent().height) {
+    		isOutOfBounds = true;
+    	}
+    	if(isOutOfBounds)
+    	{       			
+    		return true; //consume
+    	}
+    	*/
+    	if(WordPressInfo.isForcelessTouchClickSupported) {
+    		if (eventCode == TouchEvent.GESTURE) {
+    			TouchGesture gesture = message.getGesture();
+    			int gestureCode = gesture.getEvent();
+    			if (gestureCode == TouchGesture.TAP) {
+    				if (this.defautActionListener != null) {
+    					defautActionListener.actionPerformed();
+    					return true;
+    				}
+    			} else if (gestureCode == TouchGesture.HOVER) {
+    				return true;
+    			} else {
+        			//is not a click!
+        			checkLoadMore();
+        		}
+    		} 
+    	} else {
+    		if (eventCode == TouchEvent.CLICK) {
+    			if (this.defautActionListener != null) {
+    				defautActionListener.actionPerformed();
+    				return true;
+    			}
+    		} else {
+    			//is not a click!
+    			checkLoadMore();
+    		}
+    	}
+    	return super.touchEvent(message);
+    }
+    //#endif
 }

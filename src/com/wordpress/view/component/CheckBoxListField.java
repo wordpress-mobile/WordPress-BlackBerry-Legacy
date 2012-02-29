@@ -121,42 +121,33 @@ public class CheckBoxListField {
                 return false;
             }
             
-        	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
-        	protected boolean touchEvent(TouchEvent message) {
-        		Log.trace("touchEvent");
-        		
-        		if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
-        		{       			
-        			return false;
-        		} 
-        		
-        		int eventCode = message.getEvent();
-
-        		if(WordPressInfo.isForcelessTouchClickSupported) {
-    				if (eventCode == TouchEvent.GESTURE) {
-    					TouchGesture gesture = message.getGesture();
-    					int gestureCode = gesture.getEvent();
-    					if (gestureCode == TouchGesture.TAP) {
-    						defaultItemAction();
-    						return true;
-    					}
-    				} 
-    				return false;
-    			} else {
-    				if(eventCode == TouchEvent.CLICK) {
-    					defaultItemAction();
-    					return true;
-    				}else if(eventCode == TouchEvent.DOWN) {
-    				} else if(eventCode == TouchEvent.UP) {
-    				} else if(eventCode == TouchEvent.UNCLICK) {
-    					//return true; //consume the event: avoid context menu!!
-    				} else if(eventCode == TouchEvent.CANCEL) {
-    				}
-    				return false; 
-    				//return super.touchEvent(message);
-    			}
-        	}
-        	//#endif
+            //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+            protected boolean touchEvent(TouchEvent message) {
+            	if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
+            	{       			
+            		return false;
+            	} 
+            	int eventCode = message.getEvent();
+            	if(WordPressInfo.isForcelessTouchClickSupported) {
+            		if (eventCode == TouchEvent.GESTURE) {
+            			TouchGesture gesture = message.getGesture();
+            			int gestureCode = gesture.getEvent();
+            			if (gestureCode == TouchGesture.TAP) {
+            				defaultItemAction();
+            				return true;
+            			} else if (gestureCode == TouchGesture.HOVER) {
+            				return true;
+            			}
+            		} 
+            	} else {
+            		if(eventCode == TouchEvent.CLICK) {
+            			defaultItemAction();
+            			return true;
+            		}
+            	}
+            	return false; 
+            }
+            //#endif
         	
             protected int moveFocus(int amount, int status, int time) {
             	ChecklistData data = null;

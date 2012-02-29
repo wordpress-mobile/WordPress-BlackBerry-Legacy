@@ -19,6 +19,7 @@ import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.TouchEvent;
+import net.rim.device.api.ui.TouchGesture;
 import net.rim.device.api.ui.TransitionContext;
 import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.UiApplication;
@@ -40,6 +41,7 @@ import net.rim.device.api.ui.decor.BorderFactory;
 import net.rim.device.api.ui.extension.container.ZoomScreen;
 
 import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.MainController;
@@ -528,22 +530,33 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 
 			//DOWN, UP, CLICK, UNCLICK, MOVE, and CANCEL. An additional event, GESTURE
 			int eventCode = message.getEvent();
-			if(eventCode == TouchEvent.CLICK) {
-				//Log.trace("TouchEvent.CLICK");
-				openImage();
-				return true;
-			}else if(eventCode == TouchEvent.DOWN) {
-				//Log.trace("TouchEvent.CLICK");
-			} else if(eventCode == TouchEvent.UP) {
-				//Log.trace("TouchEvent.UP");
-			} else if(eventCode == TouchEvent.UNCLICK) {
-				//Log.trace("TouchEvent.UNCLICK");
-				//return true; //consume the event: avoid context menu!!
-			} else if(eventCode == TouchEvent.CANCEL) {
-				//Log.trace("TouchEvent.CANCEL");
-			}
+	        if(WordPressInfo.isForcelessTouchClickSupported) {
+	        	if (eventCode == TouchEvent.GESTURE) {
+	        		TouchGesture gesture = message.getGesture();
+	        		int gestureCode = gesture.getEvent();
+	        		if (gestureCode == TouchGesture.TAP) {
+	        			openImage();
+	        			return true;
+	        		} 
+	        		return false;
+	        	} 
+	        } else {
+	        	if(eventCode == TouchEvent.CLICK) {
+	        		//Log.trace("TouchEvent.CLICK");
+	        		openImage();
+	        		return true;
+	        	}else if(eventCode == TouchEvent.DOWN) {
+	        		//Log.trace("TouchEvent.CLICK");
+	        	} else if(eventCode == TouchEvent.UP) {
+	        		//Log.trace("TouchEvent.UP");
+	        	} else if(eventCode == TouchEvent.UNCLICK) {
+	        		//Log.trace("TouchEvent.UNCLICK");
+	        		//return true; //consume the event: avoid context menu!!
+	        	} else if(eventCode == TouchEvent.CANCEL) {
+	        		//Log.trace("TouchEvent.CANCEL");
+	        	}
+	        }
 
-			//return false; 
 			return super.touchEvent(message);
 		}			
 	}

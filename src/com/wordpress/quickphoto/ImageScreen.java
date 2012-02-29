@@ -183,27 +183,28 @@ public final class ImageScreen extends ZoomScreen
 
     protected boolean touchEvent(TouchEvent message) {
     	int eventCode = message.getEvent();
-    	
-		if(WordPressInfo.isForcelessTouchClickSupported) {
-			if (eventCode == TouchEvent.GESTURE) {
-				TouchGesture gesture = message.getGesture();
-				int gestureCode = gesture.getEvent();
-				if (gestureCode == TouchGesture.TAP) {
-					int x = message.getX(1);
-		    		int y = message.getY(1);
-		    		if ( isActionButtonClicked(x, y) ) 
-		    			return true;
-				}
-			} 
-		} else {
-	    	if(eventCode == TouchEvent.CLICK) {
-	    		Log.trace("TouchEvent.CLICK");
-	    		int x = message.getX(1);
-	    		int y = message.getY(1);
-	    		if ( isActionButtonClicked(x, y) ) 
-	    			return true;
-	    	}
-		}
+
+    	if(WordPressInfo.isForcelessTouchClickSupported) {
+    		if (eventCode == TouchEvent.GESTURE) {
+    			TouchGesture gesture = message.getGesture();
+    			int gestureCode = gesture.getEvent();
+    			if (gestureCode == TouchGesture.TAP) {
+    				int x = message.getX(1);
+    				int y = message.getY(1);
+    				if ( isActionButtonClicked(x, y) ) 
+    					return true;
+    			} else if (gestureCode == TouchGesture.HOVER) {
+    				return true;
+    			}
+    		} 
+    	} else {
+    		if(eventCode == TouchEvent.CLICK) {
+    			int x = message.getX(1);
+    			int y = message.getY(1);
+    			if ( isActionButtonClicked(x, y) ) 
+    				return true;
+    		}
+    	}
 
     	return super.touchEvent(message);
     }

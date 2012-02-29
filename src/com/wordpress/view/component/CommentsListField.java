@@ -382,12 +382,10 @@ public class CommentsListField {
         
     	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
     	protected boolean touchEvent(TouchEvent message) {
-			
     		if(!this.getContentRect().contains(message.getX(1), message.getY(1)))
     		{       			
     			return false;
     		} 
-			
     		int eventCode = message.getEvent();
     		if(WordPressInfo.isForcelessTouchClickSupported) {
     			if (eventCode == TouchEvent.GESTURE) {
@@ -395,12 +393,13 @@ public class CommentsListField {
     				int gestureCode = gesture.getEvent();
     				if (gestureCode == TouchGesture.TAP) {
     					return defaultAction();
-    				}else {
+        			} else if (gestureCode == TouchGesture.HOVER) {
+        				return true;
+        			} else {
         				//is not a click!
         				checkLoadMore();
         			}
     			} 
-    			return false;
     		} else {
     			if(eventCode == TouchEvent.CLICK) {
     				return defaultAction();
@@ -408,8 +407,8 @@ public class CommentsListField {
     				//is not a click!
     				checkLoadMore();
     			}
-    			return false;	
     		}
+    		return false;	
     	}
     	//#endif
     	

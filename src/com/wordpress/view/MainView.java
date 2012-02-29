@@ -1129,12 +1129,7 @@ public class MainView extends BaseView {
 		
 		//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		protected boolean touchEvent(TouchEvent message) {
-				
-		/*	if(!this.getContentRect().contains(message.getGlobalX(1), message.getGlobalY(1)))
-			{       			
-				return false; 
-			}*/
-			
+							
 	  		// Get the screen coordinates of the touch event
 	        int x = message.getX(1);
 	        int y = message.getY(1);

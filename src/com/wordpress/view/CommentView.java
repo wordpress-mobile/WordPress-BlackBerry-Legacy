@@ -29,6 +29,7 @@ import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.RecentCommentsController;
@@ -657,15 +658,25 @@ public class CommentView extends StandardBaseView {
 
 			//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 			protected boolean touchEvent(TouchEvent message) {
-				Log.trace(">>> touchEvent");
 				int eventCode = message.getEvent();
 
-				// Get the screen coordinates of the touch event
-				if(eventCode == TouchEvent.CLICK) {
-					Log.trace("TouchEvent.CLICK");
-					Tools.openNativeBrowser(largePhotoURL);
-					return true;
-				} 
+				if(WordPressInfo.isForcelessTouchClickSupported) {
+					if (eventCode == TouchEvent.GESTURE) {
+						TouchGesture gesture = message.getGesture();
+						int gestureCode = gesture.getEvent();
+						if (gestureCode == TouchGesture.TAP) {
+							Tools.openNativeBrowser(largePhotoURL);
+							return true;
+						} else if (gestureCode == TouchGesture.HOVER) {
+							return true;
+						}
+					} 
+				} else {
+					if(eventCode == TouchEvent.CLICK) {
+						Tools.openNativeBrowser(largePhotoURL);
+						return true;
+					} 
+				}
 				return false; 
 			}
 			//#endif
@@ -693,7 +704,6 @@ public class CommentView extends StandardBaseView {
     		TouchGesture gesture = message.getGesture();
     		int gestureCode = gesture.getEvent();
     		Log.trace(">>> TouchEvent.GESTURE ->  "+gestureCode);
-    		
     	
     		switch(gestureCode) {
     		
