@@ -300,8 +300,7 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
  
     protected boolean touchEvent(TouchEvent event)
     {
-    	if(event.getEvent() == TouchEvent.GESTURE)
-    	{
+    	if ( event.getEvent() == TouchEvent.GESTURE ) {
     		TouchGesture gesture = event.getGesture();
     		int gestureCode = gesture.getEvent();
     		if (gestureCode == TouchGesture.TAP) {
@@ -313,8 +312,9 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
     				}
     			});
     			return true;     
-    		} else if(gesture.getEvent() == TouchGesture.NAVIGATION_SWIPE)  // Handle only trackpad swipe gestures
-    		{
+    		} else if( gestureCode == TouchGesture.NAVIGATION_SWIPE ) {  
+    			// Handle only trackpad swipe gestures
+    		
     			final int direction = gesture.getSwipeDirection();
 
     			UiApplication.getApplication().invokeLater(new Runnable()
@@ -334,9 +334,10 @@ final class CameraScreen extends MainScreen implements CameraScreenListener
     			});
 
     			return true;
+    		} else if( gestureCode == TouchGesture.HOVER ) {
+    			return true;
     		}
-    	}
-
+    	} //End of gesture detection code
     	return false;
     }
 
