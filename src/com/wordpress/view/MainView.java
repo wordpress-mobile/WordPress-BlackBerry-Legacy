@@ -60,6 +60,7 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
 import com.wordpress.view.component.AnimatedGIFField;
+import com.wordpress.view.component.BlogRefreshButtonField;
 import com.wordpress.view.component.BlogSelectorField;
 import com.wordpress.view.component.SelectorPopupScreen;
 import com.wordpress.view.component.WelcomeField;
@@ -97,7 +98,7 @@ public class MainView extends BaseView {
     private MainViewInternalFieldManager mainContentContainer;
     
     private TableLayoutManager actionsTable;
-    final int actionsTableNumberOfRows = 3;
+    int actionsTableNumberOfRows = 3;
     final int actionsTableItemHorizontalPadding = 10; // Horizontal padding between items
 	//Default icons used as blog's status
 	private Bitmap imgImportant = Bitmap.getBitmapResource("important.png");
@@ -150,28 +151,47 @@ public class MainView extends BaseView {
 		int iSetTo = 0;
 		currentBlog = blogCaricati[ iSetTo ];
 		
+		
 		blogSelectorRow = new TableLayoutManager(
 				new int[] {
 						TableLayoutManager.USE_PREFERRED_SIZE,
-						TableLayoutManager.SPLIT_REMAINING_WIDTH
+						TableLayoutManager.SPLIT_REMAINING_WIDTH,
+						TableLayoutManager.USE_PREFERRED_SIZE
 				}, 
-				new int[] { 2, 2 },
-				10,
+				new int[] { 2, 2, 2 },
+				0,
 				Manager.USE_ALL_WIDTH | Manager.FIELD_HCENTER
 		);
 		
+		int blogIconSize = getBlogIconSize();
 		blogIconField = createBlogIconField( blogCaricati[iSetTo] );
 		blogSelectorRow.add( blogIconField );
+		
 		blogSelectorField = new BlogSelectorField( choices, iSetTo, FOCUSABLE | USE_ALL_WIDTH );
-		blogSelectorField.setFieldMaxHeight( getBlogIconSize() ); //set the field with the same height of the icon
+		blogSelectorField.setFieldMaxHeight( blogIconSize ); //set the field with the same height of the icon
 		blogSelectorField.setChangeListener(new BlogSelectorChangeListener());
 		blogSelectorRow.add( blogSelectorField );
+		
+		BlogRefreshButtonField refrshBtn = new BlogRefreshButtonField();
+		refrshBtn.setFieldMaxSize( blogIconSize );
+		refrshBtn.setChangeListener(new FieldChangeListener () {
+			public void fieldChanged(Field field, int context) {
+				if ( context == 0 ) {
+					tableOrMenuItemSelected(mnuRefresh);
+				}
+			}
+		});
+		blogSelectorRow.add( refrshBtn );
+				
 		//#ifdef BlackBerrySDK4.5.0
-		blogSelectorRow.setMargin(5, 0, 0, 0);
-		blogIconField.setMargin(0, 0, 0, 5);
+		blogSelectorRow.setMargin(5, 0, 0, 0); //set the top margin for the row
+		blogIconField.setMargin(0, 5, 0, 5);
 		blogSelectorField.setMargin(0, 5, 0, 0);
+		refrshBtn.setMargin(0, 5, 0, 0);
         //#else
-        blogSelectorRow.setMargin(5, 5, 0, 5);
+        blogSelectorRow.setMargin(5, 5, 0, 5); //whole row margin
+        blogIconField.setMargin(0, 5, 0, 0); //margin dx
+        blogSelectorField.setMargin(0, 5, 0, 0);//margin dx
         //#endif
 		
 		actionsTable = new TableLayoutManager(
@@ -197,7 +217,6 @@ public class MainView extends BaseView {
 		actionsTable.add( new ActionTableItem( mnuStats,  getItemLabel(mnuStats), mnuStats ) );	
 		actionsTable.add( new ActionTableItem( mnuSettings, getItemLabel(mnuSettings), mnuSettings ) );
 		actionsTable.add( new ActionTableItem( mnuDashboard, getItemLabel(mnuDashboard), mnuDashboard ) );
-		actionsTable.add( new ActionTableItem( mnuRefresh, getItemLabel(mnuRefresh), mnuRefresh ) );
 		
 		//#ifdef BlackBerrySDK7.0.0
 		if ( currentBlog != null && currentBlog.isWPCOMBlog() )
@@ -206,6 +225,8 @@ public class MainView extends BaseView {
 		
 		mainContentContainer = new MainViewInternalFieldManager(blogSelectorRow, actionsTable, true);
 		add( mainContentContainer );
+		
+		if ( actionsTable.getFieldCount() == 6 ) actionsTableNumberOfRows = 2;
 	}
 	
 	/**
@@ -495,7 +516,9 @@ public class MainView extends BaseView {
 	private void updateBlogIconField(BlogInfo blogToUpdate){
 		BitmapField blogIconField2 = createBlogIconField( blogToUpdate );
 		//#ifdef BlackBerrySDK4.5.0
-		blogIconField2.setMargin(0, 0, 0, 5);
+		blogIconField2.setMargin(0, 5, 0, 5);
+		//#elseif
+		blogIconField2.setMargin(0, 5, 0, 0);
         //#endif
 		blogSelectorRow.replace(blogIconField, blogIconField2);
 		blogIconField = blogIconField2;
@@ -911,7 +934,7 @@ public class MainView extends BaseView {
 		
 		public ActionTableItem(int bitmapType, String text, int menuIndex)
 		{
-			super(Bitmap.getBitmapResource("folder_yellow_open"), Field.FOCUSABLE | FIELD_HCENTER | FIELD_VCENTER | USE_ALL_WIDTH );
+			super(/*Bitmap.getBitmapResource("folder_yellow_open"), Field.FOCUSABLE | FIELD_HCENTER | FIELD_VCENTER | USE_ALL_WIDTH*/ );
 			this.bitmapType = bitmapType;
 			this.label = text;
 			this.menuIndex = menuIndex;
