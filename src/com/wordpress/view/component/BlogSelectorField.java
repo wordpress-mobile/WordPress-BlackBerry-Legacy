@@ -29,7 +29,7 @@ import net.rim.device.api.util.LongIntHashtable;
 
 public class BlogSelectorField extends LabelField {
 
-	public static final int PADDING = 10;
+	public static final int PADDING = 5;
 
 	protected ResourceBundle _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
 	protected String contextMenuItemLabel = _resources.getString(WordPressResource.MENUITEM_OPEN);
@@ -59,12 +59,18 @@ public class BlogSelectorField extends LabelField {
     private LongIntHashtable _colourTable;
 	private boolean _pressed;
 	
-	protected void layout(int width, int height) {
-		this.fieldMaxWeight = width;
-		
+	
+	public void invalidate_hack() {
 		BlogInfo[] blogCaricati = MainController.getIstance().getApplicationBlogs();
 		blogIcon = createBlogIconField(blogCaricati[selectedIndex]);
-		
+		this.invalidate();
+	}
+	
+	protected void layout(int width, int height) {
+		this.fieldMaxWeight = width;
+		this.fieldMaxHeight = MainView.getHeaderChildsMaxHeight();
+		BlogInfo[] blogCaricati = MainController.getIstance().getApplicationBlogs();
+		blogIcon = createBlogIconField(blogCaricati[selectedIndex]);
 		super.layout(width, fieldMaxHeight);
 		setExtent(width, fieldMaxHeight);
 	}
@@ -72,10 +78,6 @@ public class BlogSelectorField extends LabelField {
     protected void makeContextMenu(ContextMenu contextMenu) {
       //remove the context menu
     }
-    
-	public void setFieldMaxHeight(int fieldMaxHeight) {
-		this.fieldMaxHeight = fieldMaxHeight;
-	}
 
 	public BlogSelectorField(String[] choices, int iSetTo, long style) {
 		super(choices[iSetTo], style);
@@ -188,33 +190,17 @@ public class BlogSelectorField extends LabelField {
     		int imageX = PADDING; 
     		g.drawBitmap(imageX, imageY, imageWidth, imageHeight, blogIcon, 0, 0);
     		
+    		//Draw the blog icon
     		Bitmap currentDropDownBitmap = g.isDrawingStyleSet( Graphics.DRAWSTYLE_FOCUS ) ? dropDownBitmapFocus : dropDownBitmap;
-    		//Draw the drop down menu bitmap
     		imageWidth = currentDropDownBitmap.getWidth();
     		imageHeight = currentDropDownBitmap.getHeight();
     		imageY =  (this.fieldMaxHeight - imageHeight) / 2; 		
     		imageX = this.fieldMaxWeight  - ( imageWidth + PADDING ); 
     		g.drawBitmap(imageX, imageY, imageWidth, imageHeight, currentDropDownBitmap, 0, 0);
     		
-    		Font fnt = Font.getDefault().derive(Font.PLAIN, 38 );
-    		int fullTextWidth = fnt.getAdvance(label);
-    		int maxFontHeight = fnt.getHeight() * 2 ; //Set the max height of the font to double of the device font height. We don't want giants here! 
-    		//int maxFontSizeInPixel = Ui.convertSize(21, Ui.UNITS_pt, Ui.UNITS_px);
-    		
+    		//Draw the text
+    		Font fnt = Font.getDefault().derive(Font.PLAIN, blogIcon.getHeight() - 8 );
     		int availableWidthForText =  this.fieldMaxWeight - currentDropDownBitmap.getWidth() - blogIcon.getWidth() - ( 4 * PADDING );
-    		int availableHeightForText =  this.fieldMaxHeight - (PADDING * 2);
-    		
-    		//Iterate to find the best font size height that fit the width of the row
-/*    		if( fullTextWidth < availableWidthForText && fnt.getHeight() < availableHeightForText && fnt.getHeight() <  maxFontHeight )  {
-    			while(  fullTextWidth < availableWidthForText && fnt.getHeight() < availableHeightForText && fnt.getHeight() <  maxFontHeight ) {
-    				fnt = fnt.derive( fnt.getStyle(),  fnt.getHeight() + 1 ); 
-    				fullTextWidth =  fnt.getAdvance(label);
-    			}
-    			fnt = fnt.derive( fnt.getStyle(),  fnt.getHeight() - 1 );
-    		} else {
-    			//nothing for now
-    		}
-    		*/
     		g.setFont(fnt);
     		g.setColor( g.isDrawingStyleSet( Graphics.DRAWSTYLE_FOCUS ) ? getColour( COLOUR_TEXT_FOCUS ) : getColour( COLOUR_TEXT ) );
     		int textTop =  (this.fieldMaxHeight - fnt.getHeight()) / 2;

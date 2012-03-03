@@ -2,6 +2,7 @@ package com.wordpress.view.component;
 
 
 import com.wordpress.utils.ImageManipulator;
+import com.wordpress.view.MainView;
 
 import net.rim.device.api.math.Fixed32;
 import net.rim.device.api.system.Bitmap;
@@ -44,6 +45,9 @@ public class BlogRefreshButtonField extends BaseButtonField
     public BlogRefreshButtonField(  )
     {        
         super( Field.FOCUSABLE );
+		GIFEncodedImage icon = (GIFEncodedImage)EncodedImage.getEncodedImageResource("loading-blog-gif.bin");
+		GIFEncodedImage focusIcon = (GIFEncodedImage)EncodedImage.getEncodedImageResource("loading-blog-gif.bin");
+		animatedBitmaps = new GIFEncodedImage[] { icon, focusIcon };
     }
     
     public int getColour( long colourKey ) 
@@ -81,7 +85,7 @@ public class BlogRefreshButtonField extends BaseButtonField
     		icon = ImageManipulator.scale(icon, resultantScaleX);
     	}
 
-    	Bitmap focusIcon = Bitmap.getBitmapResource("icon_titlebar_refresh.png");	
+    	Bitmap focusIcon = Bitmap.getBitmapResource("icon_titlebar_refresh_focus.png");	
     	if( focusIcon.getWidth() > iconSize ) {
     		// Calculate the new scale based on the region sizes
     		// Scale / Zoom
@@ -99,9 +103,7 @@ public class BlogRefreshButtonField extends BaseButtonField
     
     
 	protected void layout(int width, int height) {
-		GIFEncodedImage icon = (GIFEncodedImage)EncodedImage.getEncodedImageResource("loading-blog-gif.bin");
-		GIFEncodedImage focusIcon = (GIFEncodedImage)EncodedImage.getEncodedImageResource("loading-blog-gif.bin");
-		animatedBitmaps = new GIFEncodedImage[] { icon, focusIcon };
+		this.fieldMaxSize = MainView.getHeaderChildsMaxHeight();
 		createRefreshIcon( fieldMaxSize - ( 2* PADDING ) );
 		_width = fieldMaxSize;
         _height = fieldMaxSize;
@@ -109,18 +111,13 @@ public class BlogRefreshButtonField extends BaseButtonField
 	}
        
     public int getPreferredWidth() {
-        return fieldMaxSize;
+        return fieldMaxSize != 0 ? fieldMaxSize : MainView.getHeaderChildsMaxHeight();
     }
     
     public int getPreferredHeight() {
-        return fieldMaxSize;
+    	 return fieldMaxSize != 0 ? fieldMaxSize : MainView.getHeaderChildsMaxHeight();
     }
-     
-	public void setFieldMaxSize(int fieldMaxHeight) {
-		this.fieldMaxSize = fieldMaxHeight;
-	}
-
-	
+		
     protected void onUnfocus()
     {
         super.onUnfocus();

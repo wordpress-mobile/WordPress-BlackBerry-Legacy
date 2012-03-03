@@ -331,6 +331,7 @@ public class TableLayoutManager extends Manager
                                       ((numUnassignedColumnWidths - 1)
                                       * _horizPadding))
                                          / numUnassignedColumnWidths;
+            
             for (int i = 0; i < _columns; i++)
             {
                 int assignedWidth = Math.min(remainingWidthToAssign,
@@ -340,6 +341,12 @@ public class TableLayoutManager extends Manager
                     _columnWidths[i] = assignedWidth;
                     remainingWidthToAssign -= assignedWidth;
                 }
+            }
+           
+            /* TODO: Added by danilo. We should check the last Pixel!!! */
+            if ( remainingWidthToAssign > 0 ) {
+            	_columnWidths[_columns - 1 ] += remainingWidthToAssign; 
+            	remainingWidthToAssign = 0;
             }
         }
 

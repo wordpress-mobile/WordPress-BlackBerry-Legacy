@@ -59,7 +59,7 @@ public class ConnectionInProgressView extends Dialog {
 	
     protected void onDisplay() {
         checkAddListeners();
-        super.onExposed();
+        super.onDisplay();
     }
 
     protected void onExposed() {

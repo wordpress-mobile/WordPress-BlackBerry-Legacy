@@ -9,6 +9,8 @@ import javax.microedition.content.ContentHandlerException;
 import javax.microedition.rms.RecordStoreException;
 
 import net.rim.device.api.system.ControlledAccessException;
+import net.rim.device.api.system.Display;
+import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.Status;
@@ -361,7 +363,6 @@ public class MainController extends BaseController implements TaskProgressListen
 		synchronized (view) {
 			Blog loadedBlog = (Blog)obj;
 			BlogInfo loadedBlogInfo = new BlogInfo(loadedBlog);
-			view.setBlogItemViewState(loadedBlogInfo); 
 		
 			//update application blogs (refresh controller have a similar code)
 			for(int count = 0; count < applicationBlogs.size(); ++count)
@@ -376,6 +377,7 @@ public class MainController extends BaseController implements TaskProgressListen
 	    			break;
 	    		}
 	    	}
+			view.setBlogItemViewState(loadedBlogInfo); 
 		}
 	}
 
