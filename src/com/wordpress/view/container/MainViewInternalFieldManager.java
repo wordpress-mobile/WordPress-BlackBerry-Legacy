@@ -8,26 +8,17 @@ public class MainViewInternalFieldManager extends Manager
     public Field _bottomField;
     
     private int heightAvailableForTheGrid = 0;
-	private boolean _giveTopFieldPriority;
     
-    public MainViewInternalFieldManager( Field topField, Field bottomField, boolean giveTopFieldPriority )
+    public MainViewInternalFieldManager( Field topField, Field bottomField )
     {
-        this( topField, bottomField, giveTopFieldPriority, Field.USE_ALL_HEIGHT );
-    }
-
-    public MainViewInternalFieldManager( Field topField, Field bottomField, boolean giveTopFieldPriority, long style )
-    {
-        super( style );
-        
+        super( Field.USE_ALL_HEIGHT );
         _topField = topField;
         _bottomField = bottomField;
         
         add( _topField );
         add( _bottomField );
-        
-        _giveTopFieldPriority = giveTopFieldPriority;
     }
-	 
+
     public void paint(Graphics graphics)
 	 {
 		 graphics.setBackgroundColor(0xefebef);
@@ -39,13 +30,8 @@ public class MainViewInternalFieldManager extends Manager
     {
         Field firstField;
         Field secondField;
-        if( _giveTopFieldPriority ) {
-            firstField = _topField;
-            secondField = _bottomField;
-        } else {
-            firstField = _bottomField;
-            secondField = _topField;
-        }
+        firstField = _topField;
+        secondField = _bottomField;
 
         int maxWidth = 0;
         
@@ -72,7 +58,8 @@ public class MainViewInternalFieldManager extends Manager
         }
         
         setPositionChild( _topField, getFieldX( _topField, width ), _topField.getMarginTop() );
-        setPositionChild( _bottomField, getFieldX( _bottomField, width ), height - _bottomField.getHeight() - _bottomField.getMarginBottom() );
+        setPositionChild( _bottomField, getFieldX( _bottomField, width ),  _topField.getMarginTop() + _topField.getHeight() + Math.max( _topField.getMarginBottom(), _bottomField.getMarginTop() ) );
+      //  setPositionChild( _bottomField, getFieldX( _bottomField, width ), height - _bottomField.getHeight() - _bottomField.getMarginBottom() );
 
         setExtent( width, height );
     }

@@ -204,8 +204,14 @@ public class MainView extends BaseView {
 				new int[] { 2, 2, 2 }, //not used in this configuration
 				0,
 				Manager.USE_ALL_WIDTH
-		);
-		//actionsTable.setBackground( BackgroundFactory.createSolidBackground( 0xf0f0f0 ) );
+		) {	   		
+	   	    public void paint(Graphics graphics)
+	   	    {
+	   	    	graphics.setBackgroundColor( 0x979797 );
+	   	        graphics.clear();
+	   	        super.paint(graphics);
+	   	    }
+		};
 		
 		actionsTable.add( new ActionTableItem( mnuNewPost, getItemLabel(mnuNewPost), mnuNewPost ) );
 		//#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
@@ -225,12 +231,10 @@ public class MainView extends BaseView {
 		if ( currentBlog != null && currentBlog.isWPCOMBlog() )
 			actionsTable.add( new ActionTableItem( mnuReader, getItemLabel(mnuReader), mnuReader ) );
 		//#endif
-		
-		
-		mainContentContainer = new MainViewInternalFieldManager(headerRow, actionsTable, true);
-		add( mainContentContainer );
-		
 		if ( actionsTable.getFieldCount() == 6 ) actionsTableNumberOfRows = 2;
+		
+		mainContentContainer = new MainViewInternalFieldManager(headerRow, actionsTable);
+		add( mainContentContainer );
 	}
 	
 	/**
@@ -965,7 +969,6 @@ public class MainView extends BaseView {
 					graphics.setColor( Color.WHITE );
 				else
 					graphics.setColor(0x323232);
-				graphics.setFont(myFont);
 				
 				while ( availableWidthForChildFields < myFont.getAdvance(currentLbl) ) {
 					myFont = myFont.derive( myFont.getStyle(),  myFont.getHeight() - 1 ); 
@@ -978,7 +981,7 @@ public class MainView extends BaseView {
 				xOffset = ( fieldWidth - labelAdvice ) / 2 ;		
 				if ( xOffset < 0 ) xOffset = 0;
 				yOffset =  yOffset + bitmapHeight + VPADDING_IMAGE_TEXT;
-				
+				graphics.setFont(myFont);
 				graphics.drawText( currentLbl, xOffset, yOffset, DrawStyle.ELLIPSIS | DrawStyle.TOP, availableWidthForChildFields );
 
 			} finally {

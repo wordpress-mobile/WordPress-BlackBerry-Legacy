@@ -332,6 +332,9 @@ public class TableLayoutManager extends Manager
                                       * _horizPadding))
                                          / numUnassignedColumnWidths;
             
+            int[] evenlySpacedColumnPosition = new int [_columnWidths.length]; /* TODO: added by danilo */
+            Arrays.fill(evenlySpacedColumnPosition, -1);
+            
             for (int i = 0; i < _columns; i++)
             {
                 int assignedWidth = Math.min(remainingWidthToAssign,
@@ -340,13 +343,23 @@ public class TableLayoutManager extends Manager
                 {
                     _columnWidths[i] = assignedWidth;
                     remainingWidthToAssign -= assignedWidth;
+                    evenlySpacedColumnPosition[i] = 1; //mark the current column as assigned
                 }
             }
            
-            /* TODO: Added by danilo. We should check the last Pixel!!! */
+            /* 
+             * TODO: Added by danilo. 
+             * We should assign the rest of the integer division to the evenly spaced columns: splitRemainingWidth = remainingWidthToAssign  / numUnassignedColumnWidths  
+             * */
             if ( remainingWidthToAssign > 0 ) {
-            	_columnWidths[_columns - 1 ] += remainingWidthToAssign; 
-            	remainingWidthToAssign = 0;
+            	for (int i = 0; i < evenlySpacedColumnPosition.length; i++) {
+					if ( evenlySpacedColumnPosition[i] == 1 ) {
+						_columnWidths[i] += 1;
+						remainingWidthToAssign--;
+					}
+					
+					if ( remainingWidthToAssign == 0) break;
+				}	 
             }
         }
 
