@@ -169,7 +169,7 @@ public class TableLayoutManager extends Manager
         int[] rowHeights = new int[rows];
         Arrays.fill(rowHeights, -1);
         
-        _columns = _columnStyles.length; /* TODO: update the copy from RIM  */
+        _columns = _columnStyles.length; /* TODO: Update the original code  */
         for (int i = 0; i < _columns; i++)
         {
             for (int j = 0; j < rows; j++)
@@ -198,7 +198,7 @@ public class TableLayoutManager extends Manager
     protected void sublayout(int layoutWidth, int layoutHeight)
     {
         int numberFields = getFieldCount();
-        if (numberFields == 0) {   /* TODO: update the copy from RIM  */
+        if (numberFields == 0) {   /* TODO: update the original code */
         	if ( this._columnStyles != null ) { //At least one field was added and removed from this manager
         		setExtent( 0 ,  0 );
         	} 
@@ -332,7 +332,7 @@ public class TableLayoutManager extends Manager
                                       * _horizPadding))
                                          / numUnassignedColumnWidths;
             
-            int[] evenlySpacedColumnPosition = new int [_columnWidths.length]; /* TODO: added by danilo */
+            int[] evenlySpacedColumnPosition = new int [_columnWidths.length]; /* TODO: Update the original code */
             Arrays.fill(evenlySpacedColumnPosition, -1);
             
             for (int i = 0; i < _columns; i++)
@@ -348,10 +348,10 @@ public class TableLayoutManager extends Manager
             }
            
             /* 
-             * TODO: Added by danilo. 
+             * TODO: Update the original code
              * We should assign the rest of the integer division to the evenly spaced columns: splitRemainingWidth = remainingWidthToAssign  / numUnassignedColumnWidths  
              * */
-            if ( remainingWidthToAssign > 0 ) {
+            if ( this.isStyle(Manager.USE_ALL_WIDTH) && remainingWidthToAssign > 0 ) {
             	for (int i = 0; i < evenlySpacedColumnPosition.length; i++) {
 					if ( evenlySpacedColumnPosition[i] == 1 ) {
 						_columnWidths[i] += 1;
