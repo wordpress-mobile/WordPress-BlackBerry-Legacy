@@ -196,7 +196,8 @@ public class BlogSelectorField extends LabelField {
     		imageHeight = currentDropDownBitmap.getHeight();
     		imageY =  (this.fieldMaxHeight - imageHeight) / 2; 		
     		imageX = this.fieldMaxWeight  - ( imageWidth + PADDING ); 
-    		g.drawBitmap(imageX, imageY, imageWidth, imageHeight, currentDropDownBitmap, 0, 0);
+    		if( choices != null && choices.length > 1 )
+    			g.drawBitmap(imageX, imageY, imageWidth, imageHeight, currentDropDownBitmap, 0, 0);
     		
     		//Draw the text
     		Font fnt = Font.getDefault().derive(Font.PLAIN, blogIcon.getHeight() - 8 );

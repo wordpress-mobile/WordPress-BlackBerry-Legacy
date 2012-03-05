@@ -12,6 +12,7 @@ import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.CodeModuleGroup;
 import net.rim.device.api.system.CodeModuleGroupManager;
+import net.rim.device.api.system.CoverageInfo;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
@@ -57,6 +58,7 @@ import com.wordpress.utils.ImageManipulator;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.Tools;
+import com.wordpress.utils.conn.ConnectionUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -342,6 +344,8 @@ public class MainView extends BaseView {
 			cctrl.showView();
 			break;
 		case mnuStats:
+			if( isInternetAvailable() == false )
+                return true;
 			StatsController sctrl = new StatsController(tmpblog);
 			sctrl.showView();
 			break;
@@ -349,6 +353,8 @@ public class MainView extends BaseView {
 			FrontController.getIstance().showBlogOptions(tmpblog);
 			break;
 		case mnuRefresh:
+			if( isInternetAvailable() == false )
+                return true;
 			final BlogUpdateConn connection = new BlogUpdateConn (tmpblog);
 			ConnectionInProgressView connectionProgressView = new ConnectionInProgressView(
 					_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
@@ -360,6 +366,9 @@ public class MainView extends BaseView {
 			}
 			break;
 		case mnuDashboard:
+			if( isInternetAvailable() == false )
+                return true;
+  
 			String user = currentBlog.getUsername();
 			String pass = currentBlog.getPassword();
 
@@ -405,6 +414,9 @@ public class MainView extends BaseView {
 		
 		//#ifdef BlackBerrySDK7.0.0
 		case mnuReader:
+			if( isInternetAvailable() == false )
+                return true;
+			
 			//load the first WP.COM available within the app
 			Hashtable applicationAccounts = MainController.getIstance().getApplicationAccounts();
 			Hashtable currentAccount = null;
@@ -501,6 +513,10 @@ public class MainView extends BaseView {
 						public void run() {
 							blogSelectorField.setChoices(choices);
 							blogSelectorField.setSelectedIndex(sel);
+							if ( currentBlog.getState() ==  BlogInfo.STATE_LOADING || currentBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) 
+								 refrshBtn.startAnimation();
+							 else 
+								 refrshBtn.stopAnimation();
 							headerRow.invalidate();
 							actionsTable.invalidate();
 						}
@@ -544,7 +560,10 @@ public class MainView extends BaseView {
 			 currentBlog = blogInfo;
 			 UiApplication.getUiApplication().invokeLater(new Runnable() {
 				 public void run() {
-					 refrshBtn.stopAnimation();
+					 if ( currentBlog.getState() ==  BlogInfo.STATE_LOADING || currentBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) 
+						 refrshBtn.startAnimation();
+					 else 
+						 refrshBtn.stopAnimation();
 					 blogSelectorField.invalidate_hack();
 					 headerRow.invalidate();
 				 }
@@ -614,6 +633,9 @@ public class MainView extends BaseView {
     //add blog menu item 
     private MenuItem _addBlogItem = new MenuItem( _resources, WordPressResource.MENUITEM_ADDBLOG, 100000, 1000) {
     	public void run() {
+			if( isInternetAvailable() == false )
+                return;
+    
     		if(mainController.isLoadingBlogs()) {
     			mainController.displayMessage(_resources.getString(WordPressResource.MESSAGE_LOADING_BLOGS));
 				return;
@@ -779,6 +801,18 @@ public class MainView extends BaseView {
 		return mainController;
 	}
 	
+	private boolean isInternetAvailable() {
+		if( CoverageInfo.isOutOfCoverage() || ConnectionUtils.isDataConnectionAvailable() == false )
+        {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					Dialog.alert(_resources.getString(WordPressResource.MESSAGE_NO_INTERNET));                       
+				} //end run
+			});
+            return false;
+        } 
+		return true;
+	}
 	
 	private class RefreshBlogCallBack implements Observer {
 

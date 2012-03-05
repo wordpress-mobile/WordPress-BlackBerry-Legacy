@@ -21,7 +21,7 @@ public class MainViewInternalFieldManager extends Manager
 
     public void paint(Graphics graphics)
 	 {
-		 graphics.setBackgroundColor(0xefebef);
+		 graphics.setBackgroundColor(0x979797);
 		 graphics.clear();
 		 super.paint(graphics);
 	 }

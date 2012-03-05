@@ -278,6 +278,7 @@ MESSAGE_NO_ACCOUNTS#0="You haven't added any accounts yet!";
 MESSAGE_NO_DRAFT_PAGES#0="No draft pages found";
 MESSAGE_NO_DRAFT_POSTS#0="No draft post found";
 MESSAGE_NO_FILE_GROUP#0="No file-group found";
+MESSAGE_NO_INTERNET#0="No Internet coverage. Enable Internet and try again.";
 MESSAGE_NO_NEW_VERSION_AVAILABLE#0="WordPress for BlackBerry is updated.";
 MESSAGE_NO_OTHER_BLOGS_FOR_ACCOUNT#0="You have already added all blogs for this WordPress account!";
 MESSAGE_NO_PAGES#0="No pages found";
