@@ -39,8 +39,8 @@ public class ErrorView extends Dialog {
 			DialogFieldManager dfm = (DialogFieldManager)delegate;
 			net.rim.device.api.ui.Manager manager = dfm.getCustomManager();
 			if( manager != null && e != null ){
-				ButtonField buttonField = new ButtonField( _resources.getString( WordPressResource.MENUITEM_REPORT_ISSUE ) );
-				buttonField.setChangeListener(new FieldChangeListener() {
+				ButtonField reportIssueBtnField = new ButtonField( _resources.getString( WordPressResource.MENUITEM_REPORT_ISSUE ));
+				reportIssueBtnField.setChangeListener(new FieldChangeListener() {
 					public void fieldChanged(Field field, int context) {
 						
 						String errorMessageToCopy = null;
@@ -90,7 +90,7 @@ public class ErrorView extends Dialog {
 						close();
 					}
 				});
-				manager.insert(buttonField, manager.getFieldCount());
+				manager.insert(reportIssueBtnField, manager.getFieldCount());
 			}
 		}
 	}

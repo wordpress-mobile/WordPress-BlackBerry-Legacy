@@ -13,6 +13,7 @@ import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.math.Fixed32;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.Display;
 import net.rim.device.api.system.KeypadListener;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.ContextMenu;
@@ -29,7 +30,7 @@ import net.rim.device.api.util.LongIntHashtable;
 
 public class BlogSelectorField extends LabelField {
 
-	public static final int PADDING = 5;
+	public static final int PADDING = Display.getWidth() > 320 ? 10 : 5;
 
 	protected ResourceBundle _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
 	protected String contextMenuItemLabel = _resources.getString(WordPressResource.MENUITEM_OPEN);
@@ -200,7 +201,7 @@ public class BlogSelectorField extends LabelField {
     			g.drawBitmap(imageX, imageY, imageWidth, imageHeight, currentDropDownBitmap, 0, 0);
     		
     		//Draw the text
-    		Font fnt = Font.getDefault().derive(Font.PLAIN, blogIcon.getHeight() - 8 );
+    		Font fnt = Font.getDefault().derive(Font.PLAIN, blogIcon.getHeight() - ( PADDING + 3 ) );
     		int availableWidthForText =  this.fieldMaxWeight - currentDropDownBitmap.getWidth() - blogIcon.getWidth() - ( 4 * PADDING );
     		g.setFont(fnt);
     		g.setColor( g.isDrawingStyleSet( Graphics.DRAWSTYLE_FOCUS ) ? getColour( COLOUR_TEXT_FOCUS ) : getColour( COLOUR_TEXT ) );
