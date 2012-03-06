@@ -20,6 +20,7 @@ import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.Touchscreen;
 import net.rim.device.api.ui.XYRect;
 import net.rim.device.api.ui.component.LabelField;
 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
@@ -30,7 +31,7 @@ import net.rim.device.api.util.LongIntHashtable;
 
 public class BlogSelectorField extends LabelField {
 
-	public static final int PADDING = Display.getWidth() > 320 ? 10 : 5;
+	public static final int PADDING = initializePadding();
 
 	protected ResourceBundle _resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
 	protected String contextMenuItemLabel = _resources.getString(WordPressResource.MENUITEM_OPEN);
@@ -60,6 +61,15 @@ public class BlogSelectorField extends LabelField {
     private LongIntHashtable _colourTable;
 	private boolean _pressed;
 	
+	
+    private static int initializePadding() {
+    	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+    	if (Touchscreen.isSupported()) {
+    		return 10;    		
+    	}  
+    	//#endif
+    	return Display.getWidth() > 360 ? 7 : 5;
+    }
 	
 	public void invalidate_hack() {
 		BlogInfo[] blogCaricati = MainController.getIstance().getApplicationBlogs();
