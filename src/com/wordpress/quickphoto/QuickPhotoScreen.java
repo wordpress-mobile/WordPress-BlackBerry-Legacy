@@ -4,6 +4,8 @@ package com.wordpress.quickphoto;
 import java.io.IOException;
 import java.util.Vector;
 
+import javax.microedition.media.control.MetaDataControl;
+
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
@@ -310,16 +312,49 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 		try {
 			readFile = JSR75FileSystem.readFile(filePath);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.error(e, "Error while reading the picture in the QuickPhotoScreen");
+			return;
 		}
 		if( readFile == null ) return;
 		EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
+		
+		int angle = 0;
+		/* Fixes Orientation on devices with gyroschope ref #222 */
+		try {
+			MetaDataControl metaData = img.getMetaData();
+			String orientation = metaData.getKeyValue("orientation");
+			if (orientation.equals("8")) {
+				angle = 270;
+			}
+			else if (orientation.equals("3")) {
+				angle = 180;
+			}
+			else if (orientation.equals("6")) {
+				angle = 90;
+			}
+
+			mediaObj.addRotationAngle(angle);
+
+		} catch (Exception e) {
+			//Image doesn't have any exif data treat it as a normal bitmap
+			Log.error(e, "Image doesn't have any exif data treat it as a normal bitmap");
+		}
+		/* End Rotation fixes */ 
+
 		//find the photo size
 		int scale = ImageUtils.findBestImgScale(img.getWidth(), img.getHeight(), PREVIEW_THUMB_SIZE, PREVIEW_THUMB_SIZE);
 		if(scale > 1)
 			img.setScale(scale); //set the scale
-		final Bitmap bitmapRescale = img.getBitmap();
+		Bitmap bitmapRescale = img.getBitmap();
+		
+		if( angle != 0 ) {
+			try {
+				bitmapRescale = ImageUtils.rotate(bitmapRescale, angle);
+			} catch (Exception e) {
+				Log.error(e, "Image can't be rotated in QP");
+			}
+		} 
+		
 		final BitmapField photoBitmapField = new PreviewBitmap(mediaObj, bitmapRescale, BitmapField.FOCUSABLE | BitmapField.FIELD_HCENTER | Manager.FIELD_VCENTER);
 		photoBitmapField.setSpace(5, 5);
 		Vector mediaObjects = post.getMediaObjects();

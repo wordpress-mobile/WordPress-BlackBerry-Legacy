@@ -360,7 +360,7 @@ public class GenericListField extends ObjectListField  {
     					return true;
     				}
     			} else if (gestureCode == TouchGesture.HOVER) {
-    				return true;
+    				return false; //Shows the contextual menu
     			} else {
         			//is not a click!
         			checkLoadMore();

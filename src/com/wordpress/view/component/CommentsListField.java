@@ -394,7 +394,7 @@ public class CommentsListField {
     				if (gestureCode == TouchGesture.TAP) {
     					return defaultAction();
         			} else if (gestureCode == TouchGesture.HOVER) {
-        				return true;
+        				return false; //Show the contextual menu
         			} else {
         				//is not a click!
         				checkLoadMore();
