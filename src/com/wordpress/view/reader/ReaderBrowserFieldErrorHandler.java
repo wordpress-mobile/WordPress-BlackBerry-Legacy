@@ -1,3 +1,7 @@
+//#preprocess
+
+//#ifdef BlackBerrySDK7.0.0
+
 package com.wordpress.view.reader;
 
 import javax.microedition.io.InputConnection;
@@ -49,3 +53,4 @@ public class ReaderBrowserFieldErrorHandler extends BrowserFieldErrorHandler {
         return super.resourceRequestError(request, t);
     }
 }
+//#endif
