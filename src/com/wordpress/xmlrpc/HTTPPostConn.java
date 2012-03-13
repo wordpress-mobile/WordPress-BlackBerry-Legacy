@@ -9,12 +9,14 @@ import java.util.Vector;
 import javax.microedition.io.HttpConnection;
 
 import com.wordpress.utils.conn.ConnectionManager;
+import com.wordpress.utils.http.SimpleCookieManager;
 import com.wordpress.utils.log.Log;
 
 public class HTTPPostConn extends BlogConn  {
 
 	private final byte[] postContent;
-
+	private SimpleCookieManager cm = null;
+	
 	public HTTPPostConn (String url, byte[] postContent) {
 		super(url, "", "");
 		this.postContent = postContent;
@@ -34,7 +36,9 @@ public class HTTPPostConn extends BlogConn  {
 				conn = (HttpConnection) ConnectionManager.getInstance().open(urlConnessione);
 				conn.setRequestMethod( HttpConnection.POST ); //setupPost method for this conn
 				conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
+				if( cm != null ) 
+					cm.addCookiesToRequest(conn);
+			
 				if(postContent != null) {
 					DataOutputStream dos = new DataOutputStream( conn.openOutputStream() );
 					dos.write(postContent);
@@ -58,7 +62,9 @@ public class HTTPPostConn extends BlogConn  {
 						// The header value contains the server's HTTP version
 					} else {
 						responseHeaders.put(headerName , headerValue);
-					//	Log.trace(headerName + " " + headerValue); 
+						if( cm != null && headerName.equalsIgnoreCase("Set-Cookie")) 
+							cm.storeCookie(conn, headerValue);
+						Log.trace(headerName + " " + headerValue); 
 					}
 				}
 				//Log.trace("=== End Response headers from the server");	
@@ -81,7 +87,7 @@ public class HTTPPostConn extends BlogConn  {
 						b.append( conn.getPort() );
 						b.append( URL );
 						urlConnessione = b.toString();
-					} else if( URL != null && URL.startsWith( "http://" ) ){
+					} else if( URL != null && URL.startsWith( "http" ) ){
 						urlConnessione = URL;
 					}
 					conn.close();
@@ -140,5 +146,9 @@ public class HTTPPostConn extends BlogConn  {
 		} catch (Exception e) {
 			Log.error("Connection Error: Notification error"); 		
 		}
+	}
+
+	public void setCookieManager(SimpleCookieManager dummyCookieManager) {
+		this.cm = dummyCookieManager;
 	}
 }

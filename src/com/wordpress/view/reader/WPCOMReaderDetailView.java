@@ -34,24 +34,25 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
     
     private ConnectionInProgressView connectionProgressView = null;
 	private BrowserFieldRequest request = null;
-	private final String currentItem;
+	private final String datailPageContent;
     
     /**
      * Creates a new BrowserFieldScreen object
      * @param request The URI of the content to display in this BrowserFieldScreen
      * @param enableScriptMenu True if a context menu is to be created for this BrowserFieldScreen instance, false otherwise
      */
-    public WPCOMReaderDetailView(BrowserFieldRequest request, String currentItem)
+    public WPCOMReaderDetailView(BrowserFieldRequest request, String datailPageContent)
     {    
     	super(_resources.getString(WordPressResource.MENUITEM_READER));
     	
     	this.request = request;
-		this.currentItem = currentItem;
+		this.datailPageContent = datailPageContent;
     	addKeyListener(new BrowserFieldScreenKeyListener());        
         BrowserFieldConfig config = getReaderBrowserDefaultConfig();
         _browserField = new BrowserField(config);
         _browserField.addListener(new InnerBrowserListener());
         _browserField.getConfig().setProperty(BrowserFieldConfig.CONTROLLER, new DetailViewProtocolController(_browserField));
+        _browserField.getConfig().setProperty(BrowserFieldConfig.ERROR_HANDLER, new ReaderBrowserFieldErrorHandler(_browserField) );
         try {
 			extendJavaScript(_browserField);
 		} catch (Exception e) {
@@ -59,7 +60,6 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
 		}
         add(_browserField);
     }
- 
     
     /**
      * @see Screen#onUiEngineAttached(boolean)     
@@ -70,16 +70,19 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
     	{
     		try
     		{
-    		
     			connectionProgressView = new ConnectionInProgressView(
     					_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
     			connectionProgressView.setDialogClosedListener(new ConnectionDialogClosedListener());
     			connectionProgressView.show();
     			
     			this.setPreferredConnectionTypes(_browserField);
-    			
-            	_browserField.requestContent(request);
-                
+            	
+            	if( datailPageContent != null ) {
+                	 _browserField.displayContent(datailPageContent, "http://wordpress.com");
+                } else {
+                	_browserField.requestContent(request);
+                }
+    	
     			int res = UiApplication.getUiApplication().invokeLater(new Runnable() {
     				public void run() {
     					if ( connectionProgressView.isDisplayed())
@@ -107,13 +110,13 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
     	}
     }
     
-    
-    /**      
+
+	/**      
      * @see MainScreen#onSavePrompt()
      */
     public boolean onSavePrompt()
     {
-        // Prevent the save dialog from being displayed
+    	// Prevent the save dialog from being displayed
         return true;
     }   
 
@@ -144,26 +147,24 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
     };
     
     
-    
     /**
      * A class to listen for BrowserField events
      */
     private class InnerBrowserListener extends BrowserFieldListener
     {
     	public void documentLoaded(BrowserField browserField, Document document) {
-    		Log.debug("DetailView has loaded the following URL : " + browserField.getDocumentUrl() );
-    		//the browser has loaded the login form and authenticated the user...
-    		if ( request.getURL().startsWith(WordPressInfo.readerDetailURL) ) {
-    			UiApplication.getUiApplication().invokeLater(new Runnable() {
-    				public void run() {
-    					try {
-    						_browserField.getScriptEngine().executeScript("bb_test = "+currentItem+"; Reader2.show_article_details(bb_test)", null);
-    					} catch (Exception e) {
-    						Log.error(e, "Error while setting the item on the view");
-    					}
-    				} //end run
-    			});
-    		}
+    		Log.debug("URL loaded: " + browserField.getDocumentUrl() );
+    
+    		UiApplication.getUiApplication().invokeLater(new Runnable() {
+    			public void run() {
+    				try {
+    					//_browserField.getScriptEngine().executeScript("bb_test = "+currentItem+"; Reader2.show_article_details(bb_test);", null);
+    					_browserField.executeScript("Reader2.show_article_details();");
+    				} catch (Exception e) {
+    					Log.error(e, "Error while setting the item on the view");
+    				}
+    			} //end run
+    		});
     	}
     }
         

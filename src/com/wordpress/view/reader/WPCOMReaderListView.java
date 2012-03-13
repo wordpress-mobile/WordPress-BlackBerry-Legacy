@@ -27,6 +27,7 @@ import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.MainController;
+import com.wordpress.utils.http.SimpleCookieManager;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -47,7 +48,6 @@ public class WPCOMReaderListView extends WPCOMReaderBase
 	private String detailPageContent = null; //the content of the detail page that will be cached in this class
 	private final String username;
 	private final String password;
-
     
     /**
      * Creates a new BrowserFieldScreen object
@@ -85,6 +85,7 @@ public class WPCOMReaderListView extends WPCOMReaderBase
         _browserField.addListener(new InnerBrowserListener());
     	//Add the protocol controller to intercept clicks on the browser
 		_browserField.getConfig().setProperty(BrowserFieldConfig.CONTROLLER, new ListViewProtocolController(_browserField));
+		_browserField.getConfig().setProperty(BrowserFieldConfig.ERROR_HANDLER, new ReaderBrowserFieldErrorHandler(_browserField) );
         try {
 			extendJavaScript(_browserField);
 		} catch (Exception e) {
@@ -103,7 +104,6 @@ public class WPCOMReaderListView extends WPCOMReaderBase
         {
             try
             {
-              
                 connectionProgressView = new ConnectionInProgressView(
             			_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
             	connectionProgressView.setDialogClosedListener(new ConnectionDialogClosedListener());
@@ -228,7 +228,7 @@ public class WPCOMReaderListView extends WPCOMReaderBase
     			try {
     				Log.debug("Topics Page cached");
     				String html = (String)resp.getResponseObject();
-    				//Log.info("Content of the topics page: " + html );
+    				//Log.debug("Content of the topics page: " + html );
     				topicsPageContent = html;
     			} catch (Exception e) {
     				Log.error(e, "Error while loading the topics page");
@@ -245,6 +245,7 @@ public class WPCOMReaderListView extends WPCOMReaderBase
 		urlEncoder.append("pwd", this.password);
 		byte[] data = urlEncoder.getBytes();
 		final HTTPPostConn connection = new HTTPPostConn( WordPressInfo.WPCOM_LOGIN_URL, data);
+		connection.setCookieManager( new SimpleCookieManager() );
 		connection.addObserver(new loadAndCacheDetailPageCallback());
 		connection.startConnWork(); //starts connection
     }
@@ -257,7 +258,7 @@ public class WPCOMReaderListView extends WPCOMReaderBase
     		if(!resp.isError()) {
     			try {
     				String html = (String)resp.getResponseObject();
-    				//Log.info("Content of the topics page: " + html );
+    				//Log.debug("details page: " + html );
     				detailPageContent = html;
     			} catch (Exception e) {
     				Log.error(e, "Error while loading the details page");
@@ -297,15 +298,30 @@ public class WPCOMReaderListView extends WPCOMReaderBase
     		Log.info(" Requested the following URL: " + request.getURL());
     		//Load the details view
     		if ( request.getURL().equalsIgnoreCase(WordPressInfo.readerDetailURL) ) {
-    			 Object executeScript = _browserField.getScriptEngine().executeScript("Reader2.last_selected_item", null); 
-    			 final String item = (String) executeScript;
-    			 Log.info("Load the details view in a new view");
-    			UiApplication.getUiApplication().invokeLater(new Runnable() {
-					public void run() {
-						WPCOMReaderDetailView _browserScreen = new WPCOMReaderDetailView(request, item);
-						UiApplication.getUiApplication().pushScreen(_browserScreen);   
-					}
-				});
+    			 Log.debug("Load the details view in a new view");
+    			 
+    			 if( detailPageContent != null ) {
+    				 UiApplication.getUiApplication().invokeLater(new Runnable() {
+    					 public void run() {
+    						 WPCOMReaderDetailView _browserScreen = new WPCOMReaderDetailView( null, detailPageContent);
+    						 UiApplication.getUiApplication().pushScreen(_browserScreen);   
+    					 }
+    				 });
+    			 } else {
+    				 UiApplication.getUiApplication().invokeLater(new Runnable() {
+    					 public void run() {
+    						 WPCOMReaderDetailView	detailScreen = new WPCOMReaderDetailView(request, null);
+        					 UiApplication.getUiApplication().pushScreen(detailScreen);    
+    					 }
+    				 });
+    			 }		 
+
+    		/*	 UiApplication.getUiApplication().invokeLater(new Runnable() {
+    				 public void run() {
+    					 WPCOMReaderDetailView	detailScreen = new WPCOMReaderDetailView(request, null);
+    					 UiApplication.getUiApplication().pushScreen(detailScreen);    
+    				 }
+    			 });*/
     		} else {
     			//Load the URL in the current View. 
     			try {

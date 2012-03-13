@@ -45,6 +45,7 @@ public class WPCOMReaderTopicsView extends WPCOMReaderBase
         BrowserFieldConfig config = getReaderBrowserDefaultConfig();
         _browserField = new BrowserField(config);
         _browserField.addListener(new InnerBrowserListener());
+        _browserField.getConfig().setProperty(BrowserFieldConfig.ERROR_HANDLER, new ReaderBrowserFieldErrorHandler(_browserField) );
         try {
 			extendJavaScript(_browserField);
 		} catch (Exception e) {
@@ -125,17 +126,11 @@ public class WPCOMReaderTopicsView extends WPCOMReaderBase
     		//the browser has loaded the login form and authenticated the user...
     		UiApplication.getUiApplication().invokeLater(new Runnable() {
     			public void run() {
-
     				try {
     					_browserField.getScriptEngine().executeScript("document.setSelectedTopic('"+parent.getCurrentTopic()+"')", null);
-    				} catch (IllegalStateException e) {
-    					e.printStackTrace();
-    				} catch (IllegalArgumentException e) {
-    					e.printStackTrace();
-    				} catch (RuntimeException e) {
-    					e.printStackTrace();
+    				} catch (Exception e) {
+    					Log.error(e, "Error while setting the selectedTopic on the view");
     				}
-    				
     			} //end run
     		});
     	}
@@ -231,6 +226,13 @@ public class WPCOMReaderTopicsView extends WPCOMReaderBase
 		if( methodName.equalsIgnoreCase("selectTopic")) {
 			parent.setNewTopicAndRefreshTheReader((String)formalParamenters[0], (String)formalParamenters[1]);
 			close();
+		} else if( methodName.equalsIgnoreCase("setTitle")) {
+			final String title = (String)formalParamenters[0];
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run() {
+					setTitleText(title);
+				} //end run
+			});
 		} else {
 			Log.debug("Method not found: " + methodName);
 		}
