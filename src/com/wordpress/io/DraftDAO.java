@@ -193,6 +193,10 @@ public class DraftDAO implements BaseDAO{
         if (post.getLink() != null) {
         	content.put("link", post.getLink());
         }
+        Vector customFields = post.getCustomFields();
+		if(customFields != null ){
+			content.put("custom_fields", customFields);
+		}
         
 		//convert media object before save them
 		Vector mediaObjects = post.getMediaObjects();
