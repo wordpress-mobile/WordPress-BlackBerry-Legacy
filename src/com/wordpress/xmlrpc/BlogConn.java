@@ -46,6 +46,9 @@ public abstract class BlogConn extends Observable implements Runnable {
 	protected String authMessage = null;
 	protected String http401Username = null;
 	protected String http401Password = null;
+	
+	//request HTTP Headers
+	protected Hashtable requestHeaders = new Hashtable();
 
 	//create a variable to store the ResourceBundle for localization support
 	protected static ResourceBundle _resources;
@@ -139,6 +142,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 				Log.trace("HTTP auth are available to the XML-RPC client");
 			}
 		}
+		mConnection.setRequestHeaders(requestHeaders);
 		try {
 			response = mConnection.execute(aCommand, aArgs);
 		} catch (ConnectionNotFoundException cnfe) {
@@ -210,6 +214,13 @@ public abstract class BlogConn extends Observable implements Runnable {
 		return http401Username;
 	}
 	
+	public void setHTTPHeaderField(String name, String value) {
+		if ( value == null )
+			requestHeaders.remove(name);
+		else
+			requestHeaders.put(name, value);
+	}
+		
 	protected void setPostCategories(int[] categories, String postID) throws Exception {
 		Log.debug(">>> Set Post categories ");
 		Vector args;

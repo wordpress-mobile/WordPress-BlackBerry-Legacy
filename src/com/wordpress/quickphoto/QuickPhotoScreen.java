@@ -376,14 +376,13 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 
 		public void run() {
     		try {
-    			
     			updateModel();
     			post.setStatus("publish");
     			boolean publish= true;
     			//adding post connection
     			BlogConn connection = new NewPostConn (post.getBlog().getXmlRpcUrl(), 
     					post.getBlog().getUsername(),post.getBlog().getPassword(), post, publish);
-
+    			connection.setHTTPHeaderField("WP-QUICK-POST", "QuickPhoto");
     			int draftFolder = DraftDAO.storePost(post, -1);
     			connectionProgressView = new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
     			sendTask = new SendToBlogTask(post, draftFolder, connection);

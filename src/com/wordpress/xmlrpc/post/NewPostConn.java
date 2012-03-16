@@ -21,7 +21,7 @@ public class NewPostConn extends BlogConn  {
 			this.setHttp401Username(post.getBlog().getHTTPAuthUsername());
 		}
 	}
-
+	
 	public void setPost(Post post) {
 		this.post = post;
    		if(post.getBlog().isHTTPBasicAuthRequired()) {

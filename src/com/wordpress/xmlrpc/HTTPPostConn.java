@@ -64,7 +64,7 @@ public class HTTPPostConn extends BlogConn  {
 						responseHeaders.put(headerName , headerValue);
 						if( cm != null && headerName.equalsIgnoreCase("Set-Cookie")) 
 							cm.storeCookie(conn, headerValue);
-						Log.trace(headerName + " " + headerValue); 
+						//Log.trace(headerName + " " + headerValue); 
 					}
 				}
 				//Log.trace("=== End Response headers from the server");	

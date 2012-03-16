@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -51,7 +52,8 @@ public class XmlRpcClient {
 	private String http401Password = null;
     
     //contains all response headers
-    private Hashtable responseHeaders = new Hashtable();
+	private Hashtable requestHeaders = new Hashtable();
+	private Hashtable responseHeaders = new Hashtable();
 	private HttpConnection con;
 	private InputStream in;
 	private OutputStream out;
@@ -100,6 +102,10 @@ public class XmlRpcClient {
 		this.http401Password = http401Password;
 	}
   
+	public void setRequestHeaders(Hashtable requestHeaders) {
+		this.requestHeaders = requestHeaders;
+	}
+
 	private void prepareRequest(String method, Vector params, XmlRpcDualOutputStream os) throws IOException {
     	// kxmlrpc classes
     	KXmlSerializer xw = null; 	 	
@@ -174,6 +180,14 @@ public class XmlRpcClient {
 				con.setRequestProperty("Authorization", "Basic " + new String(encodedAuthCredential));
 			}
      	    
+     		Enumeration headerNames = requestHeaders.keys();
+        	while(headerNames.hasMoreElements()) {
+        		String headerName = (String)headerNames.nextElement();
+        		String headerValue = (String)requestHeaders.get(headerName);
+        		con.setRequestProperty(headerName, headerValue);
+        		Log.trace("Added the Header field '" + headerName + "' - > " +headerValue);
+        	}
+     		
     		// Obtain an output stream
     		out = con.openOutputStream();
     		os.sendRequest(out);
