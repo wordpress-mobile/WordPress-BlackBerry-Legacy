@@ -258,7 +258,7 @@ public class WPCOMReaderListView extends WPCOMReaderBase
     		if(!resp.isError()) {
     			try {
     				String html = (String)resp.getResponseObject();
-    				//Log.debug("details page: " + html );
+    				Log.debug("DetailView Page cached");
     				detailPageContent = html;
     			} catch (Exception e) {
     				Log.error(e, "Error while loading the details page");
@@ -274,12 +274,13 @@ public class WPCOMReaderListView extends WPCOMReaderBase
 	}
 	
 	protected void executeNativeJaveCode(String methodName, Object[] formalParamenters, Class[] formalParametersType) {
-		Log.debug("Trying to call the following method "+ methodName + " on " + this.getClass().getName());
-		if( methodName.equalsIgnoreCase("setSelectedTopic")) {
+		Log.debug("Calling "+ methodName + " on " + this.getClass().getName());
+		if( methodName.equalsIgnoreCase("setSelectedTopic") ) {
 			this.currentTopic = (String)formalParamenters[0];
 			Log.debug("Current Selected Topic: "+ this.currentTopic);
-		} else if( methodName.equalsIgnoreCase("setTitle")) {
+		} else if( methodName.equalsIgnoreCase("setTitle") ) {
 			final String title = (String)formalParamenters[0];
+			Log.debug("Current title: "+ title);
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
 					setTitleText(title);
@@ -296,34 +297,17 @@ public class WPCOMReaderListView extends WPCOMReaderBase
 
     	public void handleNavigationRequest(final BrowserFieldRequest request) throws Exception {
     		Log.info(" Requested the following URL: " + request.getURL());
-    		//Load the details view
     		if ( request.getURL().equalsIgnoreCase(WordPressInfo.readerDetailURL) ) {
     			 Log.debug("Load the details view in a new view");
-    			 
-    			 if( detailPageContent != null ) {
-    				 UiApplication.getUiApplication().invokeLater(new Runnable() {
-    					 public void run() {
-    						 WPCOMReaderDetailView _browserScreen = new WPCOMReaderDetailView( null, detailPageContent);
-    						 UiApplication.getUiApplication().pushScreen(_browserScreen);   
-    					 }
-    				 });
-    			 } else {
-    				 UiApplication.getUiApplication().invokeLater(new Runnable() {
-    					 public void run() {
-    						 WPCOMReaderDetailView	detailScreen = new WPCOMReaderDetailView(request, null);
-        					 UiApplication.getUiApplication().pushScreen(detailScreen);    
-    					 }
-    				 });
-    			 }		 
-
-    		/*	 UiApplication.getUiApplication().invokeLater(new Runnable() {
-    				 public void run() {
-    					 WPCOMReaderDetailView	detailScreen = new WPCOMReaderDetailView(request, null);
+				 UiApplication.getUiApplication().invokeLater(new Runnable() {
+					 public void run() {
+						 WPCOMReaderDetailView	detailScreen = new WPCOMReaderDetailView(request, detailPageContent);
     					 UiApplication.getUiApplication().pushScreen(detailScreen);    
-    				 }
-    			 });*/
+					 }
+				 });
     		} else {
-    			//Load the URL in the current View. 
+    			//Load the listView in the current View.
+    			//This method is called because we are using the WP HTML login form with redirect, otherwise this method is not called, since we are loading static HTML...
     			try {
     				final InputConnection ic = handleResourceRequest(request);
     				UiApplication.getUiApplication().invokeLater(new Runnable() {
@@ -344,29 +328,30 @@ public class WPCOMReaderListView extends WPCOMReaderBase
      */
     private class InnerBrowserListener extends BrowserFieldListener
     {
-    	public void documentAborted(BrowserField browserField, Document document)
-				throws Exception {
-			// TODO Auto-generated method stub
-			super.documentAborted(browserField, document);
+	/*
+		public void documentCreated(final BrowserField browserField, final ScriptEngine scriptEngine, final Document document)
+		throws Exception {
+			((EventTarget) document).addEventListener("load",
+					new EventListener() {
+				public void handleEvent(final Event evt) {
+					Log.debug("*** documentCreated");
+					_documentLoaded = true;
+				}
+			}, false);
 		}
-
-		public void documentError(BrowserField browserField, Document document)
-				throws Exception {
-			// TODO Auto-generated method stub
-			super.documentError(browserField, document);
-		}
-
+		*/
 		public void documentLoaded(BrowserField browserField, Document document)
 				throws Exception {
 			super.documentLoaded(browserField, document);
-			Log.debug("URL loaded: " + browserField.getDocumentUrl() );
+			Log.debug("URL Loaded in the listView: " + browserField.getDocumentUrl() );
     		if( browserField.getDocumentUrl() != null && browserField.getDocumentUrl().startsWith(WordPressInfo.readerURL_v3)) {
     			//the browser has loaded the login form and authenticated the user...
     			_documentLoaded = true;
+    			Log.debug("Caching the topics and the detailView...");
 	    		//Load the topics page and cache it
 	    		loadAndCacheTopicsPage();
 	    		//Load the detail page and cache it
-	    		//loadAndCacheDetailPage();
+	    		loadAndCacheDetailPage();
     		}
 		}
     }

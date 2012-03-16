@@ -64,37 +64,40 @@ public class WPCOMReaderTopicsView extends WPCOMReaderBase
         {
             try
             {
-            	connectionProgressView = new ConnectionInProgressView(
-            			_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
-            	connectionProgressView.setDialogClosedListener(new ConnectionDialogClosedListener());
-            	connectionProgressView.show();
             	
             	this.setPreferredConnectionTypes(_browserField);
             	
             	if( topicsContent != null ) {
-                	 _browserField.displayContent(topicsContent, "");
-                } else {
-                	_browserField.requestContent(request);
-                }
                 
-	    		int res = UiApplication.getUiApplication().invokeLater(new Runnable() {
-	    				public void run() {
-	    					if ( connectionProgressView.isDisplayed())
-	    						UiApplication.getUiApplication().popScreen(connectionProgressView);
-	    					connectionProgressView = null;
-	    				} //end run
-	    			}, 2000, false);
-             
-	    		if ( res == -1 ) { //timer failed, remove the dialog immediately
-                	UiApplication.getUiApplication().invokeLater(new Runnable() {
-	    				public void run() {
-	    					if ( connectionProgressView.isDisplayed())
-	    						UiApplication.getUiApplication().popScreen(connectionProgressView);
-	    					connectionProgressView = null;
-	    				} //end run
-	    			});
+            		_browserField.displayContent(topicsContent, "");
+                
+            	} else {
+                	
+                	connectionProgressView = new ConnectionInProgressView(
+                			_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
+                	connectionProgressView.setDialogClosedListener(new ConnectionDialogClosedListener());
+                	connectionProgressView.show();
+                	
+                	_browserField.requestContent(request);
+                	
+                	int res = UiApplication.getUiApplication().invokeLater(new Runnable() {
+                		public void run() {
+                			if ( connectionProgressView.isDisplayed())
+                				UiApplication.getUiApplication().popScreen(connectionProgressView);
+                			connectionProgressView = null;
+                		} //end run
+                	}, 2000, false);
+                	
+                	if ( res == -1 ) { //timer failed, remove the dialog immediately
+                		UiApplication.getUiApplication().invokeLater(new Runnable() {
+                			public void run() {
+                				if ( connectionProgressView.isDisplayed())
+                					UiApplication.getUiApplication().popScreen(connectionProgressView);
+                				connectionProgressView = null;
+                			} //end run
+                		});
+                	}
                 }
-
             }
             catch(Exception e)
             {                
@@ -129,25 +132,11 @@ public class WPCOMReaderTopicsView extends WPCOMReaderBase
     				try {
     					_browserField.getScriptEngine().executeScript("document.setSelectedTopic('"+parent.getCurrentTopic()+"')", null);
     				} catch (Exception e) {
-    					Log.error(e, "Error while setting the selectedTopic on the view");
+    					Log.error(e, "Error while setting the selectedTopic on Topics view");
     				}
     			} //end run
     		});
     	}
-    	/**
-    	 * @see BrowserFieldListener#documentCreated(BrowserField, ScriptEngine, Document)
-    	 
-    	public void documentCreated(final BrowserField browserField, ScriptEngine scriptEngine, Document document) throws Exception
-    	{
-    		((EventTarget) document).addEventListener("load", new EventListener()
-    		{
-    			public void handleEvent(Event evt)
-    			{
-
-    			}
-    		}, false);
-    	}
-    	*/
     }
 
     /**
@@ -222,7 +211,7 @@ public class WPCOMReaderTopicsView extends WPCOMReaderBase
 	}
     
 	protected void executeNativeJaveCode(String methodName, Object[] formalParamenters, Class[] formalParametersType) {
-		Log.debug("Trying to call the following method "+ methodName + " on " + this.getClass().getName());
+		Log.debug("Calling the following method "+ methodName + " on " + this.getClass().getName());
 		if( methodName.equalsIgnoreCase("selectTopic")) {
 			parent.setNewTopicAndRefreshTheReader((String)formalParamenters[0], (String)formalParamenters[1]);
 			close();

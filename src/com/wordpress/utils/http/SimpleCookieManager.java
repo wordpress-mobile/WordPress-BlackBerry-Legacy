@@ -69,8 +69,7 @@ public class SimpleCookieManager {
     			Log.trace("Cookie set on the connection: "+cookieStringBuffer.toString() );
     		}
     	} catch (java.lang.IllegalStateException ise) {
-    		IOException ioe = new IOException("Illegal State! Cookies cannot be set on a URLConnection that is already connected. " 
-    				+ "Only call setCookies(java.net.URLConnection) AFTER calling java.net.URLConnection.connect().");
+    		IOException ioe = new IOException("Illegal State! Cookies cannot be set on a HttpConnection that is already connected. "); 
     		throw ioe;
     	}
     }
@@ -82,5 +81,4 @@ public class SimpleCookieManager {
     		return host;
     	}
     }
-
 }

@@ -6,17 +6,26 @@ package com.wordpress.view.reader;
 
 import javax.microedition.io.InputConnection;
 
+import net.rim.blackberry.api.invoke.Invoke;
+import net.rim.blackberry.api.invoke.MessageArguments;
+import net.rim.blackberry.api.mail.Message;
 import net.rim.device.api.browser.field2.BrowserField;
 import net.rim.device.api.browser.field2.BrowserFieldConfig;
 import net.rim.device.api.browser.field2.BrowserFieldListener;
 import net.rim.device.api.browser.field2.BrowserFieldRequest;
+import net.rim.device.api.browser.field2.BrowserFieldResponse;
 import net.rim.device.api.browser.field2.ProtocolController;
+import net.rim.device.api.io.http.HttpProtocolConstants;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.Clipboard;
 import net.rim.device.api.system.KeyListener;
+import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
+import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.container.MainScreen;
 
 import org.w3c.dom.Document;
@@ -34,7 +43,8 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
     
     private ConnectionInProgressView connectionProgressView = null;
 	private BrowserFieldRequest request = null;
-	private final String datailPageContent;
+	private String datailPageContent;
+	private boolean _documentLoaded;
     
     /**
      * Creates a new BrowserFieldScreen object
@@ -70,47 +80,135 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
     	{
     		try
     		{
-    			connectionProgressView = new ConnectionInProgressView(
-    					_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
-    			connectionProgressView.setDialogClosedListener(new ConnectionDialogClosedListener());
-    			connectionProgressView.show();
     			
     			this.setPreferredConnectionTypes(_browserField);
-            	
-            	if( datailPageContent != null ) {
-                	 _browserField.displayContent(datailPageContent, "http://wordpress.com");
-                } else {
-                	_browserField.requestContent(request);
-                }
-    	
-    			int res = UiApplication.getUiApplication().invokeLater(new Runnable() {
-    				public void run() {
-    					if ( connectionProgressView.isDisplayed())
-    						UiApplication.getUiApplication().popScreen(connectionProgressView);
-    					connectionProgressView = null;
-    				} //end run
-    			}, 2000, false);
+    	         	
+    			//If the page is cached load it by using a request obj. Do not load the HTML directly otherwise the JS at onLoad is never triggered!!!
+    			if( datailPageContent != null ) {
+    				Log.debug("DetailView loaded from the cache");
+    				String resourceURI = request.getURL();
+    				BrowserFieldResponse browserFieldResponse = new BrowserFieldResponse(resourceURI, datailPageContent.getBytes(), HttpProtocolConstants.CONTENT_TYPE_TEXT_HTML);
+    				_browserField.displayContent(browserFieldResponse, request.getURL());  
+    			} else {
+    				Log.debug("DetailView NOT loaded from the cache");
 
-    			if ( res == -1 ) { //timer failed, remove the dialog immediately
-    				UiApplication.getUiApplication().invokeLater(new Runnable() {
+    				connectionProgressView = new ConnectionInProgressView(
+        					_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
+        			connectionProgressView.setDialogClosedListener(new ConnectionDialogClosedListener());
+        			connectionProgressView.show();
+        			
+    				_browserField.requestContent(request);
+    				
+    				int res = UiApplication.getUiApplication().invokeLater(new Runnable() {
     					public void run() {
     						if ( connectionProgressView.isDisplayed())
     							UiApplication.getUiApplication().popScreen(connectionProgressView);
     						connectionProgressView = null;
     					} //end run
-    				});
+    				}, 2000, false);
+    				
+    				if ( res == -1 ) { //timer failed, remove the dialog immediately
+    					UiApplication.getUiApplication().invokeLater(new Runnable() {
+    						public void run() {
+    							if ( connectionProgressView.isDisplayed())
+    								UiApplication.getUiApplication().popScreen(connectionProgressView);
+    							connectionProgressView = null;
+    						} //end run
+    					});
+    				}
     			}
     		}
     		catch(Exception e)
-    		{                
-    			deleteAll();
+    		{
+				UiApplication.getUiApplication().invokeLater(new Runnable() {
+					public void run() {
+						if (connectionProgressView != null && connectionProgressView.isDisplayed())
+							UiApplication.getUiApplication().popScreen(connectionProgressView);
+					} //end run
+				});
+				deleteAll();
     			add(new LabelField("ERROR:\n\n"));
     			add(new LabelField(e.getMessage()));
     		}
     	}
     }
     
+    private MenuItem _browserMenuItem = new MenuItem( _resources, WordPressResource.MENUITEM_OPEN_IN_BROWSER, 200, 200) {
+    	public void run() {
+    		try {
+				Object executeScript = _browserField.getScriptEngine().executeScript("Reader2.get_article_permalink()", null); 
+				final String item = (String) executeScript;
+				Tools.openNativeBrowser( item );
+			} catch (Exception e) {
+				Log.error(e, "Error while loading the permalink");
+				Dialog.alert("We encountered a problem retrieving the link of the article");
+			}
+    	}
+    };
 
+    private MenuItem _copyLinkMenuItem = new MenuItem( _resources, WordPressResource.MENUITEM_COPY_LINK, 200, 200) {
+    	public void run() {
+    		try {
+				Object executeScript = _browserField.getScriptEngine().executeScript("Reader2.get_article_permalink()", null); 
+				final String item = (String) executeScript;
+				 // Retrieve the Clipboard object.
+				 Clipboard  cp = Clipboard.getClipboard();
+				 // Copy to clipboard.
+				 cp.put(item);
+			} catch (Exception e) {
+				Log.error(e, "Error while loading the permalink");
+				Dialog.alert("We encountered a problem retrieving the link of the article");
+			}
+    	}
+    };
+
+    private MenuItem _mailLinkMenuItem = new MenuItem( _resources, WordPressResource.MENUITEM_MAIL_LINK, 200, 200) {
+    	public void run() {
+    		String articleLink = null;
+    		String articleTitle = null;
+    		try {
+    			Object executeScript = _browserField.getScriptEngine().executeScript("Reader2.get_article_permalink()", null); 
+    			articleLink = (String) executeScript;
+    		} catch (Exception e) {
+    			Log.error(e, "Error while loading the permalink");
+    			Dialog.alert("We encountered a problem retrieving the link of the article");
+    			return;
+    		}
+    		try {
+    			Object executeScript = _browserField.getScriptEngine().executeScript("Reader2.get_article_title()", null); 
+    			articleTitle = (String) executeScript;
+    		} catch (Exception e) {
+    			Log.error(e, "Error while loading the title of the current article");
+    			Dialog.alert("We encountered a problem retrieving the title of the article");
+    			return;
+    		}
+    		if ( articleLink != null && articleTitle != null ) {
+    			try{
+    				Message m = new Message();
+    				m.setContent( articleLink );
+    				m.setSubject( articleTitle );
+    				Invoke.invokeApplication(Invoke.APP_TYPE_MESSAGES, new MessageArguments(m));
+    			} catch (Exception e) {
+    				Log.error(e, "Problem invoking BlackBerry Mail App");
+    				Dialog.alert("We encountered a problem calling the BlackBerry Mail App");
+    			}
+    		}
+    	}
+    };
+    
+    /**
+     * @see MainScreen#makeMenu(Menu, int)
+     */
+    protected void makeMenu(Menu menu, int instance)
+    {
+        //if( _documentLoaded ) {
+        	menu.add(_browserMenuItem);
+        	menu.add(_mailLinkMenuItem);
+        	menu.add(_copyLinkMenuItem);
+        //}
+        super.makeMenu(menu, instance);
+    }
+    
 	/**      
      * @see MainScreen#onSavePrompt()
      */
@@ -126,42 +224,62 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
 
     	public void handleNavigationRequest(final BrowserFieldRequest request) throws Exception {
     		Log.info("DetailView requested the following URL: " + request.getURL());
-    		//Load the details view
+
     		if ( request.getURL().equalsIgnoreCase(WordPressInfo.readerDetailURL) ) {
-    			//Load the URL in the current View. 
-    			try {
-    				final InputConnection ic = handleResourceRequest(request);
-    				UiApplication.getUiApplication().invokeLater(new Runnable() {
-    					public void run() {
-    						_browserField.setFocus();
-    						_browserField.displayContent(ic, request.getURL());  
-    					}
-    				});
-    			} catch (Exception e) { 
-    				Log.error(e, "handleNavigationRequest");
+    			//Not sure when this branch will be reached
+    			if ( WPCOMReaderDetailView.this.datailPageContent != null ) {
+    				String resourceURI = request.getURL();
+    				BrowserFieldResponse browserFieldResponse = new BrowserFieldResponse(resourceURI,  WPCOMReaderDetailView.this.datailPageContent.getBytes(), HttpProtocolConstants.CONTENT_TYPE_TEXT_HTML);
+    				_browserField.setFocus();
+    				_browserField.displayContent(browserFieldResponse, request.getURL());  
+    			} else {
+    				//The page is not cached, load it.
+    				try {
+    					final InputConnection ic = handleResourceRequest(request);
+    					UiApplication.getUiApplication().invokeLater(new Runnable() {
+    						public void run() {
+    							_browserField.setFocus();
+    							_browserField.displayContent(ic, request.getURL());  
+    						}
+    					});
+    				} catch (Exception e) { 
+    					Log.error(e, "handleNavigationRequest");
+    				}
     			}
     		} else {
     			Tools.openNativeBrowser(request.getURL());
     		}
     	}
     };
-    
+
     
     /**
      * A class to listen for BrowserField events
      */
     private class InnerBrowserListener extends BrowserFieldListener
     {
-    	public void documentLoaded(BrowserField browserField, Document document) {
-    		Log.debug("URL loaded: " + browserField.getDocumentUrl() );
-    
+		/*public void documentCreated(final BrowserField browserField, final ScriptEngine scriptEngine, final Document document)
+		throws Exception {
+			((EventTarget) document).addEventListener("load",
+					new EventListener() {
+				public void handleEvent(final Event evt) {
+					Log.debug("*** detailsView documentCreated");
+				}
+			}, false);
+		}
+    	*/
+    	public void documentLoaded(BrowserField browserField, Document document) throws Exception {
+    		super.documentLoaded(browserField, document);
+    		Log.debug("*** URL loaded in the detailView: " + browserField.getDocumentUrl() );
+    		_documentLoaded = true;
     		UiApplication.getUiApplication().invokeLater(new Runnable() {
     			public void run() {
     				try {
-    					//_browserField.getScriptEngine().executeScript("bb_test = "+currentItem+"; Reader2.show_article_details(bb_test);", null);
-    					_browserField.executeScript("Reader2.show_article_details();");
+    					//load the title here?
+    				//	Object executeScript =  _browserField.getScriptEngine().executeScript("Reader2.current_item.permalink;", null);
+    				//	Log.debug((String)executeScript);
     				} catch (Exception e) {
-    					Log.error(e, "Error while setting the item on the view");
+    					Log.error(e, "Error while setting the selectedTopic on Topics view");
     				}
     			} //end run
     		});
@@ -239,7 +357,7 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
 	}
     
 	protected void executeNativeJaveCode(String methodName, Object[] formalParamenters, Class[] formalParametersType) {
-		Log.debug("Trying to call the following method "+ methodName + " on " + this.getClass().getName());
+		Log.debug("Calling the following method "+ methodName + " on the detail View" );
     }
 }
 

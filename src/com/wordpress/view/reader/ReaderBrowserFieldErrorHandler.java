@@ -24,12 +24,12 @@ public class ReaderBrowserFieldErrorHandler extends BrowserFieldErrorHandler {
 
     public void displayContentError(String url, InputConnection connection,
             Throwable t) {
-        Log.debug("*** displayContentError: " + t.getMessage());
+        Log.error("*** displayContentError: " + t.getMessage());
         super.displayContentError(url, connection, t);
     }
 
     public void displayContentError(String url, String errorMessage) {
-    	Log.debug("*** displayContentError: " + errorMessage);
+    	Log.error("*** displayContentError: " + errorMessage);
         super.displayContentError(url, errorMessage);
     }
 
@@ -38,18 +38,18 @@ public class ReaderBrowserFieldErrorHandler extends BrowserFieldErrorHandler {
     }
 
     public void navigationRequestError(BrowserFieldRequest request, Throwable t) {
-    	Log.debug("*** navigationRequestError: " + t.getMessage());
+    	Log.error("*** navigationRequestError: " + t.getMessage());
         super.navigationRequestError(request, t);
     }
 
     public void requestContentError(BrowserFieldRequest request, Throwable t) {
-    	Log.debug("*** requestContentError: " + t.getMessage());
+    	Log.error("*** requestContentError: " + t.getMessage());
         super.requestContentError(request, t);
     }
 
     public InputConnection resourceRequestError(BrowserFieldRequest request,
             Throwable t) {
-    	Log.debug("*** resourceRequestError: " + t.getMessage());
+    	Log.error("*** resourceRequestError: " + t.getMessage());
         return super.resourceRequestError(request, t);
     }
 }
