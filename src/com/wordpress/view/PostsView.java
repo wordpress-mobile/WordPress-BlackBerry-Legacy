@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import net.rim.device.api.system.Application;
+import net.rim.device.api.system.KeyListener;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
@@ -17,6 +19,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PostsController;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.DefaultListKeyListener;
 import com.wordpress.view.component.ListActionListener;
 import com.wordpress.view.component.ListLoadMoreListener;
 import com.wordpress.view.component.GenericListField;
@@ -32,6 +35,7 @@ public class PostsView extends BaseView implements ListActionListener, ListLoadM
     private PostsController controller= null;
     private GenericListField listaPost; 
     private VerticalFieldManager dataScroller;
+    private DefaultListKeyListener defaultListKeyListener;
 	
 	 public PostsView(PostsController _controller, Vector recentPostInfo) {
 	    	super(_controller.getBlogName(), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -45,8 +49,12 @@ public class PostsView extends BaseView implements ListActionListener, ListLoadM
 	        	initUpBottomBar();
 	        //#endif
 	        
+			defaultListKeyListener = new DefaultListKeyListener(this, listaPost);
+			addKeyListener( defaultListKeyListener );
+
 			add(dataScroller);
 			buildList(recentPostInfo);
+			
 			controller.bumpScreenViewStats("com/wordpress/view/PostsView", "Posts list Screen", "", null, "");
 	 }
 	 
@@ -144,6 +152,7 @@ public class PostsView extends BaseView implements ListActionListener, ListLoadM
 		dataScroller.add(listaPost);		
 		dataScroller.invalidate();
 		listaPost.setFocus(); //set the focus over the list
+		defaultListKeyListener.setListObj(listaPost);
 		
 	    //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		if(elements.length == 0) {
@@ -249,4 +258,5 @@ public class PostsView extends BaseView implements ListActionListener, ListLoadM
 		listaPost.setFocus();
 		listaPost.setSelectedIndex(selectedIndex);
     }
+	
 }

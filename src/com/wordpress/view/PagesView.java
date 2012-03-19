@@ -8,9 +8,7 @@ import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
-import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.Menu;
-import net.rim.device.api.ui.component.NullField;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 
@@ -19,6 +17,7 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PagesController;
 import com.wordpress.model.Page;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.DefaultListKeyListener;
 import com.wordpress.view.component.ListActionListener;
 import com.wordpress.view.component.ListLoadMoreListener;
 import com.wordpress.view.component.GenericListField;
@@ -33,7 +32,7 @@ public class PagesView extends BaseView implements ListActionListener, ListLoadM
     private PagesController controller= null;
     private GenericListField  pagesList; 
     private VerticalFieldManager dataScroller;
-
+    private DefaultListKeyListener defaultListKeyListener;
 	
 	 public PagesView(PagesController _controller, Page[] pages) {
 	    	super(_controller.getBlogName(), MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -47,8 +46,12 @@ public class PagesView extends BaseView implements ListActionListener, ListLoadM
         	initUpBottomBar();
         	//#endif
 		
-			add(dataScroller);
+        	defaultListKeyListener = new DefaultListKeyListener(this, pagesList);
+        	addKeyListener( defaultListKeyListener );
+
+        	add(dataScroller);
 			buildList(pages);
+			
 			controller.bumpScreenViewStats("com/wordpress/view/PagesView", "Pages List Screen", "", null, "");
 	 }
 	 
@@ -134,6 +137,8 @@ public class PagesView extends BaseView implements ListActionListener, ListLoadM
 		
 		dataScroller.add(pagesList);
 		pagesList.setFocus(); //set the focus over the list
+		
+		defaultListKeyListener.setListObj(pagesList);
 		
 	    //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 			if(elements.length == 0) {

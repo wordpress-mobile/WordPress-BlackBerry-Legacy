@@ -19,6 +19,7 @@ import com.wordpress.controller.GravatarController;
 import com.wordpress.model.Comment;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.CommentsListField;
+import com.wordpress.view.component.DefaultListKeyListener;
 import com.wordpress.view.component.ListActionListener;
 import com.wordpress.view.component.ListLoadMoreListener;
 
@@ -29,6 +30,7 @@ public class CommentsView extends BaseView implements ListActionListener , ListL
 	private CommentsListField commentListController;
 	private GravatarController gravatarController;
 	private ListField commentsList;
+	private DefaultListKeyListener defaultListKeyListener;
 	//private boolean pendingMode = false; //a flag to show only pending comments
 	
 	 public CommentsView(RecentCommentsController _controller, GravatarController gvtCtrl, String title) {
@@ -40,8 +42,13 @@ public class CommentsView extends BaseView implements ListActionListener , ListL
 	        //A Vertical FM to hold the comments list
 	        dataScroller = new VerticalFieldManager(VerticalFieldManager.VERTICAL_SCROLL
 	                 | VerticalFieldManager.VERTICAL_SCROLLBAR);
-			add(dataScroller);
+			
+	        defaultListKeyListener = new DefaultListKeyListener(this, commentsList);
+			addKeyListener( defaultListKeyListener );
+	        
+	        add(dataScroller);
 			buildList();
+			
 			controller.bumpScreenViewStats("com/wordpress/view/CommentsView", "Comments Screen", "", null, "");
 	 }
 
@@ -65,7 +72,7 @@ public class CommentsView extends BaseView implements ListActionListener , ListL
     	commentListController.setDefautActionListener(this);
      	commentListController.setDefautLoadMoreListener(this);
 		dataScroller.add(commentsList);
-		
+		defaultListKeyListener.setListObj(commentsList);
 		updateSubTitle(comments);
 		
 		addMenuItem(_refreshCommentsListItem);

@@ -334,6 +334,25 @@ public class CommentsListField {
         
 		}
 		
+		public void setSelectedIndex(int index) {
+        	ChecklistData data = null;
+            int oldSelection = getSelectedIndex();
+            super.setSelectedIndex(index);
+            int newSelection = getSelectedIndex();
+            
+            if(oldSelection != -1) {
+            	data = (ChecklistData)_listData.elementAt(oldSelection);
+            	data.setSelected(false);
+            	invalidate(oldSelection);
+            }
+            
+            if(newSelection != -1) {
+            	data = (ChecklistData)_listData.elementAt(newSelection);
+            	data.setSelected(true);
+            	invalidate(newSelection);
+            }
+		}
+		
 		private boolean defaultAction() {
 	   		if (!isCheckBoxVisible()) {
     			if (defautActionListener != null) {
