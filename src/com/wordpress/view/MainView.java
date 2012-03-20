@@ -1096,8 +1096,8 @@ public class MainView extends BaseView {
 				unscaledBitmap_focus = Bitmap.getBitmapResource("dashboard_icon_new_page_focus"+size);
 				break;
 			case (mnuNewPhoto):
-				unscaledBitmap = Bitmap.getBitmapResource("dashboard_icon_photo"+size);
-				unscaledBitmap_focus = Bitmap.getBitmapResource("dashboard_icon_photo_focus"+size);
+				unscaledBitmap = Bitmap.getBitmapResource("dashboard_icon_new_photo"+size);
+				unscaledBitmap_focus = Bitmap.getBitmapResource("dashboard_icon_new_photo_focus"+size);
 			break;
 			default:
 				break;
