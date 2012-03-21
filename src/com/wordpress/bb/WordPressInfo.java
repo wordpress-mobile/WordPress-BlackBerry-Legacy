@@ -183,20 +183,22 @@ public final class WordPressInfo {
     
     public static Bitmap getIcon() {
     	int prefSize = HomeScreen.getPreferredIconHeight();
-    	if( prefSize == 68 )
-    		return icon68px;
-    	else if( prefSize == 92 )
+    	if( prefSize >= 92 ) {
     		return icon92px;
-    	else return icon;
+    	} else if( prefSize >= 68 ) {
+    		return icon68px;
+    	}
+    	return icon;
     }
     
     public static Bitmap getNewCommentsIcon() {
     	int prefSize = HomeScreen.getPreferredIconHeight();
-    	if( prefSize == 68 )
-    		return newCommentsIcon68px;
-    	else if( prefSize == 92 )
+    	if( prefSize >= 92 ) {
     		return newCommentsIcon92px;
-    	else return newCommentsIcon;    
+    	} else if( prefSize >= 68 ) {
+    		return newCommentsIcon68px;
+    	}
+    	else return newCommentsIcon;   
     }
     
     public static String getLastVersion() {

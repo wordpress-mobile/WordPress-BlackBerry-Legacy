@@ -56,13 +56,13 @@
               file="${basedir}/src/${icon}"/>
     	
     	<patternset id="non.4.5.0.sources">
-    	  <exclude name="com/wordpress/quickphoto/*" if="BlackBerrySDK4.5.0"/>
+    	  <exclude name="com/wordpress/quickphoto/**" if="BlackBerrySDK4.5.0"/>
     	</patternset>
     	<patternset id="non.4.7.0.sources">
-    	  <exclude name="com/wordpress/quickphoto/*" if="VER_4.7.0"/>
+    	  <exclude name="com/wordpress/quickphoto/**" if="VER_4.7.0"/>
     	</patternset>
     	<patternset id="non.5.0.0.sources">
-    	  <exclude name="com/wordpress/quickphoto/*" if="BlackBerrySDK5.0.0"/>
+    	  <exclude name="com/wordpress/quickphoto/OS6/**" if="BlackBerrySDK5.0.0"/>
     	</patternset>
     	
         <rapc jdehome="${rim.home}" quiet="true"
@@ -106,7 +106,7 @@
             		<include name="**/*"/>
            			<patternset refid="non.4.5.0.sources"/>
            			<patternset refid="non.4.7.0.sources"/>
-            	    <patternset refid="non.5.0.0.sources"/>
+           			<patternset refid="non.5.0.0.sources"/>
             	</fileset>
         		<fileset dir="${dir.lib}">
         		   	<include name="**/*.jar"/>

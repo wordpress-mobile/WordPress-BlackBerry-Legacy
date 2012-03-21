@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.view.component;
 
 
@@ -6,11 +7,15 @@ import com.wordpress.view.MainView;
 
 import net.rim.device.api.math.Fixed32;
 import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.Display;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.GIFEncodedImage;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Graphics;
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+import net.rim.device.api.ui.Touchscreen;
+//#endif
 import net.rim.device.api.ui.UiApplication;
 
 
@@ -26,7 +31,15 @@ public class BlogRefreshButtonField extends BaseButtonField
 	private static final int NORMAL = 0;
     private static final int FOCUS = 1;
     
-    private static final int PADDING = 5;
+    public static final int PADDING = initializePadding();
+    private static int initializePadding() {
+    	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+    	if (Touchscreen.isSupported()) {
+    		return 10;    		
+    	}  
+    	//#endif
+    	return Display.getWidth() > 360 ? 7 : 5;
+    }
     
     private static final int BEVEL    = 2;
 	private static final long COLOUR_BORDER              = 0xc5fd60b0047307a1L;
@@ -72,7 +85,16 @@ public class BlogRefreshButtonField extends BaseButtonField
     
     private void createRefreshIcon( int iconSize ) {
 
-    	Bitmap icon = Bitmap.getBitmapResource("icon_titlebar_refresh.png");	
+    	Bitmap icon = null;
+    	Bitmap focusIcon = null;
+    	if ( iconSize <= 48 ) {
+    		icon = Bitmap.getBitmapResource("icon_titlebar_refresh.png");	
+    		focusIcon = Bitmap.getBitmapResource("icon_titlebar_refresh_focus.png");
+    	} else {
+    		icon = Bitmap.getBitmapResource("icon_titlebar_refresh_72px.png");	
+    		focusIcon = Bitmap.getBitmapResource("icon_titlebar_refresh_focus_72px.png");
+    	}
+    	
     	if( icon.getWidth() > iconSize ) {
     		// Calculate the new scale based on the region sizes
     		// Scale / Zoom
@@ -85,7 +107,6 @@ public class BlogRefreshButtonField extends BaseButtonField
     		icon = ImageManipulator.scale(icon, resultantScaleX);
     	}
 
-    	Bitmap focusIcon = Bitmap.getBitmapResource("icon_titlebar_refresh_focus.png");	
     	if( focusIcon.getWidth() > iconSize ) {
     		// Calculate the new scale based on the region sizes
     		// Scale / Zoom

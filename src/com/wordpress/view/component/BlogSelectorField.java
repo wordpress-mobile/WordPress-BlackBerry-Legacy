@@ -211,7 +211,7 @@ public class BlogSelectorField extends LabelField {
     			g.drawBitmap(imageX, imageY, imageWidth, imageHeight, currentDropDownBitmap, 0, 0);
     		
     		//Draw the text
-    		Font fnt = Font.getDefault().derive(Font.PLAIN, blogIcon.getHeight() - 4 /*( PADDING + 3 )*/ );
+    		Font fnt = Font.getDefault().derive(Font.PLAIN, blogIcon.getHeight() - 2 /*( PADDING + 3 )*/ );
     		int availableWidthForText =  this.fieldMaxWeight - currentDropDownBitmap.getWidth() - blogIcon.getWidth() - ( 4 * PADDING );
     		g.setFont(fnt);
     		g.setColor( g.isDrawingStyleSet( Graphics.DRAWSTYLE_FOCUS ) ? getColour( COLOUR_TEXT_FOCUS ) : getColour( COLOUR_TEXT ) );

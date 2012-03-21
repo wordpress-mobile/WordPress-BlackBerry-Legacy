@@ -1,5 +1,5 @@
 //#preprocess
-package com.wordpress.quickphoto;
+package com.wordpress.quickphoto.OS5;
 
 import java.io.IOException;
 import java.util.Vector;
@@ -72,7 +72,9 @@ import com.wordpress.view.dialog.ConnectionInProgressView;
 import com.wordpress.xmlrpc.BlogConn;
 import com.wordpress.xmlrpc.post.NewPostConn;
 
-public class QuickPhotoScreen extends StandardBaseView implements CameraScreenListener {
+import com.wordpress.quickphoto.CameraScreenListener;
+
+public class QuickPhotoScreenOS5 extends StandardBaseView implements CameraScreenListener {
 	 
 	private static final int PHOTO_RESIZE_HEIGHT = 768;
 	private static final int PHOTO_RESIZE_WIDTH = 1024;
@@ -89,7 +91,7 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 	
 	private static final int PHOTO = 110;
 	
-	public QuickPhotoScreen(Post _post) {
+	public QuickPhotoScreenOS5(Post _post) {
 	    	super(_resources.getString(WordPressResource.TITLE_POSTVIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
 			this.post = _post;
 			post.setPostFormat("image"); //set the image post format
@@ -208,9 +210,8 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
         {
         	public void run()
         	{  
-        		CameraScreen screen = new CameraScreen();
-        		screen.setListener(QuickPhotoScreen.this);
-        		//define the screen transition
+        		CameraScreenOS5 screen = new CameraScreenOS5();
+        		screen.setListener(QuickPhotoScreenOS5.this);
         		UiEngineInstance engine = Ui.getUiEngineInstance();
         		TransitionContext transitionContextIn;
         		transitionContextIn = new TransitionContext(TransitionContext.TRANSITION_SLIDE);
@@ -500,8 +501,8 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 			final EncodedImage img = EncodedImage.createEncodedImage(readFile, 0, -1);
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
-			          ZoomScreen zoomableImg = new QuickPhotoZoomScreen(img);
-			          UiApplication.getUiApplication().pushScreen(zoomableImg);
+					ZoomScreen zoomableImgOS5 = new ZoomScreen(img);
+					UiApplication.getUiApplication().pushScreen(zoomableImgOS5);
 				}
 			});
 		}
@@ -595,21 +596,5 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 		}			
 	}
 
-	//ZoomScreen that calls close() on itself when the zoom level is nearToFit and the user hit back.
-	private class QuickPhotoZoomScreen extends ZoomScreen {
-		public QuickPhotoZoomScreen(EncodedImage encodedImage){
-			super(encodedImage);
-			//#ifdef BlackBerrySDK7.0.0
-			// Initialize the zoom screen to be zoomed all the way out
-			setViewableArea(0, 0, 0);
-			//#endif    
-		}
-		/**
-		 * @see ZoomScreen#zoomedOutNearToFit()
-		 */ 
-		public void zoomedOutNearToFit()
-		{            
-			close();
-		}
-	}
+
 }

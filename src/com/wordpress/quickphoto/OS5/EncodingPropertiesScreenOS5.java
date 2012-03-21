@@ -1,4 +1,4 @@
-package com.wordpress.quickphoto;
+package com.wordpress.quickphoto.OS5;
 
 import com.wordpress.utils.ImageEncodingProperties;
 
@@ -11,10 +11,10 @@ import net.rim.device.api.ui.container.MainScreen;
  * This MainScreen class allows a user to specify an encoding to be used
  * for taking a picture.
  */
-public class EncodingPropertiesScreen extends MainScreen
+public class EncodingPropertiesScreenOS5 extends MainScreen
 {
     RadioButtonGroup _radioButtonGroup;
-    CameraScreen _parentScreen;
+    CameraScreenOS5 _parentScreen;
     
     /**
      * Constructs a new EncodingPropertiesScreen object
@@ -22,7 +22,7 @@ public class EncodingPropertiesScreen extends MainScreen
      * @param parentScreen The parent screen of the application
      * @param currentSelectedIndex The index of the encoding that is currently selected
      */
-    public EncodingPropertiesScreen(ImageEncodingProperties[] encodingProperties, CameraScreen parentScreen, int currentSelectedIndex) 
+    public EncodingPropertiesScreenOS5(ImageEncodingProperties[] encodingProperties, CameraScreenOS5 parentScreen, int currentSelectedIndex) 
     {
         _parentScreen = parentScreen;
         _radioButtonGroup = new RadioButtonGroup();

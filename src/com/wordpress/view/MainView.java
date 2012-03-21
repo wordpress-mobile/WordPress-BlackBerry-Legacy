@@ -77,8 +77,7 @@ import net.rim.device.api.ui.decor.Border;
 import net.rim.device.api.ui.decor.BorderFactory;
 //#endif
 
-//#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
-import com.wordpress.quickphoto.QuickPhotoScreen;
+//#ifdef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.UiEngineInstance;
 import net.rim.device.api.ui.TransitionContext;
 //#endif
@@ -215,8 +214,16 @@ public class MainView extends BaseView {
 	   	    }
 		};
 		
+		updateActionTable();
+		
+		mainContentContainer = new MainViewInternalFieldManager(headerRow, actionsTable);
+		add( mainContentContainer );
+	}
+	
+	private void updateActionTable() {
+		actionsTable.deleteAll();
 		actionsTable.add( new ActionTableItem( mnuNewPost, getItemLabel(mnuNewPost), mnuNewPost ) );
-		//#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+		//#ifdef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		if( MultimediaUtils.isPhotoCaptureSupported() )
 			actionsTable.add( new ActionTableItem( mnuNewPhoto,  getItemLabel(mnuNewPhoto), mnuNewPhoto ) );
 		//#endif
@@ -228,15 +235,16 @@ public class MainView extends BaseView {
 
 		actionsTable.add( new ActionTableItem( mnuStats,  getItemLabel(mnuStats), mnuStats ) );	
 		actionsTable.add( new ActionTableItem( mnuSettings, getItemLabel(mnuSettings), mnuSettings ) );
-		
+		actionsTable.add( new ActionTableItem( mnuDashboard, getItemLabel(mnuDashboard), mnuDashboard ) );
+
 		//#ifdef BlackBerrySDK7.0.0
 		if ( currentBlog != null && currentBlog.isWPCOMBlog() )
 			actionsTable.add( new ActionTableItem( mnuReader, getItemLabel(mnuReader), mnuReader ) );
 		//#endif
-		if ( actionsTable.getFieldCount() == 6 ) actionsTableNumberOfRows = 2;
 		
-		mainContentContainer = new MainViewInternalFieldManager(headerRow, actionsTable);
-		add( mainContentContainer );
+		//if ( actionsTable.getFieldCount() == 6 ) actionsTableNumberOfRows = 2;
+		double res = ((double)actionsTable.getFieldCount()) / 3;
+		actionsTableNumberOfRows = (int) Math.ceil( res );
 	}
 	
 	/**
@@ -394,11 +402,26 @@ public class MainView extends BaseView {
 			}
 			break;
 			
-		//#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		case mnuNewPhoto:
 			try {
 				Post quikPost = new Post( tmpblog );
-				QuickPhotoScreen quikScreen = new QuickPhotoScreen(quikPost);
+				
+				//#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+				/*
+				//#endif
+				
+				//#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+				com.wordpress.quickphoto.OS6.QuickPhotoScreen quikScreen = new com.wordpress.quickphoto.OS6.QuickPhotoScreen(quikPost);
+				//#endif
+				
+				//#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+				*/
+				//#endif
+
+				//#ifdef BlackBerrySDK5.0.0
+				com.wordpress.quickphoto.OS5.QuickPhotoScreenOS5 quikScreen = new com.wordpress.quickphoto.OS5.QuickPhotoScreenOS5(quikPost);
+				//#endif
+				
 				UiEngineInstance engine = Ui.getUiEngineInstance();
 				TransitionContext transitionContextIn;
 				transitionContextIn = new TransitionContext(TransitionContext.TRANSITION_SLIDE);
@@ -406,11 +429,11 @@ public class MainView extends BaseView {
 				transitionContextIn.setIntAttribute(TransitionContext.ATTR_DIRECTION, TransitionContext.DIRECTION_LEFT);   
 				engine.setTransition(this, quikScreen, UiEngineInstance.TRIGGER_PUSH, transitionContextIn);
 				UiApplication.getUiApplication().pushScreen(quikScreen);
+					
 			} catch (Exception e) {
 				mainController.displayError(e, "Cannot load the blog data");
 			}
 			break;
-		//#endif 
 		
 		//#ifdef BlackBerrySDK7.0.0
 		case mnuReader:
@@ -479,7 +502,8 @@ public class MainView extends BaseView {
 							 refrshBtn.stopAnimation();
 						 blogSelectorField.setSelectedIndex(selectedIndex);
 						 headerRow.invalidate();
-						 actionsTable.invalidate();
+						 //actionsTable.invalidate();
+						 updateActionTable();
 					 }
 				 }
 			 }
@@ -518,7 +542,8 @@ public class MainView extends BaseView {
 							 else 
 								 refrshBtn.stopAnimation();
 							headerRow.invalidate();
-							actionsTable.invalidate();
+							//actionsTable.invalidate();
+							updateActionTable();
 						}
 					});
 				}
@@ -1082,6 +1107,10 @@ public class MainView extends BaseView {
 			case (mnuSettings):
 				unscaledBitmap = Bitmap.getBitmapResource("dashboard_icon_settings"+size);
 				unscaledBitmap_focus = Bitmap.getBitmapResource("dashboard_icon_settings_focus"+size);
+			break;
+			case (mnuDashboard):
+				unscaledBitmap = Bitmap.getBitmapResource("dashboard_icon_dashboard"+size);
+				unscaledBitmap_focus = Bitmap.getBitmapResource("dashboard_icon_dashboard_focus"+size);
 			break;
 			case (mnuReader):
 				unscaledBitmap = Bitmap.getBitmapResource("dashboard_icon_subs"+size);

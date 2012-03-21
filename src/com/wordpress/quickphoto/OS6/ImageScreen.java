@@ -1,5 +1,5 @@
 //#preprocess
-package com.wordpress.quickphoto;
+package com.wordpress.quickphoto.OS6;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -10,6 +10,7 @@ import javax.microedition.io.file.FileConnection;
 import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.MainController;
+import com.wordpress.quickphoto.CameraScreenListener;
 import com.wordpress.utils.log.Log;
 
 import net.rim.device.api.command.Command;

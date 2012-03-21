@@ -1,5 +1,5 @@
 //#preprocess
-package com.wordpress.quickphoto;
+package com.wordpress.quickphoto.OS6;
 
 import java.util.Vector;
 
@@ -9,6 +9,7 @@ import javax.microedition.media.control.VideoControl;
 
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.MainController;
+import com.wordpress.quickphoto.CameraScreenListener;
 import com.wordpress.utils.ImageEncodingProperties;
 import com.wordpress.utils.MultimediaUtils;
 import com.wordpress.utils.log.Log;
@@ -49,7 +50,7 @@ import net.rim.device.api.amms.control.camera.FeatureControl;
 /**
  * A UI screen to display the camera display and buttons
  */
-final class CameraScreen extends MainScreen implements CameraScreenListener
+public final class CameraScreen extends MainScreen implements CameraScreenListener
 {    
 
 	private VideoControl _videoControl;    
