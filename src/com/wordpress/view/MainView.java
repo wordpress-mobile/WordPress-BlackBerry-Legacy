@@ -405,23 +405,9 @@ public class MainView extends BaseView {
 		case mnuNewPhoto:
 			try {
 				Post quikPost = new Post( tmpblog );
-				
-				//#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
-				/*
-				//#endif
-				
+
 				//#ifdef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 				com.wordpress.quickphoto.OS6.QuickPhotoScreen quikScreen = new com.wordpress.quickphoto.OS6.QuickPhotoScreen(quikPost);
-				//#endif
-				
-				//#ifndef BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
-				*/
-				//#endif
-
-				//#ifdef BlackBerrySDK5.0.0
-				com.wordpress.quickphoto.OS5.QuickPhotoScreenOS5 quikScreen = new com.wordpress.quickphoto.OS5.QuickPhotoScreenOS5(quikPost);
-				//#endif
-				
 				UiEngineInstance engine = Ui.getUiEngineInstance();
 				TransitionContext transitionContextIn;
 				transitionContextIn = new TransitionContext(TransitionContext.TRANSITION_SLIDE);
@@ -429,7 +415,19 @@ public class MainView extends BaseView {
 				transitionContextIn.setIntAttribute(TransitionContext.ATTR_DIRECTION, TransitionContext.DIRECTION_LEFT);   
 				engine.setTransition(this, quikScreen, UiEngineInstance.TRIGGER_PUSH, transitionContextIn);
 				UiApplication.getUiApplication().pushScreen(quikScreen);
-					
+				//#endif
+
+				//#ifdef BlackBerrySDK5.0.0
+				com.wordpress.quickphoto.OS5.QuickPhotoScreenOS5 quikScreenOS5 = new com.wordpress.quickphoto.OS5.QuickPhotoScreenOS5(quikPost);
+				UiEngineInstance engineOS5 = Ui.getUiEngineInstance();
+				TransitionContext transitionContextInOS5;
+				transitionContextInOS5 = new TransitionContext(TransitionContext.TRANSITION_SLIDE);
+				transitionContextInOS5.setIntAttribute(TransitionContext.ATTR_DURATION, 750);
+				transitionContextInOS5.setIntAttribute(TransitionContext.ATTR_DIRECTION, TransitionContext.DIRECTION_LEFT);   
+				engineOS5.setTransition(this, quikScreenOS5, UiEngineInstance.TRIGGER_PUSH, transitionContextInOS5);
+				UiApplication.getUiApplication().pushScreen(quikScreenOS5);
+				//#endif
+				
 			} catch (Exception e) {
 				mainController.displayError(e, "Cannot load the blog data");
 			}

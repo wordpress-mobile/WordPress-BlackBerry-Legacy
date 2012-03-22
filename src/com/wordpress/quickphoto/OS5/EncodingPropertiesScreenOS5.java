@@ -1,6 +1,6 @@
 package com.wordpress.quickphoto.OS5;
 
-import com.wordpress.utils.ImageEncodingProperties;
+import com.wordpress.utils.ImageEncodingPropertiesOS5;
 
 import net.rim.device.api.ui.component.RadioButtonField;
 import net.rim.device.api.ui.component.RadioButtonGroup;
@@ -22,7 +22,7 @@ public class EncodingPropertiesScreenOS5 extends MainScreen
      * @param parentScreen The parent screen of the application
      * @param currentSelectedIndex The index of the encoding that is currently selected
      */
-    public EncodingPropertiesScreenOS5(ImageEncodingProperties[] encodingProperties, CameraScreenOS5 parentScreen, int currentSelectedIndex) 
+    public EncodingPropertiesScreenOS5(ImageEncodingPropertiesOS5[] encodingProperties, CameraScreenOS5 parentScreen, int currentSelectedIndex) 
     {
         _parentScreen = parentScreen;
         _radioButtonGroup = new RadioButtonGroup();

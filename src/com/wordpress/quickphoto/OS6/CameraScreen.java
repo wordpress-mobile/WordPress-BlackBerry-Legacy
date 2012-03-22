@@ -97,7 +97,7 @@ public final class CameraScreen extends MainScreen implements CameraScreenListen
             // Something is wrong, indicate that there are no encoding options
             _encodings = null;
             //Do not show errors here. Default enconding will be used.
-          //  MainController.getIstance().displayError(e, "Unable to initialize camera encodings");
+            Log.error(e, "Unable to initialize camera encodings");
         }    
         
         // If the field was constructed successfully, create the UI
@@ -243,6 +243,14 @@ public final class CameraScreen extends MainScreen implements CameraScreenListen
             //#ifdef BlackBerrySDK7.0.0
             // Enable auto-focus for the camera
             _efc = (EnhancedFocusControl)_player.getControl("net.rim.device.api.amms.control.camera.EnhancedFocusControl");
+            try {
+            	if(_efc != null)
+            	{                           
+            		_efc.startAutoFocus();                                               
+            	}
+            } catch (Exception e) {
+            	Log.error(e, "Can't set AutoFocus to on");
+            }
             //#endif
             
             // Enable zoom for the camera

@@ -201,12 +201,90 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 			mediator.setTb(markupToolBar);
 			markupToolBar.attachTo(rowContent);
 			add(rowContent);
-	        add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
+	      //  add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
+			
+			JustifiedEvenlySpacedHorizontalFieldManager bottomToolbar = new JustifiedEvenlySpacedHorizontalFieldManager();	
+			bottomToolbar.setMargin(5,0,5,0);
+			BaseButtonField sendPostBtn = GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_PUBLISH), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
+			sendPostBtn.setChangeListener(
+					new FieldChangeListener() {
+						public void fieldChanged(Field field, int context) {
+							if( QuickPhotoScreen.this.isDirty() ) {
+								sendPostToBlog();
+							} else {
+								MainController.getIstance().displayMessage("Please insert the content");
+							}
+						}
+					}
+			);
+			sendPostBtn.setMargin(0,5,0,5);
+
+			BaseButtonField saveDraftPostBtn= GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_SAVEDRAFT), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
+			saveDraftPostBtn.setChangeListener(
+					new FieldChangeListener() {
+						public void fieldChanged(Field field, int context) {
+							if( QuickPhotoScreen.this.isDirty() ) {
+								saveDraftPost();
+							} else {
+								MainController.getIstance().displayMessage("Please insert the content");
+							}
+						}
+					}
+			);
+			saveDraftPostBtn.setMargin(0,5,0,5);
+		
+			bottomToolbar.add(sendPostBtn);
+			bottomToolbar.add(saveDraftPostBtn);
+			add(bottomToolbar);
+			
 	        
 	        showCameraScreen();
 	        MainController.getIstance().bumpScreenViewStats("com/wordpress/quickphoto/QuickPhotoScreen", "Quick Main Screen", "", null, "");
 	 }
 
+	
+    private void sendPostToBlog(){
+    	try {
+    		updateModel();
+    		post.setStatus("publish");
+    		boolean publish= true;
+    		//adding post connection
+    		BlogConn connection = new NewPostConn (post.getBlog().getXmlRpcUrl(), 
+    				post.getBlog().getUsername(),post.getBlog().getPassword(), post, publish);
+    		connection.setHTTPHeaderField("WP-QUICK-POST", "QuickPhoto");
+    		int draftFolder = DraftDAO.storePost(post, -1);
+    		connectionProgressView = new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
+    		sendTask = new SendToBlogTask(post, draftFolder, connection);
+    		sendTask.setProgressListener(new QuickPhotoPublishTaskListener());
+    		//push into the Runner
+    		WordPressCore.getInstance().getTasksRunner().enqueue(sendTask);
+
+    		connectionProgressView.setDialogClosedListener(
+    				new DialogClosedListener() {
+    					public void dialogClosed(Dialog dialog, int choice) {
+    						if(choice == Dialog.CANCEL) {
+    							Log.trace("Chiusura della conn dialog tramite cancel");
+    							sendTask.stop();
+    						}
+    					}
+    				}
+    		);
+    		connectionProgressView.show();
+    	} catch (Exception e) {
+    		MainController.getIstance().displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_POST));
+    	}
+    }
+    
+    private void saveDraftPost() {
+    	try {
+    		updateModel();
+    		post.setStatus("publish");
+    		DraftDAO.storePost(post, -1);
+    		close();
+    	} catch (Exception e) {
+    		MainController.getIstance().displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_POST));
+    	}
+    }	
 	private void showCameraScreen() {
         UiApplication.getUiApplication().invokeLater(new Runnable()
         {
@@ -377,50 +455,14 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 	
     //send post to blog
     private MenuItem _submitPostItem = new MenuItem(_resources, WordPressResource.MENUITEM_PUBLISH, 1000, 100) {
-
 		public void run() {
-    		try {
-    			updateModel();
-    			post.setStatus("publish");
-    			boolean publish= true;
-    			//adding post connection
-    			BlogConn connection = new NewPostConn (post.getBlog().getXmlRpcUrl(), 
-    					post.getBlog().getUsername(),post.getBlog().getPassword(), post, publish);
-    			connection.setHTTPHeaderField("WP-QUICK-POST", "QuickPhoto");
-    			int draftFolder = DraftDAO.storePost(post, -1);
-    			connectionProgressView = new ConnectionInProgressView(_resources.getString(WordPressResource.CONNECTION_SENDING));
-    			sendTask = new SendToBlogTask(post, draftFolder, connection);
-    			sendTask.setProgressListener(new QuickPhotoPublishTaskListener());
-    			//push into the Runner
-    			WordPressCore.getInstance().getTasksRunner().enqueue(sendTask);
-    			
-    			connectionProgressView.setDialogClosedListener(
-    					new DialogClosedListener() {
-    						public void dialogClosed(Dialog dialog, int choice) {
-    							if(choice == Dialog.CANCEL) {
-    								Log.trace("Chiusura della conn dialog tramite cancel");
-    								sendTask.stop();
-    							}
-    						}
-    					}
-    			);
- 			 	connectionProgressView.show();
-    		} catch (Exception e) {
-    			MainController.getIstance().displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_POST));
-    		}
+    		sendPostToBlog();
     	}
     };
 	
     private MenuItem _saveDraftPostItem = new MenuItem(_resources, WordPressResource.MENUITEM_SAVEDRAFT, 1100, 100) {
 		public void run() {
-    		try {
-    			updateModel();
-    			post.setStatus("publish");
-    			DraftDAO.storePost(post, -1);
-    			close();
-    		} catch (Exception e) {
-    			MainController.getIstance().displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_POST));
-    		}
+    		saveDraftPost();
     	}
     };
 
