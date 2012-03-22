@@ -3,6 +3,7 @@ package com.wordpress.view.dialog;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.FocusChangeListener;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.component.BasicEditField;
@@ -27,13 +28,14 @@ public class ImageResizeDialog extends Dialog {
 		_resources = ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
 	}
 	
-	private VerticalFieldManager  rowResizePhotos;
+	private VerticalFieldManager  myFieldsContainer; //The wrapper for our fields
 	private ObjectChoiceField resizeOpt;
 	private BasicEditField imageResizeWidthField;
 	private BasicEditField imageResizeHeightField;
 	private Integer imageResizeWidth;
 	private Integer imageResizeHeight;
 	private final Blog blog;
+	private VerticalFieldManager customSizeFieldsContainer; //The container for the custom width/height fields
 
 	public ImageResizeDialog(Blog blog){
 		super(Dialog.D_OK, _resources.getString(WordPressResource.LABEL_RESIZE_DIMENSION), Dialog.OK, 
@@ -44,7 +46,7 @@ public class ImageResizeDialog extends Dialog {
 	    imageResizeWidth = blog.getImageResizeWidth();
         imageResizeHeight = blog.getImageResizeHeight();
 		
-		rowResizePhotos = new VerticalFieldManager(
+		myFieldsContainer = new VerticalFieldManager(
 				Manager.NO_HORIZONTAL_SCROLL
 				| Manager.NO_VERTICAL_SCROLL);
 
@@ -53,19 +55,31 @@ public class ImageResizeDialog extends Dialog {
 		System.arraycopy(resizeOptLabelsFromBlog, 0, resizeOptLabels, 0, resizeOptLabelsFromBlog.length);
 		resizeOptLabels[resizeOptLabelsFromBlog.length] = _resources.getString(WordPressResource.LABEL_ORIGINAL);
 
-		resizeOpt = new ObjectChoiceField(" ", resizeOptLabels, resizeOptLabels.length-1); //select original as default
-		rowResizePhotos.add(resizeOpt); 
-		addImageResizeWidthField();
-		addImageResizeHeightField();
-
+		resizeOpt = new ObjectChoiceField(" ", resizeOptLabels, resizeOptLabels.length-1); //select original as default		
+		resizeOpt.setChangeListener(
+				new FieldChangeListener() {
+					public void fieldChanged(Field field, int context) {
+						int selectedResizeOption = resizeOpt.getSelectedIndex();
+						customSizeFieldsContainer.deleteAll();
+						if ( selectedResizeOption == BlogInfo.CUSTOM_IMAGE_RESIZE_SETTING ) {
+							addImageResizeWidthField();
+							addImageResizeHeightField();
+						} 
+					}
+				}
+		);
+		myFieldsContainer.add(resizeOpt);
 		net.rim.device.api.ui.Manager delegate = getDelegate();
 		if( delegate instanceof DialogFieldManager){
 			DialogFieldManager dfm = (DialogFieldManager)delegate;
 			net.rim.device.api.ui.Manager manager = dfm.getCustomManager();
 			if( manager != null ){
-				manager.insert(rowResizePhotos, 0);
+				manager.insert(myFieldsContainer, 0);
 			}
 		}
+	
+		customSizeFieldsContainer = new VerticalFieldManager( Manager.NO_HORIZONTAL_SCROLL | Manager.NO_VERTICAL_SCROLL);
+		myFieldsContainer.add(customSizeFieldsContainer);
 	}
 
 	
@@ -107,7 +121,7 @@ public class ImageResizeDialog extends Dialog {
         		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
         
         imageResizeWidthField.setFocusListener(listenerImageResizeWidthField);
-       	rowResizePhotos.add(imageResizeWidthField);
+        customSizeFieldsContainer.add(imageResizeWidthField);
 	}
 
 	private void addImageResizeHeightField() {
@@ -118,7 +132,7 @@ public class ImageResizeDialog extends Dialog {
 	    		Field.EDITABLE | BasicEditField.FILTER_NUMERIC);
 	    
 	    imageResizeHeightField.setFocusListener(listenerImageResizeHeightField);
-    	rowResizePhotos.add(imageResizeHeightField);
+	    customSizeFieldsContainer.add(imageResizeHeightField);
 	}
 	
 	

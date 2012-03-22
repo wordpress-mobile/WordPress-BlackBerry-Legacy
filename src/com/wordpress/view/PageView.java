@@ -1,7 +1,5 @@
 package com.wordpress.view;
 
-import java.util.Date;
-
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
@@ -23,7 +21,6 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PageController;
 import com.wordpress.model.Page;
-import com.wordpress.utils.CalendarUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
