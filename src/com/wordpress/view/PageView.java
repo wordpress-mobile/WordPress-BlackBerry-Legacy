@@ -12,6 +12,7 @@ import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.component.BasicEditField;
+import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
@@ -25,12 +26,14 @@ import com.wordpress.model.Page;
 import com.wordpress.utils.CalendarUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.ClickableLabelField;
 import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.component.MarkupToolBar;
 import com.wordpress.view.component.MarkupToolBarTextFieldMediator;
 import com.wordpress.view.container.BorderedFieldManager;
+import com.wordpress.view.container.JustifiedEvenlySpacedHorizontalFieldManager;
 
 public class PageView extends StandardBaseView {
 	
@@ -157,8 +160,32 @@ public class PageView extends StandardBaseView {
 		mediator.setTb(markupToolBar);
 		markupToolBar.attachTo(outerManagerRowContent);
 		add(outerManagerRowContent);
-        add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
- 
+        
+		JustifiedEvenlySpacedHorizontalFieldManager bottomToolbar = new JustifiedEvenlySpacedHorizontalFieldManager();	
+		bottomToolbar.setMargin(5,0,5,0);
+		BaseButtonField sendPostBtn = GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_POST_SUBMIT), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
+		sendPostBtn.setChangeListener(
+				new FieldChangeListener() {
+					public void fieldChanged(Field field, int context) {
+						sendPageToBlog();
+					}
+				}
+		);
+		sendPostBtn.setMargin(0,5,0,5);
+
+		BaseButtonField saveDraftPostBtn= GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_SAVEDRAFT), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
+		saveDraftPostBtn.setChangeListener(
+				new FieldChangeListener() {
+					public void fieldChanged(Field field, int context) {
+						saveDraftPage();
+					}
+				}
+		);
+		saveDraftPostBtn.setMargin(0,5,0,5);
+		bottomToolbar.add(sendPostBtn);
+		bottomToolbar.add(saveDraftPostBtn);
+		add(bottomToolbar); 
+		
 		addMenuItem(_previewItem);
 		addMenuItem(_saveDraftItem);
 		addMenuItem(_submitItem);
@@ -174,32 +201,39 @@ public class PageView extends StandardBaseView {
     	lblPhotoNumber.setText(String.valueOf(count));
     }
         
+    private void saveDraftPage() {
+    	try {
+    		updateModel();
+    		if (controller.isObjectChanged()) {
+    			controller.saveDraftPage();
+    			//clean the state of filed into this view
+    			cleanFieldState();
+    		}
+    	} catch (Exception e) {
+    		controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_PAGE));
+    	}
+    }
+    
     //save a local copy of post
     private MenuItem _saveDraftItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 160000, 1000) {
         public void run() {
-    		try {
-    			updateModel();
-	    		if (controller.isObjectChanged()) {
-	    			controller.saveDraftPage();
-	    			//clean the state of filed into this view
-	    			cleanFieldState();
-	    		}
-    		} catch (Exception e) {
-    			controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_PAGE));
-    		}
+        	saveDraftPage();
         }
     };
+    
+    private void sendPageToBlog() {
+    	try {
+    		updateModel();
+    		controller.sendPageToBlog();
+    	} catch (Exception e) {
+    		controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_PAGE));
+    	}
+    }
     
     //send post to blog
     private MenuItem _submitItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 160000, 1000) {
         public void run() {
-    		try {
-    			updateModel();
-   				controller.sendPageToBlog();
-    				
-    		} catch (Exception e) {
-    			controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_PAGE));
-    		}
+        	sendPageToBlog();
         }
     };
     

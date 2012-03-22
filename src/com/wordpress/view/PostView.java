@@ -1,7 +1,6 @@
 //#preprocess
 package com.wordpress.view;
 
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -21,6 +20,7 @@ import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.UiApplication;
 
 import net.rim.device.api.ui.component.BasicEditField;
+import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
@@ -33,9 +33,9 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.LocationHelper;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Post;
-import com.wordpress.utils.CalendarUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
+import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.ClickableLabelField;
 import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.component.DisabledCheckBoxField;
@@ -43,6 +43,7 @@ import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.component.MarkupToolBar;
 import com.wordpress.view.component.MarkupToolBarTextFieldMediator;
 import com.wordpress.view.container.BorderedFieldManager;
+import com.wordpress.view.container.JustifiedEvenlySpacedHorizontalFieldManager;
 import com.wordpress.view.dialog.InquiryView;
 
 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
@@ -356,8 +357,32 @@ public class PostView extends StandardBaseView {
 		mediator.setTb(markupToolBar);
 		markupToolBar.attachTo(outerManagerRowContent);
 		add(outerManagerRowContent);
-        add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
         
+		JustifiedEvenlySpacedHorizontalFieldManager bottomToolbar = new JustifiedEvenlySpacedHorizontalFieldManager();	
+		bottomToolbar.setMargin(5,0,5,0);
+		BaseButtonField sendPostBtn = GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_POST_SUBMIT), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
+		sendPostBtn.setChangeListener(
+				new FieldChangeListener() {
+					public void fieldChanged(Field field, int context) {
+						sendPostToBlog();
+					}
+				}
+		);
+		sendPostBtn.setMargin(0,5,0,5);
+
+		BaseButtonField saveDraftPostBtn= GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_SAVEDRAFT), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
+		saveDraftPostBtn.setChangeListener(
+				new FieldChangeListener() {
+					public void fieldChanged(Field field, int context) {
+						saveDraftPost();
+					}
+				}
+		);
+		saveDraftPostBtn.setMargin(0,5,0,5);
+		bottomToolbar.add(sendPostBtn);
+		bottomToolbar.add(saveDraftPostBtn);
+		add(bottomToolbar);
+		
         addMenuItem(_previewItem);
 		addMenuItem(_saveDraftPostItem);
 		addMenuItem(_submitPostItem);
@@ -411,33 +436,41 @@ public class PostView extends StandardBaseView {
    		this.invalidate();
     }
     
+    private void saveDraftPost() {
+    	try {
+    		updateModel();
+    		//post is changed
+    		if (controller.isObjectChanged()) {
+    			controller.saveDraftPost();	    				
+    		} else 
+    		{
+    			controller.backCmd();
+    		}
+    	} catch (Exception e) {
+    		controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_POST));
+    	}
+    }
+    
     //save a local copy of post
     private MenuItem _saveDraftPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 160000, 1000) {
         public void run() {
-    		try {
-    			updateModel();
-    			//post is changed
-	    		if (controller.isObjectChanged()) {
-	    			saveOrSendPost(false);	    				
-	    		} else 
-	    		{
-	    			controller.backCmd();
-	    		}
-    		} catch (Exception e) {
-    			controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_POST));
-    		}
+        	saveDraftPost();
         }
     };
     
+    private void sendPostToBlog(){
+    	try {
+    		updateModel();
+    		controller.sendPostToBlog();
+    	} catch (Exception e) {
+    		controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_POST));
+    	}
+    }
+
     //send post to blog
     private MenuItem _submitPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 160000, 1000) {
     	public void run() {
-    		try {
-    			updateModel();
-    			saveOrSendPost(true);
-    		} catch (Exception e) {
-    			controller.displayError(e, _resources.getString(WordPressResource.ERROR_WHILE_SAVING_POST));
-    		}
+    		sendPostToBlog();
     	}
     };
 
@@ -459,15 +492,6 @@ public class PostView extends StandardBaseView {
     		}
         }
     };
-    
-    
-    private void saveOrSendPost(boolean sendPost)throws Exception {
-    	if(sendPost) {
-    		controller.sendPostToBlog();
-    	} else {
-    		controller.saveDraftPost();
-    	}
-    }
     
     private MenuItem _photosItem = new MenuItem( _resources, WordPressResource.MENUITEM_MEDIA, 80000, 100) {
         public void run() {
