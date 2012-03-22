@@ -243,14 +243,6 @@ public final class CameraScreen extends MainScreen implements CameraScreenListen
             //#ifdef BlackBerrySDK7.0.0
             // Enable auto-focus for the camera
             _efc = (EnhancedFocusControl)_player.getControl("net.rim.device.api.amms.control.camera.EnhancedFocusControl");
-            try {
-            	if(_efc != null)
-            	{                           
-            		_efc.startAutoFocus();                                               
-            	}
-            } catch (Exception e) {
-            	Log.error(e, "Can't set AutoFocus to on");
-            }
             //#endif
             
             // Enable zoom for the camera
