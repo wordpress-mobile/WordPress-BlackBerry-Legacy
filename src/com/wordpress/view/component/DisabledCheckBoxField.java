@@ -31,7 +31,7 @@ public class DisabledCheckBoxField extends CheckboxField {
 	public void setChecked(boolean checked) {
 		// if field is enabled - passing parameter value
 		// if not enabled - passing false
-		final boolean flag2set = isEnabled?checked:false;
+		final boolean flag2set = isEnabled ? checked:false;
 		super.setChecked(flag2set);
 	}
 };

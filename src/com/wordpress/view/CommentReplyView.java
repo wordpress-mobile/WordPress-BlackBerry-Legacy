@@ -136,7 +136,7 @@ public class CommentReplyView extends StandardBaseView {
         controller.bumpScreenViewStats("com/wordpress/view/CommentReplyView", "Comment Reply Screen", "", null, "");
     }
     
-	private MenuItem _replyCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 80000, 1000) {
+	private MenuItem _replyCommentItem = new MenuItem( _resources, WordPressResource.MENUITEM_REPLY, 80000, 1000) {
 		 public void run() {
 			 replyContent.setDirty(false);
 			 //create the new comment as reply

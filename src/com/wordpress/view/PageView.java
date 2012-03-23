@@ -1,5 +1,7 @@
 package com.wordpress.view;
 
+import java.util.Date;
+
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
@@ -21,11 +23,13 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.PageController;
 import com.wordpress.model.Page;
+import com.wordpress.utils.CalendarUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.ClickableLabelField;
 import com.wordpress.view.component.ColoredLabelField;
+import com.wordpress.view.component.EmbossedButtonField;
 import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.component.MarkupToolBar;
 import com.wordpress.view.component.MarkupToolBarTextFieldMediator;
@@ -45,6 +49,7 @@ public class PageView extends StandardBaseView {
 	private BasicEditField pageOrderField;
 	private ObjectChoiceField parentPageField;
 	private ObjectChoiceField pageTemplateField;
+	private EmbossedButtonField sendPageBtn;
 	
     public PageView(PageController _controller, Page _page) {
     	super(_resources.getString(WordPressResource.TITLE_POSTVIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -88,6 +93,11 @@ public class PageView extends StandardBaseView {
   				controller.getStatusLabels(), 
   				controller.getPageStatusFieldIndex()
   				);
+  		status.setChangeListener(new FieldChangeListener() {
+			public void fieldChanged(Field field, int context) {
+				updateSendMenuItemAndButtonLabel();				
+			}
+  		});
   		status.setMargin(5, 5, 5, 5);
   		outerManagerRowInfos.add(status);
 
@@ -160,17 +170,17 @@ public class PageView extends StandardBaseView {
         
 		JustifiedEvenlySpacedHorizontalFieldManager bottomToolbar = new JustifiedEvenlySpacedHorizontalFieldManager();	
 		bottomToolbar.setMargin(5,0,5,0);
-		BaseButtonField sendPostBtn = GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_POST_SUBMIT), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
-		sendPostBtn.setChangeListener(
+		sendPageBtn = (EmbossedButtonField) GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_PUBLISH), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
+		sendPageBtn.setChangeListener(
 				new FieldChangeListener() {
 					public void fieldChanged(Field field, int context) {
 						sendPageToBlog();
 					}
 				}
 		);
-		sendPostBtn.setMargin(0,5,0,5);
+		sendPageBtn.setMargin(0,5,0,5);
 
-		BaseButtonField saveDraftPostBtn= GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_SAVEDRAFT), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
+		BaseButtonField saveDraftPostBtn= GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_SAVE_LOCALDRAFT), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
 		saveDraftPostBtn.setChangeListener(
 				new FieldChangeListener() {
 					public void fieldChanged(Field field, int context) {
@@ -179,7 +189,7 @@ public class PageView extends StandardBaseView {
 				}
 		);
 		saveDraftPostBtn.setMargin(0,5,0,5);
-		bottomToolbar.add(sendPostBtn);
+		bottomToolbar.add(sendPageBtn);
 		bottomToolbar.add(saveDraftPostBtn);
 		add(bottomToolbar); 
 		
@@ -189,6 +199,9 @@ public class PageView extends StandardBaseView {
 		addMenuItem(_photosItem);
 		addMenuItem(_settingsItem);
 		addMenuItem(_customFieldsMenuItem);
+		
+		updateSendMenuItemAndButtonLabel();
+		
 		controller.bumpScreenViewStats("com/wordpress/view/PageView", "PageView Screen", "", null, "");
     }
     
@@ -212,7 +225,7 @@ public class PageView extends StandardBaseView {
     }
     
     //save a local copy of post
-    private MenuItem _saveDraftItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 160000, 1000) {
+    private MenuItem _saveDraftItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVE_LOCALDRAFT, 160000, 1000) {
         public void run() {
         	saveDraftPage();
         }
@@ -228,7 +241,7 @@ public class PageView extends StandardBaseView {
     }
     
     //send post to blog
-    private MenuItem _submitItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 160000, 1000) {
+    private MenuItem _submitItem = new MenuItem( _resources, WordPressResource.MENUITEM_PUBLISH, 160000, 1000) {
         public void run() {
         	sendPageToBlog();
         }
@@ -269,6 +282,7 @@ public class PageView extends StandardBaseView {
         	controller.showSettingsView();
         }
     };
+	
     	
     
     /**
@@ -386,4 +400,39 @@ public class PageView extends StandardBaseView {
 	public BaseController getController() {
 		return controller;
 	}
+	
+    public void updateSendMenuItemAndButtonLabel( ){
+		int selectedStatusID = status.getSelectedIndex();
+		String newState = controller.getStatusKeys()[selectedStatusID];
+
+		if ( newState.equals( "publish" ) ) {
+			//publish or schedule label
+			
+			//check if is published or scheduled
+			Date righNowDate = new Date();//this date is NOT at GMT timezone 
+			long righNow = CalendarUtils.adjustTimeFromDefaultTimezone(righNowDate.getTime());
+			Date postDate = page.getDateCreatedGMT();//this date is GMT date
+
+			if( postDate == null ) {
+				_submitItem.setText( _resources.getString( WordPressResource.MENUITEM_PUBLISH ) );
+				sendPageBtn.setText(_resources.getString( WordPressResource.MENUITEM_PUBLISH ) );
+				return;
+			}
+			
+			long postDateLong = postDate.getTime();
+			if(righNow > postDateLong) {
+				_submitItem.setText( _resources.getString( WordPressResource.MENUITEM_PUBLISH ) );
+				sendPageBtn.setText(_resources.getString( WordPressResource.MENUITEM_PUBLISH ) );
+			} else {
+				_submitItem.setText( _resources.getString( WordPressResource.MENUITEM_SCHEDULE ) );
+				sendPageBtn.setText(_resources.getString( WordPressResource.MENUITEM_SCHEDULE ) );
+			}
+		} else {
+	  		//save
+			_submitItem.setText( _resources.getString( WordPressResource.MENUITEM_SAVE ) );
+			sendPageBtn.setText(_resources.getString( WordPressResource.MENUITEM_SAVE ) );
+		}
+		
+    }
+	
 }

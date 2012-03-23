@@ -15,12 +15,9 @@ import net.rim.device.api.applicationcontrol.ApplicationPermissionsManager;
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.notification.NotificationsConstants;
 import net.rim.device.api.notification.NotificationsManager;
-import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.Backlight;
-import net.rim.device.api.system.CodeModuleManager;
 import net.rim.device.api.system.Display;
-import net.rim.device.api.system.RuntimeStore;
 import net.rim.device.api.system.SystemListener;
 import net.rim.device.api.ui.UiApplication;
 

@@ -216,7 +216,7 @@ public class QuickPhotoScreenOS5 extends StandardBaseView implements CameraScree
 			);
 			sendPostBtn.setMargin(0,5,0,5);
 
-			BaseButtonField saveDraftPostBtn= GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_SAVEDRAFT), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
+			BaseButtonField saveDraftPostBtn= GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_SAVE_LOCALDRAFT), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
 			saveDraftPostBtn.setChangeListener(
 					new FieldChangeListener() {
 						public void fieldChanged(Field field, int context) {
@@ -444,7 +444,7 @@ public class QuickPhotoScreenOS5 extends StandardBaseView implements CameraScree
     	}
     }
     
-    private MenuItem _saveDraftPostItem = new MenuItem(_resources, WordPressResource.MENUITEM_SAVEDRAFT, 1100, 100) {
+    private MenuItem _saveDraftPostItem = new MenuItem(_resources, WordPressResource.MENUITEM_SAVE_LOCALDRAFT, 1100, 100) {
 		public void run() {
     		saveDraftPost();
     	}

@@ -98,7 +98,7 @@ public class MediaLibraryView extends MediaView {
     }
         
     //save a local copy of post
-    private MenuItem _saveDraftItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 100220, 10) {
+    private MenuItem _saveDraftItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVE_LOCALDRAFT, 100220, 10) {
         public void run() {
     		try {
     			updateModel();
@@ -111,7 +111,7 @@ public class MediaLibraryView extends MediaView {
     };
     
     //send post to blog
-    private MenuItem _submitItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 100230, 10) {
+    private MenuItem _submitItem = new MenuItem( _resources, WordPressResource.MENUITEM_SEND, 100230, 10) {
         public void run() {
     		try {
     			updateModel();

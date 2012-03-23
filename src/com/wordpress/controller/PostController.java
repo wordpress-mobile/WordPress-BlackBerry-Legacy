@@ -429,8 +429,8 @@ public class PostController extends BlogObjectController {
 		postStatusKey = new String [0];
 		
 		if(postStatusHash != null) {
-			postStatusLabel= new String [postStatusHash.size()+1]; 
-			postStatusKey = new String [postStatusHash.size()+1];
+			postStatusLabel= new String [postStatusHash.size()]; 
+			postStatusKey = new String [postStatusHash.size()];
 	    	
 	    	Enumeration elements = postStatusHash.keys();
 	    	int i = 0;
@@ -442,9 +442,6 @@ public class PostController extends BlogObjectController {
 				postStatusKey[i] = key;
 				i++;
 			}
-			postStatusLabel[postStatusLabel.length-1]= LOCAL_DRAFT_LABEL;
-			postStatusKey[postStatusLabel.length-1]= LOCAL_DRAFT_KEY;
-			// end 
 		}
 				
 		String[] draftPostPhotoList =  getPhotoList();
@@ -453,7 +450,6 @@ public class PostController extends BlogObjectController {
 		view.setNumberOfPhotosLabel(draftPostPhotoList.length);
 		UiApplication.getUiApplication().pushScreen(view);
 	}
-	
 		
 	public String[] getStatusLabels() {
 		return postStatusLabel;
@@ -466,17 +462,23 @@ public class PostController extends BlogObjectController {
 	public int getPostStatusFieldIndex() {
 		Post post = getPostObj();
 		String status = post.getStatus();
-		if(status != null )
-		for (int i = 0; i < postStatusKey.length; i++) {
-			String key = postStatusKey[i];
-				
-			if( key.equals(status) ) {
-				return i;
+
+		if(status != null ){
+			//trick to remove the localdraft status. ver 1.6
+			if ( LOCAL_DRAFT_KEY.equals(status) ) {
+				status = "publish";
+				post.setStatus("publish");
+			}
+
+			for (int i = 0; i < postStatusKey.length; i++) {
+				String key = postStatusKey[i];
+				if( key.equals(status) ) {
+					return i;
+				}
 			}
 		}
 		return postStatusLabel.length-1;
 	}
-		
 	
 	public String getPostCategoriesLabel() {
 		Post post = getPostObj();
@@ -739,6 +741,7 @@ public class PostController extends BlogObjectController {
 			post.setAuthoredOn(authoredOn);
 			setObjectAsChanged(true);
 		}
+		view.updateSendMenuItemAndButtonLabel();
 	}
 	
 	public void setPassword(String password) {
@@ -764,6 +767,7 @@ public class PostController extends BlogObjectController {
 			view.status.setChoices(this.getStatusLabels());
 			view.status.setSelectedIndex( getPostStatusFieldIndex() );
 		}
+		view.updateSendMenuItemAndButtonLabel();
 	}
 	
 	public boolean isPingbacksAndTrackbacksAllowed(){

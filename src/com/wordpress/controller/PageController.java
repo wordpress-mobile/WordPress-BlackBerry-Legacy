@@ -65,10 +65,10 @@ public class PageController extends BlogObjectController {
 		Hashtable postStatusHash = blog.getPageStatusList();
 		pageStatusLabel= new String [0];
 		pageStatusKey = new String [0];
-		
+
 		if(postStatusHash != null) {
-			pageStatusLabel= new String [postStatusHash.size()+1]; 
-			pageStatusKey = new String [postStatusHash.size()+1];
+			pageStatusLabel= new String [postStatusHash.size()]; 
+			pageStatusKey = new String [postStatusHash.size()];
 	    	
 	    	Enumeration elements = postStatusHash.keys();
 	    	int i = 0;
@@ -80,10 +80,6 @@ public class PageController extends BlogObjectController {
 				pageStatusKey[i] = key;
 				i++;
 			}
-	    	
-			pageStatusLabel[pageStatusLabel.length-1]= LOCAL_DRAFT_LABEL;
-			pageStatusKey[pageStatusLabel.length-1]= LOCAL_DRAFT_KEY;
-			// end 
 		}
 		
 		
@@ -164,7 +160,6 @@ public class PageController extends BlogObjectController {
 		
 		return 0; 
 	}
-
 	
 	public String[] getStatusLabels() {
 		return pageStatusLabel;
@@ -173,22 +168,24 @@ public class PageController extends BlogObjectController {
 	public String[] getStatusKeys() {
 		return pageStatusKey;
 	}
-	
 		
 	public int getPageStatusFieldIndex() {
 		String status = getPageObj().getPageStatus();
-		if(status != null )
-		for (int i = 0; i < pageStatusKey.length; i++) {
-			String key = pageStatusKey[i];
-				
-			if( key.equals(status) ) {
-				return i;
+		if(status != null ){
+			//trick to remove the localdraft status. ver 1.6
+			if ( LOCAL_DRAFT_KEY.equals(status) ) {
+				status = "publish";
+				getPageObj().setPageStatus("publish");
+			}
+			for (int i = 0; i < pageStatusKey.length; i++) {
+				String key = pageStatusKey[i];
+				if( key.equals(status) ) {
+					return i;
+				}
 			}
 		}
 		return pageStatusLabel.length-1;
 	}
-	
-		
 
 	public void sendPageToBlog() {
 		
@@ -324,6 +321,7 @@ public class PageController extends BlogObjectController {
 			page.setDateCreatedGMT(new Date(authoredOn));
 			setObjectAsChanged(true);
 		}
+		view.updateSendMenuItemAndButtonLabel();
 	}
 
 

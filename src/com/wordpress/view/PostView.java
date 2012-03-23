@@ -1,6 +1,7 @@
 //#preprocess
 package com.wordpress.view;
 
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -33,12 +34,14 @@ import com.wordpress.controller.BaseController;
 import com.wordpress.controller.LocationHelper;
 import com.wordpress.controller.PostController;
 import com.wordpress.model.Post;
+import com.wordpress.utils.CalendarUtils;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.ClickableLabelField;
 import com.wordpress.view.component.ColoredLabelField;
 import com.wordpress.view.component.DisabledCheckBoxField;
+import com.wordpress.view.component.EmbossedButtonField;
 import com.wordpress.view.component.HtmlTextField;
 import com.wordpress.view.component.MarkupToolBar;
 import com.wordpress.view.component.MarkupToolBarTextFieldMediator;
@@ -68,6 +71,7 @@ public class PostView extends StandardBaseView {
 	private CheckboxField isLocationPublic;
 	private ClickableLabelField showGMaps;
 	private LabelField wordCountField;
+	private EmbossedButtonField sendPostBtn;
 	
     public PostView(PostController _controller, Post _post) {
     	super(_resources.getString(WordPressResource.TITLE_POSTVIEW) , MainScreen.NO_VERTICAL_SCROLL | Manager.NO_HORIZONTAL_SCROLL);
@@ -145,6 +149,7 @@ public class PostView extends StandardBaseView {
   		}
   		status.setChangeListener(new FieldChangeListener() {
 			public void fieldChanged(Field field, int context) {
+				updateSendMenuItemAndButtonLabel();
 				int selectedStatusID = status.getSelectedIndex();
 				String newState = controller.getStatusKeys()[selectedStatusID];
 				if ( newState.equals("private") ) {
@@ -159,7 +164,6 @@ public class PostView extends StandardBaseView {
 			  		}
 				}
 			}
-			
 		});
   		
   		//row sticky
@@ -173,13 +177,12 @@ public class PostView extends StandardBaseView {
   		}
   		isStickyField.setChangeListener(new FieldChangeListener() {
   			public void fieldChanged(Field field, int context) {
-  				if ( isStickyField.isEnabled == false ) { //hack the isSticky field to keep it unchecked when it's disabled
+  				if ( context != PROGRAMMATIC && isStickyField.isEnabled == false ) { //hack the isSticky field to keep it unchecked when it's disabled
   					isStickyField.setChecked( false );
   				}
   			}
   		});
   		outerManagerRowInfos.add(isStickyField);
-  		
   		
   		//row postFormats, available only if the blog support postFormats
   		Hashtable postFormats = post.getBlog().getPostFormats();
@@ -360,7 +363,7 @@ public class PostView extends StandardBaseView {
         
 		JustifiedEvenlySpacedHorizontalFieldManager bottomToolbar = new JustifiedEvenlySpacedHorizontalFieldManager();	
 		bottomToolbar.setMargin(5,0,5,0);
-		BaseButtonField sendPostBtn = GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_POST_SUBMIT), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
+		sendPostBtn = (EmbossedButtonField) GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_PUBLISH), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
 		sendPostBtn.setChangeListener(
 				new FieldChangeListener() {
 					public void fieldChanged(Field field, int context) {
@@ -370,7 +373,7 @@ public class PostView extends StandardBaseView {
 		);
 		sendPostBtn.setMargin(0,5,0,5);
 
-		BaseButtonField saveDraftPostBtn= GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_SAVEDRAFT), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
+		BaseButtonField saveDraftPostBtn= GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_SAVE_LOCALDRAFT), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
 		saveDraftPostBtn.setChangeListener(
 				new FieldChangeListener() {
 					public void fieldChanged(Field field, int context) {
@@ -395,9 +398,42 @@ public class PostView extends StandardBaseView {
 		
 		//move the focus to the title Field
 		title.setFocus();
-		
-		
+		updateSendMenuItemAndButtonLabel();
 		controller.bumpScreenViewStats("com/wordpress/view/PostView", "Post Screen", "", null, "");
+    }
+    
+    public void updateSendMenuItemAndButtonLabel( ){
+		int selectedStatusID = status.getSelectedIndex();
+		String newState = controller.getStatusKeys()[selectedStatusID];
+
+		if ( newState.equals( "publish" ) ) {
+			//publish or schedule label
+			
+			//check if is published or scheduled
+			Date righNowDate = new Date();//this date is NOT at GMT timezone 
+			long righNow = CalendarUtils.adjustTimeFromDefaultTimezone(righNowDate.getTime());
+			Date postDate = post.getAuthoredOn();//this date is GMT date
+
+			if( postDate == null ) {
+				_submitPostItem.setText( _resources.getString( WordPressResource.MENUITEM_PUBLISH ) );
+				sendPostBtn.setText(_resources.getString( WordPressResource.MENUITEM_PUBLISH ) );
+				return;
+			}
+			
+			long postDateLong = postDate.getTime();
+			if(righNow > postDateLong) {
+				_submitPostItem.setText( _resources.getString( WordPressResource.MENUITEM_PUBLISH ) );
+				sendPostBtn.setText(_resources.getString( WordPressResource.MENUITEM_PUBLISH ) );
+			} else {
+				_submitPostItem.setText( _resources.getString( WordPressResource.MENUITEM_SCHEDULE ) );
+				sendPostBtn.setText(_resources.getString( WordPressResource.MENUITEM_SCHEDULE ) );
+			}
+		} else {
+	  		//save
+			_submitPostItem.setText( _resources.getString( WordPressResource.MENUITEM_SAVE ) );
+			sendPostBtn.setText(_resources.getString( WordPressResource.MENUITEM_SAVE ) );
+		}
+		
     }
     
     //set the photos number label text
@@ -452,7 +488,7 @@ public class PostView extends StandardBaseView {
     }
     
     //save a local copy of post
-    private MenuItem _saveDraftPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVEDRAFT, 160000, 1000) {
+    private MenuItem _saveDraftPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_SAVE_LOCALDRAFT, 160000, 1000) {
         public void run() {
         	saveDraftPost();
         }
@@ -468,7 +504,7 @@ public class PostView extends StandardBaseView {
     }
 
     //send post to blog
-    private MenuItem _submitPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_POST_SUBMIT, 160000, 1000) {
+    private MenuItem _submitPostItem = new MenuItem( _resources, WordPressResource.MENUITEM_PUBLISH, 160000, 1000) {
     	public void run() {
     		sendPostToBlog();
     	}

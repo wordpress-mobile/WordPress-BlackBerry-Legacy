@@ -72,11 +72,10 @@ public abstract class BlogObjectController extends BaseController {
 	protected SendToBlogTask sendTask;
 	protected PostSettingsView settingsView = null;
 	protected MediaView photoView = null;
-	protected ConnectionInProgressView connectionProgressView=null;
+	protected ConnectionInProgressView connectionProgressView = null;
+	
+	protected static final String LOCAL_DRAFT_KEY = "localdraft"; //Keep this for backward compatibility
 
-		
-	protected static final String LOCAL_DRAFT_KEY = "localdraft";
-	protected static final String LOCAL_DRAFT_LABEL = _resources.getString(WordPress.LABEL_LOCAL_DRAFT);
 	public abstract void setPhotosNumber(int count);
 	public abstract void setAuthDate(long authoredOn);
 	public abstract void setPassword(String password);
