@@ -30,6 +30,7 @@ import net.rim.device.api.ui.XYRect;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.Menu;
+import net.rim.device.api.ui.component.NullField;
 import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.bb.WordPressCore;
@@ -101,6 +102,7 @@ public class MainView extends BaseView {
     private MainViewInternalFieldManager mainContentContainer;
     
     private TableLayoutManager actionsTable;
+    private NullField actionTablePlaceholder = new NullField();
     int actionsTableNumberOfRows = 3;
 
 	private final int mnuPosts = 100;
@@ -214,14 +216,16 @@ public class MainView extends BaseView {
 	   	    }
 		};
 		
+		mainContentContainer = new MainViewInternalFieldManager(headerRow, actionsTable);
 		updateActionTable();
 		
-		mainContentContainer = new MainViewInternalFieldManager(headerRow, actionsTable);
 		add( mainContentContainer );
 	}
 	
 	private void updateActionTable() {
 		actionsTable.deleteAll();
+		mainContentContainer.replace(actionsTable, actionTablePlaceholder); //set a placeholder to avoid the relayout of the grid while adding items at runtime
+		
 		actionsTable.add( new ActionTableItem( mnuNewPost, getItemLabel(mnuNewPost), mnuNewPost ) );
 		//#ifdef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		if( MultimediaUtils.isPhotoCaptureSupported() )
@@ -242,9 +246,9 @@ public class MainView extends BaseView {
 			actionsTable.add( new ActionTableItem( mnuReader, getItemLabel(mnuReader), mnuReader ) );
 		//#endif
 		
-		//if ( actionsTable.getFieldCount() == 6 ) actionsTableNumberOfRows = 2;
 		double res = ((double)actionsTable.getFieldCount()) / 3;
 		actionsTableNumberOfRows = (int) Math.ceil( res );
+		mainContentContainer.replace(actionTablePlaceholder, actionsTable);
 	}
 	
 	/**

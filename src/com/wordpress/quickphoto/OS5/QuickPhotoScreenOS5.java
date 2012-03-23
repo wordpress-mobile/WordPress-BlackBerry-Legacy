@@ -200,8 +200,6 @@ public class QuickPhotoScreenOS5 extends StandardBaseView implements CameraScree
 			markupToolBar.attachTo(rowContent);
 			add(rowContent);
 			
-			//add(new LabelField("", Field.NON_FOCUSABLE)); //space after content
-			
 			JustifiedEvenlySpacedHorizontalFieldManager bottomToolbar = new JustifiedEvenlySpacedHorizontalFieldManager();	
 			bottomToolbar.setMargin(5,0,5,0);
 			BaseButtonField sendPostBtn = GUIFactory.createButton(_resources.getString(WordPressResource.MENUITEM_PUBLISH), ButtonField.CONSUME_CLICK | ButtonField.USE_ALL_WIDTH | DrawStyle.ELLIPSIS);
