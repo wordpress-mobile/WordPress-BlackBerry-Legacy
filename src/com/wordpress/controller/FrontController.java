@@ -129,20 +129,23 @@ public class FrontController {
 	 * 
 	 */
 	public void backAndRefreshView(final boolean wasRemoteUpdate){
-		UiApplication.getUiApplication().invokeLater(new Runnable() {
+		final UiApplication uiApplication = UiApplication.getUiApplication();
+		uiApplication.invokeLater(new Runnable() {
 			public void run() {
 				
-				Screen scr=UiApplication.getUiApplication().getActiveScreen();
-				UiApplication.getUiApplication().popScreen(scr);
-				scr=UiApplication.getUiApplication().getActiveScreen();
+				if ( uiApplication.getScreenCount() == 1 ) return;
+				
+				Screen scr = uiApplication.getActiveScreen();
+				uiApplication.popScreen(scr);
+				scr = uiApplication.getActiveScreen();
 				
 				if (scr instanceof BaseView){	
 					BaseController controller = ((BaseView)scr).getController();
 					if(wasRemoteUpdate) {
 						controller.refreshView();
 					} 
-					
 				}
+				
 			} //end run
 		});
 	}
