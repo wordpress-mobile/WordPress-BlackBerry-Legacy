@@ -6,6 +6,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import net.rim.blackberry.api.browser.URLEncodedPostData;
+import net.rim.blackberry.api.homescreen.HomeScreen;
 import net.rim.device.api.math.Fixed32;
 import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.Bitmap;
@@ -239,13 +240,19 @@ public class MainView extends BaseView {
 
 		actionsTable.add( new ActionTableItem( mnuStats,  getItemLabel(mnuStats), mnuStats ) );	
 		actionsTable.add( new ActionTableItem( mnuSettings, getItemLabel(mnuSettings), mnuSettings ) );
-		actionsTable.add( new ActionTableItem( mnuDashboard, getItemLabel(mnuDashboard), mnuDashboard ) );
+		ActionTableItem dashoBoardActionTableItem = new ActionTableItem( mnuDashboard, getItemLabel(mnuDashboard), mnuDashboard );
+		actionsTable.add( dashoBoardActionTableItem );
 
 		//#ifdef BlackBerrySDK7.0.0
 		if ( currentBlog != null && currentBlog.isWPCOMBlog() )
 			actionsTable.add( new ActionTableItem( mnuReader, getItemLabel(mnuReader), mnuReader ) );
 		//#endif
 		
+		//remove the dashboard icon on devices with small screen and 10 icons on the grid
+		if ( Display.getHeight() < 360 && actionsTable.getFieldCount() > 9 ) {
+			actionsTable.delete(dashoBoardActionTableItem);
+		}
+				
 		double res = ((double)actionsTable.getFieldCount()) / 3;
 		actionsTableNumberOfRows = (int) Math.ceil( res );
 		mainContentContainer.replace(actionTablePlaceholder, actionsTable);
@@ -1012,9 +1019,13 @@ public class MainView extends BaseView {
 			int availableWidthForChildFields = fieldWidth - ( 2 * PADDING ); //Do not use all the width available. see findBitmapSizeThatFits.
 			//int availableHeightForChildFields = fieldHeight - ( 2 * PADDING );
 			
-			int imageHeight = getAvailableHeightForTheIcon();
-			int textMaxHeight = getAvailableHeightForText();
-			int totalHeightOfItems = imageHeight + VPADDING_IMAGE_TEXT + textMaxHeight; //ICON + PADDING + TEXT SPACE
+			int textMaxHeight = getMaxAvailableHeightForText();
+			int textHeight = myFont.getHeight();
+			
+			if ( textHeight > textMaxHeight ) 
+				textHeight = textMaxHeight;
+			
+			int totalHeightOfItems = bitmapHeight + VPADDING_IMAGE_TEXT + textHeight; //ICON + PADDING + TEXT SPACE
 								
 			int xOffset = ( fieldWidth - bitmapWidth ) / 2 ;
 			int yOffset = ( fieldHeight - totalHeightOfItems ) / 2;
@@ -1051,18 +1062,16 @@ public class MainView extends BaseView {
 		}
 
 		
-		private int getAvailableHeightForText() {
+		private int getMaxAvailableHeightForText() {
 			if ( fieldHeight == 0 ) return 0;
-			
 			int textMaxH = Math.min(fieldHeight, fieldWidth) - ( PADDING * 2 );
 			textMaxH = textMaxH  / 3; // the text is 1/3 of the remaining space minus the V_PADDING
 			return textMaxH - VPADDING_IMAGE_TEXT;
 		}
 
 		
-		private int getAvailableHeightForTheIcon() {
+		private int getMaxAvailableHeightForTheIcon() {
 			if ( fieldHeight == 0 ) return 0;
-			
 			int imageHeight = Math.min(fieldHeight, fieldWidth) - ( PADDING * 2 );
 			imageHeight = ( imageHeight * 2 ) / 3; // the icon is 2/3 of the remaining space
 			return imageHeight;
@@ -1071,18 +1080,32 @@ public class MainView extends BaseView {
 		protected void layout(int width, int height) {
 			fieldWidth = width;
 			fieldHeight = mainContentContainer.getHeightAvailableForTheGrid() / actionsTableNumberOfRows;
-			int imageHeight = getAvailableHeightForTheIcon();
-			this.setBitmapz(imageHeight);
+			int maxImageHeight = getMaxAvailableHeightForTheIcon();
+			this.setBitmapz(maxImageHeight);
 			this.setBitmap(bmp); //just to make sure...
 			bitmapWidth = bmp.getWidth();
 			bitmapHeight = bmp.getHeight();
 			super.layout(width, fieldHeight);
 		}
-				
-		private void setBitmapz(int imageHeight) {
+		
+		private void setBitmapz(int maxImageHeight) {
 			int sizePrefix = 0;
-
-			if ( imageHeight <=  64 )  
+		/*	
+	    	if( maxImageHeight >= 96 ) {
+	    		sizePrefix = 96;
+	    	} else if( maxImageHeight >= 64 ) {
+	    		sizePrefix = 64;
+	    	} else if( maxImageHeight >= 48 ) {
+	    		sizePrefix = 48;
+	    	} else if( maxImageHeight >= 32 ) {
+	    		sizePrefix = 32;
+	    	} else {
+	    		//the requested size is too small. Get the 32px icon and resize it.	
+	    		sizePrefix = 32;
+	    	}
+			*/
+			
+			if ( maxImageHeight <=  64 )  
 				sizePrefix = 64;
 			else 
 				sizePrefix = 96;
@@ -1134,7 +1157,7 @@ public class MainView extends BaseView {
 				break;
 			}
 
-			if( unscaledBitmap != null &&  unscaledBitmap.getHeight() !=  imageHeight ) {
+			if( unscaledBitmap != null &&  unscaledBitmap.getHeight() !=  maxImageHeight ) {
 				// Calculate the new scale based on the region sizes
 				// Scale / Zoom
 				// 0.1 = 1000%
@@ -1142,10 +1165,12 @@ public class MainView extends BaseView {
 				// 1 = 100%
 				// 2 = 50%
 				// 4 = 25%
-				int	resultantScaleX = Fixed32.div(Fixed32.toFP( imageHeight ), Fixed32.toFP(unscaledBitmap.getHeight()));
+				int	resultantScaleX = Fixed32.div(Fixed32.toFP( maxImageHeight ), Fixed32.toFP(unscaledBitmap.getHeight()));
 				bmp = ImageManipulator.scale(unscaledBitmap, resultantScaleX);
+			} else {
+				bmp = unscaledBitmap;
 			}
-			if( unscaledBitmap_focus != null &&  unscaledBitmap_focus.getHeight() !=  imageHeight ) {
+			if( unscaledBitmap_focus != null &&  unscaledBitmap_focus.getHeight() !=  maxImageHeight ) {
 				// Calculate the new scale based on the region sizes
 				// Scale / Zoom
 				// 0.1 = 1000%
@@ -1153,8 +1178,10 @@ public class MainView extends BaseView {
 				// 1 = 100%
 				// 2 = 50%
 				// 4 = 25%
-				int	resultantScaleX = Fixed32.div(Fixed32.toFP( imageHeight ), Fixed32.toFP(unscaledBitmap_focus.getHeight()));
+				int	resultantScaleX = Fixed32.div(Fixed32.toFP( maxImageHeight ), Fixed32.toFP(unscaledBitmap_focus.getHeight()));
 				bmp_focus = ImageManipulator.scale(unscaledBitmap_focus, resultantScaleX);
+			} else {
+				bmp_focus = unscaledBitmap_focus;
 			}
 		}
 
