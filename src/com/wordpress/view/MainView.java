@@ -240,8 +240,8 @@ public class MainView extends BaseView {
 
 		actionsTable.add( new ActionTableItem( mnuStats,  getItemLabel(mnuStats), mnuStats ) );	
 		actionsTable.add( new ActionTableItem( mnuSettings, getItemLabel(mnuSettings), mnuSettings ) );
-		ActionTableItem dashoBoardActionTableItem = new ActionTableItem( mnuDashboard, getItemLabel(mnuDashboard), mnuDashboard );
-		actionsTable.add( dashoBoardActionTableItem );
+		ActionTableItem dashBoardActionTableItem = new ActionTableItem( mnuDashboard, getItemLabel(mnuDashboard), mnuDashboard );
+		actionsTable.add( dashBoardActionTableItem );
 
 		//#ifdef BlackBerrySDK7.0.0
 		if ( currentBlog != null && currentBlog.isWPCOMBlog() )
@@ -249,8 +249,9 @@ public class MainView extends BaseView {
 		//#endif
 		
 		//remove the dashboard icon on devices with small screen and 10 icons on the grid
+		//Ref: http://blackberry.trac.wordpress.org/ticket/233
 		if ( Display.getHeight() < 360 && actionsTable.getFieldCount() > 9 ) {
-			actionsTable.delete(dashoBoardActionTableItem);
+			actionsTable.delete(dashBoardActionTableItem);
 		}
 				
 		double res = ((double)actionsTable.getFieldCount()) / 3;
