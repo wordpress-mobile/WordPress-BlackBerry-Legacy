@@ -403,6 +403,12 @@ public class PostView extends StandardBaseView {
     }
     
     public void updateSendMenuItemAndButtonLabel( ){
+    	if ( post.getId() != null ) { //posts synched with the server should show the "Update" label only
+    		_submitPostItem.setText( _resources.getString( WordPressResource.MENUITEM_UPDATE ) );
+    		sendPostBtn.setText(_resources.getString( WordPressResource.MENUITEM_UPDATE ) );
+    		return;
+    	} 
+    	
 		int selectedStatusID = status.getSelectedIndex();
 		String newState = controller.getStatusKeys()[selectedStatusID];
 

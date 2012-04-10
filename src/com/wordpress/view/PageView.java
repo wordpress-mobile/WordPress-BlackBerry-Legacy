@@ -402,7 +402,14 @@ public class PageView extends StandardBaseView {
 	}
 	
     public void updateSendMenuItemAndButtonLabel( ){
-		int selectedStatusID = status.getSelectedIndex();
+    	//posts synched with the server should show the "Update" label only
+    	if ( page.getID() != null ) { //pages synched with the server should show the "Update" label only
+    		_submitItem.setText( _resources.getString( WordPressResource.MENUITEM_UPDATE ) );
+    		sendPageBtn.setText(_resources.getString( WordPressResource.MENUITEM_UPDATE ) );
+    		return;
+    	} 
+
+    	int selectedStatusID = status.getSelectedIndex();
 		String newState = controller.getStatusKeys()[selectedStatusID];
 
 		if ( newState.equals( "publish" ) ) {
