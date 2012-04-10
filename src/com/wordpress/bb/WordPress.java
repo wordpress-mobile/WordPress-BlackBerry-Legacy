@@ -285,6 +285,7 @@ public class WordPress extends UiApplication implements WordPressResource, Syste
         permRequest.addPermission( ApplicationPermissions.PERMISSION_ORGANIZER_DATA  );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_CROSS_APPLICATION_COMMUNICATION  );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_INTERNET );
+        permRequest.addPermission( ApplicationPermissions.PERMISSION_RECORDING );
         //#else
         permRequest.addPermission( ApplicationPermissions.PERMISSION_EVENT_INJECTOR );
         permRequest.addPermission( ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS );
