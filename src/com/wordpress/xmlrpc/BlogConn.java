@@ -6,10 +6,13 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.io.ConnectionNotFoundException;
+import javax.microedition.pki.Certificate;
 
 import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
+import net.rim.device.cldc.io.ssl.TLSException;
+import net.rim.device.cldc.io.ssl.TLSIOException;
 
 import org.kxmlrpc.XmlRpcClient;
 import org.kxmlrpc.XmlRpcException;
@@ -147,6 +150,34 @@ public abstract class BlogConn extends Observable implements Runnable {
 			response = mConnection.execute(aCommand, aArgs);
 		} catch (ConnectionNotFoundException cnfe) {
 			setErrorMessage(cnfe, "The server was not found");
+		} catch (TLSIOException tlsioe) {
+			setErrorMessage(tlsioe, "SSL communication error (TLSIOException)");
+			TLSException innerTLSException = tlsioe.getException();
+			if ( innerTLSException != null ) {
+
+				if ( innerTLSException.getMessage() != null )
+					Log.error("Inner TLSException of the TLSIOException says: " + innerTLSException.getMessage());
+				else 
+					Log.error("The underlying TLSException found, but the message is null!");
+
+				Exception exception = innerTLSException.getException();
+				if( exception != null ) { 
+					Log.error( "Inner Exception of the TLSException : " +exception.getClass() );
+					if( exception.getMessage()!= null )
+						Log.error("Inner Exception of the TLSException says: " + exception.getMessage() );
+					else 
+						Log.error("Inner Exception of the TLSException found, but the message is null!");
+				} else {
+					Log.error( "Inner Exception of the TLSException NOT Found");
+				}
+
+			} else {
+				Log.error("NO underlying TLSException found");
+			}
+			logCertificateException( tlsioe );
+		} catch (javax.microedition.pki.CertificateException ce) {
+			setErrorMessage(ce, "SSL communication error (Certificate issue)");
+			logCertificateException( ce );
 		} catch (IOException ioe) {
 			setErrorMessage(ioe, "A server communication error occurred");
 		} catch (XmlRpcException xre) {
@@ -154,7 +185,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 		} catch (XmlPullParserException parserEx) { //catch all parser exception and rewrite the log message for user
 			Log.error("Parser Exception : "+parserEx.getMessage());
 			XmlPullParserException rewrittenEx = new XmlPullParserException("Malformed blog response");
-			setErrorMessage(rewrittenEx,"A server communication error occurred");
+			setErrorMessage(rewrittenEx, "A server communication error occurred");
 		} catch (Exception t) {
 			setErrorMessage(t, "An error occurred");
 		} 
@@ -162,6 +193,46 @@ public abstract class BlogConn extends Observable implements Runnable {
 		Log.trace("Ended XML-RPC request");
 		isWorking=false;
 		return response;
+	}
+	
+	private void logCertificateException (javax.microedition.pki.CertificateException ce) {
+		Log.error(">>> Logging Certificate details");
+
+		try {
+			Log.error("SSL certificate not accepted. Reason: " + ce.getReason() + ", certificate: " + ce.getCertificate());
+		} catch (Exception e) {
+		}
+		
+		byte reason = ce.getReason();
+		int cast = (int)reason & 0xff;
+		Log.error("Reason: " + cast);
+	/*	switch (reason) {
+		case TLSIOException.BAD_EXTENSIONS:
+			
+			break;
+
+		default:
+			break;
+		}*/
+		Certificate certificate = ce.getCertificate();
+		if ( certificate != null ) {
+			if ( certificate.getType() != null )
+				Log.error("Cert Type: " + certificate.getType());
+			if ( certificate.getVersion() != null )
+				Log.error("Cert Version: " +certificate.getVersion());
+			if ( certificate.getSigAlgName() != null )
+				Log.error("Cert SigAlgName: " +certificate.getSigAlgName());
+			if ( certificate.getIssuer() != null )
+				Log.error("Cert Issuer: " +certificate.getIssuer());
+			if ( certificate.getSubject() != null )
+				Log.error("Cert Subjet: " +certificate.getSubject());
+			if ( certificate.getSerialNumber() != null )
+				Log.error("Cert Serial Number: " +certificate.getSerialNumber());
+			Log.error("Not After: "+certificate.getNotAfter());
+		} else {
+			Log.error("Certificate is null!");
+		}
+		Log.error("<<< Logging Certificate details");
 	}
 	
 	protected void showHTTPAuthDialog() {
@@ -426,7 +497,6 @@ public abstract class BlogConn extends Observable implements Runnable {
 		}
 	}
 	
-	
 	protected void setErrorMessage(Exception e, String err){
 	/*	if (!isWorking) 
 			return;*/
@@ -434,12 +504,13 @@ public abstract class BlogConn extends Observable implements Runnable {
 		//check if there is a prev error in the error stack
 		if(connResponse.isError()) {
 			String prevErr = connResponse.getResponse();
-			err = prevErr +"\n"+ err;  
+			if ( ! prevErr.trim().equalsIgnoreCase("") )
+				err = prevErr +"\n\n"+ err;  
 		}
 		
 		boolean isConnectionStoppedByUser = connResponse.isStopped();
 		
-		connResponse=new BlogConnResponse();
+		connResponse = new BlogConnResponse();
 		connResponse.setError(true);
 		connResponse.setResponseObject(e); //set the exception as response option
 		if(isConnectionStoppedByUser) //check if the conn was stoppped by user

@@ -58,8 +58,12 @@ public class BlogUpdateConn extends BlogConn  {
 				isError = true;
 				if(currentError != null) {
 					String errorMessage = currentError.getMessage();
-					if(errorMessage != null && !errorMessage.trim().equals(""))
-					wholeErrorMessage += errorTitle + " - " + errorMessage + "\n";
+					if(errorMessage != null && !errorMessage.trim().equals("")) {
+						if ( ! wholeErrorMessage.trim().equalsIgnoreCase("") )
+							wholeErrorMessage += "\n\n" + errorTitle + " - " + errorMessage;
+						else
+							wholeErrorMessage = errorTitle + " - " + errorMessage;
+					}
 				}
 			}
 		} 
@@ -233,10 +237,10 @@ public class BlogUpdateConn extends BlogConn  {
 			}
 			
 		} catch (ClassCastException cce) {
-			setErrorMessage(cce, "Error while loading blog:");
+			setErrorMessage(cce, "Error while loading blog");
 		}
 		catch (Exception e) {
-			setErrorMessage(e, "Error while loading blog:");
+			setErrorMessage(e, "Error while loading blog");
 		}
 		try {
 			notifyObservers(connResponse);

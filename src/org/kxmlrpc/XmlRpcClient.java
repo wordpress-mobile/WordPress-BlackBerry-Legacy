@@ -259,7 +259,7 @@ public class XmlRpcClient {
     		bais = null;
     		
     	} catch (Exception x) {
-    		Log.error(x, "XML-RPC Error: ");
+    		Log.error(x, "XmlRpcClient.execute Error");
     		throw (Exception) x;
     	} catch (Throwable  t) { //capturing the JVM error. 
     		Log.error(t, "Serious Error in XmlRpcClient: " + t.getMessage());
