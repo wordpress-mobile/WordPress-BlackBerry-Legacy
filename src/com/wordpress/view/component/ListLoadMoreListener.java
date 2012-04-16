@@ -9,4 +9,5 @@ package com.wordpress.view.component;
  */
 public interface ListLoadMoreListener {
 	public void loadMore();
+	public void refreshList();
 }

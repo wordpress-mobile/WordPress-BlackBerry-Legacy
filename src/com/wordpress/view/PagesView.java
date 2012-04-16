@@ -219,12 +219,17 @@ public class PagesView extends BaseView implements ListActionListener, ListLoadM
         int selectedPage = pagesList.getSelectedIndex();
         controller.editPage(selectedPage);    
 	}
-	
+
+	// ListLoadMoreListener methods
 	public void loadMore() {
 		Log.debug("loadMore listener more called" );
 		controller.loadMorePosts();
 	}
-    	
+	public void refreshList() {
+		controller.refreshPagesList();	
+	}
+	//End of ListLoadMoreListener
+	
 	public void addPostsToScreen(Page[] pages){
 		int selectedIndex = pagesList.getSelectedIndex();
 		Hashtable elements[] = this.prepareItemsForList(pages);

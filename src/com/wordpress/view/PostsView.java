@@ -246,11 +246,17 @@ public class PostsView extends BaseView implements ListActionListener, ListLoadM
         controller.editPost(selectedPost); 
 	}
 
+	// ListLoadMoreListener methods
 	public void loadMore() {
 		Log.debug("loadMore listener more called" );
 		controller.loadMorePosts();
 	}
-    	
+    
+	public void refreshList() {
+		controller.refreshPostsList();
+	}
+	//End of ListLoadMoreListener
+	
 	public void addPostsToScreen(Vector recentPostInfo){
 		int selectedIndex = listaPost.getSelectedIndex();
 		Hashtable elements[] = this.prepareItemsForList(recentPostInfo);

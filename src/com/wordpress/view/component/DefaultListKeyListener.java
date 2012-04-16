@@ -29,7 +29,19 @@ public class DefaultListKeyListener implements KeyListener
 	 */
 	public boolean keyChar(final char key, int status, int time)
 	{ 
-		if(key == 't' && listObj != null )
+		if ( listObj == null ) return false;
+		
+		if(key == 'r')
+        {
+			UiApplication.getUiApplication().invokeLater(new Runnable() {
+				public void run(){
+					view.refreshList();
+				}
+            }, 200, false);
+            return true;
+        }
+		
+		if(key == 't')
         {
             Runnable previousRunnable = new Runnable()
             {
@@ -45,7 +57,7 @@ public class DefaultListKeyListener implements KeyListener
             return true;
         }
 		
-		if(key == 'b' && listObj != null )
+		if(key == 'b')
         {
             Runnable previousRunnable = new Runnable()
             {
@@ -63,7 +75,7 @@ public class DefaultListKeyListener implements KeyListener
             return true;
         }
 
-		if(key == 'p' && listObj != null )
+		if(key == 'p')
         {
             Runnable previousRunnable = new Runnable()
             {
@@ -81,7 +93,7 @@ public class DefaultListKeyListener implements KeyListener
             return true;
         }
 
-		if(key == 'n' && listObj != null )
+		if(key == 'n')
         {
             Runnable previousRunnable = new Runnable()
             {
@@ -101,6 +113,7 @@ public class DefaultListKeyListener implements KeyListener
             new Thread(previousRunnable).start();
             return true;
         }
+		
 		return false;   
 	}
 

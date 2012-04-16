@@ -321,11 +321,17 @@ public class CommentsView extends BaseView implements ListActionListener , ListL
 		return this.controller;
 	}
 
+	// ListLoadMoreListener methods
 	public void loadMore() {
 		gravatarController.stopGravatarTask(); //stop task if already running
 		controller.loadMoreComments();
 	}
-		
+	public void refreshList() {
+		gravatarController.stopGravatarTask(); //stop task if already running
+		controller.loadComments();
+	}
+	//End of ListLoadMoreListener
+	
 	public void addCommentsToScreen(){
 		int selectedIndex = commentsList.getSelectedIndex();
 		
