@@ -160,7 +160,7 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 					new FieldChangeListener() {
 						public void fieldChanged(Field field, int context) {
 							String imageExtensions[] = MultimediaUtils.getSupportedWordPressImageFormat();
-							final RimFileBrowser oldFileBrowser = new RimFileBrowser(imageExtensions, false);
+							final RimFileBrowser oldFileBrowser = new RimFileBrowser(imageExtensions);
 							oldFileBrowser.setListener(new QuickPhotoFileBrowserListener(PHOTO));
 							synchronized(Application.getEventLock()) {
 								UiApplication.getUiApplication().pushScreen(oldFileBrowser);	

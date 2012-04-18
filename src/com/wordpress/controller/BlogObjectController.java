@@ -483,7 +483,7 @@ public abstract class BlogObjectController extends BaseController {
 			fp.setPath(wpCore.getLastFileBrowserPath());
 		fp.show(); 
 		*/
-		RimFileBrowser oldFileBrowser = new RimFileBrowser(extensions, false);
+		RimFileBrowser oldFileBrowser = new RimFileBrowser(extensions);
 		if(type == VIDEO)
 			oldFileBrowser.setPredefinedThumb(Bitmap.getBitmapResource("video_thumb_48.png"));
 		oldFileBrowser.setListener(new OldFileBrowserListener(type));

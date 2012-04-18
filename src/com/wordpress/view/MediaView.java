@@ -119,9 +119,9 @@ public class MediaView extends StandardBaseView {
     	//#endif
 
     	updateUI(counterPhotos);
+    	addMenuItem(_addPhotoItem);
+    	addMenuItem(_addVideoItem);
         addMenuItem(_addAudioItem);
-        addMenuItem(_addPhotoItem);
-        addMenuItem(_addVideoItem);
         
         controller.bumpScreenViewStats("com/wordpress/view/MediaView", "Media Items Screen", "", null, "");
     }

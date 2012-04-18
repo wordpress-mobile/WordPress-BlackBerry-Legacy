@@ -59,7 +59,7 @@ public class RimFileBrowser extends PopupScreen {
     private ResourceBundle resourceBundle;
     private LabelField currentPathLabelField = new LabelField("/", DrawStyle.ELLIPSIS);
     
-    private boolean isThumbEnabled = false;
+    private static boolean isThumbEnabled = false;
 	private String thumbEnabledExtensions[] = { "jpg", "jpeg","bmp", "png", "gif"}; //file ext to read for thumb generation
 	private Bitmap predefinedThumb = null; 
     private Bitmap loadingThumb = null;
@@ -75,7 +75,7 @@ public class RimFileBrowser extends PopupScreen {
     
     private WordPressCore wpCore = null;
     
-	public RimFileBrowser(String[] extensions, boolean isThumbEnabled) {
+	public RimFileBrowser(String[] extensions) {
     	
     	super(new VerticalFieldManager(), DEFAULT_MENU|DEFAULT_CLOSE);
     	
@@ -86,9 +86,7 @@ public class RimFileBrowser extends PopupScreen {
     	} else {
     		this.extensions = extensions;
     	}
-    	
-    	this.isThumbEnabled = isThumbEnabled;
-    	
+    	    	
         initialize();
         wpCore = WordPressCore.getInstance(); 
         if(wpCore.getLastFileBrowserPath() != null)
