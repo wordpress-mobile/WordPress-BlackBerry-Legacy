@@ -1091,7 +1091,7 @@ public class MainView extends BaseView {
 		
 		private void setBitmapz(int maxImageHeight) {
 			int sizePrefix = 0;
-		/*	
+			
 	    	if( maxImageHeight >= 96 ) {
 	    		sizePrefix = 96;
 	    	} else if( maxImageHeight >= 64 ) {
@@ -1104,12 +1104,7 @@ public class MainView extends BaseView {
 	    		//the requested size is too small. Get the 32px icon and resize it.	
 	    		sizePrefix = 32;
 	    	}
-			*/
 			
-			if ( maxImageHeight <=  64 )  
-				sizePrefix = 64;
-			else 
-				sizePrefix = 96;
 			Bitmap unscaledBitmap = null;
 			Bitmap unscaledBitmap_focus = null;
 			String size = sizePrefix > 0 ? "_"+sizePrefix+".png" : ".png";
@@ -1158,7 +1153,7 @@ public class MainView extends BaseView {
 				break;
 			}
 
-			if( unscaledBitmap != null &&  unscaledBitmap.getHeight() !=  maxImageHeight ) {
+			if( unscaledBitmap != null &&  unscaledBitmap.getHeight() >  maxImageHeight ) {
 				// Calculate the new scale based on the region sizes
 				// Scale / Zoom
 				// 0.1 = 1000%
@@ -1171,7 +1166,7 @@ public class MainView extends BaseView {
 			} else {
 				bmp = unscaledBitmap;
 			}
-			if( unscaledBitmap_focus != null &&  unscaledBitmap_focus.getHeight() !=  maxImageHeight ) {
+			if( unscaledBitmap_focus != null &&  unscaledBitmap_focus.getHeight() >  maxImageHeight ) {
 				// Calculate the new scale based on the region sizes
 				// Scale / Zoom
 				// 0.1 = 1000%
