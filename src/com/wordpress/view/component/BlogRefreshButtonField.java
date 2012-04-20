@@ -84,7 +84,18 @@ public class BlogRefreshButtonField extends BaseButtonField
     
     
     private void createRefreshIcon( int iconSize ) {
-
+    	if ( iconSize <= 32 ) {
+	    	animatedBitmaps = new GIFEncodedImage[] { 
+					(GIFEncodedImage)EncodedImage.getEncodedImageResource("loading-blog-small-gif.bin"),
+					(GIFEncodedImage)EncodedImage.getEncodedImageResource("loading-blog-small-gif.bin")
+					};
+    	} else {
+    		animatedBitmaps = new GIFEncodedImage[] { 
+    				(GIFEncodedImage)EncodedImage.getEncodedImageResource("loading-blog-gif.bin"),
+    				(GIFEncodedImage)EncodedImage.getEncodedImageResource("loading-blog-gif.bin")
+    		};
+    	}
+ 
     	Bitmap icon = null;
     	Bitmap focusIcon = null;
     	if ( iconSize <= 48 ) {

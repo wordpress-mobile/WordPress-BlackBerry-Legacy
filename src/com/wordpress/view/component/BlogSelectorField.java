@@ -213,6 +213,8 @@ public class BlogSelectorField extends LabelField {
     		//Draw the text
     		Font fnt = Font.getDefault().derive(Font.PLAIN, blogIcon.getHeight() - 2 /*( PADDING + 3 )*/ );
     		int availableWidthForText =  this.fieldMaxWeight - currentDropDownBitmap.getWidth() - blogIcon.getWidth() - ( 4 * PADDING );
+    		if( choices != null && choices.length == 1 ) //Do not show the drop down when there is only one blog in the app
+    			availableWidthForText =  this.fieldMaxWeight - currentDropDownBitmap.getWidth() - ( 4 * PADDING );	
     		g.setFont(fnt);
     		g.setColor( g.isDrawingStyleSet( Graphics.DRAWSTYLE_FOCUS ) ? getColour( COLOUR_TEXT_FOCUS ) : getColour( COLOUR_TEXT ) );
     		int textTop =  (this.fieldMaxHeight - fnt.getHeight()) / 2;
