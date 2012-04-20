@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project basedir=".." default="all" name="WordPress for BlackBerry">
-    <taskdef name="rapc"    classpath="build/bb-ant-tools-1.2.8.jar" classname="ca.slashdev.bb.tasks.RapcTask" />
-    <taskdef name="jadtool" classpath="build/bb-ant-tools-1.2.8.jar" classname="ca.slashdev.bb.tasks.JadtoolTask" />
-    <taskdef name="alx"     classpath="build/bb-ant-tools-1.2.8.jar" classname="ca.slashdev.bb.tasks.AlxTask" />
+    <taskdef name="rapc"    classpath="build/bb-ant-tools-1.2.13.jar" classname="ca.slashdev.bb.tasks.RapcTask" />
+    <taskdef name="jadtool" classpath="build/bb-ant-tools-1.2.13.jar" classname="ca.slashdev.bb.tasks.JadtoolTask" />
+    <taskdef name="alx"     classpath="build/bb-ant-tools-1.2.13.jar" classname="ca.slashdev.bb.tasks.AlxTask" />
 	
     <target name="init">
         <property file="build/build.properties" />
@@ -69,7 +69,8 @@
             destdir="${dir.output.rapc}"
             output="${module.name}"
             verbose="true"
-            nodebug="false">
+            nodebug="false"
+        	generatesourcelist="true"        	>
           <!--  srcdir="${dir.src}"  attribute of the rapc tag -->
         	
         	<!-- define preprocessor tag -->
