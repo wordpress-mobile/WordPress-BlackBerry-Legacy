@@ -299,12 +299,30 @@ public class WPCOMReaderListView extends WPCOMReaderBase
     		Log.info(" Requested the following URL: " + request.getURL());
     		if ( request.getURL().equalsIgnoreCase(WordPressInfo.readerDetailURL) ) {
     			 Log.debug("Load the details view in a new view");
-				 UiApplication.getUiApplication().invokeLater(new Runnable() {
+    			 
+    	    		UiApplication.getUiApplication().invokeLater(new Runnable() {
+    	    			public void run() {
+    	    				try {
+    	    					Object executeScript = _browserField.getScriptEngine().executeScript("jQuery.Storage.get( 'current_item' );", null);
+    	    					Log.debug((String)executeScript);
+    	    		    		org.json.me.JSONObject currentItem = (org.json.me.JSONObject) new org.json.me.JSONTokener((String)executeScript).nextValue();
+   	    		    			//String permalink = currentItem.getString("permalink");
+   	    		    			WPCOMReaderDetailView	detailScreen = new WPCOMReaderDetailView(request, detailPageContent);
+   	    		    			detailScreen.currentItemJSONObj = currentItem.toString();
+   	    		    			UiApplication.getUiApplication().pushScreen(detailScreen);
+    	    				} catch (Exception e) {
+    	    					Log.error(e, "Error while setting the selectedTopic on Topics view");
+    	    				}
+    	    			} //end run
+    	    		});
+    			 
+    			 
+			/*	 UiApplication.getUiApplication().invokeLater(new Runnable() {
 					 public void run() {
 						 WPCOMReaderDetailView	detailScreen = new WPCOMReaderDetailView(request, detailPageContent);
     					 UiApplication.getUiApplication().pushScreen(detailScreen);    
 					 }
-				 });
+				 });*/
     		} else {
     			//Load the listView in the current View.
     			//This method is called because we are using the WP HTML login form with redirect, otherwise this method is not called, since we are loading static HTML...

@@ -45,6 +45,8 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
 	private BrowserFieldRequest request = null;
 	private String datailPageContent;
 	private boolean _documentLoaded;
+	
+	public String currentItemJSONObj = null;
     
     /**
      * Creates a new BrowserFieldScreen object
@@ -275,9 +277,8 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
     		UiApplication.getUiApplication().invokeLater(new Runnable() {
     			public void run() {
     				try {
-    					//load the title here?
-    				//	Object executeScript =  _browserField.getScriptEngine().executeScript("Reader2.current_item.permalink;", null);
-    				//	Log.debug((String)executeScript);
+    					if ( currentItemJSONObj != null )
+    						_browserField.getScriptEngine().executeScript("Reader2.show_article_details(" + currentItemJSONObj +");", null);
     				} catch (Exception e) {
     					Log.error(e, "Error while setting the selectedTopic on Topics view");
     				}
