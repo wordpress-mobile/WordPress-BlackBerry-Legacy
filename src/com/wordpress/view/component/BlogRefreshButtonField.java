@@ -98,13 +98,20 @@ public class BlogRefreshButtonField extends BaseButtonField
  
     	Bitmap icon = null;
     	Bitmap focusIcon = null;
-    	if ( iconSize <= 48 ) {
-    		icon = Bitmap.getBitmapResource("icon_titlebar_refresh.png");	
-    		focusIcon = Bitmap.getBitmapResource("icon_titlebar_refresh_focus.png");
-    	} else {
+    	
+		if ( iconSize >=  72 ) {
     		icon = Bitmap.getBitmapResource("icon_titlebar_refresh_72px.png");	
     		focusIcon = Bitmap.getBitmapResource("icon_titlebar_refresh_focus_72px.png");
-    	}
+    	} else if ( iconSize >= 48 ) {
+    		icon = Bitmap.getBitmapResource("icon_titlebar_refresh_48px.png");	
+    		focusIcon = Bitmap.getBitmapResource("icon_titlebar_refresh_focus_48px.png");
+    	} else if ( iconSize >= 32 ) {
+    		icon = Bitmap.getBitmapResource("icon_titlebar_refresh_32px.png");	
+    		focusIcon = Bitmap.getBitmapResource("icon_titlebar_refresh_focus_32px.png");
+    	} else {
+    		icon = Bitmap.getBitmapResource("icon_titlebar_refresh_26px.png");	
+    		focusIcon = Bitmap.getBitmapResource("icon_titlebar_refresh_focus_26px.png");
+    	} 
     	
     	if( icon.getWidth() > iconSize ) {
     		// Calculate the new scale based on the region sizes

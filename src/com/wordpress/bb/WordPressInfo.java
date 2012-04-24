@@ -64,15 +64,6 @@ public final class WordPressInfo {
 	public static boolean isToolbarSupported;
 	public static boolean isTouchscreenSupported;
 	
-	private static Bitmap icon = Bitmap.getBitmapResource("application-icon.png");
-    private static Bitmap newCommentsIcon = Bitmap.getBitmapResource("application-icon-new.png");
-
-    private static Bitmap icon68px = Bitmap.getBitmapResource("application-icon-68.png");
-    private static Bitmap newCommentsIcon68px = Bitmap.getBitmapResource("application-icon-new68.png");
-    
-    private static Bitmap icon92px = Bitmap.getBitmapResource("application-icon-92.png");
-    private static Bitmap newCommentsIcon92px = Bitmap.getBitmapResource("application-icon-new92.png");
-   
     //keep some configuration data outside the classic app storage model
     private static PersistentObject store;
     private static PersistableAppInfo persistableInfo;
@@ -173,9 +164,9 @@ public final class WordPressInfo {
     
     public static EncodedImage getBannerIndicator() {
     	int prefSize = HomeScreen.getPreferredIconHeight();
-    	if( prefSize == 68 )
+    	if( prefSize >= 68 )
     		return EncodedImage.getEncodedImageResource("wordpress-logo-21-blue.png");
-    	else if( prefSize == 92 )
+    	else if( prefSize >= 92 )
     		return EncodedImage.getEncodedImageResource("wordpress-logo-32-blue.png");
     	else 
     		return EncodedImage.getEncodedImageResource("wordpress-logo-21-blue.png");
@@ -184,21 +175,37 @@ public final class WordPressInfo {
     public static Bitmap getIcon() {
     	int prefSize = HomeScreen.getPreferredIconHeight();
     	if( prefSize >= 92 ) {
-    		return icon92px;
-    	} else if( prefSize >= 68 ) {
-    		return icon68px;
-    	}
-    	return icon;
+    		return Bitmap.getBitmapResource("application-icon-92.png");
+    	} else if( prefSize >= 80 ) {
+    		return Bitmap.getBitmapResource("application-icon-80.png");
+    	} else if( prefSize >= 72 ) {
+    		return Bitmap.getBitmapResource("application-icon-72.png");
+	    } else if( prefSize >= 68 ) {
+			return Bitmap.getBitmapResource("application-icon-68.png");
+	    } else if( prefSize >= 50 ) {
+    		return Bitmap.getBitmapResource("application-icon-50.png");
+	    } else if( prefSize >= 46 ) {
+			return Bitmap.getBitmapResource("application-icon-46.png");
+		} else
+    		return Bitmap.getBitmapResource("application-icon-46.png");
     }
     
     public static Bitmap getNewCommentsIcon() {
     	int prefSize = HomeScreen.getPreferredIconHeight();
     	if( prefSize >= 92 ) {
-    		return newCommentsIcon92px;
-    	} else if( prefSize >= 68 ) {
-    		return newCommentsIcon68px;
-    	}
-    	else return newCommentsIcon;   
+    		return Bitmap.getBitmapResource("application-icon-new92.png");
+    	} else if( prefSize >= 80 ) {
+    		return Bitmap.getBitmapResource("application-icon-new80.png");
+    	} else if( prefSize >= 72 ) {
+    		return Bitmap.getBitmapResource("application-icon-new72.png");
+	    } else if( prefSize >= 68 ) {
+			return Bitmap.getBitmapResource("application-icon-new68.png");
+	    } else if( prefSize >= 50 ) {
+    		return Bitmap.getBitmapResource("application-icon-new50.png");
+	    } else if( prefSize >= 46 ) {
+			return Bitmap.getBitmapResource("application-icon-new46.png");
+		} else
+    		return Bitmap.getBitmapResource("application-icon-new46.png");   
     }
     
     public static String getLastVersion() {
