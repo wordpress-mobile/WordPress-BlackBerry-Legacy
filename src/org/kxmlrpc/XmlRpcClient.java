@@ -241,20 +241,20 @@ public class XmlRpcClient {
     		// Open an input stream on the server's response
     		in = con.openInputStream();   		
     		int ch;
-    		StringBuffer charBuff=new StringBuffer();
-    		//get rid of junk characters before xml respons.  60 = '<'
-    		ch = in.read();
-    		while ( ch != 60 && ch != -1) {
-    			ch = in.read();
-    		}
-    		charBuff.append((char)ch);
+    		StringBuffer charBuff = new StringBuffer();
     		while ((ch = in.read()) > -1) {  
     			charBuff.append((char)ch);
     		}
     		String response = charBuff.toString();
     		Log.trace("response from the wordpress server: "+response);                                  
-    		ByteArrayInputStream bais = new ByteArrayInputStream(response.getBytes());
 
+    		/*get rid of junk characters before xml preamble '<?xml' */
+    		int indexOfFirstXML = response.indexOf("<?xml");
+    		if ( indexOfFirstXML > 0 ) {
+    			response = response.substring( indexOfFirstXML );
+    		}
+  
+    		ByteArrayInputStream bais = new ByteArrayInputStream(response.getBytes());
     		result = parseResponse(bais, encoding);
     		bais = null;
     		
