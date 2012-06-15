@@ -72,10 +72,11 @@ public class SendToBlogTask extends TaskImpl {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			
 			BlogConn mediaConnection;
-			if(mPrefs.isAtomPubEnabled())
-			 mediaConnection = new AtomPubNewMediaObjectConn (blog.getUrl(), 
-					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
-			else
+			if( mPrefs.isAtomPubEnabled() ) {
+				String xmlRpcURL = blog.getXmlRpcUrl().endsWith("/") ? blog.getXmlRpcUrl() :  blog.getXmlRpcUrl()+"/";
+				String atomPubURL = StringUtils.replaceLast(xmlRpcURL,"/xmlrpc.php/", "");
+				mediaConnection = new AtomPubNewMediaObjectConn (atomPubURL, blog.getUsername(), blog.getPassword(), blog.getId(), tmp);
+			} else
 			mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
 			
@@ -100,10 +101,11 @@ public class SendToBlogTask extends TaskImpl {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			BlogConn mediaConnection;
 			
-			if(mPrefs.isAtomPubEnabled())
-			 mediaConnection = new AtomPubNewMediaObjectConn (blog.getUrl(), 
-					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
-			else
+			if( mPrefs.isAtomPubEnabled() ) {
+				String xmlRpcURL = blog.getXmlRpcUrl().endsWith("/") ? blog.getXmlRpcUrl() :  blog.getXmlRpcUrl()+"/";
+				String atomPubURL = StringUtils.replaceLast(xmlRpcURL,"/xmlrpc.php/", "");
+				mediaConnection = new AtomPubNewMediaObjectConn (atomPubURL, blog.getUsername(), blog.getPassword(), blog.getId(), tmp);
+			} else
 			mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
 			
@@ -135,9 +137,11 @@ public class SendToBlogTask extends TaskImpl {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 		
 			BlogConn mediaConnection;
-			if(mPrefs.isAtomPubEnabled())
-			 mediaConnection = new AtomPubNewMediaObjectConn (blog.getUrl(), 
-					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
+			if( mPrefs.isAtomPubEnabled() ) {
+				String xmlRpcURL = blog.getXmlRpcUrl().endsWith("/") ? blog.getXmlRpcUrl() :  blog.getXmlRpcUrl()+"/";
+				String atomPubURL = StringUtils.replaceLast(xmlRpcURL,"/xmlrpc.php/", "");
+				mediaConnection = new AtomPubNewMediaObjectConn (atomPubURL, blog.getUsername(), blog.getPassword(), blog.getId(), tmp);
+			}
 			else
 			mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
