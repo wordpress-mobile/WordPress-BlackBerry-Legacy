@@ -165,20 +165,24 @@ public class StatsView extends BaseView {
 		fillStatsUI(data, columnHeader, columnName, columnLink, outerTable);
 	}
 	
-	private void fillStatsUI(byte[] data, String[] columnsHeader, String[] columnName, String[] columnLink, TableLayoutManager outerTable) {
+	private void fillStatsUI(byte[] data, String[] columnsHeader, String[] columnsName, String[] columnLink, TableLayoutManager outerTable) {
 
 		//1. parse the data
 		StatsParser statParser = new StatsParser(data);
 		try {
 			statParser.parseAll();
 		} catch (IOException e1) {
-			controller.displayError(e1, "");
+			if( e1 instanceof IOException && e1.getMessage() != null && e1.getMessage().equalsIgnoreCase( StatsParser.NO_STATS_DATA_AVAILABLE )) {
+				controller.displayMessage("No stats data found.  Please try again later.");
+			} else {
+				controller.displayError(e1, "");
+			}
 			return;
 		}
 		
 		//2.fill the stats Table
 		if(columnsHeader == null)
-			columnsHeader = columnName;
+			columnsHeader = columnsName;
 
 		//adding header 
 		if(controller.getType() != StatsController.TYPE_VIEW)
@@ -229,8 +233,8 @@ public class StatsView extends BaseView {
 					//#endif
 				}
 				
-				for (int i = 0; i < columnName.length; i++) {
-					String _tmpName = columnName[i];
+				for (int i = 0; i < columnsName.length; i++) {
+					String _tmpName = columnsName[i];
 					int _tmpIdx = statParser.getColumnIndex(_tmpName);
 					String value = nextLine[_tmpIdx];
 					
@@ -261,7 +265,7 @@ public class StatsView extends BaseView {
 		}
 		
 		//3. build the graphs
-		buildChart(columnName, statParser);	
+		buildChart(columnsName, statParser);	
 		scrollerData.add(outerTable);
 	}
 
@@ -289,7 +293,9 @@ public class StatsView extends BaseView {
 						if(i ==  0) {
 							dateStrings.addElement(nextLine[_tmpIdx]);
 						} else {
-							int value = Integer.parseInt(nextLine[_tmpIdx]);
+							int value = 0;
+							if ( _tmpIdx != -1 && nextLine.length > _tmpIdx )
+								value = Integer.parseInt(nextLine[_tmpIdx]);
 							if (value > maxValue) maxValue = value;
 							if (value < minValue) minValue = value;
 							dataValues.append(value+",");
@@ -336,7 +342,9 @@ public class StatsView extends BaseView {
 							chdl.append(String.valueOf(counter)+"|");
 						} else {
 							//value
-							int value = Integer.parseInt(nextLine[_tmpIdx]);
+							int value = 0;
+							if ( _tmpIdx != -1 && nextLine.length > _tmpIdx )
+								value = Integer.parseInt(nextLine[_tmpIdx]);
 							if (value > max) max = value;
 							chd.append(nextLine[_tmpIdx]+",");
 						}
@@ -368,7 +376,7 @@ public class StatsView extends BaseView {
 			scrollerData.add(chartImg);
 			
 		} catch (Exception e) {
-			controller.displayError(e, "Error while building stats chart.");
+			controller.displayError(e, "Error while creating the chart.");
 		}
 	}
 

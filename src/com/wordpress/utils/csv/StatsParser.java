@@ -14,6 +14,7 @@ public class StatsParser {
 	private Vector parsedStatsData = new Vector();
 	private ToIntHashtable columnMap;
 	private int _internalPointer = 0;
+	public static final String NO_STATS_DATA_AVAILABLE = "zero rows returned.";
 		
 	public boolean hasNext() {
 		if(_internalPointer >= parsedStatsData.size())
@@ -43,13 +44,11 @@ public class StatsParser {
 	
 	public void parseAll() throws IOException {
 		String tmpString = new String (data);
-				
 		if (tmpString.startsWith("Error: ")) {
 			//rewrite the error message
 			if(tmpString.indexOf("zero rows returned.")!= -1) {
-				throw new IOException("No data available!");
+				throw new IOException( NO_STATS_DATA_AVAILABLE );
 			}
-			
 			LineReader br = new LineReader(new ByteArrayInputStream(data));
 			String line = "";
 			try {
