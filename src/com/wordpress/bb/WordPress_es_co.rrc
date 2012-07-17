@@ -32,7 +32,6 @@ DESCRIPTION_REMOVE_TEMPFILE#0="Eliminar los archivos temporales en este disposit
 DESCRIPTION_RESIZEPHOTOS#0="Resizing will speed up publishing but will result in smaller photos.";
 DESCRIPTION_RESIZEVIDEOS#0="You can specify any width or height for your Videos. The default width is the same as your blog themeu2019s content width.";
 ERROR_FILETYPE_NOT_SUPPORTED#0="The file type is not supported.";
-ERROR_NOT_ENOUGH_SPACE#0="There is not enough memory space to complete the operation.";
 ERROR_RESIZE_HEIGHT#0="La altura de la imagen deber ser mínimo de un pixel.";
 ERROR_RESIZE_WIDTH#0="La anchura de la imagen debe ser mínimo de un pixel.";
 ERROR_SDCARD_NOT_FOUND#0="Lamentablemente no se encuentra la carta SD. Cambiando a la memoria del dispositivo.";

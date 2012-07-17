@@ -49,7 +49,6 @@ public class PreviewView  extends BaseView implements RenderingApplication {
 	private BrowserContent browserContent = null;
 	
 	/*
-	 * Remote Preview for all devices
 	 * Local Preview on devices running OS >= 5.0
 	 */
 	public PreviewView(byte[] data, String contentType) {

@@ -39,7 +39,7 @@ public abstract class WPCOMReaderBase extends BaseView {
 
 	protected BrowserFieldConfig getReaderBrowserDefaultConfig() {
 		BrowserFieldConfig config = new BrowserFieldConfig();  
-		config.setProperty(BrowserFieldConfig.USER_AGENT, "wp-blackberry/"+ PropertyUtils.getIstance().getAppVersion());
+		config.setProperty(BrowserFieldConfig.USER_AGENT,  Tools.getAppDefaultUserAgent());
 	    //Default = TRUE
 		config.setProperty(BrowserFieldConfig.MDS_TRANSCODING_ENABLED, Boolean.FALSE);    
         //Default = TRUE

@@ -32,7 +32,6 @@ DESCRIPTION_REMOVE_TEMPFILE#0="Removing all temporary files stored on this devic
 DESCRIPTION_RESIZEPHOTOS#0="Resizing will speed up publishing but will result in smaller photos.";
 DESCRIPTION_RESIZEVIDEOS#0="You can specify any width or height for your Videos. The default width is the same as your blog themeu2019s content width.";
 ERROR_FILETYPE_NOT_SUPPORTED#0="The file type is not supported.";
-ERROR_NOT_ENOUGH_SPACE#0="There is not enough memory space to complete the operation.";
 ERROR_RESIZE_HEIGHT#0="Obrazek musi mie\u0107 co najmniej jeden piksel wysoko\u015Bci.";
 ERROR_RESIZE_WIDTH#0="Image width must be at least one pixel.";
 ERROR_SDCARD_NOT_FOUND#0="Sorry, SD card not found, switched to device memory.";

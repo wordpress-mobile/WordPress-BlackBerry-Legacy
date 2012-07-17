@@ -27,6 +27,7 @@ import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.MainController;
+import com.wordpress.model.Preferences;
 import com.wordpress.utils.http.SimpleCookieManager;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
@@ -85,7 +86,8 @@ public class WPCOMReaderListView extends WPCOMReaderBase
         _browserField.addListener(new InnerBrowserListener());
     	//Add the protocol controller to intercept clicks on the browser
 		_browserField.getConfig().setProperty(BrowserFieldConfig.CONTROLLER, new ListViewProtocolController(_browserField));
-		_browserField.getConfig().setProperty(BrowserFieldConfig.ERROR_HANDLER, new ReaderBrowserFieldErrorHandler(_browserField) );
+		if ( Preferences.getIstance().isDebugMode() )
+			_browserField.getConfig().setProperty(BrowserFieldConfig.ERROR_HANDLER, new ReaderBrowserFieldErrorHandler(_browserField) );
         try {
 			extendJavaScript(_browserField);
 		} catch (Exception e) {

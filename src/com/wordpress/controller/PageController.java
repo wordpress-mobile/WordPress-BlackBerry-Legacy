@@ -41,7 +41,7 @@ public class PageController extends BlogObjectController {
 		try {
 			draftFolder = PageDAO.storePage(blog, page, draftFolder);
 		} catch (Exception e) {
-			displayError(e, _resources.getString(WordPress.ERROR_NOT_ENOUGH_SPACE));
+			displayError(e, "An error has occurred while saving");
 		}
 		remotePages = PageDAO.buildPagesArray(blog.getPages());
 		checkMediaObjectLinks();

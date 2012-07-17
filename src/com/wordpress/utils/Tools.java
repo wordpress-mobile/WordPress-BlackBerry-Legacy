@@ -339,4 +339,9 @@ public class Tools {
 	    return res;
 	  }
 
+	  
+	  public static String getAppDefaultUserAgent() {
+		  return "wp-blackberry/"+ PropertyUtils.getIstance().getAppVersion();
+	  }
+	  
 }

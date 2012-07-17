@@ -69,7 +69,7 @@ public class PostController extends BlogObjectController {
 		try {
 			draftFolder = DraftDAO.storePost(post, draftFolder);
 		} catch (Exception e) {
-			displayError(e, _resources.getString(WordPress.ERROR_NOT_ENOUGH_SPACE));
+			displayError(e, "An error has occurred while saving");
 		}
 		checkMediaObjectLinks();
 	}

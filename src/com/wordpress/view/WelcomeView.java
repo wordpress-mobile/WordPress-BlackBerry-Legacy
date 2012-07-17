@@ -15,6 +15,7 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.Ui;
+import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
@@ -24,12 +25,17 @@ import net.rim.device.api.ui.container.MainScreen;
 import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
+import com.wordpress.controller.AddBlogsController;
 import com.wordpress.controller.BaseController;
 import com.wordpress.controller.MainController;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BasicListFieldCallBack;
 import com.wordpress.view.component.ColoredLabelField;
+
+//#ifdef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+import com.wordpress.view.webview.WebView;
+//#endif
 
 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.TouchGesture;
@@ -154,9 +160,14 @@ public class WelcomeView extends StandardBaseView {
         
         if(index == -1) return;
         
-        if (index == 0)
+        if (index == 0) {
+        	//#ifdef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+        	WebView wv = new WebView( WordPressInfo.BB_APP_SIGNUP_URL );
+        	UiApplication.getUiApplication().pushScreen(wv);
+        	//#elseif
         	Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
-        else if (index == 1) 
+        	//#endif
+        } else if (index == 1) 
         	mainController.addWPCOMBlogs();
         else
         	mainController.addWPORGBlogs();
