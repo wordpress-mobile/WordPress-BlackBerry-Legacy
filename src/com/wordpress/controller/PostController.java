@@ -665,7 +665,10 @@ public class PostController extends BlogObjectController {
 				FrontController.getIstance().backAndRefreshView(true);
 			}
 			else {
-				displayError(sendTask.getErrorMsg());				
+				if ( sendTask.getOriginalException() != null )
+					displayError(sendTask.getOriginalException(), sendTask.getErrorMsg());
+				else
+					displayError(sendTask.getErrorMsg());
 			}
 		}
 		

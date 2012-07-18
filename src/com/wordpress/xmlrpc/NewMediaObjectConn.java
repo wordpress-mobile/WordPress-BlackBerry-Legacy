@@ -3,6 +3,9 @@ package com.wordpress.xmlrpc;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import net.rim.device.cldc.io.ssl.TLSIOException;
+
+import com.wordpress.bb.SSLPostingException;
 import com.wordpress.model.MediaEntry;
 import com.wordpress.utils.log.Log;
 
@@ -34,24 +37,28 @@ public class NewMediaObjectConn extends BlogConn  {
 	public void run() {
 		try{
 
-		   Hashtable content = new Hashtable(2);
-	       content.put("name",mediaObj.getFileName());
-	       content.put("bits", mediaObj); //not loaded the bytearray of content, this is a reference to real file on disk. Look ad XmlRpcWriter!!
-	       content.put("type", mediaObj.getMIMEType());
+			Hashtable content = new Hashtable(2);
+			content.put("name",mediaObj.getFileName());
+			content.put("bits", mediaObj); //not loaded the bytearray of content, this is a reference to real file on disk. Look ad XmlRpcWriter!!
+			content.put("type", mediaObj.getMIMEType());
 
-	       Vector args = new Vector(4);
-	       args.addElement(blogID);
-	       args.addElement(mUsername);
-	       args.addElement(mPassword);
-	       args.addElement(content);
+			Vector args = new Vector(4);
+			args.addElement(blogID);
+			args.addElement(mUsername);
+			args.addElement(mPassword);
+			args.addElement(content);
 
-	        Object response = execute("metaWeblog.newMediaObject", args);
+			Object response = execute("metaWeblog.newMediaObject", args);
 			if(connResponse.isError()) {
-				//se il server xml-rpc è andato in err
+				//Show a detailed error message for the SSL post issue on WPCOM
+				if ( urlConnessione.startsWith( "https" ) && urlConnessione.indexOf( "wordpress.com" ) != -1 ) {
+					if (connResponse.getResponseObject() instanceof TLSIOException || (connResponse.getResponseObject() instanceof javax.microedition.pki.CertificateException) ) {
+						connResponse.setResponseObject(new SSLPostingException(""));
+					} 
+				}	
 				notifyObservers(connResponse);
 				return;		
 			}
-			
 			connResponse.setResponseObject(response);
 		} catch (Exception cce) {
 			setErrorMessage(cce, "New Media upload error");

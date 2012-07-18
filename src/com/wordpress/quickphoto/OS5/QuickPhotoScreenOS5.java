@@ -507,7 +507,10 @@ public class QuickPhotoScreenOS5 extends StandardBaseView implements CameraScree
 				});
 			}
 			else {
-				MainController.getIstance().displayError(sendTask.getErrorMsg());				
+				if ( sendTask.getOriginalException() != null )
+					MainController.getIstance().displayError(sendTask.getOriginalException(), sendTask.getErrorMsg());
+				else
+					MainController.getIstance().displayError(sendTask.getErrorMsg());
 			}
 		}
 		

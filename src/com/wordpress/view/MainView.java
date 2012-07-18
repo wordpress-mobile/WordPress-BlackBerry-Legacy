@@ -6,7 +6,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import net.rim.blackberry.api.browser.URLEncodedPostData;
-import net.rim.blackberry.api.homescreen.HomeScreen;
 import net.rim.device.api.math.Fixed32;
 import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.Bitmap;

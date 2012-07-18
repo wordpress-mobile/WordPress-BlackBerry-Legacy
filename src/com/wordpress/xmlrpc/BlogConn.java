@@ -176,7 +176,7 @@ public abstract class BlogConn extends Observable implements Runnable {
 			}
 			logCertificateException( tlsioe );
 		} catch (javax.microedition.pki.CertificateException ce) {
-			setErrorMessage(ce, "SSL communication error (Certificate issue)");
+			setErrorMessage(ce, "SSL communication error (CertificateException)");
 			logCertificateException( ce );
 		} catch (IOException ioe) {
 			setErrorMessage(ioe, "A server communication error occurred");

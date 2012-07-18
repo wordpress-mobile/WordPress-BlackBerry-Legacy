@@ -11,6 +11,7 @@ BUTTON_MEDIA#0="Phone Media";
 BUTTON_OK#0="Ok";
 BUTTON_PAGES#0="Pages";
 BUTTON_POSTS#0="Posts";
+BUTTON_READ_SOLUTION#0="Read the FAQ for a solution";
 BUTTON_REFRESH_BLOG#0="Refresh";
 BUTTON_REMOVE#0="Remove";
 BUTTON_SETTINGS#0="Settings";

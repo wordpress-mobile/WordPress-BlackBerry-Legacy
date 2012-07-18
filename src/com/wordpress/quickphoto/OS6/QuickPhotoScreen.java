@@ -512,7 +512,10 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 				});
 			}
 			else {
-				MainController.getIstance().displayError(sendTask.getErrorMsg());				
+				if ( sendTask.getOriginalException() != null )
+					MainController.getIstance().displayError(sendTask.getOriginalException(), sendTask.getErrorMsg());
+				else
+					MainController.getIstance().displayError(sendTask.getErrorMsg());
 			}
 		}
 		

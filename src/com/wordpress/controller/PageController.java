@@ -244,8 +244,12 @@ public class PageController extends BlogObjectController {
 			if (!sendTask.isError()){
 				FrontController.getIstance().backAndRefreshView(true);
 			}
-			else
-				displayError(sendTask.getErrorMsg());
+			else {
+				if ( sendTask.getOriginalException() != null )
+					displayError(sendTask.getOriginalException(), sendTask.getErrorMsg());
+				else
+					displayError(sendTask.getErrorMsg());
+			}
 		}
 		
 		//listener for the adding blogs task

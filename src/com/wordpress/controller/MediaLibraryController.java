@@ -174,8 +174,12 @@ private class SubmitlibraryTaskListener implements TaskProgressListener {
 			}
 			FrontController.getIstance().backAndRefreshView(false);
 		}
-		else
-			displayError(sendTask.getErrorMsg());
+		else {
+			if ( sendTask.getOriginalException() != null )
+				displayError(sendTask.getOriginalException(), sendTask.getErrorMsg());
+			else
+				displayError(sendTask.getErrorMsg());
+		}
 	}
 	
 	//listener for the adding blogs task

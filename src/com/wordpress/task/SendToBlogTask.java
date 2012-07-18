@@ -165,14 +165,15 @@ public class SendToBlogTask extends TaskImpl {
 		if (stopping == true)
 			return;
 		
-		if (!executionQueue.isEmpty()  && isError == false) {
+		if (!executionQueue.isEmpty() && isError == false) {
 			blogConn = (BlogConn) executionQueue.pop();
 			
 			if(blogConn instanceof NewMediaObjectConn) {
 				try{
 					sendMedia(blogConn);
 				} catch (Exception e) {
-					final String respMessage=e.getMessage();
+					final String respMessage = e.getMessage();
+					originalException = e;
 					appendErrorMsg("Error While Sending Media: \n"+respMessage);
 					isError=true;
 					next(); //called next to exit
@@ -497,12 +498,15 @@ public class SendToBlogTask extends TaskImpl {
 						PageDAO.removePage(blog, draftFolder);
 					}
 				} catch (IOException e) {
+					originalException = e;
 					final String respMessage = e.getMessage();
 					errorMsg.append(respMessage + "\n");
 				} catch (RecordStoreException e) {
+					originalException = e;
 					final String respMessage = e.getMessage();
 					errorMsg.append(respMessage + "\n");
 				} catch (Exception e) {
+					originalException = e;
 					final String respMessage = e.getMessage();
 					errorMsg.append(respMessage + "\n");
 				}	
@@ -510,8 +514,8 @@ public class SendToBlogTask extends TaskImpl {
 				final String respMessage = resp.getResponse();
 				errorMsg.append(respMessage + "\n");
 				isError = true;
+				originalException = (resp.getResponseObject() instanceof Exception) ? (Exception)resp.getResponseObject() : null;
 			}
-
 			next(); // call to next
 		}
 	}
@@ -569,13 +573,15 @@ public class SendToBlogTask extends TaskImpl {
 						errorMsg.append(respMessage+"\n");
 						isError=true;
 					} else {
+						originalException = (resp.getResponseObject() instanceof Exception) ? (Exception)resp.getResponseObject() : null;
 						final String respMessage=resp.getResponse();
 						errorMsg.append(respMessage+"\n");
 						isError=true;
 					}
 				}
 			} catch (Exception e) {
-				errorMsg.append("Server Response Error on media upload");
+				originalException = e;
+				errorMsg.append("Server Response Error on media upload\n");
 				isError=true;
 			}
 
