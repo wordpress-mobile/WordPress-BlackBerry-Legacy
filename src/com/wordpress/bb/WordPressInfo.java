@@ -51,7 +51,7 @@ public final class WordPressInfo {
 	public static final int DEFAULT_DOWNLOADED_COMMENTS = 20;
 	public static final int DEFAULT_ITEMS_NUMBER = 20;
 	
-	public static final String SUPPORT_EMAIL_ADDRESS = "support@wordpress.com";
+	public static final String SUPPORT_EMAIL_ADDRESS = "blackberry-issue-report@automattic.com";
 	public static final String ISSUE_REPORT_EMAIL_ADDRESS = "blackberry-issue-report@automattic.com";
 	
 	/*
