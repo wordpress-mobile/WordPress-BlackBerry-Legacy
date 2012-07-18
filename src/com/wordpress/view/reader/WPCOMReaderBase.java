@@ -14,6 +14,7 @@ import net.rim.device.api.io.transport.TransportInfo;
 import net.rim.device.api.script.ScriptableFunction;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.DialogClosedListener;
+import net.rim.device.api.ui.container.MainScreen;
 
 import com.wordpress.bb.WordPressInfo;
 import com.wordpress.model.Preferences;
@@ -36,6 +37,12 @@ public abstract class WPCOMReaderBase extends BaseView {
 	public WPCOMReaderBase(String title) {
 		super(title);
 	}
+
+    public boolean onSavePrompt()
+    {
+        // Prevent the save dialog from being displayed
+        return true;
+    }   
 
 	protected BrowserFieldConfig getReaderBrowserDefaultConfig() {
 		BrowserFieldConfig config = new BrowserFieldConfig();  

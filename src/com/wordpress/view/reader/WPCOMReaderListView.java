@@ -139,17 +139,7 @@ public class WPCOMReaderListView extends WPCOMReaderBase
                 MainController.getIstance().displayError(e, "Error while loading the Web Page");
             }
         }
-    }
-    
-    
-    /**      
-     * @see MainScreen#onSavePrompt()
-     */
-    public boolean onSavePrompt()
-    {
-        // Prevent the save dialog from being displayed
-        return true;
-    }   
+    }  
     
     private MenuItem _topicsMenuItem = new MenuItem( _resources, WordPressResource.MENUITEM_TOPICS, 100, 100) {
         public void run() {

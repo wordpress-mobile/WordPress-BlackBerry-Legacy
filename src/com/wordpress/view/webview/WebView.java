@@ -84,9 +84,16 @@ public class WebView extends BaseView {
         MainController.getIstance().bumpScreenViewStats("com/wordpress/view/WebView", "Web View", "", null, "");
 	}
 	
+    public boolean onSavePrompt()
+    {
+        // Prevent the save dialog from being displayed
+        return true;
+    }   
+	
 	protected void setViewTitle(String newTitle) {
 		this.setTitleText(newTitle);
 	}
+	
 	protected void setViewTitle() {
 		if ( browserField == null ) return;
 		String newTitle = "";

@@ -210,15 +210,6 @@ public class WPCOMReaderDetailView extends WPCOMReaderBase
         //}
         super.makeMenu(menu, instance);
     }
-    
-	/**      
-     * @see MainScreen#onSavePrompt()
-     */
-    public boolean onSavePrompt()
-    {
-    	// Prevent the save dialog from being displayed
-        return true;
-    }   
 
     private class DetailViewProtocolController extends ProtocolController {
 

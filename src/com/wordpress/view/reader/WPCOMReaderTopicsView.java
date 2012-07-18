@@ -108,17 +108,6 @@ public class WPCOMReaderTopicsView extends WPCOMReaderBase
         }
     }
     
-    
-    /**      
-     * @see MainScreen#onSavePrompt()
-     */
-    public boolean onSavePrompt()
-    {
-        // Prevent the save dialog from being displayed
-        return true;
-    }   
-
-      
     /**
      * A class to listen for BrowserField events
      */
