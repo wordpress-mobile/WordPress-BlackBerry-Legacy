@@ -295,7 +295,7 @@ public class StatsController extends BaseController {
 								if(!url.endsWith("/")) url+="/";
 								if (currentBlog.getUrl().equalsIgnoreCase(url)) {
 									blogStatID = id;
-									return;
+									//return; DO NOT STOP THE LOOP HERE, We need to match the latest blog...Ref: http://blackberry.trac.wordpress.org/ticket/248
 								}
 							}
 													
