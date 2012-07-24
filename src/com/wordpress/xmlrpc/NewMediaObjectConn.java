@@ -52,9 +52,16 @@ public class NewMediaObjectConn extends BlogConn  {
 			if(connResponse.isError()) {
 				//Show a detailed error message for the SSL post issue on WPCOM
 				if ( urlConnessione.startsWith( "https" ) && urlConnessione.indexOf( "wordpress.com" ) != -1 ) {
-					if (connResponse.getResponseObject() instanceof TLSIOException || (connResponse.getResponseObject() instanceof javax.microedition.pki.CertificateException) ) {
+					Object refResponseObj = connResponse.getResponseObject();
+					if ( refResponseObj instanceof TLSIOException || refResponseObj instanceof javax.microedition.pki.CertificateException ) {
 						connResponse.setResponseObject(new SSLPostingException(""));
-					} 
+					} else if (refResponseObj instanceof net.rim.device.api.io.ConnectionClosedException) {
+						String connectionClosedErrorMessage = ((net.rim.device.api.io.ConnectionClosedException) refResponseObj).getMessage();
+						connectionClosedErrorMessage = connectionClosedErrorMessage != null ? connectionClosedErrorMessage.toLowerCase() : null;
+						if ( connectionClosedErrorMessage != null && 
+								( connectionClosedErrorMessage.indexOf("connection closed") != -1  ||  connectionClosedErrorMessage.indexOf("stream closed") != -1  ) )
+							connResponse.setResponseObject(new SSLPostingException(""));					
+					}
 				}	
 				notifyObservers(connResponse);
 				return;		

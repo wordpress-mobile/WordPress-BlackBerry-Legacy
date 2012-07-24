@@ -113,11 +113,22 @@ public class ErrorView extends Dialog {
 	}
 	
 	private String getFAQLink( final Exception e ) {
-		if ( e == null ) return null;
-		if ( e instanceof IOException && e.getMessage() != null ) {
-			if ( "file system out of resources".indexOf( e.getMessage().toLowerCase() ) != -1 )
+		if ( e == null || e.getMessage() == null ) return null;
+
+		String errorMessage = e.getMessage(); 
+		
+		if (e instanceof net.rim.device.api.io.file.FileIOException) {
+			Log.error("The error code of the IOException is: " + ( (net.rim.device.api.io.file.FileIOException) e ).getErrorCode() );
+			Log.error("See RIM documentation to decode it :) ");
+			if ( errorMessage.indexOf("not enough free memory on the file system to complete this") != -1 ) {
 				return "http://blackberry.wordpress.org/faq/#faq_no_space_for_op";
-			else if ("file system full error".indexOf( e.getMessage().toLowerCase() ) != -1 )
+			} else if ( errorMessage.indexOf("(1003)") != -1 ) { //NO_SUCH_ROOT - is the device attached to the pc?
+				return "http://blackberry.wordpress.org/faq/#faq_no_space_for_op";
+			}
+		} else if ( e instanceof IOException ) {
+			if ( errorMessage.indexOf( "file system out of resources" ) != -1 || errorMessage.indexOf("not enough free memory on the file system to complete this") != -1 )
+				return "http://blackberry.wordpress.org/faq/#faq_no_space_for_op";
+			else if ( errorMessage.indexOf( "file system full error" ) != -1 )
 				return "http://blackberry.wordpress.org/faq/#faq_8";
 		} else if (e instanceof SSLPostingException) {
 			return "http://blackberry.wordpress.org/faq/#faq_2";

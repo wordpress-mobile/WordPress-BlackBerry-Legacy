@@ -15,7 +15,9 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParser;
 
 import net.rim.device.api.io.Base64OutputStream;
+import net.rim.device.cldc.io.ssl.TLSIOException;
 
+import com.wordpress.bb.SSLPostingException;
 import com.wordpress.io.FileUtils;
 import com.wordpress.io.JSR75FileSystem;
 import com.wordpress.model.MediaEntry;
@@ -91,8 +93,19 @@ public class AtomPubNewMediaObjectConn extends NewMediaObjectConn  {
 				} else  {
 					throw new Exception("HTTP Error "+responsecode+" - "+responsemessage);
 				}
-				
 			} catch(Exception e) {
+				if ( urlConnessione.startsWith( "https" ) && urlConnessione.indexOf( "wordpress.com" ) != -1 ) {
+					Object refResponseObj = connResponse.getResponseObject();
+					if ( refResponseObj instanceof TLSIOException || refResponseObj instanceof javax.microedition.pki.CertificateException ) {
+						throw new SSLPostingException("");
+					} else if (refResponseObj instanceof net.rim.device.api.io.ConnectionClosedException) {
+						String connectionClosedErrorMessage = ((net.rim.device.api.io.ConnectionClosedException) refResponseObj).getMessage();
+						connectionClosedErrorMessage = connectionClosedErrorMessage != null ? connectionClosedErrorMessage.toLowerCase() : null;
+						if ( connectionClosedErrorMessage != null && 
+								( connectionClosedErrorMessage.indexOf("connection closed") != -1  ||  connectionClosedErrorMessage.indexOf("stream closed") != -1  ) )
+							throw new SSLPostingException("");					
+					}
+				}
 				throw e;
 			} finally {
 				if (bos != null) {
