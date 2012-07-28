@@ -47,7 +47,7 @@
 	</target>
 
 
-	<target name="clean" depends="cleanOS45, cleanOS47, cleanOS50, cleanOS60, cleanOS7, cleanTorch" />
+	<target name="clean" depends="cleanOS45, cleanOS47, cleanOS50, cleanOS60, cleanOS7" />
 	
 	<target name="cleanOS45" depends="init">
 		<ant antfile="build/build_single.xml" target="clean">
@@ -76,12 +76,6 @@
 	<target name="cleanOS7" depends="init">
 		<ant antfile="build/build_single.xml" target="clean">
 			<property name="platform"         value="os7"/>
-		</ant>
-	</target>
-	
-	<target name="cleanTorch" depends="init">
-		<ant antfile="build/build_single.xml" target="clean">
-			<property name="platform"         value="torch"/>
 		</ant>
 	</target>
 
@@ -162,19 +156,6 @@
 		</ant>
 	</target>
 	
-	<target name="releaseTorch" depends="init, cleanTorch">
-        <property file="build/build.properties" />
-        <property file="build/release.properties" />
-		<ant antfile="build/build_single.xml" target="release">
-			<property name="platform" value="torch" />
-			<property name="rim.home" value="${rim.home.os60}" />
-			<property name="BlackBerrySDK6.0.0"  value="true" />
-			<property name="is_torch"  value="true" />
-			<property name="module.version" value="${release.number}" />
-		</ant>
-	</target>
-	
-	
 	<target name="simulator" depends="init, cleanOS45">
         <property file="build/build.properties" />
         <property file="build/release.properties" />
@@ -219,19 +200,6 @@
 			<property name="rim.home" value="${rim.home.os60}" />
 			<property name="log_console" value="true" />
 			<property name="BlackBerrySDK6.0.0"  value="true" />
-			<property name="module.version" value="${nightly.number}" />
-		</ant>
-	</target>
-	
-	<target name="simulatorTorch" depends="init, cleanTorch">
-		<property file="build/build.properties" />
-        <property file="build/release.properties" />
-		<ant antfile="build/build_single.xml" target="rapc">
-			<property name="platform" value="torch" />
-			<property name="rim.home" value="${rim.home.os60}" />
-			<property name="log_console" value="true" />
-			<property name="BlackBerrySDK6.0.0"  value="true" />
-			<property name="is_torch"  value="true" />
 			<property name="module.version" value="${nightly.number}" />
 		</ant>
 	</target>

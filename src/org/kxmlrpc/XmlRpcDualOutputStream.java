@@ -24,7 +24,6 @@ public class XmlRpcDualOutputStream {
 	
 	public XmlRpcDualOutputStream() {
 		
-		//#ifndef IS_TORCH
 		try {
 			tmpFilePath = AppDAO.getXmlRpcTempFilesPath()+String.valueOf(System.currentTimeMillis());
 			//check the folder first
@@ -47,7 +46,6 @@ public class XmlRpcDualOutputStream {
 	    	os = null;
 	    	tmpFilePath = null;
 		}
-		//#endif
 		
     	if(os == null) {
     		setUpMemoryOutputStream();

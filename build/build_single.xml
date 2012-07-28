@@ -83,7 +83,6 @@
         	<define tag="BlackBerrySDK5.0.0" if="BlackBerrySDK5.0.0" />
         	<define tag="BlackBerrySDK6.0.0" if="BlackBerrySDK6.0.0" />
         	<define tag="BlackBerrySDK7.0.0" if="BlackBerrySDK7.0.0" />
-        	<define tag="IS_TORCH" if="is_torch" />
         	
             <jdp
                 type="cldc"

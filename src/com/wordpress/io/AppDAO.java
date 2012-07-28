@@ -300,12 +300,7 @@ public class AppDAO implements BaseDAO {
 			if(preferences.get("isAtomPubEnabled") != null) {
 				pref.setAtomPubEnabled(((Boolean)preferences.get("isAtomPubEnabled")).booleanValue());
 			} else {
-				//On Torch devices AtomPub is enabled by default
-				//#ifdef IS_TORCH
-				pref.setAtomPubEnabled(true);
-				//#else
 				pref.setAtomPubEnabled(false);
-				//#endif
 			}
 			
 			if(preferences.get("userName") != null) {
