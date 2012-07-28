@@ -33,10 +33,6 @@ import com.wordpress.utils.log.Log;
 import com.wordpress.view.component.BasicListFieldCallBack;
 import com.wordpress.view.component.ColoredLabelField;
 
-//#ifdef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
-import com.wordpress.view.webview.WebView;
-//#endif
-
 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.TouchGesture;
 import net.rim.device.api.ui.TouchEvent;
@@ -162,8 +158,9 @@ public class WelcomeView extends StandardBaseView {
         
         if (index == 0) {
         	//#ifdef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
-        	WebView wv = new WebView( WordPressInfo.BB_APP_SIGNUP_URL );
+        	SignupWebView wv = new SignupWebView( WordPressInfo.BB_APP_SIGNUP_URL );
         	UiApplication.getUiApplication().pushScreen(wv);
+        	wv.loadRequest();
         	//#elseif
         	Tools.openURL(WordPressInfo.BB_APP_SIGNUP_URL);
         	//#endif

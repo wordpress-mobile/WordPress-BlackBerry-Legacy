@@ -91,20 +91,23 @@ public class AtomPubNewMediaObjectConn extends NewMediaObjectConn  {
 				} else if (responsecode == 403) {
 					throw new Exception("AtomPub is disabled on your blog. You can enable it by going to Settings > Writing > Remote Publishing, checking the box next to \"Atom Publishing Protocol\", then pressing Save Changes.");
 				} else  {
-					throw new Exception("HTTP Error "+responsecode+" - "+responsemessage);
+					if ( urlConnessione.startsWith( "https" ) && urlConnessione.indexOf( "wordpress.com" ) != -1 ) //Fix for the posting issue
+						throw new SSLPostingException("");
+					else 
+						throw new Exception("HTTP Error "+responsecode+" - "+responsemessage);
 				}
 			} catch(Exception e) {
 				if ( urlConnessione.startsWith( "https" ) && urlConnessione.indexOf( "wordpress.com" ) != -1 ) {
-					Object refResponseObj = connResponse.getResponseObject();
-					if ( refResponseObj instanceof TLSIOException || refResponseObj instanceof javax.microedition.pki.CertificateException ) {
-						throw new SSLPostingException("");
-					} else if (refResponseObj instanceof net.rim.device.api.io.ConnectionClosedException) {
-						String connectionClosedErrorMessage = ((net.rim.device.api.io.ConnectionClosedException) refResponseObj).getMessage();
+					if ( e instanceof TLSIOException || e instanceof javax.microedition.pki.CertificateException 
+						|| e instanceof net.rim.device.api.io.ConnectionClosedException || e instanceof net.rim.device.api.io.IOCancelledException
+						|| e instanceof java.io.InterruptedIOException || e instanceof java.io.IOException) {
+						/*String connectionClosedErrorMessage = ((net.rim.device.api.io.ConnectionClosedException) refResponseObj).getMessage();
 						connectionClosedErrorMessage = connectionClosedErrorMessage != null ? connectionClosedErrorMessage.toLowerCase() : null;
 						if ( connectionClosedErrorMessage != null && 
 								( connectionClosedErrorMessage.indexOf("connection closed") != -1  ||  connectionClosedErrorMessage.indexOf("stream closed") != -1  ) )
-							throw new SSLPostingException("");					
-					}
+							*/
+						throw new SSLPostingException("");					
+					} 
 				}
 				throw e;
 			} finally {
@@ -139,7 +142,7 @@ public class AtomPubNewMediaObjectConn extends NewMediaObjectConn  {
 			
 			connResponse.setResponseObject(response);
 		} catch (Exception cce) {
-			setErrorMessage(cce, "AtomPub Error");
+			setErrorMessage(cce, "Error while uploading media!");
 		}
 		try {
 			notifyObservers(connResponse);

@@ -20,7 +20,7 @@ public class WebViewDefaultListener extends BrowserFieldListener {
 	 
 	public void documentLoaded(BrowserField browserField, Document document) throws Exception {
 		super.documentLoaded(browserField, document);
-		Log.debug("URL Loaded in the listView: " + browserField.getDocumentUrl() );
+		Log.debug("URL Loaded in " + "["+ webView.getClass().getName() + "] " + browserField.getDocumentUrl() );
 		webView.setViewTitle();
 	}
 	

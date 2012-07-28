@@ -517,7 +517,8 @@ public abstract class BlogConn extends Observable implements Runnable {
 			connResponse.setStopped(true);
 		
 		if(e != null && e.getMessage()!= null ) {
-			connResponse.setResponse(err+"\n"+e.getMessage());
+			//connResponse.setResponse(err+"\n"+e.getMessage());
+			connResponse.setResponse(err);
 			Log.error(err+" -> "+e.getMessage());
 		} else {
 			connResponse.setResponse(err);

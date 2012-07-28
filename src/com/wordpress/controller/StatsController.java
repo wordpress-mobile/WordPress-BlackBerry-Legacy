@@ -12,6 +12,7 @@ import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
+import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -242,7 +243,12 @@ public class StatsController extends BaseController {
 				parser.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true); //relaxed parser
 				ByteArrayInputStream bais = new ByteArrayInputStream(response);
 				parser.setInput(bais, "ISO-8859-1");
-				
+				String blogUrl = currentBlog.getUrl();
+				if(!blogUrl.endsWith("/")) 
+					blogUrl+="/";
+				blogUrl = StringUtils.replaceAll(blogUrl, "https://", "");
+				blogUrl = StringUtils.replaceAll(blogUrl, "http://", "");
+				Log.trace("current blog url " + blogUrl);
 				while (parser.next() != XmlPullParser.END_DOCUMENT) {
 					if (parser.getEventType() == XmlPullParser.START_TAG) {
 						
@@ -289,16 +295,14 @@ public class StatsController extends BaseController {
 														
 							if(url != null) {
 								//trying to match the url
-								String blogUrl = currentBlog.getUrl();
-								if(!blogUrl.endsWith("/")) blogUrl+="/";
-								Log.trace("current blog url " + blogUrl);
 								if(!url.endsWith("/")) url+="/";
-								if (currentBlog.getUrl().equalsIgnoreCase(url)) {
+								url = StringUtils.replaceAll(url, "https://", "");
+								url = StringUtils.replaceAll(url, "http://", "");
+								if (blogUrl.equalsIgnoreCase(url)) {
 									blogStatID = id;
 									//return; DO NOT STOP THE LOOP HERE, We need to match the latest blog...Ref: http://blackberry.trac.wordpress.org/ticket/248
 								}
 							}
-													
 						}//end 
 					}
 				}				

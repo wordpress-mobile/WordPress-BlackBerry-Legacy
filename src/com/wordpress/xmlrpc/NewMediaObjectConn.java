@@ -55,12 +55,22 @@ public class NewMediaObjectConn extends BlogConn  {
 					Object refResponseObj = connResponse.getResponseObject();
 					if ( refResponseObj instanceof TLSIOException || refResponseObj instanceof javax.microedition.pki.CertificateException ) {
 						connResponse.setResponseObject(new SSLPostingException(""));
+						connResponse.setResponse("Error while uploading media!");
 					} else if (refResponseObj instanceof net.rim.device.api.io.ConnectionClosedException) {
-						String connectionClosedErrorMessage = ((net.rim.device.api.io.ConnectionClosedException) refResponseObj).getMessage();
+					/*	String connectionClosedErrorMessage = ((net.rim.device.api.io.ConnectionClosedException) refResponseObj).getMessage();
 						connectionClosedErrorMessage = connectionClosedErrorMessage != null ? connectionClosedErrorMessage.toLowerCase() : null;
 						if ( connectionClosedErrorMessage != null && 
 								( connectionClosedErrorMessage.indexOf("connection closed") != -1  ||  connectionClosedErrorMessage.indexOf("stream closed") != -1  ) )
-							connResponse.setResponseObject(new SSLPostingException(""));					
+							*/
+						connResponse.setResponseObject(new SSLPostingException(""));
+						connResponse.setResponse("Error while uploading media!");
+					} else if (refResponseObj instanceof java.io.InterruptedIOException || refResponseObj instanceof java.io.IOException) {
+						String eMsg = ((Exception) refResponseObj).getMessage();
+						if ( eMsg != null && ( eMsg.indexOf("connection timed out") != -1 || eMsg.indexOf( "APN is not specified" ) != -1 
+								|| eMsg.indexOf( "BIS conn: null" ) != -1 || eMsg.indexOf( "TCP conn" ) != -1 ) ) {
+							connResponse.setResponseObject(new SSLPostingException(""));
+							connResponse.setResponse("Error while uploading media!");
+						}
 					}
 				}	
 				notifyObservers(connResponse);
@@ -68,7 +78,7 @@ public class NewMediaObjectConn extends BlogConn  {
 			}
 			connResponse.setResponseObject(response);
 		} catch (Exception cce) {
-			setErrorMessage(cce, "New Media upload error");
+			setErrorMessage(cce, "Error while uploading media!");
 		}
 		try {
 			notifyObservers(connResponse);

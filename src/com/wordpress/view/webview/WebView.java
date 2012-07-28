@@ -4,10 +4,9 @@ import java.io.UnsupportedEncodingException;
 
 import net.rim.device.api.browser.field2.BrowserField;
 import net.rim.device.api.browser.field2.BrowserFieldConfig;
-
+import net.rim.device.api.browser.field2.ProtocolController;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.BaseController;
-import com.wordpress.controller.MainController;
 import com.wordpress.model.Preferences;
 import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.Tools;
@@ -17,12 +16,15 @@ import com.wordpress.view.dialog.ConnectionInProgressView;
 
 
 public class WebView extends BaseView {
-	ConnectionInProgressView connectionProgressView=null;
-	private BrowserFieldConfig myBrowserFieldConfig;
-	private BrowserField browserField;
+	
+	protected ConnectionInProgressView connectionProgressView = null;
+	protected BrowserFieldConfig myBrowserFieldConfig;
+	protected BrowserField browserField;
+	protected final String originalURL;
 	
 	public WebView(String URL) {
 		super(_resources.getString(WordPressResource.TITLE_PREVIEW));
+		originalURL = URL;
 		myBrowserFieldConfig = new BrowserFieldConfig();
 		myBrowserFieldConfig.setProperty(BrowserFieldConfig.NAVIGATION_MODE,BrowserFieldConfig.NAVIGATION_MODE_POINTER);
 		myBrowserFieldConfig.setProperty(BrowserFieldConfig.ALLOW_CS_XHR,Boolean.TRUE);
@@ -35,14 +37,21 @@ public class WebView extends BaseView {
 		myBrowserFieldConfig.setProperty(BrowserFieldConfig.CONTROLLER, new WebViewDefaultProtocolController(this, browserField));
 		if ( Preferences.getIstance().isDebugMode() )
 			myBrowserFieldConfig.setProperty(BrowserFieldConfig.ERROR_HANDLER, new WebViewDefaultErrorHandler(browserField));
-		browserField.requestContent( URL );
-
-		MainController.getIstance().bumpScreenViewStats("com/wordpress/view/WebView", "Web View", "", null, "");
+		
+		//MainController.getIstance().bumpScreenViewStats("com/wordpress/view/WebView", "Web View", "", null, "");
+	}
+	
+	public void setWebViewDefaultProtocolController(ProtocolController pCtrl) {
+		myBrowserFieldConfig.setProperty(BrowserFieldConfig.CONTROLLER, pCtrl);
+	}
+	
+	public void loadRequest() {
+		browserField.requestContent( originalURL );
 	}
 
 	public WebView(byte[] data, String contentType) {
 		super(_resources.getString(WordPressResource.TITLE_PREVIEW));
-		
+		this.originalURL = null;
 		String encoding = null;
 		
 		if(contentType != null && contentType.indexOf("charset") > -1 ) {
@@ -80,8 +89,6 @@ public class WebView extends BaseView {
 			browserField.displayContent(html, "http://localhost");
 		}
 		add(browserField);
-		
-        MainController.getIstance().bumpScreenViewStats("com/wordpress/view/WebView", "Web View", "", null, "");
 	}
 	
     public boolean onSavePrompt()

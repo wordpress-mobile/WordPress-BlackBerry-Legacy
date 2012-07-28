@@ -115,14 +115,14 @@ public class ErrorView extends Dialog {
 	private String getFAQLink( final Exception e ) {
 		if ( e == null || e.getMessage() == null ) return null;
 
-		String errorMessage = e.getMessage(); 
+		String errorMessage = e.getMessage().toLowerCase(); 
 		
 		if (e instanceof net.rim.device.api.io.file.FileIOException) {
 			Log.error("The error code of the IOException is: " + ( (net.rim.device.api.io.file.FileIOException) e ).getErrorCode() );
 			Log.error("See RIM documentation to decode it :) ");
 			if ( errorMessage.indexOf("not enough free memory on the file system to complete this") != -1 ) {
 				return "http://blackberry.wordpress.org/faq/#faq_no_space_for_op";
-			} else if ( errorMessage.indexOf("(1003)") != -1 ) { //NO_SUCH_ROOT - is the device attached to the pc?
+			} else if ( errorMessage.indexOf( "(1003)" ) != -1 ) { //NO_SUCH_ROOT - is the device attached to the pc?
 				return "http://blackberry.wordpress.org/faq/#faq_no_space_for_op";
 			}
 		} else if ( e instanceof IOException ) {
@@ -130,6 +130,9 @@ public class ErrorView extends Dialog {
 				return "http://blackberry.wordpress.org/faq/#faq_no_space_for_op";
 			else if ( errorMessage.indexOf( "file system full error" ) != -1 )
 				return "http://blackberry.wordpress.org/faq/#faq_8";
+			else if ( errorMessage.indexOf( "APN is not specified" ) != -1 || errorMessage.indexOf( "BIS conn: null" ) != -1 || errorMessage.indexOf( "TCP conn" ) != -1 ){
+				return "http://blackberry.wordpress.org/faq/#faq_12";
+			}
 		} else if (e instanceof SSLPostingException) {
 			return "http://blackberry.wordpress.org/faq/#faq_2";
 		} 
