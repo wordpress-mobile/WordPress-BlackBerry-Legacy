@@ -337,8 +337,8 @@ public class PostsController extends BaseController{
 					displayError(e,"Error while refreshing blogs");	
 				}
 			} else {
-				final String respMessage=resp.getResponse();
-				displayError(respMessage);	
+				final String respMessage= resp.getResponse();
+				displayError((Exception)resp.getResponseObject(), respMessage);	
 			}
 		}
 	}

@@ -609,8 +609,8 @@ public class RecentCommentsController extends BaseController {
 			}
 
 			if(resp.isError()) {
-				final String respMessage=resp.getResponse();
-				displayError(respMessage);
+				final String respMessage = resp.getResponse();
+				displayError((Exception)resp.getResponseObject(), respMessage);	
 				return;
 			}
 

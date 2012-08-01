@@ -36,7 +36,8 @@ public class RecentPostConn extends BlogConn  {
 
 			connResponse = new BlogConnResponse();
 	        Vector recentPostTitle = getRecentPostTitle(blog.getId(), numPosts);
-			connResponse.setResponseObject(recentPostTitle);
+			if( recentPostTitle != null )
+				connResponse.setResponseObject(recentPostTitle);
 
 		} catch (Exception cce) {
 			setErrorMessage(cce, "loadPosts error");	

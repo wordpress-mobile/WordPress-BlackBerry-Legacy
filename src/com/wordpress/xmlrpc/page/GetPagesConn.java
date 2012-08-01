@@ -32,8 +32,8 @@ public class GetPagesConn extends BlogConn  {
 		try{
 			connResponse = new BlogConnResponse();
 	        Vector recentPostTitle = getPages(blogID, this.maxPagesNumber);
-	        
-			connResponse.setResponseObject(recentPostTitle);
+	        if( recentPostTitle != null )
+	        	connResponse.setResponseObject(recentPostTitle);
 		} catch (Exception cce) {
 			setErrorMessage(cce, "loadPages error");	
 		}

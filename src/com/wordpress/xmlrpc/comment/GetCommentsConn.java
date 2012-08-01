@@ -49,9 +49,10 @@ public class GetCommentsConn extends BlogConn  {
 	        		}
 	        	} 
 	        }
-	        else
-	        connResponse.setResponseObject(comments);
-		
+	        else{
+	        	if ( comments != null )
+	        		connResponse.setResponseObject(comments);
+	        }
 		} catch (Exception cce) {
 			setErrorMessage(cce, "Error while loading comments");	
 		}

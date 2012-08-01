@@ -290,11 +290,9 @@ public class PagesController extends BaseController{
 				} catch (final Exception e) {
 					displayError(e,"Error while storing pages");	
 				}
-
-
 			} else {
-				final String respMessage=resp.getResponse();
-				displayError(respMessage);	
+				final String respMessage = resp.getResponse();
+				displayError((Exception)resp.getResponseObject(), respMessage);		
 			}
 		}
 	}
