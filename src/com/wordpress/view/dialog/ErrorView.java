@@ -58,7 +58,15 @@ public class ErrorView extends Dialog {
 			});
 			manager.insert(reportIssueBtnField, manager.getFieldCount());
 		} else {
-			//There isn't a FAQ. Build the send to support email dialog
+			ButtonField reportIssueBtnField = new ButtonField( _resources.getString( WordPressResource.BUTTON_NEED_HELP ));
+			reportIssueBtnField.setChangeListener(new FieldChangeListener() {
+				public void fieldChanged(Field field, int context) {
+					Tools.openURL( WordPressInfo.SUPPORT_FAQ_URL );
+					close();
+				}
+			});
+			manager.insert(reportIssueBtnField, manager.getFieldCount());
+			/*There isn't a FAQ. Build the send to support email dialog
 			ButtonField reportIssueBtnField = new ButtonField( _resources.getString( WordPressResource.MENUITEM_REPORT_ISSUE ));
 			reportIssueBtnField.setChangeListener(new FieldChangeListener() {
 				public void fieldChanged(Field field, int context) {
@@ -108,7 +116,7 @@ public class ErrorView extends Dialog {
 					close();
 				}
 			});
-			manager.insert(reportIssueBtnField, manager.getFieldCount());
+			manager.insert(reportIssueBtnField, manager.getFieldCount()); */
 		}
 	}
 	

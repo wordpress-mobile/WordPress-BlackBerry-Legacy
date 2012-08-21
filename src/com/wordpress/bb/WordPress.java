@@ -67,7 +67,7 @@ public class WordPress extends UiApplication implements WordPressResource, Syste
     		// Note that this work must be completed using invokeLater because the 
     		// application has not yet entered the event dispatcher.
     		app.doStartupWorkLater(); 
-    		//SharingHelperOldDevices.storeAppIstance(app);
+    		SharingHelperOldDevices.storeAppIstance(app);
     	}
     	// Enter the event dispatcher.
     	app.enterEventDispatcher(); 
@@ -89,7 +89,7 @@ public class WordPress extends UiApplication implements WordPressResource, Syste
     	//adds the CHAPI sharing to WP 
     	SharingHelper.getInstance().unregisterCHAPI();
     	SharingHelper.getInstance().registerCHAPI();
-    	//SharingHelperOldDevices.getInstance().addGlobalMenuItems(_resources);
+    	SharingHelperOldDevices.getInstance().addGlobalMenuItems(_resources);
 
     	Log.trace("==== Registering WordPress Comments Notification ====");
     	//Define a dummy object that provides the source for the event.

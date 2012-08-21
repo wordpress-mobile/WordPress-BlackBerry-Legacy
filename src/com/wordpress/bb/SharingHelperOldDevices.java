@@ -64,19 +64,19 @@ public class SharingHelperOldDevices {
 		for (int i = 0; i < chapiMimeTypes.length; i++) {
 
 			ShareToWordPressMenuItem shareToWordPressMenuItem = new ShareToWordPressMenuItem(10000, 
-					_resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS));
+					_resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS_LONG));
 
 			amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_FILE_EXPLORER_BROWSE, shareToWordPressMenuItem, ApplicationDescriptor.currentApplicationDescriptor(), chapiMimeTypes[i]);
 			amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_FILE_EXPLORER_ITEM, shareToWordPressMenuItem, ApplicationDescriptor.currentApplicationDescriptor(), chapiMimeTypes[i]);
 		}
 
 		amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_BROWSER, 
-				new ShareToWordPressMenuItem(10000, _resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS)),
+				new ShareToWordPressMenuItem(10000, _resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS_LONG)),
 				ApplicationDescriptor.currentApplicationDescriptor());
 		
 		//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		amir.addMenuItem(ApplicationMenuItemRepository.MENUITEM_CAMERA_PREVIEW,
-				new ShareToWordPressMenuItem(10000, _resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS)), 
+				new ShareToWordPressMenuItem(10000, _resources.getString(WordPressResource.MENUITEM_SHARE_TO_WORDPRESS_LONG)), 
 				ApplicationDescriptor.currentApplicationDescriptor());
 		//#endif
 	}

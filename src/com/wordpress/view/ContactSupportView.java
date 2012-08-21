@@ -44,7 +44,7 @@ public class ContactSupportView extends BaseView {
     	forumsField.setText(_resources.getString(WordPressResource.SUPPORT_WPORG_SITES));
     	forumsField.setMargin(10, 10, 0, 10);
     	add(forumsField);
-    	urlAddr = GUIFactory.createURLLabelField("http://blackberry.forums.wordpress.org", "http://blackberry.forums.wordpress.org/", LabelField.FOCUSABLE);
+    	urlAddr = GUIFactory.createURLLabelField(WordPressInfo.SUPPORT_FORUM_URL, WordPressInfo.SUPPORT_FORUM_URL, LabelField.FOCUSABLE);
     	urlAddr.setMargin(0, 10, 10, 10);
     	add(urlAddr);
     	
@@ -52,7 +52,7 @@ public class ContactSupportView extends BaseView {
     	faqField.setText(_resources.getString(WordPressResource.SUPPORT_WPORG_SITES_FAQ));
     	faqField.setMargin(10, 10, 0, 10);
     	add(faqField);
-    	urlAddr = GUIFactory.createURLLabelField("http://blackberry.wordpress.org/faq/", "http://blackberry.wordpress.org/faq/", LabelField.FOCUSABLE);
+    	urlAddr = GUIFactory.createURLLabelField(WordPressInfo.SUPPORT_FAQ_URL, WordPressInfo.SUPPORT_FAQ_URL, LabelField.FOCUSABLE);
     	urlAddr.setMargin(0, 10, 5, 10);
     	add(urlAddr); 	
     }
@@ -67,7 +67,7 @@ public class ContactSupportView extends BaseView {
     	faqField.setText("- " + _resources.getString(WordPressResource.SUPPORT_FAQ));
     	faqField.setMargin(0, 10, 0, 10);
     	add(faqField);
-    	urlAddr = GUIFactory.createURLLabelField("http://blackberry.wordpress.org/faq/", "http://blackberry.wordpress.org/faq/", LabelField.FOCUSABLE);
+    	urlAddr = GUIFactory.createURLLabelField(WordPressInfo.SUPPORT_FAQ_URL, WordPressInfo.SUPPORT_FAQ_URL, LabelField.FOCUSABLE);
     	urlAddr.setMargin(0, 10, 5, 10);
     	add(urlAddr);
     	
@@ -75,7 +75,7 @@ public class ContactSupportView extends BaseView {
     	forumsField.setText("- " + _resources.getString(WordPressResource.SUPPORT_FORUM));
     	forumsField.setMargin(0, 10, 0, 10);
     	add(forumsField);
-    	urlAddr = GUIFactory.createURLLabelField("http://blackberry.forums.wordpress.org", "http://blackberry.forums.wordpress.org/", LabelField.FOCUSABLE);
+    	urlAddr = GUIFactory.createURLLabelField(WordPressInfo.SUPPORT_FORUM_URL, WordPressInfo.SUPPORT_FORUM_URL, LabelField.FOCUSABLE);
     	urlAddr.setMargin(0, 10, 0, 10);
     	add(urlAddr);
     	

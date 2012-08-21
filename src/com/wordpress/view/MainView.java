@@ -131,7 +131,7 @@ public class MainView extends BaseView {
 			wft.setToolbarHeight(titleField.getPreferredHeight());
 			add(wft);
 		}
-        addMenuItem(_feedbackItem);
+       // addMenuItem(_feedbackItem);
         addMenuItem(_bugReportItem);
         addMenuItem(_aboutItem);
 		addMenuItem(_addBlogItem);
