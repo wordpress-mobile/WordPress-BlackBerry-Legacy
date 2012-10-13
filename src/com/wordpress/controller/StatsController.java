@@ -244,10 +244,15 @@ public class StatsController extends BaseController {
 				ByteArrayInputStream bais = new ByteArrayInputStream(response);
 				parser.setInput(bais, "ISO-8859-1");
 				String blogUrl = currentBlog.getUrl();
+				blogUrl = blogUrl.toLowerCase();
 				if(!blogUrl.endsWith("/")) 
 					blogUrl+="/";
 				blogUrl = StringUtils.replaceAll(blogUrl, "https://", "");
 				blogUrl = StringUtils.replaceAll(blogUrl, "http://", "");
+				if( blogUrl.startsWith("www.")) {
+					blogUrl = blogUrl.substring(4);
+				}
+				
 				Log.trace("current blog url " + blogUrl);
 				while (parser.next() != XmlPullParser.END_DOCUMENT) {
 					if (parser.getEventType() == XmlPullParser.START_TAG) {
@@ -295,10 +300,14 @@ public class StatsController extends BaseController {
 														
 							if(url != null) {
 								//trying to match the url
+								url = url.toLowerCase();
 								if(!url.endsWith("/")) url+="/";
 								url = StringUtils.replaceAll(url, "https://", "");
 								url = StringUtils.replaceAll(url, "http://", "");
-								if (blogUrl.equalsIgnoreCase(url)) {
+								if( url.startsWith("www.")) {
+									url = url.substring(4);
+								}
+								if (blogUrl.equals(url)) {
 									blogStatID = id;
 									//return; DO NOT STOP THE LOOP HERE, We need to match the latest blog...Ref: http://blackberry.trac.wordpress.org/ticket/248
 								}
