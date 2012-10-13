@@ -342,7 +342,6 @@ OPTIONSSCREEN_TITLE_ADVANCED_CONNECTION_OPTIONS#0="Napredne opcije konekcije";
 OPTIONSSCREEN_TITLE_CONNECTION_OPTIONS#0="Opcije konekcije";
 OPTIONSSCREEN_TITLE_GPS#0="Kako utvrditi lokaciju";
 OPTIONSSCREEN_TITLE_LOG_OPTIONS#0="Opcije prijave";
-OPTIONSSCREEN_TITLE_MEDIAAPI#0="Media API";
 OPTIONSSCREEN_TITLE_STARTUP#0="Opcije pokretanja/ga\u0161enja";
 OPTIONSSCREEN_TITLE_STORAGE#0="Opcije ke\u0161iranja datoteka";
 OPTIONSSCREEN_USERDEFINEDCONN_DESC#0="Ovo su napredne opcije konekcije. U normalnim uslovima ove opcije je potrebno ostaviti isklju\u010Denim. Ipak, ako imate problema sa konekcijom mo\u017Eete omogu\u0107iti va\u0161e postavke konekcije u ovom okviru.";

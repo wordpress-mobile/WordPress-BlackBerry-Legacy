@@ -296,12 +296,6 @@ public class AppDAO implements BaseDAO {
 			if(preferences.get("isWapConnectionPermitted") != null) {
 				pref.setBlackBerryInternetServicePermitted(((Boolean)preferences.get("isWapConnectionPermitted")).booleanValue());
 			}
-
-			if(preferences.get("isAtomPubEnabled") != null) {
-				pref.setAtomPubEnabled(((Boolean)preferences.get("isAtomPubEnabled")).booleanValue());
-			} else {
-				pref.setAtomPubEnabled(false);
-			}
 			
 			if(preferences.get("userName") != null) {
 				pref.setUsername((String)preferences.get("userName"));
@@ -367,9 +361,6 @@ public class AppDAO implements BaseDAO {
 		    
 		    Boolean isWapConnectionPermitted = new Boolean(pref.isBlackBerryInternetServicePermitted());
 		    preferences.put("isWapConnectionPermitted", isWapConnectionPermitted);
-		    
-		    Boolean isAtomPubEnabled = new Boolean(pref.isAtomPubEnabled());
-		    preferences.put("isAtomPubEnabled", isAtomPubEnabled);
 		    
 		    String userPass = pref.getPassword();
 		    preferences.put("userPass", userPass);

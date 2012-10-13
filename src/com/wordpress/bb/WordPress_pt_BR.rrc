@@ -342,7 +342,6 @@ OPTIONSSCREEN_TITLE_ADVANCED_CONNECTION_OPTIONS#0="Opção de conexão avançada";
 OPTIONSSCREEN_TITLE_CONNECTION_OPTIONS#0="Opções de conexão";
 OPTIONSSCREEN_TITLE_GPS#0="Como determinar localização";
 OPTIONSSCREEN_TITLE_LOG_OPTIONS#0="Opções de login";
-OPTIONSSCREEN_TITLE_MEDIAAPI#0="Mídia API";
 OPTIONSSCREEN_TITLE_STARTUP#0="Iniciar/Reiniciar Opções";
 OPTIONSSCREEN_TITLE_STORAGE#0="Opções de cache dos arquivos";
 OPTIONSSCREEN_USERDEFINEDCONN_DESC#0="A seguir as configurações de conexões avançadas. Em circunstâncias normais, deixe esta opção desabilitada. Porém, se você estiver tendo problemas de conexões você pode habilitar suas configurações de conexão nesta caixa.";

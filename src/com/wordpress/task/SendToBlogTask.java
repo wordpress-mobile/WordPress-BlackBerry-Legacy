@@ -71,15 +71,8 @@ public class SendToBlogTask extends TaskImpl {
 		for (int i =0; i < mediaObjects.size(); i++ ) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 			
-			BlogConn mediaConnection;
-			if( mPrefs.isAtomPubEnabled() ) {
-				String xmlRpcURL = blog.getXmlRpcUrl().endsWith("/") ? blog.getXmlRpcUrl() :  blog.getXmlRpcUrl()+"/";
-				String atomPubURL = StringUtils.replaceLast(xmlRpcURL,"/xmlrpc.php/", "");
-				mediaConnection = new AtomPubNewMediaObjectConn (atomPubURL, blog.getUsername(), blog.getPassword(), blog.getId(), tmp);
-			} else
-			mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
+			BlogConn mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
-			
 			
 			if(blog.isHTTPBasicAuthRequired()) {
 				mediaConnection.setHttp401Password(blog.getHTTPAuthPassword());
@@ -99,14 +92,8 @@ public class SendToBlogTask extends TaskImpl {
 		Vector mediaObjects = page.getMediaObjects();
 		for (int i =0; i < mediaObjects.size(); i++ ) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
-			BlogConn mediaConnection;
 			
-			if( mPrefs.isAtomPubEnabled() ) {
-				String xmlRpcURL = blog.getXmlRpcUrl().endsWith("/") ? blog.getXmlRpcUrl() :  blog.getXmlRpcUrl()+"/";
-				String atomPubURL = StringUtils.replaceLast(xmlRpcURL,"/xmlrpc.php/", "");
-				mediaConnection = new AtomPubNewMediaObjectConn (atomPubURL, blog.getUsername(), blog.getPassword(), blog.getId(), tmp);
-			} else
-			mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
+			BlogConn mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
 			
 			if(blog.isHTTPBasicAuthRequired()) {
@@ -136,14 +123,7 @@ public class SendToBlogTask extends TaskImpl {
 		for (int i =0; i < mediaObjects.size(); i++ ) {
 			MediaEntry tmp = (MediaEntry) mediaObjects.elementAt(i);
 		
-			BlogConn mediaConnection;
-			if( mPrefs.isAtomPubEnabled() ) {
-				String xmlRpcURL = blog.getXmlRpcUrl().endsWith("/") ? blog.getXmlRpcUrl() :  blog.getXmlRpcUrl()+"/";
-				String atomPubURL = StringUtils.replaceLast(xmlRpcURL,"/xmlrpc.php/", "");
-				mediaConnection = new AtomPubNewMediaObjectConn (atomPubURL, blog.getUsername(), blog.getPassword(), blog.getId(), tmp);
-			}
-			else
-			mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
+			BlogConn mediaConnection = new NewMediaObjectConn (blog.getXmlRpcUrl(), 
 					blog.getUsername(),blog.getPassword(), blog.getId(), tmp);
 			
 			if(blog.isHTTPBasicAuthRequired()) {

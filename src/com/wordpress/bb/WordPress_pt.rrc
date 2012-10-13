@@ -329,7 +329,6 @@ OPTIONSSCREEN_TITLE_ADVANCED_CONNECTION_OPTIONS#0="Opções Avançadas de Conexão";
 OPTIONSSCREEN_TITLE_CONNECTION_OPTIONS#0="Opções de Conexão";
 OPTIONSSCREEN_TITLE_GPS#0="Como determinar a localização";
 OPTIONSSCREEN_TITLE_LOG_OPTIONS#0="Opções de Logging";
-OPTIONSSCREEN_TITLE_MEDIAAPI#0="Media API";
 OPTIONSSCREEN_TITLE_STARTUP#0="Opções de Arranque/Encerramento";
 OPTIONSSCREEN_TITLE_STORAGE#0="Opções de Ficheiros de Cache";
 OPTIONSSCREEN_USERDEFINEDCONN_DESC#0="The following are advanced connection settings. Under Normal circumstances leave this options unselected, however if you are having connectivity issues you can enable your connection settings in this box.";

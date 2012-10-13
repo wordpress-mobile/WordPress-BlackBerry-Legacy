@@ -336,7 +336,6 @@ OPTIONSSCREEN_TITLE_ADVANCED_CONNECTION_OPTIONS#0="Lis‰yhteysasetukset";
 OPTIONSSCREEN_TITLE_CONNECTION_OPTIONS#0="Yhteysasetukset";
 OPTIONSSCREEN_TITLE_GPS#0="Kuinka sijainti m‰‰ritet‰‰n";
 OPTIONSSCREEN_TITLE_LOG_OPTIONS#0="Kirjataan asetuksia";
-OPTIONSSCREEN_TITLE_MEDIAAPI#0="Media API";
 OPTIONSSCREEN_TITLE_STARTUP#0="K‰ynnistyksen/Sammutuksen asetukset";
 OPTIONSSCREEN_TITLE_STORAGE#0="V‰limuistitiedostojen asetukset";
 OPTIONSSCREEN_USERDEFINEDCONN_DESC#0="The following are advanced connection settings. Under Normal circumstances leave this options unselected, however if you are having connectivity issues you can enable your connection settings in this box.";

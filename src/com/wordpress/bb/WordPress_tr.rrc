@@ -342,7 +342,6 @@ OPTIONSSCREEN_TITLE_ADVANCED_CONNECTION_OPTIONS#0="Geli\u015Fmi\u015F ba\u011Fla
 OPTIONSSCREEN_TITLE_CONNECTION_OPTIONS#0="Ba\u011Flant\u0131 seçenekleri";
 OPTIONSSCREEN_TITLE_GPS#0="Konum nas\u0131l belirlenecek";
 OPTIONSSCREEN_TITLE_LOG_OPTIONS#0="Kay\u0131t seçenekleri";
-OPTIONSSCREEN_TITLE_MEDIAAPI#0="Ortam API";
 OPTIONSSCREEN_TITLE_STARTUP#0="Ba\u015Flama/Kapanma seçenekleri";
 OPTIONSSCREEN_TITLE_STORAGE#0="Önbellek dosya seçenekleri";
 OPTIONSSCREEN_USERDEFINEDCONN_DESC#0="A\u015Fa\u011F\u0131dakiler geli\u015Fmi\u015F ba\u011Flant\u0131 ayarlar\u0131d\u0131r. Normal \u015Fartlar alt\u0131nda bu seçenekler seçili olmamal\u0131d\u0131r, ne var ki ba\u011Flant\u0131 problemleri ya\u015Faman\u0131z durumunda bu seçenekleri etkinle\u015Ftirebilirsiniz.";

@@ -342,7 +342,6 @@ OPTIONSSCREEN_TITLE_ADVANCED_CONNECTION_OPTIONS#0="Erweiterte Verbindungseinstel
 OPTIONSSCREEN_TITLE_CONNECTION_OPTIONS#0="Verbindungseinstellungen";
 OPTIONSSCREEN_TITLE_GPS#0="Wie bestimme ich meinen Standort?";
 OPTIONSSCREEN_TITLE_LOG_OPTIONS#0="Protokollierungseinstellungen";
-OPTIONSSCREEN_TITLE_MEDIAAPI#0="Medien-API";
 OPTIONSSCREEN_TITLE_STARTUP#0="Start/Shutdown Einstellungen";
 OPTIONSSCREEN_TITLE_STORAGE#0="Datei-Cache Einstellungen";
 OPTIONSSCREEN_USERDEFINEDCONN_DESC#0="Die folgenden Optionen sind fortgeschrittene Verbindungseinstellungen. Nur bei Problemen sollten Sie diese Option auswählen.";

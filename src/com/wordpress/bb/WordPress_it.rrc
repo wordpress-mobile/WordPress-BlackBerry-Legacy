@@ -343,7 +343,6 @@ OPTIONSSCREEN_TITLE_ADVANCED_CONNECTION_OPTIONS#0="Opzioni Avanze di Connessione
 OPTIONSSCREEN_TITLE_CONNECTION_OPTIONS#0="Opzioni di Connessione";
 OPTIONSSCREEN_TITLE_GPS#0="Come determinare la posizione";
 OPTIONSSCREEN_TITLE_LOG_OPTIONS#0="Opzioni di Log";
-OPTIONSSCREEN_TITLE_MEDIAAPI#0="Media API";
 OPTIONSSCREEN_TITLE_STARTUP#0="Opzioni di Avvio/Uscita";
 OPTIONSSCREEN_TITLE_STORAGE#0="Opzioni della cache";
 OPTIONSSCREEN_USERDEFINEDCONN_DESC#0="Nel caso in cui si riscontrino problemi di connettività è possibile specificare manualmente le impostazioni di connessione. In circostanze normali non è necessario impostare i parametri di connessione.";

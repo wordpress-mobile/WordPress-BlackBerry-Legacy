@@ -342,7 +342,6 @@ OPTIONSSCREEN_TITLE_ADVANCED_CONNECTION_OPTIONS#0="Opsi Koneksi Lanjutan";
 OPTIONSSCREEN_TITLE_CONNECTION_OPTIONS#0="Opsi Koneksi";
 OPTIONSSCREEN_TITLE_GPS#0="Bagaimana Menentukan Lokasi";
 OPTIONSSCREEN_TITLE_LOG_OPTIONS#0="Opsi Masuk Log";
-OPTIONSSCREEN_TITLE_MEDIAAPI#0="API Media";
 OPTIONSSCREEN_TITLE_STARTUP#0="Opsi Startup/Shutdown";
 OPTIONSSCREEN_TITLE_STORAGE#0="Opsi Berkas Tembolok";
 OPTIONSSCREEN_USERDEFINEDCONN_DESC#0="Berikut ini adalah pengaturan koneksi lebih lanjut. Pada situasi normal biarkan pilihan ini tidak terpilih, namun jika Anda memiliki masalah koneksi Anda dapat nyalakan pengaturan koneksi Anda dalam kotak ini.";

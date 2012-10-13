@@ -71,8 +71,6 @@ public class PreferencesView extends StandardBaseView {
 	private RadioButtonField  _gpsAutonomous;
 	private RadioButtonField  _gpsCellTower;
 	private RadioButtonGroup rgrp;
-	private RadioButtonField  isAtom;
-	private RadioButtonField  isXMLRPC;
 	
 	 public PreferencesView(PreferenceController _preferencesController) {
 	    	super(_resources.getString(WordPressResource.TITLE_SETTINGS_VIEW), Manager.NO_VERTICAL_SCROLL | Manager.NO_VERTICAL_SCROLLBAR);
@@ -84,7 +82,6 @@ public class PreferencesView extends StandardBaseView {
             addConnectionOptionsFields();
             addGPSOptionsFields();
             addStorageOptionFields();
-            addMultiMediaPublicationSettings();
             addStartupOptionsFields();
             addAdvancedConnectionOptionsFields();
             addDebugModeOptionFields();
@@ -125,27 +122,6 @@ public class PreferencesView extends StandardBaseView {
 		 gpsManager.add(_gpsAutonomous);
 		 _gpsCellTower=new RadioButtonField (_resources.getString(WordPressResource.OPTIONSSCREEN_LABEL_GPS_CELLTOWER), rgrp, gpsMode == Preferences.GPS_CELL_TOWER ? true : false);
 		 gpsManager.add(_gpsCellTower);
-		 add(gpsManager);
-	 }
-	 
-	 
-	 private void addMultiMediaPublicationSettings() {
-		 BorderedFieldManager gpsManager = new BorderedFieldManager(
-				 Manager.NO_HORIZONTAL_SCROLL
-				 | Manager.NO_VERTICAL_SCROLL);
-		 RadioButtonGroup rgrp2 = new RadioButtonGroup();
-
-		 LabelField lblTitle = GUIFactory.getLabel(_resources.getString(WordPressResource.OPTIONSSCREEN_TITLE_MEDIAAPI),
-				 Color.BLACK);
-		 gpsManager.add(lblTitle);
-		 gpsManager.add(GUIFactory.createSepatorField());
-
-		 boolean isAtomEnabled = mPrefs.isAtomPubEnabled();
-		 
-		 isAtom = new RadioButtonField ("AtomPub", rgrp2, isAtomEnabled);
-		 gpsManager.add(isAtom);
-		 isXMLRPC = new RadioButtonField ("XML-RPC", rgrp2,  !isAtomEnabled);
-		 gpsManager.add(isXMLRPC);
 		 add(gpsManager);
 	 }
 
@@ -605,11 +581,7 @@ public class PreferencesView extends StandardBaseView {
 			//GPS options
 			mPrefs.setGPSSettings(rgrp.getSelectedIndex());			
 			
-			//video Api
-			mPrefs.setAtomPubEnabled(isAtom.isSelected());
-			
 			updateStorageMode();
-			
 			setDirty(false);
 		}
 

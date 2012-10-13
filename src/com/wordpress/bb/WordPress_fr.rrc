@@ -301,7 +301,6 @@ OPTIONSSCREEN_STORAGE_DEVICE#0="Device";
 OPTIONSSCREEN_STORAGE_LOCATION_LABEL#0="Emplacement des fichiers de cache";
 OPTIONSSCREEN_STORAGE_SDCARD#0="SD Card";
 OPTIONSSCREEN_TITLE_GPS#0="Comment déterminer votre position";
-OPTIONSSCREEN_TITLE_MEDIAAPI#0="Media API";
 OPTIONSSCREEN_USERDEFINEDCONN_DESC#0="Les éléments suivants sont les paramètres de connexion avancés. Dans des circonstances normales laisser cette option désactivée, mais si vous rencontrez des problèmes de connectivité, vous pouvez activer vos paramètres de connexion ici";
 OPTIONSSCREEN_USERDEFINEDCONN_WARNING#0="Si vous activez cette option, l'activité réseau sera gérée par les paramètres de connexion. Aucune autre connexion ne sera utilisée";
 PROMOSCREEN_BUTTON_HAVE_A_WPCOM_BLOG#0="Add blog hosted at WordPress.com";

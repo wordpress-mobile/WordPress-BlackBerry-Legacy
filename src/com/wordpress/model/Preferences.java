@@ -30,8 +30,6 @@ public class Preferences {
     private String sourceIP;
     private String sourcePort;
     
-    private boolean isAtomPubEnabled = false;
-    
     private boolean isDebugMode = false; //no store this var into FS
 	public boolean isFirstStartupOrUpgrade = false; //no store this var into FS
 
@@ -285,13 +283,5 @@ public class Preferences {
 				return String.valueOf(Tools.generateDeviceUUID());
 			}
 		}
-	}
-	
-	public boolean isAtomPubEnabled(){
-		return isAtomPubEnabled;
-	}
-	
-	public void setAtomPubEnabled(boolean value){
-		isAtomPubEnabled = value;
 	}
 }
