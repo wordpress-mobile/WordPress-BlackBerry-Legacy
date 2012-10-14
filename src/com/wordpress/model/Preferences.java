@@ -40,6 +40,7 @@ public class Preferences {
 	//backgroundonclose - boolean
 	//updatetimeindex - Integer
 	//gps_provider_index - Integer
+	//lastSelectedBlogIndex - Integer
     private Hashtable opt = new Hashtable(); 
         
     private final static String GPS_SETTINGS = "gps_provider_index";
@@ -61,7 +62,6 @@ public class Preferences {
 		sourcePort = ConnectionUtils.WAP_DEFAULT_SOURCEPORT;
 	}
     
-	
 	public boolean isUserConnectionWap() {
 		return isUserConnectionWap;
 	}
@@ -266,6 +266,18 @@ public class Preferences {
 		opt.put(GPS_SETTINGS, valore);
 	}
 	
+	public int getLastSelectedBlogIndex() {
+		Integer valore = (Integer) opt.get("lastSelectedBlogIndex");
+		if(valore == null) 
+			return -1;
+		return valore.intValue();
+	}
+
+	public void setLastSelectedBlogIndex(int lastSelectedBlogIndex) {
+		Integer valore = new Integer(lastSelectedBlogIndex);
+		opt.put("lastSelectedBlogIndex", valore);
+	}
+
 	/*
 	 * Since 1.3 we are using the device PIN substituting the random generated device UUID
 	 */

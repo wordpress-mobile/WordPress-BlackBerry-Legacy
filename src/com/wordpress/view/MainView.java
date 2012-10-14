@@ -46,6 +46,7 @@ import com.wordpress.controller.PagesController;
 import com.wordpress.controller.PostsController;
 import com.wordpress.controller.RecentCommentsController;
 import com.wordpress.controller.StatsController;
+import com.wordpress.io.AppDAO;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.io.CommentsDAO;
 import com.wordpress.model.Blog;
@@ -54,6 +55,7 @@ import com.wordpress.model.Page;
 import com.wordpress.model.Post;
 import com.wordpress.model.Preferences;
 import com.wordpress.task.StopConnTask;
+import com.wordpress.task.TaskImpl;
 import com.wordpress.utils.DataCollector;
 import com.wordpress.utils.ImageManipulator;
 import com.wordpress.utils.MultimediaUtils;
@@ -123,9 +125,26 @@ public class MainView extends BaseView {
 		this.mainController = mainController;
      
 		BlogInfo[] blogCaricati = mainController.getApplicationBlogs();
+		int lastSelectedBlogIndex = Preferences.getIstance().getLastSelectedBlogIndex();
 		if( blogCaricati.length > 0 ) {
 			createTableAndSelector ( blogCaricati );
+			//re-select the last opened blog
+			if ( blogCaricati.length > 1 ) {
+				if ( lastSelectedBlogIndex != -1 && lastSelectedBlogIndex < blogCaricati.length ) {
+					currentBlog = blogCaricati[lastSelectedBlogIndex];
+					 if ( currentBlog.getState() ==  BlogInfo.STATE_LOADING || currentBlog.getState() == BlogInfo.STATE_ADDED_TO_QUEUE) 
+						 refrshBtn.startAnimation();
+					 else 
+						 refrshBtn.stopAnimation();
+					 blogSelectorField.setSelectedIndex(lastSelectedBlogIndex);
+					 headerRow.invalidate();
+					 //actionsTable.invalidate();
+					 updateActionTable();
+				}
+			}
 		} else {
+			if( lastSelectedBlogIndex != -1 ) 
+				saveLastSelectedBlog(-1);
 			currentBlog = null;
 			wft = new WelcomeField();
 			wft.setToolbarHeight(titleField.getPreferredHeight());
@@ -511,6 +530,8 @@ public class MainView extends BaseView {
 							 refrshBtn.stopAnimation();
 						 blogSelectorField.setSelectedIndex(selectedIndex);
 						 headerRow.invalidate();
+						 
+						 saveLastSelectedBlog(selectedIndex);
 						 //actionsTable.invalidate();
 						 updateActionTable();
 					 }
@@ -519,6 +540,21 @@ public class MainView extends BaseView {
 		 }
 	 }
 	
+	 private void saveLastSelectedBlog(final int selectedIndex) {
+		 //save the last selected blog in Preferences
+		 final Preferences appPrefs = Preferences.getIstance();
+		 appPrefs.setLastSelectedBlogIndex(selectedIndex);
+		 WordPressCore.getInstance().getTasksRunner().enqueue( new TaskImpl() {
+			 public void execute() {
+				 try {
+					 Log.trace("Last selected blog saved in prefs");
+					 AppDAO.storeApplicationPreferecens(appPrefs);
+				 } catch (Exception e) {
+					 Log.error(e, "Error while saving Preferences");
+				 }
+			 }
+		 } );
+	 }
 	 	 
 	public void refreshMainView() {
 		synchronized (this) {
@@ -686,6 +722,7 @@ public class MainView extends BaseView {
     		} else {
     			mainController.deleteBlog(currentBlog);	       
     			currentBlog = null;
+    			saveLastSelectedBlog(-1);
     			refreshMainView();
     		}
     	}
