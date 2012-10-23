@@ -1,12 +1,19 @@
 package com.wordpress.xmlrpc;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.kobjects.base64.Base64;
+
+import net.rim.device.api.crypto.BlockEncryptor;
+import net.rim.device.api.crypto.TripleDESKey;
+import net.rim.device.api.crypto.TripleDESEncryptorEngine;
 import net.rim.device.cldc.io.ssl.TLSIOException;
 
 import com.wordpress.bb.SSLPostingException;
 import com.wordpress.model.MediaEntry;
+import com.wordpress.utils.StringUtils;
 import com.wordpress.utils.log.Log;
 
 public class NewMediaObjectConn extends BlogConn  {
@@ -39,29 +46,64 @@ public class NewMediaObjectConn extends BlogConn  {
 
 			Hashtable content = new Hashtable(2);
 			content.put("name",mediaObj.getFileName());
-			content.put("bits", mediaObj); //not loaded the bytearray of content, this is a reference to real file on disk. Look ad XmlRpcWriter!!
+			content.put("bits", mediaObj); //not loaded the bytearray of content, this is a reference to real file on disk. See the XmlRpcWriter!!
 			content.put("type", mediaObj.getMIMEType());
 
 			Vector args = new Vector(4);
 			args.addElement(blogID);
-			args.addElement(mUsername);
-			args.addElement(mPassword);
-			args.addElement(content);
 
-			Object response = execute("metaWeblog.newMediaObject", args);
-			if(connResponse.isError()) {
-				//Show a detailed error message for the SSL post issue on WPCOM
+			String methodName = "metaWeblog.newMediaObject";
+			if( urlConnessione.indexOf("wordpress.com") != -1 && urlConnessione.startsWith("https") ){
+
+				Vector upload_token_args = new Vector(4);
+				upload_token_args.addElement(mUsername);
+				upload_token_args.addElement(mPassword);
+
+				Object responseKeys = execute("wpcom.blackberryGetUploadingFileKeys", upload_token_args);
+				if( connResponse.isError() ) {
+					notifyObservers(responseKeys);
+					return;		
+				} 
+				
+				Hashtable keysHashtable =(Hashtable)responseKeys;
+				String temporaryPassword = (String)keysHashtable.get("temporary_password");
+				String secretToken = (String)keysHashtable.get("3des_key");
+				byte[] messageBytes = temporaryPassword.getBytes();
+				byte[] keyBytes = secretToken.getBytes();
+			
+				urlConnessione = StringUtils.replaceAll(urlConnessione, "https://", "http://"); //switch to plain HTTP
+				methodName = "wpcom.blackberryUploadFile"; //use a private method
+				
+				TripleDESKey desKey = new TripleDESKey(keyBytes);
+				// Create the encryption engine for encrypting the data.
+				TripleDESEncryptorEngine encryptionEngine = new TripleDESEncryptorEngine( desKey  );
+				//PKCS5FormatterEngine padder = new PKCS5FormatterEngine(encryptionEngine);
+				ByteArrayOutputStream output = new ByteArrayOutputStream();
+				BlockEncryptor encryptor = new BlockEncryptor(encryptionEngine, output);
+				encryptor.write(messageBytes);
+				encryptor.close();
+				output.flush();
+				byte[] cipherBytes = output.toByteArray();
+				args.addElement(mUsername);
+				args.addElement( Base64.encode( cipherBytes ) );
+			} else {
+				args.addElement(mUsername);
+				args.addElement(mPassword);
+			}
+			args.addElement(content);
+			
+			mConnection = null; //Reset the connection since we want switch to HTTP.
+			Object response = execute(methodName, args);
+			
+			//Show a detailed error message for the SSL post issue on WPCOM
+			if( connResponse.isError() ) {
+				
 				if ( urlConnessione.startsWith( "https" ) && urlConnessione.indexOf( "wordpress.com" ) != -1 ) {
 					Object refResponseObj = connResponse.getResponseObject();
 					if ( refResponseObj instanceof TLSIOException || refResponseObj instanceof javax.microedition.pki.CertificateException ) {
 						connResponse.setResponseObject(new SSLPostingException(""));
 						connResponse.setResponse("Error while uploading media!");
 					} else if (refResponseObj instanceof net.rim.device.api.io.ConnectionClosedException) {
-					/*	String connectionClosedErrorMessage = ((net.rim.device.api.io.ConnectionClosedException) refResponseObj).getMessage();
-						connectionClosedErrorMessage = connectionClosedErrorMessage != null ? connectionClosedErrorMessage.toLowerCase() : null;
-						if ( connectionClosedErrorMessage != null && 
-								( connectionClosedErrorMessage.indexOf("connection closed") != -1  ||  connectionClosedErrorMessage.indexOf("stream closed") != -1  ) )
-							*/
 						connResponse.setResponseObject(new SSLPostingException(""));
 						connResponse.setResponse("Error while uploading media!");
 					} else if (refResponseObj instanceof java.io.InterruptedIOException || refResponseObj instanceof java.io.IOException) {
@@ -72,10 +114,12 @@ public class NewMediaObjectConn extends BlogConn  {
 							connResponse.setResponse("Error while uploading media!");
 						}
 					}
-				}	
+				}
+				
 				notifyObservers(connResponse);
 				return;		
 			}
+			
 			connResponse.setResponseObject(response);
 		} catch (Exception cce) {
 			setErrorMessage(cce, "Error while uploading media!");
