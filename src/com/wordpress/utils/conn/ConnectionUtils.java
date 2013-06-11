@@ -170,7 +170,7 @@ public class ConnectionUtils {
     }
     
     public static boolean isDataConnectionAvailable() {
-        return ( !isDataBearerOffline() || isWifiAvailable()&&isWifiActive() );
+        return ( !isDataBearerOffline() || ( isWifiAvailable() && isWifiActive() ) );
     }
     
   // Return Wireless service provider WAP 1.x gateway connection string

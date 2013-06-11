@@ -873,7 +873,7 @@ public class MainView extends BaseView {
 	}
 	
 	private boolean isInternetAvailable() {
-		if( CoverageInfo.isOutOfCoverage() || ConnectionUtils.isDataConnectionAvailable() == false )
+		if( ConnectionUtils.isDataConnectionAvailable() == false )
         {
 			UiApplication.getUiApplication().invokeLater(new Runnable() {
 				public void run() {
