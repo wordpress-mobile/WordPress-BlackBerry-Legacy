@@ -399,6 +399,44 @@ public class Blog {
 		}
 	}
 	
+	public boolean hasJetpack() {
+		//read the value from the blogOptions if available
+		boolean hasJetpack = false;
+		try {
+			Hashtable blogOptions = this.getBlogOptions();
+			if( blogOptions == null )
+				return false;
+			Hashtable tmp = (Hashtable)blogOptions.get("jetpack_client_id");
+			if( tmp != null ) {
+				hasJetpack = true;
+			}
+		} catch (Exception e) {
+
+		} 
+		return hasJetpack;
+	}
+	
+	
+	public String getBlogIDForStats() {
+
+		if( isWPCOMBlog )
+			return id;
+
+		if(hasJetpack()) {
+			try {
+				Hashtable blogOptions = this.getBlogOptions();
+				if( blogOptions == null )
+					return null;
+				Hashtable tmp = (Hashtable)blogOptions.get("jetpack_client_id");
+				if( tmp != null ) {
+					return String.valueOf(tmp.get("value"));
+				}
+			} catch (Exception e) {
+
+			} 
+		}
+		return null;
+	}
 	
 	public String[] getBlogImageResizeLabels() {
 		//read the value from the blogOptions is available

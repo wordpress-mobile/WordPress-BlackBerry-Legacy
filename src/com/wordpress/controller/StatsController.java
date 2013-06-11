@@ -253,6 +253,8 @@ public class StatsController extends BaseController {
 					blogUrl = blogUrl.substring(4);
 				}
 				
+				String currentBlogID = currentBlog.getBlogIDForStats(); 
+				
 				Log.trace("current blog url " + blogUrl);
 				while (parser.next() != XmlPullParser.END_DOCUMENT) {
 					if (parser.getEventType() == XmlPullParser.START_TAG) {
