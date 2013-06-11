@@ -411,7 +411,7 @@ public class Blog {
 				hasJetpack = true;
 			}
 		} catch (Exception e) {
-
+			Log.error(e, "hasJetpack");
 		} 
 		return hasJetpack;
 	}
@@ -419,7 +419,7 @@ public class Blog {
 	
 	public String getBlogIDForStats() {
 
-		if( isWPCOMBlog )
+		if( isWPCOMBlog() )
 			return id;
 
 		if(hasJetpack()) {
@@ -432,7 +432,7 @@ public class Blog {
 					return String.valueOf(tmp.get("value"));
 				}
 			} catch (Exception e) {
-
+				Log.error(e, "getBlogIDForStats");
 			} 
 		}
 		return null;

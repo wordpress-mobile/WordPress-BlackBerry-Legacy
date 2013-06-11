@@ -243,19 +243,12 @@ public class StatsController extends BaseController {
 				parser.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true); //relaxed parser
 				ByteArrayInputStream bais = new ByteArrayInputStream(response);
 				parser.setInput(bais, "ISO-8859-1");
-				String blogUrl = currentBlog.getUrl();
-				blogUrl = blogUrl.toLowerCase();
-				if(!blogUrl.endsWith("/")) 
-					blogUrl+="/";
-				blogUrl = StringUtils.replaceAll(blogUrl, "https://", "");
-				blogUrl = StringUtils.replaceAll(blogUrl, "http://", "");
-				if( blogUrl.startsWith("www.")) {
-					blogUrl = blogUrl.substring(4);
-				}
 				
 				String currentBlogID = currentBlog.getBlogIDForStats(); 
+				Log.trace("current blog url " +  currentBlog.getUrl());
+				Log.trace("current blog ID " +  currentBlog.getId());
+				Log.trace("current blog ID for Stats " +  currentBlogID);
 				
-				Log.trace("current blog url " + blogUrl);
 				while (parser.next() != XmlPullParser.END_DOCUMENT) {
 					if (parser.getEventType() == XmlPullParser.START_TAG) {
 						
@@ -299,20 +292,13 @@ public class StatsController extends BaseController {
 							
 							parser.nextTag();
 							parser.require(XmlPullParser.END_TAG, null, "blog" );
-														
-							if(url != null) {
-								//trying to match the url
-								url = url.toLowerCase();
-								if(!url.endsWith("/")) url+="/";
-								url = StringUtils.replaceAll(url, "https://", "");
-								url = StringUtils.replaceAll(url, "http://", "");
-								if( url.startsWith("www.")) {
-									url = url.substring(4);
-								}
-								if (blogUrl.equals(url)) {
-									blogStatID = id;
-									//return; DO NOT STOP THE LOOP HERE, We need to match the latest blog...Ref: http://blackberry.trac.wordpress.org/ticket/248
-								}
+							
+							if(id != null && currentBlogID != null && id.trim().equalsIgnoreCase(currentBlogID.trim())) {
+								blogStatID = id;
+								Log.trace("matched blog url " +  currentBlog.getUrl());
+								Log.trace("matched blog ID " +  currentBlog.getId());
+								Log.trace("matched blog ID for Stats " +  currentBlogID);		
+								return;
 							}
 						}//end 
 					}
