@@ -329,8 +329,11 @@ public class QuickPhotoScreenOS5 extends StandardBaseView implements CameraScree
 			}
 			post.setExtendedBody(extended);
 		} 
-		else //no tag more
+		else {
+			//no tag more
+			post.setExtendedBody("");
 			post.setBody(newContent);
+		}
 	}
 		
 	public BaseController getController() {

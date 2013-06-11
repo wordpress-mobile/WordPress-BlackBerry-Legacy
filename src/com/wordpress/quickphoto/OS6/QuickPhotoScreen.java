@@ -377,8 +377,11 @@ public class QuickPhotoScreen extends StandardBaseView implements CameraScreenLi
 			}
 			post.setExtendedBody(extended);
 		} 
-		else //no tag more
+		else {
+			//no tag more
+			post.setExtendedBody("");
 			post.setBody(newContent);
+		}
 	}
 		
 	public BaseController getController() {
