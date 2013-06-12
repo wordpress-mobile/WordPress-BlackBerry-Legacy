@@ -2,9 +2,21 @@ package com.wordpress.controller;
 
 import java.util.Vector;
 
+import net.rim.blackberry.api.invoke.Invoke;
+import net.rim.blackberry.api.invoke.MessageArguments;
+import net.rim.blackberry.api.mail.Address;
+import net.rim.blackberry.api.mail.Message;
+import net.rim.device.api.i18n.ResourceBundle;
 import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.DeviceInfo;
+import net.rim.device.api.system.RadioInfo;
+import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
+import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.VirtualKeyboard;
+import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.DialogClosedListener;
 import net.rim.device.api.ui.component.EditField;
@@ -15,6 +27,7 @@ import net.rim.device.api.ui.text.URLTextFilter;
 import org.kxmlrpc.XmlRpcException;
 
 import com.wordpress.bb.WordPressCore;
+import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.io.BlogDAO;
 import com.wordpress.model.Blog;
@@ -22,7 +35,9 @@ import com.wordpress.model.BlogInfo;
 import com.wordpress.task.LoadBlogsDataTask;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.ImageUtils;
+import com.wordpress.utils.PropertyUtils;
 import com.wordpress.utils.Queue;
+import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
 import com.wordpress.utils.observer.Observable;
 import com.wordpress.utils.observer.Observer;
@@ -31,6 +46,7 @@ import com.wordpress.view.AddWPCOMBlogsView;
 import com.wordpress.view.StandardBaseView;
 import com.wordpress.view.component.CheckBoxPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
+import com.wordpress.view.dialog.ErrorView;
 import com.wordpress.view.dialog.WaitScreen;
 import com.wordpress.xmlrpc.BlogAuthConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
@@ -44,6 +60,7 @@ public class AddBlogsController extends BaseController {
 	ConnectionInProgressView connectionProgressView=null;
 	private boolean isWPCOMCall = false; //true when adding a wp.com account 
 	private BlogAuthConn connection;
+	private String userInsertedURL = null;
 	
 	public AddBlogsController(TaskProgressListener listener, boolean isWPCOMBlog) {
 		super();
@@ -91,6 +108,7 @@ public class AddBlogsController extends BaseController {
 		passwd = passwd.trim();
         if (URL != null && user != null
         		&& URL.length() > 0  && user.length() > 0) {
+        	userInsertedURL = URL;
             connection = new BlogAuthConn (URL,user,passwd);
             connection.addObserver(new AddBlogCallBack(source, user, passwd)); 
              connectionProgressView= new ConnectionInProgressView(
@@ -281,15 +299,124 @@ public class AddBlogsController extends BaseController {
 						
 					} else {
 						//IO Exception ad others
-						displayError(respMessage);
+						showErrorDialog((Exception)resp.getResponseObject());
 					}
 				}		
 			} catch (final Exception e) {
-				displayError(e,"Error while adding blogs");	
+				showErrorDialog(e);	
 			} 
 		}
 	}
 	
+	public void showErrorDialog(final Exception e) {
+	  	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+		Screen scr = UiApplication.getUiApplication().getActiveScreen();
+		if(scr != null) {
+	    	VirtualKeyboard virtKbd = scr.getVirtualKeyboard();
+	    	if(virtKbd != null)
+	    		virtKbd.setVisibility(VirtualKeyboard.HIDE);
+		}
+    	//#endif
+		
+		UiApplication.getUiApplication().invokeLater(new Runnable() {
+			public void run() {
+				AddBlogsErrorDialog errView;
+				errView = new AddBlogsErrorDialog(e);
+				errView.doModal();
+			}
+		});
+	}
+	private class AddBlogsErrorDialog extends Dialog {
+
+		public AddBlogsErrorDialog(final Exception e) {
+			super(Dialog.D_OK, e.getMessage() != null ? e.getMessage() : "Sorry, something went wrong while adding your site.", Dialog.OK, Bitmap.getPredefinedBitmap(Bitmap.EXCLAMATION), Dialog.GLOBAL_STATUS);
+			ResourceBundle _resources =  ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
+			net.rim.device.api.ui.Manager delegate = getDelegate();
+
+			if( ! (delegate instanceof DialogFieldManager) ) return; //Just to make sure everything is ok with the UI. Don't think this will never happen.
+			DialogFieldManager dfm = (DialogFieldManager)delegate;
+			net.rim.device.api.ui.Manager manager = dfm.getCustomManager();
+			if( manager == null || e == null ) return;
+
+			final String solutionURL = Tools.getFAQLink( e );
+			//Check if we have an FAQ entry for this Exception on the .org site.
+			if ( solutionURL != null ){
+				ButtonField reportIssueBtnField = new ButtonField( _resources.getString( WordPressResource.BUTTON_READ_SOLUTION ));
+				reportIssueBtnField.setChangeListener(new FieldChangeListener() {
+					public void fieldChanged(Field field, int context) {
+						Tools.openURL( solutionURL );
+						close();
+					}
+				});
+				manager.insert(reportIssueBtnField, manager.getFieldCount());
+			} else {
+				ButtonField supportBtnField = new ButtonField( _resources.getString( WordPressResource.BUTTON_READ_SOLUTION ));
+				supportBtnField.setChangeListener(new FieldChangeListener() {
+					public void fieldChanged(Field field, int context) {
+						Tools.openURL( WordPressInfo.SUPPORT_FAQ_URL );
+						close();
+					}
+				});
+				manager.insert(supportBtnField, manager.getFieldCount());
+				/*There isn't a FAQ. Build the send to support email dialog */
+				ButtonField reportIssueBtnField = new ButtonField( _resources.getString( WordPressResource.MENUITEM_REPORT_ISSUE ));
+				reportIssueBtnField.setChangeListener(new FieldChangeListener() {
+					public void fieldChanged(Field field, int context) {
+						close();
+		    			if(context == 0) {
+		    				try{
+		    					Message m = new Message();
+		    					Address a = new Address(WordPressInfo.SUPPORT_EMAIL_ADDRESS, "WordPress Support Team");
+		    					Address[] addresses = {a};
+		    					m.addRecipients(net.rim.blackberry.api.mail.Message.RecipientType.TO, addresses);
+
+		    					String manufacturer = "Manufacturer: " + 
+		    					(DeviceInfo.getManufacturerName() == null ? " n.a." : DeviceInfo.getManufacturerName());
+		    					String deviceName =  "Device Name: " + (DeviceInfo.getDeviceName() == null ? " n.a." : DeviceInfo.getDeviceName()); 
+		    					String deviceSoftwareVersion = "Software Version (OS Version): " + (DeviceInfo.getSoftwareVersion() == null ? " n.a." : DeviceInfo.getSoftwareVersion());
+		    					String platformVersion = "Platform Version: " + (DeviceInfo.getPlatformVersion() == null ? " n.a." : DeviceInfo.getPlatformVersion()); 
+		    					String currentNetworkName = "Network Name: " + (RadioInfo.getCurrentNetworkName() == null ? " n.a." : RadioInfo.getCurrentNetworkName());
+
+		    					StringBuffer mailContent = new StringBuffer();
+		    					mailContent.append("App Version: "+PropertyUtils.getIstance().getAppVersion()+ "\n");
+
+		    					
+		    					mailContent.append(manufacturer + "\n");
+		    					mailContent.append(deviceName + "\n");
+		    					mailContent.append(platformVersion + "\n" );
+		    					mailContent.append(deviceSoftwareVersion + "\n");
+		    					mailContent.append(currentNetworkName + "\n");
+		    					mailContent.append("\n");
+		    					mailContent.append("Note: After you send the email, use the Escape Key to return to the application.");
+		    					mailContent.append("\n");
+		    					mailContent.append("*** Fill out the form below: ***");
+		    					mailContent.append("\n");
+		    					if(userInsertedURL != null) 
+		    						mailContent.append("Site URL: "+ userInsertedURL +"\n\n");
+		    					else
+		    						mailContent.append("Site URL: \n\n");
+		    					mailContent.append("I did: \n\n");
+		    					mailContent.append("I saw: \n\n");
+		    					mailContent.append("I expected: \n\n");
+		    					
+		    					mailContent.append("------\n\n");
+		    					mailContent.append(e.getMessage() != null ? e.getMessage() : "");
+		    					
+		    					
+		    					m.setContent(mailContent.toString());
+		    					m.setSubject("WordPress for BlackBerry Bug Report");
+		    					Invoke.invokeApplication(Invoke.APP_TYPE_MESSAGES, new MessageArguments(m));
+		    				} catch (Exception e) {
+		    					Log.error(e, "Problem invoking BlackBerry Mail App");
+		    				}
+		    			}
+					}
+				});
+				
+				manager.insert(reportIssueBtnField, manager.getFieldCount()); 
+			}
+		}
+	}
 	
 	private class XmlRpcEndpointDialogClosedListener implements DialogClosedListener {
 		private final String user;
