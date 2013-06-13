@@ -1,3 +1,4 @@
+//#preprocess
 package com.wordpress.controller;
 
 import java.util.Vector;
@@ -15,7 +16,9 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
+//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.VirtualKeyboard;
+//#endif
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.DialogClosedListener;
@@ -326,9 +329,18 @@ public class AddBlogsController extends BaseController {
 	
 	private class UnrecoverableErrorDialog extends Dialog {
 
+		private String getTitle(final Exception e, boolean isWPCom) {
+			if(isWPCom) {
+				return (e != null && e.getMessage() != null) ? "Unable to connect to WordPress: " + e.getMessage()+"." : "Unable to connect to WordPress";
+			} else {				
+				return (e != null && e.getMessage() != null) ? "Unable to find a WordPress site at that URL: " + e.getMessage()+"." : "Unable to find a WordPress site at that URL";
+			}
+		}
+		
 		public UnrecoverableErrorDialog(final Exception e) {
-			super(Dialog.D_OK, (e != null && e.getMessage() != null) ? "Unable to find a WordPress site at that URL: " + e.getMessage()+"." : "Unable to find a WordPress site at that URL", 1, Bitmap.getPredefinedBitmap(Bitmap.EXCLAMATION), Dialog.GLOBAL_STATUS);
+			super(Dialog.D_OK, "Unable to connect to WordPress" , 1, Bitmap.getPredefinedBitmap(Bitmap.EXCLAMATION), Dialog.GLOBAL_STATUS);
 			ResourceBundle _resources =  ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
+			getLabel().setText(getTitle(e, isWPCOMCall)); //Set the real error message here.
 			net.rim.device.api.ui.Manager delegate = getDelegate();
 
 			if( ! (delegate instanceof DialogFieldManager) ) return; //Just to make sure everything is ok with the UI. Don't think this will never happen.
@@ -339,75 +351,90 @@ public class AddBlogsController extends BaseController {
 			final String solutionURL = e != null ? Tools.getFAQLink( e ) : null;
 			//Check if we have an FAQ entry for this Exception on the .org site.
 			if ( solutionURL != null ){
-				ButtonField reportIssueBtnField = new ButtonField( _resources.getString( WordPressResource.BUTTON_READ_SOLUTION ));
-				reportIssueBtnField.setChangeListener(new FieldChangeListener() {
+				ButtonField goToTheSolutionBtnField = new ButtonField( _resources.getString( WordPressResource.BUTTON_READ_SOLUTION ));
+				goToTheSolutionBtnField.setChangeListener(new FieldChangeListener() {
 					public void fieldChanged(Field field, int context) {
 						Tools.openURL( solutionURL );
 						close();
 					}
 				});
-				manager.insert(reportIssueBtnField, manager.getFieldCount());
+				manager.insert(goToTheSolutionBtnField, manager.getFieldCount());
 			} else {
-				
-				LabelField descriptionField = new LabelField("Please, verify the validity of your site with the on-line tool available at http://xmlrpc.eritreo.it before reporting the issue to the support team.");
-				Font fnt = this.getFont().derive(Font.ITALIC);
-				descriptionField.setFont(fnt);
-				manager.insert(descriptionField, manager.getFieldCount());
+				if(isWPCOMCall) {
+					LabelField descriptionField = new LabelField("Please, read the FAQ before contacting the support team.");
+					Font fnt = this.getFont().derive(Font.ITALIC);
+					descriptionField.setFont(fnt);
+					manager.insert(descriptionField, manager.getFieldCount());
+
+					ButtonField readTheFAQBtnField = new ButtonField("FAQ");
+					readTheFAQBtnField.setChangeListener(new FieldChangeListener() {
+						public void fieldChanged(Field field, int context) {
+							Tools.openURL( WordPressInfo.SUPPORT_FAQ_URL );
+							close();
+						}
+					});
+					manager.insert(readTheFAQBtnField, manager.getFieldCount());
+				} else {
+					LabelField descriptionField = new LabelField("Please, verify the validity of your site with the on-line tool available at http://xmlrpc.eritreo.it before reporting the issue to the support team.");
+					Font fnt = this.getFont().derive(Font.ITALIC);
+					descriptionField.setFont(fnt);
+					manager.insert(descriptionField, manager.getFieldCount());
+				}//End .ORG branch
 				
 				ButtonField reportIssueBtnField = new ButtonField( _resources.getString( WordPressResource.MENUITEM_REPORT_ISSUE ));
 				reportIssueBtnField.setChangeListener(new FieldChangeListener() {
 					public void fieldChanged(Field field, int context) {
 						close();
-		    			if(context == 0) {
-		    				try{
-		    					Message m = new Message();
-		    					Address a = new Address(WordPressInfo.SUPPORT_EMAIL_ADDRESS, "WordPress Support Team");
-		    					Address[] addresses = {a};
-		    					m.addRecipients(net.rim.blackberry.api.mail.Message.RecipientType.TO, addresses);
+						if(context == 0) {
+							try{
+								Message m = new Message();
+								Address a = new Address(WordPressInfo.SUPPORT_EMAIL_ADDRESS, "WordPress Support Team");
+								Address[] addresses = {a};
+								m.addRecipients(net.rim.blackberry.api.mail.Message.RecipientType.TO, addresses);
 
-		    					String manufacturer = "Manufacturer: " + 
-		    					(DeviceInfo.getManufacturerName() == null ? " n.a." : DeviceInfo.getManufacturerName());
-		    					String deviceName =  "Device Name: " + (DeviceInfo.getDeviceName() == null ? " n.a." : DeviceInfo.getDeviceName()); 
-		    					String deviceSoftwareVersion = "Software Version (OS Version): " + (DeviceInfo.getSoftwareVersion() == null ? " n.a." : DeviceInfo.getSoftwareVersion());
-		    					String platformVersion = "Platform Version: " + (DeviceInfo.getPlatformVersion() == null ? " n.a." : DeviceInfo.getPlatformVersion()); 
-		    					String currentNetworkName = "Network Name: " + (RadioInfo.getCurrentNetworkName() == null ? " n.a." : RadioInfo.getCurrentNetworkName());
+								String manufacturer = "Manufacturer: " + 
+								(DeviceInfo.getManufacturerName() == null ? " n.a." : DeviceInfo.getManufacturerName());
+								String deviceName =  "Device Name: " + (DeviceInfo.getDeviceName() == null ? " n.a." : DeviceInfo.getDeviceName()); 
+								String deviceSoftwareVersion = "Software Version (OS Version): " + (DeviceInfo.getSoftwareVersion() == null ? " n.a." : DeviceInfo.getSoftwareVersion());
+								String platformVersion = "Platform Version: " + (DeviceInfo.getPlatformVersion() == null ? " n.a." : DeviceInfo.getPlatformVersion()); 
+								String currentNetworkName = "Network Name: " + (RadioInfo.getCurrentNetworkName() == null ? " n.a." : RadioInfo.getCurrentNetworkName());
 
-		    					StringBuffer mailContent = new StringBuffer();
-		    					mailContent.append("App Version: "+PropertyUtils.getIstance().getAppVersion()+ "\n");
+								StringBuffer mailContent = new StringBuffer();
+								mailContent.append("App Version: "+PropertyUtils.getIstance().getAppVersion()+ "\n");
 
-		    					
-		    					mailContent.append(manufacturer + "\n");
-		    					mailContent.append(deviceName + "\n");
-		    					mailContent.append(platformVersion + "\n" );
-		    					mailContent.append(deviceSoftwareVersion + "\n");
-		    					mailContent.append(currentNetworkName + "\n");
-		    					mailContent.append("\n");
-		    					mailContent.append("Note: After you send the email, use the Escape Key to return to the application.");
-		    					mailContent.append("\n");
-		    					mailContent.append("*** Fill out the form below: ***");
-		    					mailContent.append("\n");
-		    					if(userInsertedURL != null) 
-		    						mailContent.append("Site URL: "+ userInsertedURL +"\n\n");
-		    					else
-		    						mailContent.append("Site URL: \n\n");
-		    					mailContent.append("I did: \n\n");
-		    					mailContent.append("I saw: \n\n");
-		    					mailContent.append("I expected: \n\n");
-		    					
-		    					mailContent.append("------\n\n");
-		    					mailContent.append((e != null && e.getMessage() != null) ? e.getMessage() : "");
-		    					
-		    					
-		    					m.setContent(mailContent.toString());
-		    					m.setSubject("WordPress for BlackBerry Bug Report");
-		    					Invoke.invokeApplication(Invoke.APP_TYPE_MESSAGES, new MessageArguments(m));
-		    				} catch (Exception e) {
-		    					Log.error(e, "Problem invoking BlackBerry Mail App");
-		    				}
-		    			}
+
+								mailContent.append(manufacturer + "\n");
+								mailContent.append(deviceName + "\n");
+								mailContent.append(platformVersion + "\n" );
+								mailContent.append(deviceSoftwareVersion + "\n");
+								mailContent.append(currentNetworkName + "\n");
+								mailContent.append("\n");
+								mailContent.append("Note: After you send the email, use the Escape Key to return to the application.");
+								mailContent.append("\n");
+								mailContent.append("*** Fill out the form below: ***");
+								mailContent.append("\n");
+								if(userInsertedURL != null) 
+									mailContent.append("Site URL: "+ userInsertedURL +"\n\n");
+								else
+									mailContent.append("Site URL: \n\n");
+								mailContent.append("I did: \n\n");
+								mailContent.append("I saw: \n\n");
+								mailContent.append("I expected: \n\n");
+
+								mailContent.append("------\n\n");
+								mailContent.append((e != null && e.getMessage() != null) ? e.getMessage() : "");
+
+
+								m.setContent(mailContent.toString());
+								m.setSubject("WordPress for BlackBerry Bug Report");
+								Invoke.invokeApplication(Invoke.APP_TYPE_MESSAGES, new MessageArguments(m));
+							} catch (Exception e) {
+								Log.error(e, "Problem invoking BlackBerry Mail App");
+							}
+						}
 					}
 				});
-				
+
 				manager.insert(reportIssueBtnField, manager.getFieldCount()); 
 			}
 		}
