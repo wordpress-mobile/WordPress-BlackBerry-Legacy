@@ -46,7 +46,6 @@ import com.wordpress.view.AddWPCOMBlogsView;
 import com.wordpress.view.StandardBaseView;
 import com.wordpress.view.component.CheckBoxPopupScreen;
 import com.wordpress.view.dialog.ConnectionInProgressView;
-import com.wordpress.view.dialog.ErrorView;
 import com.wordpress.view.dialog.WaitScreen;
 import com.wordpress.xmlrpc.BlogAuthConn;
 import com.wordpress.xmlrpc.BlogConnResponse;
@@ -298,17 +297,17 @@ public class AddBlogsController extends BaseController {
 						});
 						
 					} else {
-						//IO Exception ad others
-						showErrorDialog((Exception)resp.getResponseObject());
+						//IO Exception ad others errors
+						showUnrecoverableErrorDialog((Exception)resp.getResponseObject());
 					}
 				}		
 			} catch (final Exception e) {
-				showErrorDialog(e);	
+				  displayError(e, "Error while adding blogs");   //Something went really wrong here :(
 			} 
 		}
 	}
 	
-	public void showErrorDialog(final Exception e) {
+	public void showUnrecoverableErrorDialog(final Exception e) {
 	  	//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		Screen scr = UiApplication.getUiApplication().getActiveScreen();
 		if(scr != null) {
@@ -320,25 +319,24 @@ public class AddBlogsController extends BaseController {
 		
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
-				AddBlogsErrorDialog errView;
-				errView = new AddBlogsErrorDialog(e);
-				errView.doModal();
+				new UnrecoverableErrorDialog(e).doModal();
 			}
 		});
 	}
-	private class AddBlogsErrorDialog extends Dialog {
+	
+	private class UnrecoverableErrorDialog extends Dialog {
 
-		public AddBlogsErrorDialog(final Exception e) {
-			super(Dialog.D_OK, e.getMessage() != null ? e.getMessage() : "Sorry, something went wrong while adding your site.", Dialog.OK, Bitmap.getPredefinedBitmap(Bitmap.EXCLAMATION), Dialog.GLOBAL_STATUS);
+		public UnrecoverableErrorDialog(final Exception e) {
+			super(Dialog.D_OK, (e != null && e.getMessage() != null) ? "Unable to find a WordPress site at that URL: " + e.getMessage()+"." : "Unable to find a WordPress site at that URL", 1, Bitmap.getPredefinedBitmap(Bitmap.EXCLAMATION), Dialog.GLOBAL_STATUS);
 			ResourceBundle _resources =  ResourceBundle.getBundle(WordPressResource.BUNDLE_ID, WordPressResource.BUNDLE_NAME);
 			net.rim.device.api.ui.Manager delegate = getDelegate();
 
 			if( ! (delegate instanceof DialogFieldManager) ) return; //Just to make sure everything is ok with the UI. Don't think this will never happen.
 			DialogFieldManager dfm = (DialogFieldManager)delegate;
 			net.rim.device.api.ui.Manager manager = dfm.getCustomManager();
-			if( manager == null || e == null ) return;
+			if( manager == null ) return;
 
-			final String solutionURL = Tools.getFAQLink( e );
+			final String solutionURL = e != null ? Tools.getFAQLink( e ) : null;
 			//Check if we have an FAQ entry for this Exception on the .org site.
 			if ( solutionURL != null ){
 				ButtonField reportIssueBtnField = new ButtonField( _resources.getString( WordPressResource.BUTTON_READ_SOLUTION ));
@@ -350,15 +348,12 @@ public class AddBlogsController extends BaseController {
 				});
 				manager.insert(reportIssueBtnField, manager.getFieldCount());
 			} else {
-				ButtonField supportBtnField = new ButtonField( _resources.getString( WordPressResource.BUTTON_READ_SOLUTION ));
-				supportBtnField.setChangeListener(new FieldChangeListener() {
-					public void fieldChanged(Field field, int context) {
-						Tools.openURL( WordPressInfo.SUPPORT_FAQ_URL );
-						close();
-					}
-				});
-				manager.insert(supportBtnField, manager.getFieldCount());
-				/*There isn't a FAQ. Build the send to support email dialog */
+				
+				LabelField descriptionField = new LabelField("Please, verify the validity of your site with the on-line tool available at http://xmlrpc.eritreo.it before reporting the issue to the support team.");
+				Font fnt = this.getFont().derive(Font.ITALIC);
+				descriptionField.setFont(fnt);
+				manager.insert(descriptionField, manager.getFieldCount());
+				
 				ButtonField reportIssueBtnField = new ButtonField( _resources.getString( WordPressResource.MENUITEM_REPORT_ISSUE ));
 				reportIssueBtnField.setChangeListener(new FieldChangeListener() {
 					public void fieldChanged(Field field, int context) {
@@ -400,7 +395,7 @@ public class AddBlogsController extends BaseController {
 		    					mailContent.append("I expected: \n\n");
 		    					
 		    					mailContent.append("------\n\n");
-		    					mailContent.append(e.getMessage() != null ? e.getMessage() : "");
+		    					mailContent.append((e != null && e.getMessage() != null) ? e.getMessage() : "");
 		    					
 		    					
 		    					m.setContent(mailContent.toString());
@@ -429,9 +424,12 @@ public class AddBlogsController extends BaseController {
 		}
 
 		public void dialogClosed(Dialog dialog, int choice) {
-			if (choice == Dialog.YES) {
+			if (choice == Dialog.OK) {
 				XmlRpcEndpointDialog pw = (XmlRpcEndpointDialog) dialog;
-				addBlogs(1, pw.getUrlFromField(), this.user, this.passwd);
+				if( pw.getUrlFromField().trim().equalsIgnoreCase("http://") ||  pw.getUrlFromField().trim().length() == 0 )
+					displayError("Invalid URL!");
+				else
+					addBlogs(1, pw.getUrlFromField(), this.user, this.passwd);
 			}
 		}
 	}
@@ -442,10 +440,10 @@ public class AddBlogsController extends BaseController {
         private EditField urlField;
 
         public XmlRpcEndpointDialog(){
-            super(Dialog.D_YES_NO, _resources.getString(WordPressResource.MESSAGE_XMLRPC_ENDPOINT), Dialog.NO, Bitmap.getPredefinedBitmap(Bitmap.INFORMATION), Dialog.GLOBAL_STATUS);
+            super(Dialog.D_OK, _resources.getString(WordPressResource.MESSAGE_UNABLE_TO_FIND_WORDPRESS), Dialog.D_OK, Bitmap.getPredefinedBitmap(Bitmap.INFORMATION), Dialog.GLOBAL_STATUS);
             urlField = new EditField(_resources.getString(WordPressResource.LABEL_URL)+ " ", "http://", 100, EditField.EDITABLE);
             urlField.setFilter(new URLTextFilter());
-            LabelField descriptionField = new LabelField("ex: http://example.com/some-folder/xmlrpc.php");
+            LabelField descriptionField = new LabelField("ex: http://example.com/xmlrpc.php");
             Font fnt = this.getFont().derive(Font.ITALIC);
             descriptionField.setFont(fnt);
             

@@ -306,6 +306,7 @@ MESSAGE_STATS_VIEW#0="These are total views of your blog.";
 MESSAGE_STATS_VIEWS_DAY#0="Views per day";
 MESSAGE_STATS_VIEWS_MONTH#0="View per month";
 MESSAGE_STATS_VIEWS_WEEK#0="Views per week";
+MESSAGE_UNABLE_TO_FIND_WORDPRESS#0="Unable to find a WordPress site at that URL. Please, insert the full address to the xmlrpc.php file of your site below.";
 MESSAGE_UNSAVED_CHANGES_LOST#0="Unsaved changes will be lost, are you sure?";
 MESSAGE_VIDEOPRESS_UPGRADE#0={
     "You can upload videos to your blog using the VideoPress upgrade.",
