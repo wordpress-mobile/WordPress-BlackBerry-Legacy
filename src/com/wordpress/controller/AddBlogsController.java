@@ -275,22 +275,21 @@ public class AddBlogsController extends BaseController {
 					return;
 				}
 				
-				if(!resp.isError()) {
-					
-					parseResponse(resp);				
-					
-				} else {
-					final String respMessage=resp.getResponse();
-					if(resp.getResponseObject() instanceof XmlRpcException) { //response from xmlrpc server
-						XmlRpcException responseObject = (XmlRpcException) resp.getResponseObject();
-						if(responseObject.code == 403) { //bad login 
-							displayError( _resources.getString(WordPressResource.MESSAGE_BAD_USERNAME_PASSWORD));
-						} else {
-							displayError(respMessage);
-						}
-					} else if(source == 0) {
-						
-						if(connection.keepGoing) //HTTP Auth btn cancel NOT pressed
+				if( !resp.isError() ) {
+					parseResponse(resp);
+					return;
+				} 
+				
+				//Error handling
+				if(resp.getResponseObject() instanceof XmlRpcException) { //response from xmlrpc server
+					XmlRpcException responseObject = (XmlRpcException) resp.getResponseObject();
+					if(responseObject.code == 403) { //bad login 
+						displayError( _resources.getString(WordPressResource.MESSAGE_BAD_USERNAME_PASSWORD));
+					} else {
+						displayError(responseObject.getMessage());
+					}
+				} else if(source == 0) {
+					if(connection.keepGoing) //HTTP Auth btn cancel NOT pressed
 						UiApplication.getUiApplication().invokeLater(new Runnable() {
 							public void run() {
 								XmlRpcEndpointDialog pw = new XmlRpcEndpointDialog();
@@ -298,12 +297,11 @@ public class AddBlogsController extends BaseController {
 								pw.show();
 							}
 						});
-						
-					} else {
-						//IO Exception ad others errors
-						showUnrecoverableErrorDialog((Exception)resp.getResponseObject());
-					}
-				}		
+				} else {
+					//IO Exception ad others errors
+					showUnrecoverableErrorDialog((Exception)resp.getResponseObject());
+				}
+				
 			} catch (final Exception e) {
 				  displayError(e, "Error while adding blogs");   //Something went really wrong here :(
 			} 
