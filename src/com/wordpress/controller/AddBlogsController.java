@@ -3,14 +3,10 @@ package com.wordpress.controller;
 
 import java.util.Vector;
 
-import net.rim.blackberry.api.invoke.Invoke;
-import net.rim.blackberry.api.invoke.MessageArguments;
-import net.rim.blackberry.api.mail.Address;
-import net.rim.blackberry.api.mail.Message;
 import net.rim.device.api.i18n.ResourceBundle;
+import net.rim.device.api.io.MalformedURIException;
+import net.rim.device.api.io.URI;
 import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.system.DeviceInfo;
-import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
@@ -38,7 +34,6 @@ import com.wordpress.model.BlogInfo;
 import com.wordpress.task.LoadBlogsDataTask;
 import com.wordpress.task.TaskProgressListener;
 import com.wordpress.utils.ImageUtils;
-import com.wordpress.utils.PropertyUtils;
 import com.wordpress.utils.Queue;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
@@ -106,10 +101,29 @@ public class AddBlogsController extends BaseController {
 	//0 = user has inserted the url into the main screen
 	//1 = user has inserted the url into popup dialog   
 	public void addBlogs(int source, String URL, String user, String passwd){
+					
+		if( URL == null 
+			|| URL.trim().length() <= 0
+			|| URL.trim().equalsIgnoreCase("http://")
+			|| URL.trim().equalsIgnoreCase("https://")
+			|| URL.trim().length() <= 0){
+			displayError("Please, insert a valid address!");
+			return;
+		}
+		
+		try {
+			URI.create(URL);
+		} catch( MalformedURIException ex1 ) {
+			displayError("Please, insert a valid address!");
+			return;
+		} catch (IllegalArgumentException ex2 ) {
+			displayError("Please, insert a valid address!");
+			return;
+		}
+		
 		user = user.trim();
 		passwd = passwd.trim();
-        if (URL != null && user != null
-        		&& URL.length() > 0  && user.length() > 0) {
+        if ( user != null  && user.length() > 0 &&  passwd != null  && passwd.length() > 0) {
         	userInsertedURL = URL;
             connection = new BlogAuthConn (URL,user,passwd);
             connection.addObserver(new AddBlogCallBack(source, user, passwd)); 
@@ -126,6 +140,8 @@ public class AddBlogsController extends BaseController {
     		if(choice==Dialog.CANCEL) {
     			connection.stopConnWork(); //stop the connection if the user click on cancel button
     		}
+        } else {
+        	displayError("Please, insert a valid username/password combination");
         }
 	}
 		
@@ -329,9 +345,9 @@ public class AddBlogsController extends BaseController {
 
 		private String getTitle(final Exception e, boolean isWPCom) {
 			if(isWPCom) {
-				return (e != null && e.getMessage() != null) ? "Unable to connect to WordPress: " + e.getMessage()+"." : "Unable to connect to WordPress";
+				return (e != null && e.getMessage() != null) ? "Unable to connect to WordPress.com: " + e.getMessage()+"." : "Unable to connect to WordPress.com";
 			} else {				
-				return (e != null && e.getMessage() != null) ? "Unable to find a WordPress site at that URL: " + e.getMessage()+"." : "Unable to find a WordPress site at that URL";
+				return (e != null && e.getMessage() != null) ? "Unable to connect to " + userInsertedURL + " : " + e.getMessage()+"." : "Unable to connect to " + userInsertedURL;
 			}
 		}
 		
@@ -358,8 +374,9 @@ public class AddBlogsController extends BaseController {
 				});
 				manager.insert(goToTheSolutionBtnField, manager.getFieldCount());
 			} else {
+				//No FAQ for this error.
 				if(isWPCOMCall) {
-					LabelField descriptionField = new LabelField("Please, read the FAQ before contacting the support team.");
+					LabelField descriptionField = new LabelField("Please, review your connection settings and try again.");
 					Font fnt = this.getFont().derive(Font.ITALIC);
 					descriptionField.setFont(fnt);
 					manager.insert(descriptionField, manager.getFieldCount());
@@ -373,66 +390,20 @@ public class AddBlogsController extends BaseController {
 					});
 					manager.insert(readTheFAQBtnField, manager.getFieldCount());
 				} else {
-					LabelField descriptionField = new LabelField("Please, verify the validity of your site with the on-line tool available at http://xmlrpc.eritreo.it before reporting the issue to the support team.");
+					LabelField descriptionField = new LabelField("Please, verify " + userInsertedURL + " with the on-line tool available at http://xmlrpc.eritreo.it, and review your connection settings." );
 					Font fnt = this.getFont().derive(Font.ITALIC);
 					descriptionField.setFont(fnt);
 					manager.insert(descriptionField, manager.getFieldCount());
 				}//End .ORG branch
 				
-				ButtonField reportIssueBtnField = new ButtonField( _resources.getString( WordPressResource.MENUITEM_REPORT_ISSUE ));
+				ButtonField reportIssueBtnField = new ButtonField( "Open Settings" );
 				reportIssueBtnField.setChangeListener(new FieldChangeListener() {
 					public void fieldChanged(Field field, int context) {
 						close();
-						if(context == 0) {
-							try{
-								Message m = new Message();
-								Address a = new Address(WordPressInfo.SUPPORT_EMAIL_ADDRESS, "WordPress Support Team");
-								Address[] addresses = {a};
-								m.addRecipients(net.rim.blackberry.api.mail.Message.RecipientType.TO, addresses);
-
-								String manufacturer = "Manufacturer: " + 
-								(DeviceInfo.getManufacturerName() == null ? " n.a." : DeviceInfo.getManufacturerName());
-								String deviceName =  "Device Name: " + (DeviceInfo.getDeviceName() == null ? " n.a." : DeviceInfo.getDeviceName()); 
-								String deviceSoftwareVersion = "Software Version (OS Version): " + (DeviceInfo.getSoftwareVersion() == null ? " n.a." : DeviceInfo.getSoftwareVersion());
-								String platformVersion = "Platform Version: " + (DeviceInfo.getPlatformVersion() == null ? " n.a." : DeviceInfo.getPlatformVersion()); 
-								String currentNetworkName = "Network Name: " + (RadioInfo.getCurrentNetworkName() == null ? " n.a." : RadioInfo.getCurrentNetworkName());
-
-								StringBuffer mailContent = new StringBuffer();
-								mailContent.append("App Version: "+PropertyUtils.getIstance().getAppVersion()+ "\n");
-
-
-								mailContent.append(manufacturer + "\n");
-								mailContent.append(deviceName + "\n");
-								mailContent.append(platformVersion + "\n" );
-								mailContent.append(deviceSoftwareVersion + "\n");
-								mailContent.append(currentNetworkName + "\n");
-								mailContent.append("\n");
-								mailContent.append("Note: After you send the email, use the Escape Key to return to the application.");
-								mailContent.append("\n");
-								mailContent.append("*** Fill out the form below: ***");
-								mailContent.append("\n");
-								if(userInsertedURL != null) 
-									mailContent.append("Site URL: "+ userInsertedURL +"\n\n");
-								else
-									mailContent.append("Site URL: \n\n");
-								mailContent.append("I did: \n\n");
-								mailContent.append("I saw: \n\n");
-								mailContent.append("I expected: \n\n");
-
-								mailContent.append("------\n\n");
-								mailContent.append((e != null && e.getMessage() != null) ? e.getMessage() : "");
-
-
-								m.setContent(mailContent.toString());
-								m.setSubject("WordPress for BlackBerry Bug Report");
-								Invoke.invokeApplication(Invoke.APP_TYPE_MESSAGES, new MessageArguments(m));
-							} catch (Exception e) {
-								Log.error(e, "Problem invoking BlackBerry Mail App");
-							}
-						}
+						if(context == 0)
+							FrontController.getIstance().showSetupView();
 					}
 				});
-
 				manager.insert(reportIssueBtnField, manager.getFieldCount()); 
 			}
 		}
@@ -451,10 +422,7 @@ public class AddBlogsController extends BaseController {
 		public void dialogClosed(Dialog dialog, int choice) {
 			if (choice == Dialog.OK) {
 				XmlRpcEndpointDialog pw = (XmlRpcEndpointDialog) dialog;
-				if( pw.getUrlFromField().trim().equalsIgnoreCase("http://") ||  pw.getUrlFromField().trim().length() == 0 )
-					displayError("Invalid URL!");
-				else
-					addBlogs(1, pw.getUrlFromField(), this.user, this.passwd);
+				addBlogs(1, pw.getUrlFromField(), this.user, this.passwd);
 			}
 		}
 	}
@@ -468,7 +436,7 @@ public class AddBlogsController extends BaseController {
             super(Dialog.D_OK, _resources.getString(WordPressResource.MESSAGE_UNABLE_TO_FIND_WORDPRESS), Dialog.D_OK, Bitmap.getPredefinedBitmap(Bitmap.INFORMATION), Dialog.GLOBAL_STATUS);
             urlField = new EditField(_resources.getString(WordPressResource.LABEL_URL)+ " ", "http://", 100, EditField.EDITABLE);
             urlField.setFilter(new URLTextFilter());
-            LabelField descriptionField = new LabelField("ex: http://example.com/xmlrpc.php");
+            LabelField descriptionField = new LabelField("ex: http://wordpress.com/xmlrpc.php");
             Font fnt = this.getFont().derive(Font.ITALIC);
             descriptionField.setFont(fnt);
             

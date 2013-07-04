@@ -22,6 +22,7 @@ import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AccountsController;
 import com.wordpress.controller.AddBlogsController;
 import com.wordpress.controller.BaseController;
+import com.wordpress.controller.FrontController;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.component.ClickableLabelField;
@@ -114,6 +115,7 @@ public class AddWPCOMBlogsView extends StandardBaseView {
     		add(buttonsManager); 
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
     		addMenuItem(_addBlogItem);
+    		addMenuItem(_appSettingsItem);
     		this.controller.bumpScreenViewStats("com/wordpress/view/AddWPCOMBlogsView", "AddWPCOMBlogs Screen", "", null, "");
 	}
 	 
@@ -137,6 +139,12 @@ public class AddWPCOMBlogsView extends StandardBaseView {
 			addBlog();
 		}
 	};
+	
+    private MenuItem _appSettingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETUP, 150, 1000) {
+        public void run() {
+        	FrontController.getIstance().showSetupView();
+        }
+    };
 	
 	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {

@@ -23,6 +23,7 @@ import com.wordpress.bb.WordPressCore;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AddBlogsController;
 import com.wordpress.controller.BaseController;
+import com.wordpress.controller.FrontController;
 import com.wordpress.utils.ImageUtils;
 import com.wordpress.view.component.BaseButtonField;
 import com.wordpress.view.container.BorderedFieldManager;
@@ -100,14 +101,16 @@ public class AddBlogsView extends StandardBaseView {
     		add(new LabelField("", Field.NON_FOCUSABLE)); //space after buttons
 
     		addMenuItem(_addBlogItem);
+    		addMenuItem(_appSettingsItem);
     		this.controller.bumpScreenViewStats("com/wordpress/view/AddWPORGBlogsView", "AddWPORGBlogs Screen", "", null, "");
 	}
-
+	
 	private void addBlog() {
 		if (userNameField.getText().trim().length() == 0
 				||  passwordField.getText().trim().length() == 0
 				||  blogUrlField.getText().trim().length() == 0
 		) {
+			controller.displayError("Please, insert a valid username/password combination.");
 			return;
 		}
 		//#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
@@ -123,6 +126,12 @@ public class AddBlogsView extends StandardBaseView {
 			addBlog();
 		}
 	};
+	
+    private MenuItem _appSettingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETUP, 150, 1000) {
+        public void run() {
+        	FrontController.getIstance().showSetupView();
+        }
+    };
 	
 	private FieldChangeListener listenerOkButton = new FieldChangeListener() {
 	    public void fieldChanged(Field field, int context) {
