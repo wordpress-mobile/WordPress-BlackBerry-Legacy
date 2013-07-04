@@ -14,6 +14,7 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
+import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BitmapField;
@@ -27,6 +28,7 @@ import com.wordpress.bb.WordPressInfo;
 import com.wordpress.bb.WordPressResource;
 import com.wordpress.controller.AddBlogsController;
 import com.wordpress.controller.BaseController;
+import com.wordpress.controller.FrontController;
 import com.wordpress.controller.MainController;
 import com.wordpress.utils.Tools;
 import com.wordpress.utils.log.Log;
@@ -130,9 +132,17 @@ public class WelcomeView extends StandardBaseView {
 	   _listData.addElement(_resources.getString(WordPressResource.PROMOSCREEN_BUTTON_HAVE_A_WPORG_BLOG));	
 	   list.setSize(_listData.size());
 	   
+	   addMenuItem(_appSettingsItem);
+	   
 	   mainController.bumpScreenViewStats("com/wordpress/view/WelcomeView", "Welcome Screen", "", null, "");
    }
    
+   
+   private MenuItem _appSettingsItem = new MenuItem( _resources, WordPressResource.MENUITEM_SETUP, 100300, 1000) {
+       public void run() {
+       	FrontController.getIstance().showSetupView();
+       }
+   };
    
    protected void sublayout(int width, int height) {
 	   int topMargin = 5;

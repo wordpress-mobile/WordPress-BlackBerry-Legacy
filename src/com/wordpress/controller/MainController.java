@@ -150,9 +150,9 @@ public class MainController extends BaseController implements TaskProgressListen
 		}
 		
 		//shows the welcome view if blogs are not available
-		if(numberOfBlog <= 0) {
+		/*if(numberOfBlog <= 0) {
 			showWelcomeView();
-		}
+		}*/
 	}
 	
 

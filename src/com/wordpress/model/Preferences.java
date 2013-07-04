@@ -17,9 +17,9 @@ public class Preferences {
     private boolean isUserConnectionWap = false; //flag that indicate that user connetion is wap type
     
     private boolean isWiFiConnectionPermitted = true;
-    private boolean isTcpConnectionPermitted = true;
+    private boolean isTcpConnectionPermitted = false;
     private boolean isBESConnectionPermitted = false;
-    private boolean isServiceBookConnectionPermitted = true; //Wireless service provider WAP 2.0 gateway
+    private boolean isServiceBookConnectionPermitted = false; //Wireless service provider WAP 2.0 gateway
     private boolean isBlackBerryInternetServicePermitted = true; //BlackBerry Internet Service
 
 	private String username = "";
