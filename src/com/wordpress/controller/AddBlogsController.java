@@ -4,14 +4,16 @@ package com.wordpress.controller;
 import java.util.Vector;
 
 import net.rim.device.api.i18n.ResourceBundle;
-import net.rim.device.api.io.MalformedURIException;
-import net.rim.device.api.io.URI;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
+//#ifdef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
+import net.rim.device.api.io.MalformedURIException;
+import net.rim.device.api.io.URI;
+//#endif
 //#ifdef VER_4.7.0 | BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 import net.rim.device.api.ui.VirtualKeyboard;
 //#endif
@@ -83,7 +85,7 @@ public class AddBlogsController extends BaseController {
 		passwd = passwd.trim();
 		isWPCOMCall = true;
         if (user != null && user != null && user.length() > 0) {
-        	connection = new BlogAuthConn ("http://wordpress.com",user,passwd);
+        	connection = new BlogAuthConn ("https://wordpress.com",user,passwd);
             connection.addObserver(new AddBlogCallBack(1, user, passwd)); 
              connectionProgressView= new ConnectionInProgressView(
             		_resources.getString(WordPressResource.CONNECTION_INPROGRESS));
@@ -111,6 +113,7 @@ public class AddBlogsController extends BaseController {
 			return;
 		}
 		
+	  	//#ifdef BlackBerrySDK5.0.0 | BlackBerrySDK6.0.0 | BlackBerrySDK7.0.0
 		try {
 			URI.create(URL);
 		} catch( MalformedURIException ex1 ) {
@@ -120,6 +123,7 @@ public class AddBlogsController extends BaseController {
 			displayError("Please, insert a valid address!");
 			return;
 		}
+    	//#endif
 		
 		user = user.trim();
 		passwd = passwd.trim();
@@ -304,7 +308,7 @@ public class AddBlogsController extends BaseController {
 					} else {
 						displayError(responseObject.getMessage());
 					}
-				} else if(source == 0) {
+				} /*else if(source == 0) {
 					if(connection.keepGoing) //HTTP Auth btn cancel NOT pressed
 						UiApplication.getUiApplication().invokeLater(new Runnable() {
 							public void run() {
@@ -313,7 +317,7 @@ public class AddBlogsController extends BaseController {
 								pw.show();
 							}
 						});
-				} else {
+				}*/ else {
 					//IO Exception ad others errors
 					showUnrecoverableErrorDialog((Exception)resp.getResponseObject());
 				}
@@ -390,13 +394,13 @@ public class AddBlogsController extends BaseController {
 					});
 					manager.insert(readTheFAQBtnField, manager.getFieldCount());
 				} else {
-					LabelField descriptionField = new LabelField("Please, verify " + userInsertedURL + " with the on-line tool available at http://xmlrpc.eritreo.it, and review your connection settings." );
+					LabelField descriptionField = new LabelField("Please, verify " + userInsertedURL + " with the on-line tool available at http://xmlrpc.eritreo.it. Also review your connection settings." );
 					Font fnt = this.getFont().derive(Font.ITALIC);
 					descriptionField.setFont(fnt);
 					manager.insert(descriptionField, manager.getFieldCount());
 				}//End .ORG branch
 				
-				ButtonField reportIssueBtnField = new ButtonField( "Open Settings" );
+				ButtonField reportIssueBtnField = new ButtonField( "Connection Settings" );
 				reportIssueBtnField.setChangeListener(new FieldChangeListener() {
 					public void fieldChanged(Field field, int context) {
 						close();

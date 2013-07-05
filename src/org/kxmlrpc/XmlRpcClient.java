@@ -235,7 +235,8 @@ public class XmlRpcClient {
     		int rc = con.getResponseCode();
     		if( rc != HttpConnection.HTTP_OK ){
     			Log.error("XmlRpcClient - Server Response Error. Server returned HTTP response code: "+ rc);
-    			throw new Exception("Server returned HTTP response code "+rc);
+    			//throw new Exception("Server returned HTTP response code "+rc);
+    			throw new Exception("Server Error " +rc+ ". "+con.getResponseMessage());
     		}
     		
     		// Open an input stream on the server's response
